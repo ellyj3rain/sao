@@ -27,8 +27,9 @@ SAO.History.ticksFromHours=function(h)return h*9000 end
 __witnessSkilled=true
 SAO.Census={skillOf=function(id,perk)
     if id=='a' and perk=='Cooking' then return 3 end
-    if id=='b' and perk=='Foraging' and __witnessSkilled then return 2 end
-    return 0
+    if id=='b' and perk=='PlantScavenging' and __witnessSkilled then return 2 end
+    -- Unknown is the native census sentinel; zero is a known novice skill.
+    return -1
 end}
 SAO.Conditions={memoryFactor=function()return 1 end}
 SAO.Standing.provisioningContextAt=function()return 'personal' end

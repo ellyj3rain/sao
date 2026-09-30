@@ -49,7 +49,9 @@ public final class StudyViewCapture {
         return worker;
     });
     private static ByteBuffer captureBuffer;
-    record FrameStamp(long observerSequence, double hours) { }
+    record FrameStamp(long observerSequence, double hours, StudyObserver.SiteFrame[] sites) {
+        FrameStamp(long observerSequence, double hours) { this(observerSequence, hours, new StudyObserver.SiteFrame[0]); }
+    }
     private static final Map<Object, FrameStamp> FRAMES = Collections.synchronizedMap(new IdentityHashMap<>());
     private static final ThreadLocal<FrameStamp> RENDERED = new ThreadLocal<>();
     private static volatile FrameStamp pendingFrame;
@@ -96,7 +98,7 @@ public final class StudyViewCapture {
         // Game thread: camera and draw buffers are already populated for this
         // exact native state. Do not infer its command from a later timestamp.
         FRAMES.put(frame, new FrameStamp(StudyObserver.commandSequence(),
-            zombie.GameTime.getInstance().getWorldAgeHours()));
+            zombie.GameTime.getInstance().getWorldAgeHours(), StudyObserver.siteFrames()));
     }
 
     public static void rendering() {
@@ -134,7 +136,7 @@ public final class StudyViewCapture {
     static boolean beginCapture(FrameStamp frame, long now) {
         if (pending != null || now < nextCapture || zombie.GameWindow.closeRequested
                 || frame.observerSequence() != StudyObserver.commandSequence()) return false;
-        nextCapture = now + CAPTURE_INTERVAL_MS;
+        nextCapture = now + (StudyObserver.siteFrames().length > 1 ? 100 : CAPTURE_INTERVAL_MS);
         pendingFrame = frame;
         pending = PREFIX + String.format("%016d", ++sequence) + ".png";
         return true;
@@ -247,7 +249,8 @@ public final class StudyViewCapture {
                 + ",\"capturedAtUnixMs\":" + (pendingCapturedAt > 0 ? pendingCapturedAt : System.currentTimeMillis())
                 + ",\"hours\":" + frame.hours()
                 + ",\"image\":{\"file\":\"" + filename + "\",\"sha256\":\"" + sha
-                + "\",\"width\":" + width + ",\"height\":" + height + "}}\n";
+                + "\",\"width\":" + width + ",\"height\":" + height + "}"
+                + siteImages(root, filename, bytes, frame, width, height) + "}\n";
             Path temporary = root.resolve("native.json.tmp");
             // Pair with the observer command's commit monitor. A command that
             // changed during rendering, readback or decoding cannot relabel the
@@ -255,6 +258,7 @@ public final class StudyViewCapture {
             synchronized (StudyObserver.class) {
                 if (frame.observerSequence() != StudyObserver.commandSequence()) {
                     Files.deleteIfExists(source);
+                    for (var site : frame.sites()) Files.deleteIfExists(root.resolve(filename.replace(".png", "-site" + site.slot() + ".png")));
                     return;
                 }
                 Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
@@ -269,6 +273,34 @@ public final class StudyViewCapture {
             pendingCapturedAt = 0;
             pending = null;
         }
+    }
+
+    private static String siteImages(Path root, String filename, byte[] bytes, FrameStamp frame,
+                                     int width, int height) throws Exception {
+        if (frame.sites().length == 0) return "";
+        BufferedImage full = ImageIO.read(new ByteArrayInputStream(bytes));
+        StringBuilder result = new StringBuilder(",\"views\":[");
+        for (int index = 0; index < frame.sites().length; index++) {
+            var site = frame.sites()[index];
+            if (site.left() < 0 || site.top() < 0 || site.width() < 1 || site.height() < 1
+                    || site.left() + site.width() > width || site.top() + site.height() > height)
+                throw new IOException("native site viewport lies outside its rendered framebuffer");
+            BufferedImage crop = full.getSubimage(site.left(), site.top(), site.width(), site.height());
+            String name = filename.substring(0, filename.length() - 4) + "-site" + site.slot() + ".png";
+            Path sitePath = root.resolve(name);
+            writePng(crop, sitePath);
+            byte[] data = Files.readAllBytes(sitePath);
+            String hash = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(data));
+            if (index != 0) result.append(',');
+            result.append("{\"id\":\"").append(site.id()).append("\",\"label\":\"")
+                .append(site.label().replace("\\", "\\\\").replace("\"", "\\\""))
+                .append("\",\"slot\":").append(site.slot()).append(",\"x\":").append(site.x())
+                .append(",\"y\":").append(site.y()).append(",\"z\":").append(site.z())
+                .append(",\"left\":").append(site.left()).append(",\"top\":").append(site.top())
+                .append(",\"image\":{\"file\":\"").append(name).append("\",\"sha256\":\"").append(hash)
+                .append("\",\"width\":").append(site.width()).append(",\"height\":").append(site.height()).append("}}");
+        }
+        return result.append(']').toString();
     }
 
     private static boolean publishManifest(Path temporary, Path manifest, Path candidate) throws IOException {
@@ -297,9 +329,9 @@ public final class StudyViewCapture {
         // Rejected/stale captures leave sequence gaps. Retain eight published
         // images, rather than deleting only one possibly absent N-8 filename.
         try (var files = Files.list(root)) {
-            for (Path old : files.filter(path -> path.getFileName().toString().matches("study-live-[0-9]{16}\\.png"))
+            for (Path old : files.filter(path -> path.getFileName().toString().matches("study-live-[0-9]{16}(?:-site[0-3])?\\.png"))
                     .sorted((left, right) -> right.getFileName().toString().compareTo(left.getFileName().toString()))
-                    .skip(8).toList()) Files.deleteIfExists(old);
+                    .skip(8 * (1 + StudyObserver.siteFrames().length)).toList()) Files.deleteIfExists(old);
         }
     }
 

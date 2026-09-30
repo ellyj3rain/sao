@@ -1276,6 +1276,61 @@ end
 -- A contact attempt is movement toward a privately known address for one
 -- current addressed revision.  It is durable evidence of trying to convene,
 -- not evidence that the recipient was there or heard anything.
+local MAX_CONTACT_ROUTE_FAILURES = 3
+local CONTACT_ROUTE_RETRY_HOURS = 1 / 60
+local CONTACT_APPROACH_CHANGE_DISTANCE = 2
+
+-- The originator can reconsider only their own physically failed approach.
+-- A refreshed timestamp at the same address is not changed route evidence.
+function Org.contactRouteMayStart(processId, originatorId, recipientId, evidence)
+    local process = processOf(processId)
+    originatorId, recipientId = identity(originatorId), identity(recipientId)
+    if not process or process.originatorId ~= originatorId
+        or not recipientId or type(evidence) ~= "table"
+        or not finite(evidence.x) or not finite(evidence.y) or not finite(evidence.z)
+        or not finite(evidence.fromX) or not finite(evidence.fromY)
+        or not finite(evidence.fromZ) then return false, "contact-route-evidence-unavailable" end
+    local count, latest = 0, nil
+    for index = #(process.contactAttempts or {}), 1, -1 do
+        local attempt = process.contactAttempts[index]
+        if attempt.actorId == originatorId and attempt.recipientId == recipientId then
+            if attempt.arrivedAt or attempt.status == "received" then break end
+            local prior = attempt.evidence or {}
+            local outcome = attempt.outcomeEvidence or {}
+            local physicalFailure = attempt.status == "failed" and prior.owner == "SAO.Controller"
+                and prior.representation == "loaded" and finite(prior.x) and finite(prior.y)
+                and finite(prior.z) and finite(prior.fromX) and finite(prior.fromY)
+                and finite(prior.fromZ) and finite(attempt.endedAt)
+                and outcome.reason == "native-route-did-not-arrive"
+                and type(outcome.locomotionStatus) == "string"
+                and outcome.locomotionStatus:sub(1, 5) == "done:"
+                and not outcome.locomotionStatus:find("arrived", 1, true)
+            local changedAddress = finite(prior.x) and finite(prior.y)
+                and (math.floor(prior.x) ~= math.floor(evidence.x)
+                    or math.floor(prior.y) ~= math.floor(evidence.y)
+                    or finite(prior.z) and math.floor(prior.z) ~= math.floor(evidence.z))
+                and evidence.source == "observed"
+                and finite(evidence.observedAt) and finite(prior.observedAt)
+                and evidence.observedAt > prior.observedAt
+            local changedApproach = finite(prior.fromX) and finite(prior.fromY)
+                and finite(prior.fromZ)
+                and ((prior.fromX - evidence.fromX) ^ 2 + (prior.fromY - evidence.fromY) ^ 2
+                    >= CONTACT_APPROACH_CHANGE_DISTANCE * CONTACT_APPROACH_CHANGE_DISTANCE
+                    or math.floor(prior.fromZ) ~= math.floor(evidence.fromZ))
+            if physicalFailure then
+                if changedAddress or changedApproach then break end
+                count, latest = count + 1, latest or attempt
+            end
+        end
+    end
+    if latest and nowHours() < (tonumber(latest.endedAt) or nowHours())
+        + CONTACT_ROUTE_RETRY_HOURS * math.min(4, 2 ^ math.max(0, count - 1)) then
+        return false, "contact-route-backoff"
+    end
+    if count >= MAX_CONTACT_ROUTE_FAILURES then return false, "contact-route-awaits-changed-evidence" end
+    return true
+end
+
 function Org.beginContact(processId, originatorId, recipientId, evidence)
     local process = processOf(processId)
     originatorId, recipientId = identity(originatorId), identity(recipientId)

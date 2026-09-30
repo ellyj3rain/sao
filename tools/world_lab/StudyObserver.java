@@ -49,9 +49,13 @@ public final class StudyObserver {
     public static final String MARKER = "SAO_ObserverAnchor";
     private static final Set<String> CONTROL_KEYS = Set.of("sequence", "viewX", "viewY", "viewZ",
         "residencyX", "residencyY", "residencyZ", "paused", "speed", "stop",
-        "selectedPersonId", "panelId", "panelPersonId", "panelVisible", "zoomStep", "opponentShare", "opportunitiesPerHour", "maxDepth");
+        "selectedPersonId", "panelId", "panelPersonId", "panelVisible", "zoomStep", "siteId", "opponentShare", "opportunitiesPerHour", "maxDepth");
     private static Anchor anchor;
     private static View camera;
+    private static Anchor[] extraAnchors = new Anchor[0];
+    private static View[] extraCameras = new View[0];
+    private static String[] siteIds = { "main" }, siteLabels = { "Main view" };
+    private static float[][] siteOrigins;
     private static IsoCell cell;
     private static Path controlFile, stateFile;
     private static float originX, originY, originZ, minX, minY, maxX, maxY;
@@ -59,10 +63,11 @@ public final class StudyObserver {
     private static long rejectedSequence = -1, nextPoll, nextState, logicCalls;
     private static long suppressedBirths, suppressedSaves, suppressedUpdates;
     private static long streamingChecks;
+    private static long retainedResidencies;
     private static final AtomicLong blockedAdmissions = new AtomicLong();
     private static double startHours;
     private static int desiredSpeed = 1;
-    private static boolean stopping, stopIssued, statePublicationFailed;
+    private static boolean stopping, stopIssued, statePublicationFailed, contextFailed;
     private static final int MAX_STATE_DEFERRALS = 30;
     private static int stateDeferrals;
     private static volatile boolean initializing, ready;
@@ -189,7 +194,8 @@ public final class StudyObserver {
 
     private static boolean ownsSlots() {
         if (anchor == null || IsoPlayer.players[0] != anchor) return false;
-        for (int i = 1; i < IsoPlayer.players.length; i++) if (IsoPlayer.players[i] != null) return false;
+        for (int i = 1; i < IsoPlayer.players.length; i++)
+            if (IsoPlayer.players[i] != (i <= extraAnchors.length ? extraAnchors[i - 1] : null)) return false;
         return true;
     }
 
@@ -282,6 +288,25 @@ public final class StudyObserver {
         maxX = property("study.maxX"); maxY = property("study.maxY");
         if (maxX <= minX || maxY <= minY) throw new IllegalArgumentException("invalid study extent");
         bounded(originX, originY, originZ);
+        int count = Integer.parseInt(System.getProperty("study.siteCount", "1"));
+        if (count < 1 || count > 4) throw new IllegalArgumentException("native observation site count outside 1..4");
+        siteOrigins = new float[count][3]; siteIds = new String[count]; siteLabels = new String[count];
+        Set<String> ids = new java.util.HashSet<>(), locations = new java.util.HashSet<>();
+        for (int index = 0; index < count; index++) {
+            String prefix = "study.site." + index + ".";
+            siteIds[index] = System.getProperty(prefix + "id", index == 0 ? "main" : "site-" + index);
+            siteLabels[index] = System.getProperty(prefix + "label", index == 0 ? "Main view" : "Site " + index);
+            if (!siteIds[index].matches("[a-z][a-z0-9-]{0,47}") || !ids.add(siteIds[index])
+                    || siteLabels[index].isEmpty() || siteLabels[index].length() > 160
+                    || siteLabels[index].chars().anyMatch(value -> value < 32 || value >= 127))
+                throw new IllegalArgumentException("invalid native observation site identity");
+            siteOrigins[index][0] = Float.parseFloat(System.getProperty(prefix + "x", Float.toString(originX)));
+            siteOrigins[index][1] = Float.parseFloat(System.getProperty(prefix + "y", Float.toString(originY)));
+            siteOrigins[index][2] = Float.parseFloat(System.getProperty(prefix + "z", Float.toString(originZ)));
+            bounded(siteOrigins[index][0], siteOrigins[index][1], siteOrigins[index][2]);
+            if (!locations.add(Arrays.toString(siteOrigins[index])))
+                throw new IllegalArgumentException("native observation sites share a position");
+        }
         controlFile = absoluteProperty("study.observerControl");
         stateFile = absoluteProperty("study.observerState");
         if (controlFile != null && controlFile.equals(stateFile))
@@ -314,7 +339,22 @@ public final class StudyObserver {
         anchor.serverPlayerIndex = -1;
         anchor.setOnlineID((short) -1);
         anchor.sqlId = -1;
-        IsoPlayer.numPlayers = 1;
+        extraAnchors = new Anchor[siteOrigins.length - 1];
+        extraCameras = new View[extraAnchors.length];
+        for (int index = 1; index < siteOrigins.length; index++) {
+            Anchor resident = new Anchor(); View view = new View();
+            position(resident, siteOrigins[index][0], siteOrigins[index][1], siteOrigins[index][2]);
+            position(view, siteOrigins[index][0], siteOrigins[index][1], siteOrigins[index][2]);
+            resident.playerIndex = index; resident.serverPlayerIndex = -1;
+            resident.setOnlineID((short) -1); resident.sqlId = -1;
+            extraAnchors[index - 1] = resident; extraCameras[index - 1] = view;
+            IsoPlayer.players[index] = resident;
+            cell.getChunkMap(index).ignore = false;
+            // Native split-screen joins activate their own Bullet residency
+            // map. WorldSimulation.create initializes map zero only.
+            WorldSimulation.instance.activateChunkMap(index);
+        }
+        IsoPlayer.numPlayers = siteOrigins.length;
         IsoPlayer.players[0] = anchor;
         IsoPlayer.setInstance(anchor);
         IsoCamera.setCameraCharacter(camera);
@@ -335,9 +375,24 @@ public final class StudyObserver {
     public static void poll() {
         if (!ready || GameWindow.closeRequested) return;
         requireGameThread();
+        if (!contextFailed) {
+            String failure = contextFailure();
+            if (failure != null) failContext(failure);
+        }
+        if (contextFailed) {
+            long now = System.currentTimeMillis();
+            if (now >= nextState) {
+                nextState = now + 100;
+                if (writeState() || statePublicationFailed) finishStop();
+            }
+            return;
+        }
         logicCalls++;
         refreshSquare(anchor);
         refreshSquare(camera);
+        for (int index = 0; index < extraAnchors.length; index++) {
+            refreshSquare(extraAnchors[index]); refreshSquare(extraCameras[index]);
+        }
         long now = System.currentTimeMillis();
         if (stopping) {
             if (now >= nextState) {
@@ -357,11 +412,55 @@ public final class StudyObserver {
         }
     }
 
+    private static String contextFailure() {
+        if (cell != IsoWorld.instance.currentCell) return "native world replaced the owned observer cell";
+        if (!ownsSlots() || IsoPlayer.numPlayers != siteIds.length)
+            return "native observer player slots/count changed: count=" + IsoPlayer.numPlayers;
+        for (int index = 0; index < siteIds.length; index++) {
+            IsoChunkMap map = cell.getChunkMap(index);
+            if (map == null || map.ignore || map.playerId != index)
+                return "native observer chunk map unavailable: slot=" + index + " site=" + siteIds[index]
+                    + " map=" + (map == null ? "null" : "playerId=" + map.playerId + " ignore=" + map.ignore);
+        }
+        return null;
+    }
+
+    /** Preserve the original streaming exception before native update resets its
+     * world. Do not replace a missing map or suppress the failed native call. */
+    public static void streamingFailure(Object nativeMap, Object actor, Throwable failure) {
+        if (!ready || !isObserver(actor) || failure == null) return;
+        IsoChunkMap map = (IsoChunkMap) nativeMap;
+        IsoGameCharacter character = (IsoGameCharacter) actor;
+        failContext("native observer streaming failed: slot=" + map.playerId + " map=" + map.worldX + "," + map.worldY
+            + " residency=" + character.getX() + "," + character.getY() + "," + character.getZ()
+            + " cause=" + failure.getClass().getSimpleName() + ": " + failure.getMessage());
+        writeState();
+    }
+
+    private static void failContext(String message) {
+        if (contextFailed) return;
+        contextFailed = true;
+        runtimeFailure = message.length() > 1024 ? message.substring(0, 1024) : message;
+        // Retain the last verified world clock, geometry and ownership witness.
+        // Refreshing those fields against an already disposed cell would lie or
+        // throw repeatedly. Only the failure status/publication time changes.
+        lastSnapshot = lastSnapshot.replaceFirst("\"status\":\"[^\"]*\"", "\"status\":\"failed\"")
+            .replaceFirst("\"updatedAtUnixMs\":[0-9]+", "\"updatedAtUnixMs\":" + System.currentTimeMillis())
+            .replaceFirst("\"failure\":(?:null|\"(?:[^\"\\\\]|\\\\.)*\")",
+                java.util.regex.Matcher.quoteReplacement("\"failure\":" + quote(runtimeFailure)));
+        nextState = 0;
+        System.err.println("[StudyObserver] FAILED " + runtimeFailure);
+    }
+
     public static Object cameraFor(Object requested) {
+        if (ready) for (int index = 0; index < extraAnchors.length; index++)
+            if (requested == extraAnchors[index]) return extraCameras[index];
         return ready && requested == anchor ? camera : requested;
     }
 
     public static Object residencyFor(Object requested) {
+        if (ready) for (int index = 0; index < extraCameras.length; index++)
+            if (requested == extraCameras[index]) return extraAnchors[index];
         return ready && requested == camera ? anchor : requested;
     }
 
@@ -386,7 +485,8 @@ public final class StudyObserver {
      * The tree object, its square, damage and simulation flags are unchanged.
      */
     public static boolean cutawayCanopy(int playerIndex) {
-        return playerIndex == 0 && hostOnly() && zombie.core.PerformanceSettings.fboRenderChunk;
+        return playerIndex >= 0 && playerIndex <= extraAnchors.length && hostOnly()
+            && zombie.core.PerformanceSettings.fboRenderChunk;
     }
 
     public static boolean hideCharacterPreview(Object widget, Object character) {
@@ -398,28 +498,65 @@ public final class StudyObserver {
     public static void frameState(Object state) {
         if (!ready) return;
         IsoCamera.FrameState frame = (IsoCamera.FrameState) state;
-        if (frame.playerIndex != 0 || IsoPlayer.players[0] != anchor) return;
-        frame.camCharacter = camera;
-        frame.camCharacterX = camera.getX(); frame.camCharacterY = camera.getY();
-        frame.camCharacterZ = camera.getZ();
-        frame.camCharacterSquare = camera.getCurrentSquare();
+        int index = frame.playerIndex;
+        if (index < 0 || index > extraCameras.length) return;
+        View view = index == 0 ? camera : extraCameras[index - 1];
+        Anchor resident = index == 0 ? anchor : extraAnchors[index - 1];
+        if (IsoPlayer.players[index] != resident) return;
+        frame.camCharacter = view;
+        frame.camCharacterX = view.getX(); frame.camCharacterY = view.getY();
+        frame.camCharacterZ = view.getZ();
+        frame.camCharacterSquare = view.getCurrentSquare();
         frame.camCharacterRoom = frame.camCharacterSquare == null ? null : frame.camCharacterSquare.getRoom();
     }
 
     /** Data-only methods must be called from native game-thread work. */
     public static void setView(float x, float y, float z) {
+        setView(0, x, y, z);
+    }
+
+    private static void setView(int slot, float x, float y, float z) {
         requireGameThread(); bounded(x, y, z);
-        position(camera, x, y, z);
-        IsoCamera.setCameraCharacter(camera);
-        IsoCamera.cameras[0].center();
+        View view = slot == 0 ? camera : extraCameras[slot - 1];
+        position(view, x, y, z);
+        if (slot == 0) IsoCamera.setCameraCharacter(camera);
+        IsoCamera.cameras[slot].center();
     }
 
     public static void setResidency(float x, float y, float z) {
+        setResidency(0, x, y, z);
+    }
+
+    private static void setResidency(int slot, float x, float y, float z) {
         requireGameThread(); bounded(x, y, z);
-        position(anchor, x, y, z);
-        IsoPlayer.setInstance(anchor);
+        position(slot == 0 ? anchor : extraAnchors[slot - 1], x, y, z);
+        if (slot == 0) IsoPlayer.setInstance(anchor);
         // The ordinary native chunk-map update performs streaming on its next
         // update. No world actor is teleported, added, removed or instructed.
+    }
+
+    private static void cameraResidency(int slot, float rx, float ry, float rz, float vx, float vy, float vz) {
+        // Regional camera visits need not scroll the native chunk map whenever
+        // their detached View moves. Retain real residency only while that
+        // slot's actual loaded square lies inside a one-chunk boundary margin.
+        // Independently specified residency retains its literal setter contract.
+        if (extraAnchors.length > 0 && rx == vx && ry == vy && rz == vz
+                && loadedInterior(cell.getChunkMap(slot), vx, vy, vz)) {
+            retainedResidencies++;
+            return;
+        }
+        setResidency(slot, rx, ry, rz);
+    }
+
+    private static boolean loadedInterior(IsoChunkMap map, float x, float y, float z) {
+        if (map == null || map.ignore) return false;
+        int tx = (int) Math.floor(x), ty = (int) Math.floor(y), tz = (int) Math.floor(z);
+        int margin = IsoChunkMap.CHUNK_SIZE_IN_SQUARES;
+        if (tx < map.getWorldXMinTiles() + margin || tx >= map.getWorldXMaxTiles() - margin
+            || ty < map.getWorldYMinTiles() + margin || ty >= map.getWorldYMaxTiles() - margin) return false;
+        var chunk = map.getChunkForGridSquare(tx, ty);
+        return chunk != null && chunk.loaded && chunk.getGridSquare(Math.floorMod(tx, margin),
+            Math.floorMod(ty, margin), tz) != null;
     }
 
     /** Readers on the render/bridge thread receive the last game-thread snapshot. */
@@ -444,12 +581,19 @@ public final class StudyObserver {
             if (candidate <= sequence || candidate == rejectedSequence) return;
             if (!CONTROL_KEYS.containsAll(values.stringPropertyNames()))
                 throw new IllegalArgumentException("unknown control key");
-            float vx = coordinate(values, "viewX", camera.getX());
-            float vy = coordinate(values, "viewY", camera.getY());
-            float vz = coordinate(values, "viewZ", camera.getZ());
-            float rx = coordinate(values, "residencyX", anchor.getX());
-            float ry = coordinate(values, "residencyY", anchor.getY());
-            float rz = coordinate(values, "residencyZ", anchor.getZ());
+            int slot = 0;
+            if (values.containsKey("siteId")) {
+                slot = Arrays.asList(siteIds).indexOf(values.getProperty("siteId"));
+                if (slot < 0) throw new IllegalArgumentException("unknown native site");
+            }
+            View controlledView = slot == 0 ? camera : extraCameras[slot - 1];
+            Anchor controlledAnchor = slot == 0 ? anchor : extraAnchors[slot - 1];
+            float vx = coordinate(values, "viewX", controlledView.getX());
+            float vy = coordinate(values, "viewY", controlledView.getY());
+            float vz = coordinate(values, "viewZ", controlledView.getZ());
+            float rx = coordinate(values, "residencyX", controlledAnchor.getX());
+            float ry = coordinate(values, "residencyY", controlledAnchor.getY());
+            float rz = coordinate(values, "residencyZ", controlledAnchor.getZ());
             bounded(vx, vy, vz); bounded(rx, ry, rz);
             int speed = Integer.parseInt(values.getProperty("speed", Integer.toString(desiredSpeed)));
             if (speed < 1 || speed > 3) throw new IllegalArgumentException("speed must be 1, 2 or 3");
@@ -478,14 +622,15 @@ public final class StudyObserver {
             int zoomStep = 0;
             float nextZoom = 0;
             if (zoom) {
-                if (!values.stringPropertyNames().equals(Set.of("sequence", "zoomStep")))
+                Set<String> allowedZoom = values.containsKey("siteId") ? Set.of("sequence", "zoomStep", "siteId") : Set.of("sequence", "zoomStep");
+                if (!values.stringPropertyNames().equals(allowedZoom))
                     throw new IllegalArgumentException("zoom requests must be independent");
                 zoomStep = Integer.parseInt(values.getProperty("zoomStep"));
                 if (zoomStep != -1 && zoomStep != 1)
                     throw new IllegalArgumentException("zoomStep must be -1 or 1");
                 float[] levels = nativeZoomLevels();
                 if (levels.length == 0) throw new IllegalStateException("native zoom is unavailable");
-                nextZoom = Core.getInstance().getNextZoom(0, zoomStep);
+                nextZoom = Core.getInstance().getNextZoom(slot, zoomStep);
                 if (Arrays.binarySearch(levels, nextZoom) < 0)
                     throw new IllegalStateException("native zoom did not select a configured level");
             }
@@ -507,13 +652,13 @@ public final class StudyObserver {
                     throw new IllegalStateException("cognition settings were not applied");
             } else if (zoom) {
                 Core core = Core.getInstance();
-                core.setAutoZoom(0, false);
-                core.doZoomScroll(0, zoomStep);
-                if (core.offscreenBuffer.getTargetZoom(0) != nextZoom)
+                core.setAutoZoom(slot, false);
+                core.doZoomScroll(slot, zoomStep);
+                if (core.offscreenBuffer.getTargetZoom(slot) != nextZoom)
                     throw new IllegalStateException("native zoom target was not applied");
                 // Use the installed immediate setter so one command sequence
                 // names one projection scale, including while the world pauses.
-                core.offscreenBuffer.setZoomAndTargetZoom(0, nextZoom);
+                core.offscreenBuffer.setZoomAndTargetZoom(slot, nextZoom);
             } else if (selection || panel) {
                 Object applied = selection ? observationCall("select", inspectionId)
                     : observationCall("panel", "person-inspection", inspectionId, panelVisible);
@@ -527,7 +672,7 @@ public final class StudyObserver {
                 selectedPersonId = inspectionId;
                 inspectionError = null;
             } else {
-                setResidency(rx, ry, rz); setView(vx, vy, vz);
+                cameraResidency(slot, rx, ry, rz, vx, vy, vz); setView(slot, vx, vy, vz);
             }
             if (changeClock) {
                 desiredSpeed = speed;
@@ -588,11 +733,15 @@ public final class StudyObserver {
     }
 
     private static String viewportSnapshot() {
+        return viewportSnapshot(0);
+    }
+
+    private static String viewportSnapshot(int slot) {
         float[] levels = nativeZoomLevels();
         if (levels.length == 0) return "";
         MultiTextureFBO2 buffer = Core.getInstance().offscreenBuffer;
-        return ",\"viewport\":{\"zoom\":" + buffer.getZoom(0)
-            + ",\"targetZoom\":" + buffer.getTargetZoom(0)
+        return ",\"viewport\":{\"zoom\":" + buffer.getZoom(slot)
+            + ",\"targetZoom\":" + buffer.getTargetZoom(slot)
             + ",\"zoomLevels\":" + Arrays.toString(levels) + "}";
     }
 
@@ -658,7 +807,10 @@ public final class StudyObserver {
     }
 
     private static int members(Set<IsoMovingObject> values) {
-        return (values.contains(anchor) ? 1 : 0) + (values.contains(camera) ? 1 : 0);
+        int result = (values.contains(anchor) ? 1 : 0) + (values.contains(camera) ? 1 : 0);
+        for (int index = 0; index < extraAnchors.length; index++)
+            result += (values.contains(extraAnchors[index]) ? 1 : 0) + (values.contains(extraCameras[index]) ? 1 : 0);
+        return result;
     }
 
     private static int squareMemberships() {
@@ -682,6 +834,12 @@ public final class StudyObserver {
                                 if (square.getMovingObjects().contains(camera)) count++;
                                 if (square.getStaticMovingObjects().contains(anchor)) count++;
                                 if (square.getStaticMovingObjects().contains(camera)) count++;
+                                for (int index = 0; index < extraAnchors.length; index++) {
+                                    if (square.getMovingObjects().contains(extraAnchors[index])) count++;
+                                    if (square.getMovingObjects().contains(extraCameras[index])) count++;
+                                    if (square.getStaticMovingObjects().contains(extraAnchors[index])) count++;
+                                    if (square.getStaticMovingObjects().contains(extraCameras[index])) count++;
+                                }
                             }
                 }
         }
@@ -689,6 +847,11 @@ public final class StudyObserver {
     }
 
     private static boolean detached() {
+        for (int index = 0; index < extraAnchors.length; index++)
+            if (extraAnchors[index].getMovingSquare() != null || extraCameras[index].getMovingSquare() != null
+                    || extraAnchors[index].isAddedToModelManager() || extraCameras[index].isAddedToModelManager()
+                    || extraAnchors[index].sqlId != -1
+                    || IsoGameCharacter.getSurvivorMap().containsValue(extraAnchors[index].getDescriptor())) return false;
         return members(cell.getObjectList()) == 0 && members(cell.getAddList()) == 0
             && members(cell.getRemoveList()) == 0 && anchor.getMovingSquare() == null
             && camera.getMovingSquare() == null && !anchor.isAddedToModelManager()
@@ -734,14 +897,24 @@ public final class StudyObserver {
             + ",\"suppressedBirths\":" + suppressedBirths + ",\"suppressedUpdates\":" + suppressedUpdates
             + ",\"blockedAdmissions\":" + blockedAdmissions.get()
             + ",\"streamingChecks\":" + streamingChecks
+            + ",\"retainedResidencies\":" + retainedResidencies
             + ",\"anchorIdentity\":" + quote(Integer.toHexString(System.identityHashCode(anchor)))
             + ",\"viewIdentity\":" + quote(Integer.toHexString(System.identityHashCode(camera)))
+            + ",\"sites\":" + siteSnapshot()
             + streamingSnapshot()
             + lightingSnapshot()
             + ",\"nativeAlive\":" + anchor.isAlive() + ",\"ghost\":" + anchor.isGhostMode()
             + ",\"zombiesDontAttack\":" + anchor.isZombiesDontAttack()
             + ",\"collidable\":" + anchor.isCollidable() + ",\"error\":" + quote(error)
             + ",\"failure\":" + quote(runtimeFailure) + "}\n";
+        boolean published = writeState();
+        if (immediate) System.out.println("[StudyObserver] state sequence=" + sequence + " detached=" + absent
+            + " objects=" + objects + " squares=" + squares + " sqlId=" + anchor.sqlId
+            + " hours=" + hours + " suppressedSaves=" + suppressedSaves);
+        return published;
+    }
+
+    private static boolean writeState() {
         boolean published = true;
         if (stateFile != null) {
             try {
@@ -764,10 +937,49 @@ public final class StudyObserver {
                 statePublicationFailure(failure);
             }
         }
-        if (immediate) System.out.println("[StudyObserver] state sequence=" + sequence + " detached=" + absent
-            + " objects=" + objects + " squares=" + squares + " sqlId=" + anchor.sqlId
-            + " hours=" + hours + " suppressedSaves=" + suppressedSaves);
         return published;
+    }
+
+    public static String siteSnapshot() {
+        StringBuilder result = new StringBuilder("[");
+        for (int index = 0; index <= extraAnchors.length; index++) {
+            Anchor resident = index == 0 ? anchor : extraAnchors[index - 1];
+            View view = index == 0 ? camera : extraCameras[index - 1];
+            if (index != 0) result.append(',');
+            IsoChunkMap map = cell.getChunkMap(index);
+            int loaded = 0;
+            for (int x = 0; x < IsoChunkMap.chunkGridWidth; x++) for (int y = 0; y < IsoChunkMap.chunkGridWidth; y++) {
+                var chunk = map.getChunk(x, y); if (chunk != null && chunk.loaded) loaded++;
+            }
+            result.append("{\"id\":").append(quote(siteIds[index])).append(",\"label\":").append(quote(siteLabels[index]))
+                .append(",\"slot\":").append(index).append(",\"residencyX\":").append(resident.getX())
+                .append(",\"residencyY\":").append(resident.getY()).append(",\"residencyZ\":").append(resident.getZ())
+                .append(",\"viewX\":").append(view.getX()).append(",\"viewY\":").append(view.getY())
+                .append(",\"viewZ\":").append(view.getZ()).append(",\"loadedChunks\":").append(loaded)
+                .append(",\"left\":").append(IsoCamera.getScreenLeft(index)).append(",\"top\":").append(IsoCamera.getScreenTop(index))
+                .append(",\"width\":").append(IsoCamera.getScreenWidth(index)).append(",\"height\":").append(IsoCamera.getScreenHeight(index))
+                .append(",\"anchorIdentity\":").append(quote(Integer.toHexString(System.identityHashCode(resident))))
+                .append(",\"viewIdentity\":").append(quote(Integer.toHexString(System.identityHashCode(view))))
+                .append(",\"playerSqlId\":").append(resident.sqlId).append(",\"nativeAlive\":").append(resident.isAlive())
+                .append(",\"ghost\":").append(resident.isGhostMode()).append(",\"collidable\":").append(resident.isCollidable())
+                .append(viewportSnapshot(index)).append('}');
+        }
+        return result.append(']').toString();
+    }
+
+    public record SiteFrame(String id, String label, int slot, float x, float y, float z,
+                            int left, int top, int width, int height) { }
+
+    public static SiteFrame[] siteFrames() {
+        if (extraCameras.length == 0) return new SiteFrame[0];
+        SiteFrame[] result = new SiteFrame[siteIds.length];
+        for (int index = 0; index < result.length; index++) {
+            View view = index == 0 ? camera : extraCameras[index - 1];
+            result[index] = new SiteFrame(siteIds[index], siteLabels[index], index, view.getX(), view.getY(), view.getZ(),
+                IsoCamera.getScreenLeft(index), IsoCamera.getScreenTop(index),
+                IsoCamera.getScreenWidth(index), IsoCamera.getScreenHeight(index));
+        }
+        return result;
     }
 
     private static void statePublicationFailure(IOException cause) {

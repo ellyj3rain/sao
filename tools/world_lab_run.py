@@ -71,7 +71,15 @@ def native_lots_evidence(mods, definition):
 def publish(path, value):
     temporary = path.with_name(path.name + ".tmp")
     temporary.write_bytes(Lab.canonical(value))
-    os.replace(temporary, path)
+    # Native supervision and the memory guard read this receipt independently.
+    # Windows can briefly deny replacement while a reader owns the old handle.
+    for retry in range(20):
+        try:
+            os.replace(temporary, path)
+            return
+        except PermissionError:
+            if retry == 19: raise
+            time.sleep(0.05)
 
 
 def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None):
@@ -116,7 +124,8 @@ def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None)
     # B42 otherwise treats a brand-new cache as a pre-B42 migration and clears
     # default.txt. These copied mods already carry native B42 version folders.
     (mods / "reset-mods-42_00.txt").write_text("Prepared with B42 study mods.\n", encoding="utf-8")
-    (cache / "options.ini").write_text("version=8\nwidth=960\nheight=540\nfullScreen=false\n"
+    dimensions = "width=1920\nheight=1080\n" if len(definition["observation"].get("sites", [])) > 1 else "width=960\nheight=540\n"
+    (cache / "options.ini").write_text("version=8\n" + dimensions + "fullScreen=false\n"
         "borderless=false\nlanguage=EN\ntermsOfServiceVersion=1\nsoundVolume=0\nmusicVolume=0\n"
         "ambientVolume=0\nvehicleEngineVolume=0\nvsync=false\nuncappedFPS=false\n"
         "showSurvivalGuide=false\n", encoding="utf-8")
@@ -355,8 +364,39 @@ def observer_evidence(destination, receipt=None):
     width, height = native_png(data)
     Lab.require(0 < width <= 4096 and 0 < height <= 2160
                 and (width, height) == (image["width"], image["height"]), "native viewport dimensions differ")
+    paths = [state_path, view_path, image_path]
+    if "views" in view:
+        regions = view["views"]
+        sites = state.get("sites", [])
+        Lab.require(isinstance(regions, list) and 2 <= len(regions) <= 4 and len(regions) == len(sites),
+                    "native regional viewport count differs")
+        rectangles, identities = [], set()
+        for index, (region, site) in enumerate(zip(regions, sites)):
+            Lab.require(region["id"] == site["id"] and region["label"] == site["label"]
+                        and region["slot"] == site["slot"] == index, "native regional viewport identity differs")
+            Lab.require(site["playerSqlId"] == -1 and site["nativeAlive"] is False
+                        and site["ghost"] is True and site["collidable"] is False,
+                        "regional infrastructure became a participant")
+            for key in ("anchorIdentity", "viewIdentity"):
+                Lab.require(site[key] not in identities, "regional infrastructure identity reused")
+                identities.add(site[key])
+            descriptor = region["image"]
+            Lab.require(descriptor["file"] == image["file"].replace(".png", f"-site{index}.png"),
+                        "regional image frame differs")
+            path = view_path.parent / descriptor["file"]
+            Lab.require(not path.is_symlink() and path.resolve().parent == view_path.parent.resolve()
+                        and 24 <= path.stat().st_size <= 16 * 1024 * 1024, "regional image file invalid")
+            Lab.require(digest(path) == descriptor["sha256"] and native_png(path.read_bytes()) ==
+                        (descriptor["width"], descriptor["height"]), "regional pixels differ")
+            left, top = region["left"], region["top"]
+            Lab.integer(left, 0, width, "regional left"); Lab.integer(top, 0, height, "regional top")
+            rect = (left, top, left + descriptor["width"], top + descriptor["height"])
+            Lab.require(rect[2] <= width and rect[3] <= height and all(
+                rect[2] <= old[0] or old[2] <= rect[0] or rect[3] <= old[1] or old[3] <= rect[1]
+                for old in rectangles), "native regional rectangles overlap or exceed framebuffer")
+            rectangles.append(rect); paths.append(path)
     return {"files": {p.relative_to(destination).as_posix(): digest(p)
-                      for p in (state_path, view_path, image_path)}, "state": state, "viewport": view}
+                      for p in paths}, "state": state, "viewport": view}
 
 
 def repair_terminal_run(destination, package):
@@ -593,6 +633,13 @@ def run(args):
             # Observer coordinates belong to the host receipt, never players.db.
             old = previous["observerEvidence"]["state"]
             observer.update(originX=old["residencyX"], originY=old["residencyY"], originZ=old["residencyZ"])
+        sites = definition["observation"].get("sites", [])
+        if sites:
+            observer["siteCount"] = len(sites)
+            observer.update(originX=sites[0]["x"], originY=sites[0]["y"], originZ=sites[0]["z"])
+            for index, site in enumerate(sites):
+                for key in ("id", "label", "x", "y", "z"):
+                    observer[f"site.{index}.{key}"] = site[key]
         command[1:1] = [f"-Dstudy.{key}={value}" for key, value in observer.items()]
     if args.trace_native:
         native_dump = attempt / "native-classes"

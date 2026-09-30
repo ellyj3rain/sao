@@ -242,6 +242,7 @@ UNITS = [
     ('C101', 'kohai', 'Mature the durable study contract with exact supervisor terminal identity, narrow revalidation of the legacy receipt, saved-state recovery, terminal Mousecat projection and immediate human disposition of verified competing-cognition outcomes. This connects existing study, evidence and review owners without adding gameplay or dataset authority, so kohai.'),
     ('C102', 'kohai', 'Connect maintained private study to installed timed reading, exact native completion and resumed page state; admit useful privately carried manuals without a work designation and expose progress without practical credit. This matures the existing C95 planner and learning execution contract, so kohai.'),
     ('C103', 'kohai', 'Connect retained private prerequisites to exact native acquisition and productive Cooking work; preserve purpose identity through study, interruption and terminal receipt replay. This matures the existing C95 planner and SourceUse/Cooking authority contracts, so kohai.'),
+    ('C104', 'kohai', 'Extend existing private purposes into shortage-driven native resource chains, grounded labor assessment and independently answered help; close accepted-work reading preemption. Existing planning, action and social owners retain authority, so kohai.'),
 ]
 
 TIER_MEANINGS = [

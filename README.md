@@ -38,9 +38,32 @@ on the simulation.
 
 ## Status
 
-`3.7.3.0-pre-alpha` - the coordinate is computed by the version machine
+`3.7.4.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C104 extends maintained purposes into private resource planning. Native carried
+supplies, inspected sources and personal capacity determine inspection,
+acquisition, food preparation and filling an owned vessel at a known fixture;
+the ordinary model's selection drives the
+actual sequence. The labor view covers pressures, commitments, material,
+projects, group requirements, personal desires and slack with explicit unknowns.
+Blocked goals can request independently answered help. Ready accepted work can
+interrupt native reading without losing pages or granting completion.
+Failed contact approaches retain bounded private retry waits. Urgent bodily
+needs can release a contact through its native owner, and a selected water
+action can complete under the pressure that caused its admission.
+One native world contains three separated situations under distinct native
+cameras, comparing material and risk conditions on the C103 baseline with a
+residency adapter while development proceeds. Their configured conditions and
+controlled mechanics do not establish loaded behavioral quality.
+Bounded observer archives report omitted detail and deferred captures while
+preserving the native world and live inspection.
+Capture shares its budget across area centers. Nearby automatic camera moves
+retain a proven loaded regional anchor; streaming failures retain their cause
+and stop stale observation.
+Live inspection retains exact byte limits and waits one second after a completed
+export, allowing native simulation work between expensive observations.
 
 C103 connects retained purposes to acquiring suitable inspected manuals and
 native food preparation. A manual remains part of the same reading purpose;

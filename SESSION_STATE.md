@@ -1,11 +1,89 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.7.3.0-pre-alpha` |
+| Version | `3.7.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-09-30, [C104] connects private shortage pressure to retained
+resource plans and elaborates Labor across the eight canonical questions.
+Actor-owned inventory, exact inspected revisions, skills, health, fatigue and
+current commitments ground alternatives; unknown social capacities and future
+yield remain unknown. The ordinary model chooses the feasible sequence while
+the opposing model keeps its independent interpretation. Inspection, exact
+acquisition, native Cooking and carried-vessel refill advance from owned outcomes, retain interrupted
+purposes and preserve completed prerequisites. Reading and practical credit
+remain distinct. Ready accepted work can cancel the exact reading action before
+replacement admission; unavailable means and unready dependencies preserve it.
+
+Fresh blocked resource goals can ask personally known people for help through
+the existing Organization and Communication owners. Current immediate need
+takes priority; held stock, active admission and stale pressure suppress the
+request. Recipients still acquire and answer it independently. Mousecat's
+existing purpose feed exposes alternatives, actual sequence, labor dimensions,
+private demand and uncertainty. Borders 216-220 are wired into the full gate.
+
+ResourceProduction retains exclusive native route and timed-action ownership.
+Measured water transfer refreshes only this actor's handled fixture knowledge;
+other private source memories remain unchanged. Successful canonical outcomes
+reach both cognition models once. Failed known routes retain bounded retry
+delays; usable owned stock can resolve demand without invented work credit.
+Loaded contact failures retain exact actor-private route evidence and bounded
+retry delays; three equivalent failures wait for changed address or approach.
+Urgent bodily needs precede pending contact and its wait state. Native ownership
+and cancellation proof precede releasing a trip, while independent exchange
+remains necessary for reception. Water production preserves admission-time
+physiology and its exact partially filled vessel until an actual competing
+relief, new physiological danger or other canonical interruption supersedes it.
+
+One native study world contains three spatially separated situations during
+development: residential resources, service scarcity and danger, and rural
+cutoff. Three detached infrastructure anchors and native viewports share one
+clock, save and finite attempt. Residency considers all centers in one pass;
+actor-facing queries exclude the anchors. The initial C103 cohort receives
+only this reviewed residency adapter, separately from C104 behavior changes.
+The shared-world baseline has produced three distinct native area images,
+twelve physical survivors and an advancing clock. Native startup, complete
+frames and bounded memory are checked separately from configuration. Secondary
+viewpoints activate their native physics maps before chunk scrolling.
+Observer archive projection uses a shared eight-MiB encoded-copy budget.
+Whole inspection records and physical squares are retained or explicitly
+omitted; loaded omissions remain distinct from unavailable geometry. The
+selected person's detail has priority. Final byte overflow reports a verified,
+source-bound deferred receipt and live warning without advancing the archive
+sequence; successful recovery records captured status. Native knowledge and
+world state remain unchanged, and unexpected I/O or provenance failures remain
+fatal. Focused installed-runtime controls and independent review pass.
+Physical capture visits all area centers in turn within the same budgets,
+preserving whole squares and counted omissions. Automatic paired camera targets
+proven loaded inside their area retain the loading anchor while View moves;
+explicit residency and independent coordinates retain exact relocation.
+The previous C103 attempt ended after twenty-one minutes with an original native
+chunk-streaming failure. Its cause and last clock are preserved, and stale
+context lookups stop. Native probes establish retention and failure containment;
+general native chunk-ID reuse remains unproven.
+The renewed comparison ended at hour 2.4766493 after an expected encoding-budget
+trial triggered installed Kahlua's debugger hook before pcall could catch it.
+Native save succeeded; supervision retained incomplete producer-failure status.
+Its source-bound save and unreviewed receipts are preserved.
+Expected encoding exhaustion now returns a bounded result through the same
+encoder at inspection, cognition, live fallback and archive trial sites.
+Genuine malformed values, cycles and I/O failures retain their error authority.
+The calibrated installed-VM probe and four old-assertion controls pass;
+independent review is clear. The corrected C103 comparison ran 2119.722 seconds
+without those observer failures, saved normally at hour 3.2883129 when the
+eight-GiB host-memory reserve was crossed, and remains continuable. Completed
+disagreements reached Mousecat's human-review queue without dataset admission.
+Native thread samples and installed-Kahlua measurements identify synchronous
+export work. Unescaped strings preserve exact UTF-8 accounting while avoiding
+escape construction; live inspection waits one second after successful writer
+close, separately from source capture clocks. Native frame rate and loaded
+C104 strategic quality remain separate observations.
+These observations do not establish long-term strategic quality
+or dataset admission. Farming, livestock, building, other practical skill owners,
+source-integration obligations and ML training remain implementation work.
 
 **As of** 2026-09-30, [C103] connects retained purposes to native acquisition
 and productive Cooking work. Survivors search and acquire suitable manuals
@@ -1100,10 +1178,10 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, the gate invokes
-216 `*_test.py` files and 16 other Python entry points, 232 distinct scripts.
-Border labels extend through 215; legacy labels
+221 `*_test.py` files and 16 other Python entry points, 237 distinct scripts.
+Border labels extend through 220; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
-ships 185 Lua source files.
+ships 186 Lua source files.
 ZAO A41 has fifteen borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
@@ -1115,12 +1193,13 @@ C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The last verified install is C76 with ZAO A37, deployed
-on 2026-09-23 UTC. Its post-merge closure receipt verifies all 261 installed
-files and responsive main-menu startup. C77 deployment disposition is recorded
-in its local closure receipt; publication alone does not update an open game.
-All 44,092 save-file sizes and modification times remained unchanged across
-deployment and startup. The [C61 evidence record](artifacts/audits/20260920-0844Z-0144PST-native-world-sources/README.md)
+The last verified SAO install is C103, deployed on 2026-09-30 UTC from
+merged public source. Its local deployment receipt verifies all 1,265 installed
+files and unchanged metadata for 3,570 live-save files; no game was launched
+for that deployment. C104's isolated studies copy immutable C103 into separate
+caches. Publication alone does not replace those running copies. The earlier
+C76/ZAO A37 main-menu receipt remains scoped to that historical install.
+The [C61 evidence record](artifacts/audits/20260920-0844Z-0144PST-native-world-sources/README.md)
 retains the native-source substrate. The [C62 evidence record](artifacts/audits/20260920-1041Z-0341PST-source-access-native-use/README.md)
 holds exact access/use, blocking review repairs, both full gates, the rejected
 initial startup, the inherited logger-order repair, exact deployment and clean

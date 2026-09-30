@@ -21,9 +21,9 @@ CONTROLS=[
     ('release-captures-live-cooking', [('body', 'if not quiesceCooking(rec, body, "body-release") then return false, "cooking-reconciliation-pending" end', '')], 'root_release_clears_heat_before_snapshot'),
     ('remove-before-cooking-reconciliation', [('body', 'if owned == body and not quiesceCooking(SAO.Identity.get(id), body, "body-removal") then', 'if false then')], 'root_remove_owned_refuses_unresolved_cooking'),
     ('commit-over-new-cooking', [('body', 'if rec.cookingWork then return false, "cooking-work-after-capture" end', '')], 'root_captured_journal_refuses_new_cooking_owner'),
-    ('ordinary-death-retains-cooking', [('controller', '        if SAO.Cooking and SAO.Cooking.detach then\n            pcall(SAO.Cooking.detach, id, body, "death")\n        end', '')], 'root_ordinary_death_detaches_unresolved_cooking'),
-    ('external-death-retains-cooking', [('controller', '    if SAO.Cooking and SAO.Cooking.detach then\n        pcall(SAO.Cooking.detach, id, body, "death")\n    end', '')], 'root_external_death_detaches_unresolved_cooking'),
-    ('passive-death-retains-cooking', [('controller', '            if SAO.Cooking and SAO.Cooking.detach then\n                pcall(SAO.Cooking.detach, id, body, "death")\n            end', '')], 'root_passive_death_detaches_restored_cooking'),
+    ('ordinary-death-retains-cooking', [('controller', '        retireDeadBodyWork(id, body, agent.rec)\n        SAO.Identity.markDead(agent.rec, tickCount, cause)', '        SAO.Identity.markDead(agent.rec, tickCount, cause)')], 'root_ordinary_death_detaches_unresolved_cooking'),
+    ('external-death-retains-cooking', [('controller', '    retireDeadBodyWork(id, body)\n', '')], 'root_external_death_detaches_unresolved_cooking'),
+    ('passive-death-retains-cooking', [('controller', '            retireDeadBodyWork(id, body, agent.rec)\n            SAO.Identity.markDead(agent.rec, tickCount, cause)', '            SAO.Identity.markDead(agent.rec, tickCount, cause)')], 'root_passive_death_detaches_restored_cooking'),
     ('direct-drop-retains-cooking', [('controller', 'if rec and rec.cookingWork then\n            local okCooking, closedCooking', 'if false then\n            local okCooking, closedCooking')], 'root_direct_drop_retires_idle_heat_runtime'),
 ]
 def main():

@@ -237,13 +237,14 @@ def main(root):
         with mock.patch.object(Sweep, 'MODULES', removed):
             if not rejects(lambda: Sweep.require_modules(lua)):
                 faults.append('missing cognitive owner accepted: ' + owner)
-    if 'SourceUse' in loaded:
-        faults.append('dormant county silently acquired the loaded source executor')
-    undeclared = dict(Sweep.NOT_DORMANT)
-    undeclared.pop('SourceUse', None)
-    with mock.patch.object(Sweep, 'NOT_DORMANT', undeclared):
-        if not rejects(lambda: Sweep.require_modules(lua)):
-            faults.append('undeclared source executor accepted')
+    for owner in ('SourceUse', 'ResourceProduction'):
+        if owner in loaded:
+            faults.append('dormant county silently acquired loaded executor: ' + owner)
+        undeclared = dict(Sweep.NOT_DORMANT)
+        undeclared.pop(owner, None)
+        with mock.patch.object(Sweep, 'NOT_DORMANT', undeclared):
+            if not rejects(lambda: Sweep.require_modules(lua)):
+                faults.append('undeclared loaded executor accepted: ' + owner)
     # The combined dormant path loads the state-owned maintenance module but
     # deliberately leaves the loaded-body Driver absent.  Exercise this with
     # an isolated sister tree so CI does not depend on a sibling checkout.

@@ -100,6 +100,17 @@ getFileReader = function(name)
     end, close = function() end }
 end
 function RunStudyChecks(Study)
+    if studyNativeErrorDispatches then
+        for _, value in ipairs({ { invalid = 0 / 0 }, { invalid = function() end } }) do
+            local before = studyNativeErrorDispatches()
+            assert(not pcall(Study.encode, value), "unexpected encoder value did not fail")
+            assert(studyNativeErrorDispatches() > before, "native debugger error dispatch is inactive")
+        end
+        local cycle = {}; cycle.self = cycle
+        local before = studyNativeErrorDispatches()
+        assert(not pcall(Study.encode, cycle), "cyclic encoder value did not fail")
+        assert(studyNativeErrorDispatches() > before, "cyclic error did not reach native debugger")
+    end
     assert(Study.encode({ x = "abc" }, 11) == '{"x":"abc"}', "encoded byte accounting differs")
     assert(not pcall(function() Study.encode({ x = "abc" }, 10) end), "encoded byte limit ignored")
     assert(not pcall(function() Study.encode({ x = "\n\n" }, 12) end), "escaped byte limit ignored")
@@ -156,7 +167,10 @@ function RunStudyChecks(Study)
     assert(cognitiveFrame.coverage.omittedFieldCount==2 and cognitiveFrame.population.total==2,
         "optional cognition failure stopped core capture")
     SAO.Cognition.snapshot=function(id) return {actorId=id,evidence=string.rep("x",600000)} end
+    local nativeErrors = studyNativeErrorDispatches and studyNativeErrorDispatches()
     cognitiveFrame=Study.observe()
+    assert(not nativeErrors or studyNativeErrorDispatches() == nativeErrors,
+        "expected cognitive byte probe raised native error")
     assert(cognitiveFrame.people[1].context.cognition==nil and cognitiveFrame.coverage.omittedFieldCount==2,
         "oversized cognitive person escaped archive byte budget")
     local priorMaximum=Config.observation.maxPeople
@@ -164,6 +178,8 @@ function RunStudyChecks(Study)
     for i=3,24 do people['q'..i]={id='q'..i,x=0,y=0,z=0} end
     SAO.Cognition.snapshot=function(id) return {actorId=id,evidence=evidence} end
     cognitiveFrame=Study.observe()
+    assert(not nativeErrors or studyNativeErrorDispatches() == nativeErrors,
+        "expected aggregate cognitive byte probe raised native error")
     local cognitiveBytes=0
     for _,person in ipairs(cognitiveFrame.people) do
         if person.context.cognition then cognitiveBytes=cognitiveBytes+#Study.encode(person.context.cognition) end
@@ -183,10 +199,10 @@ function RunStudyChecks(Study)
     assert(nativeStats.HUNGER == .1 and persisted.initialNeedsApplied.p1,
         "study situation reapplied after native behavior changed need")
     Config.situation = nil
-    assert(#writes == 1 and persisted.sequence == 1, "cadence duplicated frame")
+    assert(#writes == 2 and persisted.sequence == 1, "cadence duplicated frame")
     hour = hour + Config.observation.everyHours
     Study.tick()
-    assert(#writes == 2 and persisted.sequence == 2, "elapsed frame missing")
+    assert(#writes == 4 and persisted.sequence == 2, "elapsed frame missing")
     hour = hour + Config.observation.everyHours
     discardWrite = true
     assert(not pcall(Study.tick) and persisted.sequence == 2, "failed write acknowledged")
@@ -218,7 +234,145 @@ function RunStudyChecks(Study)
     assert(not Study.active and Study.error, "guarded late failure remained active")
     RESULT_FAILURE_LOG = table.concat(messages, "\n")
     RunStudyInspectionChecks(Study)
+    RunStudyArchiveChecks(Study)
+    RunStudyRegionalArchiveChecks(Study)
     return "PASS study runtime: isolation, native coverage, lifecycle, cadence, reload, review boundary, bounded inspection"
+end
+
+function RunStudyRegionalArchiveChecks(Study)
+    local priorWindows, priorSites, priorCell = Config.observation.windows, Config.observation.sites, getCell
+    local priorPeople, priorObservation = people, SAO.Observation
+    local beforeSquare = Study.encode({ objects = { door:getObjectName(), door:getSprite():getName() },
+        outside = square:isOutside(), solid = square:isSolid(), floor = square:TreatAsSolidFloor() })
+    people = { p1 = { id = "p1", retained = "private source unchanged" } }
+    SAO.Observation = { snapshot = function() return { status = "available", selectedPersonId = "p1",
+        people = { p1 = { sections = {}, events = {} } } } end }
+    Config.observation.windows, Config.observation.sites = {}, {}
+    for i = 1, 3 do
+        local x = 128 * (i - 1)
+        Config.observation.windows[i] = { id = "fair-" .. i, x = x, y = 0, z = 0, width = 64, height = 64 }
+        Config.observation.sites[i] = { id = "fair-" .. i, label = "Fair area " .. i, x = x + 16, y = 16, z = 0 }
+    end
+    local beforeDefinition = Study.encode({ windows = Config.observation.windows, sites = Config.observation.sites })
+    getCell = function() return { getGridSquare = function() return square end } end
+    local captured = Study.observe()
+    assert(captured.coverage.omittedSquares > 0, "regional archive did not exercise a partial shared budget")
+    local total, omitted = 0, 0
+    for i, window in ipairs(captured.windows) do
+        local site, seen = Config.observation.sites[i], {}
+        for _, nativeSquare in ipairs(window.squares) do
+            local key = tostring(nativeSquare.x) .. ":" .. tostring(nativeSquare.y)
+            assert(not seen[key], "center-out archive revisited native coordinates")
+            seen[key] = true
+            assert(nativeSquare.z == 0 and nativeSquare.objects[1].objectName == door:getObjectName()
+                and nativeSquare.objects[1].sprite == door:getSprite():getName()
+                and nativeSquare.floor == true and nativeSquare.solid == false,
+                "regional archive emitted partial square shape")
+        end
+        for dx = -2, 2 do for dy = -2, 2 do
+            assert(seen[tostring(site.x + dx) .. ":" .. tostring(site.y + dy)],
+                "first-window prefix omitted a regional near-center square")
+        end end
+        assert(window.squares[1].x == site.x and window.squares[1].y == site.y,
+            "regional archive began at outer grass instead of the authored site")
+        assert(window.unavailable == 0 and #window.squares + window.omitted == 4096,
+            "fair regional archive coverage does not reconcile")
+        total, omitted = total + #window.squares, omitted + window.omitted
+    end
+    assert(total == captured.coverage.loadedSquares and omitted == captured.coverage.omittedSquares
+        and captured.coverage.requestedSquares == 12288 and captured.coverage.unavailableSquares == 0,
+        "round-robin archive coverage differs from native requests")
+    assert(people.p1.retained == "private source unchanged" and beforeDefinition == Study.encode({
+        windows = Config.observation.windows, sites = Config.observation.sites }) and beforeSquare == Study.encode({
+        objects = { door:getObjectName(), door:getSprite():getName() }, outside = square:isOutside(),
+        solid = square:isSolid(), floor = square:TreatAsSolidFloor() }), "fair archive mutated native/source state")
+    RESULT_FAIR_ARCHIVE = captured
+    Config.observation.windows, Config.observation.sites, getCell = priorWindows, priorSites, priorCell
+    people, SAO.Observation = priorPeople, priorObservation
+end
+
+function RunStudyArchiveChecks(Study)
+    local priorPeople, priorObservation, priorCell = people, SAO.Observation, getCell
+    local priorWindows, priorTimestamp, priorPlayer = Config.observation.windows, getTimestampMs, getSpecificPlayer
+    local escaped = string.rep("\n", 32768)
+    people = { p1 = { id = "p1", archive = {} }, p2 = { id = "p2", forename = "Selected" } }
+    for i = 1, 60 do people.p1.archive["event-" .. tostring(i)] = escaped end
+    for i = 1, 4 do people.p1.archive["zz-fill-" .. tostring(i)] = string.rep("x", 30000) end
+    local detail = { sections = { { id = "near-limit", label = "Near limit", source = "controller",
+        perspective = "observer", status = "available", message = "", rows = {
+            { label = string.rep("r", 2000), value = string.rep("v", 2000) } } } }, events = {} }
+    for i = 1, 6 do detail.events[i] = { summary = string.rep("e", 2000) } end
+    SAO.Observation = { snapshot = function() return { status = "available", selectedPersonId = "p2",
+        people = { p2 = { sections = {}, events = {} }, p1 = detail } } end }
+    local captured = Study.observe()
+    assert(captured.people[1].id == "p2", "selected archive person lost priority")
+    assert(captured.coverage.omittedFieldCount > 0 and #Study.encode(captured) < 8 * 1024 * 1024 + 65536,
+        "node-only archive budget admitted oversized escaped scalar detail")
+    assert(captured.people[2].context.inspection == nil, "near-exhausted budget emitted partial inspection shape")
+    RESULT_NEAR_ARCHIVE = captured
+    local sourceCount = 0
+    for key, value in pairs(people.p1.archive) do sourceCount = sourceCount + 1
+        assert(value == (key:find("zz-fill-", 1, true) and string.rep("x", 30000) or escaped),
+            "archive byte projection mutated source scalar") end
+    assert(sourceCount == 64 and people.p2.forename == "Selected", "archive byte projection mutated source objects")
+
+    people = { p2 = { id = "p2", forename = "Selected" } }
+    local sparse = { [1] = "one", [2] = "temporary", [3] = "three" }; sparse[2] = nil
+    people.p2.sparse = sparse
+    local sparseFrame = Study.observe()
+    assert(Study.encode(sparseFrame.people[1].record.sparse) == Study.encode(sparse),
+        "archive projection silently changed sparse numeric map")
+    local spriteName, priorSprite = string.rep("\n", 8192), door.getSprite
+    door.getSprite = function() return { getName = function() return spriteName end } end
+    Config.observation.windows = { { id = "bounded", x = priorWindows[1].x, y = priorWindows[1].y,
+        z = priorWindows[1].z, width = 32, height = 32 } }
+    getCell = function() return { getGridSquare = function() return square end } end
+    captured = Study.observe()
+    local window = captured.windows[1]
+    assert(captured.coverage.omittedSquares > 0 and window.omitted == captured.coverage.omittedSquares,
+        "physical archive bytes escaped shared budget")
+    assert(window.unavailable == 0 and #window.squares + window.omitted == 1024,
+        "byte omission was claimed unloaded geometry")
+    for _, nativeSquare in ipairs(window.squares) do
+        assert(nativeSquare.x and nativeSquare.y and nativeSquare.z and nativeSquare.objects[1].sprite == spriteName,
+            "archive budget emitted partial native square shape")
+    end
+    assert(#Study.encode(captured) < 8 * 1024 * 1024 + 65536 and door:getSprite():getName() == spriteName,
+        "physical byte projection mutated world or exceeded budget")
+    RESULT_BOUNDED_ARCHIVE = captured
+    door.getSprite, getCell, Config.observation.windows = priorSprite, priorCell, priorWindows
+
+    local observe = Study.observe
+    local huge = {}
+    for i = 1, 400 do huge[i] = escaped end
+    Study.observe = function() return { sequence = persisted.sequence + 1, optional = huge } end
+    local priorSequence = persisted.sequence
+    hour = hour + Config.observation.everyHours
+    local nativeErrors = studyNativeErrorDispatches and studyNativeErrorDispatches()
+    Study.tick()
+    assert(not nativeErrors or studyNativeErrorDispatches() == nativeErrors,
+        "expected archive byte probe raised native error")
+    assert(Study.active and not Study.error and persisted.sequence == priorSequence,
+        "optional archive byte overflow stopped healthy world or acknowledged missing frame")
+    assert(Study.archiveCapture.status == "deferred" and files["StudyWorldArchiveStatus.json"]:find(
+        '"reason":"encoded%-byte%-budget"'), "deferred optional archive has no explicit receipt")
+    assert(Study.archiveCapture.definitionSha256 == Config.definitionSha256
+        and Study.archiveCapture.save == currentSave and Study.archiveCapture.session,
+        "deferred archive receipt has no native provenance")
+    local timestamp = 123496789
+    getTimestampMs = function() return timestamp end
+    getSpecificPlayer = function() return { getModData = function() return { SAO_ObserverStarted = true } end } end
+    Study.tick()
+    assert(files["StudyWorldLive.json"]:find("Archive capture deferred:", 1, true),
+        "deferred archive is invisible to live inspection")
+    Study.observe, people, SAO.Observation = observe, priorPeople, priorObservation
+    hour = hour + Config.observation.everyHours
+    Study.tick()
+    assert(Study.active and persisted.sequence == priorSequence + 1 and Study.archiveCapture.status == "captured",
+        "archive capture did not recover after deferred detail")
+    assert(files["StudyWorldArchiveStatus.json"]:find('"status":"captured"', 1, true),
+        "durable archive status retained deferred state after recovery")
+    getTimestampMs, getSpecificPlayer = priorTimestamp, priorPlayer
 end
 
 function RunStudyInspectionChecks(Study)
@@ -229,6 +383,13 @@ function RunStudyInspectionChecks(Study)
     assert(not pcall(Study.encode, { x = accent }, 9), "UTF-8 byte limit ignored")
     assert(Study.encode({ x = emoji }, 12) == '{"x":"' .. emoji .. '"}', "surrogate-pair byte accounting differs")
     assert(not pcall(Study.encode, { x = emoji }, 11), "surrogate-pair byte limit ignored")
+    assert(Study.encode({ x = accent .. emoji }, 14) == '{"x":"' .. accent .. emoji .. '"}',
+        "unescaped Unicode string output differs")
+    assert(not pcall(Study.encode, { x = accent .. emoji }, 13), "unescaped Unicode byte limit ignored")
+    local specials = string.char(0, 1, 9, 10, 13, 31) .. '"\\' .. accent .. emoji
+    local escapedSpecials = '{"x":"\\u0000\\u0001\\u0009\\u000a\\u000d\\u001f\\"\\\\' .. accent .. emoji .. '"}'
+    assert(Study.encode({ x = specials }, 54) == escapedSpecials, "special-character string output differs")
+    assert(not pcall(Study.encode, { x = specials }, 53), "special-character byte limit ignored")
     local priorPeople, priorObservation, priorMaximum = people, SAO.Observation, Config.observation.maxPeople
     local priorTimestamp, priorPlayer = getTimestampMs, getSpecificPlayer
     local clock = 123466789
@@ -266,7 +427,10 @@ function RunStudyInspectionChecks(Study)
     Events.OnInitWorld.fire()
     Events.OnInitGlobalModData.fire(true)
     Events.OnGameStart.fire()
+    local nativeErrors = studyNativeErrorDispatches and studyNativeErrorDispatches()
     Events.OnTick.fire()
+    assert(not nativeErrors or studyNativeErrorDispatches() == nativeErrors,
+        "expected live byte probe raised native error")
     assert(Study.active and persisted.sequence == 1, "oversized optional inspection stopped production")
     local live = assert(files["StudyWorldLive.json"], "live inspection missing")
     assert(live:find('"p16":', 1, true), "selected inspection omitted before other people")
@@ -277,6 +441,21 @@ function RunStudyInspectionChecks(Study)
     assert(Study.encode(cache) == before, "inspection projection mutated source cache")
     RESULT_LIVE_FRAME = live
     RESULT_INSPECTION_FIXTURE = #before
+    -- Exercise the live core's whole-person reduction, with actual encoding
+    -- trials rather than an assumed byte estimate. Original records survive.
+    local names = {}
+    for id, person in pairs(people) do
+        names[id], person.forename = person.forename, string.rep(sample, 8192)
+    end
+    clock, hour = clock + 1100, hour + .01
+    nativeErrors = studyNativeErrorDispatches and studyNativeErrorDispatches()
+    Events.OnTick.fire()
+    assert(not nativeErrors or studyNativeErrorDispatches() == nativeErrors,
+        "expected live core byte probe raised native error")
+    assert(Study.active and files["StudyWorldLive.json"]:find('"total":16', 1, true),
+        "live core capacity fallback lost total population")
+    for id, person in pairs(people) do person.forename = names[id] end
+    assert(Study.encode(cache) == before, "live core projection mutated inspection source")
     -- Optional malformed detail must fail visibly, retain its observation clock,
     -- and leave both the live and archival producers able to advance.
     local selected = cache.people.p16
@@ -298,6 +477,45 @@ function RunStudyInspectionChecks(Study)
     assert(Study.active and persisted.sequence == 3, "normal archive did not recover after inspection failure")
     assert(files["StudyWorldLive.json"]:find('"id":"recovered"', 1, true), "normal live inspection did not recover")
     RESULT_RECOVERED_FRAME = files["StudyWorldLive.json"]
+    -- Actual tick callbacks share the live producer. Slow writing and closing
+    -- advance wall time while captured source/world clocks remain unchanged.
+    local priorWriter, priorPaused = getFileWriter, isGamePaused
+    local liveWrites = 0
+    getFileWriter = function(name, ...)
+        local writer = priorWriter(name, ...)
+        if name == "StudyWorldLive.json" then
+            local write, close = writer.write, writer.close
+            writer.write = function(self, text)
+                write(self, text)
+                liveWrites, clock = liveWrites + 1, clock + 1500
+            end
+            writer.close = function(self)
+                close(self)
+                clock = clock + 500
+            end
+        end
+        return writer
+    end
+    isGamePaused = function() return true end
+    clock = clock + 1100
+    nativeErrors = studyNativeErrorDispatches and studyNativeErrorDispatches()
+    Events.OnTick.fire()
+    assert(Study.active and liveWrites == 1, "slow live writer did not produce a frame")
+    Events.OnTick.fire()
+    Events.OnTickEvenPaused.fire()
+    assert(liveWrites == 1, "slow live export bypassed post-close cooldown")
+    clock = clock + 999
+    Events.OnTickEvenPaused.fire()
+    assert(liveWrites == 1, "live export cooldown ended before 1000 milliseconds")
+    clock = clock + 1
+    Events.OnTickEvenPaused.fire()
+    assert(Study.active and liveWrites == 2, "live export did not resume after completed-write cooldown")
+    assert(files["StudyWorldLive.json"]:find('"capturedAtUnixMs":123450000', 1, true)
+        and files["StudyWorldLive.json"]:find('"hours":' .. tostring(hour), 1, true),
+        "live export cooldown changed captured clocks")
+    assert(not nativeErrors or studyNativeErrorDispatches() == nativeErrors,
+        "healthy slow live export raised native error")
+    getFileWriter, isGamePaused = priorWriter, priorPaused
     people, SAO.Observation, Config.observation.maxPeople = priorPeople, priorObservation, priorMaximum
     getTimestampMs, getSpecificPlayer = priorTimestamp, priorPlayer
 end

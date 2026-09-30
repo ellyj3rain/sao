@@ -472,7 +472,8 @@ local function planning(id)
             .. tostring(view.study.totalPages) .. " pages")
         if view.study.reason then row(s, "Study interrupted by", view.study.reason) end
     end
-    for _, purpose in ipairs(view.purposes or {}) do
+    for index = #(view.purposes or {}), 1, -1 do
+        local purpose = view.purposes[index]
         row(s, "Purpose", tostring(purpose.objective) .. " / "
             .. tostring(purpose.status))
         if purpose.nextStep then
@@ -481,6 +482,49 @@ local function planning(id)
         end
         if #(purpose.blockers or {}) > 0 then
             row(s, "Blocked by", table.concat(purpose.blockers, ", "))
+        end
+        if purpose.resourceCategory then
+            local demand, capacity = purpose.demand or {}, purpose.capacity or {}
+            row(s, "Resource goal", tostring(purpose.resourceCategory) .. " / pressure "
+                .. tostring(math.floor((tonumber(demand.pressure) or 0) * 100)) .. "% / usable food "
+                .. tostring(demand.ownedReady or "unknown") .. " / raw food "
+                .. tostring(demand.ownedRaw or "unknown") .. " / water vessels "
+                .. tostring(demand.ownedWater or "unknown"))
+            local sequence = {}
+            for stepIndex, step in ipairs(purpose.sequence or {}) do
+                if stepIndex > 4 then break end
+                local verb = step.owner == "Cooking" and "prepare food"
+                    or step.owner == "SAO.ResourceProduction" and "fill water vessel" or step.verb
+                sequence[#sequence + 1] = tostring(verb) .. " (" .. tostring(step.status) .. ")"
+            end
+            row(s, "Work sequence", #sequence > 0 and table.concat(sequence, " > ") or "No known executable route")
+            row(s, "Plan reason", purpose.rationale or "Current resource pressure")
+            local practical = purpose.resourceCategory == "food" and "Cooking" or "Strength"
+            row(s, "Personal capacity", practical .. " level " .. tostring(capacity.skills and capacity.skills[practical] or "unknown")
+                .. " / fatigue " .. (finite(capacity.fatigue) and tostring(math.floor(capacity.fatigue * 100)) .. "%" or "unknown")
+                .. " / accepted commitments " .. tostring(#(capacity.commitments or {})))
+            row(s, "Potential helpers", tostring(#(purpose.contacts or {})) .. " personally known; capacity and assent unconfirmed")
+            row(s, "Uncertainty", purpose.uncertainty or demand.uncertainty or "Future access and yield are unconfirmed")
+            local failure = purpose.routeFailures and purpose.routeFailures[#purpose.routeFailures]
+            if failure then
+                row(s, "Route experience", tostring(failure.reason) .. " / " .. tostring(failure.attempts)
+                    .. " unsuccessful attempts / reconsider after game hour " .. tostring(failure.retryAt))
+            end
+            local labor, dimensions = purpose.labor or {}, {}
+            for _, question in ipairs({ {"neededNow", "need"}, {"capableActors", "people"},
+                {"timeClaims", "time claims"}, {"materialsAndSpace", "material and space"},
+                {"openProjects", "projects"}, {"groupValues", "group requirements"},
+                {"lowPressureWish", "personal wishes"}, {"slack", "slack"} }) do
+                dimensions[#dimensions + 1] = question[2] .. ": "
+                    .. tostring(labor[question[1]] and labor[question[1]].status or "unknown")
+            end
+            row(s, "Labor assessment", table.concat(dimensions, "; "))
+            if capacity.timeEvidence then
+                local time = capacity.timeEvidence
+                row(s, "Observed work duration", tostring(time.samples) .. " completed Cooking samples / "
+                    .. tostring(time.observedMinimumHours) .. " to " .. tostring(time.observedMaximumHours)
+                    .. " game hours; future duration is uncertain")
+            end
         end
         local interpretations = purpose.interpretations
         for _, model in ipairs(interpretations and interpretations.models or {}) do

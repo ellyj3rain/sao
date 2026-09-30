@@ -166,8 +166,8 @@ def validate(value):
             require(len(val) <= 512, "sandbox string too long")
     if "situation" in value:
         situation = value["situation"]
-        require(isinstance(situation, dict) and 1 <= len(situation) <= 3
-                and set(situation) <= {"initialNeeds", "horseTravel", "mobileHousehold"},
+        require(isinstance(situation, dict) and 1 <= len(situation) <= 4
+                and set(situation) <= {"initialNeeds", "initialNeedsBySite", "horseTravel", "mobileHousehold"},
                 "situation must define supported pressures")
         if "initialNeeds" in situation:
             needs = situation["initialNeeds"]
@@ -179,6 +179,22 @@ def validate(value):
                 low = number(bounds["min"], 0, 1, f"initialNeeds.{name}.min")
                 high = number(bounds["max"], 0, 1, f"initialNeeds.{name}.max")
                 require(low <= high, f"initialNeeds.{name} range is reversed")
+        if "initialNeedsBySite" in situation:
+            observation = value["observation"]
+            require(isinstance(observation, dict) and isinstance(observation.get("sites"), list)
+                    and all(isinstance(site, dict) and isinstance(site.get("id"), str) for site in observation["sites"]),
+                    "regional needs require observation sites")
+            site_ids = {site["id"] for site in observation["sites"]}
+            regional = situation["initialNeedsBySite"]
+            require(isinstance(regional, dict) and 1 <= len(regional) <= 4
+                    and set(regional) <= site_ids, "initialNeedsBySite references an unknown observation site")
+            for site_id, needs in regional.items():
+                require(isinstance(needs, dict) and 1 <= len(needs) <= 3
+                        and set(needs) <= {"hunger", "thirst", "fatigue"}, "invalid regional initial needs")
+                for name, bounds in needs.items():
+                    fields(bounds, {"min", "max"}, "regional initial need")
+                    low = number(bounds["min"], 0, 1, "regional initial need minimum")
+                    high = number(bounds["max"], low, 1, "regional initial need maximum")
         if "horseTravel" in situation:
             travel = situation["horseTravel"]
             fields(travel, {"spawn", "destination", "animalType", "breed",
@@ -218,7 +234,25 @@ def validate(value):
                                      mobile["residentOccupation"]),
                     "invalid mobileHousehold resident occupation")
     obs = value["observation"]
-    fields(obs, {"everyHours", "maxPeople", "maxProcesses", "windows"}, "observation")
+    required_observation = {"everyHours", "maxPeople", "maxProcesses", "windows"}
+    require(isinstance(obs, dict) and required_observation <= obs.keys()
+            and obs.keys() <= required_observation | {"sites"}, "invalid observation fields")
+    if "sites" in obs:
+        require(isinstance(obs["sites"], list) and 1 <= len(obs["sites"]) <= 4,
+                "expected 1..4 native observation sites")
+        site_ids = set()
+        positions = set()
+        for site in obs["sites"]:
+            fields(site, {"id", "label", "x", "y", "z"}, "observation site")
+            point(site, "observation site")
+            require(isinstance(site["id"], str) and re.fullmatch(r"[a-z][a-z0-9-]{0,47}", site["id"])
+                    and site["id"] not in site_ids, "invalid or duplicate observation site id")
+            require(isinstance(site["label"], str) and 0 < len(site["label"]) <= 160
+                    and all(32 <= ord(char) < 127 for char in site["label"]), "invalid observation site label")
+            location = (site["x"], site["y"], site["z"])
+            require(location not in positions, "observation sites share a native position")
+            site_ids.add(site["id"])
+            positions.add(location)
     number(obs["everyHours"], 1 / 3600, 720, "observation period")
     integer(obs["maxPeople"], 1, 100000, "people capture budget")
     integer(obs["maxProcesses"], 1, 4096, "process capture budget")
@@ -475,13 +509,14 @@ def bind_frame(frame, package):
     windows = [{k: w[k] for k in ("id", "x", "y", "z", "width", "height")}
                for w in frame["windows"]]
     require(windows == obs["windows"], "observation windows differ from definition")
+    require(frame.get("observationSites", []) == obs.get("sites", []), "observation sites differ from definition")
     require(len(frame["people"]) <= obs["maxPeople"]
             and len(frame["processes"]) <= obs["maxProcesses"], "observation exceeds definition budget")
 
 
 def validate_frame(frame):
     fields({key: value for key, value in frame.items()
-            if key not in {"countyHours", "situation", "situationReceipt"}}, {"schema", "definitionSha256", "packageEngineJarSha256", "observerSha256",
+            if key not in {"countyHours", "situation", "situationReceipt", "observationSites"}}, {"schema", "definitionSha256", "packageEngineJarSha256", "observerSha256",
                    "engineVersion", "map", "save", "sequence", "hours", "session",
                    "datasetAdmission", "extent", "sandbox", "generation", "source", "mods", "windows",
                    "people", "processes", "population", "coverage"}, "observation")
@@ -507,7 +542,7 @@ def validate_frame(frame):
     fields(coverage, {"requestedSquares", "loadedSquares", "unavailableSquares",
                       "peopleComplete", "processesComplete", "physicalCoverage",
                       "observerMovesWorld", "organizationAvailable", "totalProcesses",
-                      "omittedFields", "omittedFieldCount"}, "coverage")
+                      "omittedFields", "omittedFieldCount", *( {"omittedSquares"} if "omittedSquares" in coverage else set())}, "coverage")
     require(coverage["physicalCoverage"] == "loaded-squares-only"
             and coverage["observerMovesWorld"] is False, "invalid physical coverage claim")
     for key in ("peopleComplete", "processesComplete", "organizationAvailable"):
@@ -535,9 +570,12 @@ def validate_frame(frame):
                                   "windows": []}}
     if frame.get("situation"):
         definition["situation"] = frame["situation"]
-    requested = loaded = missing = 0
+    if "observationSites" in frame:
+        definition["observation"]["sites"] = frame["observationSites"]
+    requested = loaded = missing = omitted = 0
     for window in windows:
-        fields(window, {"id", "x", "y", "z", "width", "height", "squares", "unavailable"},
+        fields(window, {"id", "x", "y", "z", "width", "height", "squares", "unavailable",
+                        *({"omitted"} if "omitted" in window else set())},
                "captured window")
         spec = {k: window[k] for k in ("id", "x", "y", "z", "width", "height")}
         for key in ("x", "y", "z"):
@@ -547,6 +585,7 @@ def validate_frame(frame):
         definition["observation"]["windows"].append(spec)
         require(isinstance(window["squares"], list), "captured squares must be a list")
         integer(window["unavailable"], 0, 65536, "unavailable squares")
+        window_omitted = integer(window.get("omitted", 0), 0, 65536, "omitted squares")
         coordinates = set()
         for square in window["squares"]:
             require(isinstance(square, dict) and {"x", "y", "z", "outside", "solid",
@@ -567,14 +606,17 @@ def validate_frame(frame):
                             for k, v in o.items()) for o in square["objects"]), "invalid native objects")
             require("floorSprite" not in square or isinstance(square["floorSprite"], str),
                     "invalid floor sprite")
-        require(len(coordinates) + window["unavailable"] == window["width"] * window["height"],
+        require(len(coordinates) + window["unavailable"] + window_omitted == window["width"] * window["height"],
                 "window coverage does not reconcile")
         requested += window["width"] * window["height"]
         loaded += len(coordinates)
         missing += window["unavailable"]
+        omitted += window_omitted
     validate(definition)
     require((requested, loaded, missing) == (coverage["requestedSquares"], coverage["loadedSquares"],
                                             coverage["unavailableSquares"]), "coverage counts differ")
+    require(omitted == integer(coverage.get("omittedSquares", 0), 0, 65536, "coverage omittedSquares"),
+            "omitted square counts differ")
     population = frame["population"]
     fields(population, {"total", "captured", "dead", "represented", "unrepresented"}, "population")
     for key, value in population.items():

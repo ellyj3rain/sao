@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.7.3.0-pre-alpha` |
+| Version | `3.7.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1153,8 +1153,42 @@ and safe shutdown precede a productive result. Interruptions retain the purpose;
 canonical outcomes retry private delivery and advance exactly once. SourceUse's
 purpose-bound terminal receipts pass through Provisioning. Superseded attempts
 retire without crediting replacement steps or blocking ledger compaction.
-Other practical skill owners and active-reading coordination preemption remain
-implementation work.
+C104 extends this store into private food and water purposes. Labor supplies a
+detached assessment of native owned supplies, inspected source revisions,
+personal capacity, current commitments and the eight canonical labor questions.
+The ordinary model's chosen feasible alternative determines inspection,
+acquisition, conditional exact-item preparation and refill of an owned vessel
+at a privately observed native fixture. The opposing model retains
+its own interpretation. SourceUse validates the selected source, item, type and
+revision before admission; Cooking retains exact acquired-item continuity.
+ResourceProduction binds the native water fixture and carried vessel, executes
+ISTakeWaterAction and measures native fluid gain. Canonical clean, held final
+water and exact attempt identity precede completed production. Both cognition
+models receive that canonical experience once. The physically handled fixture
+refreshes only the actor's exact private source memory after native gain;
+bounded observation failures remain unconfirmed. SourceUse and Cooking respect
+the active production owner. Failed routes retain bounded private retry delays.
+Partial transfer
+can later satisfy stock demand without completed-work credit. A missing known
+route preserves unknown environmental affordances rather than asserting an
+absence of world resources.
+Fresh blocked goals can request help through the existing social process owner,
+while reception, independent response and native outcomes remain authoritative.
+Ready accepted work retires the exact native reading action before replacement;
+dependency waits or unavailable means preserve reading. Other practical skill
+owners and longer production mechanisms remain implementation work.
+
+Organization's bounded contact attempts retain exact loaded native failures
+for the originator's own private approach. Controller attempts actual exchange
+before applying delayed retries. Three equivalent failures await changed
+privately observed address or meaningful actual approach evidence; missing
+legacy context remains unknown. Urgent bodily needs precede pending contact
+and its wait state. Exact locomotion ownership and acknowledged cancellation
+precede retirement; a read-only native idle proof covers a completed trip.
+ResourceProduction retains admission-time physiology and exact vessel identity.
+Already appraised pressure without executable competing relief preserves its
+selected action. Partial gain in the bound vessel remains owned progress;
+distinct usable relief and new physiological danger can interrupt it.
 
 Fortification compiles survey, construction and verification over held ground.
 The existing SAOBuild native bridge still owns material checks, aperture choice,
@@ -1340,8 +1374,30 @@ Mousecat's existing native person inspector displays both models, disagreement,
 hypotheses and selected-action evidence through Speakeasy. Bounded controls set
 opposing allocation, opportunities per county hour and association depth. The
 complete command applies atomically, including while paused. Observation is
-read-only; display reductions expose omissions. Full native archives retain up
-to 64 episodes and 256 experiences per person, separate from the small live view.
+read-only; display reductions expose omissions. Archive cognition snapshots
+cover up to 64 episodes and 256 experiences per person, separate from the small
+live view. C104 shares an eight-MiB encoded-copy ledger across archive channels.
+Selected-person detail takes priority; required inspection shapes and physical
+squares remain whole or explicitly omitted. Loaded export omissions and
+unavailable geometry have separate coverage counts. Final encoded overflow
+produces a source-bound, read-back-verified deferred receipt without advancing
+the archive sequence. Live inspection reports that condition, and successful
+capture replaces its receipt. World state and private cognition retain their
+existing owners; unexpected encoding and I/O failures remain fatal.
+Expected byte exhaustion returns a nonthrowing bounded result from that same
+encoder. Inspection, cognition, live core fallback and archive trials commit
+bytes only when they fit. Unsupported values, non-finite numbers and cycles
+retain strict failure, avoiding native debugger faults for optional omissions.
+Unescaped strings retain the same UTF-8 byte accounting and pass through without
+escape construction. Live export admission waits one second after successful
+writer close. Its completion timer remains separate from captured source and
+world clocks, while encoding and writer failures retain their stop authority.
+Physical capture interleaves whole squares outward from each authored area
+center under the shared budgets. Native automatic camera commands retain
+regional residency only when their paired View target is proven loaded inside
+that map's chunk boundary; explicit residency and independent coordinates keep
+their exact semantics. Native streaming failure preserves its original cause
+and last verified clock before subsequent stale-context lookups are refused.
 Speakeasy validates and joins source-hashed trajectories for later aggregate
 training, preserving frozen predictions, censoring and gaps. Scenario admission
 keeps its existing operator evaluation boundary.

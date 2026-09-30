@@ -78,6 +78,13 @@ local O=SAO.Observation
 __tick();__paused();check("disabled-inert",__reads==0)
 O.enable();check("unknown-selection",not O.select("missing") and __records.missing==nil)
 O.select("a")
+local privatePlan={objective='retain usable food',status='blocked',resourceCategory='food',
+ demand={pressure=.35,ownedReady=0,ownedRaw=0,ownedWater=0},
+ sequence={{verb='inspect',owner='SAONeeds',status='available'}},
+ rationale='inspect remembered ground',uncertainty='access and helper assent remain unknown',
+ capacity={fatigue=.25,skills={Cooking=0},commitments={{id='accepted'}}},contacts={'b'},
+ labor={slack={status='unknown'},groupValues={status='unknown'}}}
+SAO.ProceduralPlanning={snapshot=function()return {purposes={privatePlan},spatialFacts=0,practiceDomains=0} end}
 __records.a.worldSourceReservation="missing-source"
 __sources.resultByActor.a="r1";__sources.results.r1={actorId="a",reservationId="r1",status="failed",detail="source unavailable"}
 SAO.Organization.processOrder={"p"}
@@ -95,6 +102,13 @@ check("physical-needs",find(first.people.a.sections,"Hunger")=="0.3000")
 check("body-health",find(first.people.a.sections,"Health (%)")=="23.75")
 check("nested-carried-items",find(first.people.a.sections,"Base.CannedBeans")=="Beans [id 17]")
 check("pressure-record",find(first.people.a.sections,"answer")=="escape")
+check("resource-plan-visible",find(first.people.a.sections,"Resource goal")=="food / pressure 35% / usable food 0 / raw food 0 / water vessels 0"
+ and find(first.people.a.sections,"Work sequence")=="inspect (available)"
+ and find(first.people.a.sections,"Potential helpers")=="1 personally known; capacity and assent unconfirmed")
+check("resource-unknowns-visible",find(first.people.a.sections,"Uncertainty")==privatePlan.uncertainty
+ and string.find(find(first.people.a.sections,"Labor assessment"),'slack: unknown',1,true)~=nil)
+check("planning-projection-read-only",privatePlan.status=='blocked' and privatePlan.demand.pressure==.35
+ and privatePlan.sequence[1].status=='available')
 check("read-only-source-join",__records.a.worldSourceReservation=="missing-source"
  and find(first.people.a.sections,"Source action")=="Recorded pointer has no matching actor reservation")
 check("source-terminal-receipt",find(first.people.a.sections,"Latest result.status")=="failed")
@@ -180,6 +194,7 @@ def main():
     names = ["SAO_Observation.lua", "SAO_Locomotion.lua", "SAO_Voice.lua", "SAO_Inspect.lua"]
     sources = {name: (LUA / name).read_text(encoding="utf-8") for name in names}
     controls = [
+        ("resource-plan-visible", "SAO_Observation.lua", 'row(s, "Work sequence", #sequence > 0', 'row(s, "Hidden sequence", #sequence > 0'),
         ("body-health", "SAO_Observation.lua", "damage:getOverallBodyHealth()", "body:getHealth()"),
         ("body-health", "SAO_Observation.lua", "string.format(\"%.2f\", health)", "string.format(\"%.2f\", health / 100)"),
         ("zero-body-health", "SAO_Observation.lua", "health >= 0", "health > 0"),

@@ -87,6 +87,15 @@ CACHES = {
         "native cooking actions and appliance handles exist only while their "
         "person is living; death retires the exact runtime owner while the "
         "durable interrupted work receipt remains on the person record"),
+    ("SAO_ResourceProduction.lua", "runtime"): (
+        "R.interrupt", "production-detach",
+        "native vessel-fill actions and fixture handles belong to the living "
+        "body; detach reaches the exact interrupt owner and releases runtime "
+        "while canonical outcomes remain durable"),
+    ("SAO_ResourceProduction.lua", "sourceRefresh"): (
+        "retireRefresh", "production-detach",
+        "a bounded pending handled-source observation retains native handles "
+        "only until exact self refresh or detach before and after interruption"),
     ("SAO_Orienting.lua", "states"): (
         "O.forget", "named",
         "native head and body orientation state is bound to one living body; "
@@ -548,6 +557,12 @@ def main():
                 faults.append("completed return no longer clears its staged body handle")
             if not re.search(r"SAO\.AfflictedReturn\.resume\s*\(\s*rec\s*\)", recover):
                 faults.append("body recovery no longer reaches the durable return owner")
+        elif how == "production-detach":
+            detach = function_body(src, "R.detach") or ""
+            if "SAO.ResourceProduction.detach" not in dead_body:
+                faults.append("native production refresh retirement is absent from markDead")
+            if len(re.findall(r"retireRefresh\s*\(\s*id\s*,", detach)) != 2 or "R.interrupt" not in detach:
+                faults.append("production detach must retire handled-source references before and after interrupt")
         elif how != "self":
             faults.append(f"{table} has an unknown lifetime rule {how!r}")
         print(f"     {fname}:{table:<18} <- {forget} ({how})")

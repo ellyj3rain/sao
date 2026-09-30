@@ -2,6 +2,7 @@
 -- admitted private evidence independently. Inspectors retain the richer receipts.
 require "SAO_Pharmacology"
 require "SAO_Cooking"
+require "SAO_ResourceProduction"
 require "SAO_Cognition"
 
 SAO.Pharmacology.onNativeOutcome = function(id, receipt)
@@ -44,4 +45,32 @@ SAO.Cooking.onOutcome = function(id, receipt)
         return SAO.Cognition.preparationOutcome(id, receipt)
     end
     return false
+end
+
+-- A native fill acquires fluid into a held vessel. It is neither ingestion
+-- nor evidence of bodily relief. The result owner retains its richer proof.
+local function finiteAmount(value)
+    return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
+end
+SAO.ResourceProduction.onOutcome = function(id, receipt)
+    local canonical = receipt and SAO.ResourceProduction.outcome(id, receipt.id)
+    if not canonical or canonical.actorId ~= id or canonical.kind ~= "refill-water"
+        or canonical.token ~= "resource:filled" then return false end
+    if canonical.experienceDelivered then return true end
+    if canonical.status ~= "completed" and canonical.status ~= "interrupted"
+        and canonical.status ~= "failed" then return false end
+    if not canonical.cognitiveToken then return true end
+    local completed = canonical.status == "completed"
+    if completed and (canonical.nativeCredit ~= canonical.id or canonical.held ~= true
+        or canonical.clean ~= true or not finiteAmount(canonical.nativeGain)
+        or canonical.nativeGain <= 0 or not finiteAmount(canonical.beforeAmount)
+        or not finiteAmount(canonical.afterAmount) or canonical.beforeAmount < 0
+        or canonical.afterAmount <= canonical.beforeAmount) then return false end
+    if not SAO.Cognition or not SAO.Cognition.publish then return false end
+    return SAO.Cognition.publish(id, canonical.cognitiveToken, {
+        kind = "acquire", category = "water", sourceId = canonical.sourceId,
+        itemType = canonical.itemType,
+        status = completed and "completed" or canonical.status == "interrupted" and "interrupted" or "unavailable",
+        detail = completed and "native-vessel-water-fill" or canonical.detail,
+    })
 end

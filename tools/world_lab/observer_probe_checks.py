@@ -42,6 +42,7 @@ def run(tmp, GAME, JDK):
                                            "NativeObserverClockProbe.java",
                                            "NativeObserverInspectionProbe.java",
                                            "NativeObserverZoomProbe.java",
+                                           "NativeObserverSitesProbe.java",
                                            "NativeObserverPreload.java"))], work / "compile")
     manifest, agent = work / "MANIFEST.MF", work / "observer-agent.jar"
     manifest.write_text("Manifest-Version: 1.0\nPremain-Class: StudyLoadingAgent\nCan-Retransform-Classes: true\n\n", encoding="utf-8")
@@ -103,12 +104,12 @@ def run(tmp, GAME, JDK):
          "invalid inspection command acknowledged"),
         ("cognition_apply", "StudyObserver.java", 'if (!Boolean.TRUE.equals(observationCall("cognition", opponentShare, (double) opportunitiesPerHour, (double) maxDepth)))',
          'if (false)', 1, "cognition settings did not reach Lua receiver"),
-        ("zoom_projection", "StudyObserver.java", "core.offscreenBuffer.setZoomAndTargetZoom(0, nextZoom);",
+        ("zoom_projection", "StudyObserver.java", "core.offscreenBuffer.setZoomAndTargetZoom(slot, nextZoom);",
          "// Only the target changes; the actual projection remains unchanged.", 1,
          "native zoom did not enlarge rendered world projection"),
         ("zoom_validate", "StudyObserver.java", "if (zoomStep != -1 && zoomStep != 1)", "if (false)", 1,
          "invalid zoom command acknowledged"),
-        ("zoom_automatic", "StudyObserver.java", "core.setAutoZoom(0, false);", "// Leave automatic zoom in control.", 1,
+        ("zoom_automatic", "StudyObserver.java", "core.setAutoZoom(slot, false);", "// Leave automatic zoom in control.", 1,
          "native automatic zoom can overwrite observer zoom"),
         ("inspection_validate", "StudyObserver.java", '!Boolean.TRUE.equals(observationCall("validatePerson", id))',
          'false', 1, "invalid inspection command acknowledged"),
@@ -404,10 +405,10 @@ def run_visibility(tmp, GAME, JDK):
          "native canopy did not select the trunk/treetop path"),
         ("canopy-alpha", "StudyLoadingAgent.java", "alpha = 0;", "alpha = 1;", "observer",
          "native canopy alpha concealed people or altered ordinary trees"),
-        ("canopy-owner", "StudyObserver.java", "playerIndex == 0 && hostOnly() &&",
-         "playerIndex == 0 &&", "foreign", "native canopy did not select the trunk/treetop path"),
-        ("canopy-slot", "StudyObserver.java", "playerIndex == 0 && hostOnly() &&",
-         "hostOnly() &&", "observer", "native canopy did not select the trunk/treetop path"),
+        ("canopy-owner", "StudyObserver.java", "playerIndex >= 0 && playerIndex <= extraAnchors.length && hostOnly()",
+         "playerIndex >= 0 && playerIndex <= extraAnchors.length", "foreign", "native canopy did not select the trunk/treetop path"),
+        ("canopy-slot", "StudyObserver.java", "playerIndex >= 0 && playerIndex <= extraAnchors.length && hostOnly()",
+         "hostOnly()", "observer", "native canopy did not select the trunk/treetop path"),
     )
     for name, filename, old, new, kind, why in controls:
         directory = work / name

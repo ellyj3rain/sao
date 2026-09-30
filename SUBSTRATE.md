@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `3.7.3.0-pre-alpha` |
+| Version | `3.7.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -14,7 +14,7 @@ from implementation evidence; a named module is not a completed mechanism.
 
 ## Ground rules
 
-- Project Zomboid Build 42.20 is the engine ground truth.
+- Installed Project Zomboid Build 42.21 is the current engine ground truth.
 - ZombieBuddy is the only hard runtime mod dependency.
 - No other mod becomes a requirement unless the operator rules it.
 - External mods are inputs or sources, never owners.
@@ -28,7 +28,7 @@ from implementation evidence; a named module is not a completed mechanism.
 
 | Layer | What it makes possible | Without it |
 |---|---|---|
-| Project Zomboid 42.20 | bodies, world state, save data, Lua, Java, vehicles, timed actions, traits, professions, radio, print media | nothing runs |
+| Project Zomboid 42.21 | bodies, world state, save data, Lua, Java, vehicles, timed actions, traits, professions, radio, print media | nothing runs |
 | ZombieBuddy 2.3.0+ | loads `SAO.jar`; provides the Java instrumentation path | the Lua side degrades to a thinner mod |
 | SAO Java component | engine bridge, movement, perception scans, combat, hibernation, body scale | many engine reads and body changes are absent |
 | SAO Lua component | the county, four pillars, needs, places, standing, voice, UI | no survivor county |
