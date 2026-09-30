@@ -1,8 +1,8 @@
 -- SAO_SourceUse - one actor-specific source access and native-use proof.
 --
 -- C61 records exact native source and item revisions. This module performs the
--- first narrow action over that substrate: a live actor approaches the known
--- place, resolves the same source again, walks to an engine-selected
+-- first narrow action over that substrate: a live actor resolves the known
+-- source, approaches its remembered place if unloaded, walks to an engine-selected
 -- interaction square, transfers the exact item through a vanilla timed action,
 -- and eats/drinks that exact carried item through vanilla. Durable ownership
 -- and results live in SAO_WorldSources; Java holds only current-world object
@@ -88,8 +88,10 @@ local function reservationFor(id)
     return SAO.WorldSources.pendingActionFor(tostring(id)), rec
 end
 
-local function fail(id, body, reservation, reason)
-    refreshDisprovedSource(id, body, reservation, reason)
+local function fail(id, body, reservation, reason, refreshSource)
+    if refreshSource ~= false then
+        refreshDisprovedSource(id, body, reservation, reason)
+    end
     if reservation then
         SAO.WorldSources.failAction(reservation.id, id, reason)
     end
@@ -135,6 +137,23 @@ local function orderInteraction(id, body, reservation)
         "approaching-source") then return false, "reservation-lost" end
     if not SAO.Locomotion.order(id, body, target.x, target.y, target.z) then
         return false, "interaction-route-refused"
+    end
+    return true
+end
+
+-- The reservation already owns the actor's exact private source fact. A
+-- loaded source supplies its native standing square without requiring the
+-- actor to reach an arbitrary building centre first. An unloaded source
+-- retains the remembered-place leg; arrival resolves the exact target again.
+local function orderApproach(id, body, reservation)
+    local ordered, why = orderInteraction(id, body, reservation)
+    if ordered then return true end
+    if why ~= "NOT_LOADED" then return false, why end
+    if not SAO.WorldSources.setPhase(reservation.id, id,
+        "approaching-place") then return false, "reservation-lost" end
+    if not SAO.Locomotion.order(id, body, reservation.placeX,
+        reservation.placeY, reservation.placeZ) then
+        return false, "place-route-refused"
     end
     return true
 end
@@ -519,10 +538,13 @@ function SU.begin(id, body, place, category, admission, decisionContext)
         reservation.nativeUseTerminalState = context.nativeUseTerminalState
             and tostring(context.nativeUseTerminalState) or nil
     end
-    if not SAO.Locomotion.order(id, body, reservation.placeX,
-        reservation.placeY, reservation.placeZ) then
-        fail(id, body, reservation, "place-route-refused")
-        return false, "place-route-refused"
+    local ordered
+    ordered, why = orderApproach(id, body, reservation)
+    if not ordered then
+        -- Target resolution may inspect a far loaded object. Its refusal
+        -- closes execution, but is not the actor observing changed contents.
+        fail(id, body, reservation, why, false)
+        return false, why
     end
     log(tostring(id) .. " approaches privately observed " .. category
         .. " at place " .. tostring(reservation.placeId))
@@ -825,6 +847,14 @@ function SU.resume(id, body)
         -- second leg beside the action already owned by the body.
         return "SOURCEUSE"
     end
+    if reservation.operation ~= "store"
+        and (reservation.phase == "approaching-place"
+            or reservation.phase == "approaching-source") then
+        local ordered, why = orderApproach(id, body, reservation)
+        if ordered then return "SOURCEWARD" end
+        fail(id, body, reservation, "resume-route:" .. tostring(why))
+        return nil
+    end
     if reservation.operation == "acquire" or reservation.operation == "store" then
         local state = transferState(body, reservation)
         if state == "UNAVAILABLE" then return "SOURCEUSE" end
@@ -860,12 +890,9 @@ function SU.resume(id, body)
         fail(id, body, reservation, why)
         return nil
     end
-    reservation.phase = "approaching-place"
-    if SAO.Locomotion.order(id, body, reservation.placeX,
-        reservation.placeY, reservation.placeZ) then
-        return "SOURCEWARD"
-    end
-    fail(id, body, reservation, "resume-route-refused")
+    local ordered, why = orderApproach(id, body, reservation)
+    if ordered then return "SOURCEWARD" end
+    fail(id, body, reservation, "resume-route:" .. tostring(why))
     return nil
 end
 
@@ -948,7 +975,8 @@ function SU.beforeStateChange(id, body, fromState, toState, reason)
     -- Controller can project SOURCEWARD. This is the initial projection of
     -- that same action, not an exit that should cancel it.
     if toState == "SOURCEWARD"
-        and reservation.phase == "approaching-place" then return true end
+        and (reservation.phase == "approaching-place"
+            or reservation.phase == "approaching-source") then return true end
     if fromState == "SOURCEWARD" and toState == "SOURCEUSE"
         and (reservation.phase == "transferring"
             or reservation.phase == "using"

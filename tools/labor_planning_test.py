@@ -150,7 +150,6 @@ context.sources={} context.inspectPlace=nil
 again,step=P.planResource('a',context)
 check('admitted_attempt_is_not_replaced_by_later_assessment',again==purpose and step.itemId==12)
 SAO.SourceUse.onMovementDone('a',__bodies.a,'arrived')
-SAO.SourceUse.onMovementDone('a',__bodies.a,'arrived')
 __carriedItem=__sourceItem __busy=false __observeText=__after
 SAO.SourceUse.tick('a',__bodies.a)
 local receipt=SAO.WorldSources.actionOutcome(reservation.id,'a')
@@ -260,7 +259,6 @@ ok,reservation=SAO.SourceUse.beginAcquisition('a',__bodies.a,place,'food',{
     purposeId=purpose.id,purposeStepId=step.id,sourceId=step.sourceId,itemId=step.itemId,
     sourceRevision=step.sourceRevision,acceptItem=function(t) return t=='Base.Chicken' end})
 SAO.SourceUse.onMovementDone('a',__bodies.a,'arrived')
-SAO.SourceUse.onMovementDone('a',__bodies.a,'arrived')
 __carriedItem=__sourceItem __busy=false __observeText=__after
 SAO.SourceUse.tick('a',__bodies.a)
 receipt=SAO.WorldSources.actionOutcome(reservation.id,'a')
@@ -301,7 +299,6 @@ purpose,step=P.planResource('a',context)
 ok,reservation=SAO.SourceUse.beginAcquisition('a',__bodies.a,place,'food',{
     purposeId=purpose.id,purposeStepId=step.id,sourceId=step.sourceId,itemId=step.itemId,
     sourceRevision=step.sourceRevision,acceptItem=function(t) return t=='Base.Chicken' end})
-SAO.SourceUse.onMovementDone('a',__bodies.a,'arrived')
 SAO.SourceUse.onMovementDone('a',__bodies.a,'arrived')
 __carriedItem=__sourceItem __busy=false __observeText=__after
 SAO.SourceUse.tick('a',__bodies.a)

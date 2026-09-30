@@ -2322,6 +2322,19 @@ if ! "$PY" tools/async_export_lifecycle_test.py; then
     fail=1
 fi
 
+# Border 223 - the observer's empty-map optimization preserves native Lua
+# outcomes, error locations, stepping and populated breakpoint behavior.
+if ! "$PY" tools/breakpoint_lookup_test.py; then
+    note "BORDER FINDING - study Lua breakpoint lookup changes native behavior"
+    fail=1
+fi
+# Border 224 - authored threats retain native admission receipts and a single
+# saved attempt; their existence and behavior require loaded acceptance.
+if ! "$PY" tools/initial_threat_test.py; then
+    note "BORDER FINDING - initial threat conditions or attempt ownership differs"
+    fail=1
+fi
+
 if ! "$PY" tools/source_integration_gate.py; then
     note "BORDER FINDING - source integration lineage or ownership claim differs"
     fail=1

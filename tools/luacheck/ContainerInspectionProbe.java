@@ -239,6 +239,20 @@ public class ContainerInspectionProbe {
         check("native_action_malformed_id_refused", SAOWorldSources.actionTarget(actor,
             stockOffer.get("id") + ":extra", stockOffer.get("fp"), revision, selectedFood.getID(),
             selectedFood.getFullType(), 14,20,0).equals("BAD_SOURCE_ID"));
+        position(actor,cell,4.5f,20.5f);
+        check("remembered_loaded_target_resolves_outside_interaction_reach",
+            SAOWorldSources.actionTarget(actor, stockOffer.get("id"),
+                stockOffer.get("fp"), revision, selectedFood.getID(),
+                selectedFood.getFullType(), 14,20,0).startsWith("READY:"));
+        check("target_resolution_does_not_bind_or_transfer",
+            SAOWorldSources.actionItem(actor) == null
+                && selectedFood.getContainer() == stocked.getContainer()
+                && !actor.getInventory().contains(selectedFood));
+        check("remembered_target_requires_arrival_before_binding",
+            SAOWorldSources.bindAction(actor, stockOffer.get("id"),
+                stockOffer.get("fp"), revision, selectedFood.getID(),
+                selectedFood.getFullType(), 14,20,0).equals("ACCESS_REFUSED")
+                && SAOWorldSources.actionItem(actor) == null);
         position(actor,cell,10.5f,20.5f);
         check("native_transfer_requires_actual_reach", SAOWorldSources.transferOffer(actor,
             selectedFood, stocked.getContainer(), "acquire").isEmpty());

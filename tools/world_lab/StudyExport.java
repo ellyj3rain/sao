@@ -207,6 +207,17 @@ public final class StudyExport {
         receipts.remove(receipt.ticket);
     }
     public void requestStop(String reason) { requireOwner(); StudyObserver.requestStop(reason); }
+    /** Authored initial conditions run only on the native world owner. */
+    public boolean threatReady(double x, double y, double z) {
+        requireOwner();
+        if (epoch == null || closed) throw new IllegalStateException("study source owner unavailable");
+        return StudyObserver.threatReady(x, y, z);
+    }
+    public KahluaTable seedThreat(double x, double y, double z, double count) {
+        requireOwner();
+        if (epoch == null || closed) throw new IllegalStateException("study source owner unavailable");
+        return StudyObserver.seedThreat(x, y, z, count);
+    }
 
     /** Detached scalar diagnostics. Each counter row is coherent; stages are sampled separately. */
     public static String diagnosticsJson() {

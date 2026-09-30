@@ -7476,6 +7476,20 @@ local function updateMovement(id, agent, body)
         or agent.state == "SEARCHWARD" or agent.state == "HEARTHWARD" then
         SAO.Locomotion.tick(id)
         local s = SAO.Locomotion.status(id)
+        if agent.state == "WATERWARD" and agent.taskDeadline
+            and tickCount >= agent.taskDeadline and s:sub(1, 5) ~= "done:" then
+            local job = SAO.Locomotion.jobs and SAO.Locomotion.jobs[id]
+            if job and SAO.Locomotion.expire(id, body, "water-approach-expired") then
+                s = "done:water-approach-expired"
+                SAO.Needs.noteWaterRouteFailure(id, body, s)
+                SAO.Locomotion.cancel(id)
+            end
+            SAO.Needs.clearWater(body)
+            agent.waterRun, agent.taskDeadline = nil, nil
+            agent.nextWaterAt = tickCount + 600
+            setState(agent, id, "IDLE", "water approach exceeded its time limit")
+            return true
+        end
         if agent.state == "FORAGE" and agent.forageInspection
             and agent.taskDeadline and tickCount >= agent.taskDeadline
             and s:sub(1, 5) ~= "done:" then

@@ -38,9 +38,16 @@ on the simulation.
 
 ## Status
 
-`3.9.0.0-pre-alpha` - the coordinate is computed by the version machine
+`3.10.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C107 routes known containers to native interaction squares, retires expired
+water approaches and preserves resolved outcomes through later death. Authored
+initial threats retain actual native admission and saved attempt receipts.
+Observer skips empty instruction breakpoint lookups while retaining native
+error locations and God-view. Loaded response and performance improvement
+require successor receipts.
 
 C106 authors initial regional population coverage before native generation,
 retaining actual people and body counts as the realized result. It connects

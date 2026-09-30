@@ -1,13 +1,36 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.9.0.0-pre-alpha` |
+| Version | `3.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-30, [C106] adds source-bound initial people by study site before
+**As of** 2026-09-30, [C107] corrects known-source approaches, terminal water-route
+feedback and expiry, and preservation of resolved stock requests. Definitions
+declare one-time native threat conditions with saved attempt receipts. Native
+construction owns stats, identity and ordinary AI; survivors receive no knowledge
+or pursuit target. Observer reports actual cell zombie count. Empty instruction
+breakpoint maps bypass lookup in isolated studies while native source positions,
+stepping, populated breakpoints and errors remain. Installed method/VM controls
+pass; hazard presence, response and speed gain remain successor loaded acceptance.
+C106 realized four people per area but all three stock requests expired unmet.
+Full-minute rates were7.1176 normal and2.2792 fast native callbacks/s; no60/120FPS
+or aggregate training follows. The C106 checkpoint saved and exited normally at
+world hour 117.6856, but frame validation used a synthetic corner origin and
+rejected the real cohort before terminal inspection. Frame inspection now uses
+the sealed package's origin catalog; an unbound initial-cohort frame reports
+missing authority. The preserved final frame and exact native terminal sequence
+pass diagnostic revalidation. The original failed report remains unchanged.
+
+Loaded resource appraisal still lacks deliberate scouting and route-specific
+social/environmental risk and reward. Nearby ground supplies no item fact.
+Perception, memory, reports and uncertain inference must ground possibilities;
+acquired obligations, home and allies can matter beyond the actor's own needs.
+Existing contact/commitment metadata does not establish that fuller appraisal.
+
+[C106] adds source-bound initial people by study site before
 native generation. PopulationAdmissions retains identity, history, lived presence
 and unit ownership; actual generated people determine coverage. Save replay
 retains the exact admission. Existing admissions pass fourteen cases and three
@@ -1301,8 +1324,8 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, plus C105's outcome and export-worker controls, the
-repository holds 224 `*_test.py` files. The gate invokes 224 `*_test.py` files
-and 16 other Python entry points, 240 distinct scripts, through direct calls
+repository holds 226 `*_test.py` files. The gate invokes 226 `*_test.py` files
+and 16 other Python entry points, 242 distinct scripts, through direct calls
 and its mirror loop. Native suites also invoke their own controls.
 Border labels extend through 222; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod

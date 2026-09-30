@@ -129,7 +129,7 @@ local ok,r=SAO.SourceUse.beginAcquisition('a',body,p,'reading',{
     purposeId=purpose.id,purposeStepId='acquire-book',acceptItem=function(t) return t=='Base.BookCooking1' end})
 check('goal_binds_exact_selected_item',ok==true and r and r.itemId==12 and r.operation=='acquire'
     and purpose.admission.correlationId==r.id and purpose.cursor==1)
-check('native_transfer_admitted_without_progress',SAO.SourceUse.onMovementDone('a',body,'arrived')=='moving'
+check('native_transfer_admitted_without_progress',r.phase=='approaching-source'
     and SAO.SourceUse.onMovementDone('a',body,'arrived')=='using' and purpose.cursor==1)
 __carriedItem=__sourceItem __busy=false __observeText=__after
 local terminal=SAO.SourceUse.tick('a',body)

@@ -92,6 +92,8 @@ def controls(needs: str, sources: str):
 
 
 def water_controls(needs: str):
+    yield "ignore-climbing-water-failure", change(needs,
+        '"done:stalled:Transition:CLIMBING", ', ''), "climbing_stall_is_owned_water_failure"
     yield "ignore-water-attempt-feedback", change(needs,
         "&& (!avoidFailedApproaches || !waterApproachHeld(shell, object, atHours))", "&& true"), "failed_fixture_does_not_monopolize_query"
     yield "legacy-query-holds-without-clock", change(needs,
@@ -157,6 +159,10 @@ return Ctl"""
     variants = [("water-lua-production", needs, controller, None)]
     if not baseline_only:
         variants += [
+            ("water-deadline-omitted", needs, change(controller,
+                'if agent.state == "WATERWARD" and agent.taskDeadline',
+                'if false and agent.state == "WATERWARD" and agent.taskDeadline'),
+                "water_deadline_releases_controller_and_records_exact_failure"),
             ("cognition-ordinary-veto", needs, change(controller,
                 '((selection == "water") or (selection == nil',
                 '((selection == "water" and needs.thirst >= SAO.Disposition.drinkAt(id)) or (selection == nil'),
@@ -179,7 +185,11 @@ return Ctl"""
                 "ISTimedActionQueue.add(ISTakeWaterAction:new(body, nil, waterObject, nil)); return true"), controller,
                 "sleeping_native_queue_drop_is_refusal"),
             ("water-terminal-no-feedback", needs, change(controller,
-                "                SAO.Needs.noteWaterRouteFailure(id, body, s)\n", ""),
+                '            if agent.state == "WATERWARD" then\n'
+                '                SAO.Needs.noteWaterRouteFailure(id, body, s)\n'
+                '                -- The water RUN fills vessels and carries them home\n',
+                '            if agent.state == "WATERWARD" then\n'
+                '                -- The water RUN fills vessels and carries them home\n'),
                 "actual_terminal_owner_records_before_clear"),
             ("water-selector-loses-county-clock", change(needs,
                 "SAO.History.countyHours())\n    end)\n    if not ok or type(s)",

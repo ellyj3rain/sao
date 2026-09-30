@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.9.0.0-pre-alpha` |
+| Version | `3.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1524,3 +1524,45 @@ verb selection, local-player pharmacology without a person record, mounted
 horse execution and complete animal/crafting/repair receipts remain explicit
 producer work. The catalogue distinguishes these admitted gaps from reference
 material whose mechanisms were never selected.
+
+
+### Resource approaches and native threat conditions (C107)
+
+An admitted matching loaded item resolves its native interaction square before
+SourceUse orders movement. An unloaded remembered source retains the existing
+place approach. Saved approach phases resume through the same owner. Resolution
+does not bind, transfer or consume an item; current standing, proximity and exact
+native revisions still admit those operations. Early refusal retains the private
+memory without acquiring unseen changes.
+
+Terminal climbing stalls and expired water approaches enter the exact fixture's
+existing failure owner. Locomotion expires only its current body-owned water job;
+Controller releases the route and returns to decision. No hydration or assertion
+of absent supplies follows. A resolved study stock request preserves its original
+outcome and county time through later death or identity loss.
+
+Initial-cohort observation frames do not contain the native spawn-origin catalog.
+Archive inspection obtains that catalog from the verified source package before
+checking regional initial conditions. An unbound initial-cohort frame reports
+missing authority; a synthetic inspection origin cannot replace the real catalog.
+
+Study definitions may declare initial native threats near an observation site.
+An unloaded square remains pending. Once loaded, StudyWorld records the exact
+definition, save, site, position and count before calling the native constructor.
+Existing attempt receipts must match that binding. Created, partial, refused and
+ambiguous attempts persist without replay. VirtualZombieManager owns actor
+identity, stats, events and ordinary AI; the study restores its temporary choices
+and supplies no target or survivor perception. Observer exposes actual native
+zombie count and the disabled flag.
+
+The isolated observer skips instruction breakpoint lookup when the installed
+KahluaThread's breakpoint map is empty. Source positions, stepping, nonempty maps,
+watchpoints, error handling and Core.debug retain their native paths. Explicit
+native lookup and ordinary launches remain available. Installed VM controls prove
+these branches; live speed benefit and native threat response require a fresh run.
+
+Loaded resource plans still lack a deliberate scout candidate. A nearby location
+is not evidence of its supplies. Search appraisal needs person-private memory,
+observation, reports and uncertain inference, plus perceived danger, home,
+acquired responsibilities and allies. The execution repair does not establish
+that wider appraisal or make an unobserved container accessible.

@@ -67,6 +67,7 @@ __records={} __logs={} __mode='ok' __remove='ok' __restore='ok' __now=42
  __sourceReservation=nil __sourceEvents={} __allowObserve=false __nearestObserved=nil
 __zombieThreat=nil __formedThreat=nil __hostileKey=nil __sourceBusy=false
 __locomotionStatus='moving' __locomotionTicks=0
+__targetRequests=0 __targetRefusal=nil
 __externalAdvanceCalls=0 __externalAdvanceElapsed=nil
 SAO={
  Log={line=function(tag,msg) table.insert(__logs,msg) end},
@@ -107,7 +108,7 @@ SAO={
    table.insert(__sourceEvents,'cancel') SAO.Locomotion.jobs[tostring(id)]=nil
  end,order=function(id,body,x,y,z)
    table.insert(__sourceEvents,'order')
-   SAO.Locomotion.jobs[tostring(id)]={done=false}
+   SAO.Locomotion.jobs[tostring(id)]={done=false,body=body,x=x,y=y,z=z}
    return true
  end,tick=function() __locomotionTicks=__locomotionTicks+1 end,
  status=function() return __locomotionStatus end},
@@ -138,6 +139,8 @@ SAO={
        'source choice did not reach reservation owner')
      __sourceReservation={id='controller-source-begin',actorId=tostring(id),
        status='reserved',phase='approaching-place',category=category,
+       sourceId='C:handoff:0',fingerprint='handoff-fp',revision='r1',
+       itemId=12,itemType='Base.Apple',sourceX=220,sourceY=210,sourceZ=0,
        placeId=place.id,placeX=place.cx,placeY=place.cy,placeZ=0}
      __records[tostring(id)].worldSourceReservation=__sourceReservation.id
      return __sourceReservation
@@ -149,6 +152,22 @@ SAO={
          or __sourceReservation.unavailable) then
        return __sourceReservation
      end
+   end,
+   setPhase=function(reservationId,actorId,phase)
+     if not __sourceReservation or __sourceReservation.id~=reservationId
+       or __sourceReservation.actorId~=tostring(actorId)
+       or __sourceReservation.status~='reserved' then return false end
+     __sourceReservation.phase=phase return true
+   end,
+   failAction=function(reservationId,actorId,reason)
+     if not __sourceReservation or __sourceReservation.id~=reservationId
+       or __sourceReservation.actorId~=tostring(actorId)
+       or __sourceReservation.status~='reserved' then return false end
+     __sourceReservation.status='conflict' __sourceReservation.detail=reason
+     local rec=__records[__sourceReservation.actorId]
+     if rec and rec.worldSourceReservation==reservationId then rec.worldSourceReservation=nil end
+     table.insert(__sourceEvents,'fail')
+     return true
    end,
    release=function(reservationId,reason)
      if not __sourceReservation
@@ -188,6 +207,17 @@ function __body()
  return b
 end
 SAOJavaBridge={
+ worldSourceActionTarget=function(self,body,sourceId,fingerprint,revision,itemId,itemType,x,y,z)
+   __targetRequests=__targetRequests+1
+   -- Legacy projection-only rows model an unloaded source. The new offered
+   -- source supplies its exact controlled native standing/source positions.
+   if sourceId==nil then return 'NOT_LOADED' end
+   assert(sourceId=='C:handoff:0' and fingerprint=='handoff-fp' and revision=='r1'
+     and itemId==12 and itemType=='Base.Apple' and x==220 and y==210 and z==0,
+     'native target receiver lost exact offered source metadata')
+   return __targetRefusal or 'READY:219:210:0:220:210:0'
+ end,
+ clearWorldSourceAction=function() end,
  canReleaseShell=function() return __mode~='busy' end,
  isShell=function() return true end,
  isInventoryOf=function(self,b,reference)
@@ -274,6 +304,7 @@ function __setup()
  __allowObserve=false __nearestObserved=nil
  __zombieThreat=nil __formedThreat=nil __hostileKey=nil
  __sourceBusy=false __locomotionStatus='moving' __locomotionTicks=0
+ __targetRequests=0 __targetRefusal=nil
  __externalAdvanceCalls=0 __externalAdvanceElapsed=nil
  SAO.Perception.beliefs={}
  __visualRestore='ok' __visualRestored=0 __expectRestoredVisual=nil
@@ -627,11 +658,25 @@ do
  assert(started and __sourceReservation
    and SAO.Locomotion.jobs.p1 and __sourceEvents[1]=='order',
    'controller did not begin the exact observed-source route')
+ assert(__targetRequests==1 and __sourceReservation.phase=='approaching-source'
+   and SAO.Locomotion.jobs.p1.x==219 and SAO.Locomotion.jobs.p1.y==210,
+   'native source target was replaced by remembered place')
  assert(__setState(a,'p1','SOURCEWARD','approaches observed food')
    and a.state=='SOURCEWARD' and __sourceReservation
    and r.worldSourceReservation=='controller-source-begin'
    and SAO.Locomotion.jobs.p1 and #__sourceEvents==1,
    'initial SOURCEWARD projection cancelled its own durable action')
+end
+
+do
+ local r,b,a=__setup()
+ __nearestObserved={id='observed-place',cx=220,cy=210,minX=219,minY=209,maxX=222,maxY=212}
+ __targetRefusal='SOURCE_MISSING'
+ local started=__beginObservedUse('p1',a,b,0.8,'food',0.5)
+ assert(not started and __targetRequests==1 and __sourceReservation.status=='conflict'
+   and __sourceReservation.detail=='SOURCE_MISSING' and not r.worldSourceReservation
+   and not SAO.Locomotion.jobs.p1 and r.lastFoodDay==nil and r.lastWaterDay==nil,
+   'source target refusal retained or credited executable ownership')
 end
 do
  local r,b,a=__setup()
@@ -1236,6 +1281,11 @@ def main():
         if result!='VALUE PASS':
             print('FAULT: candidate baseline failed'); return 1
         controls=[
+            ('SAO_SourceUse.lua','SAO.Locomotion.order(id, body, target.x, target.y, target.z)',
+             'SAO.Locomotion.order(id, body, reservation.placeX, reservation.placeY, reservation.placeZ)',
+             'native source target was replaced by remembered place'),
+            ('SAO_SourceUse.lua','SAO.WorldSources.failAction(reservation.id, id, reason)',
+             '', 'source target refusal retained or credited executable ownership'),
             ('SAO_Body.lua','            return nil, "native-spawn-failed"',
              '', 'native nil spawn allocated a bare player or descriptor'),
             ('SAO_Body.lua','            return nil, "native-spawn-failed"',

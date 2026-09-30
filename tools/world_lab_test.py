@@ -835,6 +835,32 @@ def export_probe_checks(tmp, java, config, source, checks):
                 and live["inspection"]["people"]["p16"]["sections"][0]["rows"],
                 "native export lost complete people or selected detail and truthful omissions")
     Lab.validate_frame(observed["bounded"])
+    cohort = copy.deepcopy(observed["bounded"])
+    sites = [{"id": "site" + str(index), "label": "Site" + str(index),
+              "x": window["x"] + window["width"] // 2,
+              "y": window["y"] + window["height"] // 2, "z": window["z"]}
+             for index, window in enumerate(cohort["windows"][:3])]
+    origins = [{key: site[key] for key in ("x", "y", "z")} | {"profession": "unemployed"}
+               for site in sites]
+    cohort["observationSites"] = sites
+    cohort["sandbox"]["SurvivorAwareness.PopulationGoverned"] = True
+    cohort["sandbox"]["SurvivorAwareness.Population"] = len(sites) * 4
+    cohort["situation"] = {"initialPeopleBySite": {site["id"]: 4 for site in sites}}
+    Lab.validate_frame(cohort, origins)
+    try: Lab.validate_frame(cohort)
+    except ValueError as error:
+        Lab.require("bound native origins" in str(error), "cohort frame lost honest unbound verdict")
+    else: raise AssertionError("unbound cohort frame asserted native origin coverage")
+    code = Path(Lab.__file__).read_text(encoding="utf-8")
+    anchor = 'definition["origins"] = definition_origins'
+    Lab.require(code.count(anchor) == 1, "cohort frame origin mutation anchor differs")
+    controlled = {"__file__": Lab.__file__, "__name__": "cohort_frame_control"}
+    exec(compile(code.replace(anchor, "pass", 1), Lab.__file__, "exec"), controlled)
+    try: controlled["validate_frame"](cohort, origins)
+    except ValueError as error:
+        Lab.require("unambiguous native origin" in str(error), "cohort frame control failed for another reason")
+    else: raise AssertionError("synthetic corner origin defect survived cohort frame control")
+    print("PASS native cohort frame uses sealed origins; unbound and restored corner-origin controls refused")
     print("PASS native debugger export: cognition, live detail/core, archive defer, selected rows, input unchanged; genuine errors remain observable")
     controls = [
         ("old assertion inspection probe", "local ok = jsonFits(value, trial)",

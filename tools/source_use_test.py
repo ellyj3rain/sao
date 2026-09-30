@@ -387,6 +387,7 @@ SAO.Locomotion = {
     order = function(id, body, x, y, z)
         __lastOrder = { id=id, x=x, y=y, z=z }
         return __routeAllowed ~= false
+            and not (x == __blockedX and y == __blockedY)
     end,
     cancel = function(id)
         __routeCancels = (__routeCancels or 0) + 1
@@ -435,7 +436,10 @@ ISGrabItemAction = { new = function(self, character, item)
 end }
 
 SAOJavaBridge = {
-    worldSourceActionTarget = function() return __targetAnswer end,
+    worldSourceActionTarget = function()
+        __targetCalls = (__targetCalls or 0) + 1
+        return __targetAnswer
+    end,
     bindWorldSourceAction = function() return __bindAnswer end,
     worldSourceActionItem = function() return __sourceItem end,
     worldSourceActionContainer = function() return __sourceContainer end,
@@ -488,6 +492,7 @@ ACTION_PROBE = r'''(function()
         "APPLIED:completed:1:native-complete"
     __finishThrows = false
     __routeAllowed, __standingAllowed, __routeCancels = true, true, 0
+    __blockedX, __blockedY, __lastOrder, __targetCalls = nil, nil, nil, 0
     __queueReject, __busy, __queued, __queueClears = false, false, nil, 0
     __learnedSource, __forgotSource, __lastDrinkFraction = nil, nil, nil
     __groupByActor, __groupClaims = {}, {}
@@ -500,7 +505,7 @@ ACTION_PROBE = r'''(function()
     local first = began and SAO.SourceUse.onMovementDone(
         actor, body, "arrived") or "failed"
     local second = first == "moving" and SAO.SourceUse.onMovementDone(
-        actor, body, "arrived") or "failed"
+        actor, body, "arrived") or first
     return reservation, first, second
   end
 
@@ -589,7 +594,7 @@ ACTION_PROBE = r'''(function()
   native:complete(); __busy = false
   local final = SAO.SourceUse.tick("run",body)
   local runReceipt = __stores[STORE].results[run.id]
-  check("shipped_protocol_and_completion", first == "moving"
+  check("shipped_protocol_and_completion", first == "using"
       and transferQueued and transferTick == "pending" and native.kind == "eat"
       and final == "completed" and runReceipt.status == "completed"
       and runReceipt.provisioningGroup == "house"
@@ -644,7 +649,7 @@ ACTION_PROBE = r'''(function()
       "custom-owner",body,"arrived") or "failed"
   local customSecond = customFirst == "moving"
       and SAO.SourceUse.onMovementDone("custom-owner",body,"arrived")
-      or "failed"
+      or customFirst
   __carriedItem, __busy, __observeText = __sourceItem, false, %(food_post)s
   local customTick = SAO.SourceUse.tick("custom-owner",body)
   local customAction = __queued
@@ -659,7 +664,7 @@ ACTION_PROBE = r'''(function()
       })
   local missingId = __stores[STORE].resultByActor["missing-owner"]
   local missingReceipt = missingId and __stores[STORE].results[missingId]
-  check("registered_native_use_owner", customFirst == "moving"
+  check("registered_native_use_owner", customFirst == "using"
       and customSecond == "using" and customTick == "pending"
       and customAction.kind == "fixture-diet-eat" and customCreates == 1
       and customFinal == "completed" and customReceipt
@@ -677,7 +682,7 @@ ACTION_PROBE = r'''(function()
   __standingStoreUnavailable = false
   local faultReceipt = __stores[STORE].results[faultReservation.id]
   check("attribution_unavailable_refuses_before_transfer",
-      faultFirst == "moving" and faultSecond == "failed"
+      faultFirst == "failed" and faultSecond == "failed"
       and faultReceipt and faultReceipt.status == "conflict"
       and faultReceipt.detail == "provisioning-context-unavailable")
 
@@ -844,7 +849,7 @@ ACTION_PROBE = r'''(function()
       "engage",body,"SOURCEUSE","ENGAGE","operator order")
   local engageResult = __stores[STORE].results[engage.id]
   check("state_exits_close_ownership", initialProjection and initialPending
-      and initialPending.phase == "approaching-place"
+      and initialPending.phase == "approaching-source"
       and continuation and continued and continued.phase == "transferring"
       and travel and travelExit and travelResult.status == "released"
       and engageExit and __queueClears == 1 and engageResult
@@ -920,7 +925,6 @@ ACTION_PROBE = r'''(function()
   -- current source coordinates.
   body = reset("protocol",p42,"food",%(food)s)
   SAO.SourceUse.begin("protocol",body,p42,"food","standing")
-  SAO.SourceUse.onMovementDone("protocol",body,"arrived")
   __bindAnswer = "BOUND"
   local protocolResult = SAO.SourceUse.onMovementDone(
       "protocol",body,"arrived")
@@ -1059,10 +1063,111 @@ ACTION_PROBE = r'''(function()
   body = reset("outside",p47,"food",%(vehicle)s)
   __targetAnswer = "READY:59:8:0:60:8:0"
   __observeText = %(vehicle_outside)s
-  SAO.SourceUse.begin("outside",body,p47,"food","standing")
+  local outsideBegin, outsideWhy = SAO.SourceUse.begin(
+      "outside",body,p47,"food","standing")
   local outside = SAO.SourceUse.onMovementDone("outside",body,"arrived")
-  check("vehicle_place_boundary", outside == "failed"
-      and __forgotSource == "V:77:2")
+  check("vehicle_place_boundary", not outsideBegin
+      and outsideWhy == "vehicle-left-observed-place" and outside == "failed"
+      and __forgotSource == nil and __lastOrder == nil
+      and __known.outside[p47.id].sourceFacts["V:77:2"].x == 48)
+
+  -- The source's native interaction square remains usable when the building
+  -- centre is blocked. Admission owns the private fact before native resolution.
+  body = reset("direct",p42,"food",%(food)s)
+  __targetAnswer, __blockedX, __blockedY = "READY:7:8:0:8:8:0",8,8
+  local direct, directReservation = SAO.SourceUse.begin(
+      "direct",body,p42,"food","standing")
+  check("loaded_private_source_avoids_centroid", direct
+      and directReservation.phase == "approaching-source"
+      and __lastOrder.x == 7 and __lastOrder.y == 8 and __targetCalls == 1
+      and __queued == nil and directReservation.transferProven == nil)
+  local projected = SAO.SourceUse.beforeStateChange(
+      "direct",body,"IDLE","SOURCEWARD","private source")
+  check("direct_source_projection_keeps_owner", projected
+      and SAO.WorldSources.pendingActionFor("direct") == directReservation
+      and __routeCancels == 0)
+  local arrived = direct and SAO.SourceUse.onMovementDone("direct",body,"arrived")
+  check("direct_arrival_still_requires_native_bind", arrived == "using"
+      and __queued and __queued.kind == "transfer"
+      and directReservation.phase == "transferring")
+
+  body = reset("unknown",p42,"food",%(food)s)
+  __known.unknown = {}
+  local unknown = SAO.SourceUse.begin("unknown",body,p42,"food","standing")
+  check("unseen_source_never_resolves_native_target", not unknown
+      and __targetCalls == 0 and __lastOrder == nil
+      and __records.unknown.worldSourceReservation == nil)
+
+  body = reset("unloaded",p42,"food",%(food)s)
+  __targetAnswer = "NOT_LOADED"
+  local unloaded, unloadedReservation = SAO.SourceUse.begin(
+      "unloaded",body,p42,"food","standing")
+  local placeLeg = unloaded and unloadedReservation.phase == "approaching-place"
+      and __lastOrder.x == p42.cx and __lastOrder.y == p42.cy
+  __targetAnswer = "READY:7:8:0:8:8:0"
+  local loadedLater = SAO.SourceUse.onMovementDone("unloaded",body,"arrived")
+  check("unloaded_private_source_resolves_after_place_arrival", placeLeg
+      and loadedLater == "moving" and __lastOrder.x == 7
+      and unloadedReservation.phase == "approaching-source" and __queued == nil)
+
+  for _, refusal in ipairs({"REVISION_CHANGED","FINGERPRINT_CHANGED",
+      "ITEM_MISSING","NO_INTERACTION_POINT","READY:7:8:0"}) do
+      body = reset("target-refusal",p42,"food",%(food)s)
+      __targetAnswer = refusal
+      local accepted, why = SAO.SourceUse.begin(
+          "target-refusal",body,p42,"food","standing")
+      local receiptId = __stores[STORE].resultByActor["target-refusal"]
+      local receipt = receiptId and __stores[STORE].results[receiptId]
+      check("loaded_target_refusal_" .. tostring(_), not accepted
+          and why == refusal and __lastOrder == nil and __queued == nil
+          and receipt and receipt.status == "conflict" and receipt.detail == refusal
+          and __learnedSource == nil and __forgotSource == nil
+          and __known["target-refusal"][p42.id].sourceFacts["C:food-token:0"].revision == "food-r1")
+  end
+
+  body = reset("target-route-refusal",p42,"food",%(food)s)
+  __targetAnswer, __blockedX, __blockedY = "READY:7:8:0:8:8:0",7,8
+  local routeAccepted, routeWhy = SAO.SourceUse.begin(
+      "target-route-refusal",body,p42,"food","standing")
+  check("native_target_route_refusal_has_no_centroid_fallback", not routeAccepted
+      and routeWhy == "interaction-route-refused" and __lastOrder.x == 7
+      and __records["target-route-refusal"].worldSourceReservation == nil)
+
+  for _, operation in ipairs({"consume","acquire"}) do
+      body = reset("resume-route",p42,"food",%(food)s)
+      local begun, reservation = SAO.SourceUse.begin(
+          "resume-route",body,p42,"food","standing",{operation=operation})
+      -- An old durable place leg and a new source leg both resume through
+      -- the same exact target owner, without binding or queuing at a distance.
+      reservation.phase = "approaching-place"
+      __targetAnswer, __blockedX, __blockedY = "READY:7:8:0:8:8:0",8,8
+      local resumedRoute = SAO.SourceUse.resume("resume-route",body)
+      check("resume_private_target_" .. operation, begun
+          and resumedRoute == "SOURCEWARD" and __lastOrder.x == 7
+          and reservation.phase == "approaching-source" and __queued == nil
+          and SAO.WorldSources.pendingActionFor("resume-route") == reservation)
+      local again = SAO.SourceUse.resume("resume-route",body)
+      check("resume_exact_source_leg_" .. operation, again == "SOURCEWARD"
+          and __lastOrder.x == 7 and __queued == nil
+          and SAO.WorldSources.pendingActionFor("resume-route") == reservation)
+  end
+
+  body = reset("resume-stale",p42,"food",%(food)s)
+  local resumedBegin, resumedReservation = SAO.SourceUse.begin(
+      "resume-stale",body,p42,"food","standing",{operation="acquire"})
+  __targetAnswer, __lastOrder = "REVISION_CHANGED",nil
+  local staleResume = SAO.SourceUse.resume("resume-stale",body)
+  check("resume_stale_target_refuses_before_route", resumedBegin and staleResume == nil
+      and __lastOrder == nil and __queued == nil
+      and __stores[STORE].results[resumedReservation.id].status == "conflict")
+
+  body = reset("revoked",p42,"food",%(food)s)
+  local revokedBegin = SAO.SourceUse.begin("revoked",body,p42,"food","standing")
+  __standingAllowed = false
+  local revokedArrival = SAO.SourceUse.onMovementDone("revoked",body,"arrived")
+  check("direct_target_preserves_current_standing_refusal", revokedBegin
+      and revokedArrival == "failed" and __queued == nil
+      and __records.revoked.worldSourceReservation == nil)
 
   return table.concat(checks,"|")
 end)()''' % {key: json.dumps(value) for key, value in SNAPSHOTS.items()}
@@ -1088,6 +1193,16 @@ ACTION_EXPECTED = {
     "exact_post_chunk_required", "unrelated_delta_conflicts",
     "terminal_conflict_recovers",
     "vehicle_chunk_migrates", "vehicle_place_boundary",
+    "loaded_private_source_avoids_centroid", "direct_source_projection_keeps_owner",
+    "direct_arrival_still_requires_native_bind", "unseen_source_never_resolves_native_target",
+    "unloaded_private_source_resolves_after_place_arrival",
+    "loaded_target_refusal_1", "loaded_target_refusal_2", "loaded_target_refusal_3",
+    "loaded_target_refusal_4", "loaded_target_refusal_5",
+    "native_target_route_refusal_has_no_centroid_fallback",
+    "resume_private_target_consume", "resume_exact_source_leg_consume",
+    "resume_private_target_acquire", "resume_exact_source_leg_acquire",
+    "resume_stale_target_refuses_before_route",
+    "direct_target_preserves_current_standing_refusal",
 }
 
 EXPECTED = {"observed_not_accessible", "vehicle_in_place_observation",
@@ -1121,7 +1236,7 @@ def kahlua_probe():
     return value, output
 
 
-def action_probe():
+def action_probe(source_use_text=None):
     OUT.mkdir(parents=True, exist_ok=True)
     compiled = subprocess.run(
         [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(OUT), str(RUNNER)],
@@ -1138,9 +1253,13 @@ def action_probe():
         probe_chunk = work / "action-probe.lua"
         probe_chunk.write_text("__actionResult = " + ACTION_PROBE,
                                encoding="utf-8")
+        use_path = SOURCE_USE
+        if source_use_text is not None:
+            use_path = work / "SAO_SourceUse.lua"
+            use_path.write_text(source_use_text, encoding="utf-8")
         done = subprocess.run(
             [str(JDK / "java.exe"), "-cp", f"{PZ};.", "LuaRun",
-             str(prelude), str(WORLD), str(SOURCE_USE),
+             str(prelude), str(WORLD), str(use_path),
              str(CROSSED_TRANSFER), str(probe_chunk),
              "--", "__actionResult"],
             cwd=work, capture_output=True, text=True, timeout=300)
@@ -1148,6 +1267,23 @@ def action_probe():
     lines = (done.stdout or "").strip().splitlines()
     value = lines[-1][6:] if lines and lines[-1].startswith("VALUE ") else None
     return value, output
+
+
+def approach_defect_control():
+    source = SOURCE_USE.read_text(encoding="utf-8-sig")
+    before = ("    local ordered, why = orderInteraction(id, body, reservation)\n"
+              "    if ordered then return true end\n")
+    if source.count(before) != 1:
+        return False, "direct approach mutation anchor is not unique"
+    # Restore the mandatory centre leg in the production owner loaded by the
+    # same VM. The blocked-centre case must fail for the original defect.
+    altered, detail = action_probe(source.replace(before,
+        '    local ordered, why = false, "NOT_LOADED"\n', 1))
+    found = dict(re.findall(r"([a-z0-9_]+)=(true|false)", altered or ""))
+    named = "loaded_private_source_avoids_centroid"
+    if set(found) != ACTION_EXPECTED or found.get(named) != "false":
+        return False, "centroid defect survived or control did not run: " + detail[-1500:]
+    return True, named
 
 
 def production_contract(texts):
@@ -1395,6 +1531,7 @@ def main():
             if raw != "true":
                 action_failed.append(name)
     action_ok = action_found == ACTION_EXPECTED and not action_failed
+    approach_control_ok, approach_control_detail = approach_defect_control()
     runtime_ok = ledger_ok and action_ok
     anchors_ok, anchors_detail = contract_anchor_probe()
     engine_ok, engine_detail = engine_probe()
@@ -1405,6 +1542,8 @@ def main():
     lifecycle_transfer_ok = provisioning_lifecycle_cases.main() == 0
     print(f"  durable ledger: {'PASS' if ledger_ok else 'FAIL'}")
     print(f"  shipped action lifecycle: {'PASS' if action_ok else 'FAIL'}")
+    print(f"  blocked-centre production control: {'PASS' if approach_control_ok else 'FAIL'}"
+          f" ({approach_control_detail})")
     print(f"  static contract anchors: {'PASS' if anchors_ok else 'FAIL'}"
           f" ({anchors_detail})")
     print(f"  installed engine seam: {'PASS' if engine_ok else 'FAIL'}")
@@ -1420,7 +1559,7 @@ def main():
         print("  " + action_detail[-1500:].replace("\n", " "))
     if not engine_ok:
         print("  FAULT: " + engine_detail)
-    passed = (runtime_ok and anchors_ok and engine_ok and transfer_ok
+    passed = (runtime_ok and approach_control_ok and anchors_ok and engine_ok and transfer_ok
               and ledger_transfer_ok and lifecycle_transfer_ok)
     if passed:
         print("  179) exact source access and native use preserve private knowledge,"
