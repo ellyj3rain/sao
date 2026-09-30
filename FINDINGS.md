@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `3.7.1.0-pre-alpha` |
+| Version | `3.7.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2820,3 +2820,19 @@ Kahlua; five restored defects fail. The observation border separately proves
 that operator output labels actual steps and personal beliefs independently.
 This establishes the substrate and current material joins, not natural loaded
 frequency, strategic quality or a collect-prepare-deliver producer.
+
+## F-125 | 2026-09-29 23:20 UTC / 16:20 PST | Instant literature effects did not advance skill-book study
+
+The installed Build 42.21 `IsoGameCharacter.ReadLiterature(Literature)` bytecode
+updates stress, calls `BodyDamage.JustReadSomething`, learns listed recipes and
+handles consume-on-read. It calls no skill-book page or XP-multiplier owner.
+`SAONeeds.readSkillBook` invoked it directly, while Controller recorded pending
+reading. The installed `media/lua/shared/TimedActions/ISReadABook.lua` owns
+duration/resumption in `getDuration`, page and multiplier progress in `update`,
+and final native effects in `complete`.
+
+C102 replaces the Controller study call with that timed owner. Border 214
+executes the installed action and the production planner/queue seam; its native
+completion, item, body-token and admission-order controls detect the omitted
+links. These controlled callbacks establish mechanical execution, not loaded
+autonomous prevalence. Reading completion remains separate from practical use.

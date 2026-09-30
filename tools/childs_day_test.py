@@ -266,8 +266,10 @@ def main():
         # [C32] widened from the child alone to everyone the fear reads.
         "the age module holds the panic floor": "CharacterStat.PANIC" in read(AGE)
             and "SAO.Disposition.fear" in read(AGE),
-        "the controller gates the book by literacy": "SAO.History.literacyOf(id)" in read(CONTROLLER)
-            and 'literacy48 == "none"' in read(CONTROLLER),
+        "the controller gates the book through the native study owner's literacy check":
+            "SAO.Study.begin(id, body, manual)" in read(CONTROLLER)
+            and 'SAO.History.literacyOf(id) == "none"'
+                in read(CONTROLLER.with_name("SAO_Study.lua")),
         "the shell carries the learning pace": "public volatile float xpScale = 1f;" in read(SHELL),
         "the bridge sets it without throwing": "public String setXpScale(" in read(BRIDGE)
             and "catch (Throwable" in read(BRIDGE)[read(BRIDGE).find("public String setXpScale("):][:900],

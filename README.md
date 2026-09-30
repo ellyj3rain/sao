@@ -38,9 +38,17 @@ on the simulation.
 
 ## Status
 
-`3.7.1.0-pre-alpha` - the coordinate is computed by the version machine
+`3.7.2.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C102 connects maintained personal study to the game's actual timed reading.
+Survivors can select useful carried manuals without a work designation, resume
+interrupted pages, and retain a reading purpose while immediate danger and needs
+take priority. Mousecat exposes progress and interruption. Native reading
+changes the game's learning multiplier; it does not claim practical completion.
+The controlled action checks pass; autonomous loaded-world frequency remains
+unobserved.
 
 C101 closes the native study terminal-handoff defect. Exact supervisor receipts
 and bounded legacy revalidation restore the retained attempt as a saved session

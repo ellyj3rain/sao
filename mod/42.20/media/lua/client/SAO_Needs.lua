@@ -257,6 +257,7 @@ local function log(msg) SAO.Log.line("NEED", msg) end
 -- to refuse.
 function N.queueVerified(action)
     if action == nil then return false end
+    if SAO.Study and SAO.Study.beforeQueue then SAO.Study.beforeQueue(action) end
     local okQ = pcall(function() ISTimedActionQueue.add(action) end)
     if not okQ then return false end
     local okH, has = pcall(function()

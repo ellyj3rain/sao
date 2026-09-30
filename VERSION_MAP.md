@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.7.1.0-pre-alpha` |
-| Closed chronology | `A1-C101` |
-| Next batch | `C102` |
+| Current version | `3.7.2.0-pre-alpha` |
+| Closed chronology | `A1-C102` |
+| Next batch | `C103` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -217,6 +217,7 @@ the machine. Names, dates, and threads below come from
 | `C99` | 2026-09-28 | minor | `3.7.0.0-pre-alpha` | Mobile household continuity | Introduce native-backed mobile households: persistent moving-place identity, occupants and stores, towing and exterior-anchor continuity, physical RV-room entry and exit, private spatial planning, overnight use and Mousecat observation across camper, trailer and motorhome assets. This is a new player-visible life and mobility contract, so minor. |
 | `C100` | 2026-09-29 | patch | `3.7.0.1-pre-alpha` | Mobile household loaded acceptance | Repair current-engine mobile-household execution against the actual vehicle Set and part APIs, preserve distinct exterior and remote-interior positions across representation changes, and close the existing physical-room obligation with a retained Build 42.21 receipt. This corrects and verifies the C99 capability without moving its boundary, so patch. |
 | `C101` | 2026-09-29 | kohai | `3.7.1.0-pre-alpha` | Study terminal and human review handoff | Mature the durable study contract with exact supervisor terminal identity, narrow revalidation of the legacy receipt, saved-state recovery, terminal Mousecat projection and immediate human disposition of verified competing-cognition outcomes. This connects existing study, evidence and review owners without adding gameplay or dataset authority, so kohai. |
+| `C102` | 2026-09-29 | kohai | `3.7.2.0-pre-alpha` | Native skill-book study | Connect maintained private study to installed timed reading, exact native completion and resumed page state; admit useful privately carried manuals without a work designation and expose progress without practical credit. This matures the existing C95 planner and learning execution contract, so kohai. |
 
 ## The former number
 
@@ -237,11 +238,11 @@ establish release maturity.
 
 ## Next movement
 
-`C102` is the next batch. Its content determines its tier after it
+`C103` is the next batch. Its content determines its tier after it
 exists:
 
-| If C102 is | Result |
+| If C103 is | Result |
 |---|---|
-| patch or hotfix | `3.7.1.1-pre-alpha` |
-| kohai | `3.7.2.0-pre-alpha` |
+| patch or hotfix | `3.7.2.1-pre-alpha` |
+| kohai | `3.7.3.0-pre-alpha` |
 | minor | `3.8.0.0-pre-alpha` |

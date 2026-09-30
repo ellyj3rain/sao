@@ -107,7 +107,8 @@ PROBE = r'''(function()
   local read=P.recordResult('a',study.id,{owner='SAONeeds',
     token='reading:progressed',status='completed',atHours=102})
   check('exact_read_result_advances_progress',read==true and study.sessions==1
-    and study.cursor==2 and P.techniqueProfile('a').practice.Cooking.completed==1)
+    and study.cursor==2 and P.techniqueProfile('a').practice.Cooking.completed==0
+    and P.techniqueProfile('a').practice.Cooking.readingSessions==1)
 
   local blocked=P.planStudy('b','scout',{literacy='none',atHours=100})
   check('literacy_blocks_reading_without_erasing_purpose',blocked.status=='blocked'
