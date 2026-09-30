@@ -6,12 +6,21 @@ import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import net.bytebuddy.matcher.ElementMatchers;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.pool.TypePool;
+import net.bytebuddy.asm.AsmVisitorWrapper;
+import net.bytebuddy.description.type.TypeDescription;
+import net.bytebuddy.implementation.Implementation;
+import net.bytebuddy.jar.asm.ClassWriter;
+import net.bytebuddy.jar.asm.Label;
+import net.bytebuddy.jar.asm.MethodVisitor;
+import net.bytebuddy.jar.asm.Opcodes;
 
 /** Automates the final loading-screen click in an explicitly launched study JVM.
  * GameLoadingState.update retains its native readiness and streaming checks.
  * Observer hooks are enabled only by the explicitly isolated observer property.
  */
 public final class StudyLoadingAgent {
+    private static volatile boolean emptyBreakpointLookup;
+    public static boolean emptyBreakpointLookupInstalled() { return emptyBreakpointLookup; }
     public static void premain(String argument, Instrumentation instrumentation) {
         if (!"isolated-study".equals(argument)) throw new IllegalArgumentException("study argument required");
         // ClassGraph's concurrent scan reaches ConcurrentHashMap.fullAddCount.
@@ -72,7 +81,8 @@ public final class StudyLoadingAgent {
             "zombie.iso.IsoCell", "zombie.characters.IsoPlayer", "zombie.Lua.LuaEventManager",
             "zombie.iso.IsoWorld", "zombie.savefile.PlayerDB", "zombie.iso.IsoCamera",
             "zombie.iso.IsoCamera$FrameState", "zombie.iso.IsoChunkMap", "zombie.ui.UI3DModel",
-            "zombie.ui.UIManager", "zombie.inventory.ItemPickerJava", "zombie.iso.objects.IsoTree");
+            "zombie.ui.UIManager", "zombie.inventory.ItemPickerJava", "zombie.iso.objects.IsoTree",
+            "se.krka.kahlua.vm.KahluaThread");
         if (System.getProperty("study.viewDirectory") != null) java.util.Collections.addAll(names,
             "zombie.core.sprite.SpriteRenderState", "zombie.core.SpriteRenderer", "zombie.core.Core");
         try {
@@ -103,6 +113,17 @@ public final class StudyLoadingAgent {
     private static void installObserver(Instrumentation instrumentation) {
         if (!instrumentation.isRetransformClassesSupported())
             throw new IllegalStateException("study observer agent requires Can-Retransform-Classes: true");
+        String lookup = System.getProperty("study.luaBreakpointLookup", "empty-map");
+        if (!lookup.equals("empty-map") && !lookup.equals("native"))
+            throw new IllegalArgumentException("invalid study Lua breakpoint lookup");
+        if (lookup.equals("empty-map")) observerBuilder()
+            .type(ElementMatchers.named("se.krka.kahlua.vm.KahluaThread"))
+            .transform((builder, type, loader, module, domain) -> builder.visit(
+                new AsmVisitorWrapper.ForDeclaredMethods()
+                    .method(ElementMatchers.named("luaMainloop").and(ElementMatchers.takesArguments(0)),
+                        new EmptyBreakpointLookup())
+                    .writerFlags(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS)))
+            .installOn(instrumentation);
         // Register cell/player advice before reflecting on any helper with native
         // signatures: reflection may resolve IsoPlayer before its first use.
         observerBuilder().type(ElementMatchers.named("zombie.iso.IsoCell"))
@@ -179,6 +200,56 @@ public final class StudyLoadingAgent {
                         .replaceWith(getter).on(ElementMatchers.any())))
                 .installOn(instrumentation);
         System.out.println("[StudyObserver] isolated native host hooks installed");
+    }
+
+    /** Retain native line tracking, stepping, populated maps and error handlers.
+     * An empty native breakpoint map has no breakpoint to inspect. The jump
+     * uses the original debug block's join rather than changing Core.debug.
+     */
+    static final class EmptyBreakpointLookup implements AsmVisitorWrapper.ForDeclaredMethods.MethodVisitorWrapper {
+        @Override public MethodVisitor wrap(TypeDescription type, MethodDescription method, MethodVisitor visitor,
+                Implementation.Context context, TypePool pool, int writerFlags, int readerFlags) {
+            return new MethodVisitor(Opcodes.ASM9, visitor) {
+                private Label nativeJoin;
+                private boolean firstDebug, inserted;
+                private int lookups;
+                @Override public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
+                    if (opcode == Opcodes.GETSTATIC && owner.equals("zombie/core/Core") && name.equals("debug")
+                            && nativeJoin == null) firstDebug = true;
+                    if (!inserted && opcode == Opcodes.GETFIELD && owner.equals("se/krka/kahlua/vm/KahluaThread")
+                            && name.equals("breakpointMap") && descriptor.equals("Ljava/util/HashMap;")) {
+                        if (nativeJoin == null) throw new IllegalStateException("native Lua debugger join unavailable");
+                        Label populated = new Label();
+                        super.visitInsn(Opcodes.DUP);
+                        super.visitFieldInsn(opcode, owner, name, descriptor);
+                        super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/util/HashMap", "isEmpty", "()Z", false);
+                        super.visitJumpInsn(Opcodes.IFEQ, populated);
+                        super.visitInsn(Opcodes.POP);
+                        super.visitJumpInsn(Opcodes.GOTO, nativeJoin);
+                        super.visitLabel(populated);
+                        inserted = true;
+                    }
+                    super.visitFieldInsn(opcode, owner, name, descriptor);
+                }
+                @Override public void visitJumpInsn(int opcode, Label label) {
+                    if (firstDebug) {
+                        if (opcode != Opcodes.IFEQ) throw new IllegalStateException("native Lua debug guard differs");
+                        nativeJoin = label; firstDebug = false;
+                    }
+                    super.visitJumpInsn(opcode, label);
+                }
+                @Override public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean face) {
+                    if (owner.equals("java/util/HashMap") && name.equals("containsKey") && descriptor.equals("(Ljava/lang/Object;)Z"))
+                        lookups++;
+                    super.visitMethodInsn(opcode, owner, name, descriptor, face);
+                }
+                @Override public void visitEnd() {
+                    if (!inserted || lookups != 1) throw new IllegalStateException("native Lua breakpoint lookup shape differs");
+                    super.visitEnd();
+                    emptyBreakpointLookup = true;
+                }
+            };
+        }
     }
 
     public static final class ObserverWorld {

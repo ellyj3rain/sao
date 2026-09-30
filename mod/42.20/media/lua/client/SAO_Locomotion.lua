@@ -182,6 +182,15 @@ function Loco.tick(id)
     end
 end
 
+function Loco.expire(id, body, reason)
+    local job = Loco.jobs[id]
+    if not job or job.body ~= body or job.done or reason ~= "water-approach-expired" then return false end
+    job.done, job.result = true, reason
+    observed(id, "failed", job, reason)
+    pcall(function() SAOJavaBridge:cancelMove(job.body) end)
+    return true
+end
+
 function Loco.cancel(id)
     local job = Loco.jobs[id]
     if not job then return end

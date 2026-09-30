@@ -260,6 +260,37 @@ function Study.start()
     return true
 end
 local NEED_STATS = { hunger = "HUNGER", thirst = "THIRST", fatigue = "FATIGUE" }
+local function applyInitialThreats()
+    local placements = Config.situation and Config.situation.initialThreats
+    if not placements then return end
+    state.situationReceipt = state.situationReceipt or {}
+    local receipts = state.situationReceipt.initialThreats or {}
+    state.situationReceipt.initialThreats = receipts
+    for _, placement in ipairs(placements) do
+        local prior = receipts[placement.id]
+        if prior then
+            assert(prior.definitionSha256 == Config.definitionSha256 and prior.save == getWorld():getWorld()
+                and prior.siteId == placement.siteId and prior.requested == placement.count
+                and prior.x == placement.x and prior.y == placement.y and prior.z == placement.z,
+                "initial threat receipt belongs to another source or placement")
+        elseif exportOwner:threatReady(placement.x, placement.y, placement.z) then
+            -- Persist the attempt before entering a constructor that dispatches
+            -- other native owners. An ambiguous exception never respawns it.
+            local receipt = {status = "attempted", definitionSha256 = Config.definitionSha256,
+                save = getWorld():getWorld(), siteId = placement.siteId,
+                x = placement.x, y = placement.y, z = placement.z,
+                hours = getGameTime():getWorldAgeHours(), requested = placement.count}
+            receipts[placement.id] = receipt
+            local outcome = assert(exportOwner:seedThreat(placement.x, placement.y, placement.z, placement.count),
+                "native initial threat receipt unavailable")
+            for key, value in pairs(outcome) do receipt[key] = value end
+            receipt.actors = receipt.actors or {}
+            setmetatable(receipt.actors, arrayMeta)
+            print("[StudyWorld] initial threat=" .. placement.id .. " status=" .. tostring(receipt.status)
+                .. " created=" .. tostring(receipt.created) .. " requested=" .. placement.count)
+        end
+    end
+end
 local function applyInitialNeeds()
     local needs = Config.situation and Config.situation.initialNeeds
     local regional = Config.situation and Config.situation.initialNeedsBySite
@@ -339,7 +370,7 @@ local function applyResourceObjectives()
             receipt.actorId = candidates[spec.actorOrdinal]
             if receipt.actorId then receipt.boundAtWorldAgeHours = getGameTime():getWorldAgeHours() end
         end
-        if receipt.actorId then
+        if receipt.actorId and receipt.status ~= "completed" and receipt.status ~= "abandoned" then
             local rec = records[receipt.actorId]
             if rec and rec.dead then
                 planning.resourceOutcomeDemand(receipt.actorId)
@@ -1166,6 +1197,7 @@ function Study.tick()
     flushExports()
     if not Study.active or exportStopping then return end
     applyInitialNeeds()
+    applyInitialThreats()
     applyResourceObjectives()
     applyHorseTravel()
     applyMobileHousehold()

@@ -320,7 +320,7 @@ check('resource_goal_enters_real_acquisition_owner',Ctl.advanceResourcePurpose('
 local purpose,step=P.resourceDemand('a','food') local reservation=SAO.WorldSources.reservation(__records.a.worldSourceReservation)
 check('queued_acquisition_has_no_resource_credit',purpose.cursor==1 and step.verb=='acquire'
     and purpose.admission.correlationId==reservation.id)
-SAO.SourceUse.onMovementDone('a',body,'arrived') SAO.SourceUse.onMovementDone('a',body,'arrived')
+SAO.SourceUse.onMovementDone('a',body,'arrived')
 __carriedItem=__sourceItem __busy=false __observeText=reservation.itemId==11 and __afterApple or __after
 local completed=SAO.SourceUse.tick('a',body)
 local result=SAO.WorldSources.actionOutcome(reservation.id,'a')
@@ -411,7 +411,7 @@ check('admitted_transfer_is_neither_relief_nor_acquired_stock',purpose.cursor==1
 SAOJavaBridge.carriedWorldTransferItem=function()
     return 'T|operation=acquire|source=C:drink:0|id=92|type=Base.Pop2|uses=1|amount=0.3|fluid=Cola|poison=0|rotten=0|cats=drink|tainted=0|hydrationAmount=0.3'
 end
-SAO.SourceUse.onMovementDone('a',body,'arrived') SAO.SourceUse.onMovementDone('a',body,'arrived')
+SAO.SourceUse.onMovementDone('a',body,'arrived')
 __carriedItem=__sourceItem __busy=false __observeText=__after
 local completed=SAO.SourceUse.tick('a',body)
 local receipt=W.actionOutcome(reservation.id,'a')
@@ -472,7 +472,6 @@ W.resetRuntime()
 check('reload_retains_exact_admitted_drink_intent_without_new_knowledge',pending.cognitionToken.hydrationAdmission
     and W.reservation(pending.id).itemId==92 and W.knownHydrationAmount('a','C:drink:0',92,'drink-r1')==.3)
 __standingAllowed=false
-SAO.SourceUse.onMovementDone('a',body,'arrived')
 local refused=SAO.SourceUse.onMovementDone('a',body,'arrived')
 local failed=W.actionOutcome(pending.id,'a')
 check('current_permission_change_refuses_drink_before_transfer',refused=='failed' and __queued==nil
@@ -480,7 +479,7 @@ check('current_permission_change_refuses_drink_before_transfer',refused=='failed
 body,agent=reset()
 Ctl.beginHydrationAcquisition('a',agent,body,1,thirst)
 pending=W.reservation(__records.a.worldSourceReservation)
-SAO.SourceUse.onMovementDone('a',body,'arrived') SAO.SourceUse.onMovementDone('a',body,'arrived')
+SAO.SourceUse.onMovementDone('a',body,'arrived')
 __carriedItem=__sourceItem __busy=false
 SAOJavaBridge.carriedWorldTransferItem=function()
     return 'T|operation=acquire|source=C:drink:0|id=92|type=Base.Pop2|uses=1|amount=0.3|fluid=Cola|poison=0|rotten=0|cats=drink|tainted=1|hydrationAmount=0'

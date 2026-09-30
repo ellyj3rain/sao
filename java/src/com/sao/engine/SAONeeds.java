@@ -1644,6 +1644,7 @@ public final class SAONeeds {
         try {
             boolean accessFailure = result != null && switch (result) {
                 case "done:Failed", "done:stalled:ManualRoute",
+                    "done:stalled:Transition:CLIMBING", "done:water-approach-expired",
                     "done:FailedObstacle:FAILED_BLOCKED_DIAGONAL",
                     "done:FailedObstacle:FAILED_LOCKED_DOOR",
                     "done:FailedObstacle:FAILED_BARRICADED_DOOR",

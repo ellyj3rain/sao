@@ -260,7 +260,7 @@ public final class WaterApproachProbe {
             && SAOBridge.INSTANCE.waterSourceWithinReach(body));
         check("no_water_consumed_or_changed_by_reappraisal", first.getFluidAmount() == 2 && second.getFluidAmount() == 2);
         position(body, cell, 10.5f, 20.5f);
-        check("new_owned_approach_can_fail", fail(body, 2.06, "done:stalled:ManualRoute"));
+        check("climbing_stall_is_owned_water_failure", fail(body, 2.06, "done:stalled:Transition:CLIMBING"));
         var other = person(cell);
         check("another_person_keeps_own_candidate", "14:20:0".equals(SAOBridge.INSTANCE.findWaterSource(other, 8, 2.07)));
         check("county_time_expiry_allows_reconsideration", "14:20:0".equals(SAOBridge.INSTANCE.findWaterSource(body, 8, 2.32)));

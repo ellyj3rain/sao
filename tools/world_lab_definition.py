@@ -5,6 +5,31 @@ import math
 import re
 
 
+def validate_initial_threats(value, observation, extent):
+    def require(condition, message):
+        if not condition:
+            raise ValueError(message)
+    sites = {site["id"]: site for site in observation.get("sites", [])}
+    require(isinstance(value, list) and 1 <= len(value) <= 12, "initialThreats requires1..12 declared placements")
+    seen, total = set(), 0
+    for row in value:
+        require(isinstance(row, dict) and set(row) == {"id", "siteId", "x", "y", "z", "count"}, "invalid initial threat fields")
+        require(isinstance(row["id"], str) and re.fullmatch(r"[a-z][a-z0-9-]{0,47}", row["id"])
+                and row["id"] not in seen, "invalid or duplicate initial threat id")
+        seen.add(row["id"])
+        require(isinstance(row["siteId"], str) and row["siteId"] in sites, "initial threat references unknown site")
+        site = sites[row["siteId"]]
+        require(all(type(row[key]) is int for key in ("x", "y", "z", "count")), "initial threat coordinates and count must be integers")
+        require(row["z"] == site["z"] and 8 <= max(abs(row["x"] - site["x"]), abs(row["y"] - site["y"])) <= 96,
+                "initial threat must be8..96 tiles from its site on the same floor")
+        require(extent["minCellX"] * 256 <= row["x"] < (extent["minCellX"] + extent["cellsX"]) * 256
+                and extent["minCellY"] * 256 <= row["y"] < (extent["minCellY"] + extent["cellsY"]) * 256,
+                "initial threat leaves the world extent")
+        require(1 <= row["count"] <= 32, "initial threat count must be1..32")
+        total += row["count"]
+    require(total <= 128, "initial threat total exceeds128")
+
+
 def validate_initial_people(value, observation, sandbox, origins):
     def require(condition, message):
         if not condition:

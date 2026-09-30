@@ -234,6 +234,9 @@ F.rec.dead=true applyResourceObjectives()
 check('study_dead_binding_is_terminal_not_reassigned',receipt.actorId=='a' and receipt.reason=='actor-dead'
     and goal.status=='abandoned' and not F.requester.proceduralPlanning)
 records.a=nil applyResourceObjectives()
+check('terminal_study_outcome_survives_later_identity_loss',receipt.actorId=='a'
+    and receipt.status=='abandoned' and receipt.reason=='actor-dead')
+receipt.status='maintained';receipt.reason=nil applyResourceObjectives()
 check('missing_saved_identity_is_reported_without_rebinding',receipt.actorId=='a'
     and receipt.reason=='bound-identity-missing' and not F.requester.proceduralPlanning)
 records.a=F.rec F.rec.dead=false bodies.a=body
@@ -256,6 +259,15 @@ check('study_terminal_and_stock_receipts_retain_county_clock',receipt.resolvedAt
 applyResourceObjectives()
 check('study_retired_terminal_receipt_does_not_readmit',#F.rec.proceduralPlanning.order==orderCount
     and F.rec.proceduralPlanning.purposes[receipt.purposeId]==nil)
+F.rec.proceduralPlanning=nil state={} F.at=10 Config.situation.resourceObjectives[1].target=3
+applyResourceObjectives() receipt=state.resourceObjectives['food-stock']
+F.at=13 applyResourceObjectives()
+local resolved=receipt.resolvedAtCountyHours
+check('study_expiry_records_original_outcome',receipt.status=='abandoned' and receipt.reason=='deadline-expired'
+    and resolved==13)
+F.rec.dead=true applyResourceObjectives()
+check('later_death_preserves_prior_expiry',receipt.status=='abandoned' and receipt.reason=='deadline-expired'
+    and receipt.resolvedAtCountyHours==resolved)
 __outcomeResults=table.concat(checks,'\n')
 '''
 
@@ -273,6 +285,8 @@ CONTROLS = [
      "missing_saved_identity_is_reported_without_rebinding", "helper"),
     ("helper", "purpose = retired", "purpose = nil",
      "study_retired_terminal_receipt_preserves_verified_result", "helper"),
+    ("helper", 'if receipt.actorId and receipt.status ~= "completed" and receipt.status ~= "abandoned" then',
+     'if receipt.actorId then', "terminal_study_outcome_survives_later_identity_loss", "helper"),
     ("helper", "receipt.boundAtWorldAgeHours = getGameTime():getWorldAgeHours()",
      "receipt.boundAtWorldAgeHours = SAO.History.countyHours()",
      "study_receipt_names_unequal_binding_and_goal_clock_domains", "helper"),

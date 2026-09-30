@@ -163,6 +163,12 @@ function CheckWaterRoutes()
     SAO.Controller.__waterMovement('person',a,b)
     check('arrival_with_native_queue_admission_becomes_drink',a.state=='DRINK'
         and #ISTimedActionQueue.queues[b].queue==1)
+    a,b=fresh();decide(a,b,1);__verdict='Transition:CLIMBING'
+    SAO.Controller.__waterTick(a.taskDeadline)
+    SAO.Controller.__waterMovement('person',a,b)
+    check('water_deadline_releases_controller_and_records_exact_failure',a.state=='IDLE'
+        and a.taskDeadline==nil and SAO.Locomotion.jobs.person==nil
+        and __failure and __failure.status=='done:water-approach-expired')
     -- The production Controller admits a rival-selected intent before the
     -- ordinary threshold. This controlled selector proves only the execution
     -- join; independent model behavior is checked with the real model module.

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `3.9.0.0-pre-alpha` |
+| Version | `3.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -684,3 +684,27 @@ initiating that native path. A crossing already started by that exact job retain
 its execution ownership while the native climb/window state is active. Border
 199 exercises movement update before the subsequent decision, including terminal
 receipts, entry refusal and companion loss.
+
+
+## Native study threat and instruction lookup owners (C107)
+
+The installed Build 42.21 jar has SHA-256
+`e1a69eb743ede60b213a0fe7f8b83d4fcab773036d256cc4543a336f3b058a33`.
+`VirtualZombieManager.createRealZombieAlways(IsoDirections, boolean)` consumes
+its current `choices`, constructs through native toughness/stat policy, clears
+the target, dispatches the native creation event and retains native persistent
+identity and cell admission. StudyObserver seeds a declared loaded free square
+with this owner and restores `choices` in `finally`. It honors
+`IsoWorld.getZombiesDisabled()` independently of debug mode. Missing squares wait
+before admission; blocked or disabled native conditions produce refusal receipts.
+Actual construction and later perception require loaded acceptance.
+
+Installed `KahluaThread.luaMainloop()` tracks current file and source line before
+its stepping and instruction breakpoint branches. The instruction branch reads
+its concrete HashMap and calls `containsKey` even when empty. The isolated agent
+inserts an empty-map jump only at that lookup entry, joining the original opcode
+execution label. Debug flags and original source tracking remain intact. The
+actual VM probe covers empty and cleared maps, populated maps, native fallback,
+step-into, line breakpoints, script errors and retained global debug; a restored
+lookup mutation fails its named assertion. JFR sampling identified this path,
+but its speed benefit remains an unmeasured hypothesis until a fresh comparison.

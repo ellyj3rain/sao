@@ -17,7 +17,7 @@ import re
 import shutil
 import sys
 import tempfile
-from world_lab_definition import validate_resource_objectives, validate_initial_people
+from world_lab_definition import validate_resource_objectives, validate_initial_people, validate_initial_threats
 
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE = ROOT / "tools/world_lab/StudyWorld.lua"
@@ -167,8 +167,8 @@ def validate(value):
             require(len(val) <= 512, "sandbox string too long")
     if "situation" in value:
         situation = value["situation"]
-        require(isinstance(situation, dict) and 1 <= len(situation) <= 6
-                and set(situation) <= {"initialNeeds", "initialNeedsBySite", "horseTravel", "mobileHousehold", "resourceObjectives", "initialPeopleBySite"},
+        require(isinstance(situation, dict) and 1 <= len(situation) <= 7
+                and set(situation) <= {"initialNeeds", "initialNeedsBySite", "horseTravel", "mobileHousehold", "resourceObjectives", "initialPeopleBySite", "initialThreats"},
                 "situation must define supported pressures")
         if "resourceObjectives" in situation:
             validate_resource_objectives(situation["resourceObjectives"], value["observation"])
@@ -278,6 +278,8 @@ def validate(value):
     require(count <= 65536, "observation windows exceed 65536-square capture budget")
     if "initialPeopleBySite" in value.get("situation", {}):
         validate_initial_people(value["situation"]["initialPeopleBySite"], obs, options, origins)
+    if "initialThreats" in value.get("situation", {}):
+        validate_initial_threats(value["situation"]["initialThreats"], obs, extent)
     return value
 
 
@@ -519,7 +521,7 @@ def bind_frame(frame, package):
             and len(frame["processes"]) <= obs["maxProcesses"], "observation exceeds definition budget")
 
 
-def validate_frame(frame):
+def validate_frame(frame, definition_origins=None):
     fields({key: value for key, value in frame.items()
             if key not in {"countyHours", "situation", "situationReceipt", "observationSites"}}, {"schema", "definitionSha256", "packageEngineJarSha256", "observerSha256",
                    "engineVersion", "map", "save", "sequence", "hours", "session",
@@ -577,6 +579,11 @@ def validate_frame(frame):
         definition["situation"] = frame["situation"]
     if "observationSites" in frame:
         definition["observation"]["sites"] = frame["observationSites"]
+    if "initialPeopleBySite" in frame.get("situation", {}):
+        require(definition_origins is not None, "initial cohort frame requires bound native origins")
+        # Frames describe observations, not the native spawn-origin catalog.
+        # The sealed package supplies that existing source authority.
+        definition["origins"] = definition_origins
     requested = loaded = missing = omitted = 0
     for window in windows:
         fields(window, {"id", "x", "y", "z", "width", "height", "squares", "unavailable",
@@ -715,7 +722,7 @@ def inspect_frames(path, package_path=None):
     run = None
     for source in paths:
         require(source.stat().st_size <= 64 * 1024 * 1024, "oversized observation")
-        frame = validate_frame(load(source))
+        frame = validate_frame(load(source), package[1]["origins"] if package is not None else None)
         if package is not None:
             bind_frame(frame, package)
         identity = (frame["definitionSha256"], frame["save"], frame["map"], frame["session"],

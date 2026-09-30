@@ -245,6 +245,7 @@ UNITS = [
     ('C104', 'kohai', 'Extend existing private purposes into shortage-driven native resource chains, grounded labor assessment and independently answered help; close accepted-work reading preemption. Existing planning, action and social owners retain authority, so kohai.'),
     ('C105', 'minor', 'Introduce typed desired-stock study requests with exact actor and experimental authority, separate native work and goal satisfaction, and a bounded immutable observation export worker with exact publication acknowledgement and paused stop draining. These establish new study authoring and runtime contracts, so minor.'),
     ('C106', 'minor', 'Add source-bound authored initial population coverage to the regional study contract, integrate privately inspected native hydration into existing thirst planning, and measure inclusive observation and callback costs. The new initial-cohort authoring contract is minor.'),
+    ('C107', 'minor', 'Add declared one-time native threat conditions with saved attempt receipts, correct remembered resource approach selection and terminal water-route feedback, preserve resolved outcome projection, and skip empty instruction breakpoint lookup in isolated observers. The authored threat contract is new, so minor.'),
 ]
 
 TIER_MEANINGS = [

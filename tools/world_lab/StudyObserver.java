@@ -82,6 +82,63 @@ public final class StudyObserver {
 
     private StudyObserver() { }
 
+    public static boolean threatReady(double x, double y, double z) {
+        requireGameThread();
+        if (!hostOnly() || cell != IsoWorld.instance.currentCell)
+            throw new IllegalStateException("initial threat requires the owned native study world");
+        if (!Double.isFinite(x) || x != Math.rint(x) || !Double.isFinite(y) || y != Math.rint(y)
+                || !Double.isFinite(z) || z != Math.rint(z))
+            throw new IllegalArgumentException("invalid native threat placement");
+        bounded((float) x, (float) y, (float) z);
+        return cell.getGridSquare((int) x, (int) y, (int) z) != null;
+    }
+
+    /** The native constructor owns stats, actor admission, events and identity.
+     * The study supplies one initial placement and never a pursuit target.
+     */
+    public static KahluaTable seedThreat(double x, double y, double z, double count) {
+        requireGameThread();
+        if (!hostOnly() || cell != IsoWorld.instance.currentCell)
+            throw new IllegalStateException("initial threat requires the owned native study world");
+        if (!Double.isFinite(x) || x != Math.rint(x) || !Double.isFinite(y) || y != Math.rint(y)
+                || !Double.isFinite(z) || z != Math.rint(z) || !Double.isFinite(count)
+                || count != Math.rint(count) || count < 1 || count > 32)
+            throw new IllegalArgumentException("invalid native threat placement");
+        bounded((float) x, (float) y, (float) z);
+        KahluaTable receipt = LuaManager.platform.newTable(), actors = LuaManager.platform.newTable();
+        receipt.rawset("owner", "native-VirtualZombieManager"); receipt.rawset("actors", actors);
+        receipt.rawset("requested", count); receipt.rawset("created", 0.0);
+        var square = cell.getGridSquare((int) x, (int) y, (int) z);
+        if (IsoWorld.getZombiesDisabled() || square == null || !square.isFree(false)) {
+            receipt.rawset("status", "refused");
+            receipt.rawset("reason", IsoWorld.getZombiesDisabled() ? "native-zombies-disabled" : square == null
+                ? "native-square-unavailable" : "native-square-blocked");
+            return receipt;
+        }
+        var manager = zombie.VirtualZombieManager.instance;
+        var previous = new java.util.ArrayList<>(manager.choices);
+        int created = 0;
+        try {
+            for (int index = 0; index < (int) count; index++) {
+                manager.choices.clear(); manager.choices.add(square);
+                var actor = manager.createRealZombieAlways(zombie.iso.IsoDirections.getRandom(), false);
+                if (actor == null) break;
+                KahluaTable row = LuaManager.platform.newTable();
+                row.rawset("persistentId", (double) actor.persistentId);
+                row.rawset("x", (double) actor.getX()); row.rawset("y", (double) actor.getY()); row.rawset("z", (double) actor.getZ());
+                row.rawset("nativeMember", cell.getZombieList().contains(actor) && cell.getObjectList().contains(actor));
+                row.rawset("targetAssigned", actor.target != null);
+                actors.rawset((double) ++created, row);
+            }
+        } finally {
+            manager.choices.clear(); manager.choices.addAll(previous);
+        }
+        receipt.rawset("created", (double) created);
+        receipt.rawset("status", created == count ? "created" : created == 0 ? "refused" : "partial");
+        if (created < count) receipt.rawset("reason", "native-creation-refused");
+        return receipt;
+    }
+
     /** This is a class identity test during construction, before ModData exists. */
     public static boolean isObserver(Object value) {
         return value instanceof Anchor || value instanceof View;
@@ -976,6 +1033,8 @@ public final class StudyObserver {
             + ",\"streamingChecks\":" + streamingChecks
             + ",\"retainedResidencies\":" + retainedResidencies
             + ",\"slowLuaCallbacks\":" + zombie.debug.DebugOptions.instance.checks.slowLuaEvents.getValue()
+            + ",\"nativeZombieCount\":" + cell.getZombieList().size()
+            + ",\"nativeZombiesDisabled\":" + IsoWorld.getZombiesDisabled()
             + ",\"slowLuaCallbackWarnings\":" + zombie.debug.DebugLog.isLogEnabled(zombie.debug.DebugType.Lua, zombie.debug.LogSeverity.Warning)
             + ",\"observationTiming\":" + (!initializing && Thread.currentThread() == GameWindow.gameThread
                 ? StudyExport.diagnosticsJson() : "null")

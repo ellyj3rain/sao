@@ -188,7 +188,7 @@ SOURCE_SUCCESS = r'''
   local owner = SAODecisionCapture.beginSourceUse({runId="run-source",county="CountySource"})
   local reservation, first, second = toTransfer("actor",body,p,"food")
   check("exact_selected_source", reservation and reservation.sourceId == sourceId
-      and first == "moving" and second == "using")
+      and first == "using" and second == "using")
   __carriedItem, __busy, __observeText = __sourceItem, false, SOURCE_POST
   SAO.SourceUse.tick("actor",body)
   __queued:complete(); __busy = false

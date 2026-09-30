@@ -213,3 +213,29 @@ paths/counts. The live display is smaller and cached. Raw durable model state
 is not duplicated in the person's record. Speakeasy's cognition trajectory
 export preserves source hashes, coverage gaps and both predictions for the
 performed action without admitting training examples.
+
+
+`situation.initialThreats` contains one through twelve placements with exact
+`id`, `siteId`, integer `x`, `y`, `z` and `count`. Each is eight through ninety-six
+tiles from its declared site on the same floor, inside the world extent, with
+one through thirty-two native zombies and at most 128 across the definition.
+Unloaded squares wait before attempting creation. Saved receipts bind definition,
+save, site, coordinates and requested count; a foreign receipt refuses. A loaded
+attempt persists before the native constructor and is never automatically replayed.
+Native disabled or blocked ground can refuse; partial and ambiguous attempts remain
+visible. Actual native identities and cell membership describe construction.
+Ordinary native AI owns subsequent behavior, while each survivor's own perception
+owns awareness. `nativeZombieCount` and `nativeZombiesDisabled` expose the current
+cell's native state; authored counts do not prove danger reached an actor.
+
+The study-only `study.luaBreakpointLookup` property defaults to `empty-map` and
+accepts `native` for comparisons. The empty-map path preserves native debug source,
+stepping, breakpoints, watchpoints and error behavior. Its installed-VM mutation
+checks are part of the normal repository gate. Performance improvement is measured
+in a source-bound loaded run separately from those mechanical checks.
+
+Initial-cohort archive inspection requires `--package` so the sealed native
+origin catalog can validate `initialPeopleBySite`. Frames describe observations
+and do not contain that catalog. The inspector reports an unbound cohort instead
+of substituting a synthetic spawn location. Package inspection retains the exact
+definition, source and native origin bindings.
