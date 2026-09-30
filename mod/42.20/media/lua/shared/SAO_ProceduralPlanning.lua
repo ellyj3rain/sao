@@ -89,6 +89,19 @@ local function dataCopy(value, depth)
     return out
 end
 
+local function retirePurpose(s, index)
+    local removed = table.remove(s.order, index)
+    local old = s.purposes[removed]
+    local goal = old and old.resourceOutcome
+    local request = goal and s.resourceOutcomeRequests and s.resourceOutcomeRequests[goal.id]
+    if request and request.purposeId == removed then
+        request.retired = { purposeId = removed, status = old.status,
+            resolution = old.resolution, resolvedAt = old.resolvedAt,
+            outcomeProgress = dataCopy(old.outcomeProgress) }
+    end
+    s.purposes[removed] = nil
+end
+
 function P.maintain(id, spec)
     local s = state(id, true)
     if not s or type(spec) ~= "table" or type(spec.key) ~= "string"
@@ -96,6 +109,16 @@ function P.maintain(id, spec)
     local purpose = purposeByKey(s, spec.key)
     local at = finite(spec.atHours) and spec.atHours or nowHours()
     if not purpose then
+        if #s.order >= MAX_PURPOSES then
+            local removable
+            for i, purposeId in ipairs(s.order) do
+                local prior = s.purposes[purposeId]
+                if not prior or not prior.admission and (not prior.resourceOutcome
+                    or prior.status == "completed" or prior.status == "abandoned") then removable = i; break end
+            end
+            if not removable then return nil end
+            retirePurpose(s, removable)
+        end
         s.nextPurpose = s.nextPurpose + 1
         purpose = { id = "purpose/" .. tostring(s.nextPurpose), key = spec.key,
             objective = spec.objective, domain = tostring(spec.domain or "general"),
@@ -104,10 +127,6 @@ function P.maintain(id, spec)
             blockers = {}, steps = {}, cursor = 1, events = {} }
         s.purposes[purpose.id] = purpose
         s.order[#s.order + 1] = purpose.id
-        if #s.order > MAX_PURPOSES then
-            local removed = table.remove(s.order, 1)
-            s.purposes[removed] = nil
-        end
         addEvent(purpose, "formed", purpose.objective, at)
     elseif purpose.objective ~= spec.objective then
         purpose.objective, purpose.revision = spec.objective, purpose.revision + 1
@@ -115,6 +134,150 @@ function P.maintain(id, spec)
     end
     purpose.updatedAt = at
     return purpose
+end
+
+local function outcomeRequest(spec)
+    if type(spec) ~= "table" then return nil end
+    local allowed = { id = true, revision = true, category = true, target = true,
+        unit = true, sourceDefinition = true, issuer = true, deadlineAfterHours = true }
+    for key in pairs(spec) do if not allowed[key] then return nil end end
+    if type(spec.id) ~= "string" or not spec.id:match("^[a-z][a-z0-9_-]*$")
+        or #spec.id > 80 or not finite(spec.revision) or spec.revision < 1
+        or spec.revision > 1000000 or spec.revision ~= math.floor(spec.revision)
+        or (spec.category ~= "food" and spec.category ~= "water")
+        or not finite(spec.target) or spec.target <= 0 or spec.target > 128
+        or (spec.category == "food" and (spec.unit ~= "usable-food-item"
+            or spec.target ~= math.floor(spec.target)))
+        or (spec.category == "water" and spec.unit ~= "native-clean-fluid-amount")
+        or type(spec.sourceDefinition) ~= "string" or #spec.sourceDefinition ~= 64
+        or not spec.sourceDefinition:match("^[0-9a-f]+$")
+        or type(spec.issuer) ~= "string" or spec.issuer == "" or #spec.issuer > 160
+        or (spec.deadlineAfterHours ~= nil and (not finite(spec.deadlineAfterHours)
+            or spec.deadlineAfterHours <= 0 or spec.deadlineAfterHours > 87600)) then return nil end
+    return { id = spec.id, revision = spec.revision, category = spec.category,
+        target = spec.target, unit = spec.unit, sourceDefinition = spec.sourceDefinition,
+        issuer = spec.issuer, deadlineAfterHours = spec.deadlineAfterHours,
+        scope = "actor-owned-carried", authority = "OperatorDirect",
+        treatment = "assigned-outcome-discovery" }
+end
+
+local function sameOutcome(a, b)
+    for _, key in ipairs({ "id", "revision", "category", "target", "unit",
+        "sourceDefinition", "issuer", "deadlineAfterHours" }) do
+        if a[key] ~= b[key] then return false end
+    end
+    return true
+end
+
+-- An experimental operator supplies the desired stock only. The actual
+-- actor still discovers and executes means through the ordinary private
+-- resource planner. This admission carries no conversation or helper assent.
+function P.admitResourceOutcome(id, spec)
+    local rec, request = record(id), outcomeRequest(spec)
+    if not rec or rec.dead then return nil, "person-unavailable" end
+    if not request then return nil, "invalid-resource-outcome" end
+    local s = state(id, true)
+    if not s then return nil, "planning-unavailable" end
+    s.resourceOutcomeRequests = s.resourceOutcomeRequests or {}
+    s.resourceOutcomeOrder = s.resourceOutcomeOrder or {}
+    local prior = s.resourceOutcomeRequests[request.id]
+    local oldPurpose = prior and s.purposes[prior.purposeId]
+    if prior then
+        if prior.request.sourceDefinition ~= request.sourceDefinition then
+            return nil, "outcome-source-conflict"
+        end
+        if request.revision <= prior.request.revision then
+            if sameOutcome(prior.request, request) then
+                if not oldPurpose then return nil, "outcome-purpose-retired" end
+                return oldPurpose, "already-admitted"
+            end
+            return nil, "outcome-revision-conflict"
+        end
+        if oldPurpose and oldPurpose.admission then return nil, "native-attempt-active" end
+    elseif #s.resourceOutcomeOrder >= MAX_PURPOSES then
+        return nil, "outcome-request-capacity"
+    end
+    -- The bounded purpose ledger must not erase a live requested outcome.
+    if #s.order >= MAX_PURPOSES then
+        local removable
+        for i, purposeId in ipairs(s.order) do
+            local p = s.purposes[purposeId]
+            if not p or not p.admission and (not p.resourceOutcome
+                or p.status == "completed" or p.status == "abandoned"
+                or p == oldPurpose) then removable = i; break end
+        end
+        if not removable then return nil, "purpose-capacity" end
+        retirePurpose(s, removable)
+    end
+    local at = nowHours()
+    local purpose = P.maintain(id, { key = "operator-outcome:" .. request.id .. ":" .. request.revision,
+        objective = "Secure " .. tostring(request.target) .. (request.category == "food"
+            and " usable food items" or " water units"),
+        domain = "provisioning", origin = "OperatorDirect", authority = request.issuer, atHours = at })
+    if not purpose then return nil, "planning-unavailable" end
+    if prior then
+        local old = oldPurpose
+        if old and old.status ~= "completed" and old.status ~= "abandoned" then
+            old.status, old.resolution, old.resolvedAt = "abandoned", "superseded", at
+            old.supersededBy = purpose.id
+            addEvent(old, "outcome-superseded", purpose.id, at)
+        end
+    else
+        s.resourceOutcomeOrder[#s.resourceOutcomeOrder + 1] = request.id
+    end
+    purpose.resourceCategory, purpose.resourceOutcome = request.category, request
+    request.actorId, request.admittedAt = id, at
+    if request.deadlineAfterHours then request.deadlineAt = at + request.deadlineAfterHours end
+    local history = prior and copyList(prior.history, 6) or {}
+    if prior then
+        history[#history + 1] = { request = dataCopy(prior.request), purposeId = prior.purposeId,
+            status = oldPurpose and oldPurpose.status or prior.retired and prior.retired.status or "unknown",
+            resolution = oldPurpose and oldPurpose.resolution or prior.retired and prior.retired.resolution,
+            supersededBy = purpose.id }
+        if #history > 6 then table.remove(history, 1) end
+    end
+    s.resourceOutcomeRequests[request.id] = { request = dataCopy(request), purposeId = purpose.id, history = history }
+    addEvent(purpose, "outcome-assigned", "desired stock; means and knowledge unchanged", at)
+    return purpose, "admitted"
+end
+
+function P.resourceOutcomeDemand(id)
+    local s, rec, at = state(id), record(id), nowHours()
+    local chosen
+    for _, key in ipairs(s and s.order or {}) do
+        local purpose = s.purposes[key]
+        local goal = purpose and purpose.resourceOutcome
+        if goal and purpose.status ~= "completed" and purpose.status ~= "abandoned" then
+            local reason = rec and rec.dead and "actor-dead"
+                or not purpose.admission and goal.deadlineAt and at >= goal.deadlineAt and "deadline-expired"
+            if reason then
+                purpose.status, purpose.resolution, purpose.resolvedAt = "abandoned", reason, at
+                addEvent(purpose, "outcome-retired", reason, at)
+            elseif not chosen then chosen = purpose end
+        end
+    end
+    return chosen
+end
+
+local function outcomeStock(purpose, context, at)
+    local goal = purpose.resourceOutcome
+    if not goal then return nil end
+    local rows = goal.category == "food" and context.carriedReadyItems or context.carriedWaterItems
+    local stock, seen = 0, {}
+    for i, item in ipairs(type(rows) == "table" and rows or {}) do
+        if i > 128 then break end
+        if finite(item.itemId) and type(item.itemType) == "string" and item.itemType ~= ""
+            and not seen[item.itemId] then
+            seen[item.itemId] = true
+            if goal.category == "food" then stock = stock + 1
+            elseif finite(item.amount) and item.amount > 0 then stock = stock + item.amount end
+        end
+    end
+    purpose.outcomeProgress = { held = stock, target = goal.target, unit = goal.unit,
+        observedAtHours = at, basis = "native-private-carried-usable-stock",
+        coverage = context.stockCoverage or "caller-provided-native-rows",
+        completeWorkIsSeparate = true }
+    return stock >= goal.target
 end
 
 function P.interrupt(id, purposeId, reason, at)
@@ -314,7 +477,16 @@ function P.planResource(id, context)
     local assessment, why = SAO.Labor.assess(id, context)
     if not assessment then return nil, why or "labor-unavailable" end
     local at = finite(context.atHours) and context.atHours or nowHours()
-    local purpose, current = P.resourceDemand(id, assessment.category)
+    P.resourceOutcomeDemand(id)
+    local s = state(id)
+    local purpose = context.purposeId and s and s.purposes[context.purposeId]
+    if context.purposeId and (not purpose or not purpose.resourceOutcome
+        or purpose.resourceCategory ~= assessment.category or purpose.status == "completed"
+        or purpose.status == "abandoned") then
+        return nil, "outcome-purpose-unavailable"
+    end
+    local current
+    if not purpose then purpose, current = P.resourceDemand(id, assessment.category) end
     local supplied = assessment.category == "food" and assessment.demand.ownedReady > 0
         or assessment.category == "water" and assessment.demand.ownedWater > 0
     if not purpose and (assessment.demand.pressure < 0.2 or supplied) then return nil, "no-current-resource-demand" end
@@ -327,6 +499,7 @@ function P.planResource(id, context)
     purpose.demand, purpose.contacts, purpose.labor = dataCopy(assessment.demand),
         copyList(assessment.contacts, 16), dataCopy(assessment.dimensions)
     purpose.capacity, purpose.assessedAt = dataCopy(assessment.capacity), at
+    if purpose.resourceOutcome then supplied = outcomeStock(purpose, context, at) end
     current = purpose.steps[purpose.cursor]
     if current and purpose.admission and purpose.admission.stepId == current.id then
         return purpose, current
@@ -351,6 +524,15 @@ function P.planResource(id, context)
         addEvent(purpose, "resource-goal-satisfied", "currently held usable stock satisfies demand without new work credit", at)
         return true
     end
+    if purpose.resourceOutcome and suppliedGoal() then return purpose, nil end
+    if purpose.resourceOutcome and purpose.awaitingStock then
+        for _, old in ipairs(purpose.steps) do
+            purpose.completedSteps = purpose.completedSteps or {}
+            purpose.completedSteps[#purpose.completedSteps + 1] = dataCopy(old)
+            if #purpose.completedSteps > 16 then table.remove(purpose.completedSteps, 1) end
+        end
+        purpose.steps, purpose.cursor, purpose.awaitingStock, current = {}, 1, nil, nil
+    end
     -- A completed acquisition is evidence for this exact held item, not for
     -- arbitrary new raw inventory or another person's stock.
     if current and current.owner == "Cooking" and current.acquiredItemId then
@@ -365,7 +547,9 @@ function P.planResource(id, context)
             for _, item in ipairs(type(context.carriedReadyItems) == "table" and context.carriedReadyItems or {}) do
                 if item.itemId == current.acquiredItemId and item.itemType == current.itemType then
                     current.status, current.resolvedAt = "not-required", at
-                    purpose.status, purpose.cursor, purpose.blockers = "completed", #purpose.steps + 1, {}
+                    purpose.status, purpose.cursor, purpose.blockers = purpose.resourceOutcome
+                        and "maintained" or "completed", #purpose.steps + 1, {}
+                    if purpose.resourceOutcome then purpose.awaitingStock = true end
                     purpose.updatedAt = at
                     addEvent(purpose, "conditional-step-not-required", "native held item is already usable", at)
                     return purpose, nil
@@ -851,7 +1035,8 @@ function P.recordResult(id, purposeId, result, authority)
         step.status, step.completedAt = "completed", at
         purpose.cursor = purpose.cursor + 1
         purpose.blockers = {}
-        purpose.status = purpose.cursor > #purpose.steps and "completed" or "maintained"
+        purpose.status = purpose.cursor > #purpose.steps and not purpose.resourceOutcome and "completed" or "maintained"
+        if purpose.resourceOutcome and purpose.cursor > #purpose.steps then purpose.awaitingStock = true end
         if step.verb == "read" then
             purpose.sessions = (purpose.sessions or 0) + 1
             local key = tostring(step.target or purpose.domain)
@@ -1067,13 +1252,16 @@ end
 function P.snapshot(id)
     local s = state(id)
     if not s then return nil end
-    local out = { purposes = {}, spatialFacts = #s.spatialOrder,
+    local out = { purposes = {}, resourceOutcomeRequests = {}, spatialFacts = #s.spatialOrder,
         study = SAO.Study and SAO.Study.snapshot and SAO.Study.snapshot(id) or nil,
         practiceDomains = 0 }
     for _, practice in pairs(s.practice) do
         if (tonumber(practice.completed) or 0) > 0 then
             out.practiceDomains = out.practiceDomains + 1
         end
+    end
+    for _, id in ipairs(s.resourceOutcomeOrder or {}) do
+        out.resourceOutcomeRequests[#out.resourceOutcomeRequests + 1] = dataCopy(s.resourceOutcomeRequests[id])
     end
     for i = math.max(1, #s.order - 5), #s.order do
         local purpose = s.purposes[s.order[i]]
@@ -1088,6 +1276,9 @@ function P.snapshot(id)
                 selectedSpatialFact = purpose.selectedSpatialFact,
                 interpretations = dataCopy(purpose.interpretations),
                 resourceCategory = purpose.resourceCategory, demand = dataCopy(purpose.demand),
+                origin = purpose.origin, authority = purpose.authority,
+                resourceOutcome = dataCopy(purpose.resourceOutcome), outcomeProgress = dataCopy(purpose.outcomeProgress),
+                resolution = purpose.resolution, resolvedAt = purpose.resolvedAt,
                 contacts = copyList(purpose.contacts, 16), capacity = dataCopy(purpose.capacity),
                 labor = dataCopy(purpose.labor), selectedStrategy = purpose.selectedStrategy,
                 rationale = purpose.rationale, uncertainty = purpose.uncertainty,

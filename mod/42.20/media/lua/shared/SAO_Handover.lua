@@ -366,6 +366,27 @@ local function ensureTransferClass()
     if not ok or class == nil then return nil end
     transferClass = class
 
+    function transferClass:startActionAnim()
+        ISInventoryTransferAction.startActionAnim(self)
+        if self.saoOffSlot then
+            -- The recipient's inventory is the native facing target, but an
+            -- off-slot giver has no player loot page to reopen.
+            self.saoFacingContainer = self.selectedContainer
+            self.selectedContainer = nil
+        end
+    end
+
+    function transferClass:update()
+        if self.saoOffSlot and self.saoFacingContainer then
+            local ok, faced = pcall(function()
+                return SAOJavaBridge:faceTransferContainer(
+                    self.character, self.saoFacingContainer)
+            end)
+            if not ok or faced ~= true then self:forceStop(); return end
+        end
+        return ISInventoryTransferAction.update(self)
+    end
+
     function transferClass:isValid()
         local rec = record(self.saoHandoverId)
         local live = rec and runtime[self.saoHandoverId] or nil
@@ -428,6 +449,10 @@ local function ensureTransferClass()
             character, item, sourceInventory, destinationInventory)
         if not ok or action == nil then return nil end
         action.saoHandoverId = tostring(handoverId)
+        local checked, shell = pcall(function()
+            return SAOJavaBridge:isShell(character)
+        end)
+        action.saoOffSlot = checked and shell == true
         return action
     end
     return transferClass

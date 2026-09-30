@@ -14,7 +14,7 @@ def verify(text):
 
 def run_checks(*, root, game, work, classes, native, executables, execute, receipt, compile_mutant):
     study_sources = [root / "tools/world_lab" / name for name in
-                     ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java")]
+                     ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java", "StudyExport.java")]
     study_classes = work / "study-classes"
     study_classes.mkdir()
     execute([executables["javac"], "-encoding", "UTF-8", "-cp", os.pathsep.join(map(str, native)),

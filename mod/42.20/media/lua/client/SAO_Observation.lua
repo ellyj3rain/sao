@@ -476,6 +476,20 @@ local function planning(id)
         local purpose = view.purposes[index]
         row(s, "Purpose", tostring(purpose.objective) .. " / "
             .. tostring(purpose.status))
+        if purpose.resourceOutcome then
+            local goal, progress = purpose.resourceOutcome, purpose.outcomeProgress or {}
+            local unit = goal.category == "food" and "food items" or "water units"
+            local stock = finite(progress.held) and tostring(progress.held) or "Not checked"
+            if finite(progress.held) and progress.coverage == "first-128-native-private-carried-items-lower-bound" then
+                stock = "At least " .. stock
+            end
+            row(s, "Goal source", "Assigned for this trial; the survivor chooses the means")
+            row(s, "Supplies secured", stock .. " / " .. tostring(goal.target) .. " " .. unit)
+            if goal.deadlineAfterHours then
+                row(s, "Goal time limit", tostring(goal.deadlineAfterHours) .. " game hours from assignment")
+            end
+            if purpose.resolution then row(s, "Goal outcome", purpose.resolution) end
+        end
         if purpose.nextStep then
             row(s, "Next step", tostring(purpose.nextStep) .. " / "
                 .. tostring(purpose.nextOwner or "unowned"))

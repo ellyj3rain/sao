@@ -284,17 +284,14 @@ EXPECTED = {
 
 
 def run_probe(handover_path=HANDOVER):
-    OUT.mkdir(parents=True, exist_ok=True)
-    compiled = subprocess.run(
-        [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(OUT), str(RUNNER)],
-        capture_output=True, text=True, timeout=300)
-    if compiled.returncode:
-        return None, compiled.stderr or compiled.stdout
     with tempfile.TemporaryDirectory() as tmp:
         work = pathlib.Path(tmp)
+        compiled = subprocess.run(
+            [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(work), str(RUNNER)],
+            capture_output=True, text=True, timeout=60)
+        if compiled.returncode:
+            return None, compiled.stderr or compiled.stdout
         shutil.copy2(STDLIB, work / "stdlib.lua")
-        for cls in OUT.glob("LuaRun*.class"):
-            shutil.copy2(cls, work / cls.name)
         prelude = work / "prelude.lua"
         probe = work / "probe.lua"
         prelude.write_text(PRELUDE, encoding="utf-8")

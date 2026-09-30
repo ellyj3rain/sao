@@ -109,6 +109,7 @@ check("resource-unknowns-visible",find(first.people.a.sections,"Uncertainty")==p
  and string.find(find(first.people.a.sections,"Labor assessment"),'slack: unknown',1,true)~=nil)
 check("planning-projection-read-only",privatePlan.status=='blocked' and privatePlan.demand.pressure==.35
  and privatePlan.sequence[1].status=='available')
+check("autonomous-not-assigned",find(first.people.a.sections,"Goal source")==nil)
 check("read-only-source-join",__records.a.worldSourceReservation=="missing-source"
  and find(first.people.a.sections,"Source action")=="Recorded pointer has no matching actor reservation")
 check("source-terminal-receipt",find(first.people.a.sections,"Latest result.status")=="failed")
@@ -163,6 +164,23 @@ __bodyHealth=101;check("overscale-body-health",healthSample()=="unavailable")
 __bodyHealth=nil;check("missing-body-health",healthSample()=="unavailable")
 __noBodyDamage=true;check("missing-body-damage",healthSample()=="unavailable")
 __noBodyDamage=false;__healthThrows=true;check("throwing-body-damage",healthSample()=="unavailable")
+__healthThrows=false
+privatePlan.resourceOutcome={category='food',target=4,unit='usable-food-item',deadlineAfterHours=6}
+privatePlan.outcomeProgress={held=2,coverage='all-native-private-carried-items'}
+__ms=__ms+1000;__tick();local assigned=O.snapshot().people.a.sections
+check("assigned-outcome-provenance",find(assigned,"Goal source")=="Assigned for this trial; the survivor chooses the means")
+check("assigned-food-stock",find(assigned,"Supplies secured")=="2 / 4 food items"
+ and find(assigned,"Goal time limit")=="6 game hours from assignment")
+check("assigned-read-only",privatePlan.resourceOutcome.target==4
+ and privatePlan.outcomeProgress.held==2 and privatePlan.status=='blocked')
+privatePlan.resourceOutcome={category='water',target=3.5,unit='native-clean-fluid-amount'}
+privatePlan.outcomeProgress={held=1.25,coverage='first-128-native-private-carried-items-lower-bound'}
+__ms=__ms+1000;__tick();assigned=O.snapshot().people.a.sections
+check("assigned-water-lower-bound",find(assigned,"Supplies secured")=="At least 1.25 / 3.5 water units"
+ and find(assigned,"Goal time limit")==nil)
+privatePlan.outcomeProgress=nil
+__ms=__ms+1000;__tick();assigned=O.snapshot().people.a.sections
+check("unchecked-stock-not-zero",find(assigned,"Supplies secured")=="Not checked / 3.5 water units")
 return "OBSERVATION_PASS " .. checks .. " checks"
 end)()'''
 
@@ -194,6 +212,8 @@ def main():
     names = ["SAO_Observation.lua", "SAO_Locomotion.lua", "SAO_Voice.lua", "SAO_Inspect.lua"]
     sources = {name: (LUA / name).read_text(encoding="utf-8") for name in names}
     controls = [
+        ("assigned-outcome-provenance", "SAO_Observation.lua", 'Assigned for this trial; the survivor chooses the means', 'The survivor autonomously chose this goal'),
+        ("assigned-water-lower-bound", "SAO_Observation.lua", 'stock = "At least " .. stock', 'stock = stock'),
         ("resource-plan-visible", "SAO_Observation.lua", 'row(s, "Work sequence", #sequence > 0', 'row(s, "Hidden sequence", #sequence > 0'),
         ("body-health", "SAO_Observation.lua", "damage:getOverallBodyHealth()", "body:getHealth()"),
         ("body-health", "SAO_Observation.lua", "string.format(\"%.2f\", health)", "string.format(\"%.2f\", health / 100)"),

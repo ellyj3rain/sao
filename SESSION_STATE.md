@@ -1,11 +1,64 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.7.4.0-pre-alpha` |
+| Version | `3.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-09-30, [C105] implements study resource
+objectives with typed desired-stock targets and exact actor, source definition,
+request revision and experimental authority. Survivors retain their own means,
+knowledge and model interpretations. Current private native usable stock satisfies
+the goal; completed work alone does not. Low-pressure goals persist, urgent
+pressures and native admissions retain priority, and exact retired terminal
+request metadata survives active-purpose eviction. Save and body replacement
+preserve identity. Mousecat's person feed distinguishes assignment, stock checks,
+partial lower bounds and resolution. The final outcome controls pass: 48 Kahlua
+cases, eight named mutations, six installed-native fluid checks and eleven typed
+definition checks. Existing Borders 217 and 219 pass unchanged.
+
+The game thread reserves bounded export capacity before acquiring a snapshot,
+measures the JSON grammar and detaches immutable values. The tool-owned
+`StudyExport` worker encodes and publishes the detached data. Source clocks,
+exact archive acknowledgement, typed capacity deferral, completion cooldown,
+epoch retirement and paused stop/drain retain their separate contracts. Four
+installed-Kahlua lifecycle treatments and six defect controls pass, including
+mobile receipt composition. The production codec preserves the retained
+1,958,052-byte archive. Eighty-seven installed-engine worker cases, seven causal
+controls and one corrupt-readback treatment pass, including native pause/drain
+and durable timeout failure. The complete gate is enforced by the closing
+commit. Publication, exact-source deployment and loaded-rate comparison remain
+separate continuation steps.
+
+The exact merged C104 watch used a finite attempt, with three actual area images,
+twelve represented people and a thirty-minute native day. Normal measured
+3.215 native updates/second and 12.80 world hours/wall hour; Fast measured
+1.456 native updates/second and 29.13 world hours/wall hour. These measurements
+separate successful engine updates from requested speed and image delivery.
+Mousecat's actual desktop pop-out, movement, resize and redock now pass after
+workspace-path canonicalization and exact WebView deferral completion repairs.
+The native attempt ended at hour 23.2801266 with a vanilla UI
+`setForceSelectedContainer` nil-receiver failure. Native save returned true;
+supervision correctly records producer failure and incomplete status. The engine
+has exited, its save and observations are retained, and it is not a clean
+continuation receipt. The first failure is an off-slot NPC handover entering
+the installed vanilla inventory-transfer update, which calls its absent player
+loot panel. The repair retains native transfer and facing authority while
+separating the NPC action from player UI. Its installed-action production and
+four causal controls pass; the full transfer and consume regression remains
+inside the complete gate.
+The first two gate attempts remain failed evidence. Explicit test verdicts and
+canonical script-count prose were repaired, then the legacy native debugger
+mutation targets were aligned with the measured preflight and synchronous writer
+branches. All six debugger controls and twenty downstream export controls reject
+their named defects against the installed VM. The final closing gate runs the
+frozen tree through the normal pre-commit hook.
+The C105 trial definition is privately prepared with three outcome recipients
+and autonomous peers; it has not launched or been admitted to a dataset.
+Known-procedure live admission, long-term strategic quality, additional life
+action owners, source-integration obligations and new ML training remain open.
 
 **As of** 2026-09-30, [C104] connects private shortage pressure to retained
 resource plans and elaborates Labor across the eight canonical questions.
@@ -1177,9 +1230,11 @@ capture border, C73's radio-reception border, C74's personal-world-knowledge
 border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
-study-session border, the gate invokes
-221 `*_test.py` files and 16 other Python entry points, 237 distinct scripts.
-Border labels extend through 220; legacy labels
+study-session border, plus C105's outcome and export-worker controls, the
+repository holds 224 `*_test.py` files. The gate invokes 224 `*_test.py` files
+and 16 other Python entry points, 240 distinct scripts, through direct calls
+and its mirror loop. Native suites also invoke their own controls.
+Border labels extend through 222; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 186 Lua source files.
 ZAO A41 has fifteen borders. The
@@ -1193,11 +1248,11 @@ C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The last verified SAO install is C103, deployed on 2026-09-30 UTC from
-merged public source. Its local deployment receipt verifies all 1,265 installed
-files and unchanged metadata for 3,570 live-save files; no game was launched
-for that deployment. C104's isolated studies copy immutable C103 into separate
-caches. Publication alone does not replace those running copies. The earlier
+The last verified SAO install is C104, deployed on 2026-09-30 UTC from
+merged public source `be8a13b530a06d286b838dfa4073a841b44f55ea`. Its local
+deployment receipt verifies all 1,266 installed files and unchanged metadata
+for 3,570 live-save files. The isolated C104 watch copied that exact public
+source into its own cache. Publication alone does not replace running copies. The earlier
 C76/ZAO A37 main-menu receipt remains scoped to that historical install.
 The [C61 evidence record](artifacts/audits/20260920-0844Z-0144PST-native-world-sources/README.md)
 retains the native-source substrate. The [C62 evidence record](artifacts/audits/20260920-1041Z-0341PST-source-access-native-use/README.md)

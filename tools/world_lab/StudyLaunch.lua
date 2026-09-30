@@ -77,6 +77,14 @@ local started = nil
 local finished = false
 local captured = false
 local lastWallCheck = 0
+local function requestQuit(reason)
+    if RunConfig.observer then
+        assert(SAO_StudyExport, "native observer export owner unavailable at stop")
+        SAO_StudyExport:requestStop(reason)
+    else
+        getCore():quitToDesktop()
+    end
+end
 local function wallLimit()
     if not started or finished then return end
     if not RunConfig.wallDeadlineUnixMs and not RunConfig.stopFile then return end
@@ -87,7 +95,7 @@ local function wallLimit()
         finished = true
         print("[StudyLaunch] wall-limit attempt=" .. RunConfig.attempt .. " save=" .. getWorld():getWorld()
             .. " start=" .. tostring(started) .. " end=" .. tostring(getGameTime():getWorldAgeHours()))
-        getCore():quitToDesktop()
+        requestQuit("wall-limit")
         return
     end
     if RunConfig.stopFile then
@@ -102,7 +110,7 @@ local function wallLimit()
                     .. " start=" .. tostring(started)
                     .. " end=" .. tostring(getGameTime():getWorldAgeHours())
                     .. " reason=" .. tostring(reason))
-                getCore():quitToDesktop()
+                requestQuit("supervisor-stop")
             end
         end
     end
@@ -140,7 +148,7 @@ Events.OnTick.Add(function()
     if not RunConfig.observer then playerReceipt("horizon", launchPlayer) end
     print("[StudyLaunch] horizon attempt=" .. RunConfig.attempt .. " save=" .. getWorld():getWorld()
         .. " start=" .. tostring(started) .. " end=" .. tostring(getGameTime():getWorldAgeHours()))
-    getCore():quitToDesktop()
+    requestQuit("horizon")
 end)
 -- The installed game fires this only in its paused branch. OnTick handles
 -- running time; both paths share the same real-time limit and exit latch.

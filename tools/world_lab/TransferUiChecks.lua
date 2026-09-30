@@ -473,6 +473,133 @@ function CheckTransferUi()
     return "PASS installed transfer action keeps NPC facing and completion without a player loot panel"
 end
 
+function CheckHandoverUi()
+    local checks, effects, mutations, uiSelections, uiForced = 0, 0, 0, 0, 0
+    local function check(value, message)
+        assert(value, "HANDOVER_UI_CHECK:" .. message); checks = checks + 1
+    end
+    local stores, queued, room = {}, {}, true
+    ModData = { getOrCreate = function(key)
+        stores[key] = stores[key] or {}; return stores[key]
+    end }
+    SAO.History = { ticks = function() return 100 end }
+    SAO.Standing = { adjustTrust = function() effects = effects + 1 end }
+    SAO.Needs = { queueVerified = function(action) queued[action] = true; return true end }
+    ISTimedActionQueue = { hasAction = function(action) return queued[action] == true end }
+    local actor = setmetatable({ getModData = function() return { SAOPersonId = "giver" } end,
+        getX = function() return 10 end, getY = function() return 20 end, getZ = function() return 0 end,
+        shouldBeTurning = function() return true end }, { __index = body })
+    local recipient = { getModData = function() return { SAOPersonId = "recipient" } end,
+        getX = function() return 11 end, getY = function() return 20 end, getZ = function() return 0 end }
+    function actor:getOverlaySprite() end
+    function recipient:getOverlaySprite() end
+    local function inventory(owner)
+        return {
+            getParent = function() return owner end,
+            isInCharacterInventory = function(self, character) return self == character:getInventory() end,
+            getType = function() return "inventory" end, isVehicleSeat = function() return false end,
+            getCapacityWeight = function() return 0 end, getMaxWeight = function() return 50 end,
+            contains = function(self, value) return value.holder == self end,
+            isExistYet = function() return true end, hasRoomFor = function() return room end,
+            isRemoveItemAllowed = function() return true end, isItemAllowed = function() return true end,
+            isInside = function() return false end,
+            setDrawDirty = function() end, setHasBeenLooted = function() end,
+        }
+    end
+    local carried, received = inventory(actor), inventory(recipient)
+    function actor:getInventory() return carried end
+    function recipient:getInventory() return received end
+    function getPlayerLoot(index)
+        lookups = lookups + 1
+        if index ~= 0 then return nil end
+        return {
+            selectButtonForContainer = function(_, value)
+                check(value == received, "player keeps exact recipient loot selection")
+                uiSelections = uiSelections + 1
+            end,
+            setForceSelectedContainer = function(_, value)
+                check(value == received, "turning player keeps exact forced loot selection")
+                uiForced = uiForced + 1
+            end,
+        }
+    end
+    -- Native constructor, animation, validation, update, transferItem and perform
+    -- execute unchanged. Geometry, queue/sound receivers and the terminal
+    -- ISTransferAction mutation are controlled inputs, not loaded-game evidence.
+    ItemPicker = { updateOverlaySprite = function() end }
+    function isServer() return false end
+    ISTransferAction = { transferItem = function(_, character, value, from, to)
+        check(character == actor and from == carried and to == received,
+            "native mutation retains exact giver and inventories")
+        mutations = mutations + 1; value.holder = to; return value
+    end }
+    ISBaseTimedAction.stop = function(self) self.baseStopped = true end
+    function removeItemTransaction() end
+    local priorFacing = SAOJavaBridge.faceTransferContainer
+    SAOJavaBridge.faceTransferContainer = function(_, character, container)
+        check(character == actor and container == received,
+            "NPC facing retains recipient inventory identity")
+        return priorFacing(SAOJavaBridge, character, container)
+    end
+    local sequence = 0
+    local function action()
+        sequence = sequence + 1
+        local value = setmetatable({ holder = carried,
+            getID = function() return sequence end,
+            getContainer = function(self) return self.holder end,
+            getIsCraftingConsumed = function() return false end }, { __index = item })
+        local receipt = SAO.Handover.begin("giver", actor, "recipient", recipient, value, "drink",
+            { effect = { trust = { { from = "recipient", to = "giver", delta = .1 } } } })
+        check(receipt ~= nil, "actual handover owner accepts held item")
+        local native = SAO.Handover._runtime[receipt.id].action
+        native.action = { getJobDelta = function() return .5 end,
+            stopTimedActionAnim = function() end, setLoopedAction = function() end }
+        native.doActionAnim = function(self, container) self.animContainer = container end
+        native.checkQueueList = function() end
+        native.getNotFullFloorSquare = function() end
+        native.playTransferCompleteSound = function() end
+        native.playSourceContainerCloseSound = function() end
+        native.playDestContainerCloseSound = function() end
+        native.stopLoopingSound = function() end
+        native:startActionAnim()
+        return native, receipt, value
+    end
+    offSlot, faceAllowed, lookups = true, true, 0
+    local native, receipt, value = action()
+    local facingBefore = faces
+    native:update()
+    check(faces == facingBefore + 1, "NPC update keeps native recipient facing")
+    check(native.saoFacingContainer == received and native.selectedContainer == nil
+        and native.animContainer == received, "NPC preserves native animation without player UI")
+    check(value.delta == .5 and effects == 0 and receipt.status == "pending",
+        "native progress does not publish transfer credit")
+    native:perform()
+    check(lookups == 0 and native.baseCompleted and value.holder == received
+        and receipt.status == "completed" and mutations == 1 and effects == 1,
+        "NPC native transfer completes without a loot page; status=" .. tostring(receipt.status)
+            .. " reason=" .. tostring(receipt.reason))
+    SAO.Handover.reconcile(true)
+    check(effects == 1, "native completion social credit stays exact once")
+    native, receipt, value = action()
+    room = false; native:perform(); native:stop(); room = true
+    check(mutations == 1 and effects == 1 and value.holder == carried and receipt.status == "interrupted",
+        "native capacity refusal withholds holder and credit")
+    native, receipt, value = action()
+    faceAllowed = false; native:update(); native:stop(); faceAllowed = true
+    check(native.stopped and effects == 1 and mutations == 1 and value.holder == carried
+        and receipt.status == "interrupted", "failed native facing interrupts without transfer credit")
+    offSlot, lookups = false, 0
+    native, receipt, value = action()
+    check(native.selectedContainer == received and native.saoFacingContainer == nil,
+        "ordinary player selected container remains native")
+    native:update(); native:perform()
+    check(lookups == 3 and uiForced == 1 and uiSelections == 2 and native.baseCompleted
+        and receipt.status == "completed" and value.holder == received and effects == 2,
+        "ordinary turning player keeps update and completion loot UI")
+    SAOJavaBridge.faceTransferContainer = priorFacing
+    return "PASS installed handover UI boundary: " .. checks .. " checks"
+end
+
 function CheckCollectApproach()
     local failure = nil
     local function check(value, message)

@@ -68,6 +68,8 @@ public final class StudyObserver {
     private static double startHours;
     private static int desiredSpeed = 1;
     private static boolean stopping, stopIssued, statePublicationFailed, contextFailed;
+    private static long exportDrainStarted;
+    private static boolean exportDrainFailed;
     private static final int MAX_STATE_DEFERRALS = 30;
     private static int stateDeferrals;
     private static volatile boolean initializing, ready;
@@ -375,6 +377,7 @@ public final class StudyObserver {
     public static void poll() {
         if (!ready || GameWindow.closeRequested) return;
         requireGameThread();
+        StudyExport.bind();
         if (!contextFailed) {
             String failure = contextFailure();
             if (failure != null) failContext(failure);
@@ -444,12 +447,16 @@ public final class StudyObserver {
         // Retain the last verified world clock, geometry and ownership witness.
         // Refreshing those fields against an already disposed cell would lie or
         // throw repeatedly. Only the failure status/publication time changes.
+        refreshFailureSnapshot();
+        nextState = 0;
+        System.err.println("[StudyObserver] FAILED " + runtimeFailure);
+    }
+
+    private static void refreshFailureSnapshot() {
         lastSnapshot = lastSnapshot.replaceFirst("\"status\":\"[^\"]*\"", "\"status\":\"failed\"")
             .replaceFirst("\"updatedAtUnixMs\":[0-9]+", "\"updatedAtUnixMs\":" + System.currentTimeMillis())
             .replaceFirst("\"failure\":(?:null|\"(?:[^\"\\\\]|\\\\.)*\")",
                 java.util.regex.Matcher.quoteReplacement("\"failure\":" + quote(runtimeFailure)));
-        nextState = 0;
-        System.err.println("[StudyObserver] FAILED " + runtimeFailure);
     }
 
     public static Object cameraFor(Object requested) {
@@ -685,7 +692,7 @@ public final class StudyObserver {
             }
             synchronized (StudyObserver.class) { sequence = candidate; }
             error = null;
-            stopping = stop;
+            if (stop) requestStop("explicit-save");
             boolean published = publish(true);
             if (stop) {
                 nextState = 0;
@@ -747,9 +754,59 @@ public final class StudyObserver {
 
     private static void finishStop() {
         if (stopIssued) return;
+        if (!drainExports()) return;
         stopIssued = true;
         System.out.println("[StudyObserver] stop hours=" + GameTime.getInstance().getWorldAgeHours());
         Core.getInstance().quitToDesktop();
+    }
+
+    /** The tool's wall/horizon supervisor uses the same drain as an explicit save. */
+    public static void requestStop(String reason) {
+        requireGameThread();
+        if (!stopping) {
+            stopping = true;
+            nextState = 0;
+            System.out.println("[StudyObserver] requested stop: " + reason);
+        }
+        SpeedControls controls = UIManager.getSpeedControls();
+        if (controls != null) controls.SetCurrentGameSpeed(0);
+    }
+
+    /** Save only after Lua has acknowledged the exact asynchronous archive. */
+    private static boolean drainExports() {
+        long now = System.currentTimeMillis();
+        if (exportDrainStarted == 0) exportDrainStarted = now;
+        if (exportDrainFailed) return writeState() || statePublicationFailed;
+        try {
+            SpeedControls controls = UIManager.getSpeedControls();
+            if (controls == null) throw new IllegalStateException("native stop clock cannot be paused");
+            controls.SetCurrentGameSpeed(0);
+            if (controls.getCurrentGameSpeed() != 0) throw new IllegalStateException("native stop clock did not pause");
+            Object root = LuaManager.env == null ? null : LuaManager.env.rawget("SAO_StudyWorld");
+            Object function = root instanceof KahluaTable table ? table.rawget("drainExports") : null;
+            if (function == null) {
+                if (StudyExport.hasPending()) throw new IllegalStateException("pending export lost its Lua acknowledgement owner");
+                StudyExport.shutdown();
+                return true;
+            }
+            Object[] result = LuaManager.caller.pcall(LuaManager.thread, function, new Object[0]);
+            if (result.length < 1 || !Boolean.TRUE.equals(result[0]))
+                throw new IllegalStateException("export drain failed: " + (result.length > 1 ? result[1] : "missing result"));
+            if (result.length > 1 && Boolean.TRUE.equals(result[1])) {
+                StudyExport.shutdown();
+                return true;
+            }
+            if (now - exportDrainStarted < 15000) return false;
+            throw new IllegalStateException("export drain exceeded fifteen seconds");
+        } catch (Exception failure) {
+            String message = "asynchronous export stop failed: " + failure.getClass().getSimpleName() + ": " + failure.getMessage();
+            if (runtimeFailure == null) runtimeFailure = message;
+            refreshFailureSnapshot();
+            System.err.println("[StudyObserver] FAILED " + message);
+            exportDrainFailed = true;
+            StudyExport.abort();
+            return writeState() || statePublicationFailed;
+        }
     }
 
     private static boolean bool(Properties values, String key, boolean fallback) {

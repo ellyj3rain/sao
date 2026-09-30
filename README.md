@@ -38,9 +38,17 @@ on the simulation.
 
 ## Status
 
-`3.7.4.0-pre-alpha` - the coordinate is computed by the version machine
+`3.8.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C105 adds typed study requests that assign a desired
+amount of usable carried food or water while survivors choose their own means.
+Assignment provenance, actual checked stock, partial coverage and native work
+remain distinct. Autonomous purposes continue separately. A bounded native
+export worker moves encoding and file publication away from live world reads;
+exact receipts and paused stop/drain handling preserve save authority. The
+existing PNG feed remains capped and loaded frame-rate improvement is unverified.
 
 C104 extends maintained purposes into private resource planning. Native carried
 supplies, inspected sources and personal capacity determine inspection,
@@ -54,8 +62,8 @@ Failed contact approaches retain bounded private retry waits. Urgent bodily
 needs can release a contact through its native owner, and a selected water
 action can complete under the pressure that caused its admission.
 One native world contains three separated situations under distinct native
-cameras, comparing material and risk conditions on the C103 baseline with a
-residency adapter while development proceeds. Their configured conditions and
+cameras, comparing material and risk conditions under one clock and save.
+Their configured conditions and
 controlled mechanics do not establish loaded behavioral quality.
 Bounded observer archives report omitted detail and deferred captures while
 preserving the native world and live inspection.

@@ -134,7 +134,7 @@ def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None)
     subprocess.run([str(jdk / "javac.exe"), "-cp", os.pathsep.join(str(game / n)
                     for n in ("ZombieBuddy.jar", "projectzomboid.jar")), "-d", str(classes),
                     *(str(Lab.ROOT / ("tools/world_lab/" + name)) for name in
-                      ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java"))], check=True)
+                      ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java", "StudyExport.java"))], check=True)
     agent_manifest = destination / "agent.mf"
     agent_manifest.write_text("Manifest-Version: 1.0\nPremain-Class: StudyLoadingAgent\nCan-Retransform-Classes: true\n\n", encoding="utf-8")
     agent = destination / "StudyLoadingAgent.jar"

@@ -6,6 +6,9 @@ local state = nil
 local lastHours = nil
 local newGame = false
 local session = nil
+local exportOwner, exportKey = nil, nil
+local pendingLive, pendingArchive = nil, nil
+local exportStopping = false
 local originalRoads = nil
 local arrayMeta = { studyArray = true }
 local function array() return setmetatable({}, arrayMeta) end
@@ -139,6 +142,16 @@ local function boundedJson(value, budget)
     local encoded = json(value, nil, budget)
     return not budget.exhausted, encoded
 end
+local function jsonFits(value, budget)
+    if budget.left < 0 then return false end
+    if SAO_StudyExport then
+        local bytes = SAO_StudyExport:measure(value, arrayMeta, budget.left)
+        if bytes < 0 then return false end
+        budget.left = budget.left - bytes
+        return true
+    end
+    return boundedJson(value, budget)
+end
 local function selected()
     return getWorld() and getWorld():getMap() == Config.mapName
 end
@@ -156,6 +169,7 @@ end
 function Study.prepare()
     Study.active, Study.error, state, lastHours, newGame = false, nil, nil, nil, false
     Study.archiveCapture = nil
+    exportOwner, exportKey, pendingLive, pendingArchive, exportStopping = nil, nil, nil, nil, false
     Study.prepared, Study.configured = false, false
     if originalRoads and worldgen then worldgen.roads, originalRoads = originalRoads, nil end
     if not selected() then return false end
@@ -206,6 +220,13 @@ local function settingsMatch()
             "sandbox option differs: " .. key)
     end
 end
+local function beginExport()
+    if exportOwner or not SAO_StudyExport or not state or not session then return end
+    exportOwner = SAO_StudyExport
+    exportKey = Config.definitionSha256 .. "/" .. getWorld():getWorld() .. "/" .. session
+    exportOwner:begin(Config.definitionSha256, getWorld():getWorld(), session,
+        Config.observerSha256, Config.engineJarSha256)
+end
 function Study.start()
     if not selected() then return false end
     assert(Study.prepared and Study.configured and not Study.error,
@@ -221,6 +242,7 @@ function Study.start()
     state.definitionSha256 = Config.definitionSha256
     state.sequence = tonumber(state.sequence) or 0
     session = tostring(getTimestampMs())
+    beginExport()
     -- A saved study resumes its model budget; first launch enables equal participation.
     if SAO.Cognition and SAO.Cognition.settings and SAO.Cognition.configure then
         local settings = SAO.Cognition.settings()
@@ -265,6 +287,93 @@ local function applyInitialNeeds()
                 state.initialNeedsApplied[id] = applied
                 state.situationReceipt = state.situationReceipt or {}
                 state.situationReceipt.initialNeedsApplied = state.initialNeedsApplied
+            end
+        end
+    end
+end
+local function applyResourceObjectives()
+    local objectives = Config.situation and Config.situation.resourceObjectives
+    if not objectives then return end
+    local planning = assert(SAO.ProceduralPlanning, "resource objective owner unavailable")
+    state.situationReceipt = state.situationReceipt or {}
+    state.resourceObjectives = state.resourceObjectives or {}
+    state.situationReceipt.resourceObjectives = state.resourceObjectives
+    local records = SAO.Identity.all()
+    for _, spec in ipairs(objectives) do
+        local receipt = state.resourceObjectives[spec.id]
+        if not receipt then
+            receipt = { id = spec.id, revision = spec.revision, siteId = spec.siteId,
+                actorOrdinal = spec.actorOrdinal, sourceDefinition = Config.definitionSha256,
+                authority = "OperatorDirect", issuer = "experimental-study:" .. Config.definitionSha256,
+                treatment = "assigned-outcome-discovery", scope = "actor-owned-carried",
+                category = spec.category, target = spec.target, unit = spec.unit,
+                status = "waiting-for-native-regional-actor", datasetAdmission = "unreviewed" }
+            state.resourceObjectives[spec.id] = receipt
+        end
+        -- Bind one actual represented living person near the declared site.
+        -- Once bound, absence, death or a replacement body cannot select a
+        -- different identity. Observation anchors are never candidate actors.
+        if not receipt.actorId then
+            local candidates = {}
+            for _, id in ipairs(keys(records)) do
+                local rec, body = records[id], SAO.Body.get(id)
+                if not rec.dead and body then
+                    local nearest, best = nil, 48 * 48
+                    for _, site in ipairs(Config.observation.sites or {}) do
+                        if body:getZ() == site.z then
+                            local dx, dy = body:getX() - site.x, body:getY() - site.y
+                            local distance = dx * dx + dy * dy
+                            if distance < best then nearest, best = site.id, distance end
+                        end
+                    end
+                    if nearest == spec.siteId then candidates[#candidates + 1] = id end
+                end
+            end
+            receipt.actorId = candidates[spec.actorOrdinal]
+            if receipt.actorId then receipt.boundAtWorldAgeHours = getGameTime():getWorldAgeHours() end
+        end
+        if receipt.actorId then
+            local rec = records[receipt.actorId]
+            if rec and rec.dead then
+                planning.resourceOutcomeDemand(receipt.actorId)
+                receipt.status, receipt.reason = "abandoned", "actor-dead"
+            elseif not rec then
+                receipt.status, receipt.reason = "actor-unavailable", "bound-identity-missing"
+            elseif not receipt.purposeId then
+                local purpose, reason = planning.admitResourceOutcome(receipt.actorId, {
+                    id = spec.id, revision = spec.revision, category = spec.category,
+                    target = spec.target, unit = spec.unit, deadlineAfterHours = spec.deadlineAfterHours,
+                    issuer = receipt.issuer, sourceDefinition = Config.definitionSha256 })
+                receipt.reason = reason
+                if purpose then
+                    receipt.purposeId, receipt.status = purpose.id, purpose.status
+                    receipt.admittedAtCountyHours = purpose.resourceOutcome.admittedAt
+                    receipt.deadlineAtCountyHours = purpose.resourceOutcome.deadlineAt
+                else receipt.status = "admission-refused" end
+            else
+                planning.resourceOutcomeDemand(receipt.actorId)
+                local purpose = rec.proceduralPlanning and rec.proceduralPlanning.purposes[receipt.purposeId]
+                if not purpose then
+                    local requests = rec.proceduralPlanning and rec.proceduralPlanning.resourceOutcomeRequests
+                    local request = requests and requests[spec.id]
+                    local retired = request and request.retired
+                    if retired and retired.purposeId == receipt.purposeId
+                        and request.purposeId == receipt.purposeId
+                        and request.request.revision == spec.revision
+                        and request.request.sourceDefinition == Config.definitionSha256
+                        and (retired.status == "completed" or retired.status == "abandoned") then
+                        purpose = retired
+                    end
+                end
+                if purpose then
+                    receipt.status, receipt.reason = purpose.status, purpose.resolution
+                    receipt.resolvedAtCountyHours = purpose.resolvedAt
+                    local progress = purpose.outcomeProgress
+                    if progress then
+                        receipt.held, receipt.stockObservedAtCountyHours = progress.held, progress.observedAtHours
+                        receipt.stockCoverage = progress.coverage
+                    end
+                else receipt.status, receipt.reason = "unknown", "retained-purpose-missing" end
             end
         end
     end
@@ -385,11 +494,12 @@ local function applyMobileHousehold()
     local spec = Config.situation and Config.situation.mobileHousehold
     if not spec then return end
     assert(SAO.MobileHousehold, "mobile household owner unavailable")
-    state.situationReceipt = state.situationReceipt or {
-        schema = 1, kind = "mobile-household-loaded", phase = "spawn",
-        script = spec.script, result = "running", datasetAdmission = "unreviewed"
-    }
+    state.situationReceipt = state.situationReceipt or {}
     local receipt = state.situationReceipt
+    if not receipt.phase then
+        receipt.schema, receipt.kind, receipt.phase = 1, "mobile-household-loaded", "spawn"
+        receipt.script, receipt.result, receipt.datasetAdmission = spec.script, "running", "unreviewed"
+    end
     if receipt.result == "completed" then return end
     receipt.waitTicks = (tonumber(receipt.waitTicks) or 0) + 1
     assert(receipt.waitTicks < 1800, "mobile household loaded transition timed out")
@@ -591,10 +701,10 @@ local function inspectionSnapshot(maxBytes)
         -- Reserve header growth for the explicit omission counts/message. Each
         -- inserted value is measured once with the production JSON encoder.
         local budget = { left = maxBytes - 1024 }
-        if not boundedJson(result, budget) then return false end
+        if not jsonFits(result, budget) then return false end
         local function take(value)
             local trial = { left = budget.left - 1 } -- member/array comma
-            local ok = boundedJson(value, trial)
+            local ok = jsonFits(value, trial)
             if ok then budget.left = trial.left end
             return ok
         end
@@ -653,7 +763,7 @@ local function inspectionSnapshot(maxBytes)
                 .. " people, " .. omittedSections .. " sections, " .. omittedRows .. " rows and "
                 .. omittedEvents .. " events omitted."
         end
-        return boundedJson(result, { left = maxBytes })
+        return jsonFits(result, { left = maxBytes })
     end)
     if not projected or not fits then
         -- Optional detail must not stop either producer. Keep the source's last
@@ -869,7 +979,7 @@ function Study.observe()
         -- Optional cognitive archives share the actual frame's remaining byte
         -- budget. Core capture survives unavailable or oversized model detail.
         local encoded = { left = 64 * 1024 * 1024 - 65536 }
-        local fits = boundedJson(frame, encoded)
+        local fits = jsonFits(frame, encoded)
         local remaining = fits and math.min(4 * 1024 * 1024, encoded.left) or 0
         for _, person in ipairs(frame.people) do
             local accepted = false
@@ -878,7 +988,7 @@ function Study.observe()
                 if ok and type(cognition) == "table" then
                     local trial = { left = math.min(512 * 1024, remaining, budget.bytes) - 16 }
                     local start = trial.left
-                    if boundedJson(cognition, trial) then
+                    if jsonFits(cognition, trial) then
                         person.context.cognition = cognition
                         remaining = remaining - (start - trial.left + 16)
                         budget.bytes = budget.bytes - (start - trial.left + 16)
@@ -898,6 +1008,58 @@ function Study.observe()
     return frame
 end
 local lastLiveAt = 0
+local function flushExports()
+    if not exportOwner then return end
+    if pendingLive then
+        local pending = pendingLive
+        local status = exportOwner:receiptStatus(pending.ticket)
+        if status ~= "pending" then
+            assert(exportOwner:receiptKey(pending.ticket) == pending.key, "live export receipt changed owner")
+            assert(status == "published" or status == "deferred",
+                exportOwner:receiptFailure(pending.ticket) or "live export failed")
+            -- Publication time sets pacing; the frame retains its source capture time.
+            lastLiveAt = exportOwner:receiptCompletedAt(pending.ticket)
+            exportOwner:release(pending.ticket)
+            pendingLive = nil
+        end
+    end
+    if pendingArchive then
+        local pending = pendingArchive
+        local status = exportOwner:receiptStatus(pending.ticket)
+        if status ~= "pending" then
+            assert(exportOwner:receiptKey(pending.ticket) == pending.key, "archive export receipt changed owner")
+            assert(exportOwner:receiptSequence(pending.ticket) == pending.sequence,
+                "archive export receipt changed sequence")
+            assert(status == "published" or status == "deferred",
+                exportOwner:receiptFailure(pending.ticket) or "archive export failed")
+            if status == "published" then
+                assert(state.sequence + 1 == pending.sequence, "archive acknowledgement lost sequence ownership")
+                state.sequence = pending.sequence
+                Study.archiveCapture = pending.captured
+                print("[StudyWorld] frame=" .. tostring(pending.sequence) .. " hours=" .. tostring(pending.hours)
+                    .. " loaded=" .. tostring(pending.loaded) .. " people=" .. tostring(pending.people))
+            else
+                local reason = exportOwner:receiptReason(pending.ticket)
+                assert(reason == "encoded-byte-budget" or reason == "detached-node-budget"
+                    or reason == "detached-depth-budget", "archive deferral has no confirmed capacity reason")
+                pending.deferred.reason = reason
+                Study.archiveCapture = pending.deferred
+                print("[StudyWorld] capture-deferred sequence=" .. tostring(pending.sequence)
+                    .. " hours=" .. tostring(pending.hours) .. " reason=" .. reason)
+            end
+            lastHours = pending.hours
+            exportOwner:release(pending.ticket)
+            pendingArchive = nil
+        end
+    end
+end
+function Study.drainExports()
+    exportStopping = true
+    flushExports()
+    return pendingLive == nil and pendingArchive == nil
+end
+-- The tool's native stop owner invokes this same acknowledgement path before save.
+SAO_StudyWorld = Study
 local function count(values)
     local n = 0
     for _ in pairs(values or {}) do n = n + 1 end
@@ -907,7 +1069,13 @@ local function liveInspection(hours)
     local reference = getSpecificPlayer and getSpecificPlayer(0)
     if not reference or reference:getModData().SAO_ObserverStarted ~= true then return end
     local now = getTimestampMs()
-    if now - lastLiveAt < 1000 then return end
+    if pendingLive or exportStopping or now - lastLiveAt < 1000 then return end
+    local ticket, key = nil, nil
+    if exportOwner then
+        key = exportKey .. "/live/" .. tostring(now)
+        ticket = exportOwner:reserve("live", key)
+        if ticket == 0 then return end
+    end
     local frame = { schema = "sao-study-live/1", definitionSha256 = Config.definitionSha256,
         datasetAdmission = "unreviewed", save = getWorld():getWorld(), hours = hours,
         people = array(), population = { total = 0, captured = 0, represented = 0, dead = 0 } }
@@ -937,21 +1105,31 @@ local function liveInspection(hours)
     -- Core people remain complete rows. Their captured/total counts already
     -- disclose truncation, and leave room for an explicit inspection status.
     local coreBudget = { left = LIVE_BYTES - 2048 }
-    local fits = boundedJson(frame, coreBudget)
+    local fits = jsonFits(frame, coreBudget)
     while not fits and #frame.people > 0 do
         -- At most logarithmically many whole-frame trials, even at the 2048-person cap.
         local retain = math.floor(#frame.people / 2)
         while #frame.people > retain do table.remove(frame.people) end
         frame.population.captured = #frame.people
         coreBudget = { left = LIVE_BYTES - 2048 }
-        fits = boundedJson(frame, coreBudget)
+        fits = jsonFits(frame, coreBudget)
     end
     assert(fits, "live observation core exceeds export byte budget")
     frame.inspection = inspectionSnapshot(math.min(INSPECTION_BYTES, coreBudget.left + 2048 - 32))
     if Study.archiveCapture and Study.archiveCapture.status == "deferred" then
         frame.archiveCapture = Study.archiveCapture
+        local reason = Study.archiveCapture.reason
+        local explanation = reason == "detached-node-budget" and "detached node budget exceeded."
+            or reason == "detached-depth-budget" and "detached depth budget exceeded."
+            or "encoded byte budget exceeded."
         frame.inspection.message = (frame.inspection.message or ""):sub(1, 380)
-            .. " Archive capture deferred: encoded byte budget exceeded."
+            .. " Archive capture deferred: " .. explanation
+    end
+    if exportOwner then
+        assert(exportOwner:submitLive(ticket, frame, arrayMeta, LIVE_BYTES) == "accepted",
+            "reserved live export was not accepted")
+        pendingLive = { ticket = ticket, key = key }
+        return
     end
     local text = json(frame, nil, { left = LIVE_BYTES })
     local writer = assert(getFileWriter("StudyWorldLive.json", true, false), "live inspection writer unavailable")
@@ -973,15 +1151,46 @@ local function writeArchiveStatus()
     assert(received == receiptText and extra == nil, "archive status read-back differs")
 end
 function Study.tick()
-    if not Study.active then return end
+    beginExport()
+    flushExports()
+    if not Study.active or exportStopping then return end
     applyInitialNeeds()
+    applyResourceObjectives()
     applyHorseTravel()
     applyMobileHousehold()
     local hours = getGameTime():getWorldAgeHours()
     liveInspection(hours)
     if isGamePaused() then return end
+    if pendingArchive then return end
     if lastHours and hours - lastHours < Config.observation.everyHours then return end
+    local ticket, key = nil, nil
+    if exportOwner then
+        key = exportKey .. "/archive/" .. tostring(state.sequence + 1)
+        ticket = exportOwner:reserve("archive", key)
+        if ticket == 0 then return end
+    end
+    local capturedAtUnixMs = getTimestampMs()
     local frame = Study.observe()
+    if exportOwner then
+        local captured = { status = "captured", sequence = frame.sequence, worldHours = hours,
+            definitionSha256 = frame.definitionSha256, save = frame.save, session = frame.session,
+            observerSha256 = frame.observerSha256, packageEngineJarSha256 = frame.packageEngineJarSha256,
+            datasetAdmission = "unreviewed" }
+        local deferred = { status = "deferred", reason = "encoded-byte-budget",
+            attemptedSequence = frame.sequence, worldHours = hours,
+            capturedAtUnixMs = capturedAtUnixMs, datasetAdmission = "unreviewed",
+            definitionSha256 = frame.definitionSha256, save = frame.save, session = frame.session,
+            observerSha256 = frame.observerSha256, packageEngineJarSha256 = frame.packageEngineJarSha256 }
+        local saveKey = tostring(frame.save):gsub(".", function(c) return string.format("%02x", string.byte(c)) end)
+        local name = "StudyWorld/" .. Config.definitionSha256 .. "/" .. saveKey .. "/" .. session
+            .. "/" .. string.format("%016d", frame.sequence) .. ".json"
+        assert(exportOwner:submitArchive(ticket, frame, arrayMeta, 64 * 1024 * 1024,
+            name, captured, deferred) == "accepted", "reserved archive export was not accepted")
+        pendingArchive = { ticket = ticket, key = key, sequence = frame.sequence,
+            captured = captured, deferred = deferred, hours = hours,
+            loaded = frame.coverage.loadedSquares, people = frame.population.total }
+        return
+    end
     local encoded, line = boundedJson(frame, { left = 64 * 1024 * 1024 })
     if not encoded then
         -- Optional archive projection is independent from cognition and live frames.

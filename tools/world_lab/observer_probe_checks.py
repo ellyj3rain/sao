@@ -37,7 +37,7 @@ def run(tmp, GAME, JDK):
     javac, java, jar = (jdk / (name + suffix) for name in ("javac", "java", "jar"))
     native = os.pathsep.join(str(game / name) for name in ("projectzomboid.jar", "ZombieBuddy.jar"))
     _execute([javac, "-encoding", "UTF-8", "-cp", native, "-d", classes,
-              *(SOURCE / name for name in ("StudyObserver.java", "StudyLoadingAgent.java",
+              *(SOURCE / name for name in ("StudyObserver.java", "StudyLoadingAgent.java", "StudyExport.java",
                                            "StudyViewCapture.java", "NativeObserverProbe.java",
                                            "NativeObserverClockProbe.java",
                                            "NativeObserverInspectionProbe.java",
@@ -311,7 +311,7 @@ public final class NativeStudyStartupProbe implements Instrumentation {
 }
 ''', encoding="utf-8")
     _execute([javac, "-encoding", "UTF-8", "-cp", native, "-d", classes, probe_source,
-              *(SOURCE / name for name in ("StudyObserver.java", "StudyLoadingAgent.java", "StudyViewCapture.java"))],
+              *(SOURCE / name for name in ("StudyObserver.java", "StudyLoadingAgent.java", "StudyViewCapture.java", "StudyExport.java"))],
              work / "compile")
     manifest, agent = work / "MANIFEST.MF", work / "startup-probe-agent.jar"
     manifest.write_text("Manifest-Version: 1.0\nPremain-Class: NativeStudyStartupProbe\nCan-Retransform-Classes: true\nCan-Redefine-Classes: true\n\n", encoding="utf-8")
@@ -363,7 +363,7 @@ def run_visibility(tmp, GAME, JDK):
     javac, java, jar = (jdk / (name + suffix) for name in ("javac", "java", "jar"))
     native = os.pathsep.join(str(game / name) for name in ("projectzomboid.jar", "ZombieBuddy.jar"))
     _execute([javac, "-encoding", "UTF-8", "-cp", native, "-d", classes,
-              *(SOURCE / name for name in ("StudyObserver.java", "StudyLoadingAgent.java", "StudyViewCapture.java",
+              *(SOURCE / name for name in ("StudyObserver.java", "StudyLoadingAgent.java", "StudyViewCapture.java", "StudyExport.java",
                                            "NativeObserverLightingProbe.java", "NativeObserverPreload.java"))], work / "compile")
     for label, main in (("observer", "StudyLoadingAgent"), ("capture", "NativeObserverLightingProbe"),
                         ("preload", "NativeObserverPreload")):
@@ -435,7 +435,7 @@ def run_capture(tmp, GAME, JDK):
     javac, java = (jdk / (name + suffix) for name in ("javac", "java"))
     native = os.pathsep.join(str(game / name) for name in ("projectzomboid.jar", "ZombieBuddy.jar"))
     _execute([javac, "-encoding", "UTF-8", "-cp", native, "-d", classes,
-              SOURCE / "StudyViewCapture.java", SOURCE / "StudyObserver.java",
+              SOURCE / "StudyViewCapture.java", SOURCE / "StudyObserver.java", SOURCE / "StudyExport.java",
               SOURCE / "NativeViewCaptureProbe.java"], work / "compile")
 
     def probe(directory, extra=None, expected=None):

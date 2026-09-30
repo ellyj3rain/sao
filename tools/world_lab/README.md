@@ -63,7 +63,9 @@ command. A selected person's inspector shows source-owned needs, inventory,
 current action, action receipts, reception and work on a separate bounded
 cadence. Optional detail failures preserve the core feed and archival export.
 
-Live capture targets twenty frames per second. Pixel readback happens after the
+Single-view live capture targets twenty frames per second; regional capture
+targets ten complete viewport sets per second. These are admission caps, while
+actual delivery also depends on native rendering and publication. Pixel readback happens after the
 native renderer swaps its completed frame; one background worker converts,
 encodes, validates and publishes it. Lossless PNG uses stored deflate blocks to
 avoid compression delay in the local image feed. A busy worker drops capture requests before
@@ -139,6 +141,37 @@ holds a claim. Existing ownership records remain intact.
 Capture time, observation time and camera acknowledgement remain
 separate evidence. All packages, observations and previews are **unreviewed**.
 Scenario evaluation and explicit operator ratification precede dataset admission.
+
+For an outcome trial, add `situation.resourceObjectives` alongside the existing
+initial conditions. Each request names an existing `observation.sites` id and a
+one-based ordinal in that site's actual living represented population:
+
+```json
+"resourceObjectives": [
+  {"id": "food-reserve", "revision": 1, "siteId": "residential", "actorOrdinal": 1,
+   "category": "food", "target": 3, "unit": "usable-food-item", "deadlineAfterHours": 12}
+]
+```
+
+The study binds that actual person once and retains the binding across save,
+movement and death. Other people keep autonomous purpose formation. Assignment
+is recorded as `assigned-outcome-discovery` with `OperatorDirect` experimental
+authority. The actor chooses the means from private knowledge and real native
+affordances. A request grants no knowledge or completed action. Food targets
+count distinct usable carried items; water uses `native-clean-fluid-amount` and
+the actual engine amount. Up to twelve requests are accepted. Checked stock,
+coverage, deadline and terminal result appear in situation provenance and the
+existing person inspector. A procedure receipt can complete its work while the
+desired stock remains unmet. Live known-procedure trials are not admitted here.
+
+Native observation reserves bounded capacity before acquiring data. `StudyExport`
+detaches values on the game thread and performs encoding, read-back and atomic
+publication on one worker. Live completion starts its next admission cooldown;
+the Lua owner alone acknowledges exact archived sequences. Capacity deferral
+distinguishes encoded bytes, detached nodes and detached depth. Native stop
+pauses time and drains accepted work before save. Image capture retains its
+separate cadence: the current PNG transport targets twenty single-view frames
+or ten regional frame sets per second, rather than a measured 60/120 FPS.
 
 
 C88 studies enable independent ordinary and associative cognitive contestants.

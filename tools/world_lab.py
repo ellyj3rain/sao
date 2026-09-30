@@ -17,6 +17,7 @@ import re
 import shutil
 import sys
 import tempfile
+from world_lab_definition import validate_resource_objectives
 
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE = ROOT / "tools/world_lab/StudyWorld.lua"
@@ -166,9 +167,11 @@ def validate(value):
             require(len(val) <= 512, "sandbox string too long")
     if "situation" in value:
         situation = value["situation"]
-        require(isinstance(situation, dict) and 1 <= len(situation) <= 4
-                and set(situation) <= {"initialNeeds", "initialNeedsBySite", "horseTravel", "mobileHousehold"},
+        require(isinstance(situation, dict) and 1 <= len(situation) <= 5
+                and set(situation) <= {"initialNeeds", "initialNeedsBySite", "horseTravel", "mobileHousehold", "resourceObjectives"},
                 "situation must define supported pressures")
+        if "resourceObjectives" in situation:
+            validate_resource_objectives(situation["resourceObjectives"], value["observation"])
         if "initialNeeds" in situation:
             needs = situation["initialNeeds"]
             require(isinstance(needs, dict) and 1 <= len(needs) <= 3
