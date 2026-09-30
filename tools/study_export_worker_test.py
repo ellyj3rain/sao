@@ -65,6 +65,23 @@ def run():
 
         result = execute(helper, "normal")
         Lab.require(result.returncode == 0 and "VALUE PASS" in result.stdout, result.stdout + result.stderr)
+        timing_lines = [line[len("TIMING_JSON "):] for line in result.stdout.splitlines() if line.startswith("TIMING_JSON ")]
+        Lab.require(len(timing_lines) == 1, "native timing snapshot missing or repeated")
+        timing = Lab.decode(timing_lines[0])
+        units = {"ownerMeasure": "nodes", "ownerDetach": "nodes", "workerEncode": "output-bytes",
+                 "workerWrite": "input-bytes", "workerReadback": "input-bytes", "workerPromote": "files"}
+        Lab.require(timing["schema"] == "sao-study-export-timing/1" and timing["inclusive"] is True
+                    and type(timing["capturedAtUnixMs"]) is int and timing["capturedAtUnixMs"] > 0
+                    and set(timing["stages"]) == set(units), "diagnostic scope or fixed keys differ")
+        for name, row in timing["stages"].items():
+            Lab.require(row["unit"] == units[name] and isinstance(row["clipped"], bool), "diagnostic quantity units differ")
+            for field in ("calls", "totalNs", "maximumNs", "examined", "failures", "deferred"):
+                Lab.require(type(row[field]) is int and 0 <= row[field] <= 9007199254740991, "diagnostic integer bound differs")
+            Lab.require(row["maximumNs"] <= row["totalNs"] and row["failures"] <= row["calls"]
+                        and row["deferred"] <= row["calls"], "diagnostic counter row is incoherent")
+        Lab.require("SLOW Lua event callback" in result.stdout + result.stderr
+                    and "native-slow-callback-probe" in result.stdout + result.stderr,
+                    "installed inclusive callback timing was not exercised\n" + (result.stdout + result.stderr)[-2800:])
         print(result.stdout.strip())
         controls = (
             ("budget", "charge(KahluaUtil.numberToString(number).length());", "charge(0);", "production Lua exact UTF-8 bytes 3"),
@@ -73,6 +90,15 @@ def run():
             ("epoch", "if (closed || epoch != receipt.epoch || Thread.currentThread().isInterrupted()) return;",
              "if (closed || Thread.currentThread().isInterrupted()) return;", "retired epoch cannot promote a completed worker snapshot"),
             ("newline", "if (newline) output.append('\\n');", "if (false) output.append('\\n');", "archive JSON plus native newline is byte-identical"),
+            ("owner timing", "if (timings != null) timings.record(Stage.OWNER_MEASURE, started,",
+             "if (false && timings != null) timings.record(Stage.OWNER_MEASURE, started,",
+             "actual byte preflight records one owner sample and examined node"),
+            ("retired timing", "encodeMeasured(frame, bytes, archive != null, receipt.epoch.timings())",
+             "encodeMeasured(frame, bytes, archive != null, epoch.timings())",
+             "retired worker cannot charge a new epoch's diagnostic counters"),
+            ("bounded timing", "if (increment > LIMIT - value) { clipped = true; return LIMIT; }",
+             "if (increment > LIMIT - value) { clipped = true; return value + increment; }",
+             "diagnostic saturation preserves byte result and reports clipping"),
         )
         for label, old, new, reason in controls:
             Lab.require(helper.count(old) == 1, "worker control seam differs: " + label)
@@ -98,6 +124,8 @@ def run():
             ("timeout state", "if (runtimeFailure == null) runtimeFailure = message;\n            refreshFailureSnapshot();\n            System.err.println",
              "if (runtimeFailure == null) runtimeFailure = message;\n            System.err.println",
              "timeout publishes failed observer state with retained native clock"),
+            ("native callback timing", "option.setValue(true);", "option.setValue(false);",
+             "native slow Lua callback timing is enabled for the study owner"),
         )
         for label, old, new, reason in controls:
             Lab.require(observer.count(old) == 1, "native observer control seam differs: " + label)

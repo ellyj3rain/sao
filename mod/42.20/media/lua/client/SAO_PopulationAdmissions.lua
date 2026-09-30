@@ -13,6 +13,137 @@ end
 local regionPoints = nil
 local regionPointsByProfession = nil
 local lastHighwayLogAt = -9
+local initialCohort = nil
+local function integer(v, low, high)
+    return type(v) == "number" and v == v and v >= low and v <= high and v % 1 == 0
+end
+local function siteFor(point, sites)
+    local nearest, distance = nil, 48 * 48
+    for _, site in ipairs(sites) do
+        if point.z == site.z then
+            local dx, dy = point.x - site.x, point.y - site.y
+            local candidate = dx * dx + dy * dy
+            if candidate < distance then nearest, distance = site.id, candidate
+            elseif candidate == distance then nearest = nil end
+        end
+    end
+    return nearest
+end
+local function cohortCounts(cohort)
+    local records, counts, seen = SAO.Identity.all(), {}, {}
+    for _, site in ipairs(cohort.sites) do
+        local ids = cohort.actualIds[site.id]
+        if type(ids) ~= "table" then return nil, "initial-cohort-id-ledger-missing" end
+        counts[site.id] = 0
+        for _, id in ipairs(ids) do
+            local rec = records[id]
+            local origin = rec and rec.initialStudyOrigin
+            if seen[id] or not origin or origin.definitionSha256 ~= cohort.definitionSha256
+                or origin.saveName ~= cohort.saveName or origin.siteId ~= site.id
+                or siteFor(origin, cohort.sites) ~= site.id then
+                return nil, "initial-cohort-identity-provenance-differs"
+            end
+            seen[id], counts[site.id] = true, counts[site.id] + 1
+        end
+        if counts[site.id] > cohort.requested[site.id] then return nil, "initial-cohort-site-overflow" end
+    end
+    for id, rec in pairs(records) do
+        local origin = rec.initialStudyOrigin
+        if origin and origin.definitionSha256 == cohort.definitionSha256
+            and origin.saveName == cohort.saveName and not seen[id] then
+            return nil, "initial-cohort-identity-unregistered"
+        end
+    end
+    return counts
+end
+-- Study authoring precedes this owner's ordinary identity/history genesis.
+-- Durable actual IDs, rather than requested totals, establish generated counts.
+function A.stageInitialPeople(definitionSha256, saveName, requested, sites, population)
+    if type(definitionSha256) ~= "string" or #definitionSha256 ~= 64
+        or definitionSha256:find("[^a-f0-9]") or type(saveName) ~= "string" or #saveName == 0
+        or type(requested) ~= "table" or type(sites) ~= "table" or #sites < 1 or #sites > 4
+        or not integer(population, 1, 500) then return false, "invalid-initial-cohort-binding" end
+    local allSites, total, known = {}, 0, {}
+    for _, site in ipairs(sites) do
+        if type(site.id) ~= "string" or known[site.id]
+            or not integer(site.x, -75000, 75299) or not integer(site.y, -75000, 75299)
+            or not integer(site.z, -32, 31) then return false, "invalid-initial-cohort-site" end
+        known[site.id] = true
+        if requested[site.id] ~= nil then
+            if not integer(requested[site.id], 1, 500) then return false, "invalid-initial-cohort-count" end
+            total = total + requested[site.id]
+        end
+        allSites[#allSites + 1] = { id = site.id, x = site.x, y = site.y, z = site.z }
+    end
+    for id in pairs(requested) do if not known[id] then return false, "unknown-initial-cohort-site" end end
+    if total ~= population then return false, "initial-cohort-population-differs" end
+    local store = ModData.getOrCreate("SurvivorAwareness_Standing")
+    local prior = store.initialStudyPeople
+    if prior then
+        if prior.definitionSha256 ~= definitionSha256 or prior.saveName ~= saveName
+            or prior.target ~= population or #prior.sites ~= #allSites then
+            return false, "initial-cohort-binding-differs"
+        end
+        for i, site in ipairs(allSites) do
+            local previous = prior.sites[i]
+            if previous.id ~= site.id or previous.x ~= site.x or previous.y ~= site.y
+                or previous.z ~= site.z or prior.requested[site.id] ~= (requested[site.id] or 0) then
+                return false, "initial-cohort-definition-differs"
+            end
+        end
+        local counts, reason = cohortCounts(prior)
+        if not counts then return false, reason end
+        initialCohort = prior
+        return true
+    end
+    local existingPeople = false
+    for _ in pairs(SAO.Identity.all()) do existingPeople = true; break end
+    if store.countySettled or existingPeople then return false, "initial-cohort-staged-after-genesis" end
+    local cohort = { definitionSha256 = definitionSha256, saveName = saveName,
+        target = population, requested = {}, sites = allSites, actualIds = {}, status = "staged" }
+    for _, site in ipairs(allSites) do
+        cohort.requested[site.id] = requested[site.id] or 0
+        cohort.actualIds[site.id] = {}
+    end
+    store.initialStudyPeople, initialCohort = cohort, cohort
+    return true
+end
+function A.initialPeopleSnapshot()
+    if not initialCohort then return nil end
+    local counts, reason = cohortCounts(initialCohort)
+    assert(counts, reason)
+    local result = { definitionSha256 = initialCohort.definitionSha256, saveName = initialCohort.saveName,
+        target = initialCohort.target, status = initialCohort.status, reason = initialCohort.reason,
+        generated = 0, represented = 0, sites = {} }
+    for _, site in ipairs(initialCohort.sites) do
+        local row = { requested = initialCohort.requested[site.id],
+            generated = counts[site.id], represented = 0, actualIds = {}, placement = {} }
+        for _, id in ipairs(initialCohort.actualIds[site.id]) do
+            row.actualIds[#row.actualIds + 1] = id
+            if SAO.Body.get(id) then row.represented = row.represented + 1 end
+            local receipt = SAO.Identity.all()[id].initialStudyPlacement
+            if receipt and receipt.definitionSha256 == initialCohort.definitionSha256
+                and receipt.saveName == initialCohort.saveName and receipt.siteId == site.id then
+                row.placement[id] = { status = receipt.status, reason = receipt.reason,
+                    causeAvailable = receipt.causeAvailable, observedAtCountyHours = receipt.observedAtCountyHours }
+            else
+                row.placement[id] = { status = "unobserved", causeAvailable = false }
+            end
+        end
+        result.generated = result.generated + row.generated
+        result.represented = result.represented + row.represented
+        result.sites[site.id] = row
+    end
+    return result
+end
+local function registerInitialPerson(rec, siteId, origin)
+    if not siteId then return end
+    rec.initialStudyOrigin = { definitionSha256 = initialCohort.definitionSha256,
+        saveName = initialCohort.saveName, siteId = siteId,
+        x = origin.x, y = origin.y, z = origin.z }
+    local ids = initialCohort.actualIds[siteId]
+    ids[#ids + 1] = rec.id
+end
 local function loadRegionPoints()
     if regionPoints then return regionPoints end
     local flat = {}
@@ -198,13 +329,31 @@ end
 -- profession's own engine path, anywhere in the county - the nurse
 -- holed up at a clinic point, the deputy at a station point. Nil when
 -- the county never filed one; the caller keeps its ordinary origin.
-local function pickOriginFor(enginePath)
+local function pickOriginFor(enginePath, siteId)
     if not enginePath then return nil end
     loadRegionPoints()
     local list = regionPointsByProfession
         and regionPointsByProfession[enginePath] or nil
     if not list or #list == 0 then return nil end
+    if siteId then
+        local localPoints = {}
+        for _, point in ipairs(list) do
+            if siteFor(point, initialCohort.sites) == siteId then localPoints[#localPoints + 1] = point end
+        end
+        list = localPoints
+        if #list == 0 then return nil end
+    end
     return list[SAO.Rand.int(#list) + 1]
+end
+
+local function pickInitialOrigin(siteId)
+    local points, localPoints = loadRegionPoints(), {}
+    if not points then return nil end
+    for _, point in ipairs(points) do
+        if siteFor(point, initialCohort.sites) == siteId then localPoints[#localPoints + 1] = point end
+    end
+    if #localPoints == 0 then return nil end
+    return localPoints[SAO.Rand.int(#localPoints) + 1]
 end
 
 -- Region-balanced pick: choose a region uniformly first, then a point within
@@ -304,6 +453,9 @@ local function ensurePopulation(conf, tickCounter)
     -- every ceiling below is measured against the same number.
     conf.population = resolveTarget(conf)
     conf.newcomers = resolveNewcomers(conf, conf.population)
+    if initialCohort then
+        assert(conf.population == initialCohort.target, "initial-cohort-population-changed")
+    end
     local capNow = conf.population
     do
         local s70 = nil
@@ -478,6 +630,14 @@ local function ensurePopulation(conf, tickCounter)
     -- the first tick of a new save. It is bounded by the target the
     -- options screen already sets, so it cannot run away.
     local settled = genesisSettled()
+    local cohort = initialCohort and not settled and initialCohort or nil
+    local counts
+    if cohort then
+        local reason
+        counts, reason = cohortCounts(cohort)
+        assert(counts, reason)
+        capNow = cohort.target
+    end
     local budget = settled and PACE_PER_PASS or capNow
     local wholeCounty = not settled
     local startedAt = count
@@ -486,10 +646,28 @@ local function ensurePopulation(conf, tickCounter)
         -- exists: six identities per pass (240 county ticks, ~4s at
         -- 60fps frames on the default day).
         bornThisPass = bornThisPass + 1
-        local origin = pickOrigin()
-        if not origin then return end
+        local siteId, remaining
+        if cohort then
+            for _, site in ipairs(cohort.sites) do
+                local room = cohort.requested[site.id] - counts[site.id]
+                if room > 0 then siteId, remaining = site.id, room; break end
+            end
+            if not siteId then
+                cohort.status, cohort.reason = "generated", nil
+                return
+            end
+        end
+        local origin
+        if siteId then origin = pickInitialOrigin(siteId) else origin = pickOrigin() end
+        if not origin then
+            if cohort then cohort.status, cohort.reason = "deferred", "native-origin-unavailable:" .. siteId end
+            return
+        end
         local rec = SAO.Identity.create(nil, nil, origin.x, origin.y, origin.z)
-        if not rec then return end
+        if not rec then
+            if cohort then cohort.status, cohort.reason = "deferred", "native-identity-creation-refused:" .. siteId end
+            return
+        end
         pcall(function() SAO.History.generate(rec.id, rec) end)
         -- Where the life was lived ([A18]): the id decided the trade
         -- (inside generate); if the county filed spawn points under
@@ -498,7 +676,7 @@ local function ensurePopulation(conf, tickCounter)
         -- mutation, sanctioned domain).
         local row = SAO.Census and rec.occupation
             and SAO.Census.rowOf(rec.occupation) or nil
-        local anchored = row and pickOriginFor(row.enginePath) or nil
+        local anchored = row and pickOriginFor(row.enginePath, siteId) or nil
         if anchored then
             origin = anchored
             rec.x, rec.y, rec.z = anchored.x, anchored.y, anchored.z
@@ -506,6 +684,8 @@ local function ensurePopulation(conf, tickCounter)
         end
         rec.originRegion = origin.region
         rec.homeX, rec.homeY, rec.homeZ = origin.x, origin.y, origin.z
+        registerInitialPerson(rec, siteId, origin)
+        if siteId then counts[siteId] = counts[siteId] + 1 end
         -- [C74] Presence, not an origin label, is what can support lived
         -- county knowledge. Genesis starts on the record's first day; a later
         -- admission begins now and cannot inherit the county's past.
@@ -575,6 +755,7 @@ local function ensurePopulation(conf, tickCounter)
         -- choosing the relation and then choosing ages to match would
         -- be authoring the same thing twice.
         local size, kind = rollUnit()
+        if siteId then size = math.min(size, remaining) end
         local unitId = (size > 1) and (rec.id .. "-u") or nil
         if unitId then
             rec.unitId, rec.unitKind = unitId, kind
@@ -593,6 +774,8 @@ local function ensurePopulation(conf, tickCounter)
             end
             mate.originRegion = origin.region
             mate.homeX, mate.homeY, mate.homeZ = origin.x, origin.y, origin.z
+            registerInitialPerson(mate, siteId, origin)
+            if siteId then counts[siteId] = counts[siteId] + 1 end
             pcall(function()
                 SAO.WorldKnowledge.markCountyPresence(mate, not arriving)
             end)
@@ -655,6 +838,14 @@ local function ensurePopulation(conf, tickCounter)
     -- [C41] Settled only when the county actually reached its target,
     -- so this cannot mark a world that ran out of origins half way.
     if wholeCounty and count >= capNow then
+        if cohort then
+            local actual, reason = cohortCounts(cohort)
+            assert(actual, reason)
+            local generated = 0
+            for _, site in ipairs(cohort.sites) do generated = generated + actual[site.id] end
+            assert(generated == cohort.target, "initial-cohort-generated-count-differs")
+            cohort.status, cohort.reason = "generated", nil
+        end
         markGenesisSettled(count, capNow)
     elseif wholeCounty and count > startedAt then
         log("the county is still being generated: " .. count .. "/"
@@ -664,6 +855,7 @@ end
 
 function A.rebindWorld()
     regionPoints, regionPointsByProfession, derivedTarget = nil, nil, nil
+    initialCohort = nil
     lastHighwayLogAt = -9
 end
 

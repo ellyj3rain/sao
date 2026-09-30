@@ -142,6 +142,22 @@ Capture time, observation time and camera acknowledgement remain
 separate evidence. All packages, observations and previews are **unreviewed**.
 Scenario evaluation and explicit operator ratification precede dataset admission.
 
+To require initial people in each observation area, add a count for each existing
+site under `situation.initialPeopleBySite`:
+
+```json
+"initialPeopleBySite": {"residential": 4, "services": 4, "farm": 4}
+```
+
+The counts sum to the configured governed population and require enabled
+population generation. Study startup stages them
+before native population generation. The existing admissions owner generates
+identities, histories and social units at real spawn-region points associated
+with the sites. Persisted generated identities and separately observed native
+bodies report realized coverage. Reload retains the original admission. An
+already populated world or a different source binding is refused; it does not
+move people or fill an area with replacement identities.
+
 For an outcome trial, add `situation.resourceObjectives` alongside the existing
 initial conditions. Each request names an existing `observation.sites` id and a
 one-based ordinal in that site's actual living represented population:
@@ -172,6 +188,15 @@ distinguishes encoded bytes, detached nodes and detached depth. Native stop
 pauses time and drains accepted work before save. Image capture retains its
 separate cadence: the current PNG transport targets twenty single-view frames
 or ten regional frame sets per second, rather than a measured 60/120 FPS.
+
+Native observer diagnostics carry `sao-study-export-timing/1` rows for owner
+measurement and detachment, then worker encoding, writing, read-back and
+promotion. Each epoch keeps its own inclusive monotonic counters, failures,
+deferrals and clipping. The observer enables the installed engine's slow Lua
+callback timer during the study and restores its prior setting at successful
+drain before quit. Warning logging availability is reported separately. These
+rows measure admitted stages; they do not establish exclusive Lua hotspots,
+monitor presentation FPS or Mousecat image delivery rates.
 
 
 C88 studies enable independent ordinary and associative cognitive contestants.

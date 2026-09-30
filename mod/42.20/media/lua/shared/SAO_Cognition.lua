@@ -500,6 +500,22 @@ function C.sourceResult(receipt, token)
     if receipt.status == "interrupted" or receipt.status == "released" then status = "interrupted" end
     local values = { kind = receipt.operation, category = receipt.category, sourceId = receipt.sourceId,
         itemType = receipt.itemType, status = status, detail = receipt.detail }
+    if receipt.category == "drink" then
+        local intent = token.hydrationAdmission
+        local owner = SAO.WorldSources
+        local native = intent and owner and owner.actionOutcome
+            and owner.actionOutcome(receipt.reservationId, receipt.actorId)
+        if receipt.operation ~= "acquire" or not native or native.category ~= "drink"
+            or native.operation ~= "acquire" or native.sourceId ~= intent.sourceId
+            or native.itemId ~= intent.itemId or native.preRevision ~= intent.revision
+            or receipt.reservationId ~= intent.reservationId or native.status ~= receipt.status
+            or receipt.sourceId ~= native.sourceId or receipt.itemId ~= native.itemId
+            or receipt.itemType ~= native.itemType or receipt.preRevision ~= native.preRevision
+            or receipt.observedQuantity ~= native.observedQuantity then return false end
+        -- Admission relates this material to thirst. Transfer never reports
+        -- relief; the native carried-drink callback measures that separately.
+        values.category = "water"
+    end
     -- Source use proves exact consumption, but does not export bodily relief.
     -- Its own native callback publishes relief separately; never infer a delta.
     if values.kind == "consume" and status == "completed" then return false end

@@ -405,6 +405,21 @@ public final class SAONeeds {
         return 0.0f;
     }
 
+    /** Actual carried food with a native infection-reduction property. The
+     * selected timed action still owns consumption and any bodily effect. */
+    public static InventoryItem carriedInfectionFood(IsoPlayer shell) {
+        try {
+            for (InventoryItem item : SAOPrivateInventory.carriedItems(shell)) {
+                if (!(item instanceof Food food)) continue;
+                float power = food.getReduceInfectionPower();
+                if (Float.isFinite(power) && power > 0.0f) return food;
+            }
+        } catch (Throwable error) {
+            SAOAgent.log("carriedInfectionFood refused: " + error);
+        }
+        return null;
+    }
+
     /** [B6] The nearest hearth with fuel in it, as "x:y:z:fuel", or
      *  "" when the ground offers none. Pure read. */
     /** [B31] The nearest hearth, found ONCE.
@@ -1352,6 +1367,8 @@ public final class SAONeeds {
     private static boolean drinkable(zombie.entity.components.fluids.Fluid fluid) {
         return fluid == zombie.entity.components.fluids.Fluid.Water
             || fluid == zombie.entity.components.fluids.Fluid.SodaPop
+            || fluid == zombie.entity.components.fluids.Fluid.Get("Cola")
+            || fluid == zombie.entity.components.fluids.Fluid.Get("ColaDiet")
             || fluid == zombie.entity.components.fluids.Fluid.Tea
             || fluid == zombie.entity.components.fluids.Fluid.Coffee;
     }
@@ -1366,19 +1383,23 @@ public final class SAONeeds {
      *  some fluid is no longer safe and both learn it at once, which
      *  is the point of writing a thing down once ([B20], [B27],
      *  [B28]). */
-    private static float drinkableAmount(InventoryItem item) {
-        if (item == null) return -1.0f;
-        zombie.entity.components.fluids.FluidContainer fluidContainer =
-            item.getFluidContainer();
-        if (fluidContainer == null || fluidContainer.isEmpty()) {
-            return -1.0f;
-        }
+    /** Actual native thirst fluids, including the Cola/ColaDiet in Pop2/Pop.
+     *  Their installed beverage definitions reduce thirst; material water
+     *  classification and clean-water stock remain separate. */
+    public static float hydrationAmount(zombie.entity.components.fluids.FluidContainer fluidContainer) {
+        if (fluidContainer == null || fluidContainer.isEmpty()
+                || fluidContainer.isPoisonous() || fluidContainer.isTainted()) return -1.0f;
         zombie.entity.components.fluids.Fluid fluid =
             fluidContainer.getPrimaryFluid();
         if (fluid == null || !drinkable(fluid)) {
             return -1.0f;
         }
-        return fluidContainer.getAmount();
+        float amount = fluidContainer.getAmount();
+        return Float.isFinite(amount) && amount > 0.0f ? amount : -1.0f;
+    }
+
+    private static float drinkableAmount(InventoryItem item) {
+        return item == null ? -1.0f : hydrationAmount(item.getFluidContainer());
     }
 
     public static InventoryItem bestCarriedDrink(IsoPlayer shell) {

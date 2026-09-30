@@ -41,7 +41,46 @@ public final class StudyExport {
     private boolean closed;
 
     private record Epoch(long number, String key, String definition, String save,
-                         String session, String observer, String engine, Path root) {}
+                         String session, String observer, String engine, Path root, Timings timings) {}
+    /** CAO's fixed runtime counters, scoped to one export epoch. No simulation reads these. */
+    private enum Stage {
+        OWNER_MEASURE("ownerMeasure", "nodes"), OWNER_DETACH("ownerDetach", "nodes"),
+        WORKER_ENCODE("workerEncode", "output-bytes"), WORKER_WRITE("workerWrite", "input-bytes"),
+        WORKER_READBACK("workerReadback", "input-bytes"), WORKER_PROMOTE("workerPromote", "files");
+        final String key, unit;
+        Stage(String key, String unit) { this.key = key; this.unit = unit; }
+    }
+    private static final class Counter {
+        private static final long LIMIT = 9007199254740991L;
+        long calls, totalNs, maximumNs, examined, failures, deferred;
+        boolean clipped;
+        private long add(long value, long increment) {
+            if (increment > LIMIT - value) { clipped = true; return LIMIT; }
+            return value + increment;
+        }
+        synchronized void record(long started, long quantity, boolean failed, boolean capacity) {
+            long elapsed = Math.max(0, System.nanoTime() - started);
+            calls = add(calls, 1); totalNs = add(totalNs, elapsed);
+            maximumNs = Math.max(maximumNs, Math.min(LIMIT, elapsed));
+            if (elapsed > LIMIT) clipped = true;
+            examined = add(examined, Math.max(0, quantity));
+            if (failed) failures = add(failures, 1);
+            if (capacity) deferred = add(deferred, 1);
+        }
+        synchronized void append(StringBuilder json, Stage stage) {
+            json.append('{').append("\"calls\":").append(calls)
+                .append(",\"totalNs\":").append(totalNs).append(",\"maximumNs\":").append(maximumNs)
+                .append(",\"examined\":").append(examined).append(",\"failures\":").append(failures)
+                .append(",\"deferred\":").append(deferred).append(",\"clipped\":").append(clipped)
+                .append(",\"unit\":"); quote(stage.unit, json); json.append('}');
+        }
+    }
+    private static final class Timings {
+        final Counter[] counters = Arrays.stream(Stage.values()).map(stage -> new Counter()).toArray(Counter[]::new);
+        void record(Stage stage, long started, long quantity, boolean failed, boolean capacity) {
+            counters[stage.ordinal()].record(started, quantity, failed, capacity);
+        }
+    }
     private sealed interface Node permits Scalar, Sequence, Mapping {}
     private record Scalar(Object value) implements Node {}
     private record Sequence(List<Node> values) implements Node {
@@ -131,7 +170,7 @@ public final class StudyExport {
         synchronized (publicationLock) {
             long number = epoch == null ? 1 : epoch.number() + 1;
             epoch = new Epoch(number, definition + "/" + save + "/" + session,
-                definition, save, session, observer, engine, root);
+                definition, save, session, observer, engine, root, new Timings());
             receipts.clear(); worker.getQueue().clear();
         }
     }
@@ -169,6 +208,27 @@ public final class StudyExport {
     }
     public void requestStop(String reason) { requireOwner(); StudyObserver.requestStop(reason); }
 
+    /** Detached scalar diagnostics. Each counter row is coherent; stages are sampled separately. */
+    public static String diagnosticsJson() {
+        requireGameThread();
+        if (bound == null || bound.epoch == null) return "null";
+        bound.requireOwner(); Epoch source = bound.epoch;
+        StringBuilder result = new StringBuilder("{\"schema\":\"sao-study-export-timing/1\",\"inclusive\":true,\"epoch\":");
+        result.append(source.number()).append(",\"capturedAtUnixMs\":").append(System.currentTimeMillis())
+            .append(",\"definitionSha256\":"); quote(source.definition(), result);
+        result.append(",\"save\":"); quote(source.save(), result);
+        result.append(",\"session\":"); quote(source.session(), result);
+        result.append(",\"observerSha256\":"); quote(source.observer(), result);
+        result.append(",\"packageEngineJarSha256\":"); quote(source.engine(), result);
+        result.append(",\"stages\":{");
+        Stage[] stages = Stage.values();
+        for (int i = 0; i < stages.length; i++) {
+            if (i != 0) result.append(','); quote(stages[i].key, result); result.append(':');
+            source.timings().counters[i].append(result, stages[i]);
+        }
+        return result.append("}}").toString();
+    }
+
     private static long limit(double bytes) {
         if (!Double.isFinite(bytes) || bytes != Math.rint(bytes) || bytes < 0 || bytes > MAX_BYTES)
             throw new IllegalArgumentException("invalid export byte bound");
@@ -176,8 +236,16 @@ public final class StudyExport {
     }
     public double measure(Object value, KahluaTable arrayMeta, double maxBytes) {
         requireOwner();
-        try { Walker walker = new Walker(arrayMeta, limit(maxBytes), false); walker.walk(value, 0); return walker.used; }
-        catch (Capacity capacity) { return -1; }
+        Timings timings = epoch == null ? null : epoch.timings();
+        long started = System.nanoTime(); Walker walker = null; boolean failed = true, deferred = false;
+        try {
+            walker = new Walker(arrayMeta, limit(maxBytes), false); walker.walk(value, 0);
+            failed = false; return walker.used;
+        } catch (Capacity capacity) { failed = false; deferred = true; return -1; }
+        finally {
+            if (timings != null) timings.record(Stage.OWNER_MEASURE, started,
+                walker == null ? 0 : MAX_NODES - (long) walker.nodes, failed, deferred);
+        }
     }
     public String submitLive(double ticket, KahluaTable frame, KahluaTable arrayMeta, double maxBytes) {
         Receipt receipt = receipt(ticket);
@@ -257,18 +325,19 @@ public final class StudyExport {
         try {
             if (Thread.currentThread() == owner) throw new IllegalStateException("encoding returned to live-table owner");
             boolean overflow = frame == null;
-            byte[] data = overflow ? null : encode(frame, bytes, archive != null);
+            byte[] data = overflow ? null : encodeMeasured(frame, bytes, archive != null, receipt.epoch.timings());
             Path target = archive == null ? resolve(receipt.epoch.root(), "StudyWorldLive.json") : archive;
-            Path dataTemp = overflow ? null : writeTemporary(target, data, temporary);
+            Path dataTemp = overflow ? null : writeTemporary(target, data, temporary, receipt.epoch.timings());
             Path statusTarget = null, statusTemp = null;
             if (archive != null) {
                 statusTarget = resolve(receipt.epoch.root(), "StudyWorldArchiveStatus.json");
-                statusTemp = writeTemporary(statusTarget, encode(overflow ? deferred : captured, 16384, true), temporary);
+                statusTemp = writeTemporary(statusTarget,
+                    encodeMeasured(overflow ? deferred : captured, 16384, true, receipt.epoch.timings()), temporary, receipt.epoch.timings());
             }
             synchronized (publicationLock) {
                 if (closed || epoch != receipt.epoch || Thread.currentThread().isInterrupted()) return;
-                if (dataTemp != null) promote(dataTemp, target);
-                if (statusTemp != null) promote(statusTemp, statusTarget);
+                if (dataTemp != null) promote(dataTemp, target, receipt.epoch.timings());
+                if (statusTemp != null) promote(statusTemp, statusTarget, receipt.epoch.timings());
                 receipt.completedAt = System.currentTimeMillis();
                 receipt.status = overflow ? "deferred" : "published";
             }
@@ -283,15 +352,32 @@ public final class StudyExport {
             receipt.completedAt = System.currentTimeMillis(); receipt.status = "failed";
         }
     }
-    private static Path writeTemporary(Path target, byte[] data, List<Path> temporary) throws IOException {
+    private static byte[] encodeMeasured(Node node, long bytes, boolean newline, Timings timings) throws IOException {
+        long started = System.nanoTime(); byte[] result = null;
+        try { result = encode(node, bytes, newline); return result; }
+        finally { timings.record(Stage.WORKER_ENCODE, started, result == null ? 0 : result.length, result == null, false); }
+    }
+    private static Path writeTemporary(Path target, byte[] data, List<Path> temporary, Timings timings) throws IOException {
         if (Thread.currentThread().isInterrupted()) throw new IOException("export worker interrupted");
-        Files.createDirectories(target.getParent());
-        Path path = target.resolveSibling(target.getFileName() + "." + UUID.randomUUID() + ".tmp");
-        temporary.add(path); Files.write(path, data);
-        if (!Arrays.equals(data, Files.readAllBytes(path))) throw new IOException("export read-back differs");
+        long started = System.nanoTime(); Path path; boolean failed = true;
+        try {
+            Files.createDirectories(target.getParent());
+            path = target.resolveSibling(target.getFileName() + "." + UUID.randomUUID() + ".tmp");
+            temporary.add(path); Files.write(path, data); failed = false;
+        } finally { timings.record(Stage.WORKER_WRITE, started, data.length, failed, false); }
+        started = System.nanoTime(); failed = true;
+        try {
+            if (!Arrays.equals(data, Files.readAllBytes(path))) throw new IOException("export read-back differs");
+            failed = false;
+        } finally { timings.record(Stage.WORKER_READBACK, started, data.length, failed, false); }
         return path;
     }
-    private static void promote(Path source, Path target) throws IOException {
+    private static void promote(Path source, Path target, Timings timings) throws IOException {
+        long started = System.nanoTime(); boolean failed = true;
+        try { promoteFile(source, target); failed = false; }
+        finally { timings.record(Stage.WORKER_PROMOTE, started, 1, failed, false); }
+    }
+    private static void promoteFile(Path source, Path target) throws IOException {
         IOException last = null;
         for (int attempt = 0; attempt < 8; attempt++) {
             try { Files.move(source, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING); return; }
@@ -307,7 +393,17 @@ public final class StudyExport {
     }
 
     private static Node detach(Object value, KahluaTable marker, long bytes) {
-        return new Walker(marker, bytes, true).walk(value, 0);
+        Timings timings = bound != null && Thread.currentThread() == bound.owner && bound.epoch != null
+            ? bound.epoch.timings() : null;
+        long started = System.nanoTime(); Walker walker = null; boolean failed = true, deferred = false;
+        try {
+            walker = new Walker(marker, bytes, true); Node result = walker.walk(value, 0);
+            failed = false; return result;
+        } catch (Capacity capacity) { failed = false; deferred = true; throw capacity; }
+        finally {
+            if (timings != null) timings.record(Stage.OWNER_DETACH, started,
+                walker == null ? 0 : MAX_NODES - (long) walker.nodes, failed, deferred);
+        }
     }
     /** Measurement and immutable detachment share the exact scalar/table grammar. */
     private static final class Walker {

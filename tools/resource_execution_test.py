@@ -32,6 +32,8 @@ FILES = {
     'source': LUA / 'client/SAO_SourceUse.lua',
     'cooking': LUA / 'client/SAO_Cooking.lua',
     'locomotion': LUA / 'client/SAO_Locomotion.lua',
+    'models': LUA / 'shared/SAO_CognitiveModels.lua',
+    'cognition': LUA / 'shared/SAO_Cognition.lua',
 }
 
 COMMON = r'''
@@ -233,6 +235,19 @@ POST_APPLE = source_fixture.snapshot(1, 1, 's2', [{
     'items': [{'id': 12, 'type': 'Base.MuttonChop', 'amount': 0, 'cats': 'food'}],
 }])
 
+HYDRATION_ITEMS = [
+    {'id': 90, 'type': 'Base.Bottle', 'amount': 1, 'fluid': 'Unknown', 'cats': 'drink', 'tainted': 0},
+    {'id': 91, 'type': 'Base.Pop2', 'amount': 0, 'fluid': 'Cola', 'cats': 'drink', 'hydrationAmount': 0, 'tainted': 0},
+    {'id': 92, 'type': 'Base.Pop2', 'amount': .3, 'fluid': 'Cola', 'cats': 'drink', 'hydrationAmount': .3, 'tainted': 0},
+    {'id': 93, 'type': 'Base.Bottle', 'amount': 1, 'fluid': 'Cola', 'cats': 'drink', 'hydrationAmount': 0, 'tainted': 1},
+    {'id': 94, 'type': 'Base.Bottle', 'amount': 1, 'fluid': 'Bleach', 'cats': 'drink', 'hydrationAmount': 0, 'tainted': 0, 'poison': True},
+]
+def hydration_snapshot(revision, items):
+    return source_fixture.snapshot(1, 1, revision, [{'id':'C:drink:0','fp':'drink', 'rev':revision,
+        'kind':'container', 'x':8,'y':8,'building':42,'quantities':{'drink':3.3},'items':items}])
+HYDRATION = hydration_snapshot('drink-r1', HYDRATION_ITEMS)
+HYDRATION_POST = hydration_snapshot('drink-r2', [item for item in HYDRATION_ITEMS if item['id'] != 92])
+
 RESOURCE_SETUP = r'''
 require=function() end
 SAO.Controller={agents={}}
@@ -348,6 +363,131 @@ P.consumeSourceResult(SAO.WorldSources.actionOutcome(held.admission.correlationI
 __records.a.worldSourceReservation=nil agent.state='IDLE'
 check('resource_cadence_does_not_recreate_or_oscillate',not Ctl.advanceResourcePurpose('a',agent,body,2,n)
     and P.resourceDemand('a').id==held.id and #__records.a.proceduralPlanning.order==1)
+__resourceResults=table.concat(checks,'\n')
+'''
+
+HYDRATION_CASES = r'''
+local checks={}
+local function check(name,value) checks[#checks+1]=name..'='..tostring(value==true) end
+local Ctl,P,W,C=SAO.Controller,SAO.ProceduralPlanning,SAO.WorldSources,SAO.Cognition
+local function reset()
+    local body,agent=__resetResource()
+    ModData.get=function(key) return __stores[key] end
+    C.configure(0,60,3)
+    __nativeDrink=nil
+    SAOJavaBridge.findCarriedDrink=function() return __nativeDrink end
+    SAO.Needs.findWater=function() return nil end
+    return body,agent
+end
+local thirst={hunger=.1,thirst=.6,fatigue=0}
+local body,agent=reset()
+local context=Ctl.resourceContext('a',agent,body,thirst,'water',.5,true)
+check('mixed_drinks_only_exact_safe_hydration_is_recognized',#context.sources==1
+    and context.sources[1].itemId==92 and context.sources[1].category=='water'
+    and context.sources[1].materialCategory=='drink')
+check('private_hydration_observation_preserves_material_and_unknowns',W.source('C:drink:0').items['92'].hydrationAmount==.3
+    and __known.a[42].sourceFacts['C:drink:0'].candidates.drink.hydrationAmount==nil
+    and W.knownHydrationAt('a','C:drink:0','drink-r1')
+    and not W.knownHydrationAmount('a','C:drink:0',90,'drink-r1'))
+check('strict_clean_water_context_does_not_alias_cola',#Ctl.resourceContext('a',agent,body,thirst,'water',.5).sources==0)
+check('foreign_mind_cannot_recognize_other_drink_observation',#Ctl.resourceContext('b',agent,__bodies.b,thirst,'water',.5,true).sources==0)
+SAO.Perception.beliefs={a={known=__known.a}}
+local choice,episodeId=Ctl.testCompete('a',agent,body,1,thirst)
+local episode=__records.a.cognition.episodes[1]
+check('both_models_receive_the_same_privately_recognized_hydration',choice=='water' and episodeId
+    and episode.frame.knownWater==1 and #episode.proposals==2)
+check('urgent_thirst_admits_real_drink_acquisition_before_inspection',Ctl.testThirst('a',agent,body,1,thirst)
+    and agent.state=='SOURCEWARD' and __records.a.worldSourceReservation~=nil)
+local purpose,step=P.resourceDemand('a','water',true)
+local reservation=W.reservation(__records.a.worldSourceReservation)
+if not reservation then __resourceResults=table.concat(checks,'\n'); return end
+check('hydration_goal_and_material_attempt_have_distinct_identity',step.category=='drink'
+    and step.hydrationIntent and purpose.resourceCategory=='water' and reservation.category=='drink'
+    and reservation.itemId==92 and reservation.revision=='drink-r1'
+    and reservation.cognitionToken.hydrationAdmission
+    and reservation.cognitionToken.hydrationAdmission.reservationId==reservation.id)
+check('admitted_transfer_is_neither_relief_nor_acquired_stock',purpose.cursor==1
+    and #__records.a.cognition.experiences==0 and context.carriedWater==0)
+SAOJavaBridge.carriedWorldTransferItem=function()
+    return 'T|operation=acquire|source=C:drink:0|id=92|type=Base.Pop2|uses=1|amount=0.3|fluid=Cola|poison=0|rotten=0|cats=drink|tainted=0|hydrationAmount=0.3'
+end
+SAO.SourceUse.onMovementDone('a',body,'arrived') SAO.SourceUse.onMovementDone('a',body,'arrived')
+__carriedItem=__sourceItem __busy=false __observeText=__after
+local completed=SAO.SourceUse.tick('a',body)
+local receipt=W.actionOutcome(reservation.id,'a')
+local experiences=__records.a.cognition.experiences
+check('exact_native_drink_transfer_has_no_thirst_relief',completed=='completed' and receipt.category=='drink'
+    and receipt.measurement=='native-item-transfer' and receipt.observedQuantity==1
+    and #experiences==1 and experiences[1].kind=='acquire' and experiences[1].category=='water'
+    and experiences[1].thirstDelta==nil and experiences[1].hungerDelta==nil)
+check('hydration_native_transfer_updates_both_competing_models',__records.a.cognition.models.ordinary.revision>0
+    and __records.a.cognition.models.associative.revision>0)
+check('native_drink_material_receipt_advances_only_bound_ordinary_goal',P.consumeSourceResult(receipt)
+    and purpose.status=='completed')
+local revision=__records.a.cognition.models.ordinary.revision
+check('hydration_cognition_replay_is_exact_once',C.sourceResult(receipt,reservation.cognitionToken)
+    and #experiences==1 and __records.a.cognition.models.ordinary.revision==revision)
+local forged={}; for k,v in pairs(receipt) do forged[k]=v end; forged.itemId=94
+check('foreign_material_receipt_cannot_borrow_admitted_thirst',not C.sourceResult(forged,reservation.cognitionToken))
+local token={}; for k,v in pairs(reservation.cognitionToken) do token[k]=v end; token.hydrationAdmission=nil
+check('generic_drink_acquisition_cannot_claim_water_cognition',not C.sourceResult(receipt,token))
+__nativeDrink={getID=function() return 92 end,getFullType=function() return 'Base.Pop2' end,
+    getFluidContainerFromSelfOrWorldItem=function() return {getAmount=function() return .3 end,
+        isWaterSource=function() return false end,isPoisonous=function() return false end,isTainted=function() return false end} end}
+__inventory={__nativeDrink}
+context=Ctl.resourceContext('a',agent,body,thirst,'water',.5,true)
+check('owned_hydration_is_separate_from_clean_water_stock',context.carriedHydration==1
+    and context.carriedWater==0 and #context.carriedWaterItems==0)
+agent.state='IDLE'
+check('acquired_drink_uses_existing_carried_drink_owner',Ctl.testThirst('a',agent,body,2,thirst)
+    and agent.state=='DRINK' and __queued.item==__nativeDrink and __queued.kind=='drink')
+body,agent=reset()
+W.applySnapshot(W.parse(__after))
+check('unseen_new_revision_cannot_supply_hydration_options',#Ctl.resourceContext('a',agent,body,thirst,'water',.5,true).sources==0)
+body,agent=reset() SAO.Standing.mayAttemptBelieved=function() return false end
+check('current_admission_refusal_is_not_hydration_acquisition',not Ctl.beginHydrationAcquisition('a',agent,body,1,thirst)
+    and __records.a.worldSourceReservation==nil)
+SAO.Standing.mayAttemptBelieved=function() return true end
+body,agent=reset() __routeAllowed=false
+local rejected=not Ctl.beginHydrationAcquisition('a',agent,body,1,thirst)
+local failedPurpose=P.resourceDemand('a','water',true)
+local failedReceipt=W.actionOutcome(failedPurpose.admission.correlationId,'a')
+P.consumeSourceResult(failedReceipt)
+check('failed_hydration_route_preserves_unmet_goal_without_relief',rejected
+    and failedPurpose.status=='interrupted' and failedPurpose.admission==nil
+    and #__records.a.cognition.experiences==1 and __records.a.cognition.experiences[1].status=='unavailable'
+    and __records.a.cognition.experiences[1].thirstDelta==nil)
+__routeAllowed=true
+check('unchanged_failed_drink_route_remains_delayed',not Ctl.beginHydrationAcquisition('a',agent,body,2,thirst)
+    and __records.a.worldSourceReservation==nil)
+body,agent=reset()
+local admitted,why=SAO.SourceUse.beginAcquisition('a',body,__places[42],'drink',
+    {sourceId='C:drink:0',itemId=90,sourceRevision='drink-r1',hydrationIntent=true})
+check('unknown_drink_cannot_admit_thirst_intent',not admitted and why=='hydration-intent-unqualified'
+    and __records.a.worldSourceReservation==nil)
+body,agent=reset()
+Ctl.beginHydrationAcquisition('a',agent,body,1,thirst)
+local pending=W.reservation(__records.a.worldSourceReservation)
+W.resetRuntime()
+check('reload_retains_exact_admitted_drink_intent_without_new_knowledge',pending.cognitionToken.hydrationAdmission
+    and W.reservation(pending.id).itemId==92 and W.knownHydrationAmount('a','C:drink:0',92,'drink-r1')==.3)
+__standingAllowed=false
+SAO.SourceUse.onMovementDone('a',body,'arrived')
+local refused=SAO.SourceUse.onMovementDone('a',body,'arrived')
+local failed=W.actionOutcome(pending.id,'a')
+check('current_permission_change_refuses_drink_before_transfer',refused=='failed' and __queued==nil
+    and failed.status=='conflict' and (__records.a.cognition.experiences[1] or {}).status=='unavailable')
+body,agent=reset()
+Ctl.beginHydrationAcquisition('a',agent,body,1,thirst)
+pending=W.reservation(__records.a.worldSourceReservation)
+SAO.SourceUse.onMovementDone('a',body,'arrived') SAO.SourceUse.onMovementDone('a',body,'arrived')
+__carriedItem=__sourceItem __busy=false
+SAOJavaBridge.carriedWorldTransferItem=function()
+    return 'T|operation=acquire|source=C:drink:0|id=92|type=Base.Pop2|uses=1|amount=0.3|fluid=Cola|poison=0|rotten=0|cats=drink|tainted=1|hydrationAmount=0'
+end
+check('changed_native_drink_contents_cannot_complete_old_observation',SAO.SourceUse.tick('a',body)=='failed'
+    and W.actionOutcome(pending.id,'a').status=='conflict'
+    and (__records.a.cognition.experiences[1] or {}).status=='unavailable')
 __resourceResults=table.concat(checks,'\n')
 '''
 
@@ -587,7 +727,7 @@ CONTROLS = [
      'if false then', 'cancellation_refusal_blocks_replacement', 'study'),
     ('world', 'physical.revision == source.revision', 'true',
      'newer_world_stock_does_not_enter_private_resource_plan', 'resource',
-     ('controller','if p and SAO.WorldSources.privatelyKnowsItem(id, p.sourceId, p.itemId) then','if p then')),
+     ('controller','if p and SAO.WorldSources.privatelyKnowsItem(id, p.sourceId, p.itemId)','if p')),
     ('controller', 'inspect.x >= belief.minX and inspect.x <= belief.maxX\n                and inspect.y >= belief.minY and inspect.y <= belief.maxY then\n                context.inspectPlace',
      'true then\n                context.inspectPlace', 'foreign_inspection_does_not_hydrate_private_ground', 'resource'),
     ('cooking', 'requestedPurposeId = context.purposeId, requestedPurposeStepId = context.purposeStepId,',
@@ -623,6 +763,12 @@ CONTROLS = [
      'job.body ~= body','newer_same_body_foreign_route_is_not_contact_cancellation','contact'),
     ('controller','if agent.state == "IDLE" and not Ctl.contactNeedPriority(id, body, needs)',
      'if agent.state == "IDLE"','unavailable_relief_does_not_hide_maintained_resource_phase','contact'),
+    ('planner','category = option.materialCategory or assessment.category', 'category = assessment.category',
+     'urgent_thirst_admits_real_drink_acquisition_before_inspection','hydration'),
+    ('cognition','values.category = "water"', 'values.category = "drink"',
+     'exact_native_drink_transfer_has_no_thirst_relief','hydration'),
+    ('source','if hydration and reservation.cognitionToken then','if false then',
+     'hydration_goal_and_material_attempt_have_distinct_identity','hydration'),
 ]
 
 
@@ -685,7 +831,7 @@ def main():
             if build.returncode:
                 raise RuntimeError('runner compile: ' + build.stderr[-3000:])
 
-            def run(kind, changed=None):
+            def run(kind, changed=None, target=None):
                 code = dict(texts)
                 code.update(changed or {})
                 paths = []
@@ -705,14 +851,24 @@ def main():
                         add(name, code[name])
                     add('controller', controller_phases(code['controller'], real_coordination=kind == 'join'))
                     cases = (JOIN_CASES if kind == 'join' else PREEMPT_CASES).replace("    check('fixture_'..tostring(#checks),true)\n", '')
-                elif kind == 'resource':
+                elif kind in ['resource','hydration']:
                     add('prelude', source_fixture.ACTION_PRELUDE)
-                    add('setup', RESOURCE_SETUP + '\n__before=' + json.dumps(SOURCE) + '\n__after=' + json.dumps(POST)
+                    add('setup', RESOURCE_SETUP + '\n__before=' + json.dumps(HYDRATION if kind=='hydration' else SOURCE) + '\n__after=' + json.dumps(HYDRATION_POST if kind=='hydration' else POST)
                         + '\n__afterApple=' + json.dumps(POST_APPLE))
-                    for name in ['world', 'labor', 'planner', 'source']:
+                    for name in ['world', 'labor', 'planner', 'models', 'cognition', 'source']:
                         add(name, code[name])
                     add('controller', controller_phases(code['controller']))
-                    cases = RESOURCE_CASES
+                    if kind=='hydration':
+                        competing=code['controller'].split('local function competeForResources',1)[1].split('local function decideNeedsAndCompanion',1)[0]
+                        add('competing','local Ctl=SAO.Controller\nfunction Ctl.testCompete'+competing)
+                        needs_drink=code['needs'].split('function N.drinkCarried',1)[1].split('-- Ask the world for clean water',1)[0]
+                        thirst=code['controller'].split('    -- Thirst: the sharper clock',1)[1].split('    -- Hunger:',1)[0]
+                        add('thirst',COMMON+'\nlocal N=SAO.Needs\nlocal log=function() end\nfunction N.drinkCarried'+needs_drink+'\nfunction Ctl.testThirst(id,agent,body,tick,needs)\n'
+                            +'local selection=nil\nlocal cognitionStarted=function(v) return v end\n'
+                            +'local beginContainerInspection=function() return false end\n'
+                            +'local beginObservedUse=function() return false end\nlocal knownSource=function() return nil end\nlocal log=function() end\n'
+                            +'-- Thirst: the sharper clock'+thirst+'\nreturn false\nend\n')
+                    cases = HYDRATION_CASES if kind=='hydration' else RESOURCE_CASES
                 elif kind == 'contact':
                     add('prelude', study_fixture.PRELUDE)
                     for name in ['organization','locomotion']:
@@ -729,18 +885,22 @@ def main():
                         add(name, code[name])
                     add('controller', controller_phases(code['controller']))
                     cases = COOKING_CASES
+                if kind=='hydration':
+                    cases=cases.replace("checks[#checks+1]=name..'='..tostring(value==true)",
+                        "__lastHydrationCheck=name; checks[#checks+1]=name..'='..tostring(value==true)")
+                    cases="local ok,why=pcall(function()\n"+cases+"\nend); if not ok then error(tostring(why)..' after '..tostring(__lastHydrationCheck)) end"
                 add('cases', cases)
                 done = subprocess.run([str(JDK / 'java.exe'), '-Djava.awt.headless=true', '-cp',
                     str(work) + os.pathsep + str(GAME / 'projectzomboid.jar'), 'LuaRun', *map(str, paths),
                     '--', '__resourceResults'], cwd=work, capture_output=True, text=True, timeout=60)
                 expected = set(re.findall(r"check\('([a-z0-9_]+)'", cases))
                 checks = dict(re.findall(r'([a-z0-9_]+)=(true|false)', done.stdout))
-                if done.returncode or set(checks) != expected:
+                if done.returncode or (target not in checks if target else set(checks) != expected):
                     raise RuntimeError(kind + ': ' + done.stdout[-6500:] + done.stderr[-1500:])
                 return checks
 
             count = 0
-            for kind in ['study', 'join', 'resource', 'cooking', 'contact']:
+            for kind in ['study', 'join', 'resource', 'hydration', 'cooking', 'contact']:
                 checks = run(kind)
                 count += len(checks)
                 failures = [name for name, value in checks.items() if value != 'true']
@@ -756,7 +916,7 @@ def main():
                     if second_text.count(second_before) != 1:
                         raise RuntimeError(target + ': secondary mutation anchor differs')
                     mutations[second_name] = second_text.replace(second_before, second_after, 1)
-                if run(kind, mutations)[target] != 'false':
+                if run(kind, mutations, target)[target] != 'false':
                     raise RuntimeError(target + ': named defect control survived')
             print(f'Border 217 PASS: {count} installed Kahlua cases; {len(CONTROLS)} named controls')
             return 0

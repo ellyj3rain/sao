@@ -252,6 +252,33 @@ class DefinitionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 Lab.validate(invalid)
 
+    def test_initial_people_by_site_uses_governed_population_and_real_origins(self):
+        value = copy.deepcopy(BASE)
+        value["observation"]["sites"] = [
+            {"id": name, "label": name, "x": origin["x"], "y": origin["y"], "z": origin["z"]}
+            for name, origin in zip(("residential", "services", "farm"), value["origins"])]
+        value["sandbox"]["SurvivorAwareness.Population"] = 12
+        value["situation"] = {"initialPeopleBySite": {"residential": 4, "services": 4, "farm": 4}}
+        self.assertEqual(Lab.validate(value), value)
+        changes = (
+            lambda d: d["situation"]["initialPeopleBySite"].update(missing=4),
+            lambda d: d["situation"]["initialPeopleBySite"].update(farm=True),
+            lambda d: d["situation"]["initialPeopleBySite"].update(farm=4.0),
+            lambda d: d["situation"]["initialPeopleBySite"].update(farm=0),
+            lambda d: d["situation"]["initialPeopleBySite"].update(farm=501),
+            lambda d: d["situation"]["initialPeopleBySite"].update(farm=3),
+            lambda d: d["sandbox"].update({"SurvivorAwareness.PopulationGoverned": False}),
+            lambda d: d["sandbox"].update({"SurvivorAwareness.Enable": False}),
+            lambda d: d["sandbox"].update({"SurvivorAwareness.Population": 501}),
+            lambda d: d["origins"][2].update(x=250, y=250),
+            lambda d: d["observation"].pop("sites"),
+        )
+        for change in changes:
+            invalid = copy.deepcopy(value)
+            change(invalid)
+            with self.assertRaises(ValueError):
+                Lab.validate(invalid)
+
     def test_horse_travel_situation(self):
         value = copy.deepcopy(BASE)
         value["situation"] = {"horseTravel": {
@@ -1035,6 +1062,10 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
             raise AssertionError("duplicate frame keys accepted")
         print("PASS observation inspection: captured fixture, streaming session, 7 malformed controls")
         mutants = [
+            ("initial people owner handoff", 'local initialPeople = Config.situation and Config.situation.initialPeopleBySite',
+             'local initialPeople = nil', 'initial population owner was not staged before native ticks'),
+            ("initial people source binding", 'owner.stageInitialPeople(Config.definitionSha256, getWorld():getWorld(),',
+             'owner.stageInitialPeople("foreign-definition", getWorld():getWorld(),', 'initial population binding changed'),
             ("county archive clock", 'countyHours = SAO.History.countyHours()', 'countyHours = hours',
              "county and engine clocks conflated"),
             ("duplicate durable cognition", 'if key ~= "cognition" then recordView[key] = value end',

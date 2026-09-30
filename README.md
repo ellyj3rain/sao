@@ -38,9 +38,19 @@ on the simulation.
 
 ## Status
 
-`3.8.0.0-pre-alpha` - the coordinate is computed by the version machine
+`3.9.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C106 authors initial regional population coverage before native generation,
+retaining actual people and body counts as the realized result. It connects
+privately inspected native hydration to thirst planning, exact
+acquisition and the existing carried-drink action. Native cola retains its drink
+material identity; transfer and measured bodily relief remain distinct. Clean
+water objectives retain their actual native water-source amount contract.
+Epoch-owned observation timings and the installed engine's slow Lua callback
+timer expose inclusive costs for source-sealed native comparisons. Their
+controlled checks do not establish loaded FPS improvement or ML learning.
 
 C105 adds typed study requests that assign a desired
 amount of usable carried food or water while survivors choose their own means.

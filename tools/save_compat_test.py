@@ -46,9 +46,6 @@ ACCEPTED_DROPS = {
     "LootRespawn":
         "a Project Zomboid SandboxVars field, not SAO ModData. Removing the "
         "legacy room-counter read cannot strand an SAO save field.",
-    "drink":
-        "a false-positive suffix match on APIs such as Needs.drink; the broad "
-        "holder regex can see the trailing s.drink as a persisted field.",
     "offersNow":
         "a removed SAO_Places function, not persisted state. The broad holder "
         "regex reads the trailing s.offersNow as though it were a store field.",

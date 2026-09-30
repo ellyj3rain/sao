@@ -647,29 +647,12 @@ function N.temper(body)
              morale = out.m or 0 }
 end
 
--- Pills ([B7]): the engine's own medicine test - an item that
--- reduces a cold when eaten. Vanilla marks these with the
--- ReduceInfectionPower / cold-reduction properties; the honest read
--- is the item's own script flag, tried in order and guarded.
+-- The native owner selects actual carried food with infection reduction.
+-- The existing action owns consumption; this selection promises no cold relief.
 function N.takePills(id, body)
     local pill = nil
     pcall(function()
-        local items = SAOJavaBridge:privateCarriedItems(body)
-        for i = 0, items:size() - 1 do
-            local it = items:get(i)
-            local okS, script = pcall(function()
-                return it:getScriptItem()
-            end)
-            if okS and script then
-                local okR, reduce = pcall(function()
-                    return script:getReduceInfectionPower()
-                end)
-                if okR and reduce and reduce > 0 then
-                    pill = it
-                    break
-                end
-            end
-        end
+        pill = SAOJavaBridge:findCarriedInfectionFood(body)
     end)
     if not pill then return false end
     -- [B34] Same shape as bandaging: the sickness branch does not
