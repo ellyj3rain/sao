@@ -810,11 +810,11 @@ def export_probe_checks(tmp, java, config, source, checks):
     Lab.validate_frame(observed["bounded"])
     print("PASS native debugger export: cognition, live detail/core, archive defer, selected rows, input unchanged; genuine errors remain observable")
     controls = [
-        ("old assertion inspection probe", "local ok = boundedJson(value, trial)",
+        ("old assertion inspection probe", "local ok = jsonFits(value, trial)",
          "local ok = pcall(json, value, nil, trial)", "expected live byte probe raised native error"),
-        ("old assertion cognition probe", "if boundedJson(cognition, trial) then",
+        ("old assertion cognition probe", "if jsonFits(cognition, trial) then",
          "if pcall(json, cognition, nil, trial) then", "expected cognitive byte probe raised native error"),
-        ("old assertion core probe", "local fits = boundedJson(frame, coreBudget)",
+        ("old assertion core probe", "local fits = jsonFits(frame, coreBudget)",
          "local fits = pcall(json, frame, nil, coreBudget)", "expected live core byte probe raised native error"),
         ("old assertion deferred archive", "local encoded, line = boundedJson(frame, { left = 64 * 1024 * 1024 })",
          "local encoded, line = pcall(json, frame)", "expected archive byte probe raised native error"),
@@ -1070,7 +1070,8 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
              'session = session, datasetAdmission = "approved", extent = Config.extent',
              "observation ratified itself"),
             ("save identity", 'state.definitionSha256 == Config.definitionSha256', 'true', "foreign save admitted"),
-            ("native writer extension", '.. ".json"', '.. ".jsonl"', "native writer disallows extension"),
+            ("native writer extension", '.. ".json"\n    local writer = getFileWriter(name, true, false)',
+             '.. ".jsonl"\n    local writer = getFileWriter(name, true, false)', "native writer disallows extension"),
             ("write acknowledgement", 'assert(received == line and extra == nil,', 'assert(true,', "failed write acknowledged"),
             ("world creation", 'Events.OnInitGlobalModData.Add(function(isNewWorld)\n    if selected() then newGame = isNewWorld == true end\nend)',
              'Events.OnNewGame.Add(function() if selected() then newGame = true end end)', "unbound reopened save admitted"),

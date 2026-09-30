@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.7.4.0-pre-alpha` |
+| Version | `3.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1275,6 +1275,42 @@ does not select a response, manufacture knowledge, score behavior or admit a
 dataset row. Existing Needs, Cognition, Controller, Organization, SourceUse,
 Cooking and other native owners remain responsible for turning bodily pressure
 into decisions and world effects.
+
+### Resource outcome trials and asynchronous observation (C105)
+
+`situation.resourceObjectives` admits bounded desired-stock requests into the
+existing person-private planner. A request identifies its source definition,
+revision, experimental issuer, declared regional site and one actual actor.
+`OperatorDirect` records the external trial authority. The actor's knowledge,
+skills, social access and independent model interpretations determine the means.
+No procedure or knowledge is supplied. Autonomous purposes retain their existing
+origin. Live known-procedure admission remains an implementation gap.
+
+The target persists through low pressure and completed work steps. Current native
+private carried stock determines satisfaction: distinct usable food identities
+or measured clean water-source fluid amount. Active native admissions, urgent
+needs and accepted cooperation preserve their priority and execution ownership.
+Bounded stock prefixes remain lower bounds. Deadline, death, revision and exact
+request identity survive body replacement and save. Retired terminal purposes
+retain durable provenance without pinning the active-purpose ledger; their exact
+terminal request metadata remains observable and cannot replay new work.
+Study binding uses native world-age hours; admission, deadline, resolution and
+stock checks use explicitly named county-hour fields. The clocks retain their
+own domains. NPC handover retains the recipient's native facing container while
+clearing its player-panel selection field. Ordinary player transfers retain
+vanilla UI and all transfers retain exact native ownership reconciliation.
+
+`StudyExport` measures the existing JSON grammar and detaches immutable values
+on the native game thread. Reserving one live and one archive channel precedes
+snapshot acquisition. One bounded worker encodes and publishes those values,
+with no native world or live-table reads. Verified atomic publication precedes
+the Lua owner's acknowledgement. Captured source clocks and sequence remain
+distinct from completion time; live completion starts its one-second cooldown.
+Byte, node and depth exhaustion have explicit deferred reasons. Unsupported,
+cyclic, nonfinite and foreign input, and I/O failure, retain failure authority.
+An epoch lock prevents retired world completions from replacing current output.
+Stop pauses native time and closes admission while exact receipts drain. Failed
+drain publication retries within the existing bounded observer-state protocol.
 
 ### Reference-learning source (C81)
 

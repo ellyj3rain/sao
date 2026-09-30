@@ -2304,6 +2304,24 @@ if ! "$PY" tools/regional_observer_test.py; then
     fail=1
 fi
 
+# Border 221 - an assigned resource outcome preserves private means, actual
+# held stock, native ownership and durable experimental provenance.
+if ! "$PY" tools/resource_outcome_test.py; then
+    note "BORDER FINDING - assigned resource outcome or native stock ownership failed"
+    fail=1
+fi
+
+# Border 222 - asynchronous observation retains detached values, exact bytes,
+# source-bound acknowledgements and a bounded stop before native saving.
+if ! "$PY" tools/study_export_worker_test.py; then
+    note "BORDER FINDING - detached observation worker or publication receipt failed"
+    fail=1
+fi
+if ! "$PY" tools/async_export_lifecycle_test.py; then
+    note "BORDER FINDING - asynchronous observation acknowledgement or stop failed"
+    fail=1
+fi
+
 if ! "$PY" tools/source_integration_gate.py; then
     note "BORDER FINDING - source integration lineage or ownership claim differs"
     fail=1

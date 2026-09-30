@@ -2137,6 +2137,8 @@ function Ctl.resourceContext(id, agent, body, needs, category, pressure)
         carriedWaterItems = {}, sources = {},
         contacts = {}, commitments = {}, skills = {} }
     local items = SAOJavaBridge:privateCarriedItems(body)
+    context.stockCoverage = items:size() <= 128 and "all-native-private-carried-items"
+        or "first-128-native-private-carried-items-lower-bound"
     for index = 0, math.min(items:size(), 128) - 1 do
         local item = items:get(index)
         context.carriedItems = context.carriedItems + 1
@@ -2157,7 +2159,7 @@ function Ctl.resourceContext(id, agent, body, needs, category, pressure)
             and not fluid:isPoisonous() and not fluid:isTainted() then
             context.carriedWater = context.carriedWater + 1
             context.carriedWaterItems[#context.carriedWaterItems + 1] = {
-                itemId = item:getID(), itemType = item:getFullType() }
+                itemId = item:getID(), itemType = item:getFullType(), amount = fluid:getAmount() }
         end
     end
     if SkillBook and SkillBook.Cooking then
@@ -2321,11 +2323,16 @@ function Ctl.advanceResourcePurpose(id, agent, body, tick, needs)
     local food = math.min(1, math.max(0, needs.hunger) / math.max(0.1, SAO.Disposition.eatAt(id)) * 0.5)
     local water = math.min(1, math.max(0, needs.thirst) / math.max(0.1, SAO.Disposition.drinkAt(id)) * 0.5)
     local retained, retainedStep = planning.resourceDemand(id)
+    local assigned = planning.resourceOutcomeDemand and planning.resourceOutcomeDemand(id)
     local category = retained and (retainedStep and retainedStep.acquiredItemId or retained.admission)
         and retained.resourceCategory or (water > food and "water" or "food")
+    local outcome = assigned and math.max(food, water) < 0.5
+        and not (retained and (retained.admission or retainedStep and retainedStep.acquiredItemId)) and assigned
+    if outcome then category = outcome.resourceCategory end
     category = category == "water" and "water" or "food"
     local pressure = category == "water" and water or food
     local context = Ctl.resourceContext(id, agent, body, needs, category, pressure)
+    if outcome then context.purposeId = outcome.id end
     context.productionOptions = SAO.ResourceProduction and SAO.ResourceProduction.options(id, body, category) or {}
     -- Nearby unknown contents justify inspection only on personally remembered
     -- ground. The container owner still proves visibility and current access.

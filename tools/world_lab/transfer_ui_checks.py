@@ -14,6 +14,7 @@ def run(work, game, jdk, baseline_only=False):
     game, jdk = Path(game), Path(jdk)
     suffix = ".exe" if os.name == "nt" else ""
     needs = (root / "mod/42.20/media/lua/client/SAO_Needs.lua").read_text(encoding="utf-8")
+    handover = (root / "mod/42.20/media/lua/shared/SAO_Handover.lua").read_text(encoding="utf-8")
     native = (game / "media/lua/client/TimedActions/ISInventoryTransferAction.lua").read_text(encoding="utf-8-sig")
     native_eat = (game / "media/lua/shared/TimedActions/ISEatFoodAction.lua").read_text(encoding="utf-8-sig")
     native_pill = (game / "media/lua/shared/TimedActions/ISTakePillAction.lua").read_text(encoding="utf-8-sig")
@@ -87,10 +88,12 @@ def run(work, game, jdk, baseline_only=False):
         print("PASS installed action boundary: " + label, flush=True)
     print("PASS installed NPC transfer, collection and eat construction; "
           + str(len(variants) - 1) + " boundary defects rejected")
+    handover_verdicts = handover_ui(work, game, jdk, handover, fixture, native, baseline_only)
     receivers = native_receivers(root, work, game, jdk, needs, fixture, native, native_menu, native_eat, native_pill,
                                 baseline_only)
     paths = [root / "mod/42.20/media/lua/client/SAO_Needs.lua", Path(__file__),
              root / "tools/world_lab/TransferUiChecks.lua", root / "tools/world_lab/EatActionProbe.java",
+             root / "mod/42.20/media/lua/shared/SAO_Handover.lua",
              root / "tools/globals_census_test.py"]
     native_paths = [game / "projectzomboid.jar", game / "media/lua/shared/TimedActions/ISEatFoodAction.lua",
                    game / "media/lua/shared/TimedActions/ISTakePillAction.lua",
@@ -100,10 +103,46 @@ def run(work, game, jdk, baseline_only=False):
     receipt = {"schema": "sao-installed-consume-checks/1", "baselineOnly": baseline_only,
         "sourceHashes": {path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths},
         "installedHashes": {path.relative_to(game).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest() for path in native_paths},
-        "luaVariants": verdicts, "nativeReceivers": receivers,
+        "luaVariants": verdicts, "handoverUiVariants": handover_verdicts, "nativeReceivers": receivers,
         "limits": "Headless installed Kahlua/native items, inventory, shell and effects; controlled queue/animation receiver, "
                   "controlled geometry and explicitly controlled Pharmacology classifier/lifecycle; no rendered gameplay claim."}
     (work / "consume-receipt.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
+
+
+def handover_ui(work, game, jdk, source, fixture, native, baseline_only):
+    suffix = ".exe" if os.name == "nt" else ""
+    def changed(before, after):
+        assert source.count(before) == 1, "handover UI mutation seam differs: " + before
+        return source.replace(before, after, 1)
+    variants = [("production", source, None),
+        ("old-npc-loot-page", changed("self.selectedContainer = nil", "-- player UI retained"),
+         "setForceSelectedContainer"),
+        ("old-inherited-update", changed("function transferClass:update()", "function transferClass:unusedUpdate()"),
+         "HANDOVER_UI_CHECK:NPC update keeps native recipient facing"),
+        ("missing-facing", changed("self.saoFacingContainer = self.selectedContainer", "self.saoFacingContainer = nil"),
+         "HANDOVER_UI_CHECK:NPC update keeps native recipient facing"),
+        ("player-panel-erased", changed("if self.saoOffSlot then", "if true then"),
+         "HANDOVER_UI_CHECK:ordinary player selected container remains native")]
+    if baseline_only:
+        variants = variants[:1]
+    verdicts = []
+    for label, variant, expected in variants:
+        script = work / ("handover-" + label + ".lua")
+        script.write_text(fixture + "\n" + native + "\n" + variant
+            + "\nRESULT=CheckHandoverUi()\n", encoding="utf-8")
+        result = subprocess.run([str(jdk / ("java" + suffix)), "-cp", str(game / "projectzomboid.jar")
+            + os.pathsep + str(work), "LuaRun", str(script), "--", "RESULT"], cwd=game,
+            capture_output=True, text=True, timeout=60)
+        output = result.stdout + result.stderr
+        (work / ("handover-" + label + ".log")).write_text(output, encoding="utf-8")
+        if expected is None:
+            assert result.returncode == 0 and "PASS installed handover UI boundary:" in output, output
+        else:
+            assert variant != source and result.returncode != 0 and expected in output, label + ": " + output
+        verdicts.append({"label": label, "expected": expected, "exit": result.returncode,
+            "logSha256": hashlib.sha256(output.encode("utf-8")).hexdigest()})
+        print("PASS installed handover boundary: " + label, flush=True)
+    return verdicts
 
 
 def native_receivers(root, work, game, jdk, needs, fixture, native, native_menu, native_eat, native_pill,
