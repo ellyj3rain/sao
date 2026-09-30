@@ -19,6 +19,9 @@ SAO.Pharmacology.onNativeChange = function(id, receipt)
 end
 
 SAO.Cooking.onOutcome = function(id, receipt)
+    if SAO.ProceduralPlanning and SAO.ProceduralPlanning.reconcileCooking then
+        pcall(SAO.ProceduralPlanning.reconcileCooking, id)
+    end
     if receipt and receipt.commitmentId and SAO.Organization
         and SAO.Organization.consumeProcedureResult then
         pcall(SAO.Organization.consumeProcedureResult, {

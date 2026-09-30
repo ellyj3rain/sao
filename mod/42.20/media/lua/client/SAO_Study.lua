@@ -36,6 +36,24 @@ local function eligible(body, item)
     return readable(body, item)
         and body:getAlreadyReadPages(item:getFullType()) < item:getNumberOfPages()
 end
+
+-- Script metadata checks a privately observed type without creating an item
+-- or claiming that the survivor knows the contents of an uninspected holder.
+function S.usefulType(body, fullType, desired)
+    local ok, result = pcall(function()
+        local item = getScriptManager():getItem(fullType)
+        if not item then return false end
+        local domain = item:getSkillTrained()
+        local definition = domain and SkillBook[domain]
+        if not definition or domain ~= desired or item:getNumberOfPages() <= 0 then return false end
+        local level = body:getPerkLevel(definition.perk) + 1
+        return not body:hasTrait(CharacterTrait.ILLITERATE)
+            and item:getLevelSkillTrained() <= level
+            and item:getLevelSkillTrained() + item:getNumLevelsTrained() - 1 >= level
+            and body:getAlreadyReadPages(fullType) < item:getNumberOfPages()
+    end)
+    return ok and result == true
+end
 local function bound(action)
     local person = rec(action.personId)
     local work = person and person.studyWork
@@ -136,17 +154,20 @@ function S.beforeQueue(action)
     end
 end
 
-function S.offer(id, body)
+function S.offer(id, body, requiredDomain)
     if not live(id, body) or not SAO.ProceduralPlanning then return nil end
     if SAO.History.literacyOf(id) == "none" then return nil end
     local person, best, bestScore = rec(id), nil, -1
     local designated = SAO.Census.JOB_PERK[person.designation]
     local desired = SAO.Census.bookSkillFor(designated)
+    local demand = SAO.ProceduralPlanning.studyDemand(id)
+    desired = demand and demand.bookSkill or desired
     local prior = person.studyWork
     local items = SAOJavaBridge:privateCarriedItems(body)
     for i = 0, math.min(items:size(), 128) - 1 do
         local item = items:get(i)
-        if instanceof(item, "Literature") and eligible(body, item) then
+        if instanceof(item, "Literature") and eligible(body, item)
+            and (not requiredDomain or item:getSkillTrained() == requiredDomain) then
             local domain = item:getSkillTrained()
             local score = domain == desired and 2 or 1
             if prior and prior.status == "interrupted" and prior.fullType == item:getFullType() then
@@ -169,8 +190,10 @@ function S.begin(id, body, item)
     local domain, definition = item:getSkillTrained(), SkillBook[item:getSkillTrained()]
     local perk = definition.perk:getId()
     local effort = SAO.Conditions and SAO.Conditions.readingTime(id) or 1
+    local retained = SAO.ProceduralPlanning.studyPurpose(id, perk)
     local purpose, step = SAO.ProceduralPlanning.planStudy(id, person.designation, {
         perk = perk, bookSkill = domain, bookKey = item:getFullType(), bookOwned = true,
+        purposeId = retained and retained.id,
         literacy = SAO.History.literacyOf(id), readingTime = effort,
     })
     if not purpose or not step or step.verb ~= "read" then return false end

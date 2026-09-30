@@ -2272,6 +2272,13 @@ fi
 
 # Source integration retains the selected Claude-built baseline and its exact
 # limits. External study activation cannot promote a candidate into ownership.
+# Border 215 - retained private prerequisites reach exact native acquisition
+# and productive practice; revised attempts cannot pin the result stream.
+if ! "$PY" tools/purpose_work_test.py; then
+    note "BORDER FINDING - private acquisition or productive purpose continuity failed"
+    fail=1
+fi
+
 if ! "$PY" tools/source_integration_gate.py; then
     note "BORDER FINDING - source integration lineage or ownership claim differs"
     fail=1

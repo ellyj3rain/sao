@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.7.2.0-pre-alpha` |
+| Version | `3.7.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1141,8 +1141,20 @@ reading owner before queue admission. Body handoff closes live study before its
 native checkpoint. Interrupted pages persist through the existing native reading
 snapshot, while missing runtime is reported as interrupted without completion
 credit. A completed reading receipt advances the reading step once and keeps
-practical work separate. Book search and acquisition beyond privately carried
-manuals remain action-producer work.
+practical work separate. C103 connects unknown stock to native container
+inspection and inspected suitable manuals to explicit SourceUse acquisition.
+The same purpose continues once the exact native item is held. Physical source
+revisions cannot supply unseen stock to a private mind. Carried manuals retain
+owned access when lighting or cooldown delays study.
+
+C103 binds Cooking's actual work identity to pending Cooking practice or a
+retained food-preparation purpose. Heat progression, native credit, retrieval
+and safe shutdown precede a productive result. Interruptions retain the purpose;
+canonical outcomes retry private delivery and advance exactly once. SourceUse's
+purpose-bound terminal receipts pass through Provisioning. Superseded attempts
+retire without crediting replacement steps or blocking ledger compaction.
+Other practical skill owners and active-reading coordination preemption remain
+implementation work.
 
 Fortification compiles survey, construction and verification over held ground.
 The existing SAOBuild native bridge still owns material checks, aperture choice,

@@ -238,7 +238,9 @@ function P.planStudy(id, designation, context)
         and SAO.Census.JOB_PERK[designation])
     if not perk then return nil, "no-study-domain" end
     local bookSkill = context.bookSkill or SAO.Census.bookSkillFor(perk)
-    local purpose = P.maintain(id, { key = "study:" .. tostring(perk)
+    local s = state(id)
+    local purpose = context.purposeId and s and s.purposes[context.purposeId]
+    purpose = purpose or P.maintain(id, { key = "study:" .. tostring(perk)
         .. (context.bookKey and ":" .. tostring(context.bookKey) or ""),
         objective = "improve " .. tostring(perk) .. " through reading and tested practice",
         domain = "learning", origin = "work-demand", atHours = context.atHours })
@@ -258,7 +260,7 @@ function P.planStudy(id, designation, context)
             target = bookSkill }
     elseif access == "nearby" then
         steps[#steps + 1] = { id = "acquire-book", verb = "acquire",
-            owner = "SAONeeds", status = "available", token = "reading:acquired",
+            owner = "SAO.SourceUse", status = "available", token = "reading:acquired",
             target = bookSkill }
     end
     steps[#steps + 1] = { id = "read-session", verb = "read",
@@ -493,11 +495,51 @@ function P.chooseFallback(id, situation)
     return candidates[1].fact, purpose
 end
 
-function P.noteAdmission(id, purposeId, owner, correlationId)
+-- Runtime owners use the existing purpose, rather than making another plan
+-- after every inspection, queue admission or interruption.
+function P.pending(id, verb, target)
+    local s = state(id)
+    for _, key in ipairs(s and s.order or {}) do
+        local purpose = s.purposes[key]
+        local step = purpose and purpose.steps[purpose.cursor]
+        if purpose and purpose.status ~= "completed" and purpose.status ~= "abandoned"
+            and step and (not verb or step.verb == verb)
+            and (not target or step.target == target) then return purpose, step end
+    end
+end
+
+function P.studyDemand(id)
+    local s = state(id)
+    for _, key in ipairs(s and s.order or {}) do
+        local purpose = s.purposes[key]
+        local step = purpose and purpose.steps[purpose.cursor]
+        if purpose and purpose.domain == "learning" and purpose.literacy ~= "none"
+            and purpose.status ~= "completed" and purpose.status ~= "abandoned"
+            and step and (step.verb == "inspect" or step.verb == "acquire" or step.verb == "read") then
+            return purpose, step
+        end
+    end
+end
+
+function P.studyPurpose(id, subject)
+    local s = state(id)
+    for _, key in ipairs(s and s.order or {}) do
+        local purpose = s.purposes[key]
+        local step = purpose and purpose.steps[purpose.cursor]
+        if purpose and purpose.domain == "learning" and purpose.subject == subject
+            and purpose.status ~= "completed" and purpose.status ~= "abandoned"
+            and step and step.verb ~= "practice" then return purpose end
+    end
+end
+
+function P.noteAdmission(id, purposeId, owner, correlationId, stepId)
     local s = state(id)
     local purpose = s and s.purposes[tostring(purposeId or "")]
     if not purpose or type(owner) ~= "string" or type(correlationId) ~= "string" then return false end
+    local step = purpose.steps[purpose.cursor]
+    if stepId and (not step or step.id ~= stepId or step.owner ~= owner) then return false end
     purpose.admission = { owner = owner, correlationId = correlationId,
+        stepId = step and step.id, target = step and step.target, token = step and step.token,
         at = nowHours() }
     addEvent(purpose, "admitted", owner .. ":" .. correlationId, purpose.admission.at)
     return true
@@ -510,11 +552,17 @@ function P.recordResult(id, purposeId, result)
         or type(result.token) ~= "string"
         or (result.status ~= "completed" and result.status ~= "failed"
             and result.status ~= "interrupted") then return false end
+    local receiptKey = result.correlationId and (result.owner .. ":" .. result.correlationId)
+    for _, key in ipairs(purpose.resultReceipts or {}) do
+        if key == receiptKey then return true end
+    end
     local step = purpose.steps[purpose.cursor]
     if not step or step.owner ~= result.owner or step.token ~= result.token then return false end
     if result.correlationId and (not purpose.admission
         or purpose.admission.owner ~= result.owner
-        or purpose.admission.correlationId ~= result.correlationId) then return false end
+        or purpose.admission.correlationId ~= result.correlationId
+        or purpose.admission.stepId ~= step.id
+        or purpose.admission.target ~= step.target) then return false end
     local at = finite(result.atHours) and result.atHours or nowHours()
     if result.status == "completed" then
         step.status, step.completedAt = "completed", at
@@ -529,7 +577,7 @@ function P.recordResult(id, purposeId, result)
             practice.lastReadAt = at
             s.practice[key] = practice
         end
-        if step.verb == "practice"
+        if step.verb == "practice" or step.verb == "produce"
             or step.verb == "construct" or step.verb == "recreate"
             or step.verb == "socialize" then
             local key = tostring(step.target or purpose.domain)
@@ -547,8 +595,109 @@ function P.recordResult(id, purposeId, result)
         s.practice[key] = practice
     end
     purpose.updatedAt = at
+    if receiptKey then
+        purpose.resultReceipts = purpose.resultReceipts or {}
+        purpose.resultReceipts[#purpose.resultReceipts + 1] = receiptKey
+        if #purpose.resultReceipts > MAX_EVENTS then table.remove(purpose.resultReceipts, 1) end
+    end
     addEvent(purpose, "result", result.status .. ":" .. result.token, at)
     return true
+end
+
+function P.consumeSourceResult(receipt)
+    if type(receipt) ~= "table" or not receipt.purposeId then return false end
+    local authoritative = SAO.WorldSources.actionOutcome(receipt.reservationId, receipt.actorId)
+    if not authoritative or authoritative.status == "pending"
+        or authoritative.purposeId ~= receipt.purposeId
+        or authoritative.purposeStepId ~= receipt.purposeStepId then return false end
+    local s = state(receipt.actorId)
+    if not s then return false, "planning-unavailable" end
+    local purpose = s.purposes[receipt.purposeId]
+    if not purpose or purpose.status == "abandoned" then return true, "purpose-retired" end
+    if authoritative.operation ~= "acquire" then return false end
+    local step = purpose.steps[purpose.cursor]
+    local admission = purpose.admission
+    if not step or not admission or step.id ~= authoritative.purposeStepId
+        or admission.correlationId ~= authoritative.reservationId
+        or admission.stepId ~= step.id or admission.target ~= step.target then
+        -- A retained receipt still belongs to its old exact attempt after a
+        -- goal revision. It cannot advance a replacement step or pin the
+        -- sole result stream forever. Retain one private retirement event.
+        local key = "SAO.SourceUse:" .. authoritative.reservationId
+        for _, seen in ipairs(purpose.resultReceipts or {}) do
+            if seen == key then return true end
+        end
+        purpose.resultReceipts = purpose.resultReceipts or {}
+        purpose.resultReceipts[#purpose.resultReceipts + 1] = key
+        if #purpose.resultReceipts > MAX_EVENTS then table.remove(purpose.resultReceipts, 1) end
+        addEvent(purpose, "result-retired", authoritative.detail or authoritative.status, authoritative.at)
+        return true, "purpose-attempt-superseded"
+    end
+    local completed = authoritative.status == "completed"
+    if completed and (authoritative.measurement ~= "native-item-transfer"
+        or (tonumber(authoritative.observedQuantity) or 0) <= 0) then return false end
+    return P.recordResult(receipt.actorId, purpose.id, {
+        owner = "SAO.SourceUse", token = admission.token,
+        status = completed and "completed" or "interrupted",
+        reason = authoritative.detail, correlationId = authoritative.reservationId,
+        atHours = authoritative.at,
+    })
+end
+
+function P.admitCooking(id, work)
+    local purpose, step = P.pending(id, "practice", "Cooking")
+    if not purpose then
+        purpose = P.maintain(id, { key = "prepare-food", domain = "provisioning",
+            objective = "prepare known raw food safely for eating", origin = "food-preparation" })
+        if not purpose then return false end
+        setPlan(purpose, { { id = "prepare", verb = "produce", owner = "Cooking",
+            token = "cooking:prepared", target = "Cooking", status = "available" } }, {},
+            interpretations(id, { { id = "prepare", evidence = 1, continuity = 1,
+                novelty = 0.1, informationGain = 0.5, blockers = 0 } }, { domain = "provisioning" }), nowHours())
+        step = purpose.steps[purpose.cursor]
+    end
+    if not P.noteAdmission(id, purpose.id, step.owner, work.id, step.id) then return false end
+    work.purposeId, work.purposeStepId = purpose.id, step.id
+    return true
+end
+
+function P.consumeCookingResult(id, receipt)
+    if not receipt or not receipt.purposeId then return true end
+    local rec = record(id)
+    local canonical
+    for _, outcome in ipairs(rec and rec.cookingOutcomes or {}) do
+        if outcome.id == receipt.id then canonical = outcome; break end
+    end
+    if not canonical or canonical.actorId ~= id or canonical.purposeId ~= receipt.purposeId then return false end
+    local s = state(id)
+    if not s then return false end
+    local purpose = s.purposes[canonical.purposeId]
+    if not purpose or purpose.status == "abandoned" then return true end
+    local step, admission = purpose.steps[purpose.cursor], purpose.admission
+    if not step or not admission or admission.correlationId ~= canonical.id
+        or canonical.purposeStepId ~= step.id or admission.target ~= step.target then
+        return true, "purpose-attempt-superseded"
+    end
+    local completed = canonical.status == "completed"
+    if completed and (canonical.nativeCredit ~= canonical.id or not canonical.retrieved
+        or not canonical.heatObserved or (canonical.shutdown ~= "off"
+            and canonical.shutdown ~= "shared-use"
+            and canonical.shutdown ~= "prior-state-preserved")) then return false end
+    return P.recordResult(id, purpose.id, {
+        owner = admission.owner, token = admission.token,
+        status = completed and "completed" or canonical.status == "interrupted"
+            and "interrupted" or "failed",
+        correlationId = canonical.id, reason = canonical.detail,
+        atHours = canonical.atHours,
+    })
+end
+
+function P.reconcileCooking(id)
+    local rec = record(id)
+    for _, receipt in ipairs(rec and rec.cookingOutcomes or {}) do
+        if receipt.purposeId and not receipt.purposeDelivered
+            and P.consumeCookingResult(id, receipt) then receipt.purposeDelivered = true end
+    end
 end
 
 function P.snapshot(id)
