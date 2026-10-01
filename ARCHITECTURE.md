@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.10.1.1-pre-alpha` |
+| Version | `3.10.1.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1676,3 +1676,35 @@ gap is closed by the separate causal control. Full gate, exact public deployment
 loaded latency and native behavior require their own receipts. These controlled
 proofs establish avoided projection and truthful freshness, not 60/120 FPS,
 survival quality, dataset admission or aggregate learning.
+
+
+### Route progress and tactical continuity (C110)
+
+Locomotion measures physical and native node progress before calling a route
+stalled. Repeated ManualRoute verdicts preserve a route while it makes progress.
+True lack of progress still cancels after the existing 300-tick interval. The
+best progress baseline survives missing, malformed and alternating telemetry;
+jitter, circling and changing verdicts cannot keep a stalled route alive.
+The Java bridge exposes the current route node without changing it.
+
+Coordination retains each actor's tactical intent while a moving fallback
+changes within the same private threat cell and count band. Meaningful floor,
+danger, cover, crowd and destination invalidation still revise the proposal.
+Pause preserves the intent, and current Organization response revisions remain
+the authority for assent and commitment. Stable destination identity cannot
+create another person's reception, agreement or delivered work.
+
+The sealed two-person C108 trace motivates both repairs. Nineteen consecutive
+distance reductions preceded cancellation solely for 300 unchanged verdicts.
+Another route was superseded as fallback moved one tile within the same threat
+bucket. These source controls restore both defects. The historical trial and
+its saved outcomes remain unchanged; a new loaded replay was not started.
+
+Border 228 executes 31 route cases, 50 tactical cases, six native route checks
+and eleven rejected source controls. Focused cooperation, home-route and flee
+continuity checks pass, with independent correctness and coherence reviews.
+The route-progress bridge has packaged bytecode evidence. The source-only
+repair is reanchored onto the actual public C109 parent and rebuilt there.
+The complete normal closing gate and public checks have their own receipts.
+Loaded behavior, broader threat reasoning, educational competence and speech
+retain separate verification boundaries. No game or global deployment occurs.

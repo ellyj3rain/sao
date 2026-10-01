@@ -31,6 +31,16 @@ public final class SAORouteState {
         return routeIndex < route.size() ? route.get(routeIndex) : null;
     }
 
+    /** Read the already owned waypoint without advancing or computing a path. */
+    public String progress() {
+        if (!requested) return "MOVE_PROGRESS_UNAVAILABLE";
+        float[] node = currentNode();
+        return "MOVE_PROGRESS@" + (node == null ? -1 : routeIndex)
+            + "@" + (node == null ? targetX : node[0])
+            + "@" + (node == null ? targetY : node[1])
+            + "@" + (node == null ? targetZ : node[2]);
+    }
+
     public void advance() {
         routeIndex++;
         // Each edge starts fresh: without this, the SECOND window on a route

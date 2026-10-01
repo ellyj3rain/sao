@@ -2355,6 +2355,13 @@ if ! "$PY" tools/exterior_building_test.py; then
     fail=1
 fi
 
+# Border 228 - physical and native-node progress retain moving routes;
+# stable private tactical intent preserves meaningful proposal revisions.
+if ! "$PY" tools/route_progress_test.py; then
+    note "BORDER FINDING - route progress or private tactical continuity differs"
+    fail=1
+fi
+
 if ! "$PY" tools/source_integration_gate.py; then
     note "BORDER FINDING - source integration lineage or ownership claim differs"
     fail=1

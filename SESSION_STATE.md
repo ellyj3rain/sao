@@ -1,11 +1,43 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.10.1.1-pre-alpha` |
+| Version | `3.10.1.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-10-01, [C110] repairs route progress and tactical continuity.
+
+Locomotion measures physical and native node progress before calling a route
+stalled. Repeated ManualRoute verdicts preserve a route while it makes progress.
+True lack of progress still cancels after the existing 300-tick interval. The
+best progress baseline survives missing, malformed and alternating telemetry;
+jitter, circling and changing verdicts cannot keep a stalled route alive.
+The Java bridge exposes the current route node without changing it.
+
+Coordination retains each actor's tactical intent while a moving fallback
+changes within the same private threat cell and count band. Meaningful floor,
+danger, cover, crowd and destination invalidation still revise the proposal.
+Pause preserves the intent, and current Organization response revisions remain
+the authority for assent and commitment. Stable destination identity cannot
+create another person's reception, agreement or delivered work.
+
+The sealed two-person C108 trace motivates both repairs. Nineteen consecutive
+distance reductions preceded cancellation solely for 300 unchanged verdicts.
+Another route was superseded as fallback moved one tile within the same threat
+bucket. These source controls restore both defects. The historical trial and
+its saved outcomes remain unchanged; a new loaded replay was not started.
+
+Border 228 executes 31 route cases, 56 tactical cases, six native route checks,
+three installed Bridge checks and fourteen rejected source controls. Focused cooperation, home-route and flee
+continuity checks pass, with independent correctness and coherence reviews.
+The route-progress bridge has packaged bytecode evidence. The source-only
+repair is reanchored onto the actual public C109 parent and rebuilt there.
+The complete normal closing gate and public checks have their own receipts.
+Loaded behavior, broader threat reasoning, educational competence and speech
+retain separate verification boundaries. No game or global deployment occurs.
+
 
 **As of** 2026-10-01, [C109] repairs existing observer projection.
 
@@ -1420,10 +1452,10 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, plus C105's outcome and export-worker controls, the
-repository holds 229 `*_test.py` files. The gate invokes 229 `*_test.py` files
-and 16 other Python entry points, 245 distinct scripts, through direct calls
+repository holds 230 `*_test.py` files. The gate invokes 230 `*_test.py` files
+and 16 other Python entry points, 246 distinct scripts, through direct calls
 and its mirror loop. Native suites also invoke their own controls.
-Border labels extend through 227; legacy labels
+Border labels extend through 228; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 186 Lua source files.
 ZAO A41 has fifteen borders. The
