@@ -254,7 +254,151 @@ function RunStudyChecks(Study)
     RunStudyInspectionChecks(Study)
     RunStudyArchiveChecks(Study)
     RunStudyRegionalArchiveChecks(Study)
+    RunStudyRefusedProjectionChecks(Study)
+    RunStudyByteRefusedProjectionChecks(Study)
     return "PASS study runtime: isolation, native coverage, lifecycle, cadence, reload, review boundary, bounded inspection"
+end
+
+function RunStudyByteRefusedProjectionChecks(Study)
+    local priorPeople, priorObservation, priorOrganization, priorCognition = people, SAO.Observation, SAO.Organization, SAO.Cognition
+    local priorWindows, priorSites, priorCell, priorObjects, priorSprite = Config.observation.windows, Config.observation.sites, getCell, square.getObjects, door.getSprite
+    people = { p1 = { id = "p1" }, p2 = { id = "p2" }, p3 = { id = "p3" } }
+    SAO.Observation = { snapshot = function() return { status = "available", selectedPersonId = "p2",
+        people = { p2 = { sections = {}, events = {} } } } end }
+    SAO.Organization, SAO.Cognition = { processes = {} }, nil
+    Config.observation.windows, Config.observation.sites = {}, {}
+    local baseline = Study.observe()
+    assert(baseline.coverage.omittedFieldCount == 0, "byte-only baseline already omitted copied fields")
+    local copiedBytes, copiedNodes = 0, 0
+    local function nodes(value)
+        local total = 1
+        if type(value) == "table" then for _, field in pairs(value) do total = total + nodes(field) end end
+        return total
+    end
+    local function charged(value)
+        copiedBytes = copiedBytes + #Study.encode(value)
+        copiedNodes = copiedNodes + nodes(value)
+    end
+    -- These are precisely the values charged to the shared copy ledger before
+    -- processes. Other frame headers use independent encoding accounting.
+    charged(baseline.situationReceipt)
+    for _, person in ipairs(baseline.people) do
+        charged(person.record); charged(person.context.beliefs)
+        if person.context.inspection then charged(person.context.inspection) end
+    end
+    local recordBytes = 8 * 1024 * 1024 - copiedBytes - 1
+    local chunks = math.ceil((recordBytes - 1) / (32768 + 10))
+    assert(chunks > 0 and chunks < 1000, "byte-only payload lost bounded four-character keys")
+    local payload, remaining = {}, recordBytes - 1 - chunks * 10
+    for i = 1, chunks do
+        local size = math.min(32768, remaining)
+        payload[string.format("p%03d", i)] = string.rep("x", size)
+        remaining = remaining - size
+    end
+    copiedNodes = copiedNodes + nodes(payload)
+    assert(remaining == 0 and #Study.encode(payload) == recordBytes and copiedNodes < 1000,
+        "byte-only payload did not leave one byte with ample node capacity")
+    SAO.Organization = { processes = { fill = payload } }
+    local richCalls, projectedSquares, projectedSprites, nativeLookups = {}, 0, 0, 0
+    SAO.Cognition = { snapshot = function(id, full)
+        assert(full == true, "byte-only refusal changed independent full cognition request")
+        richCalls[id] = (richCalls[id] or 0) + 1
+        return { actorId = id, retained = "full evidence requires remaining archive bytes" }
+    end }
+    square.getObjects = function() projectedSquares = projectedSquares + 1; return priorObjects() end
+    door.getSprite = function() projectedSprites = projectedSprites + 1; return priorSprite() end
+    for i = 1, 3 do
+        Config.observation.windows[i] = { id = "byte-refused-" .. i, x = (i - 1) * 16, y = 0, z = 0, width = 4, height = 4 }
+    end
+    getCell = function() return { getGridSquare = function(self, x, y, z)
+        nativeLookups = nativeLookups + 1
+        return x % 2 == 0 and square or nil
+    end } end
+    local captured = Study.observe()
+    assert(projectedSquares == 0 and projectedSprites == 0, "byte-only exhausted ledger still projected native objects or sprites")
+    assert(nativeLookups == 48 and captured.coverage.requestedSquares == 48
+        and captured.coverage.loadedSquares == 0 and captured.coverage.omittedSquares == 24
+        and captured.coverage.unavailableSquares == 24, "byte-only refusal lost truthful physical coverage")
+    for _, window in ipairs(captured.windows) do
+        assert(#window.squares == 0 and window.omitted == 8 and window.unavailable == 8,
+            "byte-only refusal collapsed regional coverage")
+    end
+    local retained = 0
+    for key, value in pairs(captured.processes[1].record) do
+        retained = retained + 1
+        assert(value == payload[key], "byte-only refusal changed copied process evidence")
+    end
+    assert(retained == chunks and #Study.encode(captured.processes[1].record) == recordBytes
+        and captured.coverage.omittedFieldCount == 27 and captured.coverage.processesComplete,
+        "byte-only refusal was actually node exhaustion or partial process capture")
+    assert(richCalls.p1 == 1 and richCalls.p2 == 1 and richCalls.p3 == 1,
+        "byte-only refusal changed independent full cognition request")
+    for _, person in ipairs(captured.people) do
+        assert(person.context.cognition == nil, "byte-only refusal claimed unfunded cognition evidence")
+    end
+    RESULT_BYTE_REFUSED_PROJECTION = { projectedSquares = projectedSquares, projectedSprites = projectedSprites,
+        nativeLookups = nativeLookups, requested = captured.coverage.requestedSquares,
+        omitted = captured.coverage.omittedSquares, unavailable = captured.coverage.unavailableSquares,
+        remainingSharedBytes = 1, copiedNodes = copiedNodes, fullCognitionActors = 3, omittedCognitionActors = 3 }
+    people, SAO.Observation, SAO.Organization, SAO.Cognition = priorPeople, priorObservation, priorOrganization, priorCognition
+    Config.observation.windows, Config.observation.sites, getCell, square.getObjects, door.getSprite = priorWindows, priorSites, priorCell, priorObjects, priorSprite
+end
+
+function RunStudyRefusedProjectionChecks(Study)
+    local priorPeople, priorObservation, priorOrganization, priorCognition = people, SAO.Observation, SAO.Organization, SAO.Cognition
+    local priorWindows, priorSites, priorCell, priorObjects = Config.observation.windows, Config.observation.sites, getCell, square.getObjects
+    people = { p1 = { id = "p1" }, p2 = { id = "p2" }, p3 = { id = "p3" } }
+    SAO.Observation = { snapshot = function() return { status = "available", selectedPersonId = "p2",
+        people = { p2 = { sections = {}, events = {} } } } end }
+    local values = {}
+    -- Small indexed groups exercise the real node ledger without quadratic
+    -- repeated length checks on one enormous Kahlua array.
+    for i = 1, 3200 do
+        local group = {}
+        for j = 1, 32 do group[j] = false end
+        values["group-" .. i] = group
+    end
+    SAO.Organization = { processes = { fill = { values = values } } }
+    local richCalls, projectedSquares, nativeLookups = {}, 0, 0
+    SAO.Cognition = { snapshot = function(id, full)
+        assert(full == true, "live inspection demand shrank independent archive cognition")
+        richCalls[id] = (richCalls[id] or 0) + 1
+        return { actorId = id, retained = "independent full archive evidence" }
+    end }
+    square.getObjects = function()
+        projectedSquares = projectedSquares + 1
+        return priorObjects()
+    end
+    Config.observation.windows, Config.observation.sites = {}, {}
+    for i = 1, 3 do
+        Config.observation.windows[i] = { id = "refused-" .. i, x = (i - 1) * 16, y = 0, z = 0, width = 4, height = 4 }
+    end
+    getCell = function() return { getGridSquare = function(self, x, y, z)
+        nativeLookups = nativeLookups + 1
+        return x % 2 == 0 and square or nil
+    end } end
+    local captured = Study.observe()
+    assert(projectedSquares == 0, "exhausted ledger still projected native objects")
+    assert(nativeLookups == 48 and captured.coverage.requestedSquares == 48
+        and captured.coverage.loadedSquares == 0 and captured.coverage.omittedSquares == 24
+        and captured.coverage.unavailableSquares == 24, "refused projection lost truthful physical coverage")
+    for _, window in ipairs(captured.windows) do
+        assert(#window.squares == 0 and window.omitted == 8 and window.unavailable == 8,
+            "refused projection collapsed regional coverage")
+    end
+    assert(captured.coverage.omittedFieldCount > 0 and captured.coverage.processesComplete
+        and captured.coverage.totalProcesses == 1 and #captured.processes == 1,
+        "copy omission changed process row-count coverage")
+    assert(richCalls.p1 == 1 and richCalls.p2 == 1 and richCalls.p3 == 1
+        and captured.people[1].id == "p2" and captured.people[1].context.cognition.retained == "independent full archive evidence",
+        "live inspection demand shrank independent archive cognition")
+    assert(#values["group-3200"] == 32 and values["group-3200"][32] == false and people.p1.id == "p1",
+        "refused projection mutated durable evidence")
+    RESULT_REFUSED_PROJECTION = { projectedSquares = projectedSquares, nativeLookups = nativeLookups,
+        requested = captured.coverage.requestedSquares, omitted = captured.coverage.omittedSquares,
+        unavailable = captured.coverage.unavailableSquares, fullCognitionActors = 3 }
+    people, SAO.Observation, SAO.Organization, SAO.Cognition = priorPeople, priorObservation, priorOrganization, priorCognition
+    Config.observation.windows, Config.observation.sites, getCell, square.getObjects = priorWindows, priorSites, priorCell, priorObjects
 end
 
 function RunStudyRegionalArchiveChecks(Study)

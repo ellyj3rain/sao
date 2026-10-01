@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import copy
 import importlib.util
+import inspect
 from contextlib import closing
 import json
 import os
@@ -127,6 +128,89 @@ class DefinitionTests(unittest.TestCase):
         self.assertEqual(Run.terminal(log, 1, "world", 1, True)["endHours"], 2.4)
         with self.assertRaises(ValueError):
             Run.terminal(log.replace("[StudyObserver] stop hours=2.4\n", ""), 1, "world", 1, True)
+
+    @staticmethod
+    def native_stop_cases():
+        start = "[StudyLaunch] started attempt=1 save=world hours=2\n"
+        wall = "[StudyLaunch] wall-limit attempt=1 save=world start=2 end=2.4\n"
+        supervisor = "[StudyLaunch] supervisor-stop attempt=1 save=world start=2 end=2.4 reason=checkpoint\n"
+        legacy = "[StudyLaunch] supervisor-stop attempt=1 reason=checkpoint\n"
+        frame = "[StudyWorld] frame=2 hours=2.4 loaded=10 people=2\n"
+        drain = "[StudyObserver] stop hours=2.4\n"
+        saved = "[StudyLaunch] native-save-returned attempt=1\n"
+        horizon = "[StudyLaunch] horizon attempt=1 save=world start=2 end=2.4\n"
+        chain = start + wall + drain + saved
+        return [
+            ("wall-chain", chain, True, True, None),
+            ("supervisor-chain", start + supervisor + drain + saved, True, True, None),
+            ("explicit-observer-save", start + drain + saved, True, True, None),
+            ("observer-horizon", start + horizon + drain + saved, True, False, None),
+            ("legacy-wall-direct-save", start + wall + saved, True, True, None),
+            ("legacy-supervisor-direct-save", start + supervisor + saved, True, True, None),
+            ("legacy-bound-final-observation", start + frame + legacy + saved, True, True, 2.4),
+            ("legacy-final-observation-and-drain", start + frame + legacy + drain + saved, True, True, 2.4),
+            ("competing-initiation", start + wall + supervisor + drain + saved, False, True, None),
+            ("duplicate-initiation", start + wall + wall + drain + saved, False, True, None),
+            ("duplicate-drain", start + wall + drain + drain + saved, False, True, None),
+            ("duplicate-return", chain + saved, False, True, None),
+            ("duplicate-start", start + chain, False, True, None),
+            ("drain-before-cause", start + drain + wall + saved, False, True, None),
+            ("drain-after-save", start + wall + saved + drain, False, True, None),
+            ("wrong-cause-save", start + wall.replace("save=world", "save=other") + drain + saved, False, True, None),
+            ("wrong-cause-attempt", start + wall.replace("attempt=1", "attempt=2") + drain + saved, False, True, None),
+            ("wrong-return-attempt", start + wall + drain + saved.replace("attempt=1", "attempt=2"), False, True, None),
+            ("wrong-cause-start-clock", start + wall.replace("start=2", "start=1") + drain + saved, False, True, None),
+            ("changed-drain-clock", start + wall + drain.replace("2.4", "2.41") + saved, False, True, None),
+            ("malformed-initiation", start + wall.replace("end=2.4", "end=NaN") + drain + saved, False, True, None),
+            ("missing-save-return", start + wall + drain, False, True, None),
+            ("missing-all-stop-stages", start + saved, False, True, None),
+            ("watch-horizon-is-not-stop", start + horizon + drain + saved, False, True, None),
+            ("horizon-duplicate-drain", start + horizon + drain + drain + saved, False, False, None),
+            ("legacy-unbound-final-observation", start + frame.replace("2.4", "2.3") + legacy + drain + saved, False, True, 2.4),
+        ]
+
+    def test_native_stop_stages_keep_identity_and_order(self):
+        for name, log, admitted, watch, last in self.native_stop_cases():
+            with self.subTest(name=name):
+                if admitted:
+                    result = Run.terminal(log, 1, "world", .4, watch, last)
+                    self.assertEqual(result["endHours"], 2.4)
+                    self.assertTrue(result["nativeSaveReturned"])
+                else:
+                    with self.assertRaises(ValueError):
+                        Run.terminal(log, 1, "world", .4, watch, last)
+
+    def test_native_stop_stage_source_controls(self):
+        source = inspect.getsource(Run.terminal)
+        cases = {name: (log, admitted, watch, last) for name, log, admitted, watch, last in self.native_stop_cases()}
+        controls = [
+            ("original-combined-stop-count", "and len(budgets) + len(supervisors) + len(legacy_supervisors) <= 1\n                    and len(stops) <= 1 and bool(stops or budgets or supervisors or legacy_supervisors)",
+             "and len(stops) + len(budgets) + len(supervisors) + len(legacy_supervisors) == 1", "wall-chain"),
+            ("competing-stop-initiation", "len(budgets) + len(supervisors) + len(legacy_supervisors) <= 1", "True", "competing-initiation"),
+            ("duplicate-observer-drain", "len(stops) <= 1", "True", "duplicate-drain"),
+            ("duplicate-native-return", "len(starts) == len(returned) == 1", "len(starts) == 1 and bool(returned)", "duplicate-return"),
+            ("drain-order", "cause.start() < stopped.start() < saved.start()", "True", "drain-after-save"),
+            ("drain-clock", "not exact_clock or drained_hours == last", "True", "changed-drain-clock"),
+            ("cause-save-identity", "start[2] == end[2] == save", "start[2] == save", "wrong-cause-save"),
+            ("cause-attempt-identity", "int(start[1]) == int(end[1]) == int(saved[1]) == attempt", "int(start[1]) == int(saved[1]) == attempt", "wrong-cause-attempt"),
+            ("return-attempt-identity", "int(start[1]) == int(end[1]) == int(saved[1]) == attempt", "int(start[1]) == int(end[1]) == attempt", "wrong-return-attempt"),
+            ("malformed-initiating-stage", "log.count(marker) == len(matches)", "True", "malformed-initiation"),
+            ("legacy-observation-binding", "abs(last - float(last_observed_hours)) <= 1e-9", "True", "legacy-unbound-final-observation"),
+        ]
+        for name, before, after, target in controls:
+            with self.subTest(name=name):
+                self.assertIn(before, source)
+                changed = source.replace(before, after, 1)
+                self.assertNotEqual(changed, source)
+                namespace = dict(Run.__dict__)
+                exec(compile(changed, "native-stop-control-" + name, "exec"), namespace)
+                log, admitted, watch, last = cases[target]
+                try:
+                    namespace["terminal"](log, 1, "world", .4, watch, last)
+                    actual = True
+                except ValueError:
+                    actual = False
+                self.assertNotEqual(actual, admitted, "named defect survived: " + name)
 
     def test_native_image_receipt_tampering(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -816,7 +900,8 @@ def export_probe_checks(tmp, java, config, source, checks):
         script.write_text("local Config = " + Lab.lua(config) + "\n" + checks
             + "\nlocal Study = (function()\n" + runtime + "\nend)()\nRunStudyChecks(Study)\n"
             + "RESULT_CAPTURE = Study.encode({live=RESULT_LIVE_FRAME, "
-            + "fixtureBytes=RESULT_INSPECTION_FIXTURE, bounded=RESULT_BOUNDED_ARCHIVE})\n", encoding="utf-8")
+            + "fixtureBytes=RESULT_INSPECTION_FIXTURE, bounded=RESULT_BOUNDED_ARCHIVE, "
+            + "refused=RESULT_REFUSED_PROJECTION, byteRefused=RESULT_BYTE_REFUSED_PROJECTION})\n", encoding="utf-8")
         return subprocess.run([str(value) for value in [java[0], "-Dstdout.encoding=UTF-8",
             "-Dsun.stdout.encoding=UTF-8", *java[1:], "NativeStudyExportProbe", script, "RESULT_CAPTURE"]],
             cwd=GAME, text=True, encoding="utf-8", capture_output=True, timeout=180)
@@ -835,6 +920,19 @@ def export_probe_checks(tmp, java, config, source, checks):
                 and live["inspection"]["people"]["p16"]["sections"][0]["rows"],
                 "native export lost complete people or selected detail and truthful omissions")
     Lab.validate_frame(observed["bounded"])
+    Lab.require(observed["refused"] == {"projectedSquares": 0, "nativeLookups": 48,
+                "requested": 48, "omitted": 24, "unavailable": 24, "fullCognitionActors": 3},
+                "refused projection call/coverage receipt differs")
+    print("PASS exhausted-node ledger: zero object projections, 48 native lookups, 24 omitted/24 unavailable, all three full cognition archives")
+    byte_refused = observed["byteRefused"]
+    Lab.require({key: value for key, value in byte_refused.items() if key != "copiedNodes"}
+                == {"projectedSquares": 0, "projectedSprites": 0, "nativeLookups": 48,
+                    "requested": 48, "omitted": 24, "unavailable": 24, "remainingSharedBytes": 1,
+                    "fullCognitionActors": 3, "omittedCognitionActors": 3}
+                and 0 < byte_refused["copiedNodes"] < 1000,
+                "byte-only refused projection call/coverage receipt differs")
+    print("PASS byte-only ledger: one shared byte remaining, " + str(byte_refused["copiedNodes"])
+          + " copied nodes, zero object/sprite projections, 48 lookups, 24 omitted/24 unavailable; cognition byte omissions explicit")
     cohort = copy.deepcopy(observed["bounded"])
     sites = [{"id": "site" + str(index), "label": "Site" + str(index),
               "x": window["x"] + window["width"] // 2,
@@ -863,6 +961,13 @@ def export_probe_checks(tmp, java, config, source, checks):
     print("PASS native cohort frame uses sealed origins; unbound and restored corner-origin controls refused")
     print("PASS native debugger export: cognition, live detail/core, archive defer, selected rows, input unchanged; genuine errors remain observable")
     controls = [
+        ("unconditional native projection", "if budget.left > 1 and budget.bytes >= 2 then",
+         "if true then", "exhausted ledger still projected native objects"),
+        ("byte-only native projection", "if budget.left > 1 and budget.bytes >= 2 then",
+         "if budget.left > 1 then", "byte-only exhausted ledger still projected native objects or sprites"),
+        ("refused loaded-as-unavailable", "frame.coverage.omittedSquares = frame.coverage.omittedSquares + 1",
+         "frame.coverage.unavailableSquares = frame.coverage.unavailableSquares + 1",
+         "physical archive bytes escaped shared budget"),
         ("old assertion inspection probe", "local ok = jsonFits(value, trial)",
          "local ok = pcall(json, value, nil, trial)", "expected live byte probe raised native error"),
         ("old assertion cognition probe", "if jsonFits(cognition, trial) then",

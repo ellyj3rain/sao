@@ -151,6 +151,7 @@ check("immutable-snapshot",same.people.a.events[24].summary=="line 90")
 local function healthSample()
  __ms=__ms+1000;__tick()
  local snapshot=O.snapshot()
+ check("basic-needs-all",find(snapshot.people.a.sections,"Hunger")=="0.3000")
  check("health-failure-is-local",snapshot.status=="available"
   and find(snapshot.people.a.sections,"Hunger")=="0.3000")
  return find(snapshot.people.a.sections,"Health (%)")
@@ -165,6 +166,7 @@ __bodyHealth=nil;check("missing-body-health",healthSample()=="unavailable")
 __noBodyDamage=true;check("missing-body-damage",healthSample()=="unavailable")
 __noBodyDamage=false;__healthThrows=true;check("throwing-body-damage",healthSample()=="unavailable")
 __healthThrows=false
+O.select("a")
 privatePlan.resourceOutcome={category='food',target=4,unit='usable-food-item',deadlineAfterHours=6}
 privatePlan.outcomeProgress={held=2,coverage='all-native-private-carried-items'}
 __ms=__ms+1000;__tick();local assigned=O.snapshot().people.a.sections
@@ -181,6 +183,78 @@ check("assigned-water-lower-bound",find(assigned,"Supplies secured")=="At least 
 privatePlan.outcomeProgress=nil
 __ms=__ms+1000;__tick();assigned=O.snapshot().people.a.sections
 check("unchecked-stock-not-zero",find(assigned,"Supplies secured")=="Not checked / 3.5 water units")
+-- Three feed subjects retain bounded, current physical/execution facts. Only
+-- explicit inspection may rebuild plans, carried inventory and cognition.
+__records.c={id='c'}
+local inventoryReads, planReads, cognitionReads, attentionReads, processReads=0,{}, {},0,0
+local priorProcesses=SAO.Organization.processes
+SAO.Organization.processes=setmetatable({}, {__index=function(_,key)
+ processReads=processReads+1;return priorProcesses[key]
+end})
+local priorInventory=__body.getInventory
+__body.getInventory=function() inventoryReads=inventoryReads+1;return priorInventory() end
+for _,id in ipairs({'b','c'}) do
+ local physical={};for key,value in pairs(__body) do physical[key]=value end
+ SAO.Body.active[id]=physical
+ SAO.Controller.agents[id]={state=id=='b' and 'RESUPPLY' or 'REST',pressure={answer='hold',at=8}}
+ __sources.resultByActor[id]='result-'..id
+ __sources.results['result-'..id]={actorId=id,status='completed',detail='native receipt '..id}
+end
+SAOJavaBridge.orientationState=function()
+ attentionReads=attentionReads+1;return {active=false,phase='listening'}
+end
+SAO.ProceduralPlanning.snapshot=function(id)
+ planReads[id]=(planReads[id] or 0)+1;return {purposes={privatePlan},spatialFacts=0,practiceDomains=0}
+end
+SAO.Cognition={snapshot=function(id)
+ if __richFail then error('rich projection unavailable') end
+ cognitionReads[id]=(cognitionReads[id] or 0)+1;return {actorId=id,sequence=1}
+end}
+local beforeReads=__reads
+__ms=__ms+1000;__tick();local feeds=O.snapshot()
+check('rich-demand',inventoryReads==1 and planReads.a==1 and planReads.b==nil and planReads.c==nil
+ and cognitionReads.a==1 and cognitionReads.b==nil and cognitionReads.c==nil and processReads==1)
+check('basic-needs-all',__reads-beforeReads==3 and find(feeds.people.b.sections,'Hunger')=='0.3000'
+ and find(feeds.people.c.sections,'Health (%)')=='unavailable')
+check('basic-attention-all',attentionReads==3 and find(feeds.people.b.sections,'Phase')=='listening')
+check('basic-pressure-all',find(feeds.people.b.sections,'answer')=='hold')
+check('basic-actions-all',find(feeds.people.b.sections,'Controller state')=='RESUPPLY'
+ and find(feeds.people.c.sections,'Controller state')=='REST')
+check('basic-source-all',find(feeds.people.b.sections,'Latest result.status')=='completed'
+ and find(feeds.people.c.sections,'Latest result.detail')=='native receipt c')
+local notSampled=section(feeds.people.b.sections,'planning')
+check('rich-omission',notSampled.status=='unavailable' and #notSampled.rows==0
+ and #notSampled.message>0 and feeds.people.b.cognition==nil
+ and section(feeds.people.b.sections,'cognition').status=='unavailable')
+local previousSequence=feeds.sequence
+O.select('b');__ms=__ms+1;__hours=__hours+.25;__paused();feeds=O.snapshot()
+check('selection-without-tick-delay',feeds.sequence==previousSequence+1 and feeds.selectedPersonId=='b'
+ and feeds.capturedAtUnixMs==__ms and feeds.worldHours==__hours+24)
+check('rich-freshness',feeds.people.a.cognition==nil and #section(feeds.people.a.sections,'planning').rows==0
+ and section(feeds.people.a.sections,'planning').status=='unavailable' and planReads.a==1)
+check('second-feed-inspection',feeds.people.b.cognition.actorId=='b' and planReads.b==1 and inventoryReads==2 and processReads==2)
+O.select('c');__ms=__ms+1;__paused();feeds=O.snapshot()
+check('third-feed-inspection',feeds.selectedPersonId=='c' and feeds.people.c.cognition.actorId=='c'
+ and planReads.c==1 and inventoryReads==3 and feeds.people.b.cognition==nil and processReads==3)
+local priorClock,priorSequence,priorDetail=feeds.capturedAtUnixMs,feeds.sequence,feeds.people.c
+__richFail=true;__ms=__ms+1000;__tick();feeds=O.snapshot()
+check('rich-failure-cache',feeds.status=='failed' and feeds.capturedAtUnixMs==priorClock
+ and feeds.sequence==priorSequence and feeds.people.c==priorDetail)
+__richFail=false;__ms=__ms+1000;__tick();feeds=O.snapshot()
+check('rich-failure-recovery',feeds.status=='available' and feeds.capturedAtUnixMs==__ms
+ and feeds.people.c~=priorDetail and feeds.sequence==priorSequence+1)
+for i=1,17 do local id='extra-'..i;__records[id]={id=id};SAO.Body.active[id]=__body end
+O.select('extra-17');__ms=__ms+1;__tick();feeds=O.snapshot()
+local capturedPeople=0;for id in pairs(feeds.people) do capturedPeople=capturedPeople+1 end
+check('selected-bounded-coverage',capturedPeople==16 and feeds.omittedPeople==4
+ and feeds.people['extra-17'].cognition.actorId=='extra-17')
+check('invalid-selection-inert',not O.select('foreign') and feeds.selectedPersonId=='extra-17'
+ and __records.foreign==nil)
+__records['extra-17']=nil;__ms=__ms+1000;__tick();feeds=O.snapshot()
+check('retired-selection',feeds.status=='available' and feeds.selectedPersonId==nil
+ and feeds.people['extra-17']==nil and feeds.capturedAtUnixMs==__ms)
+local richPeople=0;for id,person in pairs(feeds.people) do if person.cognition then richPeople=richPeople+1 end end
+check('retired-selection-not-retargeted',richPeople==0)
 return "OBSERVATION_PASS " .. checks .. " checks"
 end)()'''
 
@@ -205,6 +279,26 @@ assert(health()=="100.00","NATIVE_HEALTH_CHECK:full body percent")
 NATIVE_HEALTH_RESULT="NATIVE_HEALTH_PASS 4 checks"
 '''
 
+DEFAULT_PROBE = r'''(function()
+local O=SAO.Observation
+SAO.Cognition={snapshot=function() error('unrequested cognition projection') end}
+SAO.ProceduralPlanning={snapshot=function() error('unrequested planning projection') end}
+__body.getInventory=function() error('unrequested inventory projection') end
+O.enable();__tick();local snap=O.snapshot()
+assert(snap.status=='available' and snap.selectedPersonId==nil,
+ 'OBSERVATION_CHECK:default-rich-demand')
+assert(snap.people.a.cognition==nil and __reads==1,'OBSERVATION_CHECK:default-basic-state')
+local needs,planning
+for _,s in ipairs(snap.people.a.sections) do
+ if s.id=='needs' then needs=s elseif s.id=='planning' then planning=s end
+end
+assert(needs.status=='available' and planning.status=='unavailable' and #planning.rows==0,
+ 'OBSERVATION_CHECK:default-truthful-omission')
+__ms=1500;__paused();assert(O.snapshot()==snap and __reads==1,
+ 'OBSERVATION_CHECK:default-shared-cadence')
+return 'DEFAULT_OBSERVATION_PASS 4 checks'
+end)()'''
+
 def main():
     if not (JDK / "javac.exe").is_file() or not (GAME / "projectzomboid.jar").is_file():
         print("SKIPPED: installed engine or JDK unavailable")
@@ -212,6 +306,16 @@ def main():
     names = ["SAO_Observation.lua", "SAO_Locomotion.lua", "SAO_Voice.lua", "SAO_Inspect.lua"]
     sources = {name: (LUA / name).read_text(encoding="utf-8") for name in names}
     controls = [
+        ("rich-demand", "SAO_Observation.lua", "represented[id], id == sampleSelected)", "represented[id], true)"),
+        ("retired-selection", "SAO_Observation.lua", "selectedPersonId = sampleSelected", "selectedPersonId = selected"),
+        ("basic-needs-all", "SAO_Observation.lua", "needs(body), attention(rec, body)", 'rich and needs(body) or section("needs", "Needs", "Native body", "Not sampled", "unavailable"), attention(rec, body)'),
+        ("rich-omission", "SAO_Observation.lua", '"Selected inspection", "Not sampled", "unavailable",', '"Selected inspection", "Not sampled", "available",'),
+        ("rich-freshness", "SAO_Observation.lua", "if rich then", "if rich or (cached.people[id] and cached.people[id].cognition) then"),
+        ("selection-without-tick-delay", "SAO_Observation.lua", "if selected ~= id then nextSample = 0 end", "-- restored selection waits for unrelated cadence"),
+        ("basic-attention-all", "SAO_Observation.lua", "needs(body), attention(rec, body), pressureFor(id)", 'needs(body), rich and attention(rec, body) or section("attention", "Attention", "Native body", "Not sampled", "unavailable"), pressureFor(id)'),
+        ("basic-pressure-all", "SAO_Observation.lua", "attention(rec, body), pressureFor(id)", 'attention(rec, body), rich and pressureFor(id) or section("pressure", "Pressure", "Controller", "Not sampled", "unavailable")'),
+        ("basic-actions-all", "SAO_Observation.lua", "currentAction(id, body), sourceWork(id, rec)", 'rich and currentAction(id, body) or section("actions", "Action", "Controller", "Not sampled", "unavailable"), sourceWork(id, rec)'),
+        ("basic-source-all", "SAO_Observation.lua", "sourceWork(id, rec) }, events = {}", 'rich and sourceWork(id, rec) or section("source-work", "Source work", "WorldSources", "Not sampled", "unavailable") }, events = {}'),
         ("assigned-outcome-provenance", "SAO_Observation.lua", 'Assigned for this trial; the survivor chooses the means', 'The survivor autonomously chose this goal'),
         ("assigned-water-lower-bound", "SAO_Observation.lua", 'stock = "At least " .. stock', 'stock = stock'),
         ("resource-plan-visible", "SAO_Observation.lua", 'row(s, "Work sequence", #sequence > 0', 'row(s, "Hidden sequence", #sequence > 0'),
@@ -246,7 +350,8 @@ def main():
             raise RuntimeError(built.stdout + built.stderr)
         (temp / "prelude.lua").write_text(PRELUDE, encoding="utf-8")
         (temp / "probe.lua").write_text("__result = " + PROBE, encoding="utf-8")
-        def run(changes):
+        def run(changes, probe=PROBE):
+            (temp / "probe.lua").write_text("__result = " + probe, encoding="utf-8")
             for name, source in changes.items():
                 (temp / name).write_text(source, encoding="utf-8")
             result = subprocess.run([str(JDK / "java.exe"), "-cp", str(temp) + ";" + str(GAME / "projectzomboid.jar"), "LuaRun", str(temp / "prelude.lua"), *[str(temp / n) for n in names], str(temp / "probe.lua"), "--", "__result"], cwd=GAME, capture_output=True, text=True, timeout=45)
@@ -263,6 +368,16 @@ def main():
             if code == 0 or "OBSERVATION_CHECK:" + expected not in output:
                 raise AssertionError(expected + " did not flip its named verdict: " + output)
             print("CONTROL_PASS " + expected)
+        code, output = run(sources, DEFAULT_PROBE)
+        if code or "DEFAULT_OBSERVATION_PASS" not in output:
+            raise AssertionError(output)
+        print(output.strip())
+        mutated = dict(sources)
+        mutated["SAO_Observation.lua"] = sources["SAO_Observation.lua"].replace(
+            "represented[id], id == sampleSelected)", "represented[id], true)")
+        code, output = run(mutated, DEFAULT_PROBE)
+        assert code != 0 and "OBSERVATION_CHECK:default-rich-demand" in output, output
+        print("CONTROL_PASS default-rich-demand")
         shutil.copy2(GAME / "stdlib.lua", temp / "stdlib.lua")
         (temp / "native-health.lua").write_text(NATIVE_PROBE, encoding="utf-8")
         observation = sources["SAO_Observation.lua"]
