@@ -104,7 +104,11 @@ local largeOk = pcall(SAO.Controller.__homeProbe, "runner", agent(), b, 621, rec
 check("large occupied home supersedes distance", largeOk and orders == beforeLarge)
 b.x, b.y, present, group = 21, 20, 8, "household"
 known[8] = { source = "told", at = -900, visits = 1 }
-check("shared known leader home admits rest", SAO.Controller.__nightProbe("runner", agent(), b, 625, rec) == true)
+check("leader address does not replace personal home", SAO.Controller.__nightProbe("runner", agent(), b, 625, rec) == false
+    and rec.homeX == 10 and rec.homeY == 10)
+rec.homeX, rec.homeY = 20, 20
+check("personally adopted shared home admits rest", SAO.Controller.__nightProbe("runner", agent(), b, 626, rec) == true)
+rec.homeX, rec.homeY = 10, 10
 group, b.x, b.y, present = nil, 12, 10, 7
 cold = 2
 local chilled = agent()

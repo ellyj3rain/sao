@@ -48,6 +48,8 @@ memorial in the UI and `diedAtHours` all read it, and [B41] already
 paid for one field in that record. The dead are kept; the caches that
 were only ever about the living are not.
 """
+import contextlib
+import io
 import pathlib
 import re
 import sys
@@ -68,6 +70,12 @@ MARK_DEAD = "markDead"
 #   "calls"  - the clearing function calls Identity.markDead itself,
 #              so the clear and the death are the same event
 CACHES = {
+    ("SAO_Needs.lua", "recoveries"): (
+        "N.stopRecovery", "recovery-retirement",
+        "the exact living recovery receiver is cleared by stopRecovery; "
+        "retireRecovery delegates to it on controller drop, adoption, death "
+        "and forget. World reset and module reload retire the disposable map "
+        "while a detached person's paused intent remains durable"),
     ("SAO_Study.lua", "runtime"): (
         "S.forget", "named",
         "native reading retains a living body and exact book only while work "
@@ -397,14 +405,12 @@ def namespace_of(src, alias):
     return m.group(1) if m else None
 
 
-def main():
+def check_files(files):
     faults = []
     print("=" * 74)
     print("A PER-ID CACHE THAT OUTLIVES THE ID")
     print("=" * 74)
 
-    files = {p.name: p.read_text(encoding="utf-8", errors="ignore")
-             for p in LUA.rglob("*.lua")}
     if not files:
         print()
         print("VERDICT:")
@@ -563,6 +569,40 @@ def main():
                 faults.append("native production refresh retirement is absent from markDead")
             if len(re.findall(r"retireRefresh\s*\(\s*id\s*,", detach)) != 2 or "R.interrupt" not in detach:
                 faults.append("production detach must retire handled-source references before and after interrupt")
+        elif how == "recovery-retirement":
+            def body(source, method):
+                return strip_lua(function_body(source, method) or "", strings=False)
+
+            retire = body(src, "N.retireRecovery")
+            reset = body(src, "N.resetRecoveries")
+            controller = files.get("SAO_Controller.lua", "")
+            owner_checks = {
+                "recovery retirement reaches exact receiver clearing":
+                    re.search(r"return\s+N\.stopRecovery\s*\(\s*id\s*,\s*work\.body\s*,\s*reason\s*,\s*true\s*\)", retire),
+                "death reaches controller recovery retirement":
+                    re.search(r"pcall\s*\(\s*SAO\.Controller\.forget\s*,\s*rec\.id\s*\)",
+                              strip_lua(dead_body)),
+                "controller forget retires recovery":
+                    'SAO.Needs.retireRecovery(id, "controller-forget")' in body(controller, "Ctl.forget"),
+                "controller drop retires recovery":
+                    'SAO.Needs.retireRecovery(id, "controller-drop")' in body(controller, "Ctl.drop"),
+                "controller adoption retires the old recovery receiver":
+                    'SAO.Needs.retireRecovery(rec.id, "controller-adopt")' in body(controller, "Ctl.adopt"),
+                "native death retires recovery":
+                    'SAO.Needs.retireRecovery(id, "death")' in body(controller, "retireDeadBodyWork"),
+                "both native death branches reach recovery retirement":
+                    len(re.findall(r"retireDeadBodyWork\s*\(\s*id\s*,\s*body\s*,\s*agent\.rec\s*\)",
+                                   body(controller, "updateAgent"))) == 2,
+                "world reset retires every recovery receiver":
+                    re.search(r"for\s+id\s+in\s+pairs\(recoveries\)\s+do\s+N\.retireRecovery\s*\(\s*id\s*,", reset),
+                "world start reaches recovery reset":
+                    'N.resetRecoveries("world-reset")' in strip_lua(src, strings=False)
+                    and re.search(r"Events\.OnGameStart\.Add\s*\(\s*N\.recoveryResetHandler\s*\)", strip_lua(src)),
+                "module reload retires the previous recovery map":
+                    re.search(r'pcall\s*\(\s*N\.resetRecoveries\s*,\s*"module-reload"\s*\)',
+                              strip_lua(src, strings=False)),
+            }
+            faults.extend(name for name, present in owner_checks.items() if not present)
         elif how != "self":
             faults.append(f"{table} has an unknown lifetime rule {how!r}")
         print(f"     {fname}:{table:<18} <- {forget} ({how})")
@@ -575,6 +615,55 @@ def main():
         return 1
     print(f"  72) person cache lifetime: all {len(CACHES)} per-id caches "
           "have reachable death or return cleanup")
+    return 0
+
+
+def main():
+    files = {p.name: p.read_text(encoding="utf-8", errors="ignore")
+             for p in LUA.rglob("*.lua")}
+    status = check_files(files)
+    if status:
+        return status
+    controls = [
+        ("SAO_Needs.lua", "recoveries[id] = nil", "recoveries[id] = recoveries[id]",
+         "nothing in it sets an entry to nil"),
+        ("SAO_Needs.lua", "return N.stopRecovery(id, work.body, reason, true)", "return false",
+         "recovery retirement reaches exact receiver clearing"),
+        ("SAO_Identity.lua", "pcall(SAO.Controller.forget, rec.id)", "pcall(function() end)",
+         "death reaches controller recovery retirement"),
+        ("SAO_Controller.lua", 'SAO.Needs.retireRecovery(id, "controller-forget")', "do end",
+         "controller forget retires recovery"),
+        ("SAO_Controller.lua", 'SAO.Needs.retireRecovery(id, "controller-drop")', "do end",
+         "controller drop retires recovery"),
+        ("SAO_Controller.lua", 'SAO.Needs.retireRecovery(rec.id, "controller-adopt")', "do end",
+         "controller adoption retires the old recovery receiver"),
+        ("SAO_Controller.lua", 'SAO.Needs.retireRecovery(id, "death")', "do end",
+         "native death retires recovery"),
+        ("SAO_Controller.lua", "retireDeadBodyWork(id, body, agent.rec)", "do end",
+         "both native death branches reach recovery retirement"),
+        ("SAO_Needs.lua", 'N.retireRecovery(id, reason or "world-reset")', "do end",
+         "world reset retires every recovery receiver"),
+        ("SAO_Needs.lua", "Events.OnGameStart.Add(N.recoveryResetHandler)", "do end",
+         "world start reaches recovery reset"),
+        ("SAO_Needs.lua", 'pcall(N.resetRecoveries, "module-reload")', "pcall(function() end)",
+         "module reload retires the previous recovery map"),
+    ]
+    for filename, before, after, expected in controls:
+        source = files.get(filename, "")
+        want = 2 if before == "retireDeadBodyWork(id, body, agent.rec)" else 1
+        if source.count(before) != want:
+            print(f"  FAULT: recovery control anchor drift: {filename}: {expected}")
+            return 1
+        mutated = dict(files)
+        mutated[filename] = source.replace(before, after, 1)
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            exit_code = check_files(mutated)
+        if exit_code != 1 or "  FAULT: " not in output.getvalue() or expected not in output.getvalue():
+            print(f"  FAULT: recovery control did not reject its defect: {expected}")
+            return 1
+        print(f"  CONTROL rejected: {expected}")
+    print(f"  72) recovery retirement controls: {len(controls)} rejected")
     return 0
 
 

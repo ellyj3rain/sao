@@ -1453,6 +1453,134 @@ local function inspectionRuntime(body)
     return memory
 end
 
+local function inspectionReceiptCopy(receipt)
+    local out = {}
+    for key, value in pairs(receipt or {}) do
+        if type(value) ~= "table" and type(value) ~= "function" and type(value) ~= "userdata" then
+            out[key] = value
+        end
+    end
+    return out
+end
+
+function WS.inspectionOutcome(actorId, receiptId)
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(tostring(actorId or ""))
+    for _, receipt in ipairs(rec and rec.worldInspectionReceipts or {}) do
+        if receipt.id == receiptId and receipt.actorId == tostring(actorId) then
+            return inspectionReceiptCopy(receipt)
+        end
+    end
+end
+
+function WS.inspectionAdmission(actorId, receiptId)
+    actorId = tostring(actorId or "")
+    local body = SAO.Body and SAO.Body.get and SAO.Body.get(actorId)
+    if not inspectionActor(actorId, body) then return nil end
+    local memory = inspectionRuntime(body)
+    local context = memory and memory.pending
+    local receipt = context and WS.inspectionOutcome(actorId, receiptId)
+    if receipt and receipt.status == "admitted" and context.actorId == actorId
+        and context.purposeInspectionId == receipt.id and context.sourceId == receipt.sourceId
+        and context.fingerprint == receipt.fingerprint and context.sourceX == receipt.sourceX
+        and context.sourceY == receipt.sourceY and context.sourceZ == receipt.sourceZ then return receipt end
+end
+
+local function deliverInspection(rec)
+    local planner = SAO.ProceduralPlanning
+    for _, receipt in ipairs(rec and rec.worldInspectionReceipts or {}) do
+        if receipt.status ~= "admitted" and not receipt.planningAcknowledged
+            and planner and planner.consumeInspectionResult then
+            local ok, accepted = pcall(planner.consumeInspectionResult, receipt.actorId, inspectionReceiptCopy(receipt))
+            if ok and accepted == true then receipt.planningAcknowledged = true end
+        end
+    end
+end
+
+local function finishPurposeInspection(actorId, context, status, reason, nativeInspected)
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(tostring(actorId or ""))
+    for _, receipt in ipairs(rec and rec.worldInspectionReceipts or {}) do
+        if receipt.status == "admitted" and receipt.id == context.purposeInspectionId
+            and receipt.actorId == tostring(actorId) and receipt.sourceId == context.sourceId
+            and receipt.fingerprint == context.fingerprint
+            and receipt.sourceX == context.sourceX and receipt.sourceY == context.sourceY
+            and receipt.sourceZ == context.sourceZ then
+            receipt.status, receipt.reason, receipt.atHours = status, tostring(reason or status), nowHours()
+            receipt.nativeInspected, receipt.privateLearned = nativeInspected == true, nativeInspected == true
+            deliverInspection(rec)
+            return true
+        end
+    end
+    return false
+end
+
+-- Saved admissions whose exact runtime owner did not survive loading become
+-- interrupted attempts. Only the native inspection path can complete one.
+function WS.reconcilePurposeInspections(actorId, body)
+    actorId = tostring(actorId or "")
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(actorId)
+    if not rec or not inspectionActor(actorId, body) then return false end
+    local memory = inspectionRuntime(body)
+    for _, receipt in ipairs(rec.worldInspectionReceipts or {}) do
+        if receipt.status == "admitted" and not (memory and memory.pending
+            and memory.pending.purposeInspectionId == receipt.id) then
+            receipt.status, receipt.reason, receipt.atHours = "interrupted", "inspection-runtime-owner-not-retained", nowHours()
+        end
+    end
+    deliverInspection(rec)
+    return true
+end
+
+function WS.interruptPurposeInspections(actorId, body, reason)
+    actorId = tostring(actorId or "")
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(actorId)
+    if not rec then return false end
+    local memory = inspectionRuntime(body)
+    for _, receipt in ipairs(rec.worldInspectionReceipts or {}) do
+        if receipt.actorId == actorId and receipt.status == "admitted" then
+            receipt.status, receipt.reason, receipt.atHours = "interrupted", tostring(reason or "owner-retired"), nowHours()
+            if memory and memory.pending and memory.pending.purposeInspectionId == receipt.id then memory.pending = nil end
+        end
+    end
+    deliverInspection(rec)
+    return true
+end
+
+function WS.beginPurposeInspection(actorId, body, context, purposeId, stepId)
+    actorId = tostring(actorId or "")
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(actorId)
+    local memory = inspectionRuntime(body)
+    if not rec or not inspectionActor(actorId, body) or not memory or memory.pending ~= context
+        or context.actorId ~= actorId or context.purposeInspectionId
+        or not (SAO.ProceduralPlanning and SAO.ProceduralPlanning.admitInspection) then return nil end
+    deliverInspection(rec)
+    local retained = {}
+    for _, old in ipairs(rec.worldInspectionReceipts or {}) do
+        if old.status == "admitted" or not old.planningAcknowledged then retained[#retained + 1] = old end
+    end
+    if #retained >= 16 then return nil end
+    for index = #(rec.worldInspectionReceipts or {}), 1, -1 do
+        local old = rec.worldInspectionReceipts[index]
+        if old.status ~= "admitted" and old.planningAcknowledged and #retained < 15 then
+            table.insert(retained, 1, old)
+        end
+    end
+    rec.worldInspectionSequence = (tonumber(rec.worldInspectionSequence) or 0) + 1
+    local receipt = { id = actorId .. ":inspection:" .. tostring(rec.worldInspectionSequence),
+        actorId = actorId, purposeId = purposeId, purposeStepId = stepId,
+        sourceId = context.sourceId, fingerprint = context.fingerprint,
+        sourceX = context.sourceX, sourceY = context.sourceY, sourceZ = context.sourceZ,
+        status = "admitted", atHours = nowHours() }
+    retained[#retained + 1] = receipt
+    rec.worldInspectionReceipts = retained
+    context.purposeInspectionId = receipt.id
+    if not SAO.ProceduralPlanning.admitInspection(actorId, inspectionReceiptCopy(receipt)) then
+        table.remove(retained, #retained)
+        context.purposeInspectionId = nil
+        return nil
+    end
+    return inspectionReceiptCopy(receipt)
+end
+
 local function inspectionRows(text)
     if type(text) ~= "string" or #text > 262144
         or string.sub(text, 1, 20) ~= "H|protocol=SAOWI1\nC|"
@@ -1503,6 +1631,23 @@ local function personallyInspected(known, row)
     return false
 end
 
+-- A private acquisition reader for the exact current visible-holder offer.
+-- Mutable caller coordinates cannot replace the native candidate's geometry.
+function WS.currentInspectionAnchor(actorId, body, context)
+    actorId = tostring(actorId or "")
+    if not inspectionActor(actorId, body) then return nil end
+    local memory = inspectionRuntime(body)
+    local offered = memory and memory.offeredAnchor
+    if not offered or not context or memory.pending ~= context or context.actorId ~= actorId then return nil end
+    for _, key in ipairs({ "actorId", "sourceId", "fingerprint", "sourceX", "sourceY", "sourceZ", "x", "y", "z" }) do
+        if context[key] ~= offered[key] then return nil end
+    end
+    return { id = "source:" .. offered.sourceId, sourceId = offered.sourceId,
+        cx = offered.x, cy = offered.y, z = offered.z,
+        fingerprint = offered.fingerprint, sourceX = offered.sourceX,
+        sourceY = offered.sourceY, sourceZ = offered.sourceZ }
+end
+
 -- A visible holder is an affordance, never an inference about its stock.
 function WS.inspectionCandidate(actorId, body, admission, radius, sourceId)
     if sourceId ~= nil and (type(sourceId) ~= "string" or #sourceId > 512
@@ -1511,7 +1656,7 @@ function WS.inspectionCandidate(actorId, body, admission, radius, sourceId)
     if not inspectionActor(actorId, body) then return nil, "no-live-body" end
     local memory = inspectionRuntime(body)
     if not memory then return nil, "inspection-unavailable" end
-    memory.pending = nil
+    memory.pending, memory.offeredAnchor = nil, nil
     local value = store()
     if not value or not SAOJavaBridge or not SAO.Perception
         or not SAO.Perception.knownPlaces or not SAO.Perception.learnInspectedSource then
@@ -1538,6 +1683,11 @@ function WS.inspectionCandidate(actorId, body, admission, radius, sourceId)
                 x = row.x, y = row.y, z = row.z }
             if SAO.Cognition then context.cognitionToken = SAO.Cognition.capture(actorId, "inspection") end
             memory.pending = context
+            memory.offeredAnchor = { actorId = actorId, sourceId = row.id, fingerprint = row.fp,
+                sourceX = row.sx, sourceY = row.sy, sourceZ = row.sz, x = row.x, y = row.y, z = row.z }
+            if SAO.Perception.learnVisibleHolder then
+                SAO.Perception.learnVisibleHolder(actorId, body, context)
+            end
             return context
         end
     end
@@ -1560,6 +1710,8 @@ function WS.inspectionFailed(actorId, body, context, reason)
     local memory = inspectionRuntime(body)
     if not memory or memory.pending ~= context or not context
         or context.actorId ~= tostring(actorId or "") then return false end
+    local resultStatus = string.sub(tostring(reason), 1, 12) == "interrupted:" and "interrupted" or "failed"
+    finishPurposeInspection(actorId, context, resultStatus, reason, false)
     memory.pending = nil
     if not INSPECTION_ACCESS_FAILURE[tostring(reason)]
         or not inspectionActor(context.actorId, body) then return false end
@@ -1585,21 +1737,25 @@ function WS.inspectContainer(actorId, body, context)
     if not memory or not context or memory.pending ~= context
         or context.actorId ~= actorId then return false, "not-offered" end
     memory.pending = nil
-    if not inspectionActor(actorId, body) then return false, "no-live-body" end
+    local function refused(reason)
+        finishPurposeInspection(actorId, context, "failed", reason, false)
+        return false, reason
+    end
+    if not inspectionActor(actorId, body) then return refused("no-live-body") end
     local value = store()
     if not value or pendingFor(value, context.sourceId, nil)
-        or value.conflictBySource[context.sourceId] then return false, "source-pending" end
+        or value.conflictBySource[context.sourceId] then return refused("source-pending") end
     if not (SAO.Standing and SAO.Standing.mayTakeCurrent
         and SAO.Standing.mayTakeCurrent(actorId, context.sourceX, context.sourceY,
-            context.admission)) then return false, "current-claim-refused" end
+            context.admission)) then return refused("current-claim-refused") end
     if not SAO.Perception or not SAO.Perception.learnInspectedSource then
-        return false, "private-inspection-unavailable"
+        return refused("private-inspection-unavailable")
     end
     local ok, text = pcall(function()
         return SAOJavaBridge:worldInspectContainer(body, context.sourceId,
             context.fingerprint, context.sourceX, context.sourceY, context.sourceZ)
     end)
-    if not ok or type(text) ~= "string" then return false, "native-inspection-refused" end
+    if not ok or type(text) ~= "string" then return refused("native-inspection-refused") end
     local encodedId, bodyText = string.match(text, "^I|source=([^\r\n]+)\n(.*)$")
     local snapshot = bodyText and WS.parse(bodyText) or nil
     local source = snapshot and snapshot.sources[context.sourceId]
@@ -1611,10 +1767,10 @@ function WS.inspectContainer(actorId, body, context)
         or math.floor(source.x / CHUNK_SIZE) ~= snapshot.header.cx
         or math.floor(source.y / CHUNK_SIZE) ~= snapshot.header.cy
         or (source.state ~= "available" and source.state ~= "spent") then
-        return false, "native-inspection-refused"
+        return refused("native-inspection-refused")
     end
     if not WS.applySnapshot(snapshot, nil, context.sourceId)
-        or value.conflictBySource[context.sourceId] then return false, "native-source-conflict" end
+        or value.conflictBySource[context.sourceId] then return refused("native-source-conflict") end
     local learned = false
     local learnedOk = pcall(function()
         local tick = SAO.History and SAO.History.ticksFromHours
@@ -1622,7 +1778,7 @@ function WS.inspectContainer(actorId, body, context)
         learned = SAO.Perception.learnInspectedSource(actorId,
             transferPlace(actorId, source), context.sourceId, tick, "native-container-inspection")
     end)
-    if not learnedOk or not learned then return false, "private-inspection-unavailable" end
+    if not learnedOk or not learned then return refused("private-inspection-unavailable") end
     if SAO.Cognition and context.cognitionToken then
         pcall(SAO.Cognition.attempted, actorId, context.cognitionToken)
         pcall(SAO.Cognition.publish, actorId, context.cognitionToken, {
@@ -1632,6 +1788,7 @@ function WS.inspectContainer(actorId, body, context)
             waterPresent = (tonumber(source.quantities.water) or 0) > 0 })
     end
     memory.failures[context.sourceId .. "|" .. context.fingerprint] = nil
+    finishPurposeInspection(actorId, context, "completed", "native-container-inspection", true)
     return true, "inspected"
 end
 

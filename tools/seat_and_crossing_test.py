@@ -26,6 +26,9 @@ WHAT THIS HOLDS
      exists Java-side and the Controller reaches it (followTraverse).
   5. The riding flag is reconciled from the seat truth in BOTH
      directions in the Controller.
+  6. Native human input and NPC movement use the same rendered-animation
+     strafe basis. The installed input branch supplies the comparison;
+     restoring the missing quarter-turn must fail that comparison.
 
 An optional argv[1] points the checker at another tree root, which is
 how the control runs against the pre-fix state.
@@ -52,6 +55,7 @@ CTL = ROOT / "mod" / "42.20" / "media" / "lua" / "client" / "SAO_Controller.lua"
 ROUTE = pathlib.Path("java/src/com/sao/engine/SAORouteState.java")
 MOVEMENT = pathlib.Path("java/src/com/sao/engine/SAOMovement.java")
 PROBE = pathlib.Path("tools/luacheck/MovementCrossingProbe.java")
+MOTION_PROBE = pathlib.Path("tools/luacheck/MotionIntentProbe.java")
 CONTROLLER = pathlib.Path("mod/42.20/media/lua/client/SAO_Controller.lua")
 LOCOMOTION = pathlib.Path("mod/42.20/media/lua/client/SAO_Locomotion.lua")
 LUA_RUNNER = pathlib.Path("tools/luacheck/LuaRun.java")
@@ -105,6 +109,42 @@ def crossing_controls(move, route):
     yield "carry-old-crossing-owner", ROUTE, changed(route,
         "        pendingCrossingEvent = null;\n        crossingObserved = false;\n        realignAfterCrossing = false;\n",
         ""), "cleared_route_does_not_inherit_pending"
+
+
+def motion_checks(root, work, classes, java, live_cp, move, receipt, run, baseline_only):
+    result = run([*java, "-cp", live_cp, "MotionIntentProbe"], work, "motion-production")
+    if result.returncode or "MOTION INTENT PASS parityCases=64" not in result.stdout:
+        raise AssertionError(result.stdout + result.stderr)
+    receipt["motionChecks"] = [line.removeprefix("CHECK ").removesuffix("=true")
+        for line in result.stdout.splitlines() if line.startswith("CHECK ") and line.endswith("=true")]
+    receipt["motionParityCases"] = 64
+    print("PASS native human/NPC movement basis: 64 angle/direction cases; "
+        + str(len(receipt["motionChecks"])) + " checks", flush=True)
+    receipt["motionControls"] = []
+    if baseline_only:
+        return
+    controls = [
+        ("original-animation-basis-mismatch", changed(move,
+            "float animAngle = shell.getAnimAngleRadians() + (float) (Math.PI / 2);",
+            "float animAngle = shell.getAnimAngleRadians();"), "native_control_basis_0_0"),
+        ("direction-angle-radians-in-degree-setter", changed(move,
+            "shell.setDirectionAngle((float) Math.toDegrees(Math.atan2(dirY, dirX)));",
+            "shell.setDirectionAngle((float) Math.atan2(dirY, dirX));"), "native_direction_degrees_0_1"),
+    ]
+    for label, source, marker in controls:
+        directory = work / label; directory.mkdir()
+        code = directory / "SAOMovement.java"; code.write_text(source, encoding="utf-8")
+        output = directory / "classes"; output.mkdir()
+        compiled = run([JDK / "javac.exe", "-encoding", "UTF-8", "-cp", live_cp,
+            "-d", output, code], directory, label + "-compile")
+        if compiled.returncode:
+            raise AssertionError(compiled.stdout + compiled.stderr)
+        result = run([*java, "-cp", str(output) + os.pathsep + live_cp, "MotionIntentProbe"], directory, label)
+        if result.returncode != 1 or f"CHECK {marker}=false" not in result.stdout:
+            raise AssertionError("motion control did not reject its defect: " + label
+                + "\n" + result.stdout + result.stderr)
+        receipt["motionControls"].append(dict(name=label, rejected=True, marker=marker, exit=result.returncode))
+        print("PASS control refused: " + label, flush=True)
 
 
 OBSTACLE_PROBE = r'''
@@ -264,7 +304,7 @@ def native_checks(root, receipt, baseline_only=False):
         return
     receipt["engineJarSha256"] = hashlib.sha256(jar.read_bytes()).hexdigest()
     receipt["sources"] = {str(path): hashlib.sha256((root / path).read_bytes()).hexdigest()
-        for path in (MOVEMENT, ROUTE, PROBE, pathlib.Path("tools/seat_and_crossing_test.py"))}
+        for path in (MOVEMENT, ROUTE, PROBE, MOTION_PROBE, pathlib.Path("tools/seat_and_crossing_test.py"))}
     move, route = ((root / path).read_text(encoding="utf-8-sig") for path in (MOVEMENT, ROUTE))
     classpath = os.pathsep.join(map(str, (jar, GAME / "ZombieBuddy.jar")))
 
@@ -283,7 +323,8 @@ def native_checks(root, receipt, baseline_only=False):
         generated.write_text("package com.sao; public final class SAOVersion { public static final String VALUE = "
             + json.dumps(version) + "; }\n", encoding="utf-8")
         compiled = run([JDK / "javac.exe", "-encoding", "UTF-8", "-cp", classpath, "-d", classes,
-            *sorted((root / "java/src").rglob("*.java")), generated, root / PROBE], work, "production-compile")
+            *sorted((root / "java/src").rglob("*.java")), generated, root / PROBE,
+            root / MOTION_PROBE], work, "production-compile")
         if compiled.returncode: raise AssertionError(compiled.stdout + compiled.stderr)
         live_cp = str(classes) + os.pathsep + classpath
         java = [JDK / "java.exe", f"-Duser.home={work}", "-Djava.awt.headless=true",
@@ -294,6 +335,7 @@ def native_checks(root, receipt, baseline_only=False):
         receipt["checks"] = [line.removeprefix("CHECK ").removesuffix("=true")
             for line in result.stdout.splitlines() if line.startswith("CHECK ") and line.endswith("=true")]
         print(next(line for line in result.stdout.splitlines() if line.startswith("PASS movement crossing")))
+        motion_checks(root, work, classes, java, live_cp, move, receipt, run, baseline_only)
         verdicts = {}
         for line in result.stdout.splitlines():
             if not line.startswith("VERDICT "): continue

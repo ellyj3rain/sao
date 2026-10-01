@@ -114,7 +114,7 @@ def main():
     # 4. Who asks.
     #
     # Two shapes, and reading both the same way was this border's own
-    # first finding against correct code. Three of these are decisions
+    # first finding against correct code. Two of these are decisions
     # and the ask must come BEFORE them; the watch is a whole function
     # whose job is survival, and the ask belongs at its top, AFTER the
     # header this anchors on. A window that only looks backwards
@@ -122,8 +122,7 @@ def main():
     print("     asked by: %d site(s)" % controller.count(ASK))
     for what, needle in (
             ("the journey for a weapon", 'setState(agent, id, "GEARWARD"'),
-            ("the journey for ammunition", 'setState(agent, id, "AMMOWARD"'),
-            ("scouting somewhere defensible", 'setState(agent, id, "SETTLEWARD"')):
+            ("the journey for ammunition", 'setState(agent, id, "AMMOWARD"')):
         at = controller.find(needle)
         if at < 0:
             faults.append("%s is gone from the controller, so this border "
@@ -178,7 +177,7 @@ def main():
         return 1
     print("  116) before the fall, an ordinary life: the county can be asked, "
           "the answer is derived from the record and never from the dial, and "
-          "every survival-shaped decision asks it")
+          "the remaining defensive errands ask it")
     return 0
 
 

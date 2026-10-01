@@ -1,6 +1,7 @@
 SAO.Perception={beliefs={}}
 SAO.Standing={}
 SAO.Voice={}
+SAO.Needs={retireRecovery=function()end}
 SAO.Disposition={describe=function()return "fixture"end}
 SAO.Locomotion={cancel=function(id)cancels=(cancels or 0)+1 end}
 bodies={}

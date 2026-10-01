@@ -2604,31 +2604,37 @@ public static InventoryItem ammoSourceItem(IsoPlayer shell) {
         return bestCarriedFood(shell);
     }
 
-    /** Sleep flag control (F-016: safe but inert off-slot - no engine
-     * system recovers a non-slot sleeper, so REST charges recovery
-     * itself). */
+    /** Enter the installed native sleep owner without player UI/time controls.
+     * The normal shell update assigns its native receiver before calculateStats;
+     * IsoPlayer.updateStats_Sleeping therefore owns recovery, traits and hunger. */
     public static void setShellAsleep(IsoPlayer shell, boolean asleep) {
         try {
+            if (shell == null || shell.isDead()) return;
+            if (asleep && !shell.isAsleep()) {
+                if (shell.getBed() == null) shell.setBedType("floor");
+                int hours = Math.max(1, Math.min(12,
+                    (int) Math.ceil(shell.getStats().get(CharacterStat.FATIGUE) * 10.0)));
+                float wake = (zombie.GameTime.getInstance().getTimeOfDay() + hours) % 24.0f;
+                shell.setForceWakeUpTime(wake);
+                shell.setAsleepTime(0.0f);
+                shell.setAsleep(true);
+                zombie.ai.sadisticAIDirector.SleepingEvent.instance.setPlayerFallAsleep(shell, hours);
+                return;
+            }
             shell.setAsleep(asleep);
-        } catch (Throwable ignored) {
+        } catch (Throwable throwable) {
+            // A failed native admission must remain retryable, never sleeping
+            // only in the controller projection.
+            if (shell != null) shell.setAsleep(false);
         }
     }
 
-    /** Charge rest recovery for elapsed in-game hours: full fatigue
-     * recovery over ~8 hours (engine-approximate), endurance refills
-     * faster. Direct stat mutation in the LOADED world - the same honest
-     * deviation class as rag-rip: no vanilla surface exists for non-slot
-     * sleepers, time is charged in real ticks. Returns the new fatigue. */
+    /** Compatibility observation for existing home/mobile rest callers.
+     * Elapsed controller time never grants physiological recovery. The engine
+     * tick already owns it; charging here would recover the same interval twice. */
     public static float restRecoverTick(IsoPlayer shell, double hoursDelta) {
         try {
-            zombie.characters.Stats stats = shell.getStats();
-            float fatigue = stats.get(CharacterStat.FATIGUE);
-            float endurance = stats.get(CharacterStat.ENDURANCE);
-            fatigue = Math.max(0.0f, fatigue - (float) (hoursDelta / 8.0));
-            endurance = Math.min(1.0f, endurance + (float) (hoursDelta / 4.0));
-            stats.set(CharacterStat.FATIGUE, fatigue);
-            stats.set(CharacterStat.ENDURANCE, endurance);
-            return fatigue;
+            return shell.getStats().get(CharacterStat.FATIGUE);
         } catch (Throwable throwable) {
             return -1.0f;
         }

@@ -37,8 +37,9 @@ SAO = { Log = { line = function() end },
     Places = { at = function() return nil end },
     Identity = { get = function(id) return records[id] end },
     Body = { get = function(id) return bodies[id] end },
+    Needs = { retireRecovery = function() end },
     Standing = { mayTakeCurrent = function() return permitted end } }
-for _, id in ipairs({"a", "b", "c", "d"}) do records[id] = { id = id }; bodies[id] = {} end
+for _, id in ipairs({"a", "b", "c", "d", "e", "f", "g", "h", "i"}) do records[id] = { id = id }; bodies[id] = {} end
 SAOJavaBridge = { worldInspectionMemory = function(self, body)
         memories[body] = memories[body] or {}; return memories[body]
     end,
@@ -52,6 +53,7 @@ function check(name, passed) assert(passed, name); checks = checks + 1; print("C
 
 INSPECTION_CASES = r'''
 local W, P = SAO.WorldSources, SAO.Perception
+local originalSnapshot = snapshotText
 local function facts(id)
     local result = {}; for _, place in pairs(P.knownPlaces(id,true)) do
         for key, fact in pairs(place.sourceFacts or {}) do result[key] = fact end
@@ -112,6 +114,80 @@ candidateText = valid
 local stale = W.inspectionCandidate("d", bodies.d, "standing",12)
 snapshotText = string.gsub(snapshotText, "|x=11|", "|x=12|")
 check("changed_source_receipt_not_taught", not W.inspectContainer("d", bodies.d, stale) and count(facts("d")) == 0)
+snapshotText = originalSnapshot
+local acknowledged, reject = {}, false
+SAO.ProceduralPlanning = {
+ admitInspection = function(id, receipt) return receipt.actorId == id and receipt.purposeId == 'purpose' end,
+ consumeInspectionResult = function(id, receipt)
+  if reject then return false end
+  local actual = W.inspectionOutcome(id, receipt.id)
+  if not actual or actual.status == 'admitted' then return false end
+  acknowledged[receipt.id] = (acknowledged[receipt.id] or 0) + 1
+  return true
+ end
+}
+local priorInspectCalls = inspectCalls
+local planned = W.inspectionCandidate('e', bodies.e, 'standing', 12)
+local admitted = W.beginPurposeInspection('e', bodies.e, planned, 'purpose', 'step')
+check('purpose_admission_is_not_inspection_or_stock', admitted and admitted.status == 'admitted'
+ and inspectCalls == priorInspectCalls and count(facts('e')) == 0 and not admitted.nativeInspected)
+check('other_actor_cannot_read_inspection_receipt', W.inspectionOutcome('f', admitted.id) == nil)
+local detached = W.inspectionOutcome('e', admitted.id); detached.status = 'completed'; detached.nativeInspected = true
+check('detached_result_cannot_grant_inspection', W.inspectionOutcome('e', admitted.id).status == 'admitted')
+check('native_empty_inspection_completes_exact_attempt', W.inspectContainer('e', bodies.e, planned)
+ and W.inspectionOutcome('e', admitted.id).nativeInspected == true
+ and W.inspectionOutcome('e', admitted.id).privateLearned == true
+ and facts('e')[planned.sourceId].state == 'spent' and count(value.results) == 0)
+W.reconcilePurposeInspections('e', bodies.e)
+check('inspection_delivery_is_exactly_once', acknowledged[admitted.id] == 1)
+local failedPurpose = W.inspectionCandidate('f', bodies.f, 'standing', 12)
+local failedReceipt = W.beginPurposeInspection('f', bodies.f, failedPurpose, 'purpose', 'step')
+W.inspectionFailed('f', bodies.f, failedPurpose, 'order-refused')
+check('refused_order_never_teaches_or_completes', failedReceipt
+ and W.inspectionOutcome('f', failedReceipt.id).status == 'failed'
+ and W.inspectionOutcome('f', failedReceipt.id).nativeInspected == false and count(facts('f')) == 0)
+local resumed = W.inspectionCandidate('g', bodies.g, 'standing', 12)
+local resumedReceipt = W.beginPurposeInspection('g', bodies.g, resumed, 'purpose', 'step')
+W.resetRuntime(); W.reconcilePurposeInspections('g', bodies.g)
+check('reload_retires_lost_runtime_inspection', resumedReceipt
+ and W.inspectionOutcome('g', resumedReceipt.id).status == 'interrupted'
+ and not W.inspectionOutcome('g', resumedReceipt.id).nativeInspected and count(facts('g')) == 0)
+reject = true
+local pendingDelivery = W.inspectionCandidate('h', bodies.h, 'standing', 12)
+local retainedReceipt = W.beginPurposeInspection('h', bodies.h, pendingDelivery, 'purpose', 'step')
+W.inspectContainer('h', bodies.h, pendingDelivery)
+check('unacknowledged_inspection_stays_durable', records.h.worldInspectionReceipts[1].status == 'completed'
+ and records.h.worldInspectionReceipts[1].planningAcknowledged ~= true)
+reject = false; W.reconcilePurposeInspections('h', bodies.h)
+check('retained_inspection_delivery_retries', acknowledged[retainedReceipt.id] == 1
+ and records.h.worldInspectionReceipts[1].planningAcknowledged == true)
+local handoff = W.inspectionCandidate('h', bodies.h, 'standing', 12, pendingDelivery.sourceId)
+local handoffReceipt = W.beginPurposeInspection('h', bodies.h, handoff, 'purpose', 'step')
+records.h.dead = true
+SAO.Controller.agents.h = { rec = records.h }
+SAO.SourceUse = { closeForOwnershipTransfer = function() return false end }
+check('pending_source_closure_retains_inspection_owner', not SAO.Controller.drop('h')
+ and W.inspectionOutcome('h', handoffReceipt.id).status == 'admitted'
+ and SAO.Controller.agents.h ~= nil and memories[bodies.h].pending == handoff)
+SAO.SourceUse.closeForOwnershipTransfer = function() return true end
+check('dead_or_external_owner_handoff_retires_admission', SAO.Controller.drop('h') and handoffReceipt
+ and W.inspectionOutcome('h', handoffReceipt.id).status == 'interrupted'
+ and W.inspectionOutcome('h', handoffReceipt.id).reason == 'controller-drop'
+ and not W.inspectionOutcome('h', handoffReceipt.id).nativeInspected
+ and acknowledged[handoffReceipt.id] == 1 and memories[bodies.h].pending == nil
+ and SAO.Controller.agents.h == nil)
+local deceased = W.inspectionCandidate('i', bodies.i, 'standing', 12)
+local deathReceipt = W.beginPurposeInspection('i', bodies.i, deceased, 'purpose', 'step')
+records.i.bodyOwner = 'ZAO'; SAO.Body.foreign.i = bodies.i
+bodies.i.isDead = function() return true end
+bodies.i.getX = function() return 11 end; bodies.i.getY = function() return 22 end
+bodies.i.getZ = function() return 0 end
+check('native_death_owner_retires_inspection_admission', SAO.Controller.observeExternalDeath('i', bodies.i, 'ZAO')
+ and records.i.dead == true and W.inspectionOutcome('i', deathReceipt.id).status == 'interrupted'
+ and W.inspectionOutcome('i', deathReceipt.id).reason == 'death'
+ and not W.inspectionOutcome('i', deathReceipt.id).nativeInspected
+ and count(facts('i')) == 0 and memories[bodies.i].pending == nil
+ and acknowledged[deathReceipt.id] == 1)
 RESULT = "PASS inspection Lua " .. checks
 '''
 
@@ -125,8 +201,21 @@ def inspection_lua(root, work, production, receipt):
         encoding="utf-8")
     case = work / "inspection-cases.lua"
     case.write_text(INSPECTION_CASES, encoding="utf-8")
+    controller = (root / "mod/42.20/media/lua/client/SAO_Controller.lua").read_text(encoding="utf-8-sig")
+    drop_text = ('SAO.Controller={agents={}}\nSAO.Locomotion={cancel=function() end}\n'
+        'local Ctl=SAO.Controller\nlocal log=function() end\nlocal clearLoadedContact=function() end\n'
+        'function Ctl.drop(id)' + controller.split('function Ctl.drop(id)', 1)[1].split('local setStateRef', 1)[0])
+    drop_text += ('\nlocal tickCount,hostTickCount=900,12\nCtl.pendingCorpses={}\n'
+        'SAO.Body.foreign={}; SAO.Body.active={}\n'
+        'SAO.Identity.updatePosition=function(rec,x,y,z) rec.x,rec.y,rec.z=x,y,z end\n'
+        'SAO.Identity.markDead=function(rec,tick,cause) rec.dead=true; return true end\n'
+        'local witnessDeath=function() return "native-death" end\nlocal tellPlayerOfDeath=function() end\n'
+        'local function retireDeadBodyWork' + controller.split('local function retireDeadBodyWork', 1)[1]
+        .split('local function decisionIntervalFor', 1)[0])
+    drop = work / "inspection-controller-drop.lua"
+    drop.write_text(drop_text, encoding="utf-8")
     inputs = [prelude, root / "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
-        root / "mod/42.20/media/lua/shared/SAO_Perception.lua", case]
+        root / "mod/42.20/media/lua/shared/SAO_Perception.lua", drop, case]
     result = run([JDK / "java.exe", "-cp", os.pathsep.join(map(str,(production,PZ,ZB))),
         "LuaRun", *inputs, "--", "RESULT"], work, "probe", "inspection-lua", receipt)
     if result.returncode or "VALUE PASS inspection Lua" not in result.stdout:
@@ -142,13 +231,21 @@ def inspection_lua(root, work, production, receipt):
         ("ignore-route-failure", "if not delayed and (sourceId == nil or row.id == sourceId)",
             "if true and (sourceId == nil or row.id == sourceId)", "failed_holder_not_immediately_reselected"),
         ("penalize-flee", "local INSPECTION_ACCESS_FAILURE = {", "local INSPECTION_ACCESS_FAILURE = { [\"interrupted:FLEE\"] = true,", "flee_does_not_penalize"),
-        ("leak-on-offer", "memory.pending = context\n            return context",
-            "memory.pending = context\n            SAO.Perception.learnInspectedSource(actorId, transferPlace(actorId, value.sources[row.id]), row.id, 0, 'bad-offer')\n            return context", "offer_without_knowledge"),
-        ("permission-after-fill", "if not (SAO.Standing and SAO.Standing.mayTakeCurrent\n        and SAO.Standing.mayTakeCurrent(actorId, context.sourceX, context.sourceY,\n            context.admission)) then return false, \"current-claim-refused\" end",
-            "if false then return false, \"current-claim-refused\" end", "permission_rechecked_before_fill"),
+        ("leak-on-offer", "memory.pending = context",
+            "memory.pending = context\n            SAO.Perception.learnInspectedSource(actorId, transferPlace(actorId, value.sources[row.id]), row.id, 0, 'bad-offer')", "offer_without_knowledge"),
+        ("permission-after-fill", "if not (SAO.Standing and SAO.Standing.mayTakeCurrent\n        and SAO.Standing.mayTakeCurrent(actorId, context.sourceX, context.sourceY,\n            context.admission)) then return refused(\"current-claim-refused\") end",
+            "if false then return refused(\"current-claim-refused\") end", "permission_rechecked_before_fill"),
         ("forget-current-coordinates", "or source.x ~= context.sourceX or source.y ~= context.sourceY or source.z ~= context.sourceZ", "or false", "changed_source_receipt_not_taught"),
-        ("teach-all-chunk-holders", "if not learnedOk or not learned then return false, \"private-inspection-unavailable\" end",
-            "for otherId, otherSource in pairs(snapshot.sources) do SAO.Perception.learnInspectedSource(actorId, transferPlace(actorId, otherSource), otherId, 0, 'bad-bulk') end\n    if not learnedOk or not learned then return false, \"private-inspection-unavailable\" end", "only_exact_holder_learned"),
+        ("teach-all-chunk-holders", "if not learnedOk or not learned then return refused(\"private-inspection-unavailable\") end",
+            "for otherId, otherSource in pairs(snapshot.sources) do SAO.Perception.learnInspectedSource(actorId, transferPlace(actorId, otherSource), otherId, 0, 'bad-bulk') end\n    if not learnedOk or not learned then return refused(\"private-inspection-unavailable\") end", "only_exact_holder_learned"),
+    ]
+    controls += [
+        ("lose-purpose-success", 'finishPurposeInspection(actorId, context, "completed", "native-container-inspection", true)',
+            'finishPurposeInspection(actorId, context, "completed", "native-container-inspection", false)', 'native_empty_inspection_completes_exact_attempt'),
+        ("lose-reload-interruption", 'receipt.status, receipt.reason, receipt.atHours = "interrupted", "inspection-runtime-owner-not-retained", nowHours()',
+            'receipt.reason = "unrecorded interruption"', 'reload_retires_lost_runtime_inspection'),
+        ("lose-handoff-interruption", 'receipt.status, receipt.reason, receipt.atHours = "interrupted", tostring(reason or "owner-retired"), nowHours()',
+            'receipt.reason = "unrecorded handoff"', 'dead_or_external_owner_handoff_retires_admission'),
     ]
     for name, before, after, marker in controls:
         if source.count(before) != 1:
@@ -156,10 +253,25 @@ def inspection_lua(root, work, production, receipt):
         changed = work / (name + ".lua")
         changed.write_text(source.replace(before, after, 1), encoding="utf-8")
         controlled = run([JDK / "java.exe", "-cp", os.pathsep.join(map(str,(production,PZ,ZB))),
-            "LuaRun", prelude, changed, inputs[2], case, "--", "RESULT"],
+            "LuaRun", prelude, changed, inputs[2], drop, case, "--", "RESULT"],
             work, "control", name, receipt)
         if "ERROR " not in controlled.stdout or marker not in controlled.stdout:
             raise RuntimeError("Inspection Lua control did not reject " + name + ": " + controlled.stdout + controlled.stderr)
+        receipt["results"].append({"case":name, "passed":True, "reason":marker})
+        print("CONTROL " + name + ": " + marker)
+    for reason, marker in [('controller-drop', 'dead_or_external_owner_handoff_retires_admission'),
+                          ('death', 'native_death_owner_retires_inspection_admission')]:
+        before = 'SAO.WorldSources.interruptPurposeInspections(id, body, "' + reason + '")'
+        if drop_text.count(before) != 1:
+            raise RuntimeError("Controller inspection retirement control drift: " + reason)
+        name = "controller-omits-inspection-retirement-" + reason
+        changed_drop = work / (name + ".lua")
+        changed_drop.write_text(drop_text.replace(before, '-- retirement omitted', 1), encoding="utf-8")
+        controlled = run([JDK / "java.exe", "-cp", os.pathsep.join(map(str,(production,PZ,ZB))),
+            "LuaRun", prelude, inputs[1], inputs[2], changed_drop, case, "--", "RESULT"],
+            work, "control", name, receipt)
+        if "ERROR " not in controlled.stdout or marker not in controlled.stdout:
+            raise RuntimeError("Controller inspection retirement control did not reject: " + controlled.stdout + controlled.stderr)
         receipt["results"].append({"case":name, "passed":True, "reason":marker})
         print("CONTROL " + name + ": " + marker)
 
@@ -396,6 +508,7 @@ def main(argv=None) -> int:
         "java/src/com/sao/engine/SAOPerceptionScanner.java",
         "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
         "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
         "tools/private_inventory_test.py", "tools/luacheck/PrivateInventoryProbe.java",
         "tools/luacheck/ContainerInspectionProbe.java", "tools/luacheck/MovementCrossingProbe.java",
         "tools/luacheck/LuaRun.java",

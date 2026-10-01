@@ -40,6 +40,14 @@ AFTER = fixture.snapshot(1, 1, 's2', [{
     'items': [{'id': 13, 'type': 'Base.Apple', 'amount': 1, 'cats': 'food'},
               {'id': 14, 'type': 'Base.WaterBottle', 'amount': 1, 'cats': 'water'}],
 }])
+ROUTES = fixture.snapshot(1, 1, 'routes', [
+    {'id': 'C:pantry:0', 'fp': 'pantry', 'rev': 'r1', 'kind': 'container',
+     'x': 8, 'y': 8, 'building': 42, 'quantities': {'food': 1},
+     'items': [{'id': 13, 'type': 'Base.Apple', 'amount': 1, 'cats': 'food'}]},
+    {'id': 'C:remote:0', 'fp': 'remote', 'rev': 'r1', 'kind': 'container',
+     'x': 56, 'y': 8, 'building': 42, 'quantities': {'food': 1},
+     'items': [{'id': 15, 'type': 'Base.Apple', 'amount': 1, 'cats': 'food'}]},
+])
 
 SETUP = r'''
 require=function() end
@@ -50,6 +58,29 @@ SAO.Material={storeForPerson=function() return {items={actual=1}} end}
 SandboxVars={SurvivorAwareness={Material=true}}
 __hours=48
 SAO.History.countyHours=function() return __hours end
+SAO.Perception.believedThreatCount=function(id,tick,radius,x,y)
+    local n=0
+    for _, threat in ipairs(__threats[id] or {}) do
+        if threat.at<=tick and tick-threat.at<=60
+            and (threat.x-x)^2+(threat.y-y)^2<=radius^2 then n=n+1 end
+    end
+    return n
+end
+SAO.Perception.nearestBelievedThreat=function(id,tick,x,y)
+    local best
+    for _, threat in ipairs(__threats[id] or {}) do
+        if threat.at<=tick and tick-threat.at<=60 then
+            local d=math.sqrt((threat.x-x)^2+(threat.y-y)^2)
+            if not best or d<best.dist then
+                best={dist=d,at=threat.at,source=threat.source,fromPerson=threat.fromPerson,form=threat.form}
+            end
+        end
+    end
+    return best
+end
+SAO.Perception.knownAidRequests=function(id) return __requests[id] or {},'available' end
+SAO.Organization={activeCommitments=function(id) return __obligations[id] or {} end}
+SAO.Disposition={wouldGiveToStranger=function(id) return __willing[id]==true end}
 SAOJavaBridge.carriedWorldTransferItem=function()
     return 'T|operation=acquire|source=C:pantry:0|id=12|type=Base.Chicken|uses=1|amount=1|fluid=|poison=0|rotten=0|cats=food'
 end
@@ -60,6 +91,9 @@ local checks={}
 local function check(name,value) checks[#checks+1]=name..'='..tostring(value==true) end
 local P,L,C,M=SAO.ProceduralPlanning,SAO.Labor,SAO.Cognition,SAO.CognitiveModels
 local place={id=42,cx=8,cy=8,minX=8,minY=8,maxX=16,maxY=16}
+local function inspectPlace()
+    return {id=42,cx=8,cy=8,minX=8,minY=8,maxX=16,maxY=16,sourceId='C:pantry:0'}
+end
 local function reset()
     __stores={} __records={a={id='a',occupation='salesperson'},b={id='b'}}
     __bodies={a=__newBody(8,8),b=__newBody(8,8)} __places={[42]=place}
@@ -72,12 +106,15 @@ local function reset()
     __observeText=__before __sourceItem={exact=true} __carriedItem=nil
     __sourceContainer={} __permissionContainer={} __busy=false __queued=nil
     __routeAllowed=true __standingAllowed=true __queueReject=false __hours=48
+    __threats={a={},b={}} __requests={a={},b={}} __obligations={a={},b={}} __willing={}
     return {category='food',pressure=.35,atHours=48,carriedReady=0,carriedRaw=0,
         carriedWater=0,carriedItems=0,needs={fatigue=.25},health=.85,
         contacts={'b','b','a'},commitments={{id='accepted/1',owner='Posture',status='paused'}},
         sources={{sourceId='C:pantry:0',revision='r1',place=place,category='food',
             quantity=2,quantityUnit='item',itemType='Base.Chicken',itemId=12,
-            known=true,distance=8,cookable=true}},inspectPlace=place}
+            known=true,distance=8,cookable=true}},
+        inspectPlace=inspectPlace(),
+        inspectFingerprint='pantry',inspectX=8,inspectY=8,inspectZ=0}
 end
 local context=reset()
 local caps=L.capabilityOf('a')
@@ -116,7 +153,7 @@ check('actual_choice_drives_acquire_then_prepare',step.verb=='acquire' and step.
     and step.sourceRevision=='r1' and #purpose.steps==2 and purpose.steps[2].owner=='Cooking')
 check('models_independently_disagree_on_feasible_routes',purpose.interpretations.disagreement==true
     and purpose.interpretations.models[1].selected==purpose.selectedStrategy
-    and purpose.interpretations.models[2].selected=='inspect:42')
+    and purpose.interpretations.models[2].selected=='inspect:10:C:pantry:0:pantry')
 local original=M.interpretPlans
 local seen={}
 M.interpretPlans=function(model,state,candidates,ctx)
@@ -229,7 +266,7 @@ check('interrupted_native_admission_precedes_stock_resolution',again==purpose an
     and purpose.status=='interrupted' and purpose.admission.correlationId==reservation.id)
 context=reset() context.sources={} context.inspectPlace=nil
 purpose,step=P.planResource('a',context)
-context.inspectPlace=place
+context.inspectPlace=inspectPlace()
 again,step=P.planResource('a',context)
 check('new_private_inspection_option_revises_same_goal',again==purpose and step.verb=='inspect')
 context.sources={{sourceId='C:pantry:0',revision='r1',place=place,category='food',quantity=2,
@@ -240,12 +277,12 @@ check('inspection_facts_recompile_without_fake_completion',again==purpose and st
 local interpret=C.interpretPlans
 C.interpretPlans=function(id,candidates,ctx)
     local value=interpret(id,candidates,ctx)
-    value.models[1].selected='inspect:42'
+    value.models[1].selected='inspect:10:C:pantry:0:pantry'
     return value
 end
 again,step=P.planResource('a',context)
 C.interpretPlans=interpret
-check('ordinary_selected_alternative_changes_executed_owner',step.verb=='inspect' and step.owner=='SAONeeds')
+check('ordinary_selected_alternative_changes_executed_owner',step.verb=='inspect' and step.owner=='SAO.WorldSources')
 
 context=reset() context.category='water' context.inspectPlace=nil
 context.sources={{sourceId='C:pantry:0',revision='r1',place=place,category='water',quantity=1,
@@ -410,7 +447,7 @@ failFill()
 purpose,step=P.planResource('a',context)
 check('failed_routes_wait_without_blindly_repeating_work',not step and purpose.status=='blocked'
     and purpose.blockers[1]=='known-route-retry-delayed' and #purpose.routeFailures==2)
-context.inspectPlace=place
+context.inspectPlace=inspectPlace() context.inspectFingerprint='pantry'
 purpose,step=P.planResource('a',context)
 check('failed_production_can_reconsider_private_inspection',step and step.verb=='inspect')
 context.inspectPlace=nil context.atHours=50.1
@@ -449,7 +486,16 @@ end
 purpose,step=P.planResource('a',context)
 check('rich_option_frame_keeps_both_models_and_private_inspection',purpose.interpretations
     and #purpose.interpretations.models==2 and #purpose.alternatives==17
-    and purpose.interpretations.models[2].selected=='inspect:42')
+    and purpose.interpretations.models[2].selected=='inspect:10:C:pantry:0:pantry')
+context.tick=100 context.position={x=0,y=8,z=0}
+context.inspectX=8 context.inspectY=8 context.inspectZ=0
+__records.a.homeX=0 __records.a.homeY=8 __records.a.homeZ=0
+context.productionOptions[9].sourceX=56
+__threats.a={{x=8,y=8,at=100,source='observed'}}
+__records.a.proceduralPlanning=nil __records.a.cognition=nil
+purpose,step=P.planResource('a',context)
+check('candidate_bound_retains_route_with_private_risk_advantage',step.sourceId=='F:fixture-9'
+    and purpose.interpretations and #purpose.interpretations.models==2)
 context=reset()
 __records.a.resourceProductionWork={id='actual-native-refill-owner'}
 local acquisition,acquireWhy=SAO.SourceUse.beginAcquisition('a',__bodies.a,place,'food',{})
@@ -459,10 +505,198 @@ local transfer,transferWhy=SAO.SourceUse.beginTransfer('a',__bodies.a,'water','s
     __sourceItem,__sourceContainer,'acquire',{})
 check('direct_collection_cannot_replace_native_resource_owner',not transfer
     and transferWhy=='native-resource-owner-busy' and not __records.a.worldSourceReservation)
+
+local function routes()
+    local ctx=reset()
+    SAO.WorldSources.applySnapshot(SAO.WorldSources.parse(__routes))
+    local quantities,revision,access,facts=SAO.WorldSources.beliefSnapshot(place)
+    __known.a[42]={cx=8,cy=8,sources=quantities,sourceRevision=revision,sourceAccess=access,sourceFacts=facts}
+    ctx.sources={
+        {sourceId='C:pantry:0',revision='r1',place=place,category='food',quantity=1,
+            itemId=13,itemType='Base.Apple',known=true,distance=8},
+        {sourceId='C:remote:0',revision='r1',place=place,category='food',quantity=1,
+            itemId=15,itemType='Base.Apple',known=true,distance=56}}
+    ctx.tick=100 ctx.position={x=0,y=8,z=0} ctx.inspectPlace=nil
+    __records.a.homeX=0 __records.a.homeY=8 __records.a.homeZ=0
+    return ctx
+end
+context=routes()
+local calm=L.assess('a',context)
+local baseline=M.planScore('ordinary',calm.options[1],context.pressure)
+__threats.a={{x=8,y=8,at=100,source='observed',fromPerson=true,form='afflicted'}}
+profile=L.assess('a',context)
+purpose,step=P.planResource('a',context)
+check('private_destination_danger_changes_route_ranking',step.sourceId=='C:remote:0'
+    and purpose.interpretations.models[1].selected==purpose.selectedStrategy
+    and purpose.interpretations.models[2].selected==purpose.selectedStrategy)
+local risky
+for _,option in ipairs(profile.options) do if option.sourceId=='C:pantry:0' then risky=option end end
+check('formed_person_evidence_is_retained_without_route_certainty',risky.appraisal.danger.nearest.fromPerson
+    and risky.appraisal.danger.nearest.form=='afflicted'
+    and risky.appraisal.danger.status=='partial' and risky.uncertainty:find('whole route',1,true)~=nil)
+__threats.a={} __threats.b={{x=8,y=8,at=100,source='observed'}}
+profile=L.assess('a',context)
+local actorPrivate=true
+for _,option in ipairs(profile.options) do
+    if option.appraisal.danger.status~='unknown' or option.appraisal.danger.ordinal~=0 then actorPrivate=false end
+end
+check('another_actor_threats_do_not_enter_private_appraisal',actorPrivate)
+check('no_remembered_threat_preserves_unknown_safety',profile.options[1].appraisal.danger.believedCount==0
+    and profile.options[1].uncertainty:find('does not establish safety',1,true)~=nil)
+context.contacts={'b','c','d'} context.commitments={{id='unaccepted',actorId='a',status='accepted'}}
+local contactsOnly=L.assess('a',context)
+check('contacts_and_unproved_commitments_do_not_supply_support',contactsOnly.options[1].appraisal.requestValue==0
+    and #contactsOnly.options[1].appraisal.social.responsibilities==0
+    and M.planScore('ordinary',contactsOnly.options[1],context.pressure)==baseline)
+__requests.b={{groupId='house',originId='b',category='food',source='requested',requestedAt=47,acquiredAt=47}}
+__willing.a=true
+check('another_actor_requests_do_not_enter_private_appraisal',#L.assess('a',context).options[1].appraisal.social.requests==0)
+__requests.a=__requests.b
+profile=L.assess('a',context)
+check('acquired_request_informs_both_models_without_stock_reward',profile.options[1].appraisal.requestValue>0
+    and M.planScore('ordinary',profile.options[1],context.pressure)>baseline
+    and M.planScore('associative',profile.options[1],context.pressure)>M.planScore('associative',contactsOnly.options[1],context.pressure)
+    and profile.options[1].appraisal.social.uncertainty:find('unsatisfied',1,true)~=nil)
+__willing.a=false
+profile=L.assess('a',context)
+check('request_willingness_stays_with_disposition',profile.options[1].appraisal.requestValue==0
+    and profile.options[1].appraisal.social.requests[1].willing==false)
+__willing.a=true __requests.a[1].originId=nil
+profile=L.assess('a',context)
+check('unidentified_request_origin_does_not_invent_disposition_target',profile.options[1].appraisal.requestValue==0
+    and profile.options[1].appraisal.social.requests[1].willing==nil)
+__requests.a[1].originId='a'
+check('own_food_request_does_not_invent_another_person_need',L.assess('a',context).options[1].appraisal.requestValue==0)
+__requests.a={}
+__obligations.a={{id='accepted/b',actorId='b',acceptedAt=47,status='accepted',
+    scope={action='deliver-material',category='food'},beneficiaryId='c'}}
+check('foreign_accepted_actor_cannot_supply_responsibility',#L.assess('a',context).options[1].appraisal.social.responsibilities==0)
+__obligations.a[1].actorId='a' __obligations.a[1].acceptedAt=49
+check('future_acceptance_cannot_supply_responsibility',#L.assess('a',context).options[1].appraisal.social.responsibilities==0)
+__obligations.a[1].acceptedAt=47
+profile=L.assess('a',context)
+check('actual_assent_retains_unsatisfied_responsibility',profile.options[1].appraisal.requestValue==1
+    and profile.options[1].appraisal.social.responsibilities[1].acceptedAt==47)
+purpose,step=P.planResource('a',context)
+context.carriedReady=1
+purpose,step=P.planResource('a',context)
+check('personal_stock_completion_does_not_satisfy_other_need',purpose.status=='completed' and not step
+    and #purpose.labor.groupValues.responsibilities==1
+    and purpose.appraisal.social.uncertainty:find('unsatisfied',1,true)~=nil)
+context=routes() context.position.x=32
+__records.a.homeX=56
+purpose,step=P.planResource('a',context)
+check('own_home_return_cost_changes_route_ranking',step.sourceId=='C:remote:0'
+    and purpose.appraisal.travel.returnTiles==0 and purpose.appraisal.travel.outwardTiles==24)
+__records.a.proceduralPlanning=nil
+local interpretFallback=C.interpretPlans C.interpretPlans=nil
+purpose,step=P.planResource('a',context)
+C.interpretPlans=interpretFallback
+check('cold_model_fallback_keeps_private_return_cost',step.sourceId=='C:remote:0' and not purpose.interpretations)
+context.tick=nil context.position=nil __records.a.homeX=nil
+profile=L.assess('a',context)
+check('legacy_context_keeps_missing_position_and_danger_unknown',profile.options[1].appraisal.danger.status=='unknown'
+    and profile.options[1].appraisal.travel.outwardTiles==nil and profile.options[1].appraisal.travel.returnTiles==nil)
+local foreign=profile.options[1] foreign.appraisal.actorId='b'
+check('model_refuses_foreign_detached_appraisal',M.interpretPlans('ordinary',M.newState('ordinary'),{foreign},
+    {actorId='a',pressure=.35})==nil)
+
+context=reset() context.sources={}
+context.inspectPlace.sourceId='C:pantry:0' context.inspectFingerprint='pantry'
+context.inspectX=8 context.inspectY=8 context.inspectZ=0
+purpose,step=P.planResource('a',context)
+local inspection={id='inspection/a/1',actorId='a',purposeId=purpose.id,purposeStepId=step.id,
+    sourceId=step.sourceId,fingerprint=step.fingerprint,sourceX=8,sourceY=8,sourceZ=0,status='admitted',atHours=48}
+local admitted
+SAO.WorldSources.inspectionAdmission=function(id,key)
+    if admitted and id==admitted.actorId and key==admitted.id then return admitted end
+end
+check('fabricated_inspection_admission_never_pins_purpose',not P.admitInspection('a',inspection) and not purpose.admission)
+admitted=inspection
+check('inspection_admission_uses_exact_source_owner',step.owner=='SAO.WorldSources' and step.sourceId=='C:pantry:0'
+    and P.admitInspection('a',inspection))
+local canonical=inspection
+SAO.WorldSources.inspectionOutcome=function(id,key) if id==canonical.actorId and key==canonical.id then return canonical end end
+canonical.status='completed' canonical.nativeInspected=true canonical.privateLearned=false
+check('native_inspection_without_private_learning_never_advances',not P.consumeInspectionResult('a',canonical)
+    and purpose.cursor==1)
+canonical.privateLearned=true canonical.sourceX=9
+check('foreign_inspection_coordinates_never_advance',not P.consumeInspectionResult('a',canonical) and purpose.cursor==1)
+canonical.sourceX=8
+check('empty_inspection_completes_work_without_satisfying_need',P.consumeInspectionResult('a',canonical)
+    and purpose.steps[1].status=='completed' and purpose.status=='maintained' and purpose.awaitingReassessment
+    and not purpose.admission)
+check('inspection_replay_does_not_complete_resource_goal',P.consumeInspectionResult('a',canonical)
+    and purpose.status=='maintained')
+purpose,step=P.planResource('a',context)
+check('inspection_reassessment_retains_same_unsatisfied_purpose',purpose and step and step.status=='available'
+    and #purpose.completedSteps==1)
+inspection.id='inspection/a/2' inspection.status='admitted'
+P.admitInspection('a',inspection)
+canonical.status='completed' canonical.nativeInspected=true canonical.privateLearned=true
+local replaced=purpose.admission.correlationId
+purpose.admission.correlationId='inspection/replacement'
+check('superseded_inspection_never_advances_replacement',P.consumeInspectionResult('a',canonical)
+    and purpose.cursor==1 and purpose.admission.correlationId=='inspection/replacement')
+
+context=reset() context.sources={}
+purpose,step=P.planResource('a',context)
+local failedHolderId=step.id
+inspection={id='inspection/holder-a',actorId='a',purposeId=purpose.id,purposeStepId=step.id,
+    sourceId=step.sourceId,fingerprint=step.fingerprint,sourceX=8,sourceY=8,sourceZ=0,status='admitted',atHours=48}
+admitted=inspection canonical=inspection
+P.admitInspection('a',inspection)
+canonical.status='failed' canonical.reason='native-route-refused'
+P.consumeInspectionResult('a',canonical)
+context.inspectPlace.sourceId='C:pantry:B' context.inspectFingerprint='pantry-b' context.inspectX=9
+purpose,step=P.planResource('a',context)
+check('failed_holder_does_not_delay_another_in_same_place',step and step.sourceId=='C:pantry:B'
+    and step.fingerprint=='pantry-b' and step.id==purpose.selectedStrategy and step.id~=failedHolderId
+    and step.place.id==42 and purpose.routeFailures[1].strategy==failedHolderId)
+context.inspectPlace.sourceId='C:pantry:0' context.inspectFingerprint='pantry' context.inspectX=8
+purpose,step=P.planResource('a',context)
+check('failed_exact_holder_retains_its_retry_delay',not step and purpose.status=='blocked'
+    and purpose.blockers[1]=='known-route-retry-delayed' and purpose.routeFailures[1].retryAt>48)
+context.inspectFingerprint='replacement-pantry'
+purpose,step=P.planResource('a',context)
+check('changed_holder_fingerprint_has_independent_inspection_identity',step and step.sourceId=='C:pantry:0'
+    and step.fingerprint=='replacement-pantry' and step.id~=failedHolderId)
+context=reset() context.sources={} context.inspectPlace.sourceId=nil context.inspectFingerprint=nil
+purpose,step=P.planResource('a',context)
+check('legacy_inspection_candidate_cannot_admit_without_holder_identity',step and step.id=='inspect:42'
+    and not P.noteAdmission('a',purpose.id,step.owner,'legacy-unbound',step.id) and not purpose.admission)
 __laborResults=table.concat(checks,'\n')
 '''
 
 CONTROLS = [
+    ('labor', 'inspectId = "inspect:" .. #inspect.sourceId .. ":" .. inspect.sourceId .. ":" .. fingerprint',
+     'inspectId = "inspect:" .. tostring(inspect.id)', 'failed_holder_does_not_delay_another_in_same_place'),
+    ('planner', 'steps[#steps + 1] = { id = option.id, verb = "inspect",',
+     'steps[#steps + 1] = { id = "inspect:" .. tostring(option.place.id), verb = "inspect",',
+     'failed_holder_does_not_delay_another_in_same_place'),
+    ('planner', 'local aScore = SAO.CognitiveModels.planScore("ordinary", a, assessment.demand.pressure)\n            local bScore = SAO.CognitiveModels.planScore("ordinary", b, assessment.demand.pressure)',
+     'local aScore = a.evidence * 0.55 + a.continuity * 0.3 - math.min(1, a.blockers * 0.35)\n            local bScore = b.evidence * 0.55 + b.continuity * 0.3 - math.min(1, b.blockers * 0.35)',
+     'candidate_bound_retains_route_with_private_risk_advantage'),
+    ('planner', 'local score = SAO.CognitiveModels.planScore("ordinary", candidate, assessment.demand.pressure)',
+     'local score = candidate.evidence * 0.55 + candidate.continuity * 0.3 - math.min(1, candidate.blockers * 0.35)',
+     'cold_model_fallback_keeps_private_return_cost'),
+    ('models', '- risk * 0.45', '- risk * 0', 'private_destination_danger_changes_route_ranking'),
+    ('models', '- risk * 0.30', '- risk * 0', 'private_destination_danger_changes_route_ranking'),
+    ('models', '- returning * 0.15', '- returning * 0', 'own_home_return_cost_changes_route_ranking'),
+    ('labor', 'believedThreatCount(id, context.tick, 12, target.x, target.y)',
+     'believedThreatCount("b", context.tick, 12, target.x, target.y)', 'another_actor_threats_do_not_enter_private_appraisal'),
+    ('labor', 'knownAidRequests(id, at)', 'knownAidRequests("b", at)', 'another_actor_requests_do_not_enter_private_appraisal'),
+    ('labor', 'obligation.actorId == id and finite(obligation.acceptedAt)',
+     'finite(obligation.acceptedAt)', 'foreign_accepted_actor_cannot_supply_responsibility'),
+    ('models', '+ request * 0.18', '+ request * 0', 'acquired_request_informs_both_models_without_stock_reward'),
+    ('models', '+ request * 0.15', '+ request * 0', 'acquired_request_informs_both_models_without_stock_reward'),
+    ('planner', 'canonical.nativeInspected ~= true or canonical.privateLearned ~= true',
+     'canonical.nativeInspected ~= true', 'native_inspection_without_private_learning_never_advances'),
+    ('planner', 'if not canonical or canonical.actorId ~= id or canonical.id ~= receipt.id or canonical.status ~= "admitted"',
+     'canonical = receipt\n    if not canonical or canonical.actorId ~= id or canonical.id ~= receipt.id or canonical.status ~= "admitted"',
+     'fabricated_inspection_admission_never_pins_purpose'),
+    ('planner', 'or step.sourceX ~= canonical.sourceX or step.sourceY ~= canonical.sourceY or step.sourceZ ~= canonical.sourceZ then return false end',
+     'then return false end', 'foreign_inspection_coordinates_never_advance'),
     ('source', 'return rec and rec.resourceProductionWork ~= nil', 'return false',
      'direct_acquisition_cannot_replace_native_resource_owner'),
     ('planner', 'if #candidates > 16 then', 'if false then',
@@ -514,7 +748,7 @@ def main():
             def run(changed=None):
                 code = dict(texts); code.update(changed or {})
                 chunks = {'prelude': fixture.ACTION_PRELUDE, 'setup': SETUP + '\n__before=' + json.dumps(BEFORE)
-                          + '\n__after=' + json.dumps(AFTER), **code,
+                          + '\n__after=' + json.dumps(AFTER) + '\n__routes=' + json.dumps(ROUTES), **code,
                           'reload': 'function __reloadPlanner()\n' + code['planner'] + '\nend', 'cases': CASES}
                 paths=[]
                 for name,text in chunks.items():

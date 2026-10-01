@@ -120,6 +120,11 @@ BOUNDED = {
         "resourceAssessment reads at most the first 64 context.sources rows "
         "before filtering private matching items; each accepted row contributes "
         "one source, so the sorted candidate list cannot exceed 64",
+    ("SAO_Labor.lua", "out"):
+        "assessResidence examines at most 128 personally known-place rows "
+        "and 64 actor-private exterior leads before copying candidates; "
+        "each row contributes at most one candidate, so sorting receives "
+        "at most 192 before retaining the nearest 16",
     ("SAO_MobileHousehold.lua", "rows"):
         "materialSnapshot retains at most MAX_MATERIAL_CONTAINERS (512) "
         "native part-container rows before sorting; it still counts weight and "

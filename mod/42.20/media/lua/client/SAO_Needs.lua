@@ -1037,6 +1037,182 @@ function N.busy(body)
     return ok and pending == true
 end
 
+-- Fatigue is a cost, not proof that an awake native body cannot act.
+function N.workAvailable(body)
+    local ok, available = pcall(function()
+        return not body:isDead() and not body:isAsleep() and not N.busy(body)
+    end)
+    return ok and available == true
+end
+
+-- Recovery competes with survival and continuity. Disposition supplies the
+-- person's tolerance; no score grants a place, a bed, safety or completion.
+function N.recoveryPreference(id, needs, context)
+    if not needs then return nil end
+    context = context or {}
+    local fatigue, endurance = needs.fatigue or 0, needs.endurance or 1
+    local traits = SAO.Disposition.traits(id)
+    local tolerance = 0.65 + (traits.discipline or 0.5) * 0.15
+        + (traits.initiative or 0.5) * 0.1 - (traits.selfPreservation or 0.5) * 0.1
+    local pressure = fatigue * fatigue + (1 - endurance) * (1 - endurance)
+    local survival = math.max(needs.hunger or 0, needs.thirst or 0)
+    if context.threat or context.bleeding or context.cold then return nil end
+    if context.committed then tolerance = tolerance + 0.25 end
+    -- Urgent deprivation retains strategic action while energy remains. A
+    -- nearby permitted rest option is never an order to abandon that search.
+    if survival >= (context.emergency or 0.85) and endurance > 0.2 then return nil end
+    if pressure <= math.max(tolerance, survival) then return nil end
+    return fatigue * fatigue >= (1 - endurance) * (1 - endurance) and "sleep" or "rest"
+end
+
+-- A module reload releases the previous disposable receiver map first.
+if N.resetRecoveries then pcall(N.resetRecoveries, "module-reload") end
+local recoveries = {}
+local function recoveryOwner(id, body)
+    local rec = SAO.Identity and SAO.Identity.get(id)
+    local agent = SAO.Controller and SAO.Controller.agents[id]
+    if not rec or rec.dead or rec.bodyOwner ~= nil or rec.zaoTransferPending or rec.crossedTransferPending
+        or SAO.Body.active[id] ~= body or SAO.Body.foreign[id] ~= nil
+        or SAO.Body.get(id) ~= body or not agent or agent.rec ~= rec or agent.passive then return nil end
+    local ok, owned = pcall(function()
+        local data = body:getModData()
+        return tostring(data.SAOPersonId or "") == tostring(id)
+            and data.SAOExternalOwner == nil and data.ZAOOwned ~= true
+            and data.SAOExternalToken == rec.bodyOwnerToken
+            and SAOJavaBridge:isShell(body) == true and body:isExistInTheWorld()
+            and not body:isDead()
+    end)
+    return ok and owned and rec or nil
+end
+
+function N.ownsRecoveryBody(id, body)
+    return recoveryOwner(id, body) ~= nil
+end
+
+function N.beginRecovery(id, body, kind)
+    local rec, before = recoveryOwner(id, body), N.read(body)
+    if not rec or not before or recoveries[id] or not N.workAvailable(body)
+        or kind ~= "sleep" and kind ~= "rest" then return false, "body-unavailable" end
+    local idleOk, idle = pcall(function()
+        return body:getCurrentStateName() == "IdleState" and not body:isClimbing()
+    end)
+    if not idleOk or idle ~= true then return false, "native-body-not-idle" end
+    local now = SAO.History.countyHours()
+    local ok, admitted = pcall(function()
+        if kind == "sleep" then
+            SAOJavaBridge:setShellAsleep(body, true)
+            return body:isAsleep()
+        end
+        body:setIsResting(true)
+        return body:isResting()
+    end)
+    if not ok or admitted ~= true then return false, "native-recovery-refused" end
+    recoveries[id] = { body = body, rec = rec, kind = kind, before = before,
+        last = before, startedAt = now, progressAt = now,
+        -- Installed SleepingEvent.doDelayToSleep allows up to two county
+        -- hours before fatigue falls. That interval earns no recovery credit.
+        progressGrace = kind == "sleep" and 2.5 or 0.5 }
+    rec.recoveryIntent = { kind = kind, status = "recovering" }
+    return true
+end
+
+-- A reloaded owned native action supplies a fresh measured baseline; elapsed
+-- unobserved time and the prior receiver never contribute completion credit.
+function N.resumeRecovery(id, body)
+    local rec, before = recoveryOwner(id, body), N.read(body)
+    local intent = rec and rec.recoveryIntent
+    if not intent or not before or recoveries[id] or N.busy(body) then return false end
+    local ok, active = pcall(function()
+        return intent.kind == "sleep" and body:isAsleep()
+            or intent.kind == "rest" and (body:isResting() or body:isSitOnGround())
+    end)
+    if not ok or not active then rec.recoveryIntent = nil; return false end
+    local now = SAO.History.countyHours()
+    recoveries[id] = { body = body, rec = rec, kind = intent.kind, before = before,
+        last = before, startedAt = now, progressAt = now, progressGrace = intent.kind == "sleep" and 2.5 or 0.5 }
+    intent.status = "recovering"
+    return true, intent.kind
+end
+
+function N.stopRecovery(id, body, reason, retireOnly)
+    local work = recoveries[id]
+    if not work or work.body ~= body then return false end
+    recoveries[id] = nil
+    if retireOnly and (reason == "controller-drop" or reason == "controller-adopt" or reason == "module-reload")
+        and work.rec.recoveryIntent then work.rec.recoveryIntent.status = "paused"
+    else work.rec.recoveryIntent = nil end
+    -- Never wake or clear a replacement/foreign receiver.
+    if not retireOnly and recoveryOwner(id, body) == work.rec then
+        pcall(function()
+            if work.kind == "sleep" then SAOJavaBridge:setShellAsleep(body, false)
+            else body:setIsResting(false) end
+        end)
+    end
+    return true
+end
+
+function N.retireRecovery(id, reason)
+    local work = recoveries[id]
+    if work then return N.stopRecovery(id, work.body, reason, true) end
+    -- A paused durable intent has no disposable receiver left to retire.
+    -- Terminal lifecycle owners still clear it without touching a body.
+    if reason == "death" or reason == "controller-forget" or reason == "world-reset" then
+        local rec = SAO.Identity and SAO.Identity.get(id)
+        if rec then rec.recoveryIntent = nil end
+    end
+    return false
+end
+
+function N.recoveryRuntimeCount()
+    local count = 0
+    for _ in pairs(recoveries) do count = count + 1 end
+    return count
+end
+
+function N.recoveryActive(id, body)
+    return recoveries[id] ~= nil and recoveries[id].body == body
+end
+
+function N.resetRecoveries(reason)
+    for id in pairs(recoveries) do N.retireRecovery(id, reason or "world-reset") end
+end
+if Events and Events.OnGameStart then
+    if N.recoveryResetHandler and Events.OnGameStart.Remove then
+        Events.OnGameStart.Remove(N.recoveryResetHandler)
+    end
+    N.recoveryResetHandler = function() N.resetRecoveries("world-reset") end
+    Events.OnGameStart.Add(N.recoveryResetHandler)
+end
+
+function N.pollRecovery(id, body)
+    local work = recoveries[id]
+    if not work or work.body ~= body then return "missing" end
+    local needs = recoveryOwner(id, body) == work.rec and N.read(body) or nil
+    if not needs then N.stopRecovery(id, body, "body-binding-lost"); return "failed" end
+    local now = SAO.History.countyHours()
+    local improved = work.kind == "sleep" and needs.fatigue < work.last.fatigue - 0.000001
+        or work.kind == "rest" and needs.endurance > work.last.endurance + 0.000001
+    if improved then work.progressAt = now; work.progressGrace = 0.5 end
+    work.last = needs
+    local reached = work.kind == "sleep" and needs.fatigue <= 0.3
+        or work.kind == "rest" and needs.endurance >= 0.8
+    local measured = work.kind == "sleep" and needs.fatigue < work.before.fatigue - 0.000001
+        or work.kind == "rest" and needs.endurance > work.before.endurance + 0.000001
+    if reached and measured then
+        N.stopRecovery(id, body, "native-recovery-measured"); return "completed"
+    end
+    local ok, active = pcall(function()
+        return work.kind == "sleep" and body:isAsleep()
+            or work.kind == "rest" and (body:isResting() or body:isSitOnGround())
+    end)
+    if not ok or not active or now < work.startedAt or now - work.progressAt >= work.progressGrace
+        or now - work.startedAt >= 12 then
+        N.stopRecovery(id, body, not active and "native-recovery-ended" or "native-recovery-no-progress")
+        return "failed"
+    end
+    return "running"
+end
+
 -- A carried dose uses the native Food or consumable-drainable action.
 -- Owned pharmacology receives only its measured completion.
 function N.useCarriedDrug(id, body, family)

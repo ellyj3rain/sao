@@ -42,6 +42,7 @@ import zombie.scripting.objects.CharacterTrait;
 public final class SAOPerceptionScanner {
 
     private static final float RANGE = 14.0f;
+    private static final int[][] BUILDING_NEIGHBORS = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}};
     private static final float NEAR_SENSE = 2.5f;
     private static final double CONE_COS = Math.cos(Math.toRadians(72.0));
 
@@ -187,6 +188,7 @@ public final class SAOPerceptionScanner {
         if (!Float.isFinite(faceX) || !Float.isFinite(faceY)) return "";
 
         StringBuilder out = new StringBuilder(256);
+        appendExteriorBuildings(out, shell);
 
         var zombies = cell.getZombieList();
         for (int index = 0; index < zombies.size(); index++) {
@@ -322,6 +324,56 @@ public final class SAOPerceptionScanner {
 
     public static String scan(IsoGameCharacter shell) {
         return scan(shell, "");
+    }
+
+    /** Personal exterior evidence. The approach is the seen, standable outside
+     * tile beside a loaded boundary. No building bounds, rooms or stock leave
+     * this scanner. A free tile is an approach proposal, not a proven route. */
+    private static void appendExteriorBuildings(StringBuilder out, IsoGameCharacter observer) {
+        if (!awakeHuman(observer)) return;
+        if (observer.getModData().rawget("SAO_ObserverAnchor") != null) return;
+        IsoCell cell = observer.getCell();
+        int sx = (int) Math.floor(observer.getX()), sy = (int) Math.floor(observer.getY());
+        int z = (int) Math.floor(observer.getZ());
+        if (cell.getGridSquare(sx, sy, z) != observer.getCurrentSquare()) return;
+        Set<String> emitted = new HashSet<>();
+        Set<Long> buildingsWithDoors = new HashSet<>();
+        Set<Long> buildingsWithWalls = new HashSet<>();
+        // Doors are useful entry hypotheses; an ordinary visible wall remains
+        // a lead when no entrance has personally been seen.
+        for (int pass = 0; pass < 2; pass++) {
+            for (int dx = -14; dx <= 14; dx++) for (int dy = -14; dy <= 14; dy++) {
+                if (emitted.size() >= 16) return;
+                IsoGridSquare outside = cell.getGridSquare(sx + dx, sy + dy, z);
+                if (outside == null || !outside.isOutside() || !outside.isSolidFloor()
+                        || !outside.isFree(false)) continue;
+                for (int[] offset : BUILDING_NEIGHBORS) {
+                    if (emitted.size() >= 16) return;
+                    IsoGridSquare inside = cell.getGridSquare(outside.getX() + offset[0],
+                        outside.getY() + offset[1], z);
+                    zombie.iso.BuildingDef def = inside == null ? null : inside.getBuildingDef();
+                    if (def == null || inside.isOutside()) continue;
+                    boolean door = outside.getDoorTo(inside) != null;
+                    if (pass == 0 ? !door : door || !outside.isWallTo(inside)) continue;
+                    if (!door && (buildingsWithDoors.contains(def.getID())
+                            || buildingsWithWalls.contains(def.getID()))) continue;
+                    // Empty terrain needs no LOS query. Only a possible loaded
+                    // boundary reaches the same actor-specific visibility law.
+                    if (!canSeeWorldSquareNow(observer, outside, RANGE)) continue;
+                    String boundaryKey = def.getID() + ":" + outside.getX() + ":" + outside.getY()
+                        + ":" + inside.getX() + ":" + inside.getY() + ":" + z + ":" + door;
+                    if (!emitted.add(boundaryKey)) continue;
+                    if (door) buildingsWithDoors.add(def.getID());
+                    else buildingsWithWalls.add(def.getID());
+                    if (out.length() > 0) out.append('|');
+                    out.append("B:").append(def.getID()).append(':')
+                        .append((outside.getX() + inside.getX() + 1) / 2.0f).append(':')
+                        .append((outside.getY() + inside.getY() + 1) / 2.0f).append(':').append(z).append(':')
+                        .append(outside.getX() + 0.5f).append(':').append(outside.getY() + 0.5f).append(':')
+                        .append(door ? "door" : "wall");
+                }
+            }
+        }
     }
 
     private static Set<SightTile> knownSightTiles(String text) {

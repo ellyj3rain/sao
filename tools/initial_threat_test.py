@@ -101,7 +101,7 @@ def run():
             if error:
                 if result.returncode or "VALUE FAIL " + error not in output: raise AssertionError("threat control survived: " + output)
             elif result.returncode or "PASS source-bound threat" not in output: raise AssertionError(output)
-    print("PASS actual Lua threat lifecycle with4 source mutation controls; native spawning requires loaded acceptance")
+    print("Border 224 PASS: actual Lua threat lifecycle with4 source mutation controls; native spawning requires loaded acceptance")
 
 if __name__ == "__main__":
     raise SystemExit(run())

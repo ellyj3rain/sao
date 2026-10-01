@@ -70,6 +70,104 @@ function Labor.recognize(id, work)
     return SAO.Branching.recognize(id, work)
 end
 
+-- Residence uses the same private evidence as immediate work. A remembered
+-- building is a lead, even when its contents have never been inspected.
+function Labor.assessResidence(id, context)
+    context = type(context) == "table" and context or {}
+    local rec = SAO.Identity and SAO.Identity.get(id)
+    local position = context.position
+    if not rec or rec.dead or type(position) ~= "table"
+        or type(position.x) ~= "number" or type(position.y) ~= "number" then return nil end
+    local needs = context.needs or {}
+    local standing, perception = SAO.Standing, SAO.Perception
+    local known = perception and perception.knownPlaces and perception.knownPlaces(id) or {}
+    local tick = tonumber(context.tick) or 0
+    local out = { personId = id, atHours = context.atHours,
+        capacity = { fatigue = needs.fatigue, health = context.health,
+            canMove = context.canMove ~= false },
+        needs = { hunger = needs.hunger, thirst = needs.thirst },
+        home = rec.homeX and rec.homeY and { x = rec.homeX, y = rec.homeY, z = rec.homeZ or 0 } or nil,
+        homeDanger = { status = "unknown", count = 0 }, conflict = 0,
+        attachment = 0, responsibilities = 0, candidates = {},
+        stock = "unknown-until-private-inspection", routeCoverage = "unknown",
+        currentResourceOwner = context.currentResourceOwner == true,
+        localRelief = context.localRelief == true }
+    if out.home and perception and perception.believedThreatCount then
+        out.homeDanger.count = perception.believedThreatCount(id, tick, 12, rec.homeX, rec.homeY)
+        if out.homeDanger.count > 0 then out.homeDanger.status = "remembered-danger" end
+    end
+    for otherId, relation in pairs(standing and standing.relationsOf and standing.relationsOf(id) or {}) do
+        if type(relation) == "table" and otherId ~= id then
+            if standing.sameGroup and standing.sameGroup(id, otherId) then
+                if relation.hostile then out.conflict = out.conflict + 1 end
+                if tonumber(relation.trust) and relation.trust > 0 then
+                    out.attachment = out.attachment + relation.trust
+                end
+            end
+        end
+    end
+    if SAO.Organization and SAO.Organization.activeCommitments then
+        for index, obligation in ipairs(SAO.Organization.activeCommitments(id) or {}) do
+            if index > 8 then break end
+            if type(obligation.acceptedAt) == "number"
+                and obligation.acceptedAt <= (context.atHours or 0) then
+                out.responsibilities = out.responsibilities + 1
+            end
+        end
+    end
+    local inspected = 0
+    for key, belief in pairs(known) do
+        inspected = inspected + 1
+        if inspected > 128 then break end
+        if type(belief) == "table" and type(belief.cx) == "number" and type(belief.cy) == "number"
+            and not belief.sourceId and belief.cx == belief.cx and belief.cy == belief.cy then
+            local z = tonumber(belief.z) or 0
+            local atHome = out.home and belief.cx >= (belief.minX or belief.cx)
+                and rec.homeX >= (belief.minX or belief.cx) and rec.homeX <= (belief.maxX or belief.cx)
+                and rec.homeY >= (belief.minY or belief.cy) and rec.homeY <= (belief.maxY or belief.cy)
+            if not atHome and standing and standing.mayAttemptBelieved(id, belief.cx, belief.cy, "standing") then
+                local danger = perception.believedThreatCount
+                    and perception.believedThreatCount(id, tick, 12, belief.cx, belief.cy) or 0
+                local dx, dy = belief.cx - position.x, belief.cy - position.y
+                out.candidates[#out.candidates + 1] = { id = tostring(key),
+                    cx = belief.cx, cy = belief.cy, z = z,
+                    minX = belief.minX, minY = belief.minY, maxX = belief.maxX, maxY = belief.maxY,
+                    distance = math.sqrt(dx * dx + dy * dy), visits = tonumber(belief.visits) or 0,
+                    acquiredAt = belief.at, source = belief.source,
+                    danger = danger, dangerStatus = danger > 0 and "remembered-danger" or "unknown",
+                    stock = "unknown-until-private-inspection" }
+            end
+        end
+    end
+    -- Seeing an exterior establishes a possible place to inspect. It carries
+    -- only the outside approach personally observed by this actor.
+    local exteriorInspected = 0
+    for key, belief in pairs(perception and perception.knownBuildingLeads
+        and perception.knownBuildingLeads(id, tick) or {}) do
+        exteriorInspected = exteriorInspected + 1
+        if exteriorInspected > 64 then break end
+        if standing and standing.mayAttemptBelieved(id, belief.cx, belief.cy, "standing") then
+            local danger = perception.believedThreatCount
+                and perception.believedThreatCount(id, tick, 12, belief.cx, belief.cy) or 0
+            local dx, dy = belief.cx - position.x, belief.cy - position.y
+            out.candidates[#out.candidates + 1] = { id = "exterior:" .. key,
+                buildingId = belief.buildingId, approachId = key,
+                exterior = true, cx = belief.cx, cy = belief.cy, z = belief.z,
+                surfaceX = belief.surfaceX, surfaceY = belief.surfaceY, kind = belief.kind,
+                distance = math.sqrt(dx * dx + dy * dy), visits = 0,
+                acquiredAt = belief.at, source = belief.source, danger = danger,
+                dangerStatus = danger > 0 and "remembered-danger" or "unknown",
+                stock = "unknown-until-private-inspection" }
+        end
+    end
+    table.sort(out.candidates, function(a, b)
+        if a.distance ~= b.distance then return a.distance < b.distance end
+        return a.id < b.id
+    end)
+    while #out.candidates > 16 do table.remove(out.candidates) end
+    return out
+end
+
 local function finite(n)
     return type(n) == "number" and n == n and n ~= math.huge and n ~= -math.huge
 end
@@ -87,6 +185,7 @@ local function placeCopy(value)
         or (type(value.id) ~= "string" and not finite(value.id))
         or not finite(value.cx) or not finite(value.cy) then return nil end
     local out = { id = value.id, cx = value.cx, cy = value.cy }
+    out.sourceId = short(value.sourceId)
     for _, key in ipairs({ "z", "minX", "minY", "maxX", "maxY" }) do
         if finite(value[key]) then out[key] = value[key] end
     end
@@ -101,7 +200,7 @@ local function privateSource(id, source)
     local places = SAO.Perception.knownPlaces(id, true)
     for _, place in pairs(places or {}) do
         local fact = place.sourceFacts and place.sourceFacts[tostring(source.sourceId or source.id)]
-        if fact and fact.revision == (source.revision or source.sourceRevision) then return true end
+        if fact and fact.revision == (source.revision or source.sourceRevision) then return fact end
     end
     return false
 end
@@ -113,6 +212,98 @@ local function inspectedPlace(id, value)
     if belief and belief.cx == place.cx and belief.cy == place.cy then
         return place
     end
+end
+
+local function position(x, y, z)
+    if finite(x) and finite(y) and finite(z) then return { x = x, y = y, z = z } end
+end
+local function distance(a, b)
+    if not a or not b or a.z ~= b.z then return nil end
+    local dx, dy = a.x - b.x, a.y - b.y
+    return math.sqrt(dx * dx + dy * dy)
+end
+local function travelCost(tiles) return tiles and tiles / (tiles + 32) or 0 end
+
+-- These readers supply only this actor's acquired requests and actual assent.
+-- Neither a contact nor group membership supplies another person's capacity.
+local function socialAppraisal(id, category, at)
+    local out = { requests = {}, responsibilities = {}, concern = 0,
+        uncertainty = "requests remain unsatisfied; response, carrying and delivery retain their owners" }
+    if not finite(at) then return out end
+    local perception = SAO.Perception
+    local ok, requests = pcall(function() return perception.knownAidRequests(id, at) end)
+    for i, request in ipairs(ok and type(requests) == "table" and requests or {}) do
+        if i > 8 then break end
+        if request.category == category and finite(request.acquiredAt)
+            and finite(request.requestedAt) and request.requestedAt >= 0 and request.requestedAt <= request.acquiredAt
+            and request.acquiredAt <= at and (request.source == "requested" or request.source == "told") then
+            local willing, accepts = false, nil
+            if type(request.originId) == "string" and request.originId ~= "" and request.originId ~= id then
+                willing, accepts = pcall(function()
+                    return SAO.Disposition.wouldGiveToStranger(id, request.originId)
+                end)
+            end
+            local row = { groupId = short(request.groupId),
+                originId = short(request.originId), source = request.source,
+                requestedAt = request.requestedAt, acquiredAt = request.acquiredAt,
+                teller = short(request.teller), processId = short(request.processId),
+                processRevision = request.processRevision }
+            if willing then row.willing = accepts == true end
+            out.requests[#out.requests + 1] = row
+            if willing and accepts == true then out.concern = math.max(out.concern, 0.5) end
+        end
+    end
+    local available, obligations = pcall(function() return SAO.Organization.activeCommitments(id) end)
+    for i, obligation in ipairs(available and type(obligations) == "table" and obligations or {}) do
+        if i > 8 then break end
+        local scope = type(obligation.scope) == "table" and obligation.scope or {}
+        if obligation.actorId == id and finite(obligation.acceptedAt) and obligation.acceptedAt >= 0 and obligation.acceptedAt <= at
+            and scope.category == category and scope.action == "deliver-material" then
+            out.responsibilities[#out.responsibilities + 1] = { id = short(obligation.id),
+                actorId = id, beneficiaryId = short(obligation.beneficiaryId), acceptedAt = obligation.acceptedAt,
+                status = short(obligation.status), processId = short(obligation.processId) }
+            out.concern = 1
+        end
+    end
+    return out
+end
+
+local function routeAppraisal(id, rec, context, option, social)
+    local own = type(context.position) == "table" and position(context.position.x, context.position.y, context.position.z)
+    local target = position(option.sourceX, option.sourceY, option.sourceZ)
+    if option.kind == "prepare-owned" then target = own end
+    if target then target.basis = option.kind == "prepare-owned" and "native-own-position"
+        or option.kind == "inspect" and "personally-observed-container-location"
+        or "actor-private-source-position" end
+    local home = position(rec.homeX, rec.homeY, rec.homeZ)
+    local outward, returning = distance(own, target), distance(target, home)
+    local danger = { status = "unknown", ordinal = 0,
+        uncertainty = "absence of a remembered threat does not establish safety; the whole route remains unobserved" }
+    if target and finite(context.tick) and context.tick >= 0 then
+        local counted, n = pcall(function()
+            return SAO.Perception.believedThreatCount(id, context.tick, 12, target.x, target.y)
+        end)
+        local found, nearest = pcall(function()
+            return SAO.Perception.nearestBelievedThreat(id, context.tick, target.x, target.y)
+        end)
+        if counted and finite(n) and n >= 0 then
+            danger.believedCount = n
+            if n > 0 then danger.status, danger.ordinal = "partial", n / (n + 2) end
+        end
+        if found and type(nearest) == "table" and finite(nearest.dist) and nearest.dist >= 0 then
+            danger.status = "partial"
+            danger.nearest = { distance = nearest.dist, at = nearest.at,
+                source = short(nearest.source), fromPerson = nearest.fromPerson == true,
+                form = short(nearest.form) }
+            danger.ordinal = math.max(danger.ordinal, 12 / (12 + nearest.dist))
+        end
+    end
+    return { actorId = id, target = target, danger = danger,
+        travel = { outwardTiles = outward, returnTiles = returning,
+            outwardCost = travelCost(outward), returnCost = travelCost(returning), home = home,
+            basis = "own-native-position-and-own-home; straight-line ordinal comparison",
+            uncertainty = "barriers, duration and the return route remain unconfirmed" },
+        social = social, requestValue = social.concern * (option.kind == "inspect" and 0.5 or 1) }
 end
 
 -- The caller supplies native own-inventory and private observation rows.
@@ -179,6 +370,7 @@ function Labor.assess(id, context)
             ownedItems = count(context.carriedItems),
             basis = "native-own-inventory-and-private-observations", confidence = "observed-stock",
             uncertainty = "future-use, access, yield and helper assent remain unconfirmed" } }
+    local social = socialAppraisal(id, category, context.atHours)
     local function add(option)
         option.blockers = capacity.available and 0 or 1
         option.uncertainty = "native permission, approach and completion revalidate during execution"
@@ -187,7 +379,13 @@ function Labor.assess(id, context)
             level = option.cooking and capacity.skills.Cooking or nil,
             fatigue = capacity.fatigue, health = capacity.health }
         -- Skill is evidence about technique, not a zero-level action gate.
-        option.evidence = option.evidence - (out.knownRisk or 0) * 0.1
+        option.appraisal = option.appraisal or routeAppraisal(id, rec, context, option, social)
+        if not finite(context.tick) then option.evidence = option.evidence - (out.knownRisk or 0) * 0.1 end
+        option.uncertainty = option.uncertainty .. "; " .. option.appraisal.danger.uncertainty
+            .. "; " .. option.appraisal.travel.uncertainty .. "; " .. social.uncertainty
+        option.rationale = option.rationale .. "; compare personally believed destination danger, own approach and home return"
+            .. (#social.requests > 0 and "; acquired food request remains unsatisfied" or "")
+            .. (#social.responsibilities > 0 and "; accepted delivery responsibility remains unsatisfied" or "")
         out.options[#out.options + 1] = option
     end
     if category == "food" then
@@ -215,12 +413,14 @@ function Labor.assess(id, context)
             and short(source.revision or source.sourceRevision) and short(source.itemType) then
             local place = inspectedPlace(id, source.place)
             if place then
+                local fact = privateSource(id, source)
                 local kind = category == "food" and source.cookable == true
                     and "acquire-prepare" or "acquire-ready"
                 sources[#sources + 1] = { id = kind .. ":" .. tostring(source.sourceId or source.id)
                         .. ":" .. tostring(source.itemId), kind = kind,
                     sourceId = short(source.sourceId or source.id),
                     sourceRevision = short(source.revision or source.sourceRevision),
+                    sourceX = fact and fact.x, sourceY = fact and fact.y, sourceZ = fact and fact.z,
                     place = place, itemId = source.itemId, itemType = short(source.itemType),
                     category = category, materialCategory = hydration and "drink" or category,
                     hydrationIntent = hydration and true or nil, quantity = 1, quantityUnit = "item",
@@ -234,7 +434,17 @@ function Labor.assess(id, context)
             end
         end
     end
+    for _, option in ipairs(sources) do
+        option.continuity = option.continuity + 0.1 / (1 + option.distance)
+        option.blockers = capacity.available and 0 or 1
+        option.appraisal = routeAppraisal(id, rec, context, option, social)
+    end
     table.sort(sources, function(a, b)
+        if SAO.CognitiveModels and SAO.CognitiveModels.planScore then
+            local sa = SAO.CognitiveModels.planScore("ordinary", a, out.demand.pressure)
+            local sb = SAO.CognitiveModels.planScore("ordinary", b, out.demand.pressure)
+            if sa ~= sb then return sa > sb end
+        end
         if a.distance == b.distance then return a.id < b.id end
         return a.distance < b.distance
     end)
@@ -242,7 +452,6 @@ function Labor.assess(id, context)
         if i > 8 then break end
         -- This is an ordinal preference for a shorter known approach, not a
         -- calibrated travel duration or production-rate claim.
-        option.continuity = option.continuity + 0.1 / (1 + option.distance)
         add(option)
     end
     local production = SAO.ResourceProduction
@@ -278,7 +487,14 @@ function Labor.assess(id, context)
     end
     local inspect = inspectedPlace(id, context.inspectPlace)
     if inspect then
-        add({ id = "inspect:" .. tostring(inspect.id), kind = "inspect", place = inspect,
+        local fingerprint = short(context.inspectFingerprint)
+        local inspectId = "inspect:" .. tostring(inspect.id)
+        if inspect.sourceId and inspect.sourceId ~= "" and fingerprint and fingerprint ~= "" then
+            inspectId = "inspect:" .. #inspect.sourceId .. ":" .. inspect.sourceId .. ":" .. fingerprint
+        end
+        add({ id = inspectId, kind = "inspect", place = inspect,
+            fingerprint = fingerprint,
+            sourceX = context.inspectX, sourceY = context.inspectY, sourceZ = context.inspectZ,
             category = category, evidence = 0.45, continuity = 0.2, novelty = 0.9,
             informationGain = 1, rationale = "inspect a personally remembered place whose usable contents remain uncertain" })
     end
@@ -309,7 +525,9 @@ function Labor.assess(id, context)
             gap = "uninspected and unrecognized affordances remain unknown; access and appliance readiness revalidate natively" },
         openProjects = { status = "person-private", projects = projects,
             gap = "unacquired project and maintenance requests remain unknown" },
-        groupValues = { status = "unknown", gap = "no acquired group requirement supplied to this decision" },
+        groupValues = { status = #social.requests + #social.responsibilities > 0 and "person-private" or "unknown",
+            requests = social.requests, responsibilities = social.responsibilities,
+            gap = "acquired requests do not establish stock, helper assent or completed delivery" },
         lowPressureWish = { status = "open", activity = short(context.lowPressureActivity),
             gap = "low pressure leaves personal activity selection with its existing owners" },
         slack = { status = "unknown", personallyAvailable = capacity.available,

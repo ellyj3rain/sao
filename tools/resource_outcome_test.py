@@ -20,7 +20,7 @@ import world_lab as Lab
 from lua_read import function_body
 
 ROOT, GAME, JDK = production.ROOT, production.GAME, production.JDK
-FILES = {key: production.FILES[key] for key in ("planner", "labor", "production", "controller")}
+FILES = {key: production.FILES[key] for key in ("planner", "labor", "production", "controller", "models", "cognition")}
 FILES["helper"] = ROOT / "tools/world_lab/StudyWorld.lua"
 PRELUDE = production.PRELUDE
 CASES = r'''
@@ -277,7 +277,7 @@ CONTROLS = [
     ("controller", "amount = fluid:getAmount()", "amount = 1", "water_target_reads_native_amount_not_vessel_count", "main"),
     ("planner", 'purpose.cursor > #purpose.steps and not purpose.resourceOutcome and "completed"',
      'purpose.cursor > #purpose.steps and "completed"', "native_work_receipt_does_not_complete_larger_stock_target", "main"),
-    ("planner", "not prior.admission and (not prior.resourceOutcome\n                    or prior.status == \"completed\" or prior.status == \"abandoned\")", "not prior.admission",
+    ("planner", "and (not prior.resourceOutcome\n                    or prior.status == \"completed\" or prior.status == \"abandoned\")", "and true",
      "generic_purpose_capacity_cannot_erase_assigned_goal", "main"),
     ("controller", "assigned and math.max(food, water) < 0.5", "assigned and true",
      "urgent_water_category_precedes_nonurgent_food_objective", "main"),
@@ -356,7 +356,7 @@ def main():
                 add("prelude",PRELUDE+"\nSAO.Controller={agents={}}\n")
                 paths.extend([GAME/"media/lua/shared/ISBaseObject.lua",GAME/"media/lua/shared/TimedActions/ISBaseTimedAction.lua",
                     GAME/"media/lua/shared/TimedActions/ISTakeWaterAction.lua"])
-                for name in ("labor","planner","production"): add(name,code[name])
+                for name in ("models","cognition","labor","planner","production"): add(name,code[name])
                 add("controller",execution.controller_phases(code["controller"]))
                 cases=CASES if kind=="main" else HELPER_CASES
                 if kind=="helper":

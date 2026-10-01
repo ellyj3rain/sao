@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.10.0.0-pre-alpha` |
+| Version | `3.10.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -214,3 +214,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C105](Batches/C105-20260930-1100Z-0400PST-resource-outcome-trials-and-asynchronous-observation.md) | 2026-09-30 | Resource outcome trials and asynchronous observation | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
 | [C106](Batches/C106-20260930-1320Z-0620PST-regional-study-conditions-hydration-and-timing.md) | 2026-09-30 | Regional study conditions, hydration and timing | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
 | [C107](Batches/C107-20260930-1745Z-1045PST-resource-approaches-and-native-threat-conditions.md) | 2026-09-30 | Resource approaches and native threat conditions | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
+| [C108](Batches/C108-20260930-2000Z-1300PST-private-survival-planning-and-residence.md) | 2026-09-30 | Private survival planning and residence | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |

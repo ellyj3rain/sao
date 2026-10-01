@@ -14,6 +14,7 @@ import subprocess
 import tempfile
 
 import source_use_test as source_fixture
+from lua_read import function_body
 
 ROOT = Path(__file__).resolve().parent.parent
 GAME = source_fixture.PZ_DIR
@@ -28,6 +29,7 @@ FILES = {
     'experience': LUA / 'client/SAO_CapabilityExperience.lua',
     'controller': LUA / 'client/SAO_Controller.lua',
     'provisioning': LUA / 'shared/SAO_Provisioning.lua',
+    'needs': LUA / 'client/SAO_Needs.lua',
 }
 SOURCE = source_fixture.snapshot(1, 1, 's1', [{
     'id': 'C:book:0', 'fp': 'books', 'rev': 'r1', 'kind': 'container',
@@ -84,6 +86,7 @@ local function reset()
     body.hasTrait=function() return false end
     body.getAlreadyReadPages=function() return 0 end
     body.isDead=function() return false end
+    body.isAsleep=function() return body.sleeping==true end
     body.isExistInTheWorld=function() return true end
     SAOJavaBridge.privateCarriedItems=function() return {size=function() return 0 end} end
     __targetAnswer='READY:8:8:0:8:8:0' __bindAnswer='BOUND:8:8:0'
@@ -95,6 +98,7 @@ local function reset()
     end
     SAO.Provisioning=nil
     __records.a.provisioningCreditOrder=0
+    __bindWorkAvailable()
     return body
 end
 local body=reset()
@@ -312,6 +316,7 @@ def main():
                             str(ROOT/'tools/luacheck/LuaRun.java')],check=True,capture_output=True,text=True)
             def run(kind, changed=None):
                 code=dict(texts); code.update(changed or {})
+                availability='function __bindWorkAvailable() local N=SAO.Needs\nfunction N.workAvailable('+function_body(code['needs'],'N.workAvailable')+'end\nend\n'
                 controller=code['controller'].split('function Ctl.advancePersonalPurpose',1)[1].split('-- Each decision phase',1)[0]
                 code['controller']='local Ctl=SAO.Controller\nlocal setState=function(agent,id,state) agent.state=state return true end\n'
                 code['controller']+='local beginContainerInspection=function() return false end\nfunction Ctl.advancePersonalPurpose'+controller+'\n__personalOwner=Ctl\n'
@@ -322,6 +327,7 @@ def main():
                     add('prelude',source_fixture.ACTION_PRELUDE)
                     add('setup',SETUP+'\n__before='+repr(SOURCE).replace("'",'"')+'\n__after='+repr(POST).replace("'",'"'))
                     for name in ['world','planner','source','study','controller']: add(name,code[name])
+                    add('availability',availability)
                     add('cases',ACQUISITION)
                 else:
                     paths=[ROOT/'tools/cooking_checks/prelude.lua', GAME/'media/lua/shared/ISBaseObject.lua',
@@ -329,6 +335,7 @@ def main():
                            GAME/'media/lua/shared/TimedActions/ISToggleStoveAction.lua']
                     add('initial','SAO={} SAO.Controller={} SAO.Pharmacology={} SAO.ResourceProduction={} require=function() end\n')
                     for name in ['planner','cooking','experience','controller']: add(name,code[name])
+                    add('availability',availability+'local priorFixture=newFixture\nnewFixture=function(...) priorFixture(...) __bindWorkAvailable() end\n')
                     add('cases',PRACTICE)
                 done=subprocess.run([str(JDK/'java.exe'),'-Djava.awt.headless=true','-cp',str(work)+os.pathsep+str(GAME/'projectzomboid.jar'),
                     'LuaRun',*map(str,paths),'--','__purposeResults'],cwd=work,capture_output=True,text=True,timeout=60)

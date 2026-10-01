@@ -1,46 +1,11 @@
 #!/usr/bin/env python3
-r"""Border 141 - a house takes ground where its people already go ([C76]).
+r"""Border 141: visits preserve personal familiarity without assigning residence.
 
-`setGroupClaim`, `setHearth`, `setLarder` and `setWaterStore` had call
-sites in `SAO_Controller` alone, which needs materialised bodies. After
-`[C67]` and `[C68]` houses form; after `[C71]` and `[C72]` they
-reconvene and stand. And a house in the unwatched county had nowhere to
-be, so every survival modifier reading those was inert unless a player
-happened to be watching.
-
-The live path scouts through `SAOJavaBridge:scoutBase`, which reads the
-loaded ground and needs a body. The dormant half needs no body, because
-the fact already exists: `Perception.learnBuilding` has recorded every
-arrival since `[B37]` - bounds, offers, and how many times that person
-has been - and its own comment says what the count means, that
-somewhere returned to is somewhere that gave them something.
-
-THIS BORDER MEASURES THE CLAIM, NOT THE CALL.
-
-A border asserting that the pass calls `setGroupClaim` would pass a
-tree that called it with the wrong building, or with ground somebody
-else holds. Everything below runs the shipped modules in the engine's
-own VM and then reads `Standing.groupClaimOf`.
-
-The properties:
-
-  * A HOUSE SETTLES WHERE ITS PEOPLE KEEP GOING. The claim is the
-    building with the most returns across its living members, not the
-    first one found and not the nearest.
-  * TWO MEMBERS RETURNING OUTWEIGHS ONE. A place both of them go back
-    to beats a place one of them went back to more often.
-  * NOTHING IS PLACED. A house whose people have never gone back
-    anywhere takes no ground at all, which is a correct outcome.
-  * A HOUSE OF ONE TAKES NOTHING. A group of one is a memory rather
-    than a membership ([C67]'s widow rule), and it does not hold land.
-  * IT WILL NOT CLAIM OVER ANOTHER LIVING COMPANY'S GROUND, over a
-    living person's home, or inside a feuding company's keep-out
-    ([A24], [B35], [A20]).
-  * HOMES CONVERGE. The members' own anchors move to the base, so the
-    dormant day follows with no further wiring.
-
-An optional argv[1] points the checker at another tree root, which is
-how its control runs.
+Production Standing, Perception and dormant scheduling run in installed Kahlua.
+Repeated visits supply neither a collective property claim nor the members'
+assent to relocate. Existing exact Afflicted arrival checks remain covered.
+The control restores automatic group claims and member rehoming and must fail
+the same current residence verdict. Bodies and the clock are controlled.
 """
 import pathlib
 import re
@@ -278,7 +243,7 @@ def build():
     return done.returncode == 0
 
 
-def probe(expr):
+def probe(expr, overrides=None):
     with tempfile.TemporaryDirectory() as tmp:
         work = pathlib.Path(tmp)
         shutil.copy2(STDLIB, work / "stdlib.lua")
@@ -288,7 +253,13 @@ def probe(expr):
         prelude.write_text(PRELUDE, encoding="utf-8")
         args = [str(JDK / "java.exe"), "-cp", "%s;." % PZ, "LuaRun",
                 str(prelude)]
-        args += [str(LUA / m) for m in MODULES if (LUA / m).exists()]
+        for index, module in enumerate(MODULES):
+            source=LUA/module
+            if source.exists():
+                if overrides and module in overrides:
+                    source=work/f'changed-{index}.lua'
+                    source.write_text(overrides[module],encoding='utf-8')
+                args.append(str(source))
         args += ["--", expr]
         done = subprocess.run(args, cwd=str(work), capture_output=True,
                               text=True, timeout=900)
@@ -319,25 +290,14 @@ def strip_prose(text):
 def main():
     faults = []
     print("=" * 74)
-    print("A HOUSE TAKES GROUND WHERE ITS PEOPLE ALREADY GO")
+    print("DORMANT RESIDENCE AND PERSONAL RETURN HISTORY")
     print("=" * 74)
 
     pop = strip_prose(read(LUA / "client" / "SAO_DormantPopulation.lua"))
     seams = {
-        "the unwatched county can take ground":
-            "setGroupClaim" in pop,
-        # [C108] renamed the read: the scorer became a ranking
-        # (`SAO.Perception.returnsOf`) and the settle pass reads the
-        # top of it, so the seam follows the name. The law is
-        # unchanged - the ranking is built out of the return visits
-        # `learnBuilding` has been recording, which is the same
-        # "where its people have been" the first spelling read.
-        "it reads where its people have been":
-            "returnsOf" in pop,
-        "the refusals are one law, not a second copy":
-            "barredGround" in pop,
-        "the gate runs this border":
-            "tools/settle_test.py" in read(CHECK),
+        "the scheduled compatibility owner remains available":
+            "local function dormantSettle()" in pop,
+        "the gate runs this border": "tools/settle_test.py" in read(CHECK),
     }
 
     if not (JDK.exists() and PZ.exists() and STDLIB.exists()
@@ -371,27 +331,36 @@ def main():
         print("  " + line[:400])
         return 1
 
-    at1 = got.get("at1")
-    if at1 in (None, "-1"):
-        faults.append(
-            "a house of two, both of whom keep returning to the same "
-            "building, took no ground at all. That is the defect this "
-            "border exists for: taking ground had call sites in the "
-            "controller alone, so a house in the unwatched county had "
-            "nowhere to be and every modifier reading its hearth, larder "
-            "and water store was inert")
-    elif at1 != "9100":
-        faults.append(
-            "the house settled at %s rather than 9100, the building both "
-            "of its members kept returning to. Two members going back "
-            "outweighs one member going back more often - a place a "
-            "house SHARES is what a base is" % at1)
-    if got.get("home1") != "9100":
-        faults.append(
-            "a member's own anchor is still at %s after their house took "
-            "ground at 9100. Homes converge on the base, or the dormant "
-            "day keeps walking them back to where they used to live"
-            % got.get("home1"))
+    if got.get("at1") != "-1":
+        faults.append("repeated personal visits created a collective property claim")
+    if got.get("home1") != "9000":
+        faults.append("a dormant member was rehomed without their own decision and arrival")
+    source=read(LUA/"client/SAO_DormantPopulation.lua")
+    anchor="local function dormantSettle()\n    return 0\nend"
+    restored="""local function dormantSettle()
+    for id,rec in pairs(SAO.Identity.all()) do
+        local group=SAO.Standing.groupOf(id)
+        if group and not SAO.Standing.groupClaimOf(group) and SAO.Standing.groupSize(group)>1 then
+            local members=SAO.Standing.membersOf(group)
+            local first=SAO.Perception.returnsOf(members)[1]
+            if first then
+                local p=first.place
+                SAO.Standing.setGroupClaim(group,p.minX-1,p.minY-1,p.maxX+1,p.maxY+1,0)
+                for _,mid in ipairs(members) do
+                    local r=SAO.Identity.get(mid)
+                    r.homeX,r.homeY,r.homeZ=p.cx,p.cy,0
+                end
+                return 1
+            end
+        end
+    end
+end"""
+    if source.count(anchor)!=1:
+        faults.append("the dormant relocation control anchor differs")
+    else:
+        control=numbers(probe(PROBE,{"client/SAO_DormantPopulation.lua":source.replace(anchor,restored,1)}))
+        if control.get("at1")=="-1" or control.get("home1")=="9000" or not control:
+            faults.append("restored automatic relocation did not flip the current residence verdict")
     if got.get("none") != "nothing":
         faults.append(
             "a house whose people have never gone back anywhere took "
@@ -429,12 +398,11 @@ def main():
     if faults:
         for f in faults:
             print("  FAULT: " + f)
-        print("  141) a house takes ground where its people already go: "
+        print("  141) dormant residence remains person-owned: "
               "FAIL")
         return 1
-    print("  141) a house settles on what its members keep returning to, "
-          "takes nothing when there is nothing, and never claims over "
-          "somebody: PASS")
+    print("  141) visits retain personal familiarity; no inferred property or mass rehome; "
+          "exact Afflicted arrival retained; automatic-relocation control: PASS")
     return 0
 
 

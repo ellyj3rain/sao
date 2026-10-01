@@ -246,6 +246,7 @@ UNITS = [
     ('C105', 'minor', 'Introduce typed desired-stock study requests with exact actor and experimental authority, separate native work and goal satisfaction, and a bounded immutable observation export worker with exact publication acknowledgement and paused stop draining. These establish new study authoring and runtime contracts, so minor.'),
     ('C106', 'minor', 'Add source-bound authored initial population coverage to the regional study contract, integrate privately inspected native hydration into existing thirst planning, and measure inclusive observation and callback costs. The new initial-cohort authoring contract is minor.'),
     ('C107', 'minor', 'Add declared one-time native threat conditions with saved attempt receipts, correct remembered resource approach selection and terminal water-route feedback, preserve resolved outcome projection, and skip empty instruction breakpoint lookup in isolated observers. The authored threat contract is new, so minor.'),
+    ('C108', 'kohai', 'Mature existing private survival planning with destination danger, home-return cost, acquired requests, exact inspection lifecycle, native recovery, visible exterior acquisition and individual residence reconsideration. Existing movement, physiological and action owners enact these choices; there is no new verb or authoring boundary, so kohai.'),
 ]
 
 TIER_MEANINGS = [

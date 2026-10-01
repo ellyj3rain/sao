@@ -26,14 +26,16 @@ for _,name in ipairs({'ClimbThroughWindowState','ClimbOverFenceState','ClimbOver
     'ClimbSheetRopeState','ClimbDownSheetRopeState','CloseWindowState','OpenWindowState'}) do
     local state={};_G[name]={instance=function() return state end}
 end
-SAO={Log={line=function() end},Controller={agents={}},Body={get=function() return __body end},
+SAO={Log={line=function() end},Controller={agents={}},Body={active={},foreign={},get=function() return __body end},
     Perception={beliefs={person={people={},known={home={source='lived'}}}}},
     History={countyHours=function() return __hours end},
     Standing={mayEnterBelieved=function() return not __forbidden end,groupOf=function() end},
     Disposition={drinkAt=function() return .5 end,eatAt=function() return .5 end,
         isSmoker=function() return false end,wouldForceEntry=function() return false end},
     Lessons={has=function() return false end,desperationBump=function() return 0 end},
-    Identity={updatePosition=function() end},
+    Identity={updatePosition=function() end,get=function(id)
+        local agent=SAO.Controller.agents[id];return agent and agent.rec or nil
+    end},
     Places={commitHorizon=function() return 100 end,comfortHorizon=function() return 40 end},
     WorldSources={nearestObserved=function() __knowledgeCalls=__knowledgeCalls+1;return __knownPlace end},
     SourceUse={begin=function(id,body,place,category,admission)

@@ -552,23 +552,10 @@ function S.releasePlayer(playerKey)
     end
 end
 
--- Your household ([B18]): re-home everyone who walks with this
--- player to their claim - or to nowhere, when the claim is given up.
--- Homes are per-record and every homing path reads them key-blind,
--- so this is a claim, not a system.
+-- Claim changes do not convey anyone else's assent to residence. The retained
+-- harness callback is observational; individual native arrival owns rehoming.
 function S.rehomeCompanions(playerKey, x, y, z)
-    if not (SAO.Controller and SAO.Controller.agents) then return 0 end
-    local moved = 0
-    for aid, agent in pairs(SAO.Controller.agents) do
-        if agent.companioning then
-            local rec = SAO.Identity and SAO.Identity.get(aid) or nil
-            if rec then
-                rec.homeX, rec.homeY, rec.homeZ = x, y, z
-                moved = moved + 1
-            end
-        end
-    end
-    return moved
+    return 0
 end
 
 -- The good word ([B8]): testimony's mirror. A survivor tells another
@@ -3450,11 +3437,49 @@ function S.mayAttemptBelieved(id, x, y, admission)
         or S.mayEnterBelieved(id, x, y)
 end
 
--- The final source-access check uses the county's current claim ledger. Private
--- belief is what motivated the trip; mutation authority is answered against
--- who actually holds the interaction square when the hand reaches it.
+-- Recheck the person's present Standing when an interaction starts. A claim
+-- they have never acquired cannot become an invisible physical barrier.
+-- Native owners separately enforce locks, reach, source identity and terms.
 function S.mayEnterCurrent(id, x, y)
-    return mayPassHolder(id, S.claimedByOther(id, x, y))
+    return S.mayEnterBelieved(id, x, y)
+end
+
+-- Choosing a residence changes one person's navigation reference. It creates
+-- neither a property claim nor an instruction to anybody else. Native indoor
+-- presence proves arrival; the person's own Standing answers their decision.
+function S.completeResidence(id, body, candidate)
+    local rec = SAO.Identity and SAO.Identity.get(id)
+    local known = SAO.Perception and SAO.Perception.knownPlaces(id)
+    local place = candidate and known and (known[candidate.id] or known[tonumber(candidate.id)])
+    if not rec or rec.dead or rec.bodyOwner ~= nil or not body or not place
+        or not SAO.Body or SAO.Body.active[id] ~= body
+        or SAO.Body.foreign and SAO.Body.foreign[id] ~= nil
+        or candidate.cx ~= place.cx or candidate.cy ~= place.cy
+        or not S.mayEnterBelieved(id, place.cx, place.cy) then return false end
+    local ok, present, x, y, z = pcall(function()
+        local md = body:getModData()
+        local square = body:getCurrentSquare()
+        local building = square and square:getBuildingDef()
+        local bx, by, bz = body:getX(), body:getY(), math.floor(body:getZ())
+        return body:isExistInTheWorld() and not body:isDead()
+            and tostring(md.SAOPersonId or "") == tostring(id)
+            and md.SAOExternalOwner == nil and md.ZAOOwned ~= true
+            and building ~= nil and tostring(building:getID()) == tostring(candidate.id)
+            and bz == math.floor(candidate.z or 0)
+            and S.mayEnterBelieved(id, bx, by), bx, by, bz
+    end)
+    if not ok or not present then return false end
+    if rec.homeX ~= place.cx or rec.homeY ~= place.cy or rec.homeZ ~= z then
+        rec.residenceHistory = rec.residenceHistory or {}
+        if rec.homeX and rec.homeY then
+            rec.residenceHistory[#rec.residenceHistory + 1] = { x = rec.homeX, y = rec.homeY,
+                z = rec.homeZ or 0, leftAt = SAO.History.countyHours(), source = "prior-residence" }
+            if #rec.residenceHistory > 8 then table.remove(rec.residenceHistory, 1) end
+        end
+        rec.homeX, rec.homeY, rec.homeZ = place.cx, place.cy, z
+        rec.homeRouteFailure = nil
+    end
+    return true
 end
 
 

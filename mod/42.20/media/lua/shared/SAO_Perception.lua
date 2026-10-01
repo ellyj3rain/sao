@@ -1191,6 +1191,53 @@ end
 -- never punished. Asleep, only what is effectively on top of you
 -- registers, and nothing else does.
 local observeOccupiedBuilding
+-- Re-observation refreshes evidence without replacing a different entrance.
+function P.exteriorLeadKey(lead)
+    if type(lead) ~= "table" then return nil end
+    local buildingId = tostring(lead.buildingId or "")
+    if #buildingId > 20 or not string.match(buildingId, "^%-?%d+$")
+        or not finiteSoundNumber(lead.cx) or not finiteSoundNumber(lead.cy)
+        or not finiteSoundNumber(lead.surfaceX) or not finiteSoundNumber(lead.surfaceY)
+        or not finiteSoundNumber(lead.z) or lead.z ~= math.floor(lead.z)
+        or (lead.kind ~= "door" and lead.kind ~= "wall")
+        or math.abs(lead.surfaceX - lead.cx) + math.abs(lead.surfaceY - lead.cy) ~= 0.5 then return nil end
+    return buildingId .. ":" .. tostring(lead.surfaceX) .. ":" .. tostring(lead.surfaceY)
+        .. ":" .. tostring(lead.cx) .. ":" .. tostring(lead.cy) .. ":" .. tostring(lead.z) .. ":" .. lead.kind
+end
+local function observeExteriorLead(id, body, b, fields, tick)
+    if #fields ~= 8 or not finiteSoundNumber(tick) or not body then return end
+    local rec = SAO.Identity and SAO.Identity.get(id)
+    local own = SAO.Body and SAO.Body.get and SAO.Body.get(id)
+    local ok, admitted = pcall(function()
+        local md = body:getModData()
+        return rec and not rec.dead and own == body and not body:isDead() and not body:isAsleep()
+            and md and tostring(md.SAOPersonId) == tostring(id) and not md.SAO_ObserverAnchor
+    end)
+    if not ok or not admitted then return end
+    local key, sx, sy, z = fields[2], tonumber(fields[3]), tonumber(fields[4]), tonumber(fields[5])
+    local x, y, kind = tonumber(fields[6]), tonumber(fields[7]), fields[8]
+    if not string.match(key or "", "^%-?%d+$") or #key > 20
+        or not finiteSoundNumber(sx) or not finiteSoundNumber(sy) or not finiteSoundNumber(z)
+        or not finiteSoundNumber(x) or not finiteSoundNumber(y) or z ~= math.floor(z)
+        or (kind ~= "door" and kind ~= "wall")
+        or math.abs(sx - x) + math.abs(sy - y) ~= 0.5 then return end
+    local lead = { buildingId = key, cx = x, cy = y, z = z,
+        surfaceX = sx, surfaceY = sy, kind = kind, at = tick,
+        source = "native-visible-exterior", personId = tostring(id) }
+    local approachId = P.exteriorLeadKey(lead)
+    if not approachId then return end
+    b.buildingLeads = b.buildingLeads or {}
+    if not b.buildingLeads[approachId] then
+        local count, oldestKey, oldest = 0, nil, nil
+        for savedKey, lead in pairs(b.buildingLeads) do
+            count = count + 1
+            if not oldest or lead.at < oldest then oldestKey, oldest = savedKey, lead.at end
+        end
+        if count >= 64 then b.buildingLeads[oldestKey] = nil end
+    end
+    b.buildingLeads[approachId] = lead
+    P.beliefVersion = P.beliefVersion + 1
+end
 function P.observe(id, body, tick, asleep)
     local b = store(id)
     if tick - b.lastScanAt < SCAN_INTERVAL then return end
@@ -1319,6 +1366,8 @@ function P.observe(id, body, tick, asleep)
                         end
                     end
                 end
+            elseif f[1] == "B" then
+                observeExteriorLead(id, body, b, f, tick)
             elseif f[1] == "V" and #f == 4 then
                 local x, y, z = tonumber(f[2]), tonumber(f[3]), tonumber(f[4])
                 if x and y and z then covered[zombieTile({ x = x, y = y, z = z })] = true end
@@ -2885,7 +2934,7 @@ end
 -- A current, reachable container inspection admits precisely one source.
 -- The caller has verified the native inspection; other sources in the same
 -- engine chunk never become this person's knowledge through this operation.
-function P.learnInspectedSource(id, place, sourceId, tick, provenance)
+function P.learnInspectedSource(id, place, sourceId, tick, source)
     if not place or place.id == nil or not sourceId then return false end
     local fact = SAO.WorldSources and SAO.WorldSources.beliefFact(sourceId)
     if not fact then return false end
@@ -2908,8 +2957,38 @@ function P.learnInspectedSource(id, place, sourceId, tick, provenance)
     belief.sourceFacts[tostring(sourceId)] = fact
     rebuildKnownSources(belief)
     belief.at = tick or b.lastScanAt
-    belief.source = tostring(provenance or "inspected-source")
+    belief.source = tostring(source or "unknown")
     b.known[key] = belief
+    P.beliefVersion = P.beliefVersion + 1
+    return true
+end
+
+-- Visibility acquires an exact holder's geometry, never its inventory. The
+-- native offer owner must still possess this actor/body/context relationship.
+function P.learnVisibleHolder(id, body, context)
+    local world = SAO.WorldSources
+    local anchor = world and world.currentInspectionAnchor and world.currentInspectionAnchor(id, body, context)
+    if not anchor then return false end
+    local b = store(tostring(id))
+    b.known = b.known or {}
+    local prior = b.known[anchor.id]
+    if not prior then
+        local count, oldestKey, oldestAt = 0, nil, nil
+        for key, belief in pairs(b.known) do
+            if belief.source == "native-visible-holder" then
+                count = count + 1
+                if not oldestAt or (belief.at or 0) < oldestAt then oldestKey, oldestAt = key, belief.at or 0 end
+            end
+        end
+        if count >= 64 then b.known[oldestKey] = nil end
+    end
+    anchor.at = SAO.History and SAO.History.ticks and SAO.History.ticks() or b.lastScanAt
+    anchor.source = "native-visible-holder"
+    anchor.sources = prior and prior.sources or {}
+    anchor.sourceFacts = prior and prior.sourceFacts or {}
+    anchor.sourceAccess = prior and prior.sourceAccess or {}
+    anchor.sourceRevision = prior and prior.sourceRevision or ""
+    b.known[anchor.id] = anchor
     P.beliefVersion = P.beliefVersion + 1
     return true
 end
@@ -2940,6 +3019,26 @@ function P.knownPlaces(id, includeSourceAnchors)
         if not belief.sourceId then places[key] = belief end
     end
     return places
+end
+
+-- Exterior leads are separate from visits. The remembered destination is the
+-- observed outside approach, never the map's unobserved building center.
+function P.knownBuildingLeads(id, tick)
+    local b, leads = P.beliefs[id], {}
+    for key, lead in pairs(b and b.buildingLeads or {}) do
+        local known = type(lead) == "table" and b.known
+            and (b.known[lead.buildingId] or b.known[tonumber(lead.buildingId)])
+        if type(lead) == "table" and lead.personId == tostring(id)
+            and lead.source == "native-visible-exterior" and P.exteriorLeadKey(lead) == key
+            and finiteSoundNumber(lead.cx) and finiteSoundNumber(lead.cy) and finiteSoundNumber(lead.z)
+            and finiteSoundNumber(lead.at) and (not tick or lead.at <= tick)
+            and not (known and (known.visits or 0) > 0) then
+            leads[key] = { buildingId = lead.buildingId, cx = lead.cx, cy = lead.cy, z = lead.z,
+                surfaceX = lead.surfaceX, surfaceY = lead.surfaceY, kind = lead.kind,
+                at = lead.at, source = lead.source, personId = lead.personId }
+        end
+    end
+    return leads
 end
 
 -- Have they been here, and how long ago in ticks? nil when the place

@@ -38,9 +38,25 @@ on the simulation.
 
 ## Status
 
-`3.10.0.0-pre-alpha` - the coordinate is computed by the version machine
+`3.10.1.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C108 compares resource alternatives against privately believed destination
+danger, home-return cost, acquired requests and accepted responsibilities. Both
+cognitive models retain their interpretations. Exact inspection outcomes survive
+refusal, reload, handoff and death without granting stock or practice; a failed
+holder does not delay another holder in the same building. Native recovery
+uses measured physiology, and ordinary appetite or fatigue preserves work.
+Survivors maintain individual stay, search, departure and return decisions;
+native arrival changes their own residence and preserves the prior home.
+Observed exterior doorways support native entry attempts without hidden layout
+or stock. These mechanical checks do not establish loaded exploration,
+negotiated property, calibrated planning or survival quality.
+
+NPC movement uses the installed engine's rendered animation basis for strafe
+intent. The native human-input regression detects the former missing quarter
+turn. Actual route completion and rendering remain loaded verification.
 
 C107 routes known containers to native interaction squares, retires expired
 water approaches and preserves resolved outcomes through later death. Authored

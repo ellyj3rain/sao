@@ -111,7 +111,8 @@ function fixture(personId)
         moveTo=function() F.routeCalls=F.routeCalls+1 return not F.routeRefused and 'MOVE_STARTED' or 'FAILED' end,
         tickMove=function() if F.arrived then F.reachable=true return 'Succeeded' end return 'Working' end,
         cancelMove=function() return F.routeCancelRefused and 'CANCEL_FAILED controlled' or 'MOVE_CANCELLED' end,
-        findCarriedFood=function() return F.readyFood end}
+        findCarriedFood=function() return F.readyFood end,
+        findCarriedDrink=function() return F.readyDrink end}
     ISTimedActionQueue={queues={},hasAction=function(action)
         for _,member in ipairs((ISTimedActionQueue.queues[action.character] or {}).queue or {}) do
             if action==member then return true end end return false end,
@@ -264,8 +265,8 @@ check('actual_locomotion_shared_owner_can_preempt_refill',F.rec.resourceProducti
 started,purpose,step,body,agent=begin() commitment=shared('first') commitment.work.owner='ZAO.Driver'
 resourceOwnerTick('a',agent,body,100)
 check('foreign_shared_executor_preserves_refill',F.rec.resourceProductionWork~=nil)
-body,agent=fixture() F.reachable=false F.thirst=.75
-started=Ctl.advanceResourcePurpose('a',agent,body,100,{hunger=0,thirst=.75,fatigue=0})
+body,agent=fixture() F.reachable=false F.thirst=.85
+started=Ctl.advanceResourcePurpose('a',agent,body,100,{hunger=0,thirst=.85,fatigue=0})
 local work=F.rec.resourceProductionWork local ownRoute=SAO.Locomotion.jobs.a
 resourceOwnerTick('a',agent,body,100)
 check('urgent_water_route_survives_its_initiating_thirst',started and F.rec.resourceProductionWork==work
@@ -283,7 +284,7 @@ check('urgent_water_owner_reaches_canonical_native_completion',not F.rec.resourc
     and F.rec.resourceProductionOutcomes[1].nativeCredit==work.id)
 body,agent=fixture() F.reachable=false F.thirst=.75
 Ctl.advanceResourcePurpose('a',agent,body,100,{hunger=0,thirst=.75,fatigue=0})
-F.hunger=.7
+F.hunger=.81
 resourceOwnerTick('a',agent,body,100)
 check('unrelated_urgent_hunger_interrupts_water_production',not F.rec.resourceProductionWork
     and F.rec.resourceProductionOutcomes[1].detail=='bodily-need-interrupted')
@@ -291,7 +292,7 @@ body,agent=fixture() F.reachable=false F.thirst=.75 F.bleeding=1
 Ctl.advanceResourcePurpose('a',agent,body,100,{hunger=0,thirst=.75,fatigue=0})
 resourceOwnerTick('a',agent,body,100)
 check('bleeding_still_preempts_serving_water_route',not F.rec.resourceProductionWork)
-body,agent=fixture() F.reachable=false F.thirst=.75 F.fatigue=.8 F.routeCancelRefused=true
+body,agent=fixture() F.reachable=false F.thirst=.75 F.bleeding=1 F.routeCancelRefused=true
 Ctl.advanceResourcePurpose('a',agent,body,100,{hunger=0,thirst=.75,fatigue=0})
 work=F.rec.resourceProductionWork ownRoute=SAO.Locomotion.jobs.a
 resourceOwnerTick('a',agent,body,100)
@@ -301,12 +302,20 @@ check('refused_native_water_route_cancel_preserves_exact_owner',F.rec.resourcePr
 F.routeCancelRefused=false resourceOwnerTick('a',agent,body,160)
 check('acknowledged_water_route_cancel_retires_once',not F.rec.resourceProductionWork
     and not SAO.Locomotion.jobs.a and #F.rec.resourceProductionOutcomes==1)
-body,agent=fixture() F.reachable=false F.thirst=.75 F.hunger=.7
-Ctl.advanceResourcePurpose('a',agent,body,100,{hunger=.7,thirst=.75,fatigue=0})
+body,agent=fixture() F.reachable=false
+Ctl.advanceResourcePurpose('a',agent,body,100,{hunger=0,thirst=.3,fatigue=0})
+work=F.rec.resourceProductionWork F.hunger=.6 F.fatigue=.95
+resourceOwnerTick('a',agent,body,100)
+check('ordinary_hunger_and_fatigue_preserve_native_water_work',F.rec.resourceProductionWork==work
+    and #(F.rec.resourceProductionOutcomes or {})==0)
+F.readyFood={id='actual-carried-ready-food'} resourceOwnerTick('a',agent,body,160)
+check('ordinary_hunger_with_actual_ready_food_can_interrupt',not F.rec.resourceProductionWork)
+body,agent=fixture() F.reachable=false F.thirst=.95 F.hunger=.85
+Ctl.advanceResourcePurpose('a',agent,body,100,{hunger=.85,thirst=.95,fatigue=0})
 work=F.rec.resourceProductionWork
 resourceOwnerTick('a',agent,body,100) resourceOwnerTick('a',agent,body,160)
 check('simultaneous_appraised_pressure_without_food_preserves_feasible_water_route',F.rec.resourceProductionWork==work
-    and work.admittedNeeds.hunger==.7 and F.routeCalls==1 and #(F.rec.resourceProductionOutcomes or {})==0)
+    and work.admittedNeeds.hunger==.85 and F.routeCalls==1 and #(F.rec.resourceProductionOutcomes or {})==0)
 F.arrived=true resourceOwnerTick('a',agent,body,220)
 if F.action then F.action:updateUse(.5) end resourceOwnerTick('a',agent,body,280)
 check('simultaneous_pressure_preserves_exact_partial_vessel_and_action',F.rec.resourceProductionWork==work
@@ -324,6 +333,7 @@ local otherWater={getFluidContainerFromSelfOrWorldItem=function() return distinc
     getContainer=function() return F.inventory end}
 SAOJavaBridge.privateCarriedItems=function() return {size=function() return 2 end,
     get=function(self,index) return index==0 and F.item or otherWater end} end
+F.readyDrink=otherWater
 resourceOwnerTick('a',agent,body,100)
 check('distinct_native_ready_water_releases_immediate_relief',not F.rec.resourceProductionWork
     and F.rec.resourceProductionOutcomes[1].status=='interrupted')
@@ -353,8 +363,10 @@ CONTROLS = [
      'if SAO.Needs.portableWaterItem(item) then return false end','bound_partial_water_keeps_exact_native_fill_owner'),
     ('production','if not ok or cancelled ~= "MOVE_CANCELLED" then return false end',
      'if false then return false end','refused_native_water_route_cancel_preserves_exact_owner'),
-    ('production','prior.hunger < SAO.Disposition.eatAt(id)',
+    ('production','prior.hunger < threshold',
      'true','simultaneous_appraised_pressure_without_food_preserves_feasible_water_route'),
+    ('production','needs.hunger >= threshold',
+     'needs.hunger >= SAO.Disposition.eatAt(id)','ordinary_hunger_and_fatigue_preserve_native_water_work'),
 ]
 RELOAD_BEFORE = r'''
 fixture()
