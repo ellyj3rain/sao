@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `3.10.0.0-pre-alpha` |
+| Version | `3.10.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -86,8 +86,12 @@ B21 skips normal input processing for `isNpc()` bodies; their update consumes
   `setDirectionAngle(degrees)`, `setRunning/setSprinting/setSneaking`.
 - **Control vars** (`AIComponent.getHumanControlVars()`): `justMoved`,
   `running`, and `strafeX/strafeY` in **animation control-space** â€” world
-  direction with Y flipped, rotated by `getAnimAngleRadians()`
-  (`KNF:903-921`), not world space.
+  direction with Y flipped, rotated by the native rendered animation angle.
+  Installed Build 42.21 `AnimationPlayer.getRenderedAngle()` returns
+  `getAngle() + PI/2`; `IsoPlayer.updateMovementFromInput` uses that basis.
+  The NPC update consumes AI strafe axes directly, without another rotation.
+  `SAOMovement.drive` supplies the same offset. F-127 and the native
+  `MotionIntentProbe` compare against the installed human-input method.
 
 Failures observed live: intent never zeroed after construction â†’ the body
 wanders on its own (sao-3). Control vars written in world space without
@@ -455,7 +459,7 @@ of what a character IS to the engine, and what it is not.
 | `ItemContainer.AddItem(String)`, `containsTypeRecurse(String)` | the kit a child carries, and the comfort object read back ([C12]) | javap |
 | `GameTime.getTimeOfDay()` (float, 0 to 24) | the night ([C12]) | javap |
 | `Stats.set(CharacterStat, float)` returning boolean, with `CharacterStat.PANIC` on the engine's 0 to 100 scale | the fear floor held on the body ([C12]) | javap |
-| `IsoGameCharacter.isAsleep()` / `forceAwake()` | exist, unused: SAO's sleep is the agent's state, so Growing Up's nightmares have no seat yet ([C12], not in this batch) | javap |
+| `IsoGameCharacter.isAsleep()` / `forceAwake()` | Native asleep state now participates in measured recovery through SleepingEvent admission and the inherited physiological update. Nightmare integration remains separate work. The former C12 unused-state statement is superseded by C108. | javap; installed native recovery controls |
 | `IsoGameCharacter.getXp()` -> `IsoGameCharacter$XP`: `getXP(Perk)`, `AddXP(Perk, float)` (a negative amount takes experience, as Neurodiverse Traits does), `setXPToLevel(Perk, int)`; `IsoGameCharacter.LoseLevel(Perk)` | dementia's daily skill loss ([C13]) | javap |
 | `PerkFactory$Perk.getParent()`, `getXpForLevel(int)`, `getTotalXpForLevel(int)`; `PerkFactory$Perks.None/Passiv/Agility` (static fields); `PerkFactory.PerkList` | which skills forget and how much ([C13]) | javap |
 | `mod.info` `require=` | the two condition mods for the player's side ([C13], DR-032): `twbInfirmities` (3579088411), `EvenMoreTraits4220` (3777663603) | the Workshop pages' own id lines |
@@ -708,3 +712,35 @@ actual VM probe covers empty and cleared maps, populated maps, native fallback,
 step-into, line breakpoints, script errors and retained global debug; a restored
 lookup mutation fails its named assertion. JFR sampling identified this path,
 but its speed benefit remains an unmeasured hypothesis until a fresh comparison.
+
+
+## Native recovery and exterior entry owners (C108)
+
+The installed42.21 engine remains the SHA-256 source stated under C107.
+SAONeeds.setShellAsleep admits a living exact IsoPlayer through
+SleepingEvent.instance.setPlayerFallAsleep(shell, hours). The inherited native
+update owns sleeping fatigue, endurance, hunger and thirst progression. The
+former restRecoverTick elapsed-time helper grants no additional improvement.
+Installed recovery controls compare native dispatch, sleep delay, bed quality,
+Insomnia and time multiplier effects. Controller completes recovery from measured
+native change and retires exact runtime references across ownership/lifecycle
+changes. Loaded-save recovery acceptance remains separate.
+
+SAOPerceptionScanner.appendExteriorBuildings reads only loaded boundary
+candidates beside a free outside tile, passes the actor-specific current
+visibility law and emits at most16 exterior leads. Rows carry opaque building
+identity, observed boundary and approach, floor and doorway/wall kind. Hidden
+building bounds, rooms and stock remain absent. Perception retains actor-private
+provenance and acquisition time for each exact entrance. Distinct visible doors
+in the same building remain distinct; wall fallback is bounded per building.
+Dormant movement revalidates the exact acquired geometry and county tick;
+future acquisition cannot authorize travel after rewind.
+
+SAOMovement owns approach and doorway crossing. The installed probe verifies
+actual approach, locked-entry refusal and Transition:OPENING_DOOR before entry
+through an unlocked closed door. A newly visible exact holder is then a native
+inspection candidate. WorldSources.currentInspectionAnchor binds only the exact
+offered actor/body/context/geometry and does not grant contents. Existing native
+inspection enforces reach, lock, source identity and fingerprint. The separate
+durable canonical owner records the admitted attempt and terminal outcome.
+Controlled installed-method execution does not establish loaded survival or FPS.

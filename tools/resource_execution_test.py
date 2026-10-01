@@ -29,6 +29,7 @@ FILES = {
     'study': LUA / 'client/SAO_Study.lua',
     'needs': LUA / 'client/SAO_Needs.lua',
     'world': LUA / 'shared/SAO_WorldSources.lua',
+    'perception': LUA / 'shared/SAO_Perception.lua',
     'source': LUA / 'client/SAO_SourceUse.lua',
     'cooking': LUA / 'client/SAO_Cooking.lua',
     'locomotion': LUA / 'client/SAO_Locomotion.lua',
@@ -235,6 +236,12 @@ POST_APPLE = source_fixture.snapshot(1, 1, 's2', [{
     'items': [{'id': 12, 'type': 'Base.MuttonChop', 'amount': 0, 'cats': 'food'}],
 }])
 
+INSPECTION = source_fixture.snapshot(1, 1, 'inspected-r1', [{
+    'id': 'C:unseen:0', 'fp': 'a' * 64, 'rev': 'inspected-r1', 'kind': 'container',
+    'x': 8, 'y': 8, 'building': 42, 'quantities': {'food': 1},
+    'items': [{'id': 11, 'type': 'Base.Apple', 'amount': 0, 'cats': 'food'}],
+}])
+
 HYDRATION_ITEMS = [
     {'id': 90, 'type': 'Base.Bottle', 'amount': 1, 'fluid': 'Unknown', 'cats': 'drink', 'tainted': 0},
     {'id': 91, 'type': 'Base.Pop2', 'amount': 0, 'fluid': 'Cola', 'cats': 'drink', 'hydrationAmount': 0, 'tainted': 0},
@@ -267,6 +274,7 @@ function __resetResource()
     local q,rev,access,facts=SAO.WorldSources.beliefSnapshot(p)
     __known.a={[42]={cx=8,cy=8,minX=8,minY=8,maxX=16,maxY=16,
         sources=q,sourceRevision=rev,sourceAccess=access,sourceFacts=facts}}
+    SAO.Perception.beliefs={a={known=__known.a},b={known={}}}
     local body=__bodies.a body.getModData=function() return {SAOPersonId='a'} end
     body.isDead=function() return false end body.isAsleep=function() return false end
     body.isExistInTheWorld=function() return true end body.getPerkLevel=function() return 0 end
@@ -285,10 +293,28 @@ function __resetResource()
         return 'T|operation=acquire|source=C:food:0|id='..tostring(reservation.itemId)
             ..'|type='..reservation.itemType..'|uses=1|amount=0|fluid=|poison=0|rotten=0|cats=food'
     end
-    -- Visible inspection is controlled independently of remembered stock.
-    SAO.WorldSources.inspectionCandidate=function() return __inspect end
-    SAO.WorldSources.inspectionFailed=function() end
-    SAO.Locomotion.jobs={} __inspect=nil
+    -- Native visibility offers only holder geometry. Production WorldSources
+    -- owns the offer and production Perception acquires its private anchor.
+    local inspectionMemories={}
+    SAOJavaBridge.worldInspectionMemory=function(_,observer)
+        inspectionMemories[observer]=inspectionMemories[observer] or {}
+        return inspectionMemories[observer]
+    end
+    SAOJavaBridge.worldInspectionCandidates=function(_,observer)
+        if not __visibleHolder or observer~=__bodies[__visibleHolder.personId or 'a'] then
+            return 'H|protocol=SAOWI1\nE\n'
+        end
+        local h=__visibleHolder
+        return 'H|protocol=SAOWI1\nC|id='..h.sourceId..'|fp='..string.rep('a',64)
+            ..'|sx='..h.x..'|sy='..h.y..'|sz='..h.z
+            ..'|x='..h.x..'|y='..h.y..'|z='..h.z..'|reachable=1\nE\n'
+    end
+    SAOJavaBridge.worldInspectContainer=function(_,observer,sourceId,fingerprint,x,y,z)
+        __inspectionQueries=__inspectionQueries+1
+        __queriedInspection={body=observer,sourceId=sourceId,fingerprint=fingerprint,x=x,y=y,z=z}
+        return __inspectionAnswer or 'ACCESS_REFUSED'
+    end
+    SAO.Locomotion.jobs={} __visibleHolder=nil __inspectionQueries=0 __inspectionAnswer=nil
     return body,SAO.Controller.agents.a
 end
 '''
@@ -338,7 +364,7 @@ body,agent=__resetResource() __busy=true
 check('existing_native_action_does_not_start_resource_work',not Ctl.advanceResourcePurpose('a',agent,body,1,n))
 body,agent=__resetResource() SAOJavaBridge.isShell=function() return false end
 check('fake_resource_body_cannot_start_native_work',not Ctl.advanceResourcePurpose('a',agent,body,1,n))
-body,agent=__resetResource() __known.a={}
+body,agent=__resetResource() __known.a={} SAO.Perception.beliefs.a.known=__known.a
 check('unremembered_stock_is_not_a_resource_action',not Ctl.advanceResourcePurpose('a',agent,body,1,n)
     and __records.a.worldSourceReservation==nil)
 body,agent=__resetResource()
@@ -347,15 +373,50 @@ c=Ctl.resourceContext('a',agent,body,n,'food',.3)
 check('newer_world_stock_does_not_enter_private_resource_plan',#c.sources==0)
 body,agent=__resetResource()
 __known.a[42].sourceFacts={} __known.a[42].sourceRevision=''
-__inspect={x=8,y=8,z=0,sourceId='C:food:0'}
+__visibleHolder={x=8,y=8,z=0,sourceId='C:unseen:0'}
 check('remembered_unknown_contents_get_real_inspection_route',Ctl.advanceResourcePurpose('a',agent,body,1,n)
-    and agent.state=='FORAGE' and agent.forageInspection==__inspect
+    and agent.state=='FORAGE' and agent.forageInspection.sourceId==__visibleHolder.sourceId
     and P.resourceDemand('a').steps[1].verb=='inspect')
+local inspection=agent.forageInspection
+if not inspection then __resourceResults=table.concat(checks,'\n'); return end
+local purpose=P.resourceDemand('a')
+local receipt=inspection and SAO.WorldSources.inspectionOutcome('a',inspection.purposeInspectionId)
+local anchor=SAO.Perception.knownPlaces('a',true)['source:C:unseen:0']
+local noStock=true for _,fact in pairs(anchor and anchor.sourceFacts or {}) do noStock=false end
+check('visible_holder_acquisition_has_geometry_without_stock',anchor and anchor.source=='native-visible-holder'
+    and anchor.cx==8 and anchor.cy==8 and noStock and anchor.sourceRevision==''
+    and __inspectionQueries==0 and not SAO.WorldSources.privatelyKnowsItem('a','C:unseen:0',11))
+check('inspection_route_has_exact_canonical_admission',receipt and receipt.status=='admitted'
+    and receipt.sourceId==inspection.sourceId and receipt.fingerprint==inspection.fingerprint
+    and purpose.admission and purpose.admission.correlationId==receipt.id and purpose.cursor==1 and __lastOrder.x==8)
+check('foreign_body_cannot_use_current_holder_offer',not SAO.WorldSources.currentInspectionAnchor('a',__bodies.b,inspection)
+    and not SAO.Perception.learnVisibleHolder('b',__bodies.b,inspection)
+    and SAO.Perception.knownPlaces('b',true)['source:C:unseen:0']==nil)
+__inspectionAnswer=__inspected
+local inspected=SAO.WorldSources.inspectContainer('a',body,inspection)
+local outcome=receipt and SAO.WorldSources.inspectionOutcome('a',receipt.id)
+check('native_inspection_completion_advances_exact_resource_purpose',inspected and __inspectionQueries==1
+    and __queriedInspection.body==body and __queriedInspection.sourceId==inspection.sourceId
+    and outcome.status=='completed' and outcome.nativeInspected and outcome.privateLearned
+    and outcome.planningAcknowledged and purpose.admission==nil and purpose.status=='maintained'
+    and purpose.awaitingReassessment and purpose.cursor==2
+    and SAO.WorldSources.privatelyKnowsItem('a','C:unseen:0',11)
+    and not SAO.WorldSources.privatelyKnowsItem('b','C:unseen:0',11))
+local events=#purpose.events local receipts=#purpose.resultReceipts
+check('inspection_completion_cannot_repeat_native_query',not SAO.WorldSources.inspectContainer('a',body,inspection)
+    and __inspectionQueries==1 and P.consumeInspectionResult('a',outcome)
+    and #purpose.events==events and #purpose.resultReceipts==receipts and purpose.cursor==2)
 body,agent=__resetResource()
 __known.a[42].sourceFacts={} __known.a[42].sourceRevision=''
-__inspect={x=100,y=8,z=0,sourceId='foreign'}
-check('foreign_inspection_does_not_hydrate_private_ground',not Ctl.advanceResourcePurpose('a',agent,body,1,n)
-    and agent.forageInspection==nil)
+__visibleHolder={x=8,y=8,z=0,sourceId='C:unseen:0'}
+local changed=SAO.WorldSources.inspectionCandidate('a',body,'standing',12)
+changed.x=100 changed.sourceX=100 changed.sourceId='C:foreign:0'
+check('foreign_inspection_does_not_hydrate_private_ground',not SAO.WorldSources.currentInspectionAnchor('a',body,changed)
+    and not SAO.Perception.learnVisibleHolder('a',body,changed)
+    and SAO.Perception.knownPlaces('a',true)['source:C:foreign:0']==nil and __inspectionQueries==0)
+__visibleHolder=nil
+check('stale_native_offer_cannot_create_an_inspection_route',not Ctl.advanceResourcePurpose('a',agent,body,1,n)
+    and agent.forageInspection==nil and not SAO.WorldSources.currentInspectionAnchor('a',body,changed))
 body,agent=__resetResource()
 Ctl.advanceResourcePurpose('a',agent,body,1,n) local held=P.resourceDemand('a')
 SAO.WorldSources.failAction(__records.a.worldSourceReservation,'a','blocked-native-route')
@@ -494,9 +555,12 @@ COOKING_CASES = r'''
 local checks={}
 local function check(name,value) checks[#checks+1]=name..'='..tostring(value==true) end
 local P=SAO.ProceduralPlanning local labor=SAO.Labor
+local models=SAO.CognitiveModels
 local executor=SAO.Controller
 local function setup()
-    newFixture() SAO.ProceduralPlanning=P SAO.Labor=labor
+    newFixture() SAO.ProceduralPlanning=P SAO.Labor=labor SAO.CognitiveModels=models
+    F.body.getZ=function() return 0 end
+    F.body.getX=function() return 1 end F.body.getY=function() return 2 end
     SAO.Census={skillOf=function() return 0 end}
     SAO.Perception={knownPlaces=function() return {} end}
     local p,s=P.planResource(F.rec.id,{category='food',pressure=.4,carriedRaw=1,
@@ -570,6 +634,7 @@ local PRESSURE_ANSWER={DRINK='need',EAT='need'}
 local ARRIVAL_REACH=3
 local tickCount=100
 local log=function() end
+local policy=function() return {desperation=.8} end
 local setStateRef
 local decideNeedsAndCompanion=function(id,agent,body,tick,needs)
     __needsCalled=__needsCalled+1
@@ -658,24 +723,31 @@ check('foreign_actor_cannot_query_contact_route_history',not Org.contactRouteMay
 
 body,agent,process=reset() Ctl.seekPendingContact('a',agent,body,120)
 __needs.thirst=.52 __reliefAvailable=true
+local ordinaryRoute=agent.contactRoute
+Ctl.testContactDecision('a',agent,body,120)
+check('ordinary_discomfort_preserves_owned_contact_route',agent.state=='CONTACTWARD'
+    and agent.contactRoute==ordinaryRoute and Loco.jobs.a==ordinaryRoute and __cancelCalls==0 and __needsCalled==0)
+
+body,agent,process=reset() Ctl.seekPendingContact('a',agent,body,120)
+__needs.thirst=.85 __reliefAvailable=true
 Ctl.testContactDecision('a',agent,body,121)
 check('deprivation_preempts_contact_before_native_relief',agent.state=='DRINK' and __admittedAfterCancel
     and process.contactAttempts[1].status=='interrupted' and not Loco.jobs.a and __needsCalled==1
     and #Org.pendingProposals('a','b')==1)
 body,agent,process=reset() Ctl.seekPendingContact('a',agent,body,122)
-__needs.hunger=.6 __reliefAvailable=true __cancelResult='CANCEL_FAILED controlled'
+__needs.hunger=.9 __reliefAvailable=true __cancelResult='CANCEL_FAILED controlled'
 local contact=agent.contactAttemptId local route=agent.contactRoute
 Ctl.testContactDecision('a',agent,body,123)
 check('native_cancellation_refusal_preserves_contact_owner',agent.state=='CONTACTWARD'
     and agent.contactAttemptId==contact and Loco.jobs.a==route and __needsCalled==0
     and process.contactAttempts[1].status=='travelling')
 body,agent,process=reset() Ctl.seekPendingContact('a',agent,body,124)
-__needs.thirst=.52 __sourceReconciled=false __reliefAvailable=true
+__needs.thirst=.85 __sourceReconciled=false __reliefAvailable=true
 Ctl.testContactDecision('a',agent,body,125)
 check('source_reconciliation_refusal_admits_no_replacement',agent.state=='CONTACTWARD'
     and process.contactAttempts[1].status=='travelling' and __needsCalled==0)
 body,agent,process=reset() Ctl.seekPendingContact('a',agent,body,126)
-__needs.thirst=.52 __records.a.resourceProductionWork={id='other-native-work'}
+__needs.thirst=.85 __records.a.resourceProductionWork={id='other-native-work'}
 Ctl.testContactDecision('a',agent,body,127)
 check('active_production_owner_cannot_be_cancelled_by_stale_contact',__cancelCalls==0
     and agent.state=='CONTACTWARD' and __needsCalled==0)
@@ -686,13 +758,13 @@ __records.a.cookingWork=nil __records.a.worldSourceReservation='other-source'
 Ctl.testContactDecision('a',agent,body,129)
 check('active_source_owner_cannot_be_cancelled_by_stale_contact',__cancelCalls==0 and __needsCalled==0)
 body,agent,process=reset() Ctl.seekPendingContact('a',agent,body,130)
-__needs.thirst=.52 Loco.jobs.a={body=body,goal={x=30,y=30,z=0},done=false}
+__needs.thirst=.85 Loco.jobs.a={body=body,goal={x=30,y=30,z=0},done=false}
 local foreignRoute=Loco.jobs.a
 Ctl.testContactDecision('a',agent,body,131)
 check('newer_same_body_foreign_route_is_not_contact_cancellation',__cancelCalls==0
     and Loco.jobs.a==foreignRoute and __needsCalled==0)
 body,agent,process=reset() Ctl.seekPendingContact('a',agent,body,132)
-__needs.thirst=.52 body.data.SAOExternalOwner='foreign'
+__needs.thirst=.85 body.data.SAOExternalOwner='foreign'
 Ctl.testContactDecision('a',agent,body,133)
 check('adopted_body_keeps_its_independent_owner',__cancelCalls==0 and __needsCalled==0)
 
@@ -700,16 +772,16 @@ body,agent,process=reset() __candidate.x=.5
 Ctl.seekPendingContact('a',agent,body,140)
 check('actual_address_arrival_does_not_grant_reception',agent.state=='CONTACTWAIT'
     and process.contactAttempts[1].arrivedAt==10 and #Org.pendingProposals('a','b')==1)
-__needs.thirst=.52 Ctl.testContactDecision('a',agent,body,141)
+__needs.thirst=.85 Ctl.testContactDecision('a',agent,body,141)
 check('contactwait_deprivation_without_relief_releases_ordinary_work',agent.state=='IDLE'
     and process.contactAttempts[1].status=='interrupted' and __ordinaryWork==1 and __orders==0)
 __needs.thirst=0 Ctl.testContactDecision('a',agent,body,142)
 check('resolved_needs_allow_contact_to_resume_normally',agent.state=='CONTACTWAIT'
     and #process.contactAttempts==2)
-body,agent,process=reset() __needs.thirst=.52 __reliefAvailable=true
+body,agent,process=reset() __needs.thirst=.85 __reliefAvailable=true
 Ctl.testContactDecision('a',agent,body,150)
 check('idle_urgent_need_precedes_pending_contact_selection',agent.state=='DRINK' and __orders==0)
-body,agent,process=reset() __needs.thirst=.52
+body,agent,process=reset() __needs.thirst=.85
 Ctl.testContactDecision('a',agent,body,151)
 check('unavailable_relief_does_not_hide_maintained_resource_phase',agent.state=='IDLE' and __orders==0
     and __ordinaryWork==1)
@@ -727,8 +799,15 @@ CONTROLS = [
     ('world', 'physical.revision == source.revision', 'true',
      'newer_world_stock_does_not_enter_private_resource_plan', 'resource',
      ('controller','if p and SAO.WorldSources.privatelyKnowsItem(id, p.sourceId, p.itemId)','if p')),
-    ('controller', 'inspect.x >= belief.minX and inspect.x <= belief.maxX\n                and inspect.y >= belief.minY and inspect.y <= belief.maxY then\n                context.inspectPlace',
-     'true then\n                context.inspectPlace', 'foreign_inspection_does_not_hydrate_private_ground', 'resource'),
+    ('world', 'if context[key] ~= offered[key] then return nil end',
+     'if false then return nil end', 'foreign_inspection_does_not_hydrate_private_ground', 'resource'),
+    ('perception', 'b.known[anchor.id] = anchor', 'b.known[anchor.id] = nil',
+     'remembered_unknown_contents_get_real_inspection_route', 'resource'),
+    ('world', 'if not SAO.ProceduralPlanning.admitInspection(actorId, inspectionReceiptCopy(receipt)) then',
+     'if false then', 'inspection_route_has_exact_canonical_admission', 'resource'),
+    ('world', 'learned = SAO.Perception.learnInspectedSource(actorId,\n            transferPlace(actorId, source),',
+     'learned = false and SAO.Perception.learnInspectedSource(actorId,\n            transferPlace(actorId, source),',
+     'native_inspection_completion_advances_exact_resource_purpose', 'resource'),
     ('cooking', 'requestedPurposeId = context.purposeId, requestedPurposeStepId = context.purposeStepId,',
      'requestedPurposeId = nil, requestedPurposeStepId = nil,', 'cooking_binds_requested_resource_step', 'cooking'),
     ('cooking', 'tostring(row.itemId) == tostring(context.acquiredItemId)',
@@ -762,6 +841,8 @@ CONTROLS = [
      'job.body ~= body','newer_same_body_foreign_route_is_not_contact_cancellation','contact'),
     ('controller','if agent.state == "IDLE" and not Ctl.contactNeedPriority(id, body, needs)',
      'if agent.state == "IDLE"','unavailable_relief_does_not_hide_maintained_resource_phase','contact'),
+    ('controller','needs.thirst >= math.max(SAO.Disposition.drinkAt(id), policy().desperation)',
+     'needs.thirst >= SAO.Disposition.drinkAt(id)','ordinary_discomfort_preserves_owned_contact_route','contact'),
     ('planner','category = option.materialCategory or assessment.category', 'category = assessment.category',
      'urgent_thirst_admits_real_drink_acquisition_before_inspection','hydration'),
     ('cognition','values.category = "water"', 'values.category = "drink"',
@@ -799,6 +880,8 @@ def contact_phases(text):
     helpers = 'local function clearLoadedContact' + text.split('local function clearLoadedContact', 1)[1].split(
         'function Ctl.drop(id)', 1)[0]
     state = 'local function setState' + text.split('local function setState', 1)[1].split('setStateRef = setState', 1)[0]
+    recovery = 'local function stopRecovery' + text.split('local function stopRecovery', 1)[1].split(
+        '-- A failed home route', 1)[0]
     travel = 'local function orderTravelState' + text.split('local function orderTravelState', 1)[1].split(
         'local function startNearbyCollection', 1)[0]
     contact = 'function Ctl.contactNeedPriority' + text.split('function Ctl.contactNeedPriority', 1)[1].split(
@@ -810,7 +893,7 @@ def contact_phases(text):
     priority = text.split('    -- Needs are read before a contact', 1)[1].split(
         '    -- The branching graph', 1)[0]
     priority = '-- Needs are read before a contact' + priority
-    return CONTACT_SETUP + helpers + state + '\nsetStateRef=setState\n' + travel + contact + (
+    return CONTACT_SETUP + helpers + state + '\nsetStateRef=setState\n' + recovery + travel + contact + (
         '\nfunction Ctl.testContactRouteEnd(id,agent,body,s)\n' + terminal + '\nend\n'
         'function Ctl.testContactDecision(id,agent,body,tick)\n__ordinaryWork=0\n' + priority
         + '\n__ordinaryWork=__ordinaryWork+1\nend\n')
@@ -853,8 +936,9 @@ def main():
                 elif kind in ['resource','hydration']:
                     add('prelude', source_fixture.ACTION_PRELUDE)
                     add('setup', RESOURCE_SETUP + '\n__before=' + json.dumps(HYDRATION if kind=='hydration' else SOURCE) + '\n__after=' + json.dumps(HYDRATION_POST if kind=='hydration' else POST)
-                        + '\n__afterApple=' + json.dumps(POST_APPLE))
-                    for name in ['world', 'labor', 'planner', 'models', 'cognition', 'source']:
+                        + '\n__afterApple=' + json.dumps(POST_APPLE)
+                        + '\n__inspected=' + json.dumps('I|source=C:unseen:0\n' + INSPECTION))
+                    for name in ['perception', 'world', 'labor', 'planner', 'models', 'cognition', 'source']:
                         add(name, code[name])
                     add('controller', controller_phases(code['controller']))
                     if kind=='hydration':
@@ -880,14 +964,14 @@ def main():
                         GAME / 'media/lua/shared/TimedActions/ISBaseTimedAction.lua',
                         GAME / 'media/lua/shared/TimedActions/ISToggleStoveAction.lua'])
                     add('initial', 'SAO.Controller={agents={}}\nfunction instanceof(item,kind) return item.kind==kind end\n')
-                    for name in ['labor', 'planner', 'cooking']:
+                    for name in ['models', 'labor', 'planner', 'cooking']:
                         add(name, code[name])
                     add('controller', controller_phases(code['controller']))
                     cases = COOKING_CASES
-                if kind=='hydration':
+                if kind in ['resource','hydration']:
                     cases=cases.replace("checks[#checks+1]=name..'='..tostring(value==true)",
-                        "__lastHydrationCheck=name; checks[#checks+1]=name..'='..tostring(value==true)")
-                    cases="local ok,why=pcall(function()\n"+cases+"\nend); if not ok then error(tostring(why)..' after '..tostring(__lastHydrationCheck)) end"
+                        "__lastResourceCheck=name; checks[#checks+1]=name..'='..tostring(value==true)")
+                    cases="local ok,why=pcall(function()\n"+cases+"\nend); if not ok then error(tostring(why)..' after '..tostring(__lastResourceCheck)) end"
                 add('cases', cases)
                 done = subprocess.run([str(JDK / 'java.exe'), '-Djava.awt.headless=true', '-cp',
                     str(work) + os.pathsep + str(GAME / 'projectzomboid.jar'), 'LuaRun', *map(str, paths),

@@ -14,7 +14,7 @@ P=ROOT/'mod/42.20/media/lua/shared/SAO_Perception.lua'
 CONTROLS=[
     ('ignore-explicit-source','(sourceId == nil or row.id == sourceId)','true','exact_target_selected_without_fallback'),
     ('forbid-known-explicit-source','(sourceId ~= nil or not personallyInspected(known, row))','not personallyInspected(known, row)','explicit_known_target_can_be_reinspected'),
-    ('skip-target-permission','if not (SAO.Standing and SAO.Standing.mayTakeCurrent\n        and SAO.Standing.mayTakeCurrent(actorId, context.sourceX, context.sourceY,\n            context.admission)) then return false, "current-claim-refused" end','if false then return false, "current-claim-refused" end','target_permission_rechecked_before_native_fill'),
+    ('skip-target-permission','if not (SAO.Standing and SAO.Standing.mayTakeCurrent\n        and SAO.Standing.mayTakeCurrent(actorId, context.sourceX, context.sourceY,\n            context.admission)) then return refused("current-claim-refused") end','if false then return refused("current-claim-refused") end','target_permission_rechecked_before_native_fill'),
 ]
 def main():
     fp='a'*64

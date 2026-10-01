@@ -601,7 +601,10 @@ public final class SAOMovement {
         shell.setDirectionAngle((float) Math.toDegrees(Math.atan2(dirY, dirX)));
         shell.setRunning(running);
 
-        float animAngle = shell.getAnimAngleRadians();
+        // Native IsoPlayer input uses AnimationPlayer.getRenderedAngle(),
+        // whose basis is getAngle() + PI/2. AI strafe values are consumed
+        // directly as DeltaX/DeltaY, so they need that same basis.
+        float animAngle = shell.getAnimAngleRadians() + (float) (Math.PI / 2);
         float controlX = dirX;
         float controlY = -dirY;
         float cos = (float) Math.cos(animAngle);

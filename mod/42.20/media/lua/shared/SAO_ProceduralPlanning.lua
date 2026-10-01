@@ -12,6 +12,7 @@ local P = SAO.ProceduralPlanning
 local RESOURCE_RESULT = {}
 
 local MAX_PURPOSES, MAX_FACTS, MAX_EVENTS = 12, 64, 32
+local MAX_RESIDENCE_ATTEMPTS = 16
 local MIN_TACTICAL_ROUTE_TILES, MAX_TACTICAL_ROUTE_TILES = 2, 40
 local SKILLS = { "Cooking", "Fitness", "Strength", "Lightfooted", "Nimble",
     "Sprinting", "Sneak", "Woodwork", "Aiming", "Reloading", "Farming",
@@ -113,7 +114,8 @@ function P.maintain(id, spec)
             local removable
             for i, purposeId in ipairs(s.order) do
                 local prior = s.purposes[purposeId]
-                if not prior or not prior.admission and (not prior.resourceOutcome
+                if not prior or not prior.admission and (not prior.residence
+                    or prior.status == "completed" or prior.status == "abandoned") and (not prior.resourceOutcome
                     or prior.status == "completed" or prior.status == "abandoned") then removable = i; break end
             end
             if not removable then return nil end
@@ -202,7 +204,8 @@ function P.admitResourceOutcome(id, spec)
         local removable
         for i, purposeId in ipairs(s.order) do
             local p = s.purposes[purposeId]
-            if not p or not p.admission and (not p.resourceOutcome
+            if not p or not p.admission and (not p.residence
+                or p.status == "completed" or p.status == "abandoned") and (not p.resourceOutcome
                 or p.status == "completed" or p.status == "abandoned"
                 or p == oldPurpose) then removable = i; break end
         end
@@ -436,6 +439,225 @@ function P.resourceDemand(id, category, ordinaryOnly)
     end
 end
 
+function P.residencePurpose(id)
+    local s = state(id)
+    local purpose = s and purposeByKey(s, "residence") or nil
+    return purpose and purpose.status ~= "completed" and purpose.status ~= "abandoned" and purpose or nil
+end
+
+function P.detachResidence(id, reason)
+    local purpose = P.residencePurpose(id)
+    if not purpose then return false end
+    purpose.admission = nil
+    local death = reason == "death"
+    purpose.status = death and "abandoned" or "maintained"
+    purpose.nextAppraisalAt = nowHours()
+    addEvent(purpose, death and "residence-ended" or "residence-owner-detached", reason, nowHours())
+    return true
+end
+
+-- Thinking keeps its own cadence and can run while a native owner is busy.
+-- It does not replace that owner's route or imply knowledge of any stock.
+function P.planResidence(id, context)
+    local at = finite(context and context.atHours) and context.atHours or nowHours()
+    local purpose = P.residencePurpose(id)
+    if purpose and finite(purpose.nextAppraisalAt) and at < purpose.nextAppraisalAt
+        and at >= (purpose.assessedAt or 0) then return purpose end
+    local appraisal = SAO.Labor and SAO.Labor.assessResidence(id, context)
+    if not appraisal then return nil end
+    purpose = purpose or P.maintain(id, { key = "residence", domain = "residence",
+        objective = "maintain a viable place to live and search from", atHours = at })
+    if not purpose then return nil end
+    purpose.residence = true
+    purpose.appraisal, purpose.assessedAt, purpose.nextAppraisalAt = dataCopy(appraisal), at, at + 0.1
+    if purpose.admission then return purpose end
+    if purpose.exteriorEntryPending and at < (purpose.exteriorEntryUntil or 0)
+        and purpose.status ~= "blocked" then return purpose end
+    purpose.exteriorEntryPending = nil
+    local hunger, thirst = tonumber(appraisal.needs.hunger) or 0, tonumber(appraisal.needs.thirst) or 0
+    local urgent = math.max(hunger, thirst) >= 0.35
+    local unsafeHome = appraisal.conflict > 0 or appraisal.homeDanger.count > 0
+    local fatigue = tonumber(appraisal.capacity.fatigue) or 0
+    local traits = SAO.Disposition and SAO.Disposition.traits and SAO.Disposition.traits(id) or {}
+    local fear = 1 - (tonumber(traits.nerve) or 0.5)
+    local best, bestScore
+    for _, candidate in ipairs(appraisal.candidates) do
+        local failure = purpose.residenceAttempts and purpose.residenceAttempts[candidate.id]
+        local delayed = failure and finite(failure.retryAt) and at < failure.retryAt
+        if not delayed and (candidate.distance > 3 or candidate.exterior) then
+            local score = 1 - candidate.distance / 400 - candidate.danger * (0.5 + fear)
+                - fatigue * candidate.distance / 250 - appraisal.responsibilities * 0.1
+            if unsafeHome then score = score + 1 - math.min(0.6, appraisal.attachment * 0.15) end
+            if urgent then score = score + math.max(hunger, thirst) end
+            if not bestScore or score > bestScore then best, bestScore = candidate, score end
+        end
+    end
+    local mode, reason = "stay", "the current place remains a usable reference"
+    local travelAvailable = appraisal.capacity.canMove and best ~= nil and bestScore > 0
+    -- These policy weights are uncalibrated choices, not learned competence.
+    -- Remaining has its own value; conflict is evidence, not automatic eviction.
+    local stayScore = appraisal.home and (0.5 + appraisal.attachment * 0.5
+        + appraisal.responsibilities * 0.15 - appraisal.homeDanger.count * (0.5 + fear)
+        - appraisal.conflict * (0.25 + (1 - fear) * 0.25)) or 0
+    purpose.stayScore = stayScore
+    local depart = travelAvailable and (unsafeHome or not appraisal.home) and bestScore > stayScore
+    local search = travelAvailable and urgent and not appraisal.localRelief and not appraisal.currentResourceOwner
+    if depart then
+        mode, reason = "depart", "reconsiders residence from remembered danger, conflict or lack of shelter"
+    elseif search then
+        mode, reason = "search", "checks a personally known building whose supplies remain unknown"
+    elseif appraisal.home and not unsafeHome and context and context.awayFromHome
+        and (context.night == true or fatigue >= 0.65 or appraisal.responsibilities > 0)
+        and not urgent then
+        mode, reason = "return", "chooses to return to the remembered home"
+    end
+    -- Reaching a search lead gives its local perception and interaction owners
+    -- time to inspect. Arrival itself has learned no contents.
+    if purpose.mode == "search" and finite(purpose.inspectUntil) and at < purpose.inspectUntil
+        and not unsafeHome then mode, reason = "search", "observes and inspects the reached place"; best = nil end
+    local destination = (mode == "search" or mode == "depart") and best
+        or mode == "return" and { id = "home", cx = appraisal.home.x, cy = appraisal.home.y, z = appraisal.home.z } or nil
+    local priorTarget = purpose.destination and purpose.destination.id
+    local newTarget = destination and destination.id
+    if purpose.mode ~= mode or priorTarget ~= newTarget then
+        purpose.revision = purpose.revision + 1
+        addEvent(purpose, "residence-choice", mode .. ":" .. tostring(newTarget or "current-place"), at)
+    end
+    purpose.mode, purpose.destination, purpose.rationale = mode, dataCopy(destination), reason
+    purpose.status, purpose.updatedAt = "maintained", at
+    purpose.steps = destination and { { id = mode .. ":" .. destination.id, verb = "move",
+        owner = "SAO.Locomotion", token = "route:arrived", target = destination.id,
+        status = "available", x = destination.cx, y = destination.cy, z = destination.z or 0 } } or {}
+    purpose.cursor = 1
+    if destination and destination.exterior and destination.kind == "door" then
+        -- A seen doorway supports an entry hypothesis one tile beyond its
+        -- boundary. Native locomotion resolves locks and crossings; this is
+        -- neither a known interior route nor evidence of contents.
+        purpose.steps[2] = { id = "entry:" .. destination.id, verb = "move", owner = "SAO.Locomotion",
+            token = "route:arrived", target = destination.id, status = "dependent",
+            x = 2 * destination.surfaceX - destination.cx,
+            y = 2 * destination.surfaceY - destination.cy, z = destination.z,
+            basis = "observed-doorway-entry-hypothesis" }
+    end
+    return purpose
+end
+
+function P.residenceSuppressesReturn(id)
+    local purpose = P.residencePurpose(id)
+    return purpose ~= nil and (purpose.mode == "search" or purpose.mode == "depart")
+end
+
+-- Keep the just-handled target and recent exact routes. Bounded insertion
+-- avoids sorting an inherited ledger that earlier successful visits widened.
+local function trimResidenceAttempts(purpose, currentKey)
+    local attempts, newest = purpose.residenceAttempts, {}
+    for key, attempt in pairs(attempts) do
+        if key ~= currentKey then
+            local at = type(attempt) == "table" and finite(attempt.at) and attempt.at or -math.huge
+            local index = #newest + 1
+            while index > 1 do
+                local priorKey = newest[index - 1]
+                local prior = attempts[priorKey]
+                local priorAt = type(prior) == "table" and finite(prior.at) and prior.at or -math.huge
+                if priorAt > at or priorAt == at and tostring(priorKey) < tostring(key) then break end
+                index = index - 1
+            end
+            if index < MAX_RESIDENCE_ATTEMPTS then
+                table.insert(newest, index, key)
+                if #newest >= MAX_RESIDENCE_ATTEMPTS then table.remove(newest) end
+            end
+        end
+    end
+    local kept = { [currentKey] = true }
+    for _, key in ipairs(newest) do kept[key] = true end
+    for key in pairs(attempts) do
+        if not kept[key] then attempts[key] = nil end
+    end
+end
+
+function P.deferResidenceRoute(id, reason)
+    local purpose = P.residencePurpose(id)
+    if not purpose or not purpose.destination then return false end
+    local at, key = nowHours(), tostring(purpose.destination.id)
+    purpose.residenceAttempts = purpose.residenceAttempts or {}
+    local old = purpose.residenceAttempts[key]
+    local count = math.min(4, (old and old.attempts or 0) + 1)
+    purpose.residenceAttempts[key] = { attempts = count, at = at,
+        retryAt = at + 0.25 * count, reason = tostring(reason or "native-route-refused") }
+    trimResidenceAttempts(purpose, key)
+    purpose.status, purpose.admission = "blocked", nil
+    purpose.exteriorEntryPending = nil
+    purpose.blockers = { tostring(reason or "native-route-refused") }
+    purpose.nextAppraisalAt = at + 0.1
+    addEvent(purpose, "residence-route-ended", reason, at)
+    return true
+end
+
+function P.admitResidenceRoute(id, body, routeId)
+    local purpose = P.residencePurpose(id)
+    local step = purpose and purpose.steps[purpose.cursor]
+    local job = SAO.Locomotion and SAO.Locomotion.jobs[id]
+    if not purpose or purpose.admission or not step or not job or job.done or job.body ~= body
+        or not job.goal or job.goal.x ~= step.x or job.goal.y ~= step.y or job.goal.z ~= step.z
+        or type(routeId) ~= "string" then return false end
+    purpose.admission = { owner = "SAO.Locomotion", correlationId = routeId,
+        stepId = step.id, target = step.target, token = step.token, at = nowHours() }
+    purpose.status = "executing"
+    return true
+end
+
+function P.finishResidenceRoute(id, body, routeId, job)
+    local purpose = P.residencePurpose(id)
+    local admission = purpose and purpose.admission
+    local step = purpose and purpose.steps[purpose.cursor]
+    local live = SAO.Locomotion and SAO.Locomotion.jobs[id]
+    local agent = SAO.Controller and SAO.Controller.agents[id]
+    local binding = agent and agent.residenceRoute
+    if not admission or not step or not job or job ~= live or not job.done or job.body ~= body
+        or not binding or binding.job ~= job or binding.routeId ~= routeId
+        or admission.correlationId ~= routeId or admission.stepId ~= step.id
+        or not job.goal or job.goal.x ~= step.x or job.goal.y ~= step.y or job.goal.z ~= step.z then return false end
+    if job.result ~= "arrived" then return P.deferResidenceRoute(id, "native-route:" .. tostring(job.result)) end
+    local at, mode = nowHours(), purpose.mode
+    local exterior = purpose.destination.exterior == true
+    if exterior and purpose.cursor == 1 and purpose.steps[2] then
+        purpose.admission = nil
+        step.status, step.completedAt = "completed", at
+        purpose.cursor, purpose.steps[2].status = 2, "available"
+        purpose.exteriorEntryPending, purpose.exteriorEntryUntil = true, at + 0.25
+        purpose.status, purpose.nextAppraisalAt = "maintained", at
+        addEvent(purpose, "exterior-approached", step.target, at)
+        return true
+    end
+    local residence = purpose.destination
+    if exterior and purpose.cursor == 2 then
+        local known = SAO.Perception.knownPlaces(id)
+        local building = known[residence.buildingId] or known[tonumber(residence.buildingId)]
+        if not building then return P.deferResidenceRoute(id, "doorway-entry-not-privately-observed") end
+        residence = { id = purpose.destination.buildingId, cx = building.cx, cy = building.cy, z = building.z or 0 }
+    end
+    if mode == "depart" and (not exterior or purpose.cursor == 2) then
+        if not (SAO.Standing and SAO.Standing.completeResidence
+            and SAO.Standing.completeResidence(id, body, residence)) then
+            return P.deferResidenceRoute(id, "residence-arrival-not-admitted")
+        end
+    end
+    purpose.admission = nil
+    step.status, step.completedAt = "completed", at
+    purpose.residenceAttempts = purpose.residenceAttempts or {}
+    purpose.residenceAttempts[tostring(step.target)] = { attempts = 0, at = at,
+        retryAt = at + 0.5, reason = "visited-with-stock-still-unresolved" }
+    trimResidenceAttempts(purpose, tostring(step.target))
+    purpose.lastResidenceResult = { at = at, mode = mode, status = "arrived", target = step.target,
+        correlationId = routeId, stock = "unknown-until-private-inspection" }
+    purpose.exteriorEntryPending = nil
+    purpose.mode = (mode == "search" or exterior) and mode or "stay"
+    purpose.inspectUntil = (mode == "search" or exterior) and at + 0.25 or nil
+    purpose.status, purpose.nextAppraisalAt = "maintained", at
+    addEvent(purpose, "residence-arrived", mode .. ":" .. step.target, at)
+    return true
+end
+
 -- Reconsider the same unmet purpose from current private means. An admitted
 -- attempt or a completed acquisition keeps its exact physical chain while
 -- danger, fatigue or accepted shared work can interrupt its execution.
@@ -527,13 +749,14 @@ function P.planResource(id, context)
         return true
     end
     if purpose.resourceOutcome and suppliedGoal() then return purpose, nil end
-    if purpose.resourceOutcome and purpose.awaitingStock then
+    if purpose.awaitingReassessment or purpose.resourceOutcome and purpose.awaitingStock then
         for _, old in ipairs(purpose.steps) do
             purpose.completedSteps = purpose.completedSteps or {}
             purpose.completedSteps[#purpose.completedSteps + 1] = dataCopy(old)
             if #purpose.completedSteps > 16 then table.remove(purpose.completedSteps, 1) end
         end
         purpose.steps, purpose.cursor, purpose.awaitingStock, current = {}, 1, nil, nil
+        purpose.awaitingReassessment = nil
     end
     -- A completed acquisition is evidence for this exact held item, not for
     -- arbitrary new raw inventory or another person's stock.
@@ -596,7 +819,8 @@ function P.planResource(id, context)
         end
         local candidate = { id = option.id, evidence = option.evidence,
             continuity = option.continuity, novelty = option.novelty,
-            informationGain = option.informationGain, blockers = option.blockers }
+            informationGain = option.informationGain, blockers = option.blockers,
+            appraisal = dataCopy(option.appraisal) }
         if failure then candidate.evidence = math.max(0, candidate.evidence - math.min(0.4, failure.attempts * 0.1)) end
         if purpose.selectedStrategy == option.id and not failure then candidate.continuity = 1 end
         if failure and finite(failure.retryAt) and at < failure.retryAt then
@@ -613,8 +837,8 @@ function P.planResource(id, context)
             if string.sub(candidate.id, 1, 8) == "inspect:" then inspect = candidate; break end
         end
         table.sort(candidates, function(a, b)
-            local aScore = a.evidence * 0.55 + a.continuity * 0.3 - math.min(1, a.blockers * 0.35)
-            local bScore = b.evidence * 0.55 + b.continuity * 0.3 - math.min(1, b.blockers * 0.35)
+            local aScore = SAO.CognitiveModels.planScore("ordinary", a, assessment.demand.pressure)
+            local bScore = SAO.CognitiveModels.planScore("ordinary", b, assessment.demand.pressure)
             if aScore == bScore then return a.id < b.id end
             return aScore > bScore
         end)
@@ -627,7 +851,7 @@ function P.planResource(id, context)
     end
     local views = #candidates > 0 and interpretations(id, candidates,
         { domain = "provisioning", category = assessment.category,
-            pressure = assessment.demand.pressure, atHours = at }) or nil
+            pressure = assessment.demand.pressure, atHours = at, actorId = id }) or nil
     local selected
     for _, view in ipairs(views and views.models or {}) do
         if view.modelId == "ordinary" then selected = view.selected; break end
@@ -641,8 +865,7 @@ function P.planResource(id, context)
         -- evidence/continuity ordering supplies the same bounded fallback.
         local best
         for i, candidate in ipairs(candidates) do
-            local score = candidate.evidence * 0.55 + candidate.continuity * 0.3
-                - math.min(1, candidate.blockers * 0.35)
+            local score = SAO.CognitiveModels.planScore("ordinary", candidate, assessment.demand.pressure)
             if not best or score > best then
                 for _, offered in ipairs(assessment.options) do
                     if offered.id == candidate.id then option = offered; break end
@@ -656,8 +879,10 @@ function P.planResource(id, context)
     if not option and delayed and not assessment.blocker then blockers[#blockers + 1] = "known-route-retry-delayed" end
     if option then
         if option.kind == "inspect" then
-            steps[#steps + 1] = { id = "inspect:" .. tostring(option.place.id), verb = "inspect",
-                owner = "SAONeeds", token = "resource:inspected", target = tostring(option.place.id),
+            steps[#steps + 1] = { id = option.id, verb = "inspect",
+                owner = "SAO.WorldSources", token = "resource:inspected",
+                target = option.place.sourceId, sourceId = option.place.sourceId, fingerprint = option.fingerprint,
+                sourceX = option.sourceX, sourceY = option.sourceY, sourceZ = option.sourceZ,
                 status = "available", category = assessment.category, place = dataCopy(option.place) }
         elseif option.kind == "refill-water" then
             steps[#steps + 1] = { id = option.id, verb = "produce",
@@ -690,6 +915,7 @@ function P.planResource(id, context)
     setPlan(purpose, steps, blockers, views, at)
     purpose.selectedStrategy = option and option.id or nil
     purpose.rationale = option and option.rationale or blockers[1]
+    purpose.appraisal = option and dataCopy(option.appraisal) or nil
     purpose.uncertainty = option and option.uncertainty or assessment.demand.uncertainty
     purpose.alternatives = dataCopy(assessment.options)
     purpose.decisionAt = at
@@ -1006,6 +1232,7 @@ function P.noteAdmission(id, purposeId, owner, correlationId, stepId)
     if not purpose or type(owner) ~= "string" or type(correlationId) ~= "string" then return false end
     local step = purpose.steps[purpose.cursor]
     if purpose.resourceCategory and (not step or step.owner ~= owner) then return false end
+    if purpose.resourceCategory and step.owner == "SAO.WorldSources" and not step.sourceId then return false end
     if stepId and (not step or step.id ~= stepId or step.owner ~= owner) then return false end
     purpose.admission = { owner = owner, correlationId = correlationId,
         stepId = step and step.id, target = step and step.target, token = step and step.token,
@@ -1130,6 +1357,67 @@ function P.consumeSourceResult(receipt)
         routeFailure = authoritative.status == "conflict",
         atHours = authoritative.at,
     }, RESOURCE_RESULT)
+end
+
+function P.admitInspection(id, receipt)
+    if type(receipt) ~= "table" or type(receipt.id) ~= "string" or receipt.actorId ~= id
+        or receipt.status ~= "admitted" then return false end
+    local canonical = SAO.WorldSources and SAO.WorldSources.inspectionAdmission
+        and SAO.WorldSources.inspectionAdmission(id, receipt.id)
+    if not canonical or canonical.actorId ~= id or canonical.id ~= receipt.id or canonical.status ~= "admitted"
+        or canonical.purposeId ~= receipt.purposeId or canonical.purposeStepId ~= receipt.purposeStepId
+        or canonical.sourceId ~= receipt.sourceId or canonical.fingerprint ~= receipt.fingerprint
+        or canonical.sourceX ~= receipt.sourceX or canonical.sourceY ~= receipt.sourceY or canonical.sourceZ ~= receipt.sourceZ then return false end
+    local s = state(id)
+    local purpose = s and s.purposes[receipt.purposeId]
+    local step = purpose and purpose.steps[purpose.cursor]
+    if not purpose or not purpose.resourceCategory or purpose.status == "completed" or purpose.status == "abandoned"
+        or not step or step.status ~= "available" or step.owner ~= "SAO.WorldSources"
+        or step.token ~= "resource:inspected" or step.id ~= receipt.purposeStepId
+        or type(step.sourceId) ~= "string" or step.target ~= step.sourceId
+        or type(step.fingerprint) ~= "string" or step.sourceId ~= receipt.sourceId
+        or step.fingerprint ~= receipt.fingerprint
+        or not finite(step.sourceX) or not finite(step.sourceY) or not finite(step.sourceZ)
+        or step.sourceX ~= receipt.sourceX or step.sourceY ~= receipt.sourceY or step.sourceZ ~= receipt.sourceZ then return false end
+    if purpose.admission and (purpose.admission.owner ~= step.owner
+        or purpose.admission.correlationId ~= receipt.id) then return false end
+    return P.noteAdmission(id, purpose.id, step.owner, receipt.id, step.id)
+end
+
+function P.consumeInspectionResult(id, receipt)
+    if type(receipt) ~= "table" or receipt.actorId ~= id or not receipt.purposeId then return false end
+    local canonical = SAO.WorldSources and SAO.WorldSources.inspectionOutcome
+        and SAO.WorldSources.inspectionOutcome(id, receipt.id)
+    if not canonical or canonical.actorId ~= id or canonical.id ~= receipt.id
+        or canonical.purposeId ~= receipt.purposeId or canonical.purposeStepId ~= receipt.purposeStepId
+        or canonical.sourceId ~= receipt.sourceId or canonical.fingerprint ~= receipt.fingerprint
+        or canonical.sourceX ~= receipt.sourceX or canonical.sourceY ~= receipt.sourceY or canonical.sourceZ ~= receipt.sourceZ
+        or (canonical.status ~= "completed" and canonical.status ~= "failed" and canonical.status ~= "interrupted") then return false end
+    local s = state(id)
+    local purpose = s and s.purposes[canonical.purposeId]
+    if not purpose or purpose.status == "abandoned" then return true, "purpose-retired" end
+    local step, admission = purpose.steps[purpose.cursor], purpose.admission
+    if not step or not admission or step.owner ~= "SAO.WorldSources" or step.token ~= "resource:inspected"
+        or step.id ~= canonical.purposeStepId or admission.stepId ~= step.id
+        or admission.owner ~= step.owner or canonical.id ~= admission.correlationId or admission.target ~= step.target then
+        local key = "SAO.WorldSources:" .. canonical.id
+        for _, seen in ipairs(purpose.resultReceipts or {}) do if seen == key then return true end end
+        purpose.resultReceipts = purpose.resultReceipts or {}
+        purpose.resultReceipts[#purpose.resultReceipts + 1] = key
+        if #purpose.resultReceipts > MAX_EVENTS then table.remove(purpose.resultReceipts, 1) end
+        addEvent(purpose, "result-retired", canonical.reason or canonical.status, canonical.atHours)
+        return true, "purpose-attempt-superseded"
+    end
+    if step.sourceId ~= canonical.sourceId or step.fingerprint ~= canonical.fingerprint
+        or step.sourceX ~= canonical.sourceX or step.sourceY ~= canonical.sourceY or step.sourceZ ~= canonical.sourceZ then return false end
+    if canonical.status == "completed" and (canonical.nativeInspected ~= true or canonical.privateLearned ~= true) then return false end
+    local consumed = P.recordResult(id, purpose.id, { owner = "SAO.WorldSources", token = "resource:inspected",
+        status = canonical.status, correlationId = canonical.id, reason = canonical.reason,
+        atHours = canonical.atHours }, RESOURCE_RESULT)
+    if consumed and canonical.status == "completed" then
+        purpose.status, purpose.awaitingStock, purpose.awaitingReassessment = "maintained", nil, true
+    end
+    return consumed
 end
 
 function P.admitProduction(id, work)
@@ -1285,9 +1573,16 @@ function P.snapshot(id)
                 contacts = copyList(purpose.contacts, 16), capacity = dataCopy(purpose.capacity),
                 labor = dataCopy(purpose.labor), selectedStrategy = purpose.selectedStrategy,
                 rationale = purpose.rationale, uncertainty = purpose.uncertainty,
+                appraisal = dataCopy(purpose.appraisal),
                 decisionAt = purpose.decisionAt, assessedAt = purpose.assessedAt,
                 sequence = dataCopy(purpose.steps), completedSteps = dataCopy(purpose.completedSteps),
                 alternatives = dataCopy(purpose.alternatives), routeFailures = dataCopy(purpose.routeFailures) }
+            local row = out.purposes[#out.purposes]
+            if purpose.residence then
+                row.residence = { mode = purpose.mode, destination = dataCopy(purpose.destination),
+                    appraisal = dataCopy(purpose.appraisal), lastResult = dataCopy(purpose.lastResidenceResult),
+                    attempts = dataCopy(purpose.residenceAttempts), nextAppraisalAt = purpose.nextAppraisalAt }
+            end
         end
     end
     return out

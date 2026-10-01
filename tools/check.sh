@@ -2335,6 +2335,26 @@ if ! "$PY" tools/initial_threat_test.py; then
     fail=1
 fi
 
+# Border 225 - native recovery retains measured physiology and exact body
+# ownership while ordinary needs preserve work and urgent relief can interrupt.
+if ! "$PY" tools/loaded_recovery_test.py; then
+    note "BORDER FINDING - native recovery priority or receiver ownership differs"
+    fail=1
+fi
+
+# Border 226 - private residence purposes retain native routes and actor-only
+# commitments while acquired danger and immediate treatment can preempt them.
+if ! "$PY" tools/residence_planning_test.py; then
+    note "BORDER FINDING - private residence deliberation or native journey ownership differs"
+    fail=1
+fi
+# Border 227 - visible exterior approaches and native doorway entry acquire
+# exact holder anchors without hidden layout, stock or foreign authority.
+if ! "$PY" tools/exterior_building_test.py; then
+    note "BORDER FINDING - private exterior acquisition or native entry ownership differs"
+    fail=1
+fi
+
 if ! "$PY" tools/source_integration_gate.py; then
     note "BORDER FINDING - source integration lineage or ownership claim differs"
     fail=1

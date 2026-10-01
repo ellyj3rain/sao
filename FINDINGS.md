@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `3.10.0.0-pre-alpha` |
+| Version | `3.10.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2853,3 +2853,26 @@ native range from script first/number fields; its named control detects the
 original mismatch. Border 215 also detects private-revision leakage, lost
 purpose binding, replay, missing native credit and food-only transfer admission.
 Controlled execution does not establish loaded-world prevalence.
+
+## F-127 | 2026-09-30 23:31 UTC / 16:31 PST | NPC strafe intent omitted the rendered animation offset
+
+Installed Build 42.21 `AnimationPlayer.getRenderedAngle()` returns `getAngle()`
+plus PI/2. `IsoPlayer.updateMovementFromInput` rotates the strafe vector by that
+rendered angle. In `updateInternal2`, the NPC branch consumes
+`AIBrainPlayerControlVars.strafeX/strafeY` directly at bytecode offsets 3573/3583
+and stores deltaX/deltaY at 3792/3798, without a compensating rotation.
+`SAOMovement.drive` previously used only `getAnimAngleRadians()`.
+
+The installed engine SHA256 is
+`e1a69eb743ede60b213a0fe7f8b83d4fcab773036d256cc4543a336f3b058a33`.
+`tools/luacheck/MotionIntentProbe.java` invokes the actual private native input
+method with controlled input and a ready native animation player. Sixty-four
+direction/animation-angle combinations establish the required basis. The
+original converter fails the named native-control assertion; the added
+quarter-turn matches the native outputs. Direction setter units remain degrees.
+
+A separate source-bound C107 trace sampled 36 distinct inspection clocks over
+55 seconds. One ROAM body travelled 53.86 tiles with zero net displacement and
+an unchanged destination, while another oscillated during FLEE. This establishes
+actual looping alongside the verified input mismatch. Physical route completion,
+waypoint overshoot and survival quality retain their loaded verification boundary.

@@ -539,14 +539,32 @@ local function sourceOwnsDormantRecord(id)
         and SAO.WorldSources.pendingActionFor(id) ~= nil or false
 end
 
-local function groupHasSourceOwner(group)
-    if not (group and SAO.Standing and SAO.Standing.membersOf) then
-        return false
+function D.residenceDestination(id, rec)
+    local planning = SAO.ProceduralPlanning
+    local purpose = planning and planning.residencePurpose and planning.residencePurpose(id)
+    if not purpose or (purpose.mode ~= "search" and purpose.mode ~= "depart") then return nil, false end
+    local target = purpose.destination
+    local attempt = target and purpose.residenceAttempts and purpose.residenceAttempts[target.id]
+    if purpose.status == "blocked" or (attempt and hoursNow() < (attempt.retryAt or 0)) then
+        return { cx = rec.x, cy = rec.y }, true
     end
-    for _, memberId in ipairs(SAO.Standing.membersOf(group)) do
-        if sourceOwnsDormantRecord(memberId) then return true end
+    local known = SAO.Perception.knownPlaces(id)
+    local belief = target and (known[target.id] or known[tonumber(target.id)])
+    if target and target.exterior and SAO.Perception.knownBuildingLeads then
+        belief = SAO.Perception.knownBuildingLeads(id, SAO.History.ticks())[target.approachId]
+        if not belief or SAO.Perception.exteriorLeadKey(target) ~= target.approachId
+            or belief.buildingId ~= target.buildingId or belief.surfaceX ~= target.surfaceX
+            or belief.surfaceY ~= target.surfaceY or belief.kind ~= target.kind or belief.z ~= target.z then
+            belief = nil
+        end
     end
-    return false
+    if belief and target.cx == belief.cx and target.cy == belief.cy
+        and SAO.Standing.mayAttemptBelieved(id, target.cx, target.cy, "standing") then
+        return target, true
+    end
+    -- A reached lead or invalidated destination is a hold for reconsideration,
+    -- never permission to manufacture a different building or a forced return.
+    return { cx = rec.x, cy = rec.y }, true
 end
 
 -- Build 42.20's loaded awake law, expressed per game hour. The bridge
@@ -871,7 +889,13 @@ local function dormantLife(conf, tickCounter)
                     and tickCounter >= rec.nextDormantMoveAt then
                     rec.nextDormantMoveAt = tickCounter + 1800 + SAO.Rand.int(1800)
                     local tx, ty
-                    if night and not preFall then
+                    local residenceTarget, residenceJourney = D.residenceDestination(id, rec)
+                    if residenceTarget and not rec.dayGoalProcessId then
+                        -- A retained personal journey survives unloading. Its
+                        -- coarse movement learns no stock and cannot commit a
+                        -- new residence without native indoor arrival.
+                        tx, ty = residenceTarget.cx, residenceTarget.cy
+                    elseif night and not preFall and not residenceJourney then
                         tx, ty = rec.homeX, rec.homeY
                     else
                         -- A current unheard proposal is a new reason to move,
@@ -1641,151 +1665,11 @@ function D.forgetPairs(id)
     return #doomed
 end
 
--- [C76] Ground a house may not take, in the live path's own terms.
---
--- Another living company's claim, a living person's home, and a
--- feuding company's keep-out. Written once here because the settling
--- pass is the second reader of this law and two copies of a law is how
--- they drift ([C25]).
-local function barredGround(myGroup, cx, cy)
-    for og in pairs(SAO.Standing.allGroupClaims()) do
-        -- [C108] A company's ground is every place its living
-        -- members go, not only the seat it settled - the derived
-        -- set answers here, so a house does not settle over
-        -- another's stash while honouring their base.
-        if og ~= myGroup
-            and SAO.Standing.onGroundOf(og, cx, cy) then
-            return true
-        end
-        -- [A20] And not in a feud's shadow either - around every
-        -- place they hold.
-        if og ~= myGroup and SAO.Standing.feudBetween(myGroup, og)
-            and SAO.Standing.onGroundOf(og, cx, cy,
-                SAO.Standing.FEUD_KEEP_OUT) then
-            return true
-        end
-    end
-    -- [B35] The player holds ground under a `player:` key and has no
-    -- Identity record, so a guard written to skip the DEAD skipped the
-    -- one owner who is never dead. Both are refused here.
-    for owner, oc in pairs(SAO.Standing.allPersonalClaims()) do
-        local orec = SAO.Identity.get(owner)
-        if (SAO.Standing.isPlayerKey(owner) or (orec and not orec.dead))
-            and cx >= oc.minX and cx <= oc.maxX
-            and cy >= oc.minY and cy <= oc.maxY then
-            return true
-        end
-    end
-    return false
-end
-
--- [C76] A house takes ground where its people already go.
---
--- `setGroupClaim`, `setHearth`, `setLarder` and `setWaterStore` had
--- call sites in `SAO_Controller` alone, which needs materialised
--- bodies. So a dormant house - and after `[C71]` and `[C72]` houses do
--- form and stand - had nowhere to be, and every survival modifier
--- reading those was inert unless a player happened to be watching.
---
--- The live path scouts through `SAOJavaBridge:scoutBase`, which reads
--- the loaded ground and needs a body. The dormant half has no body and
--- does not need one, because the fact already exists: `learnBuilding`
--- has recorded every arrival since `[B37]`, with the building's bounds,
--- what it offers, and how many times that person has been - and its
--- own comment says what that count means, that somewhere returned to
--- is somewhere that gave them something.
---
--- So a house settles on the building its members have actually
--- returned to most. Nothing is scored that the county did not already
--- measure by walking, and nothing is placed: a house whose people have
--- never gone back anywhere has no candidate and takes no ground, which
--- is a correct outcome rather than a failure. Competency follows from
--- who is in the house.
---
--- The two refusals are the live path's own, in its own words: never
--- over another living company's claim or a living person's home
--- ([A24], [B35]), and never inside a feuding company's keep-out
--- ([A20]). Contested ground comes from politics, not from blindness.
---
--- A house settles once and this pass never looks at it again, because
--- `groupClaimOf` answering is the skip. A house deciding to LEAVE is
--- not representable at all while a group's ground is one rectangle
--- under one name (DR-006 S4), and that is the operator's named
--- ontology error and its own batch - not something to smuggle in
--- here.
--- One house a pass ([B51]'s discipline). The walk is a house's members
--- times the buildings they have each entered, and `b.known` grows with
--- the walking - so an unbudgeted sweep over every unsettled house
--- would get more expensive exactly as the county got more interesting.
--- A house settling a day later than it could have is not a cost
--- anybody can see.
--- How many houses may settle in one pass. One: the work inside is a
--- house's members times the buildings each of them has entered, and
--- `b.known` grows with the walking ([C75]), so the walk is stopped at
--- the first house that takes ground rather than carried to the end of
--- the store.
-local SETTLE_BUDGET = 1
-
+-- The scheduled settlement seam remains readable by saved callers. Repeated
+-- visits retain personal familiarity; they do not create a collective claim,
+-- assent to move, or somebody else's home address.
 local function dormantSettle()
-    if not (SAO.Standing and SAO.Standing.setGroupClaim) then return end
-    local seen, settled = {}, 0
-    for id, rec in pairs(SAO.Identity.all()) do
-        if not rec.dead and not SAO.Body.hasRepresentation(id) then
-            local g = SAO.Standing.groupOf(id)
-            if g and not seen[g]
-                and not SAO.Standing.groupClaimOf(g)
-                and SAO.Standing.groupSize(g) > 1
-                and not groupHasSourceOwner(g) then
-                seen[g] = true
-                -- [C108] The scorer became a ranking, and the settle
-                -- pass reads the top of it: one definition, so the
-                -- seat and the set cannot drift apart ([C25]). The
-                -- law is [C76]'s own - visits summed across the
-                -- members who reach a place, water doubled - with
-                -- recency breaking ties, and the first unbarred
-                -- candidate is the one it always picked.
-                local members = SAO.Standing.membersOf(g)
-                local best, bestId = nil, nil
-                for _, t in ipairs(SAO.Perception.returnsOf(members)) do
-                    if not barredGround(g, t.place.cx, t.place.cy) then
-                        best, bestId = t, t.id
-                        break
-                    end
-                end
-                if best then
-                    local bp = best.place
-                    SAO.Standing.setGroupClaim(g,
-                        bp.minX - 1, bp.minY - 1,
-                        bp.maxX + 1, bp.maxY + 1, 0)
-                    -- Homes converge, as they do on the live path: the
-                    -- base is where the house lives now, and the
-                    -- dormant day's own anchor follows with no further
-                    -- wiring.
-                    for _, mid in ipairs(members) do
-                        local mrec = SAO.Identity.get(mid)
-                        if mrec then
-                            mrec.homeX, mrec.homeY, mrec.homeZ =
-                                bp.cx, bp.cy, 0
-                        end
-                    end
-                    -- Say WHY this building and not another. A decision
-                    -- whose reasons are computed and thrown away is
-                    -- indistinguishable from one that was scripted.
-                    log(tostring(SAO.Standing.factionName(g) or g)
-                        .. " settles at " .. tostring(bp.cx) .. ","
-                        .. tostring(bp.cy) .. ": " .. #members
-                        .. " of them, " .. tostring(bestId)
-                        .. " returned to "
-                        .. tostring(best.visits) .. " times"
-                        .. ((bp.sources and bp.sources.water)
-                            and ", and it has water" or ""))
-                    tally("settled")
-                    settled = settled + 1
-                end
-            end
-        end
-        if settled >= SETTLE_BUDGET then break end
-    end
+    return 0
 end
 
 -- [C63] A need date is evidence that a person ate or drank, never a shelf

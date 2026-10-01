@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.10.0.0-pre-alpha` |
+| Version | `3.10.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -116,6 +116,12 @@ Movement, entry, combat, looting, work, treatment, withdrawal. Execution rides t
 engine: normal pathfinding, normal timed actions, normal combat resolution. It
 owns *how*, never *whether*. It does not consult global truth, personality, or
 relationships â€” those were already resolved upstream.
+
+Movement converts the admitted world direction into the installed engine's
+rendered animation basis before writing AI strafe intent. The native human-input
+method and NPC consumer ground that conversion; body-level direction and the
+control axes remain separate managed surfaces. Route destinations, native
+crossings and arrival retain their existing owners.
 
 Repeated threat decisions preserve an executing escape route while its current
 destination remains away from the privately believed threat, permitted and on
@@ -1566,3 +1572,64 @@ is not evidence of its supplies. Search appraisal needs person-private memory,
 observation, reports and uncertain inference, plus perceived danger, home,
 acquired responsibilities and allies. The execution repair does not establish
 that wider appraisal or make an unobserved container accessible.
+
+
+### Private survival planning and residence (C108)
+
+Labor compares exact actor-private source and visibly observed holder locations
+using the body's own position, this person's lived home, remembered destination
+threats, acquired food requests and accepted delivery responsibilities. A request
+does not supply destination knowledge, another person's capacity or assent.
+Unknown route coverage and absent remembered danger remain explicit. Distances
+are straight-line ordinal comparisons; travel duration and barriers retain their
+native execution owner. The ordinary and associative models independently value
+danger, approach, return and concern with explicit uncalibrated coefficients.
+Ordinary truncation and fallback use the same terms. Detached purpose snapshots
+carry the interpretations and uncertainty through existing observation.
+
+WorldSources stores at most16 canonical inspection attempts per person, retaining
+all admitted and unacknowledged terminal rows. Each binds person, purpose, step,
+source, fingerprint and coordinates. It installs admission before Planner queries
+that authority. Completion requires actual native inspection and successful
+private fact acquisition; empty inspection completes only the inspection step.
+Planner requeries the terminal owner and acknowledges one matching result.
+Order refusal, lost runtime, successful handoff and native death interrupt or
+fail the attempt without stock or practice. Unacknowledged delivery retries.
+Inspection retry identity includes exact source and fingerprint, so failure of
+one holder does not delay another holder in the same building.
+
+
+Needs admits sleep through native SleepingEvent and measures the inherited
+physiological update. The legacy manual helper grants no extra improvement.
+Controller grades recovery after available relief attempts, revalidates private
+threats and Standing, and bounds waiting without progress. Native reference
+retirement protects the exact body across handoff, death, forget, reload and
+reset. ResourceProduction keeps unfinished work through ordinary appetite or
+fatigue while current injury, urgent deprivation and executable relief retain
+their preemption authority.
+
+ProceduralPlanning persists a residence purpose separately from practical work.
+Labor acquires its private home, comparative remembered danger, attachment,
+conflict, responsibilities and movement capacity. Competing stay and travel
+values use explicit uncalibrated coefficients. Native Locomotion owns the
+admitted route; reconsideration preserves it until an actual preemption or
+terminal verdict. Loaded and dormant consumers both respect refusal backoff.
+Standing completes a residence only for the exact actor after native indoor
+arrival at the privately acquired building. Prior home history remains bounded
+and remembered. No group or player-companion callback rewrites other homes.
+
+SAOPerceptionScanner produces exterior rows from actually visible loaded
+boundaries and an observed free approach. Perception stores that acquisition
+with provenance and time; neither bounds nor contents are inferred. An observed
+doorway supports a bounded entry hypothesis. Existing native movement resolves
+locks and opening; the resulting perception may acquire current exact holders.
+Separate geometry-bound entrance keys retain alternative doors and independent
+refusal deadlines. Scanner output is bounded at16, private retained entrance
+memory at64. Reobserving an entrance updates acquisition time while preserving
+its identity and the attempt backoff; an admitted route cannot be retargeted by
+a newly acquired entrance. Dormant execution revalidates exact geometry and time.
+WorldSources.currentInspectionAnchor accepts only the exact current candidate
+and native actor/context/geometry and feeds its identity into the durable
+inspection owner. Present Standing reads privately believed ownership; an
+unacquired global claim cannot supply a physical veto. Claims retain their
+existing record meaning; residence choice itself creates no property or assent.

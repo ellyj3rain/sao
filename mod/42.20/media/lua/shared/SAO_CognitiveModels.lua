@@ -630,6 +630,28 @@ end
 -- The same private plan candidates are interpreted independently by each
 -- contestant. This ranks proposed routes through already represented work;
 -- it cannot add a verb, technique, material, spatial fact or native result.
+function M.planScore(modelId, candidate, pressure, state)
+    local appraisal = candidate.appraisal or {}
+    local danger, travel = appraisal.danger or {}, appraisal.travel or {}
+    local risk = unit(danger.ordinal) and danger.ordinal or 0
+    local outward = unit(travel.outwardCost) and travel.outwardCost or 0
+    local returning = unit(travel.returnCost) and travel.returnCost or 0
+    local request = unit(appraisal.requestValue) and appraisal.requestValue or 0
+    if modelId == "ordinary" then
+        return candidate.evidence * 0.55 + candidate.continuity * 0.30 + pressure * 0.15
+            - math.min(1, candidate.blockers * 0.35) - risk * 0.45
+            - outward * 0.18 - returning * 0.15 + request * 0.18
+    end
+    local learned = 0.5
+    for _, belief in pairs(state and state.beliefs or {}) do
+        learned = math.max(learned, posterior(belief, state.lastHours))
+    end
+    return candidate.evidence * 0.25 + candidate.continuity * 0.15 + candidate.novelty * 0.20
+        + candidate.informationGain * 0.30 + pressure * 0.10 + (learned - 0.5) * 0.1
+        - math.min(1, candidate.blockers * 0.25) - risk * 0.30
+        - outward * 0.12 - returning * 0.10 + request * 0.15
+end
+
 function M.interpretPlans(modelId, state, candidates, context)
     if not validState(modelId, state) or type(candidates) ~= "table"
         or #candidates < 1 or #candidates > 16 or type(context) ~= "table" then
@@ -654,23 +676,33 @@ function M.interpretPlans(modelId, state, candidates, context)
             or blockers < 0 or blockers > 16 or blockers ~= math.floor(blockers) then
             return nil, "private-plan-candidate"
         end
+        if candidate.appraisal and (type(candidate.appraisal) ~= "table"
+            or candidate.appraisal.actorId ~= context.actorId
+            or type(candidate.appraisal.danger) ~= "table" or not unit(candidate.appraisal.danger.ordinal)
+            or type(candidate.appraisal.travel) ~= "table" or not unit(candidate.appraisal.travel.outwardCost)
+            or not unit(candidate.appraisal.travel.returnCost) or not unit(candidate.appraisal.requestValue)
+            or type(candidate.appraisal.social) ~= "table" or type(candidate.appraisal.social.requests) ~= "table"
+            or type(candidate.appraisal.social.responsibilities) ~= "table") then return nil, "private-plan-appraisal" end
         local score, interpretation
         if modelId == "ordinary" then
-            score = evidence * 0.55 + continuity * 0.30 + pressure * 0.15
-                - math.min(1, blockers * 0.35)
+            score = M.planScore(modelId, candidate, pressure, state)
             interpretation = "Demonstrated feasibility, maintained purpose and current pressure favor this route."
         else
-            local learned = 0.5
-            for _, belief in pairs(state.beliefs) do
-                learned = math.max(learned, posterior(belief, state.lastHours))
-            end
-            score = evidence * 0.25 + continuity * 0.15 + novelty * 0.20
-                + information * 0.30 + pressure * 0.10 + (learned - 0.5) * 0.1
-                - math.min(1, blockers * 0.25)
+            score = M.planScore(modelId, candidate, pressure, state)
             interpretation = "Association value, uncertainty reduction and possible adjacency favor testing this route."
         end
+        if candidate.appraisal then
+            local a = candidate.appraisal
+            interpretation = interpretation .. " Destination danger: " .. tostring(a.danger.status)
+                .. "; believed threats " .. tostring(a.danger.believedCount or "unknown")
+                .. "; own approach tiles " .. tostring(a.travel.outwardTiles or "unknown")
+                .. "; home return tiles " .. tostring(a.travel.returnTiles or "unknown")
+                .. "; acquired requests " .. tostring(#a.social.requests)
+                .. "; accepted responsibilities " .. tostring(#a.social.responsibilities)
+                .. ". Route safety and successful delivery remain unconfirmed."
+        end
         ranked[#ranked + 1] = { id = candidate.id, score = score,
-            interpretation = interpretation }
+            interpretation = interpretation, appraisal = candidate.appraisal }
     end
     table.sort(ranked, function(a, b)
         if a.score == b.score then return a.id < b.id end

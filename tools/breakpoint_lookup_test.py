@@ -53,7 +53,7 @@ def run():
         if result.returncode == 0 or "empty native map still performs instruction lookups" not in result.stdout+result.stderr:
             raise AssertionError("empty lookup mutation survived or failed for another reason")
         print("PASS restored native lookup defect is rejected for actual instruction lookups")
-    print("PASS study-only empty breakpoint lookup with native fallback and installed error controls")
+    print("Border 223 PASS: study-only empty breakpoint lookup with native fallback and installed error controls")
 
 if __name__ == "__main__":
     raise SystemExit(run())

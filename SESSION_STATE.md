@@ -1,11 +1,64 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.10.0.0-pre-alpha` |
+| Version | `3.10.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-09-30, [C108] joins existing resource alternatives to this
+person's believed destination danger, own approach and home-return distance,
+acquired food requests and accepted delivery responsibilities. Unknown safety,
+contents, access, helper assent and future outcomes remain unknown. Ordinary and
+associative valuations remain independent; truncation and fallback retain the
+ordinary appraisal. Existing purpose observation exposes detached reasoning.
+Exact holder/fingerprint retry identity leaves a different holder available.
+
+WorldSources owns durable exact inspection admissions and terminal outcomes;
+ProceduralPlanning requeries canonical authority before advancement. Only actual
+native inspection plus private acquisition completes an inspection. Refused
+orders, missing runtime owner, successful handoff and actual death retire the
+attempt without stock or practice credit. Canonical delivery retries until
+acknowledged and retains unacknowledged terminals within its bounded list.
+Border216 passes100 Kahlua cases/33 controls, Border217 passes105 cases/26
+controls, and Border184's35 Lua inspection cases join native holder/inventory
+probes and named canonical, reload, handoff and death mutations. Both independent
+review Medium findings are resolved. Full gate, publication, exact-source install
+and loaded behavior retain separate receipts. Native recovery uses SleepingEvent admission and the inherited physiological
+update; the former elapsed-time helper grants no extra recovery. Ordinary
+appetite and fatigue preserve productive and social owners, while measured
+deprivation, treatable bleeding and executable relief retain preemption.
+Exact body references retire on drop, death, forget, reload and world reset.
+Recovery checks pass47 Lua/10 native/15 controls.
+
+Maintained individual residence purposes reconsider stay, search, departure
+and return alongside immediate work. Private attachment, conflict, acquired
+danger, responsibilities and capacity inform competing values. Actual native
+arrival changes only that actor's home and retains the old residence in memory.
+No leader or player companion automatically rehomes anyone else. Visible exterior
+leads support approach and doorway entry without hidden layout or stock; exact
+currently visible holders acquire private inspection anchors. Unknown global
+claims do not impose physical vetoes. Native locks and exact action owners
+retain authority. Residence checks pass82 cases/31 controls; installed exterior
+entry and holder checks pass20 cases/4 controls. Quiet appraisal preserves an
+admitted route; immediate danger and treatment can interrupt it, and refused
+routes retain backoff in loaded and dormant consumers. Dormant movement
+revalidates the actual county tick, refusing retained future exterior knowledge
+after clock rewind. Exact entrance identity keeps another observed doorway
+available after a refusal and preserves the destination of a running route.
+Residence success and failure histories retain at most sixteen entries,
+including the current exact target. Exterior ordering receives at most 128
+private places and 64 private entrance leads before selecting nearby candidates.
+Living casualty transport remains work;
+dataset admission and aggregate ML training have not occurred.
+
+The C107 native trace also confirms movement oscillation with a maintained
+destination. The movement adapter omitted the installed engine's quarter-turn
+rendered animation offset. C108 corrects that control conversion; the actual
+native human-input method grounds the regression. Loaded routes and possible
+waypoint overshoot require separate physical verification.
+
 
 **As of** 2026-09-30, [C107] corrects known-source approaches, terminal water-route
 feedback and expiry, and preservation of resolved stock requests. Definitions
@@ -1324,10 +1377,10 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, plus C105's outcome and export-worker controls, the
-repository holds 226 `*_test.py` files. The gate invokes 226 `*_test.py` files
-and 16 other Python entry points, 242 distinct scripts, through direct calls
+repository holds 229 `*_test.py` files. The gate invokes 229 `*_test.py` files
+and 16 other Python entry points, 245 distinct scripts, through direct calls
 and its mirror loop. Native suites also invoke their own controls.
-Border labels extend through 222; legacy labels
+Border labels extend through 227; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 186 Lua source files.
 ZAO A41 has fifteen borders. The

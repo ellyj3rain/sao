@@ -410,13 +410,20 @@ function R.needInterruption(id, body, needs, emergencyHunger)
     if not work or not needs then return false end
     local rt = runtime[id]
     if rt and rt.action and rt.action.saoEnded == "completed" and not queued(rt.action) then return false end
-    if SAO.Needs.bleeding(body) > 0 or needs.fatigue >= 0.7 then return true end
+    if SAO.Needs.bleeding(body) > 0 then return true end
     local prior = work.admittedNeeds or {}
-    if needs.thirst >= SAO.Disposition.drinkAt(id) and not R.servesNeed(id, body, "water") then return true end
+    local urgent = tonumber(emergencyHunger) or 0.85
+    -- Ordinary discomfort can yield to an immediately usable carried drink;
+    -- it does not cancel unfinished work merely to retry an unavailable need.
+    if needs.thirst >= SAO.Disposition.drinkAt(id) and not R.servesNeed(id, body, "water") then
+        local ok, readyDrink = pcall(function() return SAOJavaBridge:findCarriedDrink(body) end)
+        if ok and readyDrink ~= nil or needs.thirst >= math.max(urgent, SAO.Disposition.drinkAt(id)) then return true end
+    end
     if needs.hunger >= SAO.Disposition.eatAt(id) then
         local ok, readyFood = pcall(function() return SAOJavaBridge:findCarriedFood(body) end)
-        if ok and readyFood ~= nil or not prior.hunger or prior.hunger < SAO.Disposition.eatAt(id)
-            or emergencyHunger and needs.hunger >= emergencyHunger and prior.hunger < emergencyHunger then return true end
+        local threshold = math.max(urgent, SAO.Disposition.eatAt(id))
+        if ok and readyFood ~= nil or needs.hunger >= threshold
+            and (not prior.hunger or prior.hunger < threshold) then return true end
     end
     local ok, health = pcall(function() return body:getBodyDamage():getOverallBodyHealth() end)
     return ok and work.admittedHealth and health < work.admittedHealth or false

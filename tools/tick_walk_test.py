@@ -7,8 +7,9 @@ ModData, so the graveyard grows for the life of a save and across
 every session of it. `s.relations` is the same, one dimension worse:
 `[id][otherKey]`, and its only removal is a rekey migration.
 
-The population pass runs every 240 frames - about four seconds at
-60fps - and walks `Identity.all()` **eight times**.
+The measured historical population pass ran every 240 frames - about four
+seconds at 60fps - and walked `Identity.all()` eight times. The current
+site-by-site census below declares the production walks, including removals.
 
 Measured on the engine, best of two runs at 500 and 1500 repetitions
 so the JVM's start-up cancels, one walk with the body those walks
@@ -49,6 +50,8 @@ WHAT IS CHECKED
     code, so an added walk is a fault even inside a declared function
   * a function declared BUDGETED must still have a budget and a break
 """
+import contextlib
+import io
 import pathlib
 import re
 import sys
@@ -103,15 +106,11 @@ SUBS = {
         "NOT budgeted: it must see everyone near the player now, and "
         "spreading it across passes would delay a survivor appearing "
         "where somebody is standing"),
-    "dormantSettle": (1, "budgeted",
-        "[C76] gives a house ground where its members already go. One "
-        "walk of the store to find a house that has none, and it stops "
-        "at the FIRST one it settles - `settledOne` - because the work "
-        "inside is that house's members times the buildings each of "
-        "them has entered, and `b.known` grows with the walking "
-        "([C75]). A settled house is skipped for nothing, because "
-        "`groupClaimOf` answering IS the skip, so the pass costs the "
-        "walk alone once a county has settled"),
+    "dormantSettle": (0, "none",
+        "[C108] the compatibility seam returns zero. Its former whole-store "
+        "walk and automatic collective claim/home rewrite were retired; "
+        "person-private residence decisions retain their own arrival and "
+        "assent owners instead of a scheduler manufacturing settlement"),
     "dormantProvision": (0, "none",
         "[C63] the compatibility seam is a no-op: need dates are not "
         "inventory and cannot overwrite native shelf/water evidence"),
@@ -197,19 +196,19 @@ def budgeted(stripped_body):
     return False
 
 
-def main():
+def check_files(files):
     faults = []
     print("=" * 74)
     print("A PER-TICK WALK OVER A STORE THE SAVE NEVER SHRINKS")
     print("=" * 74)
 
-    if not POP.exists():
+    if POP.name not in files:
         print()
         print("VERDICT:")
         print("  FAULT: SAO_Population.lua is gone, and with it the tick "
               "this border is about")
         return 1
-    src = POP.read_text(encoding="utf-8", errors="ignore")
+    src = files[POP.name]
     text = strip_lua(src)
 
     named = {fn for _, fn in RUNSUB.findall(src)}
@@ -238,13 +237,13 @@ def main():
         owner_src, owner_text = src, text
         if owner:
             path = LUA / "client" / ("SAO_" + owner + ".lua")
-            if not path.is_file():
+            if path.name not in files:
                 faults.append(f"{fn}'s declared owner {path.name} is missing")
                 continue
             wrapper = function_body(text, fn, text)
             if not wrapper or not re.search(r"SAO\." + owner + r"\." + fn + r"\s*\(", wrapper):
                 faults.append(f"{fn}'s scheduler wrapper does not call its declared owner {owner}")
-            owner_src = path.read_text(encoding="utf-8", errors="ignore")
+            owner_src = files[path.name]
             owner_text = strip_lua(owner_src)
             alias = {"PopulationAdmissions": "A", "PopulationRepresentation": "R",
                      "DormantPopulation": "D"}[owner]
@@ -257,7 +256,7 @@ def main():
                 "has no such function - either it was renamed, in which "
                 "case this list is stale, or the walk it declared is gone")
             continue
-        got = len(ALL_WALK.findall(body))
+        got = len(ALL_WALK.findall(strip_lua(body)))
         total += got
         if got != want:
             faults.append(
@@ -275,11 +274,10 @@ def main():
         print(f"     {fn:<20} walks={got}  {how}")
 
     for (fname, fn), (how, what) in sorted(ELSEWHERE.items()):
-        path = next(LUA.rglob(fname), None)
-        if path is None:
+        other = files.get(fname)
+        if other is None:
             faults.append(f"{fname} is declared here and does not exist")
             continue
-        other = path.read_text(encoding="utf-8", errors="ignore")
         bare = strip_lua(other)
         body = function_body(other, fn, bare)
         if body is None:
@@ -306,6 +304,51 @@ def main():
     print(f"  74) tick walks: all {len(SUBS)} population subs and "
           f"{len(ELSEWHERE)} other store walks declare what bounds them, "
           f"and the {total} walks per pass are the {total} declared")
+    return 0
+
+
+def main():
+    files = {p.name: p.read_text(encoding="utf-8", errors="ignore")
+             for p in LUA.rglob("*.lua")}
+    status = check_files(files)
+    if status:
+        return status
+    controls = [
+        ("SAO_DormantPopulation.lua", "local function dormantSettle()\n    return 0\nend",
+         "local function dormantSettle()\n    for _, rec in pairs(SAO.Identity.all()) do\n"
+         "        rec.homeX = 100\n    end\n    return 1\nend",
+         "`dormantSettle` walks the whole identity store 1 time(s) and is declared as walking it 0"),
+        ("SAO_DormantPopulation.lua", "D.dormantSettle = dormantSettle", "D.dormantSettle = nil",
+         "DormantPopulation.dormantSettle no longer exports"),
+        ("SAO_DormantPopulation.lua", "local function dormantLife(conf, tickCounter)",
+         "local function dormantLife(conf, tickCounter)\n    for _, rec in pairs(SAO.Identity.all()) do local id = rec.id end",
+         "`dormantLife` walks the whole identity store 2 time(s) and is declared as walking it 1"),
+    ]
+    for filename, before, after, expected in controls:
+        source = files.get(filename, "")
+        if source.count(before) != 1:
+            print(f"  FAULT: tick-walk control anchor drift: {filename}: {expected}")
+            return 1
+        mutated = dict(files)
+        mutated[filename] = source.replace(before, after, 1)
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            exit_code = check_files(mutated)
+        if exit_code != 1 or "  FAULT: " not in output.getvalue() or expected not in output.getvalue():
+            print(f"  FAULT: tick-walk control did not reject its defect: {expected}")
+            return 1
+        print(f"  CONTROL rejected: {expected}")
+    # A mention in prose must not invent a new walk in the census.
+    comments = dict(files)
+    anchor = "local function dormantSettle()"
+    comments["SAO_DormantPopulation.lua"] = files["SAO_DormantPopulation.lua"].replace(
+        anchor, anchor + "\n    -- for _, rec in pairs(SAO.Identity.all()) do end", 1)
+    with contextlib.redirect_stdout(io.StringIO()):
+        comment_status = check_files(comments)
+    if comment_status:
+        print("  FAULT: a commented identity walk changed the executable census")
+        return 1
+    print(f"  74) tick-walk controls: {len(controls)} rejected; comment-only walk ignored")
     return 0
 
 

@@ -31,9 +31,11 @@ Events=setmetatable({}, {__index=function(t,k)
  local e={Add=function() end,Remove=function() end};rawset(t,k,e);return e
 end})
 function SAO.Body.get(id) return __bodies[id] end
+SAO.Identity={get=function(id) return {id=id} end,beliefKey=function(rec) return rec.id end}
 function SAO.Perception.nearestBelievedZombie() return __threat end
 function SAO.Perception.believedThreatCount() return __threat and 1 or 0 end
 function SAO.Perception.hasLookedRecently() return true end
+function SAO.Perception.freshObservedPerson() return true end
 function SAO.Perception.tell() __tells=__tells+1;return 1 end
 function SAO.Perception.cryForHelp() return {'fellow'},50 end
 function SAO.Standing.sameGroup() return true end
@@ -78,6 +80,7 @@ function SAOJavaBridge:moveToPaced(body,x,y,z) return self:moveTo(body,x,y,z) en
 function SAOJavaBridge:tickMove() return __verdict end
 function SAOJavaBridge:cancelMove() __cancels=__cancels+1;return 'MOVE_CANCELLED' end
 function SAOJavaBridge:setForceEntry() end
+function SAOJavaBridge:canSeePersonNow() return true end
 function SAOJavaBridge:getBleedingCount() return __injury end
 function SAOJavaBridge:woundInfection() return 0 end
 function SAOJavaBridge:followTraverse(body,x,y)

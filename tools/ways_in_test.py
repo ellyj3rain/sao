@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-r"""Border 121 - a place is judged by how hard it is to get into ([C48]).
+r"""Border 121 - native building evidence reaches private planning.
 
 The scout weighed rooms, area and water, and could not see a door. So
 a glass-fronted shop with eleven ways in beat a house with three
@@ -25,15 +25,25 @@ WHAT THIS HOLDS, AND WHY IT IS SHAPED THIS WAY
      in the neighbourhood. Loading ground is [C46]'s, under its own
      border, and must not be duplicated here.
   5. An unreadable count never wins a tie-break.
-  6. The Lua reads the field the Java sends - one more colon in a
-     protocol string is exactly the kind of drift that fails silently.
+  6. The old global scout remains a compatibility Java API, with the
+     tie-break checks above. It no longer chooses a residence for Lua.
+     Current building acquisition runs through native personal vision,
+     the B-record parser, retained private exterior leads and Labor's
+     uncertain residence appraisal. The checks follow those owners,
+     including exact approach identity and withheld interior stock.
 
 An optional argv[1] points the checker at another tree root, which is
 how its control runs: the pre-batch scout cannot see a door.
 """
+import contextlib
+import io
 import pathlib
 import re
 import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from lua_read import function_body, strip_lua
+from protocol_arity import brace_body
 
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
@@ -41,6 +51,10 @@ SETTLEMENT = ROOT / "java" / "src" / "com" / "sao" / "engine" / "SAOSettlement.j
 BUILD = ROOT / "java" / "src" / "com" / "sao" / "engine" / "SAOBuild.java"
 CONTROLLER = ROOT / "mod" / "42.20" / "media" / "lua" / "client" / "SAO_Controller.lua"
 CHECK = ROOT / "tools" / "check.sh"
+SCANNER = ROOT / "java/src/com/sao/engine/SAOPerceptionScanner.java"
+BRIDGE = ROOT / "java/src/com/sao/bridge/SAOBridge.java"
+PERCEPTION = ROOT / "mod/42.20/media/lua/shared/SAO_Perception.lua"
+LABOR = ROOT / "mod/42.20/media/lua/shared/SAO_Labor.lua"
 
 
 def read(path):
@@ -62,13 +76,18 @@ def strip_block_comments(java):
     return "".join(out)
 
 
-def main():
+def java_method(source, signature):
+    match = re.search(signature + r"\s*\{", source)
+    return brace_body(source, match.end()) if match else ""
+
+
+def check_sources(sources):
     faults = []
     print("=" * 74)
-    print("A PLACE IS JUDGED BY HOW HARD IT IS TO GET INTO")
+    print("NATIVE BUILDING EVIDENCE REACHES PRIVATE PLANNING")
     print("=" * 74)
 
-    settlement = read(SETTLEMENT)
+    settlement = sources[SETTLEMENT]
     if not settlement:
         print("  FAULT: there is no scout to judge anything")
         return 1
@@ -92,7 +111,7 @@ def main():
     checks = {
         "the count exists": ways is not None,
         "it is the same predicate the boarding uses":
-            "BarricadeAble" in code and "BarricadeAble" in read(BUILD),
+            "BarricadeAble" in code and "BarricadeAble" in sources[BUILD],
         "it reads the loaded cell":
             "cell.getGridSquare(" in code,
         "and loads nothing itself":
@@ -120,11 +139,79 @@ def main():
         # 6. The wire.
         "the report carries the count":
             re.search(r'\+ \(bestWays < 0 \? waysIn\(cell, bestDef\) : bestWays\)', code) is not None,
-        "and the Lua reads it":
-            "brooms, barea, bwater, bscore, bways" in read(CONTROLLER),
         "the gate runs this border":
-            "tools/ways_in_test.py" in read(CHECK),
+            "tools/ways_in_test.py" in sources[CHECK],
     }
+
+    scanner = strip_block_comments(sources[SCANNER])
+    bridge = strip_block_comments(sources[BRIDGE])
+    perceive = java_method(bridge, r"public String perceive\(Object object, String knownTiles\)")
+    exterior = java_method(scanner, r"private static void appendExteriorBuildings\([^)]*\)")
+    scan = java_method(scanner, r"public static synchronized String scan\(IsoGameCharacter shell, String knownTiles\)")
+    visibility = java_method(scanner, r"static boolean canSeeWorldSquareNow\([^)]*\)")
+    point = java_method(scanner, r"private static boolean visibleTransferPoint\([^)]*\)")
+    floor = java_method(scanner, r"private static boolean withinSameFloorRange\([^)]*\)")
+    parse = strip_lua(function_body(sources[PERCEPTION], "observeExteriorLead") or "", strings=False)
+    observe = strip_lua(function_body(sources[PERCEPTION], "P.observe") or "", strings=False)
+    leads = strip_lua(function_body(sources[PERCEPTION], "P.knownBuildingLeads") or "", strings=False)
+    appraisal = strip_lua(function_body(sources[LABOR], "Labor.assessResidence") or "", strings=False)
+    exterior_appraisal = re.search(
+        r"for key, belief in pairs\(perception and perception\.knownBuildingLeads.*?\n    end",
+        appraisal, re.S)
+    wire = re.search(r'out\.append\("B:"\)(.*?);', exterior, re.S)
+    checks.update({
+        "current bridge calls personal native scanning":
+            "return com.sao.engine.SAOPerceptionScanner.scan(who, knownTiles);" in perceive,
+        "current native scan produces exterior records":
+            "appendExteriorBuildings(out, shell);" in scan,
+        "exterior acquisition excludes the God camera":
+            'observer.getModData().rawget("SAO_ObserverAnchor") != null' in exterior,
+        "exterior acquisition uses current loaded observer identity":
+            "cell.getGridSquare(sx, sy, z) != observer.getCurrentSquare()" in exterior,
+        "observed approach requires a loaded standable exterior tile":
+            "outside == null || !outside.isOutside() || !outside.isSolidFloor()" in exterior
+            and "!outside.isFree(false)" in exterior,
+        "a visible native door or wall supplies the boundary":
+            "outside.getDoorTo(inside) != null" in exterior and "!outside.isWallTo(inside)" in exterior,
+        "different observed doors retain different approach identities":
+            "if (!emitted.add(boundaryKey)) continue;" in exterior
+            and 'inside.getX() + ":" + inside.getY() + ":" + z + ":" + door' in exterior,
+        "native exterior acquisition obeys personal visibility":
+            "if (!canSeeWorldSquareNow(observer, outside, RANGE)) continue;" in exterior,
+        "personal visibility retains native floor range facing and occlusion":
+            "visibleWorldPoint(observer, target, Math.min(RANGE, range))" in visibility
+            and "withinSameFloorRange(sx, sy, sz, x, y, z, range)" in point
+            and "alignment < CONE_COS" in point
+            and "clearPath(observer.getCurrentSquare(), target, true)" in point
+            and "Math.abs(az - bz) >= 0.5f" in floor,
+        "the native exterior report has the eight parsed fields":
+            wire is not None and wire.group(1).count(".append(':')") == 6
+            and "#fields ~= 8" in parse,
+        "Lua observe dispatches the native building record to its real owner":
+            re.search(r'elseif\s+f\[1\]\s*==\s*"B"\s+then\s+observeExteriorLead\(id, body, b, f, tick\)', observe) is not None,
+        "Lua observe acquires its records through the actual native bridge":
+            'return SAOJavaBridge:perceive(body, asleep and "" or knownZombieTiles(b, body))' in observe,
+        "the building parser binds evidence to this person's actual body":
+            "own == body" in parse and "tostring(md.SAOPersonId) == tostring(id)" in parse
+            and "not md.SAO_ObserverAnchor" in parse,
+        "Lua retains the observed approach and exact boundary":
+            "cx = x, cy = y, z = z" in parse and "surfaceX = sx, surfaceY = sy, kind = kind" in parse
+            and "P.exteriorLeadKey(lead)" in parse and "b.buildingLeads[approachId] = lead" in parse,
+        "private leads reject foreign stale or changed evidence identity":
+            "lead.personId == tostring(id)" in leads
+            and 'lead.source == "native-visible-exterior"' in leads
+            and "P.exteriorLeadKey(lead) == key" in leads
+            and "lead.at <= tick" in leads,
+        "Labor reads this actor's private exterior leads":
+            "perception.knownBuildingLeads(id, tick)" in appraisal
+            and "approachId = key" in appraisal and "cx = belief.cx, cy = belief.cy, z = belief.z" in appraisal,
+        "exterior candidates retain uncertainty about interior stock":
+            exterior_appraisal is not None
+            and 'stock = "unknown-until-private-inspection"' in exterior_appraisal.group(0)
+            and not re.search(r"getRooms\(|getArea\(|getW\(|getH\(|hasWater\(|getContainer\(", exterior),
+        "the controller does not restore global scout residence selection":
+            re.search(r"SAOJavaBridge\s*:\s*scoutBase\s*\(", strip_lua(sources[CONTROLLER])) is None,
+    })
 
     print()
     for k, v in checks.items():
@@ -138,9 +225,64 @@ def main():
         for f in dict.fromkeys(faults):
             print("  FAULT: " + f)
         return 1
-    print("  121) a place is judged by how hard it is to get into: a real "
-          "count off the loaded ground, breaking ties within one room's "
-          "worth, with no price ever put on a door")
+    print("  121) native/private building owners are connected; exterior "
+          "approaches preserve uncertainty; legacy scout tie-break remains checked")
+    return 0
+
+
+def main():
+    paths = (SETTLEMENT, BUILD, CONTROLLER, CHECK, SCANNER, BRIDGE, PERCEPTION, LABOR)
+    sources = {path: read(path) for path in paths}
+    status = check_sources(sources)
+    if status:
+        return status
+    controls = [
+        (SETTLEMENT, "rooms * ROOM_WEIGHT", "rooms * ROOM_WEIGHT + ways",
+         "ways-in appears inside the score"),
+        (SCANNER, "appendExteriorBuildings(out, shell);", "/* exterior acquisition removed */",
+         "current native scan produces exterior records"),
+        (SCANNER, "if (!canSeeWorldSquareNow(observer, outside, RANGE)) continue;", "if (false) continue;",
+         "native exterior acquisition obeys personal visibility"),
+        (SCANNER, 'observer.getModData().rawget("SAO_ObserverAnchor") != null', "false",
+         "exterior acquisition excludes the God camera"),
+        (SCANNER, "if (!emitted.add(boundaryKey)) continue;", "if (!emitted.add(Long.toString(def.getID()))) continue;",
+         "different observed doors retain different approach identities"),
+        (SCANNER, 'out.append("B:")', 'out.append("Q:")',
+         "the native exterior report has the eight parsed fields"),
+        (BRIDGE, "return com.sao.engine.SAOPerceptionScanner.scan(who, knownTiles);", 'return "";',
+         "current bridge calls personal native scanning"),
+        (PERCEPTION, 'return SAOJavaBridge:perceive(body, asleep and "" or knownZombieTiles(b, body))', 'return ""',
+         "Lua observe acquires its records through the actual native bridge"),
+        (PERCEPTION, "observeExteriorLead(id, body, b, f, tick)", "do end",
+         "Lua observe dispatches the native building record to its real owner"),
+        (PERCEPTION, "b.buildingLeads[approachId] = lead", "do end",
+         "Lua retains the observed approach and exact boundary"),
+        (PERCEPTION, "lead.personId == tostring(id)", "true",
+         "private leads reject foreign stale or changed evidence identity"),
+        (LABOR, "perception.knownBuildingLeads(id, tick)", "{}",
+         "Labor reads this actor's private exterior leads"),
+        (CONTROLLER, "function Ctl.forget(id)",
+         "function Ctl.forget(id)\n    SAOJavaBridge:scoutBase(SAO.Body.get(id), '')",
+         "the controller does not restore global scout residence selection"),
+    ]
+    for path, before, after, expected in controls:
+        # The handler declaration and call share this spelling; mutate its
+        # unique indented dispatch call, preserving the actual parser owner.
+        if path == PERCEPTION and before == "observeExteriorLead(id, body, b, f, tick)":
+            before = "                " + before
+        if sources[path].count(before) != 1:
+            print(f"  FAULT: building control anchor drift: {path.name}: {expected}")
+            return 1
+        mutated = dict(sources)
+        mutated[path] = sources[path].replace(before, after, 1)
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            exit_code = check_sources(mutated)
+        if exit_code != 1 or "  FAULT: " not in output.getvalue() or expected not in output.getvalue():
+            print(f"  FAULT: building control did not reject its defect: {expected}")
+            return 1
+        print(f"  CONTROL rejected: {expected}")
+    print(f"  121) building owner controls: {len(controls)} rejected")
     return 0
 
 
