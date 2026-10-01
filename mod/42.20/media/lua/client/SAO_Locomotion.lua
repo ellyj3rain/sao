@@ -14,7 +14,44 @@ local Loco = SAO.Locomotion
 -- id -> { body, goal, lastVerdict, sameVerdictTicks, done, result, faults }
 Loco.jobs = Loco.jobs or {}
 
-local STALL_TICKS = 300   -- identical verdict with no arrival for this long = give up
+local STALL_TICKS = 300   -- route ticks without physical or waypoint progress
+local PROGRESS_REACH = 0.01
+
+local function finite(value)
+    value = tonumber(value)
+    return value and value == value and value > -math.huge and value < math.huge
+        and value or nil
+end
+
+local function routeProgress(job)
+    local ok, text = pcall(function() return SAOJavaBridge:moveProgress(job.body) end)
+    local index, tx, ty, tz
+    if ok then
+        index, tx, ty, tz = tostring(text):match("^MOVE_PROGRESS@([^@]+)@([^@]+)@([^@]+)@([^@]+)$")
+        index, tx, ty, tz = finite(index), finite(tx), finite(ty), finite(tz)
+    end
+    if not (index and tx and ty and tz) then
+        local retained = job.progress
+        if retained then
+            index, tx, ty, tz = retained.index, retained.x, retained.y, retained.z
+        else
+            index, tx, ty, tz = -1, job.goal.x, job.goal.y, job.goal.z
+        end
+    end
+    local x, y, z = finite(job.body:getX()), finite(job.body:getY()), finite(job.body:getZ())
+    if not (x and y and z) then return false end
+    local distance = math.sqrt((tx - x)^2 + (ty - y)^2 + (tz - z)^2)
+    local prior = job.progress
+    if not prior or prior.index ~= index or prior.x ~= tx or prior.y ~= ty or prior.z ~= tz then
+        job.progress = { index = index, x = tx, y = ty, z = tz, distance = distance }
+        return true
+    end
+    if distance <= prior.distance - PROGRESS_REACH then
+        prior.distance = distance
+        return true
+    end
+    return false
+end
 
 -- [B47] One door out: everything this module says goes
 -- through the shared logger.
@@ -156,12 +193,17 @@ local function tickInner(id)
         observed(id, "failed", job, verdict)
         return
     end
-    if job.sameVerdictTicks >= STALL_TICKS then
+    if routeProgress(job) then
+        job.noProgressTicks = 0
+    else
+        job.noProgressTicks = (job.noProgressTicks or 0) + 1
+    end
+    if job.noProgressTicks >= STALL_TICKS then
         job.done, job.result = true, "stalled:" .. verdict
         observed(id, "failed", job, job.result)
         pcall(function() SAOJavaBridge:cancelMove(job.body) end)
         log(tostring(id) .. " gave up after " .. STALL_TICKS
-            .. " unchanged ticks of " .. verdict)
+            .. " ticks without route progress; " .. verdict)
     end
 end
 

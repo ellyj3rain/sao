@@ -78,6 +78,11 @@ CHECK = TOOLS / "check.sh"
 LUA_REL = pathlib.Path("mod") / "42.20" / "media" / "lua"
 VERDICT = re.compile(r"^  \d+\)", re.M)
 
+# The complete orientation weave/installation proof exceeded its unchanged
+# 600-second bound while sharing the native compiler pool. Run it after the
+# pool is quiet; it still executes in full against the same blinded tree.
+SERIAL_NATIVE = {"orienting_native_test.py"}
+
 # Borders that do not read the mod's Lua at all, and what they read
 # instead. Blinding the Lua cannot move them, so surviving it is
 # correct rather than vacuous.
@@ -286,7 +291,11 @@ def main():
         return 1
 
     with ThreadPoolExecutor(max_workers=8) as pool:
-        results = dict(pool.map(lambda n: run_blind(dest, n), mirrors))
+        results = dict(pool.map(lambda n: run_blind(dest, n),
+                                [n for n in mirrors if n not in SERIAL_NATIVE]))
+    for name in sorted(SERIAL_NATIVE & set(mirrors)):
+        name, state = run_blind(dest, name)
+        results[name] = state
     # Several native borders compile into repository-local scratch paths. A
     # parallel collision can make a declared non-Lua border refuse even though
     # blinding did not move it. Re-run only those ambiguous declarations after

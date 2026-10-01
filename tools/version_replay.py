@@ -248,6 +248,7 @@ UNITS = [
     ('C107', 'minor', 'Add declared one-time native threat conditions with saved attempt receipts, correct remembered resource approach selection and terminal water-route feedback, preserve resolved outcome projection, and skip empty instruction breakpoint lookup in isolated observers. The authored threat contract is new, so minor.'),
     ('C108', 'kohai', 'Mature existing private survival planning with destination danger, home-return cost, acquired requests, exact inspection lifecycle, native recovery, visible exterior acquisition and individual residence reconsideration. Existing movement, physiological and action owners enact these choices; there is no new verb or authoring boundary, so kohai.'),
     ('C109', 'patch', 'Repair existing observer projection cost and freshness: demand-only rich inspection and exhausted-budget square guards preserve current basic state, archive evidence and existing consumer schemas; distinguish initiating stop, observer drain and native save return. No capability boundary changes, so patch.'),
+    ('C110', 'patch', 'Repair false route stalls during physical/native node progress and moving-fallback tactical revision churn while preserving genuine stalls and meaningful private revisions. Existing capability contracts remain, so patch.'),
 ]
 
 TIER_MEANINGS = [

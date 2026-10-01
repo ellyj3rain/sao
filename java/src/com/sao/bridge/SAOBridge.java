@@ -2822,6 +2822,18 @@ public final class SAOBridge {
         }
     }
 
+    /** Read-only progress of this body's existing native route. */
+    public String moveProgress(Object object) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) return "NOT_A_SHELL";
+            SAORouteState state = routes.get(shell);
+            return state == null ? "MOVE_PROGRESS_UNAVAILABLE" : state.progress();
+        } catch (Throwable throwable) {
+            SAOAgent.log("moveProgress threw: " + throwable);
+            return "MOVE_PROGRESS_UNAVAILABLE";
+        }
+    }
+
     public String horseRoutePoint(Object object) {
         try {
             if (!(object instanceof SAOIsoPlayerShell shell)) {

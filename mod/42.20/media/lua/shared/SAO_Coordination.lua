@@ -9,6 +9,7 @@ SAO = SAO or {}
 SAO.Coordination = SAO.Coordination or {}
 local Coordination = SAO.Coordination
 local MIN_FALLBACK_VECTOR = 0.1
+local MIN_TACTICAL_FALLBACK_SEPARATION_SQUARED = 16
 
 local function finite(value)
     return type(value) == "number" and value == value
@@ -452,8 +453,9 @@ local function tacticalDestination(id, situation)
         z = math.floor(tonumber(position.z) or 0) }
 end
 
-local function tacticalProcedure(id, situation, recipientCount)
-    local threat, fallback = situation.threat, tacticalDestination(id, situation)
+local function tacticalProcedure(id, situation, recipientCount, fallback)
+    local threat = situation.threat
+    fallback = fallback or tacticalDestination(id, situation)
     if not fallback then return nil end
     local threatTarget = { x = tonumber(threat.x), y = tonumber(threat.y),
         z = math.floor(tonumber(threat.z) or tonumber(situation.position.z) or 0) }
@@ -482,12 +484,55 @@ local function originateTacticalSituation(id, ownerLabel, contacts, situation)
     end
     local recipients = nativeRecipients(id, contacts)
     if #recipients == 0 then return nil, "no-known-recipient" end
-    local procedure, fallback = tacticalProcedure(id, situation, #recipients)
-    if not procedure then return nil, "fallback-unavailable" end
     local threat = situation.threat
-    local intentKey = table.concat({ "threat",
-        tostring(math.floor((tonumber(threat.x) or 0) / 4)),
-        tostring(math.floor((tonumber(threat.y) or 0) / 4)),
+    local function context(target, count)
+        return table.concat({ "threat", tostring(math.floor((tonumber(target.x) or 0) / 4)),
+            tostring(math.floor((tonumber(target.y) or 0) / 4)),
+            tostring(math.floor(tonumber(target.z) or 0)),
+            tostring(math.min(4, math.max(1, math.floor(tonumber(count) or 1)))) }, ":")
+    end
+    local situationKey = context(threat, situation.threatCount)
+    local open = SAO.Organization.openMatter(id, "strategic-cooperation")
+    local prior = open and currentProposal(open, id) or nil
+    local candidate = tacticalDestination(id, situation)
+    if not candidate then return nil, "fallback-unavailable" end
+    local needsRevision = false
+    local sameEvidence = true
+    local outcomes = open and SAO.Organization.viewFor(id, open.id, true)
+    for _, commitment in pairs(outcomes and outcomes.commitments or {}) do
+        if commitment.work and (commitment.work.phase == "awaiting-revision"
+            or commitment.work.phase == "step-failed") then
+            needsRevision = true
+        end
+    end
+    if prior and type(prior.procedure) == "table" then
+        local watch, fallback
+        for _, step in ipairs(prior.procedure) do
+            if step.id == "watch-threat" then watch = step.target end
+            if step.id == "move-fallback" then fallback = step.target end
+        end
+        local priorKey = watch and context(watch, prior.scope and prior.scope.threatCount)
+        local dx = fallback and tonumber(fallback.x) and tonumber(threat.x)
+            and fallback.x - tonumber(threat.x)
+        local dy = fallback and tonumber(fallback.y) and tonumber(threat.y)
+            and fallback.y - tonumber(threat.y)
+        -- Actor motion does not revise already proposed ground. Changed private
+        -- danger, floor or danger at that ground returns the matter to appraisal.
+        sameEvidence = (prior.scope and prior.scope.spatialFact) == candidate.spatialFact
+            and (prior.scope and prior.scope.fallbackSource) == (candidate.source or "geometric-emergency")
+        if candidate.spatialFact and fallback then
+            sameEvidence = sameEvidence and fallback.x == candidate.x
+                and fallback.y == candidate.y and fallback.z == candidate.z
+        end
+        if not needsRevision and sameEvidence and priorKey == situationKey
+            and dx and dy and dx * dx + dy * dy >= MIN_TACTICAL_FALLBACK_SEPARATION_SQUARED
+            and tonumber(fallback.z) == math.floor(tonumber(situation.position and situation.position.z) or 0) then
+            return open, "continuing"
+        end
+    end
+    local procedure, fallback = tacticalProcedure(id, situation, #recipients, candidate)
+    if not procedure then return nil, "fallback-unavailable" end
+    local intentKey = table.concat({ situationKey,
         tostring(fallback.x), tostring(fallback.y), tostring(fallback.z),
         tostring(math.min(4, math.max(1,
             math.floor(tonumber(situation.threatCount) or 1)))) }, ":")
@@ -513,10 +558,9 @@ local function originateTacticalSituation(id, ownerLabel, contacts, situation)
         originatorCapabilities = { watch = SAO.Posture ~= nil },
         fallbackSource = fallback.source or "geometric-emergency",
         spatialFact = fallback.spatialFact, observedAtHours = nowHours() }
-    local open = SAO.Organization.openMatter(id, "strategic-cooperation")
     if open then
         local prior = currentProposal(open, id) or {}
-        if tostring(prior.intentKey or "") == intentKey then
+        if not needsRevision and sameEvidence and tostring(prior.intentKey or "") == intentKey then
             return open, "continuing"
         end
         return Coordination.reviseCooperation(id, open.id, proposal,
