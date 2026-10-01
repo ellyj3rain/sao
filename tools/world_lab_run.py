@@ -153,7 +153,7 @@ def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None)
 
 
 def terminal(log, attempt, save, hours, watch=False, last_observed_hours=None):
-    """Native start/horizon/return must occur once and in this order."""
+    """Validate stop initiation, optional legacy drain and native save order."""
     prefix = r"\[StudyLaunch\] "
     starts = list(Lab.re.finditer(prefix + r"started attempt=(\d+) save=(\S+) hours=([\d.eE+-]+)", log))
     ends = list(Lab.re.finditer(prefix + r"horizon attempt=(\d+) save=(\S+) start=([\d.eE+-]+) end=([\d.eE+-]+)", log))
@@ -161,10 +161,31 @@ def terminal(log, attempt, save, hours, watch=False, last_observed_hours=None):
     budgets = list(Lab.re.finditer(prefix + r"wall-limit attempt=(\d+) save=(\S+) start=([\d.eE+-]+) end=([\d.eE+-]+)", log))
     supervisors = list(Lab.re.finditer(prefix + r"supervisor-stop attempt=(\d+) save=(\S+) start=([\d.eE+-]+) end=([\d.eE+-]+) reason=([A-Za-z0-9][A-Za-z0-9._-]{0,79})", log))
     legacy_supervisors = list(Lab.re.finditer(prefix + r"supervisor-stop attempt=(\d+) reason=([A-Za-z0-9][A-Za-z0-9._-]{0,79})", log))
+    stops = list(Lab.re.finditer(r"\[StudyObserver\] stop hours=([\d.eE+-]+)", log))
+    for marker, matches in (("[StudyLaunch] started ", starts), ("[StudyLaunch] horizon ", ends),
+                            ("[StudyLaunch] native-save-returned ", returned),
+                            ("[StudyLaunch] wall-limit ", budgets),
+                            ("[StudyLaunch] supervisor-stop ", supervisors + legacy_supervisors),
+                            ("[StudyObserver] stop ", stops)):
+        Lab.require(log.count(marker) == len(matches), "malformed native terminal receipt")
+
+    def drained(cause, last, exact_clock=True):
+        # Older wall/supervisor launchers quit directly without the observer
+        # drain marker. Retain those existing formats. When a drain is present,
+        # it completes the initiating stop rather than initiating another one.
+        if not stops:
+            return last
+        stopped, saved = stops[0], returned[0]
+        Lab.require(cause.start() < stopped.start() < saved.start(), "native observer drain order differs")
+        drained_hours = float(stopped[1])
+        Lab.number(drained_hours, last, 1e9, "observer drain hours")
+        Lab.require(not exact_clock or drained_hours == last, "native observer drain clock differs")
+        return drained_hours
+
     if watch:
-        stops = list(Lab.re.finditer(r"\[StudyObserver\] stop hours=([\d.eE+-]+)", log))
         Lab.require(len(starts) == len(returned) == 1
-                    and len(stops) + len(budgets) + len(supervisors) + len(legacy_supervisors) == 1
+                    and len(budgets) + len(supervisors) + len(legacy_supervisors) <= 1
+                    and len(stops) <= 1 and bool(stops or budgets or supervisors or legacy_supervisors)
                     and not ends,
                     "native observer stop receipt missing or duplicated")
         if budgets:
@@ -175,6 +196,7 @@ def terminal(log, attempt, save, hours, watch=False, last_observed_hours=None):
                         and start.start() < end.start() < saved.start(), "native wall-limit identity or order differs")
             Lab.number(first, 0, 1e9, "start hours")
             Lab.number(last, first, 1e9, "terminal hours")
+            last = drained(end, last)
             return {"startHours": first, "endHours": last, "nativeSaveReturned": True,
                     "stopReason": "wall-time-limit"}
         if supervisors:
@@ -186,6 +208,7 @@ def terminal(log, attempt, save, hours, watch=False, last_observed_hours=None):
                         "native supervisor-stop identity or order differs")
             Lab.number(first, 0, 1e9, "start hours")
             Lab.number(last, first, 1e9, "terminal hours")
+            last = drained(stop, last)
             return {"startHours": first, "endHours": last, "nativeSaveReturned": True,
                     "stopReason": stop[5], "receiptFormat": "supervisor-stop/2"}
         if legacy_supervisors:
@@ -202,15 +225,18 @@ def terminal(log, attempt, save, hours, watch=False, last_observed_hours=None):
                         "legacy supervisor-stop identity, observation or order differs")
             Lab.number(first, 0, 1e9, "start hours")
             Lab.number(last, first, 1e9, "terminal hours")
+            last = drained(stop, last, exact_clock=False)
             return {"startHours": first, "endHours": last, "nativeSaveReturned": True,
                     "stopReason": stop[2], "receiptFormat": "supervisor-stop/1-recovered"}
         start, stop, saved = starts[0], stops[0], returned[0]
         first, last = float(start[3]), float(stop[1])
         Lab.require(int(start[1]) == int(saved[1]) == attempt and start[2] == save
                     and start.start() < stop.start() < saved.start(), "native stop identity or order differs")
+        Lab.number(first, 0, 1e9, "start hours")
         Lab.number(last, first, 1e9, "terminal hours")
         return {"startHours": first, "endHours": last, "nativeSaveReturned": True}
-    Lab.require(len(starts) == len(ends) == len(returned) == 1 and not budgets,
+    Lab.require(len(starts) == len(ends) == len(returned) == 1 and not budgets
+                and not supervisors and not legacy_supervisors and len(stops) <= 1,
                 "native terminal receipt missing or duplicated")
     start, end, saved = starts[0], ends[0], returned[0]
     Lab.require(int(start[1]) == int(end[1]) == int(saved[1]) == attempt
@@ -220,6 +246,7 @@ def terminal(log, attempt, save, hours, watch=False, last_observed_hours=None):
     Lab.number(first, 0, 1e9, "start hours")
     Lab.number(last, first, 1e9, "terminal hours")
     Lab.require(float(end[3]) == first and last - first >= hours - 1e-9, "requested horizon was not reached")
+    last = drained(end, last)
     return {"startHours": first, "endHours": last, "nativeSaveReturned": True}
 
 

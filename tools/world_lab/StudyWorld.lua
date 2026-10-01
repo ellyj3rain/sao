@@ -929,7 +929,12 @@ function Study.observe()
                 if square then
                     local beforeBytes, beforeOmitted = budget.bytes, budget.omittedCount
                     local path = "windows." .. window.id .. ".squares." .. tostring(x) .. "." .. tostring(y)
-                    local projected = copy(squareView(square, x, y, window.z), path, budget, {}, 0)
+                    -- Resolve only loaded/unavailable coverage after refusal;
+                    -- native objects/sprites cannot contribute to an exhausted ledger.
+                    local projected
+                    if budget.left > 1 and budget.bytes >= 2 then
+                        projected = copy(squareView(square, x, y, window.z), path, budget, {}, 0)
+                    end
                     if projected and beforeOmitted == budget.omittedCount then
                         result.squares[#result.squares + 1] = projected
                         frame.coverage.loadedSquares = frame.coverage.loadedSquares + 1

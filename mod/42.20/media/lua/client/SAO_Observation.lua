@@ -59,6 +59,7 @@ function O.validatePerson(id)
 end
 function O.select(id)
     if not O.validatePerson(id) then return false end
+    if selected ~= id then nextSample = 0 end
     selected = id
     return true
 end
@@ -67,6 +68,7 @@ function O.panel(panelId, personId, visible)
     if not SAO.Inspect or not SAO.Inspect.show or not SAO.Inspect.hide then return false end
     local ok = visible and SAO.Inspect.show(personId) or (not visible and SAO.Inspect.hide())
     if ok ~= true then return false end
+    if selected ~= personId then nextSample = 0 end
     selected = personId
     return true
 end
@@ -553,14 +555,41 @@ local function planning(id)
     if #(view.purposes or {}) == 0 then s.message = "No maintained purpose yet" end
     return s
 end
-local function samplePerson(id, rec, body)
+local function pressureFor(id)
     local agent = SAO.Controller and SAO.Controller.agents and SAO.Controller.agents[id]
     local pressure = section("pressure", "Pressure and recorded reason", "Controller", "Most recent decision receipt")
     if agent and agent.pressure then scalarRows(pressure, agent.pressure, "", 0)
     else pressure.status = "unavailable"; pressure.message = "No active pressure receipt" end
-    local out = { sections = { needs(body), lifeProfile(id, rec), attention(rec, body), medication(rec), preparation(id, rec), horseState(id, rec, body), mobileHousehold(id), planning(id),
-        inventory(body), pressure, currentAction(id, body), sourceWork(id, rec), processes(id) }, events = {} }
-    if SAO.Cognition and SAO.Cognition.snapshot then out.cognition = SAO.Cognition.snapshot(id) end
+    return pressure
+end
+local richSections = {
+    { "life-profile", "Life and practical background" }, { "medication", "Substance effects" },
+    { "cooking", "Food preparation" }, { "horse", "Horse and mounted travel" },
+    { "mobile-household", "Moving place and household" }, { "planning", "Purposes and next steps" },
+    { "inventory", "Carried inventory" }, { "processes", "Reception, responses and work" },
+    { "cognition", "Competing cognition" }
+}
+local function samplePerson(id, rec, body, rich)
+    -- All feeds retain current bounded physical/execution facts. The inspector
+    -- owns expensive cognitive, inventory and global-process projection; camera
+    -- switching alone does not rebuild every person's internal perspective.
+    local out = { sections = { needs(body), attention(rec, body), pressureFor(id),
+        currentAction(id, body), sourceWork(id, rec) }, events = {} }
+    if rich then
+        for _, value in ipairs({ lifeProfile(id, rec), medication(rec), preparation(id, rec),
+                horseState(id, rec, body), mobileHousehold(id), planning(id), inventory(body), processes(id) }) do
+            out.sections[#out.sections + 1] = value
+        end
+        if SAO.Cognition and SAO.Cognition.snapshot then out.cognition = SAO.Cognition.snapshot(id) end
+    else
+        -- Do not retain an older rich row under this snapshot's newer clock.
+        -- Existing consumers carry section status/message but one source clock.
+        for _, descriptor in ipairs(richSections) do
+            out.sections[#out.sections + 1] = section(descriptor[1], descriptor[2],
+                "Selected inspection", "Not sampled", "unavailable",
+                "Detailed state was not requested for this person")
+        end
+    end
     for _, event in ipairs(histories[id] or {}) do
         local copy = {}; for k, v in pairs(event) do copy[k] = v end
         out.events[#out.events + 1] = copy
@@ -574,22 +603,23 @@ function O.capture(nowMs, worldHours)
     nextSample = nowMs + 1000
     local ok, result = pcall(function()
         local all, ids, represented, omitted = records(), {}, {}, 0
-        if selected and all[selected] then ids[1] = selected end
+        local sampleSelected = selected and all[selected] and selected or nil
+        if sampleSelected then ids[1] = sampleSelected end
         for id, rec in pairs(all) do
             local body = bodyFor(id, rec)
             if body then
                 represented[id] = body
-                if id ~= selected then
+                if id ~= sampleSelected then
                     if #ids < MAX_PEOPLE then ids[#ids + 1] = id else omitted = omitted + 1 end
                 end
             end
         end
         local people = {}
-        for _, id in ipairs(ids) do people[id] = samplePerson(id, all[id], represented[id]) end
+        for _, id in ipairs(ids) do people[id] = samplePerson(id, all[id], represented[id], id == sampleSelected) end
         sequence = sequence + 1
         return { sequence = sequence, capturedAtUnixMs = nowMs, worldHours = worldHours,
             status = "available", message = "Current bodies and recorded execution facts; no decision or perception rerun",
-            omittedPeople = omitted, omittedEvents = dropped, selectedPersonId = selected, people = people }
+            omittedPeople = omitted, omittedEvents = dropped, selectedPersonId = sampleSelected, people = people }
     end)
     if ok then cached = result
     else

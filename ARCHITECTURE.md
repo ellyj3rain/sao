@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.10.1.0-pre-alpha` |
+| Version | `3.10.1.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1633,3 +1633,46 @@ and native actor/context/geometry and feeds its identity into the durable
 inspection owner. Present Standing reads privately believed ownership; an
 unacquired global claim cannot supply a physical veto. Claims retain their
 existing record meaning; residence choice itself creates no property or assent.
+
+
+### Bounded observer projection (C109)
+
+Observer capture retains current needs, attention, action, pressure, exact
+source receipts and events for sampled people. Only the explicitly inspected
+person rebuilds background, inventory, planning, global process detail and
+cognition summaries. Unrequested rich sections use the existing unavailable
+status and empty rows. Failed refreshes retain the last successful source clock;
+removed selections are omitted without automatic retargeting. The existing
+sixteen-person inspection cap remains explicit.
+
+Study archive capture skips square object and sprite projection once the shared
+node or byte ledger cannot accept its table. Native square lookups retain the
+distinction between loaded omissions and unavailable geometry. Archive order,
+cadence, evidence budgets and optional full cognition ownership remain unchanged.
+Process completeness reports row coverage; field omissions remain explicit.
+
+Native terminal validation distinguishes the single initiating stop from its
+observer drain and native save return. Valid wall-limit and supervisor stops
+preserve their phase order, identities and clocks; duplicate or malformed
+stages refuse. Existing direct-save formats remain readable. Twenty-six
+terminal cases and eleven production controls pass within the thirty-one-test
+unit suite. The retained C107 log passes the corrected parser and fails the
+restored original parser; all 1,168 saved-file hashes and both log hashes match.
+Its original failed records remain unchanged. Saved-world reopening remains
+separate native acceptance.
+
+Focused observation verification passes 78 production Lua checks, four default
+inspection checks and 29 Lua controls, plus four actual native health checks and
+three controls. The installed-Kahlua archive probe passes nine causal controls.
+Node exhaustion makes zero object projections while retaining 48 native lookups,
+24 loaded omissions, 24 unavailable squares and full cognition for three actors.
+Byte-only exhaustion leaves one byte and 274 charged nodes; zero object or sprite
+projections preserve the same physical counts. All three full cognition requests
+are explicitly omitted when bytes cannot admit them. Removing only the byte
+predicate fails the exact projection assertion.
+
+Independent review found no Critical, High or Medium issue. Its byte-only proof
+gap is closed by the separate causal control. Full gate, exact public deployment,
+loaded latency and native behavior require their own receipts. These controlled
+proofs establish avoided projection and truthful freshness, not 60/120 FPS,
+survival quality, dataset admission or aggregate learning.

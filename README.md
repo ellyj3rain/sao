@@ -38,9 +38,14 @@ on the simulation.
 
 ## Status
 
-`3.10.1.0-pre-alpha` - the coordinate is computed by the version machine
+`3.10.1.1-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C109 rebuilds detailed observer state only for the inspected person and skips
+physical object projection after the shared export budget is exhausted. Basic
+activity and attention stay current; rich omissions and failed source clocks
+remain explicit. Loaded performance retains its own measurement.
 
 C108 compares resource alternatives against privately believed destination
 danger, home-return cost, acquired requests and accepted responsibilities. Both

@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.10.1.0-pre-alpha` |
-| Closed chronology | `A1-C108` |
-| Next batch | `C109` |
+| Current version | `3.10.1.1-pre-alpha` |
+| Closed chronology | `A1-C109` |
+| Next batch | `C110` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -224,6 +224,7 @@ the machine. Names, dates, and threads below come from
 | `C106` | 2026-09-30 | minor | `3.9.0.0-pre-alpha` | Regional study conditions, hydration and timing | Add source-bound authored initial population coverage to the regional study contract, integrate privately inspected native hydration into existing thirst planning, and measure inclusive observation and callback costs. The new initial-cohort authoring contract is minor. |
 | `C107` | 2026-09-30 | minor | `3.10.0.0-pre-alpha` | Resource approaches and native threat conditions | Add declared one-time native threat conditions with saved attempt receipts, correct remembered resource approach selection and terminal water-route feedback, preserve resolved outcome projection, and skip empty instruction breakpoint lookup in isolated observers. The authored threat contract is new, so minor. |
 | `C108` | 2026-09-30 | kohai | `3.10.1.0-pre-alpha` | Private survival planning and residence | Mature existing private survival planning with destination danger, home-return cost, acquired requests, exact inspection lifecycle, native recovery, visible exterior acquisition and individual residence reconsideration. Existing movement, physiological and action owners enact these choices; there is no new verb or authoring boundary, so kohai. |
+| `C109` | 2026-10-01 | patch | `3.10.1.1-pre-alpha` | Observer capture and session completion | Repair existing observer projection cost and freshness: demand-only rich inspection and exhausted-budget square guards preserve current basic state, archive evidence and existing consumer schemas; distinguish initiating stop, observer drain and native save return. No capability boundary changes, so patch. |
 
 ## The former number
 
@@ -244,11 +245,11 @@ establish release maturity.
 
 ## Next movement
 
-`C109` is the next batch. Its content determines its tier after it
+`C110` is the next batch. Its content determines its tier after it
 exists:
 
-| If C109 is | Result |
+| If C110 is | Result |
 |---|---|
-| patch or hotfix | `3.10.1.1-pre-alpha` |
+| patch or hotfix | `3.10.1.2-pre-alpha` |
 | kohai | `3.10.2.0-pre-alpha` |
 | minor | `3.11.0.0-pre-alpha` |
