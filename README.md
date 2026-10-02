@@ -38,9 +38,23 @@ on the simulation.
 
 ## Status
 
-`3.10.2.0-pre-alpha` - the coordinate is computed by the version machine
+`3.10.3.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C112 lets the existing fortification decision repair a visible broken window
+when the survivor is already at its native interaction tile, has permission
+and carries the exact pane. The optional installed action owns the repair;
+measured glass replacement and pane consumption produce a durable result and
+the actor's private performed experience. Native boarding remains available.
+Delayed cancellation survives death or handoff until native acknowledgement.
+Action-owned bindings release on original queue acknowledgement and leave
+terminal tombstones; latest per-person offers have bounded explicit cleanup.
+Late stop and perform retain exact original current-queue custody, preserving
+successor queues and flags. The focused source-bound proof and version-stamped
+package pass. The complete normal closing gate has its own log and exit receipt. This measured slice uses panes in the
+main inventory; approach, pane acquisition, nested-bag transfer, dormant physical work, multiplayer authority
+and loaded acceptance remain open.
 
 C111 observes completed native animal feeding as private experience and
 connects installed cooler physics to authenticated carried inventories and

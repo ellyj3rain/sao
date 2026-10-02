@@ -84,6 +84,15 @@ CACHES = {
         "M.forget", "named",
         "a living person's cooler log deduplication has no reader after "
         "death; the durable partial-pass proof remains on the record"),
+    ("SAO_WindowRepair.lua", "offers"): (
+        "retireOffer", "window-offer-retirement",
+        "one latest decision-local offer per person is consumed or replaced, "
+        "death reaches Controller.forget, and a bounded tick/reset disposes abandoned native handles"),
+    ("SAO_WindowRepair.lua", "runtime"): (
+        "retireAcknowledged", "window-retirement",
+        "death reaches Controller.forget and the exact native cancellation owner; "
+        "its independent bounded retry survives agent removal and world reset, "
+        "retaining the old body only until native stop and original queue acknowledgement"),
     ("SAO_Needs.lua", "recoveries"): (
         "N.stopRecovery", "recovery-retirement",
         "the exact living recovery receiver is cleared by stopRecovery; "
@@ -583,6 +592,73 @@ def check_files(files):
                 faults.append("native production refresh retirement is absent from markDead")
             if len(re.findall(r"retireRefresh\s*\(\s*id\s*,", detach)) != 2 or "R.interrupt" not in detach:
                 faults.append("production detach must retire handled-source references before and after interrupt")
+        elif how == "window-offer-retirement":
+            def body(source, method):
+                return strip_lua(function_body(source, method) or "", strings=False)
+
+            controller = files.get("SAO_Controller.lua", "")
+            owner_checks = {
+                "offer death reaches exact indirect forget":
+                    re.search(r"pcall\s*\(\s*SAO\.Controller\.forget\s*,\s*rec\.id\s*\)", strip_lua(dead_body))
+                    and 'SAO.WindowRepair.forget(id)' in body(controller, "Ctl.forget")
+                    and 'retireOffer(id)' in body(src, "W.forget"),
+                "offer replacement and consumption retire the old slot":
+                    'retireOffer(id)' in body(src, "W.offer") and 'retireOffer(id)' in body(src, "W.begin")
+                    and 'slot.offer == offer' in body(src, "W.begin"),
+                "offer admission has finite native capacity":
+                    'offerCount >= MAX_OFFERS' in body(src, "W.offer")
+                    and 'offers[id] = { offer = offer, binding = b }' in body(src, "W.offer"),
+                "abandoned offers expire at tick and world boundaries":
+                    'offers = {}' in body(src, "W.expireOffers")
+                    and 'Events.OnTick.Add(W.expireOffers)' in strip_lua(src, strings=False)
+                    and 'W.expireOffers()' in body(src, "W.reset"),
+            }
+            faults.extend(name for name, present in owner_checks.items() if not present)
+        elif how == "window-retirement":
+            def body(source, method):
+                return strip_lua(function_body(source, method) or "", strings=False)
+
+            controller = files.get("SAO_Controller.lua", "")
+            retire = body(src, "retireAcknowledged")
+            interrupt = body(src, "W.interrupt")
+            retry = body(src, "W.retryCancellations")
+            stop = body(src, "base:stop")
+            reset = body(src, "W.reset")
+            owner_checks = {
+                "window death reaches indirect controller forget":
+                    re.search(r"pcall\s*\(\s*SAO\.Controller\.forget\s*,\s*rec\.id\s*\)", strip_lua(dead_body)),
+                "controller forget reaches window cancellation owner":
+                    'SAO.WindowRepair.forget(id)' in body(controller, "Ctl.forget"),
+                "window forget retains exact old receiver":
+                    'return W.interrupt(id, active and active.binding.body, "controller-forget")' in body(src, "W.forget"),
+                "window retirement requires exact owner and queue acknowledgement":
+                    'if runtime[id] ~= active then' in retire and 'queued(action)' in retire
+                    and 'b.cancelled and action.action and not b.stopAcknowledged' in retire
+                    and 'releaseBinding(action, b)' in retire,
+                "window cancellation requests native stop and retains a retry":
+                    'scheduleCancellation(active)' in interrupt and 'action.action:forceStop()' in interrupt
+                    and 'return retireAcknowledged(id, active)' in interrupt,
+                "native window stop acknowledges its captured queue and retires":
+                    'local q = b.queue' in stop and 'b.stopAcknowledged = true' in stop
+                    and 'retireAcknowledged(b.personId, active)' in stop,
+                "window stop preserves current successor custody":
+                    'ownsCurrent = q.current == self and q:indexOf(self) == 1' in stop
+                    and 'ISTimedActionQueue.getTimedActionQueue(b.body) == q' in stop
+                    and 'if not ownsCurrent then' in stop
+                    and 'if ownsCurrent then\n            b.body:setIsFarming(false)\n            q:onCompleted(self)\n        else' in stop,
+                "window retries are bounded independently of living agents":
+                    'math.min(#cancellationOrder, MAX_CANCELLATIONS_PER_TICK)' in retry
+                    and 'table.remove(cancellationOrder, 1)' in retry and 'W.interrupt(b.personId, b.body,' in retry
+                    and 'Events.OnTick.Add(W.retryCancellations)' in strip_lua(src, strings=False),
+                "world reset preserves the exact pending window cancellations":
+                    'for id, active in pairs(runtime) do W.interrupt(id, active.binding.body,' in reset
+                    and 'Events.OnInitGlobalModData.Add(W.reset)' in strip_lua(src, strings=False)
+                    and 'W.reset("world-reset")' in strip_lua(src, strings=False),
+                "module reload retains the previous window cancellation closure":
+                    'pcall(W.reset, "module-reload")' in strip_lua(src, strings=False)
+                    and re.search(r'if\s+W\.runtimeCount\s+then.*?return\s+W', strip_lua(src), re.S),
+            }
+            faults.extend(name for name, present in owner_checks.items() if not present)
         elif how == "recovery-retirement":
             def body(source, method):
                 return strip_lua(function_body(source, method) or "", strings=False)
@@ -639,6 +715,38 @@ def main():
     if status:
         return status
     controls = [
+        ("SAO_WindowRepair.lua", "q.current == self and q:indexOf(self) == 1", "true",
+         "window stop preserves current successor custody"),
+        ("SAO_WindowRepair.lua", "if ownsCurrent then\n            b.body:setIsFarming(false)", "if true then\n            b.body:setIsFarming(false)",
+         "window stop preserves current successor custody"),
+        ("SAO_WindowRepair.lua", "offers[id] = nil", "offers[id] = offers[id]",
+         "nothing in it sets an entry to nil"),
+        ("SAO_WindowRepair.lua", "offerCount >= MAX_OFFERS", "false",
+         "offer admission has finite native capacity"),
+        ("SAO_WindowRepair.lua", "Events.OnTick.Add(W.expireOffers)", "do end",
+         "abandoned offers expire at tick and world boundaries"),
+        ("SAO_WindowRepair.lua", "slot.offer == offer", "true",
+         "offer replacement and consumption retire the old slot"),
+        ("SAO_WindowRepair.lua", "    releaseBinding(action, b)\n    active.retryQueued", "    do end\n    active.retryQueued",
+         "window retirement requires exact owner and queue acknowledgement"),
+        ("SAO_WindowRepair.lua", "runtime[id] = nil", "runtime[id] = active",
+         "nothing in it sets an entry to nil"),
+        ("SAO_Controller.lua", "SAO.WindowRepair.forget(id)", "do end",
+         "controller forget reaches window cancellation owner"),
+        ("SAO_WindowRepair.lua", 'return W.interrupt(id, active and active.binding.body, "controller-forget")', "return true",
+         "window forget retains exact old receiver"),
+        ("SAO_WindowRepair.lua", "b.cancelled and action.action and not b.stopAcknowledged", "false",
+         "window retirement requires exact owner and queue acknowledgement"),
+        ("SAO_WindowRepair.lua", "action.action:forceStop()", "do end",
+         "window cancellation requests native stop and retains a retry"),
+        ("SAO_WindowRepair.lua", "if active and active.binding == b then retireAcknowledged(b.personId, active) end", "do end",
+         "native window stop acknowledges its captured queue and retires"),
+        ("SAO_WindowRepair.lua", "Events.OnTick.Add(W.retryCancellations)", "do end",
+         "window retries are bounded independently of living agents"),
+        ("SAO_WindowRepair.lua", "Events.OnInitGlobalModData.Add(W.reset)", "do end",
+         "world reset preserves the exact pending window cancellations"),
+        ("SAO_WindowRepair.lua", 'pcall(W.reset, "module-reload")', "do end",
+         "module reload retains the previous window cancellation closure"),
         ("SAO_Needs.lua", "recoveries[id] = nil", "recoveries[id] = recoveries[id]",
          "nothing in it sets an entry to nil"),
         ("SAO_Needs.lua", "return N.stopRecovery(id, work.body, reason, true)", "return false",
@@ -677,7 +785,7 @@ def main():
             print(f"  FAULT: recovery control did not reject its defect: {expected}")
             return 1
         print(f"  CONTROL rejected: {expected}")
-    print(f"  72) recovery retirement controls: {len(controls)} rejected")
+    print(f"  72) person lifetime controls: {len(controls)} rejected")
     return 0
 
 

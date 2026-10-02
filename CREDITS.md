@@ -25,6 +25,26 @@ Spadix84's Dan's Traits / Vitality source at
 An attributed adaptation is built in a separate private candidate. It supplies
 no shipped clinical or trait-registration claim in this batch.
 
+## Repairable Windows (albion)
+
+Workshop 3378304610, mod id `RepairableWindows`, installed version 2.1.0 with
+Build 42.13 minimum; upstream project
+<https://github.com/demiurgeQuantified/RepairableWindows>.
+**Optional installed API integration; no source or assets copied.**
+
+C112 invokes the installed AddWindowAction for the native glass replacement
+and exact pane consumption, with a bespoke actor/body/world/window/material
+binding guard and measured completion receipt. The same wrapper preserves valid
+player action queues and closes the installed missing-pane completion race.
+The optional package retains its own definitions, UI, media and StarlitLibrary
+dependency. SAO owns autonomous admission, native-result attribution, private
+performed experience and cancellation lifecycle. A source-adoption grant is
+unestablished; this integration uses the installed API and redistributes none
+of that package's source or media.
+Installed native constructor argument projection retains the exact character
+and window names. SAO's private binding capsules and disposal callbacks are
+bespoke integration state and never enter the optional package's arguments.
+
 ## Colonist Awareness Overhaul (CAO)
 
 ellyj3rain. GPL-3.0. **Methodology, adapted; no code taken.**

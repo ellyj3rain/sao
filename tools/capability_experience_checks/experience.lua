@@ -337,4 +337,46 @@ prior=copy(state("care"));hours=52
 check("animal_restored_replay_inert",C.animalCareOutcome("care",feed) and equal(prior,state("care")))
 records.care.animalCare.outcomes={}
 check("animal_retired_owner_refused",not C.animalCareOutcome("care",feed))
+hours=60
+records.repair={id="repair"}
+local repaired={id="repair/window-result/1",actorId="repair",sequence=1,
+ status="completed",paneConsumed=true,nativeAttempted=true,smashedBefore=true,
+ smashedAfter=false,glassRemovedAfter=false,nativeOwner="AddWindowAction.complete",
+ endedAt=59,entryKey="window:10:20:0:0:true",itemId="901",
+ fullType="RepairableWindows.LargeGlassPane",bodyToken="private-native-token",world="controlled-world"}
+local repairOwner=SAO.WindowRepair
+SAO.WindowRepair={outcome=function(id,sequence)
+ if id=="repair" and sequence==1 and repaired then return copy(repaired) end
+end}
+local changed=copy(repaired);changed.itemId="902"
+check("window_owner_authentication",not C.windowRepairOutcome("repair",changed))
+check("window_completed_admitted",C.windowRepairOutcome("repair",repaired))
+private=copy(last("repair"))
+check("window_private_projection",private.kind=="window-repair" and private.category=="construction"
+ and private.sourceId==repaired.entryKey and private.itemId==901
+ and private.itemType==repaired.fullType and private.nativeAttempted==nil
+ and private.paneConsumed==nil and private.bodyToken==nil and private.world==nil)
+check("window_no_goal_credit",noGoalCredit("repair"))
+check("window_independent_models",state("repair").models.ordinary.revision==1
+ and state("repair").models.associative.revision==1
+ and state("repair").models.ordinary.beliefs~=state("repair").models.associative.beliefs)
+check("window_model_memory",state("repair").models.ordinary.beliefs["direct:window-repair:"..repaired.entryKey..":"..repaired.fullType]~=nil
+ and state("repair").models.associative.beliefs["relation:transform:broken-glass:"..repaired.entryKey..":repaired-glass:"..repaired.entryKey]~=nil)
+prior=copy(state("repair"));hours=61
+check("window_duplicate_replay_inert",C.windowRepairOutcome("repair",repaired) and equal(prior,state("repair")))
+changed=copy(repaired);changed.paneConsumed=false
+check("window_unconsumed_pane_refused",not C.windowRepairOutcome("repair",changed))
+changed=copy(repaired);changed.status="interrupted"
+check("window_interrupted_work_refused",not C.windowRepairOutcome("repair",changed))
+changed=copy(private);changed.nativeAttempted=true
+check("window_hidden_native_state_refused",not M.acceptsExperience(changed))
+changed=copy(private);changed.observerId="b";changed.perspective="observed"
+check("window_unobserved_witness_refused",not M.acceptsExperience(changed))
+records.repair.cognition=copy(state("repair"));C.rebindWorld()
+prior=copy(state("repair"));hours=62
+check("window_restored_replay_inert",C.windowRepairOutcome("repair",repaired) and equal(prior,state("repair")))
+local savedWindowResult=copy(repaired)
+repaired=nil
+check("window_retired_owner_refused",not C.windowRepairOutcome("repair",savedWindowResult))
+SAO.WindowRepair=repairOwner
 RESULT="PASS extended cognition "..n

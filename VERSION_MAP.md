@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.10.2.0-pre-alpha` |
-| Closed chronology | `A1-C111` |
-| Next batch | `C112` |
+| Current version | `3.10.3.0-pre-alpha` |
+| Closed chronology | `A1-C112` |
+| Next batch | `C113` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -227,6 +227,7 @@ the machine. Names, dates, and threads below come from
 | `C109` | 2026-10-01 | patch | `3.10.1.1-pre-alpha` | Observer capture and session completion | Repair existing observer projection cost and freshness: demand-only rich inspection and exhausted-budget square guards preserve current basic state, archive evidence and existing consumer schemas; distinguish initiating stop, observer drain and native save return. No capability boundary changes, so patch. |
 | `C110` | 2026-10-01 | patch | `3.10.1.2-pre-alpha` | Route progress and tactical continuity | Repair false route stalls during physical/native node progress and moving-fallback tactical revision churn while preserving genuine stalls and meaningful private revisions. Existing capability contracts remain, so patch. |
 | `C111` | 2026-10-01 | kohai | `3.10.2.0-pre-alpha` | Native feeding and carried coolers | Connect existing native animal care to exact completion and private experience, integrate installed carried-cooler physics with the existing Body capture contract, and preserve complete source discovery. Existing action, inventory and cognition owners retain authority, so kohai. |
+| `C112` | 2026-10-02 | kohai | `3.10.3.0-pre-alpha` | Native window repair | Connect installed native window repair to the existing fortification purpose, exact actor/material/queue ownership, durable completion and independent private experience. Existing planning, physical action and cognition owners retain authority, so kohai. |
 
 ## The former number
 
@@ -247,11 +248,11 @@ establish release maturity.
 
 ## Next movement
 
-`C112` is the next batch. Its content determines its tier after it
+`C113` is the next batch. Its content determines its tier after it
 exists:
 
-| If C112 is | Result |
+| If C113 is | Result |
 |---|---|
-| patch or hotfix | `3.10.2.1-pre-alpha` |
-| kohai | `3.10.3.0-pre-alpha` |
+| patch or hotfix | `3.10.3.1-pre-alpha` |
+| kohai | `3.10.4.0-pre-alpha` |
 | minor | `3.11.0.0-pre-alpha` |

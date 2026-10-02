@@ -250,6 +250,7 @@ UNITS = [
     ('C109', 'patch', 'Repair existing observer projection cost and freshness: demand-only rich inspection and exhausted-budget square guards preserve current basic state, archive evidence and existing consumer schemas; distinguish initiating stop, observer drain and native save return. No capability boundary changes, so patch.'),
     ('C110', 'patch', 'Repair false route stalls during physical/native node progress and moving-fallback tactical revision churn while preserving genuine stalls and meaningful private revisions. Existing capability contracts remain, so patch.'),
     ('C111', 'kohai', 'Connect existing native animal care to exact completion and private experience, integrate installed carried-cooler physics with the existing Body capture contract, and preserve complete source discovery. Existing action, inventory and cognition owners retain authority, so kohai.'),
+    ('C112', 'kohai', 'Connect installed native window repair to the existing fortification purpose, exact actor/material/queue ownership, durable completion and independent private experience. Existing planning, physical action and cognition owners retain authority, so kohai.'),
 ]
 
 TIER_MEANINGS = [

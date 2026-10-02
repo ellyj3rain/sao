@@ -237,7 +237,7 @@ def main(root):
         with mock.patch.object(Sweep, 'MODULES', removed):
             if not rejects(lambda: Sweep.require_modules(lua)):
                 faults.append('missing cognitive owner accepted: ' + owner)
-    for owner in ('SourceUse', 'ResourceProduction', 'ModMechanics'):
+    for owner in ('SourceUse', 'ResourceProduction', 'ModMechanics', 'WindowRepair'):
         if owner in loaded:
             faults.append('dormant county silently acquired loaded executor: ' + owner)
         undeclared = dict(Sweep.NOT_DORMANT)

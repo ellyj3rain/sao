@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `3.10.2.0-pre-alpha` |
+| Version | `3.10.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -45,6 +45,40 @@ The dated [candidate inventory and scope](artifacts/audits/20261001-2330Z-1630PS
 covers all installed sources. Existing study cohorts and their frozen receipts
 retain their historical meaning. Vitality source adaptation is a separate private
 candidate; clinical owners, dormancy and trait curation are unfinished.
+
+### Native window repair and private result (C112)
+
+C112 connects the existing fortification decision to an optional installed
+window action. The survivor-private offer requires current visibility,
+facing, Standing permission, native interaction geometry and an exact pane
+in the main inventory. Current native object/add-list membership precedes
+admission and completion. Native boarding remains a real alternative.
+
+| Producer | Native result | Persistence and private consumer | Measured boundary | Remaining work |
+|---|---|---|---|---|
+| Controller fortification and WindowRepair | Installed complete(), exact pane removal and restored window glass | Plain bounded person work/outcomes; planner requery; authenticated Cognition acquisition and independent ordinary/associative cursors | Frozen stop-custody successor: 152 installed-execution cases/42 source controls, genuine native window/item receivers, full Controller death/handoff callers, native table roundtrip, GC disposal and exact character/window argument projection; private experience 1,025 extended assertions/86 controls across 89 executed invocations | Autonomous approach, nested-bag transfer, acquisition/crafting, dormant physical work, MP authority and loaded acceptance |
+
+Native cancellation has a separate retained runtime owner. Death, reset and
+handoff invalidate work, preserve the exact original action and queue until
+native acknowledgement, and use bounded OnTick retry after agent removal.
+Actions own private binding capsules; terminal original queue acknowledgement
+releases them to a scalar tombstone. Duplicate stop/perform leaves successor
+work untouched, and native character/window fields remain intact. Latest
+per-person offers have a global cap of 128 and explicit lifecycle disposal.
+Native stop cleanup for players and NPCs requires the captured body and
+window, the current body-to-queue lookup naming the original queue, and
+this action still owning its current first entry. The NPC clears its old
+farming flag before queue completion starts a legitimate successor. An
+obsolete callback removes only its old exact entry and acknowledges that
+owner, without resetting a replacement or advanced queue, dispatching
+orphaned work or clearing successor flags. Perform requires the same original current-queue custody. Force-cancel
+refuses changed captured body/window receivers and preserves native queue
+iteration while scheduling exact old-owner cancellation.
+
+Private learning has separate acknowledgements and bounded minute/start replay;
+unavailable learning cannot certify completion or prevent the physical action.
+Retiring an undelivered completed row records a learning omission explicitly.
+Source compatibility is an API join; no optional mod source or assets are copied.
 
 | Layer | What it makes possible | Without it |
 |---|---|---|

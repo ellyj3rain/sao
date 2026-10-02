@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.10.2.0-pre-alpha` |
+| Version | `3.10.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -26,6 +26,26 @@ Source activation follows compatible physical authority and completed joins;
 maintained purposes and exact native outcomes supply learning and practice.
 The literal educational and cultural corpus, automatic grading and retained
 knowledge remain the separate Speakeasy/SAO education work.
+
+C112 closes one measured repair slice: an already-adjacent actor with an exact
+main-inventory pane can select a privately visible damaged window through
+fortification, execute the installed action and retain its canonical result
+and performed private experience. Current body/world/window/material and
+Standing still own admission; a queue or approach supplies no completion.
+Late native cancellation has an independent bounded owner across death,
+reset and handoff.
+Action-owned binding capsules and latest per-person offers now have explicit
+disposal, measured in installed Kahlua. The source is reanchored onto public C111
+and its version-stamped package passes; the complete normal closing gate
+has its own log and exit receipt. Player and NPC terminal callbacks
+preserve successor queues and shared flags after exact old-owner acknowledgement.
+
+The next window work joins native approach, nested-bag transfer and actual pane
+acquisition or crafting to that same purpose and result owner. Headless dormant
+physical work, multiplayer authority and loaded-game acceptance remain open.
+DR-053 continues whole-collection and later-source discovery and curated effect
+ownership; this batch adds no trait catalogue and completes no unrelated
+clinical, growth, exercise or utility producer.
 
 ## Border compression and private unified project
 

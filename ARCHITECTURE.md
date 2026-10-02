@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.10.2.0-pre-alpha` |
+| Version | `3.10.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -223,6 +223,70 @@ dormant food selection currently precedes cooler reconciliation and remains open
 DR-053 applies these ownership rules to the whole installed candidate collection.
 Source adaptation and compatible shared APIs preserve one physical mechanism
 per effect; source registration alone supplies no private knowledge or practice.
+
+### Native window repair and private completion (C112)
+
+The Controller's existing fortification decision asks `SAO_WindowRepair` for
+an actor-bound adjoining-window offer. This body must currently see and face
+the broken window, stand on a native interaction tile within reach, belong to
+the current cell and have Standing permission and the exact carried pane.
+The scan admits no hidden building layout. The maintained purpose records an
+accepted work identity; admission alone advances no completed step.
+
+The optional installed AddWindowAction remains the physical completion owner.
+Its bespoke wrapper freezes the exact pane on the first native validity query
+and checks actor, record, world, cell, queue, window, inventory and material
+again immediately before completion. A completed canonical result requires
+both native pane consumption and measured restored glass. The existing native
+boarding route remains separate. Valid player queues use the same physical
+action and material guard.
+
+Each action owns a private token-checked binding capsule holding the exact
+native handles. NPC runtime retains that capsule and original queue until
+native acknowledgement; player completion retains it through its first exact
+queue completion acknowledgement. Terminal disposal leaves a scalar tombstone,
+so duplicate stop/perform cannot alter successor work or recapture another pane.
+Native character/window fields remain intact. Installed Kahlua GC was measured;
+no module action-key map depends on weak metatable semantics. The exact
+`new(character, window)` formal names preserve installed native network argument
+projection, which excludes the private capsule.
+
+Native stop cleanup for players and NPCs requires the captured body and
+window, the current body-to-queue lookup naming the original queue, and
+this action still owning its current first entry. The NPC clears its old
+farming flag before queue completion starts a legitimate successor. An
+obsolete callback removes only its old exact entry and acknowledges that
+owner, without resetting a replacement or advanced queue, dispatching
+orphaned work or clearing successor flags. Perform requires the same original current-queue custody. Force-cancel
+refuses changed captured body/window receivers and preserves native queue
+iteration while scheduling exact old-owner cancellation.
+
+`offers` retains only the latest decision-local slot per person, capped at 128
+across the module. Replacement, begin consumption/refusal and forget/death retire
+that slot; tick, world reset and module reload dispose abandoned slots.
+Plain `rec.windowRepair` retains bounded
+ordered results and `rec.windowRepairWork` retains the current purpose-bound
+work. `ProceduralPlanning.consumeWindowRepairOutcome` requeries this owner and
+advances only its exact completed result. `Cognition.windowRepairOutcome`
+independently authenticates the completed receipt and projects performed
+replacement into ordinary and associative model state, with separate replay
+cursors. The private projection carries no native handles, internal completion
+token, hidden source facts or new XP/recipe permission.
+
+Learning acknowledges only an accepted unchanged canonical row. Automatic
+EveryOneMinute/OnGameStart replay bounds each pass to 256 record lookups and
+32 result owners. Canonical registry replacement and world/reset/reload clear
+the retained iterator. The 32-result ledger distinguishes planning and learning
+acknowledgement; an undelivered completed result retired after planning
+acknowledgement increments `learningOmitted`.
+
+An independent OnTick owner retries at most 32 exact cancellations per pass.
+Death reaches it through Identity.markDead and Controller.forget. Native stop
+and original queue acknowledgement retire a started binding, even after the
+agent was removed. World reset retains refused cancellation handles and late
+callbacks retire them; a replacement owner waits. Both loaded and bodyless
+pending ZAO/Crossed handoffs cancel before resume, and completion itself refuses
+pending transfer. Other queued work remains untouched.
 
 Needs are engine stats read Java-side (`CharacterStat` HUNGER/THIRST/
 FATIGUE/ENDURANCE) and satisfied through the game's OWN timed actions -

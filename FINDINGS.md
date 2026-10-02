@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `3.10.2.0-pre-alpha` |
+| Version | `3.10.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2921,3 +2921,103 @@ transfer, including transfer before native start. Restored ownership defects
 fail their named installed-Kahlua controls. Action scheduling, animation and
 admission services are controlled in these probes; autonomous loaded prevalence
 and feed crafting remain open.
+
+## F-130 | 2026-10-02 03:28 UTC / 20:28 PST | Native window completion, retained cancellation and explicit disposal
+
+Repairable Windows 2.1.0 (Workshop 3378304610, author albion) supplies the
+installed `media/lua/shared/RepairableWindows/AddWindowAction.lua`. Its
+`complete()` lines 35-47 change smashed/glass state and sync
+the window before acquiring and removing the carried pane. Its actual complete() therefore
+returns a restored window in the controlled missing-pane case. The bespoke
+wrapper now freezes and revalidates the exact pane before native completion,
+then requires measured removal and restored glass before a completed receipt.
+The executing precompletion-material-owner control restores the defect.
+
+Independent review then reproduced two lifecycle defects in the frozen initial
+candidate using the full production updateAgent, Controller.forget and
+Identity.markDead: late native stop left retained runtime after ordinary death
+or reset, and pending ZAO handoff resumed while repair could still consume the
+pane. Exact native stop now retires the owner after original queue absence;
+bounded independent retry survives agent removal, and both handoff branches
+cancel before resume. The completion guard also refuses pending transfer.
+
+Installed Kahlua then proved that `__mode='k'` still backed the old maps with
+strong LinkedHashMap references. Completed actions and abandoned offers retained
+body/window bindings. The successor gives each action a token-checked private
+capsule, disposes it after exact native queue acknowledgement and leaves a
+terminal tombstone. Latest per-person offers are capped at 128 and explicitly
+retire at replacement, consumption, death and tick/reset. GC controls collect
+discarded constructor actions and retired capsules while engine character/window
+fields remain intact. Duplicate terminal callbacks and replaced queue lookups
+cannot dispatch the old action against unrelated successor work. The installed
+native network projector executes exact character/window constructor arguments
+and excludes private binding state.
+
+Native stop cleanup for players and NPCs requires the captured body and
+window, the current body-to-queue lookup naming the original queue, and
+this action still owning its current first entry. The NPC clears its old
+farming flag before queue completion starts a legitimate successor. An
+obsolete callback removes only its old exact entry and acknowledges that
+owner, without resetting a replacement or advanced queue, dispatching
+orphaned work or clearing successor flags. Perform requires the same original current-queue custody. Force-cancel
+refuses changed captured body/window receivers and preserves native queue
+iteration while scheduling exact old-owner cancellation.
+
+Installed counterexamples retained ten old-custody failures and one
+intermediate NPC flag-order failure. The final narrow lane passes fourteen
+checks; ordinary player cleanup and current NPC queue acknowledgement remain
+executed. The independent final retake passes 60 checks and seven controls.
+
+The retained lifecycle proof executes 77 cases and 16 controls. The frozen
+stop-custody successor proof executes 152 cases and 42 controls,
+including installed Kahlua/action/queue, actual native window/material receivers,
+full production callers and native table serialization. Surrounded geometry,
+body, clock, network and dispatch are controlled. The source is reanchored onto public C111;
+the complete normal gate remains pending.
+The actual post-reanchor census passes 37 caches/27 executing controls. Failed v4-v8 fixtures,
+the weak-key finding, earlier 138/35 proof and intermediate disposal controls
+remain historical.
+These are mechanical findings; loaded behavior and wider repair remain open.
+
+The installed action SHA256 is
+`6b193b10a6472026ccf45eac1979b4a3bea070344de85b5158d308ae381eea4f`.
+The Build 42.21 engine hash is the F-127 hash. The actual
+`se.krka.kahlua.j2se.KahluaTableImpl` retains declared weak keys until explicit
+release, as demonstrated in the installed-VM GC probe.
+`tools/window_repair_test.py` executes the production wrapper, installed action
+and queue; its named omission controls restore the failures. The retained
+152/42 source-bound proof has raw SHA
+`eac81075277c21c2a99acc9ff64313d36b8ecbf7f02c39ce29aead8e33b97a2d`.
+The independent 60/7 retake has raw SHA
+`373d3422ebca354de0a002f68d786a0406fcff6cf2de3228cd949aec01659a22`.
+Both retain actual native window/material receivers and queue behavior with
+controlled body/world/scheduling surroundings. No optional source is copied.
+
+## F-131 | 2026-10-02 05:25 UTC / 22:25 PST | Declared window reach and current coordination source evidence
+
+The first complete normal hook exited 1 after all 1,314 lines were
+reviewed. Borders 47 and 49 found a bare squared reach; Border 191
+found the historical capture manifest bound to the earlier Controller.
+The named two-tile reach preserves the physical threshold. The current
+diagonal fixture has squared distance 3.125, and restoring an unsquared
+limit fails its executing control. The corrected native proof passes
+152 cases and 43 controls; the exact-source independent retake passes
+60 checks and seven controls.
+
+Border 191 now reads a fresh C112-local coordination snapshot. Its
+twenty catalogue/decision rows retain exact historical bytes, partitions
+and standing; only the Controller source hash and manifest seal change.
+All three native pressure/registration/attribution controls pass. The
+original C88 capture and 578 protected inputs remain unchanged. This
+capture remains candidate observation and grants no training admission.
+
+The preserved full hook log has SHA256 `e0d4a5f3a6a307fd85709cad7a496523967fef9577bdacec3dd1a8806dc03ff5`.
+The corrected 152/43 source receipt has SHA256 `fb04c3bd49d0c1f71ba3c3b12696017b90548342854105c4d651f01a0154785e`.
+The independent 60/7 retake has SHA256 `b86e359a9353345d30495a71eeb2a6d2997452e1c1146da7228b2a33aa408f68`.
+
+Capture-time qualification: generation preserved all 578 then-current
+protected inputs. The later C112 closing refresh changes six owned
+documentation outputs: the portable proof JSON, scope Markdown and
+four corresponding batch/FINDINGS/SESSION/scope DOCX drafts. The other
+572 protected paths, including model/R84/C88 inputs, retain exact bytes.
+The original generation receipt and this ledger entry remain preserved.
