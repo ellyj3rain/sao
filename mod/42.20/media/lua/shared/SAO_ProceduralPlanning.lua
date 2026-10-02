@@ -10,6 +10,7 @@ SAO = SAO or {}
 SAO.ProceduralPlanning = SAO.ProceduralPlanning or {}
 local P = SAO.ProceduralPlanning
 local RESOURCE_RESULT = {}
+local WINDOW_REPAIR_RESULT = {}
 
 local MAX_PURPOSES, MAX_FACTS, MAX_EVENTS = 12, 64, 32
 local MAX_RESIDENCE_ATTEMPTS = 16
@@ -982,6 +983,26 @@ end
 
 function P.planFortification(id, context)
     context = type(context) == "table" and context or {}
+    if context.operation == "repair" then
+        if type(context.entryKey) ~= "string" then return nil, "window-not-observed" end
+        local purpose = P.maintain(id, { key = "repair:" .. context.entryKey,
+            objective = "replace glass in a damaged entrance on held ground",
+            domain = "construction", origin = "place-security", atHours = context.atHours })
+        if not purpose then return nil, "person-unavailable" end
+        local blockers = {}
+        if not context.insideOwnedGround then blockers[#blockers + 1] = "not-on-owned-ground" end
+        if not context.knownGround then blockers[#blockers + 1] = "window-not-observed" end
+        if not context.hasPane then blockers[#blockers + 1] = "missing-carried-glass" end
+        setPlan(purpose, {{ id = "repair-known-window", verb = "construct", owner = "SAO.WindowRepair",
+            status = #blockers == 0 and "available" or "blocked", token = "construction:window-repaired",
+            target = context.entryKey }}, blockers, interpretations(id, {
+                { id = "repair", evidence = context.knownGround and 0.9 or 0.1,
+                  continuity = 0.7, novelty = 0.1, informationGain = 0.3, blockers = #blockers }
+            }, { domain = "construction", pressure = tonumber(context.pressure) or 0 }),
+            finite(context.atHours) and context.atHours or nowHours())
+        purpose.windowRepair = true
+        return purpose, purpose.steps[purpose.cursor]
+    end
     local purpose = P.maintain(id, { key = "fortify-home",
         objective = "reduce exposed entrances on held ground",
         domain = "construction", origin = "place-security", atHours = context.atHours })
@@ -1245,6 +1266,7 @@ function P.recordResult(id, purposeId, result, authority)
     local s = state(id)
     local purpose = s and s.purposes[tostring(purposeId or "")]
     if purpose and purpose.resourceCategory and authority ~= RESOURCE_RESULT then return false end
+    if purpose and purpose.windowRepair and authority ~= WINDOW_REPAIR_RESULT then return false end
     if not purpose or type(result) ~= "table" or type(result.owner) ~= "string"
         or type(result.token) ~= "string"
         or (result.status ~= "completed" and result.status ~= "failed"
@@ -1308,12 +1330,31 @@ function P.recordResult(id, purposeId, result, authority)
         purpose.resultReceipts[#purpose.resultReceipts + 1] = receiptKey
         if #purpose.resultReceipts > MAX_EVENTS then table.remove(purpose.resultReceipts, 1) end
     end
-    if purpose.resourceCategory then
+    if purpose.resourceCategory or purpose.windowRepair then
         purpose.lastAdmission = dataCopy(purpose.admission)
         purpose.admission = nil
     end
     addEvent(purpose, "result", result.status .. ":" .. result.token, at)
     return true
+end
+
+function P.consumeWindowRepairOutcome(id, sequence)
+    local owner = SAO.WindowRepair
+    local result = owner and owner.outcome(id, sequence)
+    local s = state(id)
+    local purpose = result and s and s.purposes[result.purposeId]
+    if not result or not purpose or not purpose.windowRepair then return false end
+    local admission = purpose.admission or purpose.lastAdmission
+    if not admission or admission.owner ~= "SAO.WindowRepair"
+        or admission.correlationId ~= result.workId
+        or admission.target ~= result.entryKey then return false end
+    local receipt = { owner = "SAO.WindowRepair", token = "construction:window-repaired",
+        correlationId = result.workId, status = result.status, reason = result.reason,
+        atHours = result.endedAt }
+    if result.status == "completed" and (result.paneConsumed ~= true or result.smashedBefore ~= true
+        or result.smashedAfter ~= false or result.glassRemovedAfter ~= false) then return false end
+    if not P.recordResult(id, purpose.id, receipt, WINDOW_REPAIR_RESULT) then return false end
+    return owner.acknowledge(id, sequence)
 end
 
 function P.consumeSourceResult(receipt)

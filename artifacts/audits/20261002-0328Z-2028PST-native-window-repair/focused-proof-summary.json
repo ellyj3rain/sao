@@ -1,0 +1,288 @@
+{
+  "schema": "sao-native-window-repair-proof-summary/2",
+  "status": "focused-native-and-package-pass-normal-hook-separate",
+  "batch": "C112",
+  "timestamp": "2026-10-02 03:28 UTC / 20:28 PST",
+  "publicParent": "775ade5f3e03587052fd42659308957f42392aa7",
+  "version": "3.10.3.0-pre-alpha",
+  "evidence": {
+    "nativeWindowRepair": {
+      "localReceipt": "_scratch/c112-window-repair/reach-successor-proof-v1/receipt.json",
+      "receiptSha256": "fb04c3bd49d0c1f71ba3c3b12696017b90548342854105c4d651f01a0154785e",
+      "cases": 152,
+      "productionControls": 43
+    },
+    "independentRetake": {
+      "localReceipt": "_scratch/c112-window-repair/independent-final-review/retake-reach-successor-v1/receipt.json",
+      "receiptSha256": "b86e359a9353345d30495a71eeb2a6d2997452e1c1146da7228b2a33aa408f68",
+      "checks": 60,
+      "omissionControls": 7
+    },
+    "acceptedFindings": {
+      "localReceipt": "_scratch/c112-window-repair/independent-final-review/retake-reach-successor-v1/bounded-review.json",
+      "receiptSha256": "bd160bf9f16ca86bddc1a21a88f732e2f123ce6b8fca5b3c4ca4cbbe9a7ced5e",
+      "acceptedFindingsClosed": 5
+    },
+    "runtimeFreeze": {
+      "localReceipt": "_scratch/c112-window-repair/reach-successor-freeze-v1/receipt.json",
+      "receiptSha256": "4c43d691eb4a8d6a7e38d8a3dbfd03638f0385ff5b4b683442b65c4c536f4585",
+      "sourcePins": 14,
+      "compilerVerdicts": 14,
+      "newCompilerVerdicts": 4
+    },
+    "privateExperience": {
+      "localReceipt": "_scratch/c112-window-repair/private-experience-v2-raw/receipt.json",
+      "receiptSha256": "6005861967eafad255792c5eed0af34288ef5833b745f8c76750771659038103",
+      "modelCases": 29,
+      "ledgerCases": 49,
+      "extendedAssertions": 1025,
+      "invocations": 89,
+      "controls": 86
+    },
+    "publicReanchor": {
+      "localReceipt": "_scratch/c112-window-repair/public-reanchor-v1/receipt.json",
+      "receiptSha256": "8f93efdd943b17e37b9c6fdc00c3afa3f093c2be56fe13c369cead0ec321b812",
+      "cacheComposition": "C11135+WindowRepair2"
+    },
+    "canonicalText": {
+      "localReceipt": "_scratch/c112-window-repair/closing-corrections-canonical-v3/receipt.json",
+      "receiptSha256": "793269ba639574e2ac23c1d09d9265d8dc328e1976af6e74b4ac54a24b8b0479",
+      "standing": "Current text preserves failed and restart-interrupted attempts; complete third hook owns the closing verdict"
+    },
+    "machineStamp": {
+      "localReceipt": "_scratch/c112-window-repair/machine-stamp-receipt.json",
+      "receiptSha256": "07961d5bc6174a015b5aba1b196074bbdeb39f3114eb6af230444d23e173e933",
+      "tests": 234,
+      "entryPoints": 250,
+      "otherEntryPoints": 16,
+      "luaSources": 188,
+      "highestBorder": 232
+    },
+    "javaBuild": {
+      "localReceipt": "_scratch/c112-window-repair/java-build-receipt.json",
+      "receiptSha256": "c187fbc5182e2723ecf14a27d1d72b453fb2c4981df37ed70c4020d6892313a6",
+      "sourceCount": 44,
+      "classCount": 96,
+      "jarBytes": 333612
+    },
+    "postPublicCensus": {
+      "localReceipt": "_scratch/c112-window-repair/public-census-v1.log",
+      "receiptSha256": "5e31d3886ef7807ed3835545425f9a6dc9a0e19f0c62bc927ff2460df1195051",
+      "personCaches": 37,
+      "controls": 27
+    },
+    "postPublicNamespace": {
+      "localReceipt": "_scratch/c112-window-repair/public-globals-v1.log",
+      "receiptSha256": "9eeec06162f021fd9aa7338f74348443aea603a8d241d92243646b7f34df703a",
+      "globals": 191,
+      "writes": 12,
+      "foreignNamespaces": 4
+    },
+    "postPublicHeadless": {
+      "localReceipt": "_scratch/c112-window-repair/public-headless-v1.log",
+      "receiptSha256": "83173e988edd02a86a5c498a21d187a6385d319a46b61dd7984a563ad90ad46f",
+      "border": 159
+    },
+    "reachChecks": {
+      "localReceipt": "_scratch/c112-window-repair/reach-focused-tool-results-v1.json",
+      "receiptSha256": "60ca0c8e5f3c11c0233716dac19a5219ec49eaf3eec3eef17f5297235d9e2a96",
+      "borders": [
+        47,
+        49,
+        55,
+        77
+      ]
+    },
+    "coordinationCapture": {
+      "localReceipt": "_scratch/c112-window-repair/coordination-capture-successor-v1/receipt.json",
+      "receiptSha256": "53698fcfb5b73f183e49aa6632d7448f0e02b8b6885222fc6890a24f942a1040",
+      "rows": 20,
+      "controls": 3,
+      "captureTimeProtectedInputsUnchanged": 578,
+      "subsequentOwnedDocumentationRefreshes": 6,
+      "otherProtectedPathsUnchanged": 572
+    },
+    "failedCompleteHook": {
+      "localReceipt": "_scratch/c112-window-repair/closing-build-validation-v1/normal-hook-review/complete-review-v1.json",
+      "receiptSha256": "2c88f5ddf8cf03683296227a64cfadbf9aa5d1131b517e12cd2f880b06e5a932",
+      "exit": 1,
+      "linesRead": 1314,
+      "findings": [
+        47,
+        49,
+        191
+      ]
+    },
+    "restartInterruptedHook": {
+      "localReceipt": "_scratch/c112-window-repair/restart-interrupted-candidate-v2/receipt.json",
+      "receiptSha256": "78e6d1a6d2ff5c514038e0258168e667df5fe9272459594dc10e314a219718ac",
+      "exit": null,
+      "linesRead": 958,
+      "logSha256": "b2759d60f546e645849bd0d702ed757574d846701046fa8c5338697fd064312e",
+      "rawAndIndexPinsUnchanged": 81
+    },
+    "pharmacologyRecovery": {
+      "localReceipt": "_scratch/c112-window-repair/restart-recovery-v1/command-result.json",
+      "receiptSha256": "3e6957ce3e68b45f30b8eda32ccc800fc80ce59374cf9bfd4d66625c0b3d488d",
+      "nativeReceipt": "_scratch/c112-window-repair/restart-recovery-v1/pharmacology/receipt.json",
+      "nativeReceiptSha256": "e4b058fce8df7da0a09225931936cdb32973c4bcc5b1d86d1d1c3662d13ca840",
+      "exit": 0,
+      "cases": 145,
+      "controls": 30,
+      "sourceChanges": 0
+    }
+  },
+  "rawSourceSha256": {
+    "VERSION": "4597c6453248fcb569f23ed375a0f8378dd37e6b92a8364ade48358e34852b6a",
+    "artifacts/audits/20261002-0328Z-2028PST-native-window-repair/coordination-scenes/catalogue.json": "fb6901396a46b97da642d2fc69bf8d68e9e8da8d58f3cd8dd825c93c6714c54c",
+    "artifacts/audits/20261002-0328Z-2028PST-native-window-repair/coordination-scenes/decisions.jsonl": "8056bdf5e8f0c226b9be4abb5abb2e58958c33682216251e474479d7d348c8ff",
+    "artifacts/audits/20261002-0328Z-2028PST-native-window-repair/coordination-scenes/manifest.json": "1a7aa7bebc7a076e522b1340fe5d99b180561190b0011bc2a8787691be8af006",
+    "java/dist/SAOAgent.jar": "c5fb87f985f55e30644d186bb7ee736a66c921579f352f57d89c9262c44e89e9",
+    "mod/42.20/media/java/SAO.jar": "c5fb87f985f55e30644d186bb7ee736a66c921579f352f57d89c9262c44e89e9",
+    "mod/42.20/media/lua/client/SAO_Controller.lua": "1e09fb8eb590a2c45704dce67c02c58aed43647e3e74b38efe9dc13f065fe114",
+    "mod/42.20/media/lua/client/SAO_WindowRepair.lua": "9ad2b7e02ee77a6b675993e16481cc6e956307bda940482a0ae428f1cdb1f7e0",
+    "mod/42.20/media/lua/shared/SAO_Cognition.lua": "f543d5d12212d77fd188d0beb4785014d6103eb4eba2a940b6c28ec9dea43dcc",
+    "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua": "b41c9bd090df32494c3bc65da142159a6c6dd9f70c382cce0ca91683a399a099",
+    "mod/42.20/media/lua/shared/SAO_Identity.lua": "51ef442d4958b3eb7c249b96661f4e667d175cdd5a8f62f96e8e67caf518134b",
+    "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua": "63d167379d3ba67e6b6dc6c5cda19f8ede806a26d05afd49f453e3716c347ab1",
+    "mod/42.20/mod.info": "e642c1ca22bc5246f93f9060dee5d57beeb9c8fb9645f83abb23c8c2a9422982",
+    "mod/mod.info": "e642c1ca22bc5246f93f9060dee5d57beeb9c8fb9645f83abb23c8c2a9422982",
+    "tools/capability_experience_checks/controls.py": "8a25f087d29ce96b011e5945de4c66534a83169d50762bf4f2ffd8d835f457cb",
+    "tools/capability_experience_checks/experience.lua": "d60090219e313797c205b132f087d13607debf3a7dbb7913ce706d091241459c",
+    "tools/capability_experience_checks/run_checks.py": "e6ea4becbedacf60f0483abcc3fee76ef7ee1bbd5022d1953fc0a9bc703e5030",
+    "tools/check.sh": "85a6e043e7027750930ba96b3abebc05e7d0eb46363e2d3cc5a107240e9d2039",
+    "tools/coordination_scene_dump_test.py": "a1217a694c2e6c5313e1aefa7b874778e282be054d2aad3a2f3d4ad5b96ad6c7",
+    "tools/county_sweep.py": "68d21903af3a880e7fdd0c8ed04f4a840677a01c44c5466061b6213b0951cfef",
+    "tools/forget_on_death_test.py": "fd231a35e09dd1444a9591750025ae134614cfa4b23dc5f2e37e56cb863cda47",
+    "tools/globals_census_test.py": "dc8b68288528042b8d7f242a3af7e05ff23ce271d809a59b3640ff319941e317",
+    "tools/luacheck/WindowRepairNativeProbe.java": "e3cc95328d8d01b7bb71ab42565d4657f5d52edc5a83efd9e1967651e15133cf",
+    "tools/luacheck/window_repair_cases.lua": "46577e7244a440bb56ed817435285c609fdc20353d8b8191aaf84350e93bb088",
+    "tools/luacheck/window_repair_disposal_cases.lua": "dedc673439fd2dc8d802772b7744667bc7523ef1da8713f0d30a75da1bae6b11",
+    "tools/luacheck/window_repair_learning_cases.lua": "832c77dfe2d84652ed1e0cdd691665d6774306baf2ef9c44a28aadc9291ed8da",
+    "tools/luacheck/window_repair_stop_cases.lua": "6468798911bfce76668fd08456378ba5b7b9bb56bbccfb39f44d2decf3719d6b",
+    "tools/native_proof_preflight.py": "051ae8b6621627860ede97f48c502b56197593199db6002e5235cebcbb27e30d",
+    "tools/trajectory_simulation_test.py": "5fd43891588d3cf034200db113edd94983094a05753aed1a9a4df85bc6e536a9",
+    "tools/version_replay.py": "3178ed39c3893c3c04bcd020a6e51775e47f0e813acd9941ccdabc884e6e9010",
+    "tools/window_repair_test.py": "4a9285a686d3dbeaf104fedab0d7c49c7371a7a86f7fadfd2c0eff96133b2937"
+  },
+  "nativeEngineSha256": "e1a69eb743ede60b213a0fe7f8b83d4fcab773036d256cc4543a336f3b058a33",
+  "optionalActionSha256": "6b193b10a6472026ccf45eac1979b4a3bea070344de85b5158d308ae381eea4f",
+  "normalGate": {
+    "standing": "separate complete normal pre-commit hook",
+    "command": "git commit -m '[C112] source: native window repair'",
+    "localLog": "_scratch/c112-window-repair/normal-hook-commit-v3.log",
+    "localResult": "_scratch/c112-window-repair/normal-hook-commit-result-v3.json",
+    "firstAttempt": {
+      "exit": 1,
+      "linesRead": 1314,
+      "logSha256": "e0d4a5f3a6a307fd85709cad7a496523967fef9577bdacec3dd1a8806dc03ff5",
+      "preservedCandidate": "_scratch/c112-window-repair/failed-normal-candidate-v1/receipt.json"
+    },
+    "interruptedAttempt": {
+      "localReceipt": "_scratch/c112-window-repair/restart-interrupted-candidate-v2/receipt.json",
+      "receiptSha256": "78e6d1a6d2ff5c514038e0258168e667df5fe9272459594dc10e314a219718ac",
+      "exit": null,
+      "linesRead": 958,
+      "logSha256": "b2759d60f546e645849bd0d702ed757574d846701046fa8c5338697fd064312e",
+      "rawAndIndexPinsUnchanged": 81
+    }
+  },
+  "reanchorBoundary": "Public C111 cache/global declarations remain joined. The explicit reach declaration changes only WindowRepair, its diagonal fixture and runner; all original pre-hook frozen bytes and failed-candidate files remain preserved.",
+  "boundary": "Actual installed Kahlua/action/queue, isolated native window/item/inventory receivers, table serialization, GC and NetTimedAction argument projection. Surrounding body, map, clocks, network authority, dispatch and teardown are controlled.",
+  "limits": [
+    "Already at the native interaction tile; bounded scan of three adjoining loaded tiles.",
+    "Pane must be the exact carried main-inventory item.",
+    "Approach, nested-bag transfer, acquisition, crafting, dormant physical repair, multiplayer authority and loaded acceptance remain open.",
+    "The whole installed collection and later sources remain integration candidates.",
+    "These proofs grant no corpus admission, educational evaluation or model-weight training. R84 inputs/trials/saves are protected."
+  ],
+  "historicalFailures": "Original failed native fixtures, weak-key retention, ten obsolete-queue custody failures and one NPC successor-flag ordering failure remain immutable in local scratch. The passing152/42 successor supplied pre-hook counts. The complete first normal hook preserves the47/49/191 refusal. The passing152/43 reach successor and fresh exact-source60/7 retake now supply current counts; all earlier receipts remain intact.",
+  "exportStanding": "package-checked DOCX drafts; visual office rendering unavailable",
+  "historicalEvidence": {
+    "nativeWindowRepair": {
+      "localReceipt": "_scratch/c112-window-repair/stop-custody-proof-v2/receipt.json",
+      "receiptSha256": "eac81075277c21c2a99acc9ff64313d36b8ecbf7f02c39ce29aead8e33b97a2d",
+      "cases": 152,
+      "productionControls": 42
+    },
+    "independentRetake": {
+      "localReceipt": "_scratch/c112-window-repair/independent-final-review/retake-stop-custody-v1/receipt.json",
+      "receiptSha256": "373d3422ebca354de0a002f68d786a0406fcff6cf2de3228cd949aec01659a22",
+      "checks": 60,
+      "omissionControls": 7
+    },
+    "acceptedFindings": {
+      "localReceipt": "_scratch/c112-window-repair/independent-final-review/stop-custody-final-bounded-review.json",
+      "receiptSha256": "937519e2905d00bb4ec785eeef4c81c7e43eaa26ae01036d70dc7013b333f4a7",
+      "acceptedFindingsClosed": 5
+    },
+    "runtimeFreeze": {
+      "localReceipt": "_scratch/c112-window-repair/stop-custody-freeze-v1/receipt.json",
+      "receiptSha256": "dbe4eb4203c929a70e48e6d287ee101a0a9fa8db45ce2f35139a7c313cd9b9e3",
+      "sourcePins": 14
+    },
+    "privateExperience": {
+      "localReceipt": "_scratch/c112-window-repair/private-experience-v2-raw/receipt.json",
+      "receiptSha256": "6005861967eafad255792c5eed0af34288ef5833b745f8c76750771659038103",
+      "modelCases": 29,
+      "ledgerCases": 49,
+      "extendedAssertions": 1025,
+      "invocations": 89,
+      "controls": 86
+    },
+    "publicReanchor": {
+      "localReceipt": "_scratch/c112-window-repair/public-reanchor-v1/receipt.json",
+      "receiptSha256": "8f93efdd943b17e37b9c6fdc00c3afa3f093c2be56fe13c369cead0ec321b812",
+      "cacheComposition": "C11135+WindowRepair2"
+    },
+    "canonicalText": {
+      "localReceipt": "_scratch/c112-window-repair/closing-docs/canonical-v1/receipt.json",
+      "receiptSha256": "716d84fac1a5ec56685a982c04d1117fc8defa01ebf4f5c850764f79279485da",
+      "standing": "pre-machine-stamp text freeze"
+    },
+    "machineStamp": {
+      "localReceipt": "_scratch/c112-window-repair/machine-stamp-receipt.json",
+      "receiptSha256": "07961d5bc6174a015b5aba1b196074bbdeb39f3114eb6af230444d23e173e933",
+      "tests": 234,
+      "entryPoints": 250,
+      "otherEntryPoints": 16,
+      "luaSources": 188,
+      "highestBorder": 232
+    },
+    "javaBuild": {
+      "localReceipt": "_scratch/c112-window-repair/java-build-receipt.json",
+      "receiptSha256": "c187fbc5182e2723ecf14a27d1d72b453fb2c4981df37ed70c4020d6892313a6",
+      "sourceCount": 44,
+      "classCount": 96,
+      "jarBytes": 333612
+    },
+    "postPublicCensus": {
+      "localReceipt": "_scratch/c112-window-repair/public-census-v1.log",
+      "receiptSha256": "5e31d3886ef7807ed3835545425f9a6dc9a0e19f0c62bc927ff2460df1195051",
+      "personCaches": 37,
+      "controls": 27
+    },
+    "postPublicNamespace": {
+      "localReceipt": "_scratch/c112-window-repair/public-globals-v1.log",
+      "receiptSha256": "9eeec06162f021fd9aa7338f74348443aea603a8d241d92243646b7f34df703a",
+      "globals": 191,
+      "writes": 12,
+      "foreignNamespaces": 4
+    },
+    "postPublicHeadless": {
+      "localReceipt": "_scratch/c112-window-repair/public-headless-v1.log",
+      "receiptSha256": "83173e988edd02a86a5c498a21d187a6385d319a46b61dd7984a563ad90ad46f",
+      "border": 159
+    },
+    "preInputQualificationCanonicalText": {
+      "localReceipt": "_scratch/c112-window-repair/closing-corrections-canonical-v1/receipt.json",
+      "receiptSha256": "74a95b3521250452931b3679a2a4dfb7ab7a20ce6eda91af2a0cf582a3099712",
+      "standing": "current corrected text before second normal hook"
+    },
+    "preRestartCanonicalText": {
+      "localReceipt": "_scratch/c112-window-repair/closing-corrections-canonical-v2/receipt.json",
+      "receiptSha256": "ed2f13c9b4e572d7c4aed414ad8f850d404f413c16ca563754d3bed233142917",
+      "standing": "current capture-time-qualified text before second complete normal hook"
+    }
+  }
+}

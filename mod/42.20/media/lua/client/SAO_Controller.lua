@@ -29,6 +29,7 @@ if not SAO.ProceduralPlanning and type(require) == "function" then
 end
 if not SAO.Study and type(require) == "function" then pcall(require, "SAO_Study") end
 if not SAO.ResourceProduction and type(require) == "function" then pcall(require, "SAO_ResourceProduction") end
+if not SAO.WindowRepair and type(require) == "function" then pcall(require, "SAO_WindowRepair") end
 
 -- id -> { rec, state, stateSince, nextDecisionAt, fleeTarget }
 Ctl.agents = Ctl.agents or {}
@@ -381,6 +382,9 @@ function Ctl.drop(id)
     if Ctl.agents[id] then
         local body = SAO.Body and SAO.Body.get and SAO.Body.get(id) or nil
         local rec = Ctl.agents[id].rec
+        if SAO.WindowRepair and SAO.WindowRepair.interrupt(id, body, "controller-drop") ~= true then
+            return false, "window-repair-action-pending"
+        end
         if SAO.Posture and SAO.Posture.jobs
             and SAO.Posture.jobs[id] then
             SAO.Posture.interrupt(id, body, "controller-drop")
@@ -744,6 +748,10 @@ end
 local function setState(agent, id, state, why, answer, repairingSourceProjection)
     if agent.state ~= state and not repairingSourceProjection then
         local sourceBody = SAO.Body.get(id)
+        if state ~= "WINDOWREPAIR" and SAO.WindowRepair
+            and SAO.WindowRepair.interrupt(id, sourceBody, "state-change:" .. tostring(state)) ~= true then
+            return false
+        end
         if state ~= "RESOURCE" and agent.rec.resourceProductionWork and SAO.ResourceProduction
             and SAO.ResourceProduction.interrupt(id, sourceBody, "state-change:" .. tostring(state)) ~= true then
             return false
@@ -889,6 +897,7 @@ setStateRef = setState
 -- source action and accidentally cancel the brand-new route with it.
 local function orderTravelState(agent, id, body, x, y, z, state, why, answer)
     id = tostring(id)
+    if SAO.WindowRepair and SAO.WindowRepair.interrupt(id, body, "replacement-route") ~= true then return false end
     if SAO.SourceUse and SAO.SourceUse.beforeStateChange
         and SAO.SourceUse.beforeStateChange(id, body, agent.state,
             state, why) == false then
@@ -4544,6 +4553,7 @@ local function decideHomeAndEquipment(id, agent, body, tick, rec)
         local claim = SAO.Standing.claimOf(id)
         if claim and SAO.Standing.insideClaim(id, body:getX(), body:getY())
             and SAOJavaBridge then
+            if Ctl.tryWindowRepair(id, agent, body, tick) then return true end
             local makings = false
             pcall(function()
                 makings = SAOJavaBridge:carriesTheMakings(body)
@@ -4608,6 +4618,22 @@ local function decideHomeAndEquipment(id, agent, body, tick, rec)
         end
     end
 
+end
+
+-- This is called by the existing held-ground fortification decision.
+function Ctl.tryWindowRepair(id, agent, body, tick)
+    if not SAO.WindowRepair or agent.state ~= "IDLE" or agent.passive
+        or not SAO.Standing.fallHasCome() or not SAO.Standing.claimOf(id)
+        or not SAO.Standing.insideClaim(id, body:getX(), body:getY()) then return false end
+    local offer = SAO.WindowRepair.offer(id, body)
+    if not offer then return false end
+    if not setState(agent, id, "WINDOWREPAIR", "replaces glass in an observed damaged window") then return false end
+    if SAO.WindowRepair.begin(id, body, offer) then
+        agent.taskDeadline = tick + BOARD_TICKS
+        return true
+    end
+    setState(agent, id, "IDLE", "window repair could not enter native work")
+    return false
 end
 
 local function decideNightAndDrift(id, agent, body, tick, rec)
@@ -8216,6 +8242,7 @@ local function updateAgent(id, agent)
         -- checks. The transfer module still refuses a canonically dead record.
         if zaoPending and not pendingSource
             and SAO.CrossedTransfer and SAO.CrossedTransfer.resumePending then
+            if SAO.WindowRepair and SAO.WindowRepair.interrupt(id, nil, "zao-person-ownership-transfer") ~= true then return end
             pcall(SAO.CrossedTransfer.resumePending)
         end
         return
@@ -8317,6 +8344,7 @@ local function updateAgent(id, agent)
     pendingSource = SAO.WorldSources and SAO.WorldSources.pendingActionFor
         and SAO.WorldSources.pendingActionFor(id) or nil
     if agent.rec.zaoTransferPending or agent.rec.crossedTransferPending then
+        if SAO.WindowRepair and SAO.WindowRepair.interrupt(id, body, "zao-person-ownership-transfer") ~= true then return end
         if SAO.Posture and SAO.Posture.jobs and SAO.Posture.jobs[id] then
             SAO.Posture.interrupt(id, body, "zao-person-ownership-transfer")
         end
@@ -8728,6 +8756,17 @@ local function updateAgent(id, agent)
     -- They leave when the work has had its moment, and immediately if
     -- something they believe in comes close: nobody finishes nailing
     -- while the thing they were nailing against walks up.
+    if agent.state == "WINDOWREPAIR" then
+        local threat = SAO.Perception.nearestBelievedZombie(id, tickCount, body:getX(), body:getY())
+        SAO.WindowRepair.flush(id)
+        if threat and threat.dist <= SAO.Disposition.fleeDistance(id)
+            or tickCount >= (agent.taskDeadline or 0) then
+            setState(agent, id, "IDLE", "leaves the window repair")
+        elseif not SAO.WindowRepair.active(id, body) then
+            setState(agent, id, "IDLE", "native window work closed")
+        end
+        return
+    end
     if agent.state == "BOARDING" then
         local bThreat = SAO.Perception.nearestBelievedZombie(
             id, tickCount, body:getX(), body:getY())
@@ -9513,6 +9552,7 @@ local agentFaults = {}
 -- inline at the two death branches, where the order matters; this is
 -- for the caches that just need to stop existing.
 function Ctl.forget(id)
+    if SAO.WindowRepair then SAO.WindowRepair.forget(id) end
     if SAO.Needs.retireRecovery then SAO.Needs.retireRecovery(id, "controller-forget") end
     agentFaults[tostring(id)] = nil
     -- External execution owners borrow this scratch state without entering

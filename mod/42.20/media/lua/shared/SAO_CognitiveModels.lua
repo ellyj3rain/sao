@@ -20,7 +20,7 @@ local EVENT_KEYS = { id=true, actorId=true, observerId=true, worldHours=true,
     occurredAtHours=true, stats=true, beforeCookingTime=true,
     afterCookingTime=true, heatObserved=true, consumedAmount=true, quantityUnit=true }
 local EXTENDED = { ["medication-use"]=true, ["physical-change"]=true, preparation=true,
-    ["animal-care"]=true }
+    ["animal-care"]=true, ["window-repair"]=true }
 local STATS = { "HUNGER", "THIRST", "FATIGUE", "ENDURANCE", "PANIC", "STRESS",
     "NICOTINE_WITHDRAWAL", "BOREDOM", "UNHAPPINESS", "DISCOMFORT", "INTOXICATION", "ANGER", "PAIN" }
 local STAT_KEYS = {} for _,name in ipairs(STATS) do STAT_KEYS[name]=true end
@@ -67,7 +67,8 @@ local function occurrencePosition(e)
     local prefix=e.kind=="medication-use" and "medication/"
         or e.kind=="physical-change" and "physical/"
         or e.kind=="preparation" and ("cooking/"..e.actorId.."/")
-        or e.kind=="animal-care" and ("animal-care/"..e.actorId.."/") or nil
+        or e.kind=="animal-care" and ("animal-care/"..e.actorId.."/")
+        or e.kind=="window-repair" and (e.actorId.."/window-result/") or nil
     if not prefix or not text(e.id,128) or string.sub(e.id,1,#prefix)~=prefix then return nil end
     local suffix=string.sub(e.id,#prefix+1)
     local position=tonumber(suffix)
@@ -110,12 +111,13 @@ local function validEvent(e)
         or not text(e.actorId,128) or not text(e.observerId,128)
         or not finite(e.worldHours) or e.worldHours<0
         or (e.kind~="inspection" and e.kind~="acquire" and e.kind~="store" and e.kind~="consume" and not EXTENDED[e.kind])
-        or (e.category~="food" and e.category~="water" and e.category~="container" and e.category~="medicine" and e.category~="body" and e.category~="animal")
+        or (e.category~="food" and e.category~="water" and e.category~="container" and e.category~="medicine" and e.category~="body" and e.category~="animal" and e.category~="construction")
         or (e.status~="completed" and e.status~="no-effect"
             and e.status~="interrupted" and e.status~="unavailable")
         or (e.perspective~="performed" and e.perspective~="observed") then return false end
     if e.kind~="animal-care" and (e.consumedAmount~=nil or e.quantityUnit~=nil) then return false end
     if e.category=="animal" and e.kind~="animal-care" then return false end
+    if e.category=="construction" and e.kind~="window-repair" then return false end
     if e.capabilities~=nil and not capabilities(e.capabilities) then return false end
     for _, key in ipairs({"sourceId","itemType"}) do
         if e[key]~=nil and not text(e[key],160) then return false end
@@ -153,6 +155,13 @@ local function validEvent(e)
                 and string.match(e.sourceId,"^animal/%-?%d+$")~=nil
                 and finite(e.consumedAmount) and e.consumedAmount>0 and e.consumedAmount<=1000000000
                 and (e.quantityUnit=="uses" or e.quantityUnit=="fluid" or e.quantityUnit=="food-hunger")
+                and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
+        end
+        if e.kind=="window-repair" then
+            return e.category=="construction" and e.status=="completed"
+                and e.itemType=="RepairableWindows.LargeGlassPane" and text(e.sourceId,160)
+                and (string.match(e.sourceId,"^window:%-?%d+:%-?%d+:%-?%d+:%d+:true$")~=nil
+                    or string.match(e.sourceId,"^window:%-?%d+:%-?%d+:%-?%d+:%d+:false$")~=nil)
                 and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
         end
         if e.kind=="medication-use" then
@@ -472,6 +481,11 @@ local function extendedEvidence(modelId,state,e)
                 end
             end
         end
+    elseif e.kind=="window-repair" then
+        if modelId=="ordinary" then
+            remember(state,"direct:window-repair:"..e.sourceId..":"..e.itemType,
+                "Replaced broken glass in "..e.sourceId.." using "..e.itemType,true,e)
+        else relation(state,"transform","broken-glass:"..e.sourceId,"repaired-glass:"..e.sourceId,true,e,"manufacturing") end
     elseif e.kind=="animal-care" then
         if modelId=="ordinary" then
             remember(state,"direct:animal-care:"..e.sourceId..":"..e.itemType,

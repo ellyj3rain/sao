@@ -141,13 +141,14 @@ KNOWN = {n: OURS for n in (
 KNOWN.update({n: NEIGHBOUR for n in NEIGHBOURS})
 KNOWN.update({n: ENGINE_PATCH for n in ENGINE_PATCHES})
 KNOWN.update({n: LUA_STD for n in (
-    "assert", "error", "ipairs", "math", "pairs", "pcall", "print", "require", "setmetatable",
+    "assert", "error", "getmetatable", "ipairs", "math", "pairs", "pcall", "print", "rawget", "require", "setmetatable",
     "select", "string", "table", "tonumber", "tostring", "type", "unpack", "_G",
 )})
 KNOWN.update({n: ENGINE for n in (
     # [C87] Installed ISInventoryPaneContextMenu.getContainers/hasOpenFlame
     # and ISInventoryPage.refreshBackpacks use these native client surfaces.
-    "ArrayList", "ISInventoryPaneContextMenu", "SafeHouse", "isClient",
+    # C112 installed shared/Util/AdjacentFreeTileFinder.lua:1 owns the window tile helper.
+    "AdjacentFreeTileFinder", "ArrayList", "ISInventoryPaneContextMenu", "SafeHouse", "isClient",
     "BodyPartType", "DynamicRadio", "Events", "GameTime", "Keyboard",
     "keyBinding",
     "HaloTextHelper", "ISApplyBandage", "ISReadABook", "ISBarricadeAction",

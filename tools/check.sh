@@ -2383,6 +2383,13 @@ if ! "$PY" tools/mod_integration_inventory_test.py; then
     fail=1
 fi
 
+# Border 232 - exact native window repair consumes its pinned pane and
+# acknowledges private completion through the existing planning and models.
+if ! "$PY" tools/window_repair_test.py; then
+    note "BORDER FINDING - native window repair ownership or private result differs"
+    fail=1
+fi
+
 if ! "$PY" tools/source_integration_gate.py; then
     note "BORDER FINDING - source integration lineage or ownership claim differs"
     fail=1

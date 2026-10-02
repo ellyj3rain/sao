@@ -267,7 +267,7 @@ function C.attempted(id, token)
 end
 local KINDS = { inspection = true, acquire = true, store = true, consume = true }
 local EXTENDED = { ["medication-use"] = true, ["physical-change"] = true, preparation = true,
-    ["animal-care"] = true }
+    ["animal-care"] = true, ["window-repair"] = true }
 local STATUSES = { completed = true, ["no-effect"] = true, interrupted = true, unavailable = true }
 local EXPERIENCE_KEYS = { id = true, actorId = true, observerId = true, worldHours = true,
     kind = true, category = true, perspective = true, status = true, sourceId = true,
@@ -504,6 +504,31 @@ function C.animalCareOutcome(id, receipt)
     x.itemId, x.itemType = receipt.itemId, receipt.itemType
     x.consumedAmount, x.quantityUnit = receipt.consumedAmount, receipt.quantityUnit
     return nativeExperience(id, "animal-care", receipt.position, x)
+end
+
+-- The repair owner keeps geometry, material and native completion proof.
+-- Private experience records only the actor's performed replacement.
+function C.windowRepairOutcome(id, receipt)
+    local now, rec = clock(), record(id)
+    if not now or not rec or type(receipt) ~= "table" or receipt.actorId ~= id
+        or receipt.status ~= "completed" or receipt.paneConsumed ~= true
+        or receipt.nativeAttempted ~= true or receipt.smashedBefore ~= true
+        or receipt.smashedAfter ~= false or receipt.glassRemovedAfter ~= false
+        or receipt.nativeOwner ~= "AddWindowAction.complete"
+        or not finite(receipt.sequence, 1, 9007199254740991)
+        or receipt.sequence ~= math.floor(receipt.sequence)
+        or receipt.id ~= id .. "/window-result/" .. tostring(receipt.sequence)
+        or not finite(receipt.endedAt, 0, now) then
+        return false, "unqualified-window-repair"
+    end
+    local owner = SAO.WindowRepair
+    local authoritative = owner and owner.outcome and owner.outcome(id, receipt.sequence)
+    if not authoritative or not sameData(authoritative, receipt) then
+        return false, "window-repair-owner-unavailable"
+    end
+    local x = privateFact(id, "window-repair", "construction", receipt.id, now, receipt.endedAt)
+    x.sourceId, x.itemId, x.itemType = receipt.entryKey, tonumber(receipt.itemId), receipt.fullType
+    return nativeExperience(id, "window-repair", receipt.sequence, x)
 end
 
 function C.preparationOutcome(id, receipt)

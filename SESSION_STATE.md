@@ -1,11 +1,85 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.10.2.0-pre-alpha` |
+| Version | `3.10.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-10-02 03:28 UTC / 20:28 PST, [C112](Batches/C112-20261002-0328Z-2028PST-native-window-repair.md) connects perceived broken windows to
+the existing fortification decision and optional installed native repair.
+Admission requires this actor's visible adjoining window, current claim
+permission, native interaction tile and exact carried pane. Native boarding
+remains available. Completion revalidates actor, body, person, world, current
+native membership, window, queue and material, then measures repaired glass
+and exact pane consumption before advancing the maintained purpose.
+
+Death, reset and pending ZAO/Crossed handoff cancel the old owner. Delayed
+native cancellation remains retained after agent removal, retries independently
+in bounded batches and retires on exact native stop and original queue
+acknowledgement. Unrelated queued work remains its owner's. Saved unfinished
+work acquires no completion by replay.
+
+Actions own private binding capsules and release them after original queue
+acknowledgement, leaving terminal tombstones. Duplicate stop/perform refuses
+successor work. Latest per-person offers are capped at 128 and explicitly
+retire on consumption, replacement, death and tick/reset. Installed Kahlua GC
+and exact native character/window argument projection are measured; engine
+character/window fields remain intact.
+
+Native stop cleanup for players and NPCs requires the captured body and
+window, the current body-to-queue lookup naming the original queue, and
+this action still owning its current first entry. The NPC clears its old
+farming flag before queue completion starts a legitimate successor. An
+obsolete callback removes only its old exact entry and acknowledges that
+owner, without resetting a replacement or advanced queue, dispatching
+orphaned work or clearing successor flags. Perform requires the same original current-queue custody. Force-cancel
+refuses changed captured body/window receivers and preserves native queue
+iteration while scheduling exact old-owner cancellation.
+
+Canonical completed results feed Cognition and both models as this person's
+performed repair. Separate planner, acquisition and model cursors preserve
+exact-once delivery and original clocks. Native EveryOneMinute/OnGameStart
+replay visits at most 256 records and 32 result owners per pass. Disabled or
+faulted learning retains unacknowledged rows; retiring a bounded old completed
+row before delivery records learningOmitted. This delivery grants no XP or recipes.
+
+The reach-corrected Border 232 proof passes 152 installed-execution
+cases and 43 production controls. The independent exact-source retake passes 60 checks/seven controls.
+Its retained lifecycle proof passes 77/16; the
+separate private-experience proof passes 29 model, 49 ledger and 1,025 extended
+assertions across 89 executed invocations (three baselines and 86 controls). The source is reanchored onto published C111
+`775ade5f3e03587052fd42659308957f42392aa7`. The version-stamped build passes: both shipped JARs are byte-identical,
+with 44 sources and 96 classes. The complete normal closing gate has its
+own log and exit receipt.
+The actual post-reanchor census passes 37 person caches/27 controls. Namespace
+checks classify 191 globals, 12 writes and four foreign namespaces; Border 159
+rejects omission of WindowRepair's loaded-only declaration. Current compiler evidence covers fourteen normal/debug verdicts: four new
+verdicts on the corrected wrapper/diagonal fixture and ten retained verdicts
+on five unchanged sources.
+The first complete hook retains three findings: the bare squared reach and
+its collision, plus the old Controller hash in the historical scene manifest.
+The named reach preserves two tiles, and the current C112 capture passes
+20 unchanged decisions/three controls while preserving C88. Generation preserved
+578 then-current inputs; closing refresh changes six owned documentation outputs. The first failed candidate and log are preserved. A host restart interrupted
+the second normal-hook attempt before a final exit or commit; its 958-line
+log and all 81 raw/index pins are preserved. The unchanged pharmacology suite
+then passes 145 native cases and 30 controls. The third complete normal-hook
+attempt owns its separate closing verdict.
+Surrounding geometry/body/dispatch services are controlled; native completion,
+material/window receivers and serialization are executed. Already-adjacent
+main-inventory repair is measured. Autonomous approach, nested-bag transfer,
+pane acquisition/crafting, headless dormant physical work, multiplayer authority
+and loaded behavior remain open. R84 sources, models and saves are unchanged.
+
+DR-053 retains the whole installed collection and later supplied sources in
+integration scope. C111 feeding and carried-cooler joins remain in place; cooler-
+aware dormant meals, curated clinical/trait effects, chronological growth and
+child geometry, exercise, utilities and the rest of the collection remain
+open. Source-backed K-college curriculum, culture, assessment, training and
+person retention retain their own owners and evidence; window repair supplies
+only this actor's measured private performed event.
 
 **As of** 2026-10-01, [C111] joins completed native feeding to private
 experience and installed cooler physics to loaded carried inventories and fresh
@@ -1486,12 +1560,12 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, plus C105's outcome and export-worker controls, the
-repository holds 233 `*_test.py` files. The gate invokes 233 `*_test.py` files
-and 16 other Python entry points, 249 distinct scripts, through direct calls
+repository holds 234 `*_test.py` files. The gate invokes 234 `*_test.py` files
+and 16 other Python entry points, 250 distinct scripts, through direct calls
 and its mirror loop. Native suites also invoke their own controls.
-Border labels extend through 231; legacy labels
+Border labels extend through 232; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
-ships 187 Lua source files.
+ships 188 Lua source files.
 ZAO A41 has fifteen borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks

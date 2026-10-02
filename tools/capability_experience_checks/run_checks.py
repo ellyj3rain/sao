@@ -92,7 +92,7 @@ def main(argv=None, *, default_root=None):
         assert original_cases.count(old) + original_cases.count(new) == 1, "model fixture version seam changed"
         model_controls = inherited_controls(root / "tools/cognitive_models_test.py")
         ledger_controls = inherited_controls(root / "tools/cognition_checks/run_checks.py")
-        assert len(model_controls) == 36 and len(ledger_controls) == 14 and len(NEW_CONTROLS) == 33, "control coverage changed"
+        assert len(model_controls) == 36 and len(ledger_controls) == 14 and len(NEW_CONTROLS) == 36, "control coverage changed"
         with tempfile.TemporaryDirectory(prefix="sao-capability-build-") as temporary:
             work = Path(temporary)
             shutil.copyfile(game / "stdlib.lua", work / "stdlib.lua")
@@ -120,7 +120,7 @@ def main(argv=None, *, default_root=None):
                         chunks += [HERE / "legacy_archive.lua", HERE / "restore_legacy.lua"]
                     chunks += [model_file, cognition_file, HERE / "experience.lua" if mode == "extended" else root / "tools/cognition_checks/runtime.lua"]
                     expression = "RESULT"
-                    expected = "VALUE PASS extended cognition 1012" if mode == "extended" else "VALUE PASS cognition runtime 49"
+                    expected = "VALUE PASS extended cognition 1025" if mode == "extended" else "VALUE PASS cognition runtime 49"
                 started = time.monotonic()
                 result = subprocess.run([str(executables["java"]), "-cp", str(engine) + os.pathsep + str(work),
                     "LuaRun", *map(str, chunks), "--", expression], cwd=work, capture_output=True,
