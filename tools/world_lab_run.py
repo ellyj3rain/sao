@@ -7,7 +7,7 @@ click and suppresses window show/focus in this process. Gameplay owners are inta
 from __future__ import annotations
 
 import argparse
-from contextlib import closing
+from contextlib import closing, contextmanager
 import hashlib
 import json
 import os
@@ -24,6 +24,7 @@ import zlib
 import world_lab as Lab
 import world_lab_supervision as Supervision
 import world_lab_profiles as Profiles
+import world_lab_observer_layout as ObserverLayout
 
 
 def digest(path):
@@ -82,6 +83,115 @@ def publish(path, value):
             time.sleep(0.05)
 
 
+def build_observer_adapter(destination, game, jdk, source=None):
+    destination, game, jdk = Path(destination), Path(game), Path(jdk)
+    source = Path(source) if source is not None else Lab.ROOT / "tools/world_lab"
+    classes = destination / "classes"
+    classes.mkdir()
+    subprocess.run([str(jdk / "javac.exe"), "-cp", os.pathsep.join(str(game / n)
+                    for n in ("ZombieBuddy.jar", "projectzomboid.jar")), "-d", str(classes),
+                    *(str(source / name) for name in
+                      ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java", "StudyExport.java"))], check=True)
+    manifest = destination / "agent.mf"
+    manifest.write_text("Manifest-Version: 1.0\nPremain-Class: StudyLoadingAgent\nCan-Retransform-Classes: true\n\n", encoding="utf-8")
+    agent = destination / "StudyLoadingAgent.jar"
+    subprocess.run([str(jdk / "jar.exe"), "cfm", str(agent), str(manifest), "-C", str(classes), "."], check=True)
+    return agent
+
+
+def refresh_observer_adapter(destination, attempt, game, jdk, previous, receipt):
+    """Retain the verified predecessor before changing only host infrastructure."""
+    agent = destination / "StudyLoadingAgent.jar"
+    Lab.require(digest(agent) == previous["loadingAgentSha256"], "prior observer adapter differs")
+    replacement = attempt / "observer-adapter"
+    replacement.mkdir()
+    shutil.copy2(agent, replacement / "previous.jar")
+    publish(replacement / "previous-run.json", previous)
+    sources = {}
+    for name in ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java", "StudyExport.java"):
+        shutil.copy2(Lab.ROOT / "tools/world_lab" / name, replacement / name)
+        sources[name] = digest(replacement / name)
+    built = build_observer_adapter(replacement, game, jdk, source=replacement)
+    provenance = {
+        "directory": replacement.relative_to(destination).as_posix(),
+        "priorAttempt": previous["launchNumber"], "priorSha256": digest(agent),
+        "sha256": digest(built), "sources": sources,
+        "priorReceiptSha256": digest(replacement / "previous-run.json")}
+    # Copy failures touch only a new staging file. Replace the live adapter in
+    # one filesystem operation after the whole candidate has been checked.
+    staged = replacement / "activate.jar"
+    shutil.copy2(built, staged)
+    Lab.require(digest(staged) == provenance["sha256"], "staged observer adapter differs")
+    os.replace(staged, agent)
+    receipt["observerAdapterReplacement"] = provenance
+    receipt["loadingAgentSha256"] = provenance["sha256"]
+
+
+def refresh_attempt_adapter(destination, attempt, game, jdk, previous, receipt):
+    try:
+        refresh_observer_adapter(destination, attempt, game, jdk, previous, receipt)
+    except BaseException:
+        # The predecessor remains runnable. Retain failed compiler/publication
+        # output separately so the same next attempt number can be retried.
+        failures = destination / "adapter-failures"
+        failures.mkdir(exist_ok=True)
+        retained = failures / (attempt.name + "-" + uuid.uuid4().hex)
+        Lab.require(attempt.resolve().is_relative_to(destination.resolve())
+                    and retained.resolve().is_relative_to(destination.resolve()), "unsafe failed adapter retention")
+        os.replace(attempt, retained)
+        raise
+
+
+def verify_observer_adapter(destination, receipt):
+    replacement = receipt.get("observerAdapterReplacement")
+    if replacement is None:
+        return
+    relative = replacement["directory"]
+    Lab.require(isinstance(relative, str) and Lab.re.fullmatch(r"attempts/\d{4}/observer-adapter", relative),
+                "unsafe observer adapter directory")
+    root = Path(destination) / relative
+    Lab.require(root.resolve().is_relative_to(Path(destination).resolve()), "observer adapter leaves run")
+    Lab.require(digest(root / "previous.jar") == replacement["priorSha256"]
+                and digest(root / "StudyLoadingAgent.jar") == replacement["sha256"] == receipt["loadingAgentSha256"]
+                and digest(root / "previous-run.json") == replacement["priorReceiptSha256"],
+                "observer adapter provenance differs")
+    prior = Lab.load(root / "previous-run.json")
+    Lab.require(prior["loadingAgentSha256"] == replacement["priorSha256"]
+                and prior["launchNumber"] == replacement["priorAttempt"], "observer adapter predecessor differs")
+    names = {"StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java", "StudyExport.java"}
+    Lab.require(set(replacement["sources"]) == names and all(
+        digest(root / name) == replacement["sources"][name] for name in names), "observer adapter source differs")
+
+
+@contextmanager
+def observer_resume_transaction(destination, previous):
+    """A failed prelaunch restores the completed predecessor and keeps evidence."""
+    if previous is None:
+        yield
+        return
+    cache = destination / "cache"
+    bootstrap = cache / "mods" / previous["mapName"] / "42.20/media/lua/client/ZZStudyLaunch.lua"
+    paths = [destination / "StudyLoadingAgent.jar", destination / "run.json", bootstrap, cache / "options.ini"]
+    before = {path: path.read_bytes() for path in paths}
+    attempt = destination / "attempts" / f"{previous['launchNumber'] + 1:04d}"
+    Lab.require(not attempt.exists(), "next native attempt already exists")
+    try:
+        yield
+    except BaseException:
+        for path, content in before.items():
+            staged = path.with_name(path.name + ".restore-" + uuid.uuid4().hex)
+            staged.write_bytes(content)
+            os.replace(staged, path)
+        if attempt.exists():
+            failures = destination / "adapter-failures"
+            failures.mkdir(exist_ok=True)
+            retained = failures / (attempt.name + "-" + uuid.uuid4().hex)
+            Lab.require(attempt.resolve().is_relative_to(destination.resolve())
+                        and retained.resolve().is_relative_to(destination.resolve()), "unsafe prelaunch retention")
+            os.replace(attempt, retained)
+        raise
+
+
 def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None):
     manifest, definition = Lab.verify_package(package)
     game, jdk = Path(game).resolve(), Path(jdk).resolve()
@@ -129,16 +239,7 @@ def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None)
         "borderless=false\nlanguage=EN\ntermsOfServiceVersion=1\nsoundVolume=0\nmusicVolume=0\n"
         "ambientVolume=0\nvehicleEngineVolume=0\nvsync=false\nuncappedFPS=false\n"
         "showSurvivalGuide=false\n", encoding="utf-8")
-    classes = destination / "classes"
-    classes.mkdir()
-    subprocess.run([str(jdk / "javac.exe"), "-cp", os.pathsep.join(str(game / n)
-                    for n in ("ZombieBuddy.jar", "projectzomboid.jar")), "-d", str(classes),
-                    *(str(Lab.ROOT / ("tools/world_lab/" + name)) for name in
-                      ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java", "StudyExport.java"))], check=True)
-    agent_manifest = destination / "agent.mf"
-    agent_manifest.write_text("Manifest-Version: 1.0\nPremain-Class: StudyLoadingAgent\nCan-Retransform-Classes: true\n\n", encoding="utf-8")
-    agent = destination / "StudyLoadingAgent.jar"
-    subprocess.run([str(jdk / "jar.exe"), "cfm", str(agent), str(agent_manifest), "-C", str(classes), "."], check=True)
+    agent = build_observer_adapter(destination, game, jdk)
     receipt = {"schema": "sao-study-run/1", "packageSha256": Lab.seal(manifest),
                "definitionSha256": manifest["definitionSha256"], "mapName": manifest["mapName"],
                "engineJarSha256": digest(game / "projectzomboid.jar"),
@@ -504,11 +605,13 @@ def verify_run(destination, package):
     destination = Path(destination).resolve()
     manifest, definition = Lab.verify_package(package)
     receipt = Lab.load(destination / "run.json")
+    layout = ObserverLayout.from_receipt(receipt, definition)
     Lab.require(receipt["schema"] == "sao-study-run/1" and receipt["status"] == "completed"
                 and receipt["datasetAdmission"] == "unreviewed" and receipt["exitCode"] == 0 and not receipt["runtimeErrors"]
                 and receipt["packageSha256"] == Lab.seal(manifest), "completed package-bound run required")
     cache = destination / "cache"
     verify_inputs(cache, destination / "StudyLoadingAgent.jar", receipt)
+    verify_observer_adapter(destination, receipt)
     expected_map = native_lots_evidence(cache / "mods", definition)
     Lab.require(expected_map == receipt.get("mapDependency"),
                 "native lots dependency evidence differs")
@@ -516,6 +619,8 @@ def verify_run(destination, package):
     if receipt.get("host") == "observer":
         Lab.require(observer_evidence(destination, receipt) == receipt.get("observerEvidence"),
                     "sealed observer evidence differs")
+        if layout is not None:
+            ObserverLayout.verify_evidence(layout, receipt["observerEvidence"])
     for section, boundary in (("saveFiles", cache / "Saves"), ("observations", cache / "Lua/StudyWorld")):
         Lab.require(receipt[section], "empty run inventory")
         for relative, expected in receipt[section].items():
@@ -556,12 +661,22 @@ def verify_run(destination, package):
 
 def run(args):
     destination, game = Path(args.out).resolve(), Path(args.game).resolve()
+    refresh_adapter = getattr(args, "refresh_observer_adapter", False)
+    Lab.require(not refresh_adapter or (args.resume and args.host == "observer"),
+                "observer adapter refresh requires an observer continuation")
+    _, layout_definition = Lab.verify_package(args.package)
+    requested_layout = getattr(args, "observer_layout", None)
+    Lab.require(requested_layout is None or args.host == "observer", "observer layout requires observer host")
+    # Validate before preparing a cache or advancing a saved attempt.
+    layout = ObserverLayout.select(requested_layout, None, layout_definition)
     previous = None
     if args.resume:
         Lab.require(not args.mod and args.profile is None and not args.enable_mod and not args.disable_mod,
                     "resume uses the original copied mods and simulation profile")
         manifest, definition = Lab.verify_package(args.package)
         previous = verify_run(destination, args.package)
+        if requested_layout is None:
+            layout = ObserverLayout.from_receipt(previous, definition)
         Lab.require(previous.get("host", "player") == args.host, "resume must retain the native host kind")
         if args.host == "observer":
             Lab.require(not args.replace_dead_player and previous["player"].get("count") == 0,
@@ -609,73 +724,80 @@ def run(args):
             args.package, args.out, args.game, args.jdk, mod_paths, simulation_profile)
         receipt = Lab.load(destination / "run.json")
         receipt["launchNumber"] = 1
-    attempt = destination / "attempts" / f"{receipt['launchNumber']:04d}"
-    attempt.mkdir(parents=True, exist_ok=False)
-    receipt["replacedPlayer"] = None
-    if args.replace_dead_player:
-        Lab.require(previous is not None, "replacement requires --resume")
-        player_source = cache / "Saves/Sandbox" / previous["save"] / "players.db"
-        shutil.copy2(player_source, attempt / "replaced-player.db")
-        receipt["replacedPlayer"] = {"priorAttempt": previous["launchNumber"],
-                                     "databaseSha256": digest(attempt / "replaced-player.db")}
-    origin = next(p for p in definition["origins"] if p["profession"] == "unemployed")
-    config = {"mapName": manifest["mapName"], "origin": {k: origin[k] for k in ("x", "y", "z")},
-              "hours": args.hours, "attempt": receipt["launchNumber"],
-              "observer": args.host == "observer", "watch": args.watch,
-              "wallDeadlineUnixMs": int(time.time() * 1000) + args.timeout * 1000,
-              "stopFile": f"StudyRunnerStop{receipt['launchNumber']:04d}.txt",
-              "captureName": f"study-attempt-{receipt['launchNumber']:04d}.png"}
-    if previous is not None:
-        config["resumeSave"] = previous["save"]
-        config["replaceDeadPlayer"] = args.replace_dead_player
-    # Run control is separate from the content-sealed study observer.
-    client = cache / "mods" / manifest["mapName"] / "42.20/media/lua/client"
-    launch = "local RunConfig = " + Lab.lua(config) + "\n" + (
-        Lab.ROOT / "tools/world_lab/StudyLaunch.lua").read_text(encoding="utf-8")
-    (client / "ZZStudyLaunch.lua").write_bytes(launch.encode("utf-8"))
-    (attempt / "launch.lua").write_bytes(launch.encode("utf-8"))
-    sao_jars = list((cache / "mods").glob("*/42.20/media/java/SAO.jar"))
-    Lab.require(len(sao_jars) == 1, "expected one copied SAO jar")
-    command = [str(game / "jre64/bin/java.exe"),
-               f"-Duser.home={user}", f"-Dstudy.attempt={receipt['launchNumber']}",
-               "-Dstudy.activeMods=" + ",".join(receipt["mods"]),
-               "-Dstudy.showWindow=" + str(args.window == "visible").lower(), f"-javaagent:{agent}=isolated-study",
-               f"-javaagent:{sao_jars[0]}=sao", "-agentlib:zbNative", "-Djava.awt.headless=true",
-               "--enable-native-access=ALL-UNNAMED", "--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED",
-               "-Xmx3072m", "-Dzomboid.steam=0", "-Dzomboid.znetlog=1", "-Djava.library.path=win64/;.",
-               "-XX:-CreateCoredumpOnCrash", "-XX:-OmitStackTraceInFastThrow", "-XX:+UseZGC",
-               "-cp", "./;projectzomboid.jar;ZombieBuddy.jar", "zombie.gameStates.MainScreenState",
-               "-debug", "-nosteam", "-nosound", f"-cachedir={cache}"]
-    if args.host == "observer":
-        extent = definition["extent"]
-        observer = {
-            "observer": "true", "originX": origin["x"], "originY": origin["y"], "originZ": origin["z"],
-            "minX": extent["minCellX"] * Lab.CELL, "minY": extent["minCellY"] * Lab.CELL,
-            "maxX": (extent["minCellX"] + extent["cellsX"]) * Lab.CELL,
-            "maxY": (extent["minCellY"] + extent["cellsY"]) * Lab.CELL,
-            "observerControl": attempt / "observer-control.properties",
-            "observerState": attempt / "observer-state.json", "viewDirectory": attempt / "native-view",
-        }
-        if previous:
-            # Observer coordinates belong to the host receipt, never players.db.
-            old = previous["observerEvidence"]["state"]
-            observer.update(originX=old["residencyX"], originY=old["residencyY"], originZ=old["residencyZ"])
-        sites = definition["observation"].get("sites", [])
-        if sites:
-            observer["siteCount"] = len(sites)
-            observer.update(originX=sites[0]["x"], originY=sites[0]["y"], originZ=sites[0]["z"])
-            for index, site in enumerate(sites):
-                for key in ("id", "label", "x", "y", "z"):
-                    observer[f"site.{index}.{key}"] = site[key]
-        command[1:1] = [f"-Dstudy.{key}={value}" for key, value in observer.items()]
-    if args.trace_native:
-        native_dump = attempt / "native-classes"
-        native_dump.mkdir()
-        command.insert(1, f"-Dnet.bytebuddy.dump={native_dump}")
-    receipt.update(hours=args.hours, launchSha256=hashlib.sha256(launch.encode("utf-8")).hexdigest(),
-                   window=args.window, status="starting", host=args.host, watch=args.watch,
-                   sessionId=str(uuid.uuid4()), observerDirectory=attempt.relative_to(destination).as_posix())
-    publish(destination / "run.json", receipt)
+    with observer_resume_transaction(destination, previous):
+        ObserverLayout.bind(receipt, layout)
+        selected_sites = ObserverLayout.sites(receipt, definition)
+        if layout is not None:
+            ObserverLayout.resize(cache, selected_sites)
+        attempt = destination / "attempts" / f"{receipt['launchNumber']:04d}"
+        attempt.mkdir(parents=True, exist_ok=False)
+        if refresh_adapter:
+            refresh_attempt_adapter(destination, attempt, game, args.jdk, previous, receipt)
+        receipt["replacedPlayer"] = None
+        if args.replace_dead_player:
+            Lab.require(previous is not None, "replacement requires --resume")
+            player_source = cache / "Saves/Sandbox" / previous["save"] / "players.db"
+            shutil.copy2(player_source, attempt / "replaced-player.db")
+            receipt["replacedPlayer"] = {"priorAttempt": previous["launchNumber"],
+                                         "databaseSha256": digest(attempt / "replaced-player.db")}
+        origin = next(p for p in definition["origins"] if p["profession"] == "unemployed")
+        config = {"mapName": manifest["mapName"], "origin": {k: origin[k] for k in ("x", "y", "z")},
+                  "hours": args.hours, "attempt": receipt["launchNumber"],
+                  "observer": args.host == "observer", "watch": args.watch,
+                  "wallDeadlineUnixMs": int(time.time() * 1000) + args.timeout * 1000,
+                  "stopFile": f"StudyRunnerStop{receipt['launchNumber']:04d}.txt",
+                  "captureName": f"study-attempt-{receipt['launchNumber']:04d}.png"}
+        if previous is not None:
+            config["resumeSave"] = previous["save"]
+            config["replaceDeadPlayer"] = args.replace_dead_player
+        # Run control is separate from the content-sealed study observer.
+        client = cache / "mods" / manifest["mapName"] / "42.20/media/lua/client"
+        launch = "local RunConfig = " + Lab.lua(config) + "\n" + (
+            Lab.ROOT / "tools/world_lab/StudyLaunch.lua").read_text(encoding="utf-8")
+        (client / "ZZStudyLaunch.lua").write_bytes(launch.encode("utf-8"))
+        (attempt / "launch.lua").write_bytes(launch.encode("utf-8"))
+        sao_jars = list((cache / "mods").glob("*/42.20/media/java/SAO.jar"))
+        Lab.require(len(sao_jars) == 1, "expected one copied SAO jar")
+        command = [str(game / "jre64/bin/java.exe"),
+                   f"-Duser.home={user}", f"-Dstudy.attempt={receipt['launchNumber']}",
+                   "-Dstudy.activeMods=" + ",".join(receipt["mods"]),
+                   "-Dstudy.showWindow=" + str(args.window == "visible").lower(), f"-javaagent:{agent}=isolated-study",
+                   f"-javaagent:{sao_jars[0]}=sao", "-agentlib:zbNative", "-Djava.awt.headless=true",
+                   "--enable-native-access=ALL-UNNAMED", "--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED",
+                   "-Xmx3072m", "-Dzomboid.steam=0", "-Dzomboid.znetlog=1", "-Djava.library.path=win64/;.",
+                   "-XX:-CreateCoredumpOnCrash", "-XX:-OmitStackTraceInFastThrow", "-XX:+UseZGC",
+                   "-cp", "./;projectzomboid.jar;ZombieBuddy.jar", "zombie.gameStates.MainScreenState",
+                   "-debug", "-nosteam", "-nosound", f"-cachedir={cache}"]
+        if args.host == "observer":
+            extent = definition["extent"]
+            observer = {
+                "observer": "true", "originX": origin["x"], "originY": origin["y"], "originZ": origin["z"],
+                "minX": extent["minCellX"] * Lab.CELL, "minY": extent["minCellY"] * Lab.CELL,
+                "maxX": (extent["minCellX"] + extent["cellsX"]) * Lab.CELL,
+                "maxY": (extent["minCellY"] + extent["cellsY"]) * Lab.CELL,
+                "observerControl": attempt / "observer-control.properties",
+                "observerState": attempt / "observer-state.json", "viewDirectory": attempt / "native-view",
+            }
+            if previous:
+                # Observer coordinates belong to the host receipt, never players.db.
+                old = previous["observerEvidence"]["state"]
+                observer.update(originX=old["residencyX"], originY=old["residencyY"], originZ=old["residencyZ"])
+            sites = selected_sites
+            if sites:
+                observer["siteCount"] = len(sites)
+                observer.update(originX=sites[0]["x"], originY=sites[0]["y"], originZ=sites[0]["z"])
+                for index, site in enumerate(sites):
+                    for key in ("id", "label", "x", "y", "z"):
+                        observer[f"site.{index}.{key}"] = site[key]
+            command[1:1] = [f"-Dstudy.{key}={value}" for key, value in observer.items()]
+        if args.trace_native:
+            native_dump = attempt / "native-classes"
+            native_dump.mkdir()
+            command.insert(1, f"-Dnet.bytebuddy.dump={native_dump}")
+        receipt.update(hours=args.hours, launchSha256=hashlib.sha256(launch.encode("utf-8")).hexdigest(),
+                       window=args.window, status="starting", host=args.host, watch=args.watch,
+                       sessionId=str(uuid.uuid4()), observerDirectory=attempt.relative_to(destination).as_posix())
+        publish(destination / "run.json", receipt)
     startup = None
     if args.window == "hidden":
         startup = subprocess.STARTUPINFO()
@@ -709,6 +831,8 @@ def run(args):
     if args.host == "observer":
         try:
             receipt["observerEvidence"] = observer_evidence(destination, receipt)
+            if layout is not None:
+                ObserverLayout.verify_evidence(layout, receipt["observerEvidence"])
         except (ValueError, OSError, KeyError, TypeError) as error:
             receipt["runtimeErrors"].append("observer evidence: " + str(error))
     if observations:
@@ -768,6 +892,10 @@ def main():
     parser.add_argument("--disable-mod", action="append", default=[],
                         help="disable a catalogued external mod for this new run")
     parser.add_argument("--resume", action="store_true", help="reopen this tool's completed isolated run")
+    parser.add_argument("--observer-layout", type=Path,
+                        help="bounded native camera areas; saved continuations retain their last sealed layout")
+    parser.add_argument("--refresh-observer-adapter", action="store_true",
+                        help="rebuild isolated observer infrastructure after verifying the saved predecessor")
     parser.add_argument("--trace-native", action="store_true", help="retain transformed native classes in this attempt for diagnosis")
     parser.add_argument("--replace-dead-player", action="store_true",
                         help="with --resume, preserve the deceased database and create a native replacement character")

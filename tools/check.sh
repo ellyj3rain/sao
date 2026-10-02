@@ -2390,6 +2390,13 @@ if ! "$PY" tools/window_repair_test.py; then
     fail=1
 fi
 
+# Border 233 - native camera areas can change independently of saved people;
+# sealed layouts require matching simultaneous native viewports.
+if ! "$PY" tools/world_lab_observer_layout_test.py; then
+    note "BORDER FINDING - independent native observation layout differs"
+    fail=1
+fi
+
 if ! "$PY" tools/source_integration_gate.py; then
     note "BORDER FINDING - source integration lineage or ownership claim differs"
     fail=1
