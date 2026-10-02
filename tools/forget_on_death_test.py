@@ -70,6 +70,20 @@ MARK_DEAD = "markDead"
 #   "calls"  - the clearing function calls Identity.markDead itself,
 #              so the clear and the death are the same event
 CACHES = {
+    ("SAO_Animals.lua", "A.careRuntime"): (
+        "A.forget", "named",
+        "exact native feeding work retains a living actor, animal, material "
+        "and callback until completion or interruption; death cancels and "
+        "clears that runtime while durable outcomes remain on the record"),
+    ("SAO_ModMechanics.lua", "runtime"): (
+        "M.forget", "named",
+        "off-slot cooler observation retains the exact living inventory "
+        "body; death drops that handle while corpse items and unresolved "
+        "physical intervals remain with their native and durable owners"),
+    ("SAO_ModMechanics.lua", "lastFailures"): (
+        "M.forget", "named",
+        "a living person's cooler log deduplication has no reader after "
+        "death; the durable partial-pass proof remains on the record"),
     ("SAO_Needs.lua", "recoveries"): (
         "N.stopRecovery", "recovery-retirement",
         "the exact living recovery receiver is cleared by stopRecovery; "

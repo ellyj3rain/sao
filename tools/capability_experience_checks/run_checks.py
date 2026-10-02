@@ -92,7 +92,7 @@ def main(argv=None, *, default_root=None):
         assert original_cases.count(old) + original_cases.count(new) == 1, "model fixture version seam changed"
         model_controls = inherited_controls(root / "tools/cognitive_models_test.py")
         ledger_controls = inherited_controls(root / "tools/cognition_checks/run_checks.py")
-        assert len(model_controls) == 36 and len(ledger_controls) == 14 and len(NEW_CONTROLS) == 31, "control coverage changed"
+        assert len(model_controls) == 36 and len(ledger_controls) == 14 and len(NEW_CONTROLS) == 33, "control coverage changed"
         with tempfile.TemporaryDirectory(prefix="sao-capability-build-") as temporary:
             work = Path(temporary)
             shutil.copyfile(game / "stdlib.lua", work / "stdlib.lua")
@@ -120,7 +120,7 @@ def main(argv=None, *, default_root=None):
                         chunks += [HERE / "legacy_archive.lua", HERE / "restore_legacy.lua"]
                     chunks += [model_file, cognition_file, HERE / "experience.lua" if mode == "extended" else root / "tools/cognition_checks/runtime.lua"]
                     expression = "RESULT"
-                    expected = "VALUE PASS extended cognition 999" if mode == "extended" else "VALUE PASS cognition runtime 49"
+                    expected = "VALUE PASS extended cognition 1012" if mode == "extended" else "VALUE PASS cognition runtime 49"
                 started = time.monotonic()
                 result = subprocess.run([str(executables["java"]), "-cp", str(engine) + os.pathsep + str(work),
                     "LuaRun", *map(str, chunks), "--", expression], cwd=work, capture_output=True,
@@ -155,8 +155,9 @@ def main(argv=None, *, default_root=None):
                 run("extended-control-" + name, "extended", m=values["model"], c=values["cog"], marker="EXTENDED:" + marker)
         receipt["inputsUnchanged"] = all(sha(Path(p)) == h for p, h in receipt["inputs"].items())
         assert receipt["inputsUnchanged"], "capability inputs changed during checks"
-        receipt.update(status="PASS", invocations=len(receipt["checks"]), controls=81)
-        print("PASS capability experience: 84 invocations, 81 controls; receipt " + str(output / "receipt.json"), flush=True)
+        control_count = sum(bool(check["expectedFailure"]) for check in receipt["checks"])
+        receipt.update(status="PASS", invocations=len(receipt["checks"]), controls=control_count)
+        print(f"PASS capability experience: {len(receipt['checks'])} invocations, {control_count} controls; receipt " + str(output / "receipt.json"), flush=True)
         return 0
     except Exception as error:
         receipt.update(status="FAIL", error=str(error))

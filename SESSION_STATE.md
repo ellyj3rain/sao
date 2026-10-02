@@ -1,11 +1,45 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.10.1.2-pre-alpha` |
+| Version | `3.10.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-10-01, [C111] joins completed native feeding to private
+experience and installed cooler physics to loaded carried inventories and fresh
+Body checkpoints. Exact actor, animal, feed and current Standing own care
+admission; native consumption and improved hunger own completion. Durable
+private receipts acknowledge once through both cognitive models. Existing ZAO
+physical ownership passes without SAO learning; queued or started ordinary work
+refuses after transfer and cleans up its original actor.
+
+All five actual Body capture paths reconcile carried coolers before the native
+inventory codec. A partial installed pass leaves a durable unresolved interval,
+withholds a fresh snapshot and retains its body and owner. Tests execute 60
+installed/native cooler and Body checks plus 11 controls. Native feeding,
+installed callbacks, ownership controls and extended private experience have
+separate pinned proofs. The full normal closing gate and stamped Java package
+have their own receipts. No game, deployment or unattended study is started.
+
+DR-053 records the whole installed collection and later sources as integration
+candidates. Discovery retains 312 roots across 235 packages, 286 uncatalogued
+roots and five conflicting IDs. The frozen 27-entry study catalogue remains
+unchanged. The [shared integration scope](artifacts/audits/20261001-2330Z-1630PST-shared-mechanics/integration-scope.md)
+maps actual owners, completed joins and continuing work.
+
+Cooler-aware dormant consumption and multiplayer ownership remain open, as do
+feed crafting/acquisition and nonfeeding completion receipts. The private MIT
+Vitality candidate remains unshipped until clinical ownership, curated effects
+and migration are joined. Human age is currently fixed demographic age and
+child geometry is scaled adult geometry; chronological growth and true infant
+proportions remain open. Windows, exercise, utilities, preservation, weapons,
+mobility, posture, hygiene and all other discovered candidates retain concrete
+integration obligations. Education and culture keep their independent corpus,
+grading and retention work; mod probes grant no educational credit. Historical
+model trials, partitions and saves remain unchanged.
+
 
 **As of** 2026-10-01, [C110] repairs route progress and tactical continuity.
 
@@ -1452,12 +1486,12 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, plus C105's outcome and export-worker controls, the
-repository holds 230 `*_test.py` files. The gate invokes 230 `*_test.py` files
-and 16 other Python entry points, 246 distinct scripts, through direct calls
+repository holds 233 `*_test.py` files. The gate invokes 233 `*_test.py` files
+and 16 other Python entry points, 249 distinct scripts, through direct calls
 and its mirror loop. Native suites also invoke their own controls.
-Border labels extend through 228; legacy labels
+Border labels extend through 231; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
-ships 186 Lua source files.
+ships 187 Lua source files.
 ZAO A41 has fifteen borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks

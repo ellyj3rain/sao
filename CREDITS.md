@@ -9,6 +9,22 @@ those are more specific.
 Each entry states its own **integration status**. An entry describing
 influence is not a claim that code was taken.
 
+## Shared animal-feed and cooler integration (C111)
+
+Baby Animal Food (Workshop 3422249642) supplies installed juvenile livestock
+feed definitions. Tien's Coolers (Workshop 3794455791, author Tien, TienCoolers)
+supplies the installed shared ice, food-age and carried-container processor.
+**Interoperated with; no source or assets copied.** SAO adds exact off-slot actor
+identity, consumed-feed result authentication, person-private experience,
+loaded inventory scheduling and capture ownership. Focused proof executes the
+actual installed definitions and source in place. Autonomous feed crafting,
+cooler-aware dormant meals and multiplayer carried inventories remain open.
+
+Spadix84's Dan's Traits / Vitality source at
+`1a169c8e785c55368399b510c9dc5390881ac604` uses the MIT licence (2026).
+An attributed adaptation is built in a separate private candidate. It supplies
+no shipped clinical or trait-registration claim in this batch.
+
 ## Colonist Awareness Overhaul (CAO)
 
 ellyj3rain. GPL-3.0. **Methodology, adapted; no code taken.**

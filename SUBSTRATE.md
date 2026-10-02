@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `3.10.1.2-pre-alpha` |
+| Version | `3.10.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -17,7 +17,8 @@ from implementation evidence; a named module is not a completed mechanism.
 - Installed Project Zomboid Build 42.21 is the current engine ground truth.
 - ZombieBuddy is the only hard runtime mod dependency.
 - No other mod becomes a requirement unless the operator rules it.
-- External mods are inputs or sources, never owners.
+- SAO owns the person, planning, result attribution and persistence. Installed
+  shared physical modules retain their native mechanic authority.
 - The three repositories are one project with separate licences and gates.
 - ZAO is an add-on and an integrated sister; it is not a requirement.
 - Speakeasy ships no mod. Its datasets and models port into SAO.
@@ -25,6 +26,25 @@ from implementation evidence; a named module is not a completed mechanism.
 - Load order never decides body ownership.
 
 ## Current runtime substrate
+
+### Current shared-mechanic integration
+
+C111 executes completed hand-feeding with installed animal-feed definitions;
+all six Baby Animal Food items have actual native consumption evidence. The
+outcome belongs to the acting person and remains replay-safe in each cognitive
+model. Crafting and autonomous acquisition of those feeds remain separate work.
+
+Carried coolers use the installed shared physical processor for off-slot SAO
+and registered foreign bodies in single player. Every fresh Body checkpoint
+advances that inventory first. Native capture/wake retains exact nested items,
+charges and timestamps. A failed physical pass leaves durable unresolved state
+and withholds fresh checkpoint certification. Cooler-aware dormant meal
+selection and multiplayer inventory authority remain open.
+
+The dated [candidate inventory and scope](artifacts/audits/20261001-2330Z-1630PST-shared-mechanics/integration-scope.md)
+covers all installed sources. Existing study cohorts and their frozen receipts
+retain their historical meaning. Vitality source adaptation is a separate private
+candidate; clinical owners, dormancy and trait curation are unfinished.
 
 | Layer | What it makes possible | Without it |
 |---|---|---|

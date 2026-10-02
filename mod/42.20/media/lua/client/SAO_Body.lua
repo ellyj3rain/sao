@@ -35,6 +35,19 @@ local function finite(value)
         and value ~= math.huge and value ~= -math.huge
 end
 
+-- Body advances optional physical inventory mechanisms before asking the pure
+-- native snapshot reader for current state. A failed update retains the body.
+local function captureCurrent(rec, body)
+    if SAO.ModMechanics and SAO.ModMechanics.beforeSnapshot then
+        local ok, ready, reason = pcall(SAO.ModMechanics.beforeSnapshot, rec, body)
+        if not ok or ready ~= true then
+            return nil, ok and (reason or "inventory-mechanics-checkpoint-refused")
+                or "inventory-mechanics-checkpoint-exception"
+        end
+    end
+    return SAO.BodySnapshot.capture(rec, body)
+end
+
 local function localSlotUser()
     local ok, lp = pcall(function() return getSpecificPlayer(0) end)
     return ok and lp or nil
@@ -666,6 +679,9 @@ local function releaseAttention(id, body)
     if SAO.Perception and SAO.Perception.forgetSoundCues then
         pcall(SAO.Perception.forgetSoundCues, id, body)
     end
+    if SAO.ModMechanics and SAO.ModMechanics.detach then
+        pcall(SAO.ModMechanics.detach, id, body)
+    end
 end
 
 local function removeOwned(body)
@@ -794,7 +810,7 @@ function Body.prepareExternalTransfer(rec, body, owner, token)
     if Body.active[rec.id] ~= body then return false, "not-sao-owned" end
     if not quiesceCooking(rec, body, "body-owner-transfer") then return false, "cooking-reconciliation-pending" end
     if not readyToRemove(body) then return false, "body-busy" end
-    local ok, captured, reason = pcall(SAO.BodySnapshot.capture, rec, body)
+    local ok, captured, reason = pcall(captureCurrent, rec, body)
     if not ok or not captured then
         return false, ok and (reason or "capture-failed") or "capture-exception"
     end
@@ -880,7 +896,7 @@ function Body.hibernateExternal(rec, body, owner, token)
         if not body then return false, "no-owned-body" end
         if not quiesceCooking(rec, body, "external-body-release") then return false, "cooking-reconciliation-pending" end
         if not readyToRemove(body) then return false, "body-busy" end
-        local ok, value, reason = pcall(SAO.BodySnapshot.capture, rec, body)
+        local ok, value, reason = pcall(captureCurrent, rec, body)
         if not ok or not value then
             return false, ok and (reason or "capture-failed") or "capture-exception"
         end
@@ -928,7 +944,7 @@ function Body.checkpointActive()
                     return nil, "not-owned-shell"
                 end
                 if body:isDead() then return nil, "dead-body" end
-                return SAO.BodySnapshot.capture(rec, body)
+                return captureCurrent(rec, body)
             end)
             if ok and (reason == "not-owned-shell" or reason == "dead-body") then
                 report.skipped = report.skipped + 1
@@ -968,7 +984,7 @@ function Body.checkpointActive()
                     return nil, "not-owned-shell"
                 end
                 if body:isDead() then return nil, "dead-body" end
-                return SAO.BodySnapshot.capture(rec, body)
+                return captureCurrent(rec, body)
             end)
             if ok and captured then
                 SAO.BodySnapshot.commit(rec, captured)
@@ -1001,7 +1017,7 @@ function Body.release(rec)
         -- No durable field changes until the complete current capture has
         -- passed validation. A pending copy survives save/load and is never
         -- recaptured from a partly removed body.
-        local ok, captured = pcall(SAO.BodySnapshot.capture, rec, body)
+        local ok, captured = pcall(captureCurrent, rec, body)
         if not ok or not captured then return false, "capture-failed" end
         if not SAO.BodySnapshot.valid(captured, rec) then return false, "invalid-pending-snapshot" end
         pending = captured

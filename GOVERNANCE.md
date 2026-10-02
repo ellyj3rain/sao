@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Governance |
 |---|---|
-| Version | `3.10.1.2-pre-alpha` |
+| Version | `3.10.2.0-pre-alpha` |
 | Design authority | ellyj3rain |
 | Repository | `GOVERNANCE.md` |
 | Status | ACTIVE - operating discipline for this repository. |
@@ -45,18 +45,21 @@ regulatory, append-only, or historical.
 - **Concepts are not copy.** Design terminology directs the work; it reaches
   the UI only when supplied or approved as player-facing text. No free-text or
   dictated speech - `SPEECH.md` is direction only.
-- **Bespoke implementation.** Everything in this tree is written for this
-  project. Reference reading of other mods is fine; copying is not.
-- **Never name a mod in code.** `mod.info` metadata and `CREDITS.md` are
-  documentation and exempt.
+- **Owned source integration.** SAO's canonical services own person identity,
+  private knowledge, decisions, Standing, attribution and persistence. Approved
+  source integration retains its license, revision and attribution. Installed
+  modules may own shared native physical mechanics under DR-053.
+- **Source identifiers.** Compatibility adapters retain the exact installed
+  API identifiers they invoke. Source names and revisions belong in provenance,
+  metadata and attribution; product copy uses the canonical mechanic's name.
 - **Local-first.** The project tree is canonical; remotes publish that state.
 
 ## Boundaries set by the operator
 
-- **Consumable production and synthesis mechanics are out of scope**, by
-  verbatim direction: that area is a little unsafe to mess with, and the work
-  must not trip the surrounding guide rails. Wiring is permissible where a
-  feature needs it; the mechanics of creation are not.
+- **Food source integration.** DR-053 authorizes the requested ordinary food
+  preservation and animal-feed mechanics through shared native recipes and
+  actions. It supersedes the earlier consumable-production exclusion for those
+  concerns. The wider synthesis exclusion retains its original scope.
 - **Two live saves survive every deploy** - one fresh in Irvington, one with
   companions. `save_compat_test` guards this and runs in the gate.
 - **Never orbit the operator's play.** No test requests, no session polling.

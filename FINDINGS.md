@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `3.10.1.2-pre-alpha` |
+| Version | `3.10.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2876,3 +2876,48 @@ A separate source-bound C107 trace sampled 36 distinct inspection clocks over
 an unchanged destination, while another oscillated during FLEE. This establishes
 actual looping alongside the verified input mismatch. Physical route completion,
 waypoint overshoot and survival quality retain their loaded verification boundary.
+
+## F-128 | 2026-10-01 23:30 UTC / 16:30 PST | A cooler clock can advance before its physical pass completes
+
+Installed Tien's Coolers metadata states 1.5.3; its shared API states 1.5.1.
+`TienCooler_Shared.lua:1544-1567` writes the cooler's `tcLast` at the start of
+`CF.processCooler`, before native ice and food processing finishes. A thrown
+native update can leave the new clock with unprocessed food or consumed ice.
+Retrying at the same world hour can then return without repairing the interval.
+A successful function return and current clock do not prove completed physics.
+
+C111's installed-Kahlua/native probe raises a fault after the clock write and
+another after real ice consumption. Both faults refuse a fresh person capture.
+Same-time retry, later physical progress, runtime reset, record serialization,
+retirement and replacement cannot clear the durable unresolved interval.
+The restored omission of that durable flag fails the named motivating case.
+Body calls reconciliation before its native inventory capture and retains its
+owner and previous snapshot when reconciliation refuses.
+
+These controls establish error retention and normal loaded inventory replay.
+They do not establish physical recovery from a partial pass. Native dormant
+meal selection precedes the Lua cooler wake pass and remains a separate join.
+
+## F-129 | 2026-10-01 23:30 UTC / 16:30 PST | Feeding execution and private experience had separate completion owners
+
+The installed Build 42.21 `ISFeedAnimalFromHand.complete()` changes native
+animal hunger, consumes the carried feed and owns its native XP effect.
+SAO's existing animal-care queue supplied the native action but no authenticated
+completion receipt to private cognition. Queue success therefore could not
+establish performed care or learning. The native engine hash is the F-127 hash.
+
+C111 observes exact actor, animal, item and container identity before completion,
+then requires actual item consumption and improved hunger. Controlled native
+callbacks execute all six installed Baby Animal Food feeds. No-op, interruption,
+replacement, item transfer, current Standing refusal and owner change produce
+no completed private event. A bounded durable outbox acknowledges each actual
+event once through both cognitive models, without exposing internal hunger or
+granting a later animal-health result.
+
+Independent review also reproduced a wrapper blocking a legitimately ZAO-owned
+living shell. Already-foreign native execution now retains its registered owner
+without SAO capture or learning; originally admitted SAO work still refuses after
+transfer, including transfer before native start. Restored ownership defects
+fail their named installed-Kahlua controls. Action scheduling, animation and
+admission services are controlled in these probes; autonomous loaded prevalence
+and feed crafting remain open.

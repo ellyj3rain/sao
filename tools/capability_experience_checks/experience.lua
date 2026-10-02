@@ -300,4 +300,41 @@ for _,producer in ipairs({"medication","physical","preparation"}) do
   and equal(state(id).experiences[2].capabilities,current))
 end
 SAO.Census.skillOf=originalSkillOf
+-- Native feeding authenticity belongs to the animal owner; this proof holds
+-- the private boundary, independent models and exact retained producer join.
+hours=50
+records.care={id="care",animalCare={outcomes={}}}
+local feed={schema=1,id="animal-care/care/1",actorId="care",position=1,
+ worldHours=49,kind="feed",status="completed",nativeToken="feeding/1/1",
+ animalId=41,itemId=901,itemType="Base.FeedForCalf",quantityUnit="uses",
+ beforeAmount=1,afterAmount=.8,consumedAmount=.2,beforeHunger=.7,
+ afterHunger=.5,hungerDelta=.2,reason="native-feed-consumed"}
+records.care.animalCare.outcomes[1]=copy(feed)
+local forged=copy(feed);forged.consumedAmount=.3
+check("animal_owner_authentication",not C.animalCareOutcome("care",forged))
+check("animal_completed_admitted",C.animalCareOutcome("care",feed))
+local private=copy(last("care"))
+check("animal_private_projection",private.kind=="animal-care" and private.category=="animal"
+ and private.sourceId=="animal/41" and private.consumedAmount==.2
+ and private.beforeHunger==nil and private.afterHunger==nil and private.hungerDelta==nil
+ and private.nativeToken==nil and private.animalId==nil and private.reason==nil)
+check("animal_no_goal_credit",noGoalCredit("care"))
+check("animal_independent_models",state("care").models.ordinary.revision==1
+ and state("care").models.associative.revision==1
+ and state("care").models.ordinary.beliefs~=state("care").models.associative.beliefs)
+local prior=copy(state("care"));hours=51
+check("animal_duplicate_admitted",C.animalCareOutcome("care",feed))
+check("animal_duplicate_inert",equal(prior,state("care")))
+check("animal_foreign_actor_refused",not C.animalCareOutcome("b",feed))
+local zero=copy(private);zero.consumedAmount=0
+check("animal_zero_consumption_refused",not M.acceptsExperience(zero))
+local hidden=copy(private);hidden.beforeHunger=.7
+check("animal_hidden_health_refused",not M.acceptsExperience(hidden))
+local observed=copy(private);observed.observerId="b";observed.perspective="observed"
+check("animal_witness_receipt_refused",not M.acceptsExperience(observed))
+records.care.cognition=copy(state("care"));C.rebindWorld()
+prior=copy(state("care"));hours=52
+check("animal_restored_replay_inert",C.animalCareOutcome("care",feed) and equal(prior,state("care")))
+records.care.animalCare.outcomes={}
+check("animal_retired_owner_refused",not C.animalCareOutcome("care",feed))
 RESULT="PASS extended cognition "..n

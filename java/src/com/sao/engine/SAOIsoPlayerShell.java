@@ -76,6 +76,7 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
             ownedDescriptor.setInstance(null);
         }
         SAOOrientation.forget(this);
+        SAOAnimalCare.forget(this);
     }
 
     @Override

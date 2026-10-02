@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.10.1.2-pre-alpha` |
+| Version | `3.10.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -217,3 +217,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C108](Batches/C108-20260930-2000Z-1300PST-private-survival-planning-and-residence.md) | 2026-09-30 | Private survival planning and residence | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
 | [C109](Batches/C109-20261001-0459Z-2159PST-observer-capture-and-session-completion.md) | 2026-10-01 | Observer capture and session completion | [`T-030`](Batches/THREADS.md#t-030) |
 | [C110](Batches/C110-20261001-0730Z-0030PST-route-progress-and-tactical-continuity.md) | 2026-10-01 | Route progress and tactical continuity | [`T-030`](Batches/THREADS.md#t-030) |
+| [C111](Batches/C111-20261001-2355Z-1655PST-native-feeding-and-carried-coolers.md) | 2026-10-01 | Native feeding and carried coolers | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |

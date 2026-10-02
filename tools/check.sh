@@ -2362,6 +2362,27 @@ if ! "$PY" tools/route_progress_test.py; then
     fail=1
 fi
 
+# Border 229 - native animal feeding authenticates the exact actor, animal and
+# consumed item before a durable completion can reach private learning.
+if ! "$PY" tools/animal_care_completion_test.py; then
+    note "BORDER FINDING - native animal feeding or retained completion differs"
+    fail=1
+fi
+
+# Border 230 - installed carried-cooler physics advances off-slot inventories
+# and authenticated final checkpoints under the installed source authority.
+if ! "$PY" tools/mod_mechanics_test.py; then
+    note "BORDER FINDING - carried cooler physics or checkpoint ownership differs"
+    fail=1
+fi
+
+# Border 231 - complete installed discovery retains unnamed and incompatible
+# candidates, numeric payload selection and conflicting mod identities.
+if ! "$PY" tools/mod_integration_inventory_test.py; then
+    note "BORDER FINDING - installed integration candidate discovery differs"
+    fail=1
+fi
+
 if ! "$PY" tools/source_integration_gate.py; then
     note "BORDER FINDING - source integration lineage or ownership claim differs"
     fail=1

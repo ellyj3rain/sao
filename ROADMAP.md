@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.10.1.2-pre-alpha` |
+| Version | `3.10.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -12,6 +12,20 @@ Speakeasy training and runtime integration, then tuning toward first play.
 This follows Speakeasy RECORD entry 45. Batch closure and a green gate do not
 establish readiness where causal mechanisms are missing or contradicted by
 evidence. SESSION_STATE.md states the current assessment.
+
+## Shared mechanics and source integration
+
+DR-053 keeps the whole installed collection and later sources in candidate
+discovery. C111 connects completed feeding to private experience and installed
+cooler physics to loaded inventories and checkpoints. The
+[current scope](artifacts/audits/20261001-2330Z-1630PST-shared-mechanics/integration-scope.md)
+maps the remaining executable joins: cooler-aware dormant meals, curated traits
+and clinical ownership, chronological human growth and body assets, utility and
+repair work, food preservation, weapon normalization, movement and exercise.
+Source activation follows compatible physical authority and completed joins;
+maintained purposes and exact native outcomes supply learning and practice.
+The literal educational and cultural corpus, automatic grading and retained
+knowledge remain the separate Speakeasy/SAO education work.
 
 ## Border compression and private unified project
 
