@@ -38,9 +38,17 @@ on the simulation.
 
 ## Status
 
-`3.10.3.0-pre-alpha` - the coordinate is computed by the version machine
+`3.10.3.1-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C113 separates native camera areas from saved study identity. A bounded sealed
+layout replaces a rotating single camera with simultaneous native areas while
+continuing the same world and people. The runner and Speakeasy verify matching
+areas and native images. The corrected live pass advances 1.6333 game hours,
+supplies distinct same-frame pixels and saves normally with no runtime errors.
+Secondary areas acquire native chunk ownership before delivery; an explicit
+observer-adapter refresh preserves the verified saved world and source history.
 
 C112 lets the existing fortification decision repair a visible broken window
 when the survivor is already at its native interaction tile, has permission

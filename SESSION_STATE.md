@@ -1,11 +1,40 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.10.3.0-pre-alpha` |
+| Version | `3.10.3.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-10-02 09:24 UTC / 02:24 PDT, [C113] separates native observation
+areas from the saved simulation definition. The runner validates a bounded
+sealed layout, verifies the previous completed run before replacement, and
+retains the layout on continuation. Speakeasy uses the areas for native views
+while archive interpretation retains the original world definition.
+
+The two-person run used one area and alternated recent captures. Following the
+separated people repeatedly unloaded their bodies. A normal save and
+hash-verified copy preserve the pre-correction state. The corrected live run
+resumes the same save at hour 16.859554290771484 and supplies independent native
+areas with distinct images from one frame. The completed corrected pass advances
+to hour 18.492856979370117, saves normally, exits zero and records no runtime
+errors. Seven archive frames accompany two distinct simultaneous native views.
+Mousecat retains the saved session with continuation available.
+
+Loaded testing exposed missing secondary chunk-map ownership. Initialization
+now registers the complete valid native grid before delivery and waits for
+per-slot lighting state before relocating that state. Installed probes cover
+169 shared loaded/pending chunks, native unload retention, lighting readiness
+and source controls. Border 233 covers layout persistence, native pixels,
+preserved adapter-source snapshots and recoverable prelaunch replacement.
+The runner retains failed attempts and the pre-correction checkpoint. Full
+closing checks and publication proceed through the normal pre-commit hook.
+
+Saved route-failure history is retained. Choosing personally inspected
+alternative entrances after a locked door and learning better strategies remain
+open. Alarm responses will be observed circumstantially. The wider integration,
+education, culture, development and appearance work remains authorized.
 
 **As of** 2026-10-02 03:28 UTC / 20:28 PST, [C112](Batches/C112-20261002-0328Z-2028PST-native-window-repair.md) connects perceived broken windows to
 the existing fortification decision and optional installed native repair.
@@ -1560,10 +1589,10 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, plus C105's outcome and export-worker controls, the
-repository holds 234 `*_test.py` files. The gate invokes 234 `*_test.py` files
-and 16 other Python entry points, 250 distinct scripts, through direct calls
+repository holds 235 `*_test.py` files. The gate invokes 235 `*_test.py` files
+and 16 other Python entry points, 251 distinct scripts, through direct calls
 and its mirror loop. Native suites also invoke their own controls.
-Border labels extend through 232; legacy labels
+Border labels extend through 233; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 188 Lua source files.
 ZAO A41 has fifteen borders. The

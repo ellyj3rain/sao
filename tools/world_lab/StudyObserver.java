@@ -409,10 +409,7 @@ public final class StudyObserver {
             resident.setOnlineID((short) -1); resident.sqlId = -1;
             extraAnchors[index - 1] = resident; extraCameras[index - 1] = view;
             IsoPlayer.players[index] = resident;
-            cell.getChunkMap(index).ignore = false;
-            // Native split-screen joins activate their own Bullet residency
-            // map. WorldSimulation.create initializes map zero only.
-            WorldSimulation.instance.activateChunkMap(index);
+            initializeRegion(cell, index, resident.getX(), resident.getY());
         }
         IsoPlayer.numPlayers = siteOrigins.length;
         IsoPlayer.players[0] = anchor;
@@ -429,6 +426,48 @@ public final class StudyObserver {
             + " origin=" + originX + "," + originY + "," + originZ
             + " identity=" + Integer.toHexString(System.identityHashCode(anchor))
             + " suppressedBirths=" + suppressedBirths + " hours=" + startHours);
+    }
+
+    /** Native AddCoopPlayer establishes full-grid references before deliveries
+     * can reach a secondary map. A map enabled without these references can
+     * hold shared chunks that another map is allowed to unload and recycle.
+     */
+    public static void initializeRegion(IsoCell owner, int slot, float x, float y) {
+        IsoChunkMap.bSettingChunk.lock();
+        try {
+            IsoChunkMap map = owner.getChunkMap(slot);
+            map.Unload();
+            map.ignore = false;
+            map.worldX = (int) Math.floor(x / IsoChunkMap.CHUNK_SIZE_IN_SQUARES);
+            map.worldY = (int) Math.floor(y / IsoChunkMap.CHUNK_SIZE_IN_SQUARES);
+            prepareRegionLighting(map);
+            WorldSimulation.instance.activateChunkMap(slot);
+            loadRegion(owner, map);
+        } finally {
+            IsoChunkMap.bSettingChunk.unlock();
+        }
+    }
+
+    public static void prepareRegionLighting(IsoChunkMap map) {
+        // The DLL can be initialized before this slot's first ordinary
+        // lighting update creates its native state. Teleport requires it.
+        int slot = map.playerId;
+        if (LightingJNI.init && LightingJNI.getUpdateCounter(slot) >= 0) LightingJNI.teleport(slot,
+            map.worldX - IsoChunkMap.chunkGridWidth / 2,
+            map.worldY - IsoChunkMap.chunkGridWidth / 2);
+    }
+
+    public static void loadRegion(IsoCell owner, IsoChunkMap map) {
+        int half = IsoChunkMap.chunkGridWidth / 2;
+        int left = map.worldX - half, top = map.worldY - half;
+        for (int x = left; x <= map.worldX + half; x++) {
+            for (int y = top; y <= map.worldY + half; y++) {
+                if (!IsoWorld.instance.getMetaGrid().isValidChunk(x, y)) continue;
+                var chunk = map.LoadChunkForLater(x, y, x - left, y - top);
+                if (chunk != null && chunk.loaded) owner.setCacheChunk(chunk, map.playerId);
+            }
+        }
+        map.SwapChunkBuffers();
     }
 
     /** Native logic executes this while UI speed is zero as well as while running. */

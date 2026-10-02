@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.10.3.0-pre-alpha` |
+| Version | `3.10.3.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -219,3 +219,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C110](Batches/C110-20261001-0730Z-0030PST-route-progress-and-tactical-continuity.md) | 2026-10-01 | Route progress and tactical continuity | [`T-030`](Batches/THREADS.md#t-030) |
 | [C111](Batches/C111-20261001-2355Z-1655PST-native-feeding-and-carried-coolers.md) | 2026-10-01 | Native feeding and carried coolers | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
 | [C112](Batches/C112-20261002-0328Z-2028PST-native-window-repair.md) | 2026-10-02 | Native window repair | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C113](Batches/C113-20261002-0924Z-0224PST-independent-native-observation-layouts.md) | 2026-10-02 | Independent native observation layouts | [`T-030`](Batches/THREADS.md#t-030) |

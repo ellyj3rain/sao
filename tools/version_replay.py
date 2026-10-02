@@ -251,6 +251,7 @@ UNITS = [
     ('C110', 'patch', 'Repair false route stalls during physical/native node progress and moving-fallback tactical revision churn while preserving genuine stalls and meaningful private revisions. Existing capability contracts remain, so patch.'),
     ('C111', 'kohai', 'Connect existing native animal care to exact completion and private experience, integrate installed carried-cooler physics with the existing Body capture contract, and preserve complete source discovery. Existing action, inventory and cognition owners retain authority, so kohai.'),
     ('C112', 'kohai', 'Connect installed native window repair to the existing fortification purpose, exact actor/material/queue ownership, durable completion and independent private experience. Existing planning, physical action and cognition owners retain authority, so kohai.'),
+    ('C113', 'patch', 'Repair native study viewing by separating sealed observation areas from saved world identity. Existing camera, renderer, save and gameplay owners remain in place, so patch.'),
 ]
 
 TIER_MEANINGS = [

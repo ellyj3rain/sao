@@ -208,8 +208,12 @@ def runner_command(args, resume, duration):
                "--out", str(args.out / "native-run"), "--game", str(args.game), "--jdk", str(args.jdk),
                "--host", "observer", "--watch", "--window", args.window,
                "--timeout", str(duration)]
+    if getattr(args, "observer_layout", None) is not None:
+        command.extend(("--observer-layout", str(args.observer_layout)))
     if resume:
         command.append("--resume")
+        if getattr(args, "refresh_observer_adapter", False):
+            command.append("--refresh-observer-adapter")
     else:
         for mod in args.mod:
             command.extend(("--mod", str(mod)))
@@ -234,6 +238,8 @@ def watcher_command(args, feed: Path, state_path: Path, commands: Path, attempt:
                "--review-endpoint", args.review_endpoint]
     if args.project_ref:
         command.extend(("--project-ref", args.project_ref))
+    if getattr(args, "site_controls", False):
+        command.append("--site-controls")
     return command
 
 
@@ -366,6 +372,12 @@ def main():
     parser.add_argument("--auto-continue", action=argparse.BooleanOptionalAction, default=None,
                         help="start another saved attempt after a wall-time checkpoint")
     parser.add_argument("--window", choices=("visible", "hidden"), default="visible")
+    parser.add_argument("--observer-layout", type=Path,
+                        help="native observation areas, independent of the saved world")
+    parser.add_argument("--site-controls", action="store_true",
+                        help="publish independent camera controls to a compatible viewer")
+    parser.add_argument("--refresh-observer-adapter", action="store_true",
+                        help="rebuild isolated observer infrastructure on verified continuation")
     args = parser.parse_args()
     if args.duration is not None:
         bounded_duration(args.duration)

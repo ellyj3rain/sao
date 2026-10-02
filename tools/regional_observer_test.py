@@ -3,6 +3,7 @@ import copy
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import sqlite3
@@ -92,7 +93,31 @@ def initial_placement_checks(root, command):
         print(output.splitlines()[-1] if expected is None else "PASS initial placement control refused: " + label)
 
 
+def require_region_initialization(source):
+    source = re.sub(r'/\*.*?\*/|//[^\n]*', '', source, flags=re.S)
+    end_world = source.split('public static void endWorld(', 1)[1].split('public static void initializeRegion(', 1)[0]
+    initializer = source.split('public static void initializeRegion(', 1)[1].split('public static void loadRegion(', 1)[0]
+    assert 'initializeRegion(cell, index, resident.getX(), resident.getY());' in end_world, \
+        'secondary host startup omitted region initialization'
+    assert 'loadRegion(owner, map);' in initializer, 'region initialization omitted full-grid custody'
+    assert 'prepareRegionLighting(map);' in initializer, 'region initialization omitted tested lighting preparation'
+
+
 class RegionalDefinitions(unittest.TestCase):
+    def test_secondary_startup_calls_executed_region_loader(self):
+        source = (Lab.ROOT / 'tools/world_lab/StudyObserver.java').read_text()
+        require_region_initialization(source)
+        for call, expected in (
+            ('initializeRegion(cell, index, resident.getX(), resident.getY());', 'secondary host startup'),
+            ('loadRegion(owner, map);', 'full-grid custody'),
+            ('prepareRegionLighting(map);', 'tested lighting preparation'),
+        ):
+            self.assertEqual(source.count(call), 1)
+            changed = source.replace(call, '/* ' + call + ' */', 1)
+            self.assertNotEqual(changed, source)
+            with self.subTest(call=call), self.assertRaisesRegex(AssertionError, expected):
+                require_region_initialization(changed)
+
     def setUp(self):
         self.definition = Lab.load(Lab.ROOT / "tools/world_lab/definition.example.json")
         self.definition["observation"]["sites"] = [dict(id=f"area-{i}", label=f"Area {i}", x=64 + 128*i, y=64, z=0) for i in range(3)]
@@ -198,7 +223,7 @@ def native_checks(root):
     native = os.pathsep.join(str(GAME / name) for name in ("projectzomboid.jar", "ZombieBuddy.jar"))
     execute([JDK / "javac.exe", "-cp", native, "-d", classes,
              *(source / name for name in ("StudyObserver.java", "StudyViewCapture.java", "StudyLoadingAgent.java", "StudyExport.java",
-                                          "NativeObserverSitesProbe.java", "NativeRegionalCaptureProbe.java")),
+                                          "NativeObserverSitesProbe.java", "NativeRegionalCaptureProbe.java", "NativeObserverResidencyProbe.java")),
              Lab.ROOT / "tools/luacheck/LuaRun.java"], root)
     manifest = root / "agent.mf"; manifest.write_text("Manifest-Version: 1.0\nPremain-Class: StudyLoadingAgent\nCan-Retransform-Classes: true\n\n")
     agent = root / "observer.jar"
@@ -209,10 +234,15 @@ def native_checks(root):
         return execute([GAME / "jre64/bin/java.exe", "-Djava.awt.headless=true", f"-Duser.home={home}",
                         "-Dstudy.observer=true", f"-javaagent:{agent}=isolated-study", "--enable-native-access=ALL-UNNAMED",
                         "-cp", classpath, name], GAME, expected)
-    for name in ("NativeObserverSitesProbe", "NativeRegionalCaptureProbe"):
+    for name in ("NativeObserverSitesProbe", "NativeRegionalCaptureProbe", "NativeObserverResidencyProbe"):
         output = probe(name)
         print("\n".join(line for line in output.splitlines() if line.startswith("PASS ")))
     for filename, old, new, name, why in (
+        ("StudyObserver.java", "LightingJNI.init && LightingJNI.getUpdateCounter(slot) >= 0", "LightingJNI.init",
+         "NativeObserverResidencyProbe", "uninitialized regional lighting attempted native teleport"),
+        ("StudyObserver.java", "var chunk = map.LoadChunkForLater(x, y, x - left, y - top);",
+         "var chunk = IsoChunkMap.SharedChunks.get((x << 16) + y);", "NativeObserverResidencyProbe",
+         "regional full-grid ownership missing or duplicated"),
         ("StudyObserver.java", "frame.camCharacter = view;", "frame.camCharacter = camera;", "NativeObserverSitesProbe", "native frame did not use its actual regional position"),
         ("StudyObserver.java", "extraAnchors.length > 0 && rx == vx && ry == vy && rz == vz", "false", "NativeObserverSitesProbe", "loaded regional camera visit unnecessarily scrolled native residency"),
         ("StudyObserver.java", "if (failure != null) failContext(failure);", "if (false) failContext(failure);", "NativeObserverSitesProbe", "missing native map did not preserve a failed clock receipt"),
