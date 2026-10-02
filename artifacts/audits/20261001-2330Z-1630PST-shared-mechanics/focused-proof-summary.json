@@ -1,0 +1,113 @@
+{
+  "schema": "sao-shared-mechanics-proof-summary/1",
+  "status": "focused-native-pass-normal-hook-gate-separate",
+  "evidence": {
+    "animal_completion": {
+      "receiptSha256": "62d4a1076e1518aa6b21ec472bc49fcabcad07478c0cfc35af86a2d5aeb9c219",
+      "localReceipt": "_scratch/animal-care/proof-20261002-004356-148834/receipt.json",
+      "nativeChecks": 51,
+      "integratedNativeChecks": 3,
+      "luaChecks": 49,
+      "defectControls": 18,
+      "preflightClassificationCases": 3,
+      "missingHelperBootstrap": true,
+      "preflightGuardControl": true
+    },
+    "cooler_body_callers": {
+      "receiptSha256": "935428ee647148859c93531b52c5b874626f20d157c08a57360bbf9c00e748dc",
+      "localReceipt": "_scratch/c111-mod-mechanics/death-callers-v2/verification.json",
+      "status": "passed",
+      "physicalChecks": 43,
+      "bodyCallerChecks": 17,
+      "checks": 68,
+      "defectControls": 15,
+      "inputsUnchanged": true,
+      "versions": {
+        "mod_info": {
+          "name": "Tien's Coolers",
+          "id": "TienCoolers",
+          "description": "A cooler packed with ice preserves the food inside it half as well as a working refrigerator, anywhere you carry it, with no power required. Adds a Bag of Ice, found in freezers or made by freezing water yourself. A Reworked Ice beta option, off by default in the sandbox settings, adds tainted ice, plastic bags for freezing, meltwater collection, and ice that freezes and weighs like the water it is made of.",
+          "author": "Tien",
+          "modversion": "1.5.3",
+          "poster": "poster.png",
+          "icon": "icon.png",
+          "category": "Items"
+        },
+        "shared_api": "1.5.1"
+      },
+      "deathCallerChecks": 8,
+      "preflightClassificationCases": 3,
+      "missingHelperBootstrap": true,
+      "preflightGuardControl": true
+    },
+    "cooler_independent_retake": {
+      "receiptSha256": "a05bd6f6824af999be8454fe1820ced80d2e5f55c422e464cea5d7ed087adff1",
+      "localReceipt": "_scratch/c111-mod-mechanics/cooler-independent-review-v1/retake-receipt-v2.json"
+    },
+    "native_source_review": {
+      "receiptSha256": "efc35157b8444b9c74e077917847badd170291f71218e509e2dbb5ec7b9fd511",
+      "localReceipt": "_scratch/mod-integration/source-mechanic-map-v1/receipt.json"
+    },
+    "first_manual_gate": {
+      "status": "interrupted-after-known-findings",
+      "completeGate": false,
+      "receiptSha256": "5240d0a71d5af4d7e7d98bbd97ef8efa8f7810c89b2a4036d69f0bcaedc747b5",
+      "localReceipt": "_scratch/c111-mod-mechanics/full-gate-1-interruption.json",
+      "closingGate": "complete normal pre-commit hook; separate log and exit"
+    },
+    "proof_preflight_independent_retake": {
+      "localReceipt": "_scratch/c111-build-validation-retake-v2/preflight/receipt.json",
+      "receiptSha256": "bbdc46483ff1ebaac623bc40ff018ad7eb0b892b69a2f2f1edf453261c2379f3"
+    },
+    "cooler_death_independent_retake": {
+      "localReceipt": "_scratch/c111-build-validation-retake-v2/death/receipt.json",
+      "receiptSha256": "fc8f664edd10809c0043fa50ae560cfc4cf16e149b576ce52f788d8d7816b14c"
+    },
+    "first_complete_normal_hook": {
+      "localReceipt": "_scratch/c111-mod-mechanics/normal-hook-commit-result.json",
+      "receiptSha256": "083eeff0fc3dfc1236501fa458778295f035363cf0b05be5923d5205c519aac5",
+      "completeGate": true,
+      "exitCode": 1,
+      "finding": "Missing loaded-only ModMechanics declaration; repaired shared class with executing omission control",
+      "localLog": "_scratch/c111-mod-mechanics/normal-hook-commit.log",
+      "logSha256": "53139b6ac030525ca1a7b9911b62b4b9f53542729ce1109bcafe1310b7c5c098"
+    },
+    "simulation_module_independent_retake": {
+      "localReceipt": "_scratch/c111-build-validation-retake-v2/simulation-module-repair-retake.json",
+      "receiptSha256": "3ad7de5a213405a3c0c9b3763ee0e28ad1756e102c88aa4cfe55685a8d16867a"
+    }
+  },
+  "rawSourceSha256": {
+    "java/src/com/sao/engine/SAOAnimalCare.java": "b58a5fe819e7da7deae10d50f533ad04660f055e4fcc252332515cedf184c1f3",
+    "java/src/com/sao/bridge/SAOBridge.java": "4e23ae5df222ba35acd0b19a662c64b043b001e815a920dc7ea00f6ab459bda8",
+    "java/src/com/sao/engine/SAOIsoPlayerShell.java": "803eda47453e7fb194a3391acd3c1f567ac5d5e50ea65b2295b215ff99488e52",
+    "mod/42.20/media/lua/client/SAO_Animals.lua": "3f775d1ae878608d7cd6fe5a253e66d3d361e0f9ae8fdf20966f2bf0a27cd8a7",
+    "mod/42.20/media/lua/client/SAO_ModMechanics.lua": "94e39814a393b2993f8b17024e6585957a16ca54ee5962eff94dfca9ca20b3b3",
+    "mod/42.20/media/lua/client/SAO_Body.lua": "169cb008be291df119681b57feb1ff93a6a7ff123b9629476bacd7d2069d4825",
+    "mod/42.20/media/lua/shared/SAO_Cognition.lua": "89b592c8b9ed89755b3819809325ec1e64efcd6491e952cebc93fa02629e8b77",
+    "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua": "f65f436a33057fcc4a29d1eaa6a8bf6112675b42d1baf58727de9d042e477398",
+    "tools/mod_mechanics_test.py": "612b7b28a63391f628ca0020e6f8c3726068b68b4c0e61de1ca236af1d746024",
+    "tools/animal_care_completion_test.py": "4d147b269fca8af729bb54204bffd0ad1942cb81f56b7d8f78e9d17274470ee9",
+    "tools/mod_integration_inventory.py": "f03c5d198049b7f07f1a9d55a6af48b4cbb9a6e502d2515c43c7ec95781e922d",
+    "tools/mod_integration_inventory_test.py": "59b253710ced7f5892ca50476e5f1ff30ede06a65f02788cf22be93bc9133382",
+    "tools/capability_experience_checks/run_checks.py": "14528b4feb80a691c268143b4a35371a1da01a43cb2a559d9a3c0b6652ca9834",
+    "tools/capability_experience_checks/experience.lua": "8f531d25b5b8eee0e97ecec046f2e8b38bf490d2fa819be4d8d5d6d24cdab18f",
+    "tools/capability_experience_checks/controls.py": "2941ac1538a2bb7174db6e60cc724fec6a511744f9a639547b215ba26ec80e2e",
+    "mod/42.20/media/lua/shared/SAO_Identity.lua": "51ef442d4958b3eb7c249b96661f4e667d175cdd5a8f62f96e8e67caf518134b",
+    "tools/native_proof_preflight.py": "051ae8b6621627860ede97f48c502b56197593199db6002e5235cebcbb27e30d",
+    "tools/lua_read.py": "aa0f2fa7907221afb232a12e40f502e4c93a7f09c51dc0fe95ddbec966cb2e70",
+    "tools/mod_mechanics_checks/death_cases.lua": "9a808f128fb01abeb08493b6c544a103d9dc0a3c289d075f576b1232ab64f23f",
+    "tools/mod_mechanics_checks/body_prelude.lua": "9b1ae63c07ef9e028b8f41a96ee116ac3a677590ba7f6cfb811a15b9edca42ed",
+    "tools/globals_census_test.py": "ac695788d92ae99b53db878c9473c2ae2e7b3821226864c61fbc8f3233da279a",
+    "tools/forget_on_death_test.py": "96a375ec8bbd0f8a7649f14cb58f6fec52c402dc997b98d16aeb1c51dc2a9fec",
+    "tools/county_sweep.py": "1736faf08c7f8b049d0107bfec0991a4ad76dff889a11e0681201de64135b0bd",
+    "tools/trajectory_simulation_test.py": "edb6e3ad6d924617202fe0692cf8ab0cd4ad812f93ae22bf9861fc3be280f119"
+  },
+  "limits": [
+    "No loaded game/save/deploy or model training",
+    "Controlled scheduling/admission/animation/population/teardown surroundings",
+    "Native dormant food consumption precedes cooler reconciliation",
+    "Vitality candidate and broader integrations remain open",
+    "Actual Identity death caller executes with controlled death admission and registry replacement; native corpse conversion is outside this proof."
+  ]
+}

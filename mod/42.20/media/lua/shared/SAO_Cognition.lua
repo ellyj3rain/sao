@@ -266,7 +266,8 @@ function C.attempted(id, token)
     return true
 end
 local KINDS = { inspection = true, acquire = true, store = true, consume = true }
-local EXTENDED = { ["medication-use"] = true, ["physical-change"] = true, preparation = true }
+local EXTENDED = { ["medication-use"] = true, ["physical-change"] = true, preparation = true,
+    ["animal-care"] = true }
 local STATUSES = { completed = true, ["no-effect"] = true, interrupted = true, unavailable = true }
 local EXPERIENCE_KEYS = { id = true, actorId = true, observerId = true, worldHours = true,
     kind = true, category = true, perspective = true, status = true, sourceId = true,
@@ -477,6 +478,34 @@ function C.physicalChange(id, receipt)
     -- last-dose/family counters are God-view accounting, not private evidence.
     return nativeExperience(id, "physical", receipt.minute, x)
 end
+-- The animal owner retains the full native completion proof. Only this
+-- person's performed feed transfer crosses into their private experience.
+function C.animalCareOutcome(id, receipt)
+    local now, rec = clock(), record(id)
+    if not now or not rec or type(receipt) ~= "table" or receipt.actorId ~= id
+        or receipt.kind ~= "feed" or receipt.status ~= "completed"
+        or receipt.reason ~= "native-feed-consumed"
+        or not finite(receipt.position, 1, 9007199254740991)
+        or receipt.position ~= math.floor(receipt.position)
+        or receipt.id ~= "animal-care/" .. tostring(id) .. "/" .. tostring(receipt.position)
+        or not finite(receipt.worldHours, 0, now)
+        or not finite(receipt.consumedAmount, 0.000000001, 1000000000) then
+        return false, "unqualified-animal-care"
+    end
+    local canonical
+    for _, row in ipairs(rec.animalCare and rec.animalCare.outcomes or {}) do
+        if row.id == receipt.id then canonical = row break end
+    end
+    if not canonical or not sameData(canonical, receipt) then
+        return false, "animal-care-owner-unavailable"
+    end
+    local x = privateFact(id, "animal-care", "animal", receipt.id, now, receipt.worldHours)
+    x.sourceId = "animal/" .. tostring(receipt.animalId)
+    x.itemId, x.itemType = receipt.itemId, receipt.itemType
+    x.consumedAmount, x.quantityUnit = receipt.consumedAmount, receipt.quantityUnit
+    return nativeExperience(id, "animal-care", receipt.position, x)
+end
+
 function C.preparationOutcome(id, receipt)
     local now = clock()
     if not now or type(receipt) ~= "table" or receipt.actorId ~= id

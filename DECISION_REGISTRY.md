@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `3.10.1.2-pre-alpha` |
+| Version | `3.10.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1822,3 +1822,33 @@ completion tokens to this owner instead of creating another planner.
 
 **Origin.** Mousecat Crucible interaction `skill-ce0aa216821c7a39`, item
 `seam-1b020484ad5238a2`, selected `dual-process-private-projections`.
+
+## DR-053 | 2026-10-01 23:30 UTC / 16:30 PST | Shared mechanics and curated source integration
+
+**Status.** RATIFIED by the operator's continuation direction on 2026-10-01.
+
+**Decision.** Installed mods and subsequently supplied sources are integration
+candidates across the simulation's life domain. Named examples illustrate the
+scope. Candidate discovery retains every installed mod root, its compatible
+payloads, source identity, dependencies and conflicting registrations. Physical
+mechanics serve players and NPCs through the same native effects, materials,
+skills and completion rules. Source adaptation preserves applicable provenance
+and licence terms; compatible shared APIs carry mechanics that remain external.
+
+Traits have one canonical semantic owner for each effect, with supported source
+aliases and legacy migration. The displayed trait catalogue stays curated;
+overlapping registrations, opposed costs, repeated modifiers and duplicate
+physiology drivers are reconciled before activation. Background, education,
+age, practice and retained experience remain separate person state.
+
+Weapon integration reconciles world date, actual item definitions, ammunition,
+attachments, skill requirements, availability and rarity. Current target,
+material, actor, body owner and native completion precede durable results and
+private learning. Current permission is checked where the work happens.
+
+**Application.** C111 adds authenticated native feeding experience and loaded
+carried-cooler updates, plus complete installed candidate discovery. The
+[integration scope](artifacts/audits/20261001-2330Z-1630PST-shared-mechanics/integration-scope.md)
+records the wider work and its unresolved producers. Real human infant anatomy,
+chronological growth, whole-source clinical integration, utility work, movement,
+exercise, repair and preservation retain their own executable joins and proofs.

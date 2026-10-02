@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.10.1.2-pre-alpha` |
+| Version | `3.10.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -197,6 +197,32 @@ subset. Anything in neither place is a hypothesis.
   the local player's slot (F-006).
 
 ## The needs layer (as built, [A8]-[A10])
+
+### Shared physical mechanics and private completion (C111)
+
+`SAO_Animals` drives the installed hand-feeding action on an owned living body.
+`SAOAnimalCare` holds a bounded runtime capture of the exact actor, animal,
+carried item and current native baseline. Native completion owns consumption and
+XP. A canonical `rec.animalCare` outbox retains completed consumed-feed results
+until Cognition acknowledges them. Separate model cursors make retry inert;
+animal internal hunger and the native token stay with the producer. Each model
+receives only the actor's performed feeding and consumed item quantity. Feeding
+experience does not itself prove later animal health or complete another goal.
+
+`SAO_ModMechanics` supplies installed carried-cooler processing with exact
+off-slot living inventories. The source module owns ice, food age and item
+timestamps. Body advances it before every fresh capture, including its
+authenticated native-unload checkpoint; `BodySnapshot.capture` stays a reader.
+Native item metadata persists with the existing inventory codec. An unresolved
+native-pass error remains as plain `rec.inventoryMechanics.coolerFailure`
+state across retry, retirement, runtime reset and record reload. Current native
+world membership precedes ordinary processing. Multiplayer carried inventory
+needs an explicit owning protocol before this adapter can drive it. Native
+dormant food selection currently precedes cooler reconciliation and remains open.
+
+DR-053 applies these ownership rules to the whole installed candidate collection.
+Source adaptation and compatible shared APIs preserve one physical mechanism
+per effect; source registration alone supplies no private knowledge or practice.
 
 Needs are engine stats read Java-side (`CharacterStat` HUNGER/THIRST/
 FATIGUE/ENDURANCE) and satisfied through the game's OWN timed actions -

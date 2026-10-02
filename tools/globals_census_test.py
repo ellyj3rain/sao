@@ -72,6 +72,13 @@ NEIGHBOUR = "neighbour"   # another mod's; every one needs an argument
 # Why we are inside somebody else's namespace. One entry per mod, and
 # the sentence has to survive being read by the person who wrote it.
 NEIGHBOURS = {
+    "TienCoolers": "Tien's Coolers owns its installed shared item physics. "
+          "C111 reads the optional API and invokes processTopLevel on the "
+          "exact authenticated off-slot native inventory in single player. "
+          "The installed player/server callbacks keep their authority; "
+          "Body orders the owned inventory pass before native capture and "
+          "retains unresolved intervals after a partial physical failure. "
+          "The global and source callbacks are not replaced.",
     "KS": "Knox Survivors. [B45] holds two of its functions - "
           "`KS.Notify`, the overhead prompt, and `KS.Say`, words over "
           "an actor - because it narrates people this county does not "

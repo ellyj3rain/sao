@@ -38,9 +38,15 @@ on the simulation.
 
 ## Status
 
-`3.10.1.2-pre-alpha` - the coordinate is computed by the version machine
+`3.10.2.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C111 observes completed native animal feeding as private experience and
+connects installed cooler physics to authenticated carried inventories and
+all fresh Body checkpoints. Exact materials and ownership determine completion.
+The whole installed collection remains in integration scope, with curated trait
+effects and explicit clinical, growth, dormant-physics and compatibility work.
 
 C110 retains physically progressing routes across repeated native verdicts and
 stabilizes actor-private tactical intent across minor moving-fallback changes.

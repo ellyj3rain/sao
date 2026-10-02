@@ -10,6 +10,8 @@ SAO = SAO or {}
 SAO.Animals = SAO.Animals or {}
 local A = SAO.Animals
 
+require "TimedActions/Animals/ISFeedAnimalFromHand"
+
 local Mounts = require("HorseMod/Mounts")
 local Mounting = require("HorseMod/Mounting")
 local MountingUtility = require("HorseMod/mounting/MountingUtility")
@@ -25,17 +27,277 @@ local TRAVEL_REACH = 1.75
 local TRAVEL_HEADING_MIN_LENGTH = 0.05
 local TRAVEL_STALL_TICKS = 480
 A.travelJobs = A.travelJobs or {}
+A.careRuntime = A.careRuntime or {}
+A.careEpoch = A.careEpoch or 0
+local careRuntime = A.careRuntime
+local MAX_CARE_OUTCOMES = 32
 
 function A.forget(id)
     A.travelJobs[id] = nil
+    local work = careRuntime[id]
+    if work then
+        work.action.saoAnimalCareDenied = true
+        pcall(function() SAOJavaBridge:animalCareCancelFeed(work.body, work.token) end)
+        careRuntime[id] = nil
+    end
 end
 
 local function log(msg) SAO.Log.line("ANIMAL", msg) end
 
 local function number(value)
     local n = tonumber(value)
-    return n and n == n and n or nil
+    return n and n == n and n > -math.huge and n < math.huge and n or nil
 end
+
+local function careOwner(id, body)
+    local rec = SAO.Identity and SAO.Identity.get(id)
+    local agent = SAO.Controller and SAO.Controller.agents[id]
+    if not rec or rec.dead or rec.bodyOwner ~= nil or rec.bodyOwnerToken ~= nil
+        or rec.zaoTransferPending or rec.crossedTransferPending or not body
+        or not SAO.Body or SAO.Body.active[id] ~= body or SAO.Body.get(id) ~= body
+        or SAO.Body.foreign[id] ~= nil or not agent or agent.rec ~= rec or agent.passive
+        or agent.state == "PASSIVE" or SAO.Body.isTransitioning(rec) then return nil end
+    local data = body:getModData()
+    if tostring(data.SAOPersonId or "") ~= tostring(id) or data.SAOExternalOwner ~= nil
+        or data.SAOExternalToken ~= nil or data.ZAOOwned == true
+        or SAOJavaBridge:isShell(body) ~= true or not body:isExistInTheWorld()
+        or body:isDead() or not body:getCurrentSquare() then return nil end
+    return rec
+end
+
+-- An existing ZAO actor keeps its own native feeding action. SAO authenticates
+-- that retained owner without admitting private care work for it.
+local function foreignCareOwner(id, body)
+    local rec = SAO.Identity and SAO.Identity.get(id)
+    local agent = SAO.Controller and SAO.Controller.agents[id]
+    if not rec or tostring(rec.id or "") ~= id or rec.dead or rec.bodyOwner ~= "ZAO"
+        or type(rec.bodyOwnerToken) ~= "string" or rec.bodyOwnerToken == ""
+        or rec.zaoTransferPending or rec.crossedTransferPending or not body
+        or not SAO.Body or SAO.Body.active[id] ~= nil or SAO.Body.foreign[id] ~= body
+        or SAO.Body.get(id) ~= body or SAO.Body.isTransitioning(rec)
+        or not agent or agent.rec ~= rec or agent.passive ~= true then return nil end
+    local data = body:getModData()
+    if tostring(data.SAOPersonId or "") ~= id or data.SAOExternalOwner ~= "ZAO"
+        or data.SAOExternalToken ~= rec.bodyOwnerToken
+        or SAOJavaBridge:isShell(body) ~= true or not body:isExistInTheWorld()
+        or body:isDead() or not body:getCurrentSquare() then return nil end
+    local world = type(getWorld) == "function" and getWorld() or nil
+    local cell = world and world:getCell()
+    if not cell or (not cell:getObjectList():contains(body)
+        and not cell:getAddList():contains(body)) then return nil end
+    return rec
+end
+
+local function carePositionPermission(id, x, y)
+    return SAO.Standing and SAO.Standing.mayTakeCurrent
+        and SAO.Standing.mayTakeCurrent(id, x, y, "standing") == true
+end
+
+local function carePermission(id, animal)
+    return carePositionPermission(id, animal:getX(), animal:getY())
+end
+
+local function careState(rec)
+    local s = rec.animalCare
+    if s == nil then
+        s = { schema = 1, sequence = 0, acknowledgedThrough = 0, omittedOutcomes = 0, outcomes = {} }
+        rec.animalCare = s
+    end
+    if type(s) ~= "table" or s.schema ~= 1 or type(s.outcomes) ~= "table"
+        or not number(s.sequence) or s.sequence < 0 or s.sequence ~= math.floor(s.sequence)
+        or not number(s.acknowledgedThrough) or s.acknowledgedThrough < 0
+        or s.acknowledgedThrough > s.sequence or not number(s.omittedOutcomes)
+        or s.omittedOutcomes < 0 then return nil end
+    return s
+end
+
+-- Only this actor's retained canonical receipts reach the private learning owner.
+-- Disabled or unavailable learning never prevents native animal care.
+function A.deliverCareOutcomes(id)
+    local rec = SAO.Identity and SAO.Identity.get(id)
+    local s = rec and careState(rec)
+    local cognition = SAO.Cognition
+    if not s or not cognition or not cognition.animalCareOutcome then return false end
+    while #s.outcomes > 0 do
+        local row = s.outcomes[1]
+        local ok, accepted = pcall(cognition.animalCareOutcome, id, row)
+        if not ok or accepted ~= true then return false end
+        s.acknowledgedThrough = row.position
+        table.remove(s.outcomes, 1)
+    end
+    return true
+end
+
+local function recordFeed(work, wire)
+    local fields = {}
+    if type(wire) ~= "string" or #wire > 1024 then return false end
+    for field in wire:gmatch("[^@]+") do fields[#fields + 1] = field end
+    if #fields ~= 11 or fields[1] ~= "completed" or fields[2] ~= work.token
+        or fields[11] ~= "native-feed-consumed" then return false end
+    local animalId, itemId = number(fields[3]), number(fields[4])
+    local before, after, hungerBefore, hungerAfter = number(fields[7]), number(fields[8]), number(fields[9]), number(fields[10])
+    if animalId ~= work.animalId or itemId ~= work.itemId or fields[5] ~= work.itemType
+        or (fields[6] ~= "uses" and fields[6] ~= "fluid" and fields[6] ~= "food-hunger")
+        or not before or not after or after < 0 or before - after <= 0.000001
+        or not hungerBefore or not hungerAfter or hungerAfter < 0 or hungerBefore - hungerAfter <= 0.000001 then return false end
+    local now = SAO.History and SAO.History.countyHours()
+    if work.epoch ~= A.careEpoch or careOwner(work.id, work.body) ~= work.rec or not carePermission(work.id, work.animal)
+        or not number(now) or now < work.startedAt then return false end
+    local s = careState(work.rec)
+    if not s or s.sequence >= 9007199254740991 then return false end
+    s.sequence = s.sequence + 1
+    local row = { schema = 1, id = "animal-care/" .. work.id .. "/" .. tostring(s.sequence),
+        actorId = work.id, position = s.sequence, worldHours = now, kind = "feed", status = "completed",
+        nativeToken = work.token, animalId = animalId, itemId = itemId, itemType = work.itemType,
+        quantityUnit = fields[6], beforeAmount = before, afterAmount = after, consumedAmount = before - after,
+        beforeHunger = hungerBefore, afterHunger = hungerAfter, hungerDelta = hungerBefore - hungerAfter,
+        reason = fields[11] }
+    if #s.outcomes >= MAX_CARE_OUTCOMES then
+        table.remove(s.outcomes, 1)
+        s.omittedOutcomes = s.omittedOutcomes + 1
+    end
+    s.outcomes[#s.outcomes + 1] = row
+    A.deliverCareOutcomes(work.id)
+    return true
+end
+
+local function cancelFeed(action)
+    local work = action.saoAnimalCareWork
+    local original = work or action.saoAnimalCareForeign or action.saoAnimalCareAdmission
+    action.saoAnimalCareDenied = true
+    if original then
+        -- Native stop resolves its animal, actor and queue from these fields.
+        -- Retire the original admitted work even after callback substitution.
+        action.character, action.animal, action.food = original.body, original.animal, original.item
+    end
+    if work and not work.cancelled then
+        work.cancelled = true
+        if work.token then pcall(function() SAOJavaBridge:animalCareCancelFeed(work.body, work.token) end) end
+        if careRuntime[work.id] == work then careRuntime[work.id] = nil end
+    end
+end
+
+local function refuseFeed(action)
+    cancelFeed(action)
+    pcall(function() action:forceStop() end)
+    return false
+end
+
+local function beginFeed(action)
+    local body = action.character
+    local admission = action.saoAnimalCareAdmission
+    if admission and (body ~= admission.body or action.animal ~= admission.animal
+        or action.food ~= admission.item or admission.epoch ~= A.careEpoch) then return false end
+    local rawId = body and body:getModData().SAOPersonId
+    if rawId == nil or SAOJavaBridge:isShell(body) ~= true then return admission == nil end
+    local id = tostring(rawId)
+    if admission then
+        if admission.id ~= id or admission.rec ~= careOwner(id, body) or admission.body ~= body
+            or admission.animal ~= action.animal or admission.item ~= action.food
+            or admission.epoch ~= A.careEpoch then return false end
+    else
+        local foreign = foreignCareOwner(id, body)
+        if foreign then
+            action.saoAnimalCareForeign = { id = id, rec = foreign, body = body,
+                ownerToken = foreign.bodyOwnerToken, animal = action.animal, item = action.food,
+                epoch = A.careEpoch }
+            return true
+        end
+    end
+    local rec = careOwner(id, body)
+    local animal, food = action.animal, action.food
+    local now = SAO.History and SAO.History.countyHours()
+    if not rec or not animal or not food or not number(now) or now < 0 or not carePermission(id, animal) then return false end
+    local prior = careRuntime[id]
+    if prior and prior.action ~= action then
+        if careOwner(id, prior.body) ~= prior.rec then A.forget(id) else return false end
+    end
+    local token = SAOJavaBridge:animalCareBeginFeed(body, animal, food)
+    if type(token) ~= "string" or token == "" then return false end
+    local work = { id = id, rec = rec, body = body, animal = animal, item = food, action = action,
+        animalId = animal:getAnimalID(), itemId = food:getID(), itemType = food:getFullType(), startedAt = now,
+        token = token ~= "BUSY" and token or nil, epoch = A.careEpoch }
+    action.saoAnimalCareWork = work
+    if work.token then careRuntime[id] = work end
+    return true
+end
+
+-- The installed action remains the sole physical mutation and native XP owner.
+-- Non-SAO player actions pass through unchanged.
+if ISFeedAnimalFromHand and not ISFeedAnimalFromHand.SAOAnimalCareWrapped then
+    ISFeedAnimalFromHand.SAOAnimalCareWrapped = true
+    local baseStart, baseComplete, baseStop = ISFeedAnimalFromHand.start,
+        ISFeedAnimalFromHand.complete, ISFeedAnimalFromHand.stop
+    function ISFeedAnimalFromHand:start(...)
+        if self.saoAnimalCareDenied or self.saoAnimalCareSettled then return false end
+        if not self.saoAnimalCareStarted then
+            self.saoAnimalCareStarted = true
+            local ok, accepted = pcall(beginFeed, self)
+            if not ok or accepted ~= true then return refuseFeed(self) end
+        end
+        local ok, result = pcall(baseStart, self, ...)
+        if not ok then cancelFeed(self); error(result) end
+        return result
+    end
+    function ISFeedAnimalFromHand:complete(...)
+        if self.saoAnimalCareDenied or self.saoAnimalCareSettled then return false end
+        local work = self.saoAnimalCareWork
+        if work then
+            local ok, ready = pcall(function()
+                if work.epoch ~= A.careEpoch or careOwner(work.id, self.character) ~= work.rec or self.character ~= work.body
+                    or self.animal ~= work.animal or self.food ~= work.item
+                    or not carePermission(work.id, work.animal) then return false end
+                if not work.token then
+                    local token = SAOJavaBridge:animalCareBeginFeed(work.body, work.animal, work.item)
+                    if token == "BUSY" then return true end
+                    if type(token) ~= "string" or token == "" then return false end
+                    work.token = token
+                end
+                return SAOJavaBridge:animalCarePrepareFeed(work.body, work.token, work.animal, work.item) == true
+            end)
+            if not ok or ready ~= true then return refuseFeed(self) end
+        elseif self.saoAnimalCareAdmission then return refuseFeed(self)
+        elseif self.saoAnimalCareForeign then
+            local foreign = self.saoAnimalCareForeign
+            local ok, valid = pcall(function()
+                return foreign.epoch == A.careEpoch and self.character == foreign.body
+                    and self.animal == foreign.animal and self.food == foreign.item
+                    and foreignCareOwner(foreign.id, self.character) == foreign.rec
+                    and foreign.rec.bodyOwnerToken == foreign.ownerToken
+            end)
+            if not ok or valid ~= true then return refuseFeed(self) end
+        elseif self.character and self.character:getModData().SAOPersonId ~= nil
+            and SAOJavaBridge:isShell(self.character) == true then
+            local ok, foreign = pcall(foreignCareOwner,
+                tostring(self.character:getModData().SAOPersonId), self.character)
+            if self.saoAnimalCareAdmission or not ok or not foreign then return refuseFeed(self) end
+        end
+        self.saoAnimalCareSettled = true
+        local ok, result = pcall(baseComplete, self, ...)
+        if work then
+            if careRuntime[work.id] == work then careRuntime[work.id] = nil end
+            if work.token then
+                local measured, wire = pcall(function()
+                    return SAOJavaBridge:animalCareFinishFeed(work.body, work.token, self.animal, self.food, ok and result == true)
+                end)
+                if measured and ok and result == true then pcall(recordFeed, work, wire) end
+                if not measured then pcall(function() SAOJavaBridge:animalCareCancelFeed(work.body, work.token) end) end
+            end
+        end
+        if not ok then error(result) end
+        return result
+    end
+    function ISFeedAnimalFromHand:stop(...)
+        cancelFeed(self)
+        return baseStop(self, ...)
+    end
+end
+
+function A.resetCareForWorld()
+    A.careEpoch = A.careEpoch + 1
+    for id in pairs(careRuntime) do A.forget(id) end
+end
+if Events and Events.OnGameStart then Events.OnGameStart.Add(A.resetCareForWorld) end
 
 local function parse(row)
     local fields = {}
@@ -116,7 +378,7 @@ local function queue(make)
     return ok
 end
 
-local function tryCare(body, animal, kind, tools, radius)
+local function tryCare(body, animal, kind, tools, radius, rec)
     if kind == "milk" and ISMilkAnimal and tools.bucket then
         local bodyAnimal = target(body, animal, radius)
         return bodyAnimal and queue(function()
@@ -149,7 +411,10 @@ local function tryCare(body, animal, kind, tools, radius)
         end)
         local bodyAnimal = target(body, animal, radius)
         return ok and food and bodyAnimal and queue(function()
-            return ISFeedAnimalFromHand:new(body, bodyAnimal, food)
+            local action = ISFeedAnimalFromHand:new(body, bodyAnimal, food)
+            action.saoAnimalCareAdmission = { id = tostring(rec.id), rec = rec, body = body,
+                animal = bodyAnimal, item = food, epoch = A.careEpoch }
+            return action
         end)
     end
     if kind == "pet" and ISPetAnimal then
@@ -182,6 +447,9 @@ end
 -- a stress or acceptance need decide. The timed action owns final validity.
 function A.care(id, body, radius)
     if not SAOJavaBridge or not body then return nil end
+    local ok, owned = pcall(careOwner, id, body)
+    if not ok or not owned then return nil end
+    A.deliverCareOutcomes(id)
     radius = radius or CARE_RADIUS
     local okW, water = pcall(function() return SAOJavaBridge:animalCareWater(body) end)
     local tools = {
@@ -192,7 +460,7 @@ function A.care(id, body, radius)
     local best = nil
     for _, animal in ipairs(A.read(body, radius)) do
         local rank, kind = choice(animal, tools)
-        if rank and kind then
+        if rank and kind and carePositionPermission(id, animal.x, animal.y) then
             local dx, dy = animal.x - body:getX(), animal.y - body:getY()
             local candidate = {
                 animal = animal, rank = rank, kind = kind,
@@ -207,8 +475,8 @@ function A.care(id, body, radius)
             end
         end
     end
-    if best and tryCare(body, best.animal, best.kind, tools, radius) then
-        log(id .. " " .. best.kind .. "s " .. best.animal.type)
+    if best and tryCare(body, best.animal, best.kind, tools, radius, owned) then
+        log(id .. " queued " .. best.kind .. " for " .. best.animal.type)
         return best.kind
     end
     return nil

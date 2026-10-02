@@ -4,7 +4,8 @@
     "decisions": [
       "DECISION_REGISTRY.md:1117 (DR-032)",
       "DECISION_REGISTRY.md:335 (DR-035)",
-      "DECISION_REGISTRY.md:1781 (DR-051)"
+      "DECISION_REGISTRY.md:1781 (DR-051)",
+      "DECISION_REGISTRY.md:1826 (DR-053)"
     ],
     "claimAudit": "artifacts/audits/source-integration-lineage/claim-reconciliation.md",
     "priorArt": "artifacts/audits/c89-native-capabilities/prior-art.json",
@@ -41,7 +42,9 @@
       ],
       "provenImplementation": "Claude C29-C31 and later owned extensions: selected age, body-scale, elder-physiology and child-development mechanisms.",
       "knownGaps": [
-        "The listed implementation is proven; source-specific nightmares, staged grief, cooking penalties and driving milestones are not proven by the historical implementation."
+        "The listed implementation is proven; source-specific nightmares, staged grief, cooking penalties and driving milestones are not proven by the historical implementation.",
+        "History.ageOf derives fixed demographic age from identity hashes; elapsed county time does not yet advance human age.",
+        "Current child bodies use adult human geometry with uniform height scaling; true infant/child proportions, animations and biological growth remain open."
       ]
     },
     {
@@ -408,6 +411,57 @@
         "completed care, craft, build and repair outcomes",
         "individual private observation of success or failure",
         "planner feedback from exact outcomes"
+      ]
+    },
+    {
+      "id": "whole-collection-shared-mechanics",
+      "state": "open",
+      "authority": "DR-053; C111 installed-candidates.json and integration-scope.md",
+      "missing": [
+        "source licensing and native compatibility for the whole installed collection and later supplied candidates",
+        "canonical producer, exact material/action result, private consequence and persistence for each supported mechanic",
+        "curated effect owners, aliases and trait save migration",
+        "weapon era, ammunition, attachments, rarity, duplicate IDs and ordering races",
+        "window repair, fitness, utilities, preservation, horticulture, movement, stealth, hygiene, objects and other discovered mechanics"
+      ]
+    },
+    {
+      "id": "curated-vitality-clinical-integration",
+      "state": "open",
+      "authority": "DR-053; MIT Dan's Traits upstream 1a169c8e785c55368399b510c9dc5390881ac604; frozen private candidate",
+      "missing": [
+        "one player/NPC clinical owner across Conditions, Habits, Pharmacology, loaded Body and dormant physiology",
+        "curated traits, dose and wound attribution, private effects and durable migration",
+        "enabled publication and actual loaded acceptance; the frozen candidate is not shipped integration"
+      ]
+    },
+    {
+      "id": "human-chronological-growth-and-proportions",
+      "state": "open",
+      "authority": "DR-053; current History.ageOf and native human body truth",
+      "missing": [
+        "elapsed birth-date age and biological stage transitions",
+        "native living human infant and child proportions, animation, clothing, reach and physiology",
+        "age-shaped actual acquired education and early sparse learning without zombie body relabeling"
+      ]
+    },
+    {
+      "id": "cooler-aware-dormant-consumption",
+      "state": "open",
+      "authority": "C111 installed native cooler snapshot/wake proof; SAOHibernation.bestDormantFood",
+      "missing": [
+        "reconcile cooler food age before dormant meal selection and consumption",
+        "native multiplayer NPC inventory authority",
+        "physical reconciliation of a durable partial cooler-processing failure"
+      ]
+    },
+    {
+      "id": "remaining-animal-care-completion",
+      "state": "open",
+      "authority": "C111 completed native feed proof and current SAO_Animals",
+      "missing": [
+        "exact native completion identity, current permission and private outcome joins for milk, shear, eggs, water and pet actions",
+        "native feed crafting, acquisition and autonomous loaded prevalence"
       ]
     }
   ]

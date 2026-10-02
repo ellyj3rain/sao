@@ -69,6 +69,7 @@ public final class SAOBridge {
         com.sao.engine.SAOReturnBody.resetRuntimeForWorld();
         com.sao.engine.SAOWorldSources.resetRuntimeForWorld();
         com.sao.engine.SAOPerceptionScanner.resetRuntimeForWorld();
+        com.sao.engine.SAOAnimalCare.resetRuntimeForWorld();
     }
 
     /** Exact native-bundle standing.  Lua refuses any hash other than C82's
@@ -700,6 +701,23 @@ public final class SAOBridge {
         } catch (Throwable ignored) {
         }
         return "";
+    }
+
+    /** Bind native feeding to one body, animal and actual carried feed. */
+    public String animalCareBeginFeed(Object body, Object animal, Object food) {
+        return com.sao.engine.SAOAnimalCare.beginFeed(body, animal, food);
+    }
+
+    public boolean animalCarePrepareFeed(Object body, String token, Object animal, Object food) {
+        return com.sao.engine.SAOAnimalCare.prepareFeed(body, token, animal, food);
+    }
+
+    public String animalCareFinishFeed(Object body, String token, Object animal, Object food, boolean completed) {
+        return com.sao.engine.SAOAnimalCare.finishFeed(body, token, animal, food, completed);
+    }
+
+    public void animalCareCancelFeed(Object body, String token) {
+        com.sao.engine.SAOAnimalCare.cancelFeed(body, token);
     }
 
     /** [C123] The selected ranch animal for a vanilla timed action. */
