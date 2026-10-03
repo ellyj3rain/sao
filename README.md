@@ -2,6 +2,11 @@
 
 A Project Zomboid Build 42 NPC framework.
 
+C114 removes artificial native capture delays and enables the installed
+renderer's uncapped mode after startup. Isolated observer loading begins at
+120 FPS; one pending capture still bounds publication work. Actual throughput
+has separate native measurements and the existing feed still publishes PNGs.
+
 Survivors decide on what they have actually perceived - what they saw, heard,
 and were told. Map truth they could not know is unavailable to them. They are
 durable inhabitants of the county, holding their own positions and intentions
@@ -38,7 +43,7 @@ on the simulation.
 
 ## Status
 
-`3.10.3.1-pre-alpha` - the coordinate is computed by the version machine
+`3.10.3.2-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -118,7 +123,7 @@ Assignment provenance, actual checked stock, partial coverage and native work
 remain distinct. Autonomous purposes continue separately. A bounded native
 export worker moves encoding and file publication away from live world reads;
 exact receipts and paused stop/drain handling preserve save authority. The
-existing PNG feed remains capped and loaded frame-rate improvement is unverified.
+PNG feed retains one pending publication; C114 removes its fixed capture timer.
 
 C104 extends maintained purposes into private resource planning. Native carried
 supplies, inspected sources and personal capacity determine inspection,

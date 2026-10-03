@@ -389,6 +389,9 @@ def run_visibility(tmp, GAME, JDK):
         for wall in (False, True):
             probe(work / f"{kind}-wall-{int(wall)}", kind, wall)
     controls = (
+        ("capped-renderer", "StudyObserver.java", "Core.getInstance().setFramerate(1);",
+         "Core.getInstance().setFramerate(10);", "observer",
+         "native observer renderer remained capped or changed a foreign owner"),
         ("dark-display", "StudyObserver.java", "options.fboRenderChunk.nolighting.setValue(true);",
          "options.fboRenderChunk.nolighting.setValue(false);", "observer",
          "native God-view floor remained dark or altered ordinary display"),
@@ -450,7 +453,13 @@ def run_capture(tmp, GAME, JDK):
     if "PASS capture PNG publication:" not in output:
         raise AssertionError("capture probe returned without its verification receipt")
     controls = (
-        ("unbounded_publication", (("pending != null || now < nextCapture", "now < nextCapture"),),
+        ("restored_capture_ceiling", (
+            ("public static long sequence;", "public static long sequence; private static long nextCapture;"),
+            ("if (pending != null || zombie.GameWindow.closeRequested",
+             "if (pending != null || System.currentTimeMillis() < nextCapture || zombie.GameWindow.closeRequested"),
+            ("pendingFrame = frame;", "nextCapture = System.currentTimeMillis() + 50; pendingFrame = frame;")),
+         "ready capture retained a rate ceiling"),
+        ("unbounded_publication", (("pending != null || zombie.GameWindow.closeRequested", "zombie.GameWindow.closeRequested"),),
          "busy publisher admitted another capture"),
         ("pixel_orientation", (("(height - y - 1) * width * 3", "y * width * 3"),),
          "native RGB orientation or color changed"),

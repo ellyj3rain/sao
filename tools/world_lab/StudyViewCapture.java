@@ -36,13 +36,11 @@ import org.lwjglx.opengl.Display;
  */
 public final class StudyViewCapture {
     public static volatile String pending;
-    public static long nextCapture;
     public static long sequence;
     public static final String PREFIX = "study-live-";
     private static final int MAX_CAPTURE_BYTES = 16 * 1024 * 1024;
     private static final int MAX_PUBLICATION_DEFERRALS = 30;
     private static int publicationDeferrals;
-    private static final long CAPTURE_INTERVAL_MS = 50;
     private static final ExecutorService PUBLICATION = Executors.newSingleThreadExecutor(task -> {
         Thread worker = new Thread(task, "StudyViewPublication");
         worker.setDaemon(true);
@@ -119,8 +117,7 @@ public final class StudyViewCapture {
     }
 
     private static void request(FrameStamp frame) {
-        long now = System.currentTimeMillis();
-        if (!beginCapture(frame, now)) return;
+        if (!beginCapture(frame)) return;
         // The installed Core.TakeFullScreenshot reads this same GL_FRONT after
         // swap, but also converts, compresses and writes PNG on the render
         // thread. Only pixel readback belongs here. One pending frame bounds
@@ -133,10 +130,9 @@ public final class StudyViewCapture {
         }
     }
 
-    static boolean beginCapture(FrameStamp frame, long now) {
-        if (pending != null || now < nextCapture || zombie.GameWindow.closeRequested
+    static boolean beginCapture(FrameStamp frame) {
+        if (pending != null || zombie.GameWindow.closeRequested
                 || frame.observerSequence() != StudyObserver.commandSequence()) return false;
-        nextCapture = now + (StudyObserver.siteFrames().length > 1 ? 100 : CAPTURE_INTERVAL_MS);
         pendingFrame = frame;
         pending = PREFIX + String.format("%016d", ++sequence) + ".png";
         return true;
@@ -217,7 +213,7 @@ public final class StudyViewCapture {
             ImageWriteParam parameters = writer.getDefaultWriteParam();
             parameters.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             // PNG remains lossless. Stored deflate blocks avoid spending the
-            // frame budget compressing a local 960x540 framebuffer; framing,
+            // frame budget compressing the local native framebuffer; framing,
             // checksums, full decode and the existing size bound still apply.
             parameters.setCompressionQuality(1.0f);
             writer.write(null, new IIOImage(image, null, null), parameters);

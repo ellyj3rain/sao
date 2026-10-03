@@ -577,6 +577,11 @@ public final class StudyObserver {
     public static boolean configureGodView() {
         if (!ownsSlots()) return false;
         if (!Core.debug) throw new IllegalStateException("native God-view requires the isolated debug launch");
+        // Core.loadOptions resets its persisted uncapped flag to 60 FPS.
+        // Apply the native UI's uncapped selection after that startup reset.
+        Core.getInstance().setFramerate(1);
+        System.out.println("[StudyObserver] renderer uncapped="
+            + zombie.core.PerformanceSettings.instance.isFramerateUncapped());
         var options = zombie.debug.DebugOptions.instance;
         options.fboRenderChunk.nolighting.setValue(true);
         options.fboRenderChunk.renderVisionPolygon.setValue(false);

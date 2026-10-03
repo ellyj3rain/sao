@@ -1,0 +1,45 @@
+{
+  "schema": "sao-c114-observation-evidence/1",
+  "nativeBenchmark": {
+    "exitCode": 0,
+    "status": "completed",
+    "frames": 508,
+    "sampleFrames": 300,
+    "sampleSeconds": 133.36421680000058,
+    "observedCompositeFramesPerSecond": 2.2419806989786086,
+    "medianCaptureAgeMs": 200.0003662109375,
+    "readFailuresIncludingStartup": 22041,
+    "runtimeErrors": [],
+    "terminal": {
+      "endHours": 34.346580505371094,
+      "nativeSaveReturned": true,
+      "startHours": 32.38853073120117,
+      "stopReason": "wall-time-limit"
+    },
+    "originalSaveVerifiedUnchanged": true,
+    "renderedBrowserFps": "unmeasured",
+    "gameUpdateFps": "unmeasured",
+    "options": {
+      "frameRate": "120",
+      "uncappedFPS": "false",
+      "vsync": "false"
+    }
+  },
+  "nativeCallbackSample": {
+    "elapsedSeconds": 45.277,
+    "nativeObserverCallbacksPerSecond": 123.15303575766946,
+    "observedCompositeFramesPerSecond": 2.1644543587251803,
+    "worldHoursAdvanced": 0.37503814697265625,
+    "requestedSpeed": 1,
+    "note": "logicCalls counts successful observer update callbacks, not measured rendered or displayed FPS"
+  },
+  "sources": {
+    "tools/world_lab/StudyObserver.java": "b7a1fb84b97f5df4079e1c1fc4e2194e0c2e0062b6e8e05c291b07531a2d525a",
+    "tools/world_lab/StudyViewCapture.java": "377c713535c80c9a55cd64f65b5953e5c1a0b5edbb508e4f2021ae0b1cc5c9a1",
+    "tools/world_lab_run.py": "098c77338cfffe5c5d4fe49864751558186c16d968d341fc2a65d7f20d9fb1ea"
+  },
+  "captureControls": 11,
+  "visibilityCases": 6,
+  "visibilityControls": 10,
+  "layoutTests": 13
+}

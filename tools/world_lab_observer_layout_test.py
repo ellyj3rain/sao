@@ -72,6 +72,18 @@ class ObserverLayoutTests(unittest.TestCase):
         self.assertIn('--resume',command)
         self.assertEqual(command[command.index('--observer-layout')+1],'layout.json')
 
+    def test_renderer_startup_replaces_saved_limits_and_preserves_other_options(self):
+        with tempfile.TemporaryDirectory() as name:
+            root=Path(name); path=root/'options.ini'
+            for options in ('', 'uncappedFPS=false\nvsync=true\n',
+                            'frameRate=30\nframeRate=60\nuncappedFPS=false\nuncappedFPS=true\nvsync=true\n'):
+                path.write_text('width=1920\nheight=1080\nsoundVolume=0\n'+options,encoding='utf-8')
+                Run.prepare_renderer(root)
+                expected='width=1920\nheight=1080\nsoundVolume=0\nframeRate=120\nuncappedFPS=false\nvsync=false\n'
+                self.assertEqual(path.read_text(),expected)
+                Run.prepare_renderer(root)
+                self.assertEqual(path.read_text(),expected)
+
     def test_declared_areas_require_simultaneous_native_images(self):
         sites = [site | {'slot':i} for i,site in enumerate(self.layout['sites'])]
         evidence = {'state':{'sites':sites},'viewport':{'views':copy.deepcopy(sites)}}
