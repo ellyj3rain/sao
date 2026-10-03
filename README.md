@@ -43,9 +43,17 @@ on the simulation.
 
 ## Status
 
-`3.11.0.0-pre-alpha` - the coordinate is computed by the version machine
+`3.11.1.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C117 integrates the installed single-player furniture push/pull path. Delayed
+pushes retain the exact actor, furniture and contents; relocation is measured
+before reporting a completed physical result. Native pickup and placement keep
+their existing utility callbacks, with separate WaterPipes registration and
+bathing-state guards. This shared physical slice uses the player's existing
+actions. NPC furniture planning and private learning remain further work;
+installed-source checks and loaded-game acceptance are distinct evidence.
 
 C113 separates native camera areas from saved study identity. A bounded sealed
 layout replaces a rotating single camera with simultaneous native areas while

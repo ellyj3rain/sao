@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.11.0.0-pre-alpha` |
+| Version | `3.11.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -223,6 +223,31 @@ dormant food selection currently precedes cooler reconciliation and remains open
 DR-053 applies these ownership rules to the whole installed candidate collection.
 Source adaptation and compatible shared APIs preserve one physical mechanism
 per effect; source registration alone supplies no private knowledge or practice.
+
+### Shared furniture relocation (C117)
+
+`SAO_FurnitureMovement` guards the optional installed single-player push/pull
+path. The installed module owns animation, native pickup and placement,
+container transfer and feedback. SAO owns a bounded delayed-push queue because
+the installed private queue resolves later work by coordinates and sprite
+without an exact cancellation identity. The original shove runs with its own
+queue disabled; each retained move pins its actor, object, member footprint,
+destination and item instances until the physical boundary.
+
+Both installed relocation functions enter one outer measurement, including
+multi-part delegation. A completed diagnostic requires measured relocation and
+exact retained contents. Effort completion alone supplies no movement result.
+The bounded detached outcomes contain scalar diagnostics; they do not advance
+person knowledge, practice or a maintained NPC purpose. The production caller
+is the installed player's existing push/pull action. NPC furniture selection,
+admission and private completion remain separate implementation work.
+
+Native carrying wrappers and object events retain plumbing and electricity
+ownership. Registered tub-system members refuse before movement. WaterPipes
+registration reconciliation uses its owning commands after verified physical
+relocation; fixtures outside the safely established state refuse before effects.
+Multiplayer retains the installed path. Controlled installed-source execution
+has a distinct boundary from loaded native-world acceptance.
 
 ### Native window repair and private completion (C112)
 

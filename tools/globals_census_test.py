@@ -72,6 +72,12 @@ NEIGHBOUR = "neighbour"   # another mod's; every one needs an argument
 # Why we are inside somebody else's namespace. One entry per mod, and
 # the sentence has to survive being read by the person who wrote it.
 NEIGHBOURS = {
+    "FurniturePushPull": "C117 composes optional installed single-player relocation with exact actor, footprint and contents checks. Both physical APIs retain the installed pickup/place owner; nested delegation produces one measured result. Multiplayer passes through unchanged.",
+    "FurniturePushPullClient": "C117 retains the installed shove animation with its private coordinate-only queue disabled, and owns a bounded exact-object single-player delay so stale work cannot bind a replacement object.",
+    "WPIso": "C117 reads the installed barrel classifier and exact square lookup when reconciling optional WaterPipes fixture relocation; it does not emit duplicate native object events.",
+    "WPServer": "C117 calls the installed authoritative barrel registration commands with the actual actor after verified empty-fixture relocation; unsupported water state refuses before physical effects.",
+    "WPUtils": "C117 uses WaterPipes' own coordinate key to read and verify its registration state.",
+    "GetWPModData": "C117 reads the installed WaterPipes state before movement and verifies its owning commands afterwards; registration is not inferred from an action-complete boolean.",
     "TienCoolers": "Tien's Coolers owns its installed shared item physics. "
           "C111 reads the optional API and invokes processTopLevel on the "
           "exact authenticated off-slot native inventory in single player. "
