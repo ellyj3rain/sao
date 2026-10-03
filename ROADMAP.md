@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.11.1.0-pre-alpha` |
+| Version | `3.11.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -12,6 +12,22 @@ Speakeasy training and runtime integration, then tuning toward first play.
 This follows Speakeasy RECORD entry 45. Batch closure and a green gate do not
 establish readiness where causal mechanisms are missing or contradicted by
 evidence. SESSION_STATE.md states the current assessment.
+
+## Entry, recovery and personal experience
+
+The operator authorized C118-C120 as coherent behavior outcomes under DR-055.
+Supporting implementation, checks and records belong within the behavior they
+serve. The next general simulation observes the changed decision paths.
+
+| Batch | Product outcome | Completion evidence |
+|---|---|---|
+| C118 | Compare personally observed entry alternatives, including windows, and respond to the actual encountered barrier. | Closed source: 105 residence and 33 installed exterior assertions, mutation controls and route regression pass; loaded observation follows the arc. |
+| C119 | Make bodily recovery compete with ongoing search, reach a privately known permitted recovery place and resume unfinished work. | Actual controller preemption and native recovery, with emergency, danger, crossing and ownership controls. |
+| C120 | Retain authentic entry and recovery experience that changes later individual choices. | Producer and consumer effects, durable identity, contradiction, decay and controls against false or duplicate experience. |
+
+Pico retains the identity-preserving appearance pipeline. The educational and
+cultural corpus, model evaluation and broader shared-mechanics integration
+remain authorized work beyond this behavior arc.
 
 ## Shared mechanics and source integration
 

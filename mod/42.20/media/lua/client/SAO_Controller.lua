@@ -4224,10 +4224,19 @@ function Ctl.advanceResidencePurpose(id, agent, body, tick)
         or body:isAsleep() or body:isDead() then return false end
     local hours = SAO.History.countyHours()
     local attempt = purpose.residenceAttempts and purpose.residenceAttempts[destination.id]
-    if purpose.status == "blocked" or (attempt and hours < (attempt.retryAt or 0)) then return false end
+    if purpose.status == "blocked" or (attempt and not attempt.supersededAt and hours < (attempt.retryAt or 0)) then return false end
     if not step or step.status ~= "available" then return false end
     if not SAO.Standing.mayAttemptBelieved(id, step.x, step.y, "standing") then
         planning.deferResidenceRoute(id, "private-standing-refused-residence-route")
+        return false
+    end
+    -- Ordinary entry owns its permission. An earlier emergency route may have
+    -- allowed smashing; that permission does not survive into this purpose.
+    local permissionOk, permissionSet = pcall(function()
+        return SAOJavaBridge:setForceEntry(body, false)
+    end)
+    if not permissionOk or permissionSet ~= true then
+        planning.deferResidenceRoute(id, "native-entry-permission-unavailable")
         return false
     end
     if not SAO.Locomotion.order(id, body, step.x, step.y, step.z or 0) then

@@ -484,10 +484,30 @@ function P.planResidence(id, context)
     local best, bestScore
     for _, candidate in ipairs(appraisal.candidates) do
         local failure = purpose.residenceAttempts and purpose.residenceAttempts[candidate.id]
-        local delayed = failure and finite(failure.retryAt) and at < failure.retryAt
+        local delayed = failure and not failure.supersededAt and finite(failure.retryAt) and at < failure.retryAt
+        if delayed and failure.apertureState and candidate.apertureState ~= "unknown"
+            and candidate.apertureState ~= failure.apertureState
+            and finite(candidate.acquiredAt) and candidate.acquiredAt > (failure.observedAt or math.huge) then
+            delayed = false
+            failure.supersededAt = at
+        end
         if not delayed and (candidate.distance > 3 or candidate.exterior) then
             local score = 1 - candidate.distance / 400 - candidate.danger * (0.5 + fear)
                 - fatigue * candidate.distance / 250 - appraisal.responsibilities * 0.1
+            if candidate.exterior then
+                -- Visible passage and encountered resistance change the cost of
+                -- this approach. These bounded weights remain policy choices.
+                local condition = candidate.apertureState
+                if candidate.kind == "window" then score = score - 0.15 end
+                if condition == "open" or condition == "clear" then score = score + 0.3
+                elseif condition == "smashed" then score = score - 0.5
+                elseif condition == "barricaded" then score = score - 1 end
+                local encountered = candidate.entryFailure
+                if encountered and finite(encountered.atHours) and encountered.atHours <= at then
+                    score = score - (1 + math.min(4, encountered.attempts or 1) * 0.25)
+                        / (1 + at - encountered.atHours)
+                end
+            end
             if unsafeHome then score = score + 1 - math.min(0.6, appraisal.attachment * 0.15) end
             if urgent then score = score + math.max(hunger, thirst) end
             if not bestScore or score > bestScore then best, bestScore = candidate, score end
@@ -530,7 +550,8 @@ function P.planResidence(id, context)
         owner = "SAO.Locomotion", token = "route:arrived", target = destination.id,
         status = "available", x = destination.cx, y = destination.cy, z = destination.z or 0 } } or {}
     purpose.cursor = 1
-    if destination and destination.exterior and destination.kind == "door" then
+    if destination and destination.exterior
+        and (destination.kind == "door" or destination.kind == "window") then
         -- A seen doorway supports an entry hypothesis one tile beyond its
         -- boundary. Native locomotion resolves locks and crossings; this is
         -- neither a known interior route nor evidence of contents.
@@ -538,7 +559,8 @@ function P.planResidence(id, context)
             token = "route:arrived", target = destination.id, status = "dependent",
             x = 2 * destination.surfaceX - destination.cx,
             y = 2 * destination.surfaceY - destination.cy, z = destination.z,
-            basis = "observed-doorway-entry-hypothesis" }
+            basis = destination.kind == "window" and "observed-window-entry-hypothesis"
+                or "observed-doorway-entry-hypothesis" }
     end
     return purpose
 end
@@ -584,7 +606,8 @@ function P.deferResidenceRoute(id, reason)
     local old = purpose.residenceAttempts[key]
     local count = math.min(4, (old and old.attempts or 0) + 1)
     purpose.residenceAttempts[key] = { attempts = count, at = at,
-        retryAt = at + 0.25 * count, reason = tostring(reason or "native-route-refused") }
+        retryAt = at + 0.25 * count, reason = tostring(reason or "native-route-refused"),
+        apertureState = purpose.destination.apertureState, observedAt = purpose.destination.acquiredAt }
     trimResidenceAttempts(purpose, key)
     purpose.status, purpose.admission = "blocked", nil
     purpose.exteriorEntryPending = nil
@@ -618,7 +641,12 @@ function P.finishResidenceRoute(id, body, routeId, job)
         or not binding or binding.job ~= job or binding.routeId ~= routeId
         or admission.correlationId ~= routeId or admission.stepId ~= step.id
         or not job.goal or job.goal.x ~= step.x or job.goal.y ~= step.y or job.goal.z ~= step.z then return false end
-    if job.result ~= "arrived" then return P.deferResidenceRoute(id, "native-route:" .. tostring(job.result)) end
+    if job.result ~= "arrived" then
+        if SAO.Perception and SAO.Perception.noteEntryOutcome then
+            SAO.Perception.noteEntryOutcome(id, body, job)
+        end
+        return P.deferResidenceRoute(id, "native-route:" .. tostring(job.result))
+    end
     local at, mode = nowHours(), purpose.mode
     local exterior = purpose.destination.exterior == true
     if exterior and purpose.cursor == 1 and purpose.steps[2] then

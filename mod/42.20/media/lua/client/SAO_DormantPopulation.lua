@@ -545,7 +545,7 @@ function D.residenceDestination(id, rec)
     if not purpose or (purpose.mode ~= "search" and purpose.mode ~= "depart") then return nil, false end
     local target = purpose.destination
     local attempt = target and purpose.residenceAttempts and purpose.residenceAttempts[target.id]
-    if purpose.status == "blocked" or (attempt and hoursNow() < (attempt.retryAt or 0)) then
+    if purpose.status == "blocked" or (attempt and not attempt.supersededAt and hoursNow() < (attempt.retryAt or 0)) then
         return { cx = rec.x, cy = rec.y }, true
     end
     local known = SAO.Perception.knownPlaces(id)

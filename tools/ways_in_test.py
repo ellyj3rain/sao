@@ -171,8 +171,10 @@ def check_sources(sources):
         "observed approach requires a loaded standable exterior tile":
             "outside == null || !outside.isOutside() || !outside.isSolidFloor()" in exterior
             and "!outside.isFree(false)" in exterior,
-        "a visible native door or wall supplies the boundary":
-            "outside.getDoorTo(inside) != null" in exterior and "!outside.isWallTo(inside)" in exterior,
+        "a visible native door window or wall supplies the boundary":
+            "outside.getDoorTo(inside)" in exterior and "outside.getWindowTo(inside)" in exterior
+            and "boolean opening = door || window != null;" in exterior
+            and "!outside.isWallTo(inside)" in exterior,
         "different observed doors retain different approach identities":
             "if (!emitted.add(boundaryKey)) continue;" in exterior
             and 'inside.getX() + ":" + inside.getY() + ":" + z + ":" + door' in exterior,
@@ -184,9 +186,11 @@ def check_sources(sources):
             and "alignment < CONE_COS" in point
             and "clearPath(observer.getCurrentSquare(), target, true)" in point
             and "Math.abs(az - bz) >= 0.5f" in floor,
-        "the native exterior report has the eight parsed fields":
-            wire is not None and wire.group(1).count(".append(':')") == 6
-            and "#fields ~= 8" in parse,
+        "the native exterior report and backward compatible parser agree":
+            wire is not None and wire.group(1).count(".append(':')") == 7
+            and "exteriorApertureState(observer, doorObject, window)" in wire.group(1)
+            and "#fields ~= 8 and #fields ~= 9" in parse
+            and 'fields[9] or "unknown"' in parse,
         "Lua observe dispatches the native building record to its real owner":
             re.search(r'elseif\s+f\[1\]\s*==\s*"B"\s+then\s+observeExteriorLead\(id, body, b, f, tick\)', observe) is not None,
         "Lua observe acquires its records through the actual native bridge":
@@ -248,7 +252,11 @@ def main():
         (SCANNER, "if (!emitted.add(boundaryKey)) continue;", "if (!emitted.add(Long.toString(def.getID()))) continue;",
          "different observed doors retain different approach identities"),
         (SCANNER, 'out.append("B:")', 'out.append("Q:")',
-         "the native exterior report has the eight parsed fields"),
+         "the native exterior report and backward compatible parser agree"),
+        (SCANNER, "boolean opening = door || window != null;", "boolean opening = door;",
+         "a visible native door window or wall supplies the boundary"),
+        (PERCEPTION, "#fields ~= 8 and #fields ~= 9", "#fields ~= 8",
+         "the native exterior report and backward compatible parser agree"),
         (BRIDGE, "return com.sao.engine.SAOPerceptionScanner.scan(who, knownTiles);", 'return "";',
          "current bridge calls personal native scanning"),
         (PERCEPTION, 'return SAOJavaBridge:perceive(body, asleep and "" or knownZombieTiles(b, body))', 'return ""',
@@ -257,7 +265,8 @@ def main():
          "Lua observe dispatches the native building record to its real owner"),
         (PERCEPTION, "b.buildingLeads[approachId] = lead", "do end",
          "Lua retains the observed approach and exact boundary"),
-        (PERCEPTION, "lead.personId == tostring(id)", "true",
+        (PERCEPTION, 'lead.personId == tostring(id)\n            and lead.source == "native-visible-exterior" and P.exteriorLeadKey(lead) == key\n            and finiteSoundNumber(lead.cx)',
+         'true\n            and lead.source == "native-visible-exterior" and P.exteriorLeadKey(lead) == key\n            and finiteSoundNumber(lead.cx)',
          "private leads reject foreign stale or changed evidence identity"),
         (LABOR, "perception.knownBuildingLeads(id, tick)", "{}",
          "Labor reads this actor's private exterior leads"),

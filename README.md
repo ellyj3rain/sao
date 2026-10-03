@@ -43,9 +43,17 @@ on the simulation.
 
 ## Status
 
-`3.11.1.0-pre-alpha` - the coordinate is computed by the version machine
+`3.11.2.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C118 extends private entry decisions to observed windows. Survivors compare
+visible openings and personally encountered barriers through their existing
+residence purpose. Native movement opens and climbs; its exact failed edge
+updates the matching acquired entrance. Changed visible conditions permit
+reconsideration while independent retry deadlines discourage repeated failed
+approaches. Focused production and installed-engine proofs pass; the subsequent
+recovery and experience batches precede loaded behavioral observation.
 
 C117 integrates the installed single-player furniture push/pull path. Delayed
 pushes retain the exact actor, furniture and contents; relocation is measured

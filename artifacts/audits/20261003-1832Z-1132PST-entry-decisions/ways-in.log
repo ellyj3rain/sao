@@ -1,0 +1,55 @@
+==========================================================================
+NATIVE BUILDING EVIDENCE REACHES PRIVATE PLANNING
+==========================================================================
+     the score: rooms * ROOM_WEIGHT + Math.min(area, 240) * 0.15 + (water ? 15.0 : 0.0) - dist * 0.05
+
+  yes  the count exists
+  yes  it is the same predicate the boarding uses
+  yes  it reads the loaded cell
+  yes  and loads nothing itself
+  yes  an unreadable count is -1
+  yes  and -1 never wins a tie-break
+  yes  a room's worth is named once
+  yes  the score uses that name rather than the number
+  yes  and the margin is that same name
+  yes  fewer ways in wins a tie
+  yes  and only within the margin
+  yes  the report carries the count
+  yes  the gate runs this border
+  yes  current bridge calls personal native scanning
+  yes  current native scan produces exterior records
+  yes  exterior acquisition excludes the God camera
+  yes  exterior acquisition uses current loaded observer identity
+  yes  observed approach requires a loaded standable exterior tile
+  yes  a visible native door window or wall supplies the boundary
+  yes  different observed doors retain different approach identities
+  yes  native exterior acquisition obeys personal visibility
+  yes  personal visibility retains native floor range facing and occlusion
+  yes  the native exterior report and backward compatible parser agree
+  yes  Lua observe dispatches the native building record to its real owner
+  yes  Lua observe acquires its records through the actual native bridge
+  yes  the building parser binds evidence to this person's actual body
+  yes  Lua retains the observed approach and exact boundary
+  yes  private leads reject foreign stale or changed evidence identity
+  yes  Labor reads this actor's private exterior leads
+  yes  exterior candidates retain uncertainty about interior stock
+  yes  the controller does not restore global scout residence selection
+
+VERDICT:
+  121) native/private building owners are connected; exterior approaches preserve uncertainty; legacy scout tie-break remains checked
+  CONTROL rejected: ways-in appears inside the score
+  CONTROL rejected: current native scan produces exterior records
+  CONTROL rejected: native exterior acquisition obeys personal visibility
+  CONTROL rejected: exterior acquisition excludes the God camera
+  CONTROL rejected: different observed doors retain different approach identities
+  CONTROL rejected: the native exterior report and backward compatible parser agree
+  CONTROL rejected: a visible native door window or wall supplies the boundary
+  CONTROL rejected: the native exterior report and backward compatible parser agree
+  CONTROL rejected: current bridge calls personal native scanning
+  CONTROL rejected: Lua observe acquires its records through the actual native bridge
+  CONTROL rejected: Lua observe dispatches the native building record to its real owner
+  CONTROL rejected: Lua retains the observed approach and exact boundary
+  CONTROL rejected: private leads reject foreign stale or changed evidence identity
+  CONTROL rejected: Labor reads this actor's private exterior leads
+  CONTROL rejected: the controller does not restore global scout residence selection
+  121) building owner controls: 15 rejected

@@ -3,6 +3,8 @@ import java.util.*;
 import zombie.iso.*;
 import zombie.iso.areas.*;
 import zombie.iso.objects.IsoDoor;
+import zombie.iso.objects.IsoWindow;
+import zombie.iso.objects.IsoBarricade;
 import zombie.iso.SpriteDetails.IsoFlagType;
 import zombie.iso.sprite.IsoSprite;
 
@@ -54,8 +56,9 @@ public final class ExteriorBuildingProbe {
         check("loaded_native_exterior_boundary",outside.getDoorTo(inside)==door&&inside.getBuildingDef()==def&&outside.isFree(false));
         String sight=scan(body);System.out.println("BUILDING_SCAN "+sight);
         check("visible_unentered_building_lead",sight.contains("B:42:10.5:26.0:0:10.5:25.5:door"));
-        check("exterior_row_has_no_center_layout_or_stock",Arrays.stream(sight.split("\\|")).filter(s->s.startsWith("B:")).allMatch(s->s.split(":").length==8)
+        check("exterior_row_has_no_center_layout_or_stock",Arrays.stream(sight.split("\\|")).filter(s->s.startsWith("B:")).allMatch(s->s.split(":").length==9)
             && !sight.contains("20.0") && !sight.contains("food") && !sight.contains("room"));
+        check("closed_door_does_not_reveal_lock",sight.contains("B:42:10.5:26.0:0:10.5:25.5:door:closed") && !sight.contains("locked"));
         var secondInside=cell.getGridSquare(12,26,0);
         secondInside.setRoomID(1);secondInside.setRoom(room);
         secondInside.getProperties().unset(IsoFlagType.exterior);
@@ -67,6 +70,52 @@ public final class ExteriorBuildingProbe {
         check("distinct_visible_doors_same_building_offered",twoEntrances.contains("B:42:10.5:26.0:0:10.5:25.5:door")
             && twoEntrances.contains("B:42:12.5:26.0:0:12.5:25.5:door"));
         secondInside.getObjects().remove(secondDoor);secondInside.getSpecialObjects().remove(secondDoor);
+        var window=new IsoWindow(cell);window.setSquare(secondInside);window.setSprite(new IsoSprite());
+        var north=IsoWindow.class.getDeclaredField("north");north.setAccessible(true);north.setBoolean(window,true);
+        var open=IsoWindow.class.getDeclaredField("open");open.setAccessible(true);
+        secondInside.getObjects().add(window);secondInside.getSpecialObjects().add(window);
+        check("actual_native_window_boundary",cell.getGridSquare(12,25,0).getWindowTo(secondInside)==window);
+        window.setIsLocked(true);
+        check("visible_closed_window_no_hidden_lock",scan(body).contains("B:42:12.5:26.0:0:12.5:25.5:window:closed") && !scan(body).contains("locked"));
+        open.setBoolean(window,true);
+        check("visible_open_window_state",scan(body).contains("B:42:12.5:26.0:0:12.5:25.5:window:open"));
+        body.setForwardDirection(0,-1);
+        check("unseen_window_not_acquired",!scan(body).contains(":window:"));body.setForwardDirection(0,1);
+        open.setBoolean(window,false);window.setSmashed(true);
+        check("visible_smashed_window_state",scan(body).contains("B:42:12.5:26.0:0:12.5:25.5:window:smashed"));
+        window.setGlassRemoved(true);
+        check("visible_cleared_window_state",scan(body).contains("B:42:12.5:26.0:0:12.5:25.5:window:clear"));
+        var windowOutside=cell.getGridSquare(12,25,0);
+        // Plank mutation recalculates square properties. Give the controlled map
+        // actual floor objects so it does not erase its synthetic floor flag.
+        var windowFloors=new java.util.ArrayList<zombie.iso.IsoObject>();
+        for (var floorSquare : new zombie.iso.IsoGridSquare[]{windowOutside,secondInside}) {
+            var floorSprite=new IsoSprite();floorSprite.getProperties().set(IsoFlagType.solidfloor);
+            var floorObject=new zombie.iso.IsoObject(cell);floorObject.setSquare(floorSquare);floorObject.setSprite(floorSprite);
+            floorSquare.getObjects().add(floorObject);windowFloors.add(floorObject);
+        }
+        var barricade=new IsoBarricade(windowOutside,IsoDirections.S);barricade.addPlank(null);
+        windowOutside.getObjects().add(barricade);windowOutside.getSpecialObjects().add(barricade);
+        check("visible_window_barricade_state",window.getBarricadeForCharacter(body)==barricade
+            && windowOutside.isFree(false) && scan(body).contains("B:42:12.5:26.0:0:12.5:25.5:window:barricaded"));
+        var apertureState=SAOPerceptionScanner.class.getDeclaredMethod("exteriorApertureState",zombie.characters.IsoGameCharacter.class,zombie.iso.IsoObject.class,IsoWindow.class);
+        apertureState.setAccessible(true);
+        check("native_visible_barricade_classification",apertureState.invoke(null,body,null,window).equals("barricaded"));
+        windowOutside.getObjects().remove(barricade);windowOutside.getSpecialObjects().remove(barricade);
+        windowOutside.setCachedIsFree(false);
+        var hiddenBarricade=new IsoBarricade(secondInside,IsoDirections.N);hiddenBarricade.addPlank(null);
+        secondInside.getObjects().add(hiddenBarricade);secondInside.getSpecialObjects().add(hiddenBarricade);
+        check("opposite_window_barricade_not_exposed",scan(body).contains("B:42:12.5:26.0:0:12.5:25.5:window:clear"));
+        secondInside.getObjects().remove(hiddenBarricade);secondInside.getSpecialObjects().remove(hiddenBarricade);
+        position(body,cell,12.5f,25.5f);
+        var windowRoute=route(12.5f,26.5f);
+        String windowEntry=SAOMovement.tick(body,windowRoute);
+        check("observed_clear_window_uses_native_crossing",windowEntry.equals("Transition:STARTED_WINDOW_CLIMB") && body.getActionContext().hasEventOccurred("EventClimbWindow"));
+        body.getActionContext().clearActionContextEvents();
+        position(body,cell,10.5f,20.5f);
+        secondInside.getObjects().remove(window);secondInside.getSpecialObjects().remove(window);
+        // Retire the window-specific geometry before the existing holder fixture.
+        for (var floorObject : windowFloors) floorObject.getSquare().getObjects().remove(floorObject);
         secondInside.setRoom(null);secondInside.setRoomID(-1);
         secondInside.getProperties().set(IsoFlagType.exterior);
         outside.chunk.setSquare(outside.getX()%8,outside.getY()%8,0,null);
@@ -93,7 +142,10 @@ public final class ExteriorBuildingProbe {
         check("closed_door_does_not_offer_hidden_holder",!SAOWorldSources.inspectionCandidates(body,12).contains("C|id="));
         position(body,cell,10.5f,25.5f);
         check("actual_exterior_approach_arrives",SAOMovement.tick(body,route(10.5f,25.5f)).equals("Succeeded"));
-        check("physical_locked_entry_refuses",SAOMovement.tick(body,route(10.5f,26.5f)).equals("FailedObstacle:FAILED_LOCKED_DOOR"));
+        var lockedRoute=route(10.5f,26.5f);lockedRoute.targetX=29.5f;lockedRoute.targetY=29.5f;
+        check("physical_locked_entry_refuses",SAOMovement.tick(body,lockedRoute).equals("FailedObstacle:FAILED_LOCKED_DOOR"));
+        check("native_failed_edge_is_not_final_target","MOVE_BARRIER@10@25@10@26@0@door@closed@FAILED_LOCKED_DOOR".equals(lockedRoute.barrierResult));
+        lockedRoute.clearRoute();check("retired_route_drops_barrier_receipt",lockedRoute.barrierResult==null);
         door.setLockedByKey(false);
         String entry=SAOMovement.tick(body,route(10.5f,26.5f));System.out.println("NATIVE_DOOR_ENTRY "+entry);
         check("observed_closed_door_opened_by_native_movement",door.IsOpen() && entry.contains("OPENING_DOOR"));
@@ -112,6 +164,7 @@ public final class ExteriorBuildingProbe {
         check("changed_native_holder_identity_refuses",SAOWorldSources.inspectContainer(body,id,fp,10,27,0).equals("SOURCE_CHANGED"));
         holder.setSquare(holderSquare);
         String inspected=SAOWorldSources.inspectContainer(body,id,fp,10,27,0);System.out.println("INSPECTED "+inspected);
+        if (inspected.equals("INSPECTION_FAILED")) System.out.println(java.nio.file.Files.readString(java.nio.file.Path.of(System.getProperty("user.home"),"Zomboid","SAOAgent.log")));
         check("actual_reachable_holder_inspection",inspected.startsWith("I|source="));
         System.out.println("PASS exterior native checks="+checks);
     }

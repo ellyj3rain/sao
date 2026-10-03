@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `3.11.1.0-pre-alpha` |
+| Version | `3.11.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1878,3 +1878,21 @@ valid successes survive another check's failure. Failed, incomplete, skipped
 and unobservable results retain their actual status. Cheap invalidating checks
 precede expensive ones, and equivalent active checks are not duplicated.
 Legacy local hook invocation and required remote CI are recorded separately.
+
+## DR-055 | 2026-10-03 18:32 UTC / 11:32 PST | Product-sized behavior batches
+
+**Status.** RATIFIED by the operator's C118-C120 continuation direction.
+
+**Decision.** A batch delivers a coherent product behavior through its live
+producers, decisions, execution, durable state where needed, and relevant proof.
+Agent assignments divide responsibility within that outcome. Supporting fixes,
+tools, validation, records and publication belong to the outcome they serve.
+Established history remains intact; retrospective catalog changes require an
+explicit direction of their own.
+
+**Application.** C118 covers personally observed entry alternatives and exact
+encountered barriers. C119 covers recovery competing with ongoing travel and
+search. C120 connects authentic personal experience to subsequent choices.
+The next general simulation pass observes these changed behaviors against
+specific questions. NEO.md and GOVERNANCE.md carry the standing scope rule;
+DR-054 continues to govern proportionate verification and evidence reuse.

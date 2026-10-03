@@ -1,0 +1,46 @@
+BOUNDARY door=null:null:null:zombie.iso.objects.IsoDoor@34a20f16 def=true free=true floor=true
+CHECK loaded_native_exterior_boundary=true
+BUILDING_SCAN B:42:10.5:26.0:0:10.5:25.5:door:closed
+CHECK visible_unentered_building_lead=true
+CHECK exterior_row_has_no_center_layout_or_stock=true
+CHECK closed_door_does_not_reveal_lock=true
+CHECK distinct_visible_doors_same_building_offered=true
+CHECK actual_native_window_boundary=true
+CHECK visible_closed_window_no_hidden_lock=true
+CHECK visible_open_window_state=true
+CHECK unseen_window_not_acquired=true
+CHECK visible_smashed_window_state=true
+CHECK visible_cleared_window_state=true
+CHECK visible_window_barricade_state=true
+CHECK native_visible_barricade_classification=true
+CHECK opposite_window_barricade_not_exposed=true
+CHECK observed_clear_window_uses_native_crossing=true
+CHECK unloaded_exterior_not_acquired=true
+CHECK behind_body_not_acquired=true
+CHECK outside_range_not_acquired=true
+CHECK different_floor_not_acquired=true
+CHECK native_intervening_wall_hides_lead=true
+CHECK blocked_exterior_approach_not_offered=true
+CHECK god_camera_does_not_acquire_leads=true
+CHECK closed_door_does_not_offer_hidden_holder=true
+CHECK actual_exterior_approach_arrives=true
+CHECK physical_locked_entry_refuses=true
+CHECK native_failed_edge_is_not_final_target=true
+CHECK retired_route_drops_barrier_receipt=true
+NATIVE_DOOR_ENTRY Transition:OPENING_DOOR
+CHECK observed_closed_door_opened_by_native_movement=true
+HOLDERS H|protocol=SAOWI1
+C|id=C:7a4a3537-e0ff-4e50-9b8a-d93d2df08ff9:0|fp=ab21606c52cada8a2e0f3f5b1eac9ff4a97214a101170fa6a9212455997ea51a|sx=10|sy=27|sz=0|x=10|y=28|z=0|reachable=1
+E
+
+CHECK open_visible_doorway_offers_exact_holder=true
+CHECK foreign_actor_cannot_inspect_offered_source=true
+CHECK current_reach_refuses_remote_inspection=true
+CHECK changed_native_holder_identity_refuses=true
+INSPECTED I|source=C:7a4a3537-e0ff-4e50-9b8a-d93d2df08ff9:0
+H|protocol=SAOWS1|status=OBSERVED|detail=|mode=loaded|cx=1|cy=3|revision=cc5a55a956c96e19c3dd8a17471fe5e2a2cbbd1f8c58af6abea57e53fda69ca8|sources=1
+S|id=C:7a4a3537-e0ff-4e50-9b8a-d93d2df08ff9:0|fp=ab21606c52cada8a2e0f3f5b1eac9ff4a97214a101170fa6a9212455997ea51a|rev=56624dc2b118642186d97e7bb15e0987657bf73bd3ceb7f0f8067ea38864aa44|kind=container|x=10|y=27|z=0|building=42|explored=1|state=spent|access=unknown|container=counter
+E
+
+CHECK actual_reachable_holder_inspection=true
+PASS exterior native checks=33

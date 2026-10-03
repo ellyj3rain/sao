@@ -1,6 +1,6 @@
 | Document | Playability and observed behavior |
 |---|---|
-| Version | `3.11.1.0-pre-alpha` |
+| Version | `3.11.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PLAYABILITY.md` |
 | Status | CANONICAL - current evidence and implementation limitations. |
