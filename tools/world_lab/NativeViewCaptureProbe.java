@@ -118,6 +118,26 @@ public final class NativeViewCaptureProbe {
         }
     }
 
+    private static void captureAdmission() throws Exception {
+        Field pendingFrame = StudyViewCapture.class.getDeclaredField("pendingFrame");
+        pendingFrame.setAccessible(true);
+        var frame = new StudyViewCapture.FrameStamp(StudyObserver.commandSequence(), 42.5);
+        // Exercise only admission. Simulate the worker's released slot between
+        // requests; this measures no encoder or rendered-frame throughput.
+        for (int i = 0; i < 256; i++) {
+            check(StudyViewCapture.beginCapture(frame), "ready capture retained a rate ceiling");
+            check(!StudyViewCapture.beginCapture(frame), "busy publisher admitted another capture");
+            pendingFrame.set(null, null);
+            StudyViewCapture.pending = null;
+        }
+        check(!StudyViewCapture.beginCapture(new StudyViewCapture.FrameStamp(16, 42.5)),
+            "obsolete command admitted for capture");
+        zombie.GameWindow.closeRequested = true;
+        try { check(!StudyViewCapture.beginCapture(frame), "closing game admitted capture"); }
+        finally { zombie.GameWindow.closeRequested = false; }
+        cases++;
+    }
+
     private static void asynchronousPixels() throws Exception {
         byte[] rgb = {(byte)255,0,0, 0,(byte)255,0, 0,0,(byte)255, (byte)255,(byte)255,(byte)255};
         BufferedImage expected = StudyViewCapture.encodePixels(2, 2, rgb);
@@ -142,11 +162,11 @@ public final class NativeViewCaptureProbe {
         check(entered.await(2,TimeUnit.SECONDS), "publication worker did not start");
         var frame = new StudyViewCapture.FrameStamp(StudyObserver.commandSequence(),42.5);
         long capturedBefore = System.currentTimeMillis();
-        check(StudyViewCapture.beginCapture(frame,capturedBefore), "first asynchronous capture refused");
+        check(StudyViewCapture.beginCapture(frame), "first asynchronous capture refused");
         String filename = StudyViewCapture.pending;
         StudyViewCapture.submitPixels(2,2,rgb);
         check(filename.equals(StudyViewCapture.pending), "background publication did not retain one pending frame");
-        check(!StudyViewCapture.beginCapture(frame,capturedBefore+1000), "busy publisher admitted another capture");
+        check(!StudyViewCapture.beginCapture(frame), "busy publisher admitted another capture");
         Thread.sleep(80);
         long releasedAt = System.currentTimeMillis();
         held.countDown();
@@ -247,6 +267,7 @@ public final class NativeViewCaptureProbe {
                 "published image retention exceeded 8 after sequence gaps");
         }
         publicationLocks(valid);
+        captureAdmission();
         asynchronousPixels();
         System.out.println("PASS capture PNG publication: " + cases + " cases; complete image decode, bounded dimensions, framing/checksums, exact command binding and Windows denial/recovery; invalid/stale files preserve prior frame. No native renderer run.");
     }

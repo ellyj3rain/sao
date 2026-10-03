@@ -180,7 +180,10 @@ public final class NativeObserverLightingProbe {
         DebugOptions.instance.fboRenderChunk.nolighting.setValue(false);
         DebugOptions.instance.fboRenderChunk.renderVisionPolygon.setValue(true);
         DebugOptions.instance.terrain.renderTiles.forceFullAlpha.setValue(false);
+        zombie.core.PerformanceSettings.instance.setFramerateUncapped(false);
         check(StudyObserver.configureGodView() == observer, "God-view configuration accepted the wrong owner");
+        check(zombie.core.PerformanceSettings.instance.isFramerateUncapped() == observer,
+            "native observer renderer remained capped or changed a foreign owner");
         nativeRenderBuffers(observer);
         nativeCanopy(observer);
         System.load(args[0]); LightingJNI.configure(.005f);

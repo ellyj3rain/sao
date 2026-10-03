@@ -1,11 +1,30 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.10.3.1-pre-alpha` |
+| Version | `3.10.3.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-10-02 22:44 UTC / 15:44 PST, [C114](Batches/C114-20261002-2244Z-1544PST-uncapped-native-observation.md)
+removes the native capture timer while preserving one outstanding publication.
+Isolated observer startup uses 120 FPS, then applies the installed native
+uncapped selection after the engine's options reset. Runtime logs report the
+effective flag. Speakeasy R86 and Mousecat A23.3 remove sub-120 Hz polling delays.
+Installed admission, owner and renderer controls pass; throughput is measured
+separately on a verified copy of the saved world.
+Its 45.277-second sample records 123.153 native observer callbacks/s and 2.164
+composite capture publications/s at normal speed. These counters measure
+different stages; rendered and displayed FPS remain unmeasured. The live native
+log confirms the uncapped flag. PNG delivery still needs further work.
+
+The later twenty-minute C113 pass saved normally at hour 32.38853073120117 with
+both original people alive and no native runtime errors. A 45-second sample
+observed 3.56 native captures per second. Continuous video remains subsequent
+work. The operator's concern about recognizing life, non-life and capacity for
+violence is a hypothesis to trace through perception, appraisal and execution;
+this pass established no confrontation and authorizes no forced aggression.
 
 **As of** 2026-10-02 09:24 UTC / 02:24 PDT, [C113] separates native observation
 areas from the saved simulation definition. The runner validates a bounded

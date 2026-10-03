@@ -237,7 +237,7 @@ def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None)
     dimensions = "width=1920\nheight=1080\n" if len(definition["observation"].get("sites", [])) > 1 else "width=960\nheight=540\n"
     (cache / "options.ini").write_text("version=8\n" + dimensions + "fullScreen=false\n"
         "borderless=false\nlanguage=EN\ntermsOfServiceVersion=1\nsoundVolume=0\nmusicVolume=0\n"
-        "ambientVolume=0\nvehicleEngineVolume=0\nvsync=false\nuncappedFPS=false\n"
+        "ambientVolume=0\nvehicleEngineVolume=0\nvsync=false\nuncappedFPS=false\nframeRate=120\n"
         "showSurvivalGuide=false\n", encoding="utf-8")
     agent = build_observer_adapter(destination, game, jdk)
     receipt = {"schema": "sao-study-run/1", "packageSha256": Lab.seal(manifest),
@@ -251,6 +251,15 @@ def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None)
         receipt["mapDependency"] = map_dependency
     publish(destination / "run.json", receipt)
     return cache, user, agent, manifest, definition
+
+
+def prepare_renderer(cache):
+    """Start at 120 FPS; the native observer enables uncapped after options load."""
+    path = Path(cache) / "options.ini"
+    lines = path.read_text(encoding="utf-8").splitlines()
+    keys = {"uncappedFPS", "vsync", "frameRate"}
+    lines = [line for line in lines if line.partition("=")[0].strip() not in keys]
+    path.write_text("\n".join([*lines, "frameRate=120", "uncappedFPS=false", "vsync=false", ""]), encoding="utf-8")
 
 
 def terminal(log, attempt, save, hours, watch=False, last_observed_hours=None):
@@ -725,6 +734,8 @@ def run(args):
         receipt = Lab.load(destination / "run.json")
         receipt["launchNumber"] = 1
     with observer_resume_transaction(destination, previous):
+        if args.host == "observer":
+            prepare_renderer(cache)
         ObserverLayout.bind(receipt, layout)
         selected_sites = ObserverLayout.sites(receipt, definition)
         if layout is not None:
