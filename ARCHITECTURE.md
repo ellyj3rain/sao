@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.11.1.0-pre-alpha` |
+| Version | `3.11.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1736,12 +1736,19 @@ and remembered. No group or player-companion callback rewrites other homes.
 SAOPerceptionScanner produces exterior rows from actually visible loaded
 boundaries and an observed free approach. Perception stores that acquisition
 with provenance and time; neither bounds nor contents are inferred. An observed
-doorway supports a bounded entry hypothesis. Existing native movement resolves
-locks and opening; the resulting perception may acquire current exact holders.
-Separate geometry-bound entrance keys retain alternative doors and independent
+doorway or window supports a bounded entry hypothesis. Visible aperture state
+records open, closed, barricaded, smashed or clear conditions on the observed
+side. Existing native movement resolves locks, opening and climbing; the resulting
+perception may acquire current exact holders. A terminal interaction receipt
+names the actual failed edge independently from the route goal. Exact native
+job/body/route/step admission authenticates a matching personally acquired lead.
+Separate geometry-bound entrance keys retain alternative entrances and independent
 refusal deadlines. Scanner output is bounded at16, private retained entrance
 memory at64. Reobserving an entrance updates acquisition time while preserving
-its identity and the attempt backoff; an admitted route cannot be retargeted by
+its identity and the attempt backoff. Changed visible state permits reconsideration;
+unchanged personally encountered resistance retains a bounded comparative cost.
+These explicit uncalibrated weights compose with urgency, danger, disposition and
+travel effort. An admitted route cannot be retargeted by
 a newly acquired entrance. Dormant execution revalidates exact geometry and time.
 WorldSources.currentInspectionAnchor accepts only the exact current candidate
 and native actor/context/geometry and feeds its identity into the durable

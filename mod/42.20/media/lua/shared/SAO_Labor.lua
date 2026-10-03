@@ -154,6 +154,7 @@ function Labor.assessResidence(id, context)
                 buildingId = belief.buildingId, approachId = key,
                 exterior = true, cx = belief.cx, cy = belief.cy, z = belief.z,
                 surfaceX = belief.surfaceX, surfaceY = belief.surfaceY, kind = belief.kind,
+                apertureState = belief.apertureState, entryFailure = belief.entryFailure,
                 distance = math.sqrt(dx * dx + dy * dy), visits = 0,
                 acquiredAt = belief.at, source = belief.source, danger = danger,
                 dangerStatus = danger > 0 and "remembered-danger" or "unknown",

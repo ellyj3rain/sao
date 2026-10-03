@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Governance |
 |---|---|
-| Version | `3.11.1.0-pre-alpha` |
+| Version | `3.11.2.0-pre-alpha` |
 | Design authority | ellyj3rain |
 | Repository | `GOVERNANCE.md` |
 | Status | ACTIVE - operating discipline for this repository. |
@@ -82,6 +82,13 @@ regulatory, append-only, or historical.
   recorded in `BATCH_LOG.md` with a record under `Batches/`. The A era closed
   at `[A29]`, the B era closed at `[B52]`, and the C era opens at `C1`.
   Batch shape and commit shape are defined in `NEO.md`.
+- **Batch scope follows the product.** Each batch names a coherent behavior or
+  capability and includes the execution, state, integration, tests and records
+  needed to deliver it. Delegate bounded tasks within that batch; agent boundaries
+  do not determine the product's chronology. Ancillary work and individual fixes
+  remain inside the outcome they support. Closure requires a changed production
+  path and evidence appropriate to the stated outcome. A new general simulation
+  pass follows meaningful NPC behavior changes and a specific observation question.
 - **Project history and forge history are separate things.** The batch
   records, decision registry, findings ledger, and this doc-pack are the
   portable project history; they do not depend on a particular Git host. A

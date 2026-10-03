@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `3.11.1.0-pre-alpha` |
+| Version | `3.11.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -744,3 +744,20 @@ offered actor/body/context/geometry and does not grant contents. Existing native
 inspection enforces reach, lock, source identity and fingerprint. The separate
 durable canonical owner records the admitted attempt and terminal outcome.
 Controlled installed-method execution does not establish loaded survival or FPS.
+
+### Observed windows and encountered edges (C118)
+
+Exterior leads also carry window kind and an optional ninth visual-state field.
+Window state uses IsOpen, isSmashed, isGlassRemoved and the observer-side
+getBarricadeForCharacter; closed windows expose no lock. The same loaded,
+visible, free-approach checks govern admission. Older eight-field rows remain
+readable with unknown visual state.
+
+SAORouteState retains a terminal barrierResult for the exact cardinal edge that
+produced a locked, barricaded, declined or blocked interaction. SAOBridge.moveBarrier
+returns that scalar receipt; new/cancelled routes clear it. Locomotion captures
+it only when its reason matches the terminal verdict. The residence owner binds
+that job to its exact body, route, admission and step before private acquisition.
+An ordinary residence step explicitly revokes prior forced-entry permission
+before native movement and defers if that reset cannot be established. Native
+window opening and climbing retain their existing action owner.

@@ -1,0 +1,372 @@
+{
+  "schema": "sao-proof-applicability/1",
+  "batch": "C118",
+  "proofs": [
+    "residence.json",
+    "exterior.json"
+  ],
+  "allRelevantInputsStillMatch": true,
+  "publicationInputs": {
+    "tools/residence_planning_test.py": {
+      "testedSha256": "b178770354c1db77a135dbb68b0ead5edb09b8d7261cd7b2809a5aae67e48818",
+      "publishedSha256": "2eabc39653f3c66a6188943330a67ed9f0b70f43cfd8c12cddca555c1400e73a",
+      "identicalBytes": false,
+      "lineEndingEquivalent": true
+    },
+    "tools/flee_continuity_test.py": {
+      "testedSha256": "dff11b80b7eb3f10ef213830c34d3aef9469c457586aa494006c0038fa38232b",
+      "publishedSha256": "dff11b80b7eb3f10ef213830c34d3aef9469c457586aa494006c0038fa38232b",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "tools/luacheck/LuaRun.java": {
+      "testedSha256": "f6f55e6da98c1f1249720666d862720efc025167d1df37d35820e877b14df741",
+      "publishedSha256": "f6f55e6da98c1f1249720666d862720efc025167d1df37d35820e877b14df741",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/shared/SAO_Perception.lua": {
+      "testedSha256": "9ae97d22bcb335250e03047cdb33cad2e59bfee8023d9d419b2acbbe51d66f9e",
+      "publishedSha256": "9ae97d22bcb335250e03047cdb33cad2e59bfee8023d9d419b2acbbe51d66f9e",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/shared/SAO_WorldSources.lua": {
+      "testedSha256": "0da61437034a3206bbf1233a275c3647a916d163cf894dda5df5c1f8c30da414",
+      "publishedSha256": "0da61437034a3206bbf1233a275c3647a916d163cf894dda5df5c1f8c30da414",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/shared/SAO_Standing.lua": {
+      "testedSha256": "69ee137cca73f0e539363f8d1b079c4a833b9269b05c438beb5a58df6a965e22",
+      "publishedSha256": "69ee137cca73f0e539363f8d1b079c4a833b9269b05c438beb5a58df6a965e22",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/shared/SAO_Labor.lua": {
+      "testedSha256": "870f97a1527bd5938bb5c5c0eec4c94c6366d9ad4926b27dec37c3430fb27656",
+      "publishedSha256": "870f97a1527bd5938bb5c5c0eec4c94c6366d9ad4926b27dec37c3430fb27656",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua": {
+      "testedSha256": "3c9c8ad0bcb8498e3a14af7bf26b823fb6db938b0db3e30544df18f0bfcf93ad",
+      "publishedSha256": "3c9c8ad0bcb8498e3a14af7bf26b823fb6db938b0db3e30544df18f0bfcf93ad",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/client/SAO_Locomotion.lua": {
+      "testedSha256": "decbd27c32ce736d660260d96c9cd6e8e719ba9b5bfecf484da0d285d30ff9c7",
+      "publishedSha256": "decbd27c32ce736d660260d96c9cd6e8e719ba9b5bfecf484da0d285d30ff9c7",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/client/SAO_DormantPopulation.lua": {
+      "testedSha256": "278d8062c735c070e9b627fc6be714ce77adc0ee2792395fc88c15904d4247fa",
+      "publishedSha256": "278d8062c735c070e9b627fc6be714ce77adc0ee2792395fc88c15904d4247fa",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/client/SAO_Controller.lua": {
+      "testedSha256": "5f9217f0bfad2b35c3f7e9c1d573fc52a22dcd637ee9dae84f735a104c0199d2",
+      "publishedSha256": "5f9217f0bfad2b35c3f7e9c1d573fc52a22dcd637ee9dae84f735a104c0199d2",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/client/SAO_Harness.lua": {
+      "testedSha256": "1d9e36c130c4a426bbaaee1134df4e49c93a1915eab49fcc5e5bfced60510f70",
+      "publishedSha256": "1d9e36c130c4a426bbaaee1134df4e49c93a1915eab49fcc5e5bfced60510f70",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "tools/exterior_building_test.py": {
+      "testedSha256": "e49b03323ce5eef0fad0e70e6b3c3b6f2314477f5451e09f1a7a71bfa5beddfd",
+      "publishedSha256": "c1f0fe13a3a7607f0d72f7ea454bdf1dd1f1863c4d6f4803ab59527c7f6386f5",
+      "identicalBytes": false,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/agent/SAOAgent.java": {
+      "testedSha256": "cf4a41ddb210c04da4e3d6eeac933068a23341ecfec1778c80bb0210cbe15a4c",
+      "publishedSha256": "cf4a41ddb210c04da4e3d6eeac933068a23341ecfec1778c80bb0210cbe15a4c",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/agent/SAOBodyScale.java": {
+      "testedSha256": "46af1e2d4dbc4e02f43c8588661fc546472d4588bd60f95c70d51e979369a264",
+      "publishedSha256": "46af1e2d4dbc4e02f43c8588661fc546472d4588bd60f95c70d51e979369a264",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/agent/SAOBodyScaleWeave.java": {
+      "testedSha256": "f1710885758b83834c3323f198982c1c39f8470df3c1b70da482c90befb9a813",
+      "publishedSha256": "f1710885758b83834c3323f198982c1c39f8470df3c1b70da482c90befb9a813",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/agent/SAOCombatGate.java": {
+      "testedSha256": "1a47aef46f79d8bbf26b24174cc86f03253f286d2d5491aaac01cf9b0bc6b9c1",
+      "publishedSha256": "1a47aef46f79d8bbf26b24174cc86f03253f286d2d5491aaac01cf9b0bc6b9c1",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/agent/SAOLootDensityWeave.java": {
+      "testedSha256": "f6c7aeb74e6b90f4ad007a9eb8dfa5f67c7d21b83fa7556b49ffdb6b70c2ee9e",
+      "publishedSha256": "f6c7aeb74e6b90f4ad007a9eb8dfa5f67c7d21b83fa7556b49ffdb6b70c2ee9e",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/agent/SAOMeleeTransformer.java": {
+      "testedSha256": "9f3bef731859269a11d85754fe1a10ee66b6aeb94ec1fb4ff53373312aec3a63",
+      "publishedSha256": "9f3bef731859269a11d85754fe1a10ee66b6aeb94ec1fb4ff53373312aec3a63",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/agent/SAOOrientationWeave.java": {
+      "testedSha256": "700cbbb40ddfe2f69c24e7d915e342d20b2ed985595435456db375b48f841ce6",
+      "publishedSha256": "700cbbb40ddfe2f69c24e7d915e342d20b2ed985595435456db375b48f841ce6",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/bridge/SAOBridge.java": {
+      "testedSha256": "42230d7c90a4e410ff4bca171ff37b8c3a0468b41bf92745a2ff72e3401361fc",
+      "publishedSha256": "42230d7c90a4e410ff4bca171ff37b8c3a0468b41bf92745a2ff72e3401361fc",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/bridge/SAOBridgeBootstrap.java": {
+      "testedSha256": "6068db304f84bf48aea2a7f97de924a4bb17159825ff0c377bff45ad69d5b8ed",
+      "publishedSha256": "6068db304f84bf48aea2a7f97de924a4bb17159825ff0c377bff45ad69d5b8ed",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOAnimalCare.java": {
+      "testedSha256": "b58a5fe819e7da7deae10d50f533ad04660f055e4fcc252332515cedf184c1f3",
+      "publishedSha256": "b58a5fe819e7da7deae10d50f533ad04660f055e4fcc252332515cedf184c1f3",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOAnimals.java": {
+      "testedSha256": "b8cab0148d289fd871d3d280572e45e19a379873cc93f7fb67778aaa3ac65ae9",
+      "publishedSha256": "b8cab0148d289fd871d3d280572e45e19a379873cc93f7fb67778aaa3ac65ae9",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOBuild.java": {
+      "testedSha256": "7db143ef7ce566c27332916bd7fcfa562543b12d25a2a06c3d16b4ed6d932376",
+      "publishedSha256": "7db143ef7ce566c27332916bd7fcfa562543b12d25a2a06c3d16b4ed6d932376",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOCombat.java": {
+      "testedSha256": "651001a7a3080c2100383f8938392b846a252bb1d7ff516293e006555e5a5bda",
+      "publishedSha256": "651001a7a3080c2100383f8938392b846a252bb1d7ff516293e006555e5a5bda",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOCooking.java": {
+      "testedSha256": "b64376f151f77a528bbfa6af90fca753a6c0ed55d536f5f528f5720bace04770",
+      "publishedSha256": "b64376f151f77a528bbfa6af90fca753a6c0ed55d536f5f528f5720bace04770",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOCoordinationModel.java": {
+      "testedSha256": "357a180e7c5bf21aac68fb13f12465cbe40213532d67c3963fa1b10b7a3d6633",
+      "publishedSha256": "357a180e7c5bf21aac68fb13f12465cbe40213532d67c3963fa1b10b7a3d6633",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOCoordinationWorker.java": {
+      "testedSha256": "f75d20836af2b853c433d26aca78d3a55db0e292a901dcedcc5e7800c8afaace",
+      "publishedSha256": "f75d20836af2b853c433d26aca78d3a55db0e292a901dcedcc5e7800c8afaace",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOCrossedDriver.java": {
+      "testedSha256": "7ddcf5588a6f7f5fa908c3fe3676a5826b78539979a0abf1778ea25035445330",
+      "publishedSha256": "7ddcf5588a6f7f5fa908c3fe3676a5826b78539979a0abf1778ea25035445330",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAODriveLaw.java": {
+      "testedSha256": "74ad13706f0c0a4bc8e93ced4b97ea5fe520ff9776b5b65b0245436185ea8ae8",
+      "publishedSha256": "74ad13706f0c0a4bc8e93ced4b97ea5fe520ff9776b5b65b0245436185ea8ae8",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAODriver.java": {
+      "testedSha256": "5e1c671642ad9e5e5d87d374d7dee2678ac1ed2b781da4ebdd74e94d4a7145be",
+      "publishedSha256": "5e1c671642ad9e5e5d87d374d7dee2678ac1ed2b781da4ebdd74e94d4a7145be",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAODriveState.java": {
+      "testedSha256": "7b50f92589443526f6945a6aa5b1a4dc5220b064e7214c56ecafc96e15825bd6",
+      "publishedSha256": "7b50f92589443526f6945a6aa5b1a4dc5220b064e7214c56ecafc96e15825bd6",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAODurableText.java": {
+      "testedSha256": "fa5e89d9123af855b25dd7772b35d6c0b56275feb15eab6ad70717a6869aebc9",
+      "publishedSha256": "fa5e89d9123af855b25dd7772b35d6c0b56275feb15eab6ad70717a6869aebc9",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOEquipment.java": {
+      "testedSha256": "1061d4ecf208c9b3ae7e8b9743d2545339b25efade6165c0f39a153f23a3a2dc",
+      "publishedSha256": "1061d4ecf208c9b3ae7e8b9743d2545339b25efade6165c0f39a153f23a3a2dc",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOFence.java": {
+      "testedSha256": "6b01cd1628c718389e72a62e6b7b3a9636e480cc8ff6b14546aba621eb4d44e6",
+      "publishedSha256": "6b01cd1628c718389e72a62e6b7b3a9636e480cc8ff6b14546aba621eb4d44e6",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOGround.java": {
+      "testedSha256": "185975bc264ce44a41dcf9d283bd3c96562422e100fd2b66b8490cd4127d1f18",
+      "publishedSha256": "185975bc264ce44a41dcf9d283bd3c96562422e100fd2b66b8490cd4127d1f18",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOHibernation.java": {
+      "testedSha256": "96f1409292914a89413d51a9efd3ddb8b28683bd744f9d439491705237c828ad",
+      "publishedSha256": "96f1409292914a89413d51a9efd3ddb8b28683bd744f9d439491705237c828ad",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOIsoPlayerShell.java": {
+      "testedSha256": "803eda47453e7fb194a3391acd3c1f567ac5d5e50ea65b2295b215ff99488e52",
+      "publishedSha256": "803eda47453e7fb194a3391acd3c1f567ac5d5e50ea65b2295b215ff99488e52",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOKnox.java": {
+      "testedSha256": "1d335c4b5900daa227fa394477da24d75f7c2cf8a16e1c49e98f490a3532fa05",
+      "publishedSha256": "1d335c4b5900daa227fa394477da24d75f7c2cf8a16e1c49e98f490a3532fa05",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOMovement.java": {
+      "testedSha256": "4fd09c5ada3e0ed8b52ae4a4753660f9800cd89679e70e4bdf570967950b528a",
+      "publishedSha256": "4fd09c5ada3e0ed8b52ae4a4753660f9800cd89679e70e4bdf570967950b528a",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAONativeSnapshot.java": {
+      "testedSha256": "0839989775d9c37b0dc8978847e05d8dca17e59a825624d492fb245dde12d7b4",
+      "publishedSha256": "0839989775d9c37b0dc8978847e05d8dca17e59a825624d492fb245dde12d7b4",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAONeeds.java": {
+      "testedSha256": "e364b9e3be70c76cf40c3aefd3dbd2876dd619ea20e4b3bac0ad89b66d7df478",
+      "publishedSha256": "e364b9e3be70c76cf40c3aefd3dbd2876dd619ea20e4b3bac0ad89b66d7df478",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOOrientation.java": {
+      "testedSha256": "55968df4bd4f640a49178611f321fd5d4d2c1be1777b3bdd1c3c03697ba025b5",
+      "publishedSha256": "55968df4bd4f640a49178611f321fd5d4d2c1be1777b3bdd1c3c03697ba025b5",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOOrientationAnimation.java": {
+      "testedSha256": "2ce5720a4a8a6ffa6c06dfc1f5503870d45207cd262b43764efe2255fd70ceae",
+      "publishedSha256": "2ce5720a4a8a6ffa6c06dfc1f5503870d45207cd262b43764efe2255fd70ceae",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOPerceptionScanner.java": {
+      "testedSha256": "2c456c837ba2b2ea4c48f0d79ac1eac4ec8cb0815d1bd9fa474d6358f39e8b1e",
+      "publishedSha256": "2c456c837ba2b2ea4c48f0d79ac1eac4ec8cb0815d1bd9fa474d6358f39e8b1e",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOPrivateInventory.java": {
+      "testedSha256": "0bebc9ab7c010bf668872a684dc101e96b5dbe3293a29ebd4f978c1c6f93bf89",
+      "publishedSha256": "0bebc9ab7c010bf668872a684dc101e96b5dbe3293a29ebd4f978c1c6f93bf89",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAORecord.java": {
+      "testedSha256": "029b6274a8eb674271a1bf18d0b9f45e0217a4a7bfc41e28faf66cd170176c7f",
+      "publishedSha256": "029b6274a8eb674271a1bf18d0b9f45e0217a4a7bfc41e28faf66cd170176c7f",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOReturnBody.java": {
+      "testedSha256": "7d393f431e64e5e9ac3b3ed0d8b76aebb3efb022fe20383fba0750eda768efdc",
+      "publishedSha256": "7d393f431e64e5e9ac3b3ed0d8b76aebb3efb022fe20383fba0750eda768efdc",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAORouteState.java": {
+      "testedSha256": "d80784743e1bcae6c966bbe8f4d24eb21c9c2df2bb10fa4e3131501e724ac834",
+      "publishedSha256": "d80784743e1bcae6c966bbe8f4d24eb21c9c2df2bb10fa4e3131501e724ac834",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOSenses.java": {
+      "testedSha256": "6c0767bcbec7693b4e5da60b95e26ceaefac0c7cc49b3d886e8c0515d1d9ece7",
+      "publishedSha256": "6c0767bcbec7693b4e5da60b95e26ceaefac0c7cc49b3d886e8c0515d1d9ece7",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOSettlement.java": {
+      "testedSha256": "26ea65de141accd6fb5f5811b53791fc673b22d9670d96cade5f0a1fb12020ed",
+      "publishedSha256": "26ea65de141accd6fb5f5811b53791fc673b22d9670d96cade5f0a1fb12020ed",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOWorldCensus.java": {
+      "testedSha256": "c95b91d7e530396a1627936e57d4df0cd2305de6c6d9bcd2978a3d95a08c6f7f",
+      "publishedSha256": "c95b91d7e530396a1627936e57d4df0cd2305de6c6d9bcd2978a3d95a08c6f7f",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOWorldSoundPulses.java": {
+      "testedSha256": "4b78730b45ba4c1e2d703f2cc10a2ec0533186947542340c7a61ae5cbd56ad78",
+      "publishedSha256": "4b78730b45ba4c1e2d703f2cc10a2ec0533186947542340c7a61ae5cbd56ad78",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOWorldSources.java": {
+      "testedSha256": "12ee27ba5e5ff538f5f2e6eb487c27a2a3217a027c1198ea7534238602e3719f",
+      "publishedSha256": "12ee27ba5e5ff538f5f2e6eb487c27a2a3217a027c1198ea7534238602e3719f",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/engine/SAOZombieDirector.java": {
+      "testedSha256": "bfde951c0e93c799b13257e296ec7498ad7e24bacc529a0565ac99a1c0afffe5",
+      "publishedSha256": "bfde951c0e93c799b13257e296ec7498ad7e24bacc529a0565ac99a1c0afffe5",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "java/src/com/sao/Main.java": {
+      "testedSha256": "38e132ca9dec83eec184a73045db48ceefebc763b563cc5893727a5e07cdb753",
+      "publishedSha256": "38e132ca9dec83eec184a73045db48ceefebc763b563cc5893727a5e07cdb753",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "tools/luacheck/MovementCrossingProbe.java": {
+      "testedSha256": "ca9dbe9c356c98ff40e6aa63d577fd2ace052c139b83fc6f43664701fd2f1bd1",
+      "publishedSha256": "ca9dbe9c356c98ff40e6aa63d577fd2ace052c139b83fc6f43664701fd2f1bd1",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "tools/luacheck/ExteriorBuildingProbe.java": {
+      "testedSha256": "14dc13a27cbfd90819099eb352d2edc2aa1371eb287ceaae365263bcb0a0f2a5",
+      "publishedSha256": "ea31fd6b581f885ab743fa5c65de05414072d2732cb68377b0a1cf5c03b48ca4",
+      "identicalBytes": false,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/java/SAO.jar": {
+      "testedSha256": "1849b5ed5eb652b30190b066644d902e329098857cbe927fa32b903c44d773c3",
+      "publishedSha256": "1849b5ed5eb652b30190b066644d902e329098857cbe927fa32b903c44d773c3",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    }
+  },
+  "scope": "The staged candidate preserves all tested inputs. Text normalization is limited to CRLF versus LF; this does not rerun or enlarge the recorded proofs."
+}

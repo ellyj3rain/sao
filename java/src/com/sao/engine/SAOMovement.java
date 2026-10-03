@@ -194,6 +194,7 @@ public final class SAOMovement {
                 + " goal=" + state.targetX + "," + state.targetY + "," + state.targetZ);
             IsoGridSquare current = shell.getCurrentSquare();
             if (current != null) {
+                state.barrierResult = barrierResult(current, node, transition);
                 state.rememberEdgeFailure(
                     edgeKey(current, node), transition);
             }
@@ -207,6 +208,27 @@ public final class SAOMovement {
 
         drive(shell, node[0], node[1], state.running);
         return "ManualRoute";
+    }
+
+    /** The failed physical edge, not the route destination. Only interaction
+     * verdicts that establish a barrier condition produce this receipt. */
+    private static String barrierResult(IsoGridSquare current, float[] node, String verdict) {
+        String kind;
+        String condition;
+        switch (verdict) {
+            case "FAILED_LOCKED_DOOR": kind = "door"; condition = "closed"; break;
+            case "FAILED_BARRICADED_DOOR": kind = "door"; condition = "barricaded"; break;
+            case "FAILED_BARRICADED_WINDOW": kind = "window"; condition = "barricaded"; break;
+            case "FAILED_WINDOW_DECLINED": kind = "window"; condition = "closed"; break;
+            case "FAILED_BLOCKED_WINDOW": kind = "window"; condition = "blocked"; break;
+            default: return null;
+        }
+        int nx = (int) Math.floor(node[0]), ny = (int) Math.floor(node[1]);
+        int z = current.getZ();
+        if (z != (int) Math.floor(node[2])
+                || Math.abs(current.getX() - nx) + Math.abs(current.getY() - ny) != 1) return null;
+        return "MOVE_BARRIER@" + current.getX() + "@" + current.getY()
+            + "@" + nx + "@" + ny + "@" + z + "@" + kind + "@" + condition + "@" + verdict;
     }
 
     private static boolean nativeCrossing(SAOIsoPlayerShell shell) {

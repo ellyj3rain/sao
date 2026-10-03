@@ -6,6 +6,8 @@ Bodies, current squares, perception inputs and movement receiver outcomes are
 controlled. This does not establish navigation or behavior in a rendered save.
 """
 from pathlib import Path
+import argparse
+import hashlib
 import json
 import os
 import re
@@ -66,12 +68,19 @@ end
 SAOJavaBridge.worldInspectionCandidates=function() return __holders or 'H|protocol=SAOWI1\nE\n' end
 SAO.Body.isTransitioning=function() return false end
 Events.OnFillWorldObjectContextMenu.Add=function(fn) __fillMenu=fn end
+SAOJavaBridge.setForceEntry=function(_,body,allowed)
+    if __forceThrow then error("permission receiver unavailable") end
+    if __forceRefuse then return false end
+    body.forceEntry=allowed;return true
+end
 SAOJavaBridge.moveTo=function(_,body,x,y,z)
+    __orderedForce=body.forceEntry
     __starts=__starts+1
     if __refuseNativeMove then return 'MOVE_REFUSED_LOCKED' end
     __ordered={x=x,y=y,z=z} return 'MOVE_STARTED'
 end
 SAOJavaBridge.tickMove=function() return __verdict end
+SAOJavaBridge.moveBarrier=function() return __barrier or 'MOVE_BARRIER_UNAVAILABLE' end
 SAO.Organization={offices={},activeCommitments=function(id) return __commitments[id] or {} end,
     leave=function() return true end,
     raiseMatter=function(id,kind) __withdrawals=__withdrawals+1 return {id='withdrawal',revision=1} end,
@@ -119,8 +128,8 @@ local function body(id,x,y)
 end
 local function reset(hunger)
     __resetStores()
-    __hours=2 __hour=12 __tick=18000 __starts=0 __cancels=0 __verdict='Working'
-    __randCalls=0 __randFixed=0
+    __hours=2 __hour=12 __tick=18000 __starts=0 __cancels=0 __verdict='Working' __barrier=nil
+    __randCalls=0 __randFixed=0 __forceThrow=false __forceRefuse=false __orderedForce=nil
     __withdrawals=0 __commitments={} __refuseNativeMove=false __busy=false __food=nil __drink=nil
     SAO.Organization.offices={}
     __personVisible=true
@@ -567,10 +576,136 @@ check('controller_drop_detaches_native_admission_and_preserves_private_purpose',
 P.detachResidence('a','death')
 check('death_ends_residence_without_fake_arrival',P.residencePurpose('a')==nil and p.status=='abandoned'
     and p.lastResidenceResult==nil)
+
+-- C118: full private acquisition -> comparative choice -> actual Lua route owner
+-- -> native receiver verdict -> exact private encountered-edge consequence.
+local function observeEntrances(text)
+    __seen=text;SAO.Perception.beliefs.a.lastScanAt=0
+    SAO.Perception.observe('a',b,__tick,false)
+end
+local function residenceTime(hours)
+    __hours=hours;__tick=math.floor(hours*9000);a.nextResidenceAt=0
+    C.__residenceTick(__tick)
+end
+local function entranceStart()
+    a,b=reset();SAO.Perception.beliefs.a.known={[1]=home}
+end
+local function outsideThenEnter()
+    C.advanceResidencePurpose('a',a,b,__tick)
+    b.x=p.steps[1].x;b.y=p.steps[1].y;b.building=nil
+    local job=SAO.Locomotion.jobs.a;job.done=true;job.result='arrived'
+    C.finishResidenceMovement('a',a,b)
+    return C.advanceResidencePurpose('a',a,b,__tick)
+end
+local function failedEdge(text,verdict)
+    __barrier=text;__verdict=verdict
+    SAO.Locomotion.tick('a')
+    local job=SAO.Locomotion.jobs.a
+    C.finishResidenceMovement('a',a,b)
+    return job
+end
+local doorRow='B:42:100.0:10.5:0:99.5:10.5:door:closed'
+local windowRow='B:42:102.0:10.5:0:101.5:10.5:window:'
+local function windowKey()
+    return SAO.Perception.exteriorLeadKey({buildingId='42',cx=101.5,cy=10.5,z=0,surfaceX=102,surfaceY=10.5,kind='window'})
+end
+entranceStart();observeEntrances(doorRow..'|'..windowRow..'open');p=consider(a,b)
+check('observed_open_window_competes_with_closed_door',p.destination.kind=='window' and p.destination.apertureState=='open'
+    and p.destination.stock=='unknown-until-private-inspection' and empty(SAO.Perception.knownBuildingLeads('b',__tick)))
+b.forceEntry=true
+check('window_choice_uses_actual_locomotion',outsideThenEnter() and p.steps[2].basis=='observed-window-entry-hypothesis'
+    and SAO.Locomotion.jobs.a.goal.x==102.5 and p.admission~=nil)
+check('ordinary_window_route_revokes_prior_force_permission',b.forceEntry==false and __orderedForce==false)
+__seen='Z:102:10:1:track:window-threat:floor:0';__tick=__tick+120;C.__residenceTick(__tick);C.__residenceUpdate('a',a)
+check('window_route_yields_to_current_threat',a.state=='FLEE' and p.admission==nil and p.lastResidenceResult==nil)
+for _,failureMode in ipairs({'refuse','throw'}) do
+    entranceStart();observeEntrances(windowRow..'open');p=consider(a,b);b.forceEntry=true
+    __forceRefuse=failureMode=='refuse';__forceThrow=failureMode=='throw'
+    check('entry_permission_'..failureMode..'_cannot_start_native_route',not C.advanceResidencePurpose('a',a,b,__tick)
+        and __starts==0 and p.admission==nil and SAO.Locomotion.jobs.a==nil)
+end
+entranceStart();observeEntrances(doorRow..'|'..windowRow..'open')
+S.claim('c',101,9,104,12,0)
+SAO.Perception.beliefs.a.places.c={minX=101,minY=9,maxX=104,maxY=12,at=__tick,source='observed'}
+p=consider(a,b)
+check('standing_excludes_known_foreign_window',p.destination.kind=='door' and p.destination.approachId~=windowKey())
+entranceStart();observeEntrances(doorRow..'|'..windowRow..'open')
+SAO.Perception.beliefs.a.buildingLeads[windowKey()].personId='b';p=consider(a,b)
+check('foreign_window_memory_cannot_win_choice',p.destination.kind=='door')
+entranceStart();observeEntrances(doorRow..'|'..windowRow..'locked')
+p=consider(a,b)
+check('hidden_lock_visual_claim_not_admitted',SAO.Perception.knownBuildingLeads('a',__tick)[windowKey()]==nil and p.destination.kind=='door')
+entranceStart();observeEntrances(doorRow);p=consider(a,b)
+check('unseen_window_is_not_invented',p.destination.kind=='door' and SAO.Perception.knownBuildingLeads('a',__tick)[windowKey()]==nil)
+entranceStart();observeEntrances(doorRow..'|'..windowRow..'closed');p=consider(a,b)
+local lockedKey=p.destination.approachId;local lockedId=p.destination.id
+check('initial_closed_door_remains_valid_alternative',p.destination.kind=='door' and outsideThenEnter())
+local failed=failedEdge('MOVE_BARRIER@99@10@100@10@0@door@closed@FAILED_LOCKED_DOOR','FailedObstacle:FAILED_LOCKED_DOOR')
+local learnedFailure=SAO.Perception.knownBuildingLeads('a',__tick)[lockedKey].entryFailure
+check('native_failed_edge_is_consumed_into_private_entry_memory',failed.barrier and failed.entryOutcomeRecorded==true
+    and learnedFailure and learnedFailure.reason=='FAILED_LOCKED_DOOR' and p.lastResidenceResult==nil)
+check('entry_outcome_replay_is_inert',not SAO.Perception.noteEntryOutcome('a',b,failed)
+    and SAO.Perception.knownBuildingLeads('a',__tick)[lockedKey].entryFailure.attempts==1)
+local deadline=p.residenceAttempts[lockedId].retryAt
+local startsBefore=__starts
+for index=1,10 do C.advanceResidencePurpose('a',a,b,__tick+index) end
+check('known_barrier_has_no_rapid_identical_retry',__starts==startsBefore and not p.admission)
+residenceTime(2.3);observeEntrances(doorRow..'|'..windowRow..'closed');p=consider(a,b)
+check('unchanged_barrier_changes_choice_after_backoff',__hours>deadline and p.destination.kind=='window'
+    and SAO.Perception.knownBuildingLeads('a',__tick)[lockedKey].entryFailure~=nil)
+check('alternative_window_attempt_owns_its_route',outsideThenEnter() and SAO.Locomotion.jobs.a.goal.x==102.5)
+failed=failedEdge('MOVE_BARRIER@101@10@102@10@0@window@closed@FAILED_WINDOW_DECLINED','FailedObstacle:FAILED_WINDOW_DECLINED')
+check('window_refusal_is_actual_private_edge_evidence',failed.barrier and failed.barrier.kind=='window'
+    and SAO.Perception.knownBuildingLeads('a',__tick)[windowKey()].entryFailure.reason=='FAILED_WINDOW_DECLINED')
+residenceTime(2.41);observeEntrances('B:42:100.0:10.5:0:99.5:10.5:door:open|'..windowRow..'closed');p=consider(a,b)
+check('changed_observed_aperture_can_be_reconsidered',p.destination.kind=='door' and p.destination.apertureState=='open'
+    and SAO.Perception.knownBuildingLeads('a',__tick)[lockedKey].entryFailure==nil)
+entranceStart();observeEntrances(doorRow..'|'..windowRow..'open');p=consider(a,b)
+local selectedWindow=p.destination.approachId
+C.advanceResidencePurpose('a',a,b,__tick)
+failed=failedEdge('MOVE_BARRIER@99@10@100@10@0@door@closed@FAILED_LOCKED_DOOR','FailedObstacle:FAILED_LOCKED_DOOR')
+check('different_failed_edge_never_teaches_selected_window_lock',failed.barrier.kind=='door'
+    and SAO.Perception.knownBuildingLeads('a',__tick)[selectedWindow].entryFailure==nil
+    and SAO.Perception.knownBuildingLeads('a',__tick)[exteriorKey].entryFailure~=nil)
+entranceStart();observeEntrances(doorRow);p=consider(a,b);outsideThenEnter()
+failed=failedEdge('MOVE_BARRIER@99@10@100@10@0@window@closed@FAILED_WINDOW_DECLINED','FailedObstacle:FAILED_LOCKED_DOOR')
+check('mismatched_barrier_verdict_not_admitted',failed.barrier==nil and SAO.Perception.knownBuildingLeads('a',__tick)[exteriorKey].entryFailure==nil)
+entranceStart();observeEntrances(doorRow);p=consider(a,b);outsideThenEnter()
+failed=failedEdge('MOVE_BARRIER@1@1@2@1@0@door@closed@FAILED_LOCKED_DOOR','FailedObstacle:FAILED_LOCKED_DOOR')
+check('unobserved_failed_edge_does_not_invent_entrance',size(SAO.Perception.knownBuildingLeads('a',__tick))==1
+    and SAO.Perception.knownBuildingLeads('a',__tick)[exteriorKey].entryFailure==nil)
+
+entranceStart();observeEntrances(doorRow);p=consider(a,b);outsideThenEnter()
+failedEdge('MOVE_BARRIER@99@10@100@10@0@door@closed@FAILED_LOCKED_DOOR','FailedObstacle:FAILED_LOCKED_DOOR')
+local solitaryDeadline=p.residenceAttempts[p.destination.id].retryAt
+residenceTime(2.11);observeEntrances(doorRow);p=consider(a,b)
+check('solitary_unchanged_barrier_has_bounded_backoff',__hours<solitaryDeadline
+    and not C.advanceResidencePurpose('a',a,b,__tick))
+residenceTime(2.22);observeEntrances('B:42:100.0:10.5:0:99.5:10.5:door:open');p=consider(a,b)
+check('changed_visual_condition_supersedes_only_own_backoff',__hours<solitaryDeadline
+    and p.destination and p.destination.apertureState=='open' and p.status~='blocked' and C.advanceResidencePurpose('a',a,b,__tick))
+
 __residenceResults=table.concat(checks,'\n')
 '''
 
 CONTROLS = [
+    ('controller', 'return SAOJavaBridge:setForceEntry(body, false)\n    end)', 'return true\n    end)',
+     'ordinary_window_route_revokes_prior_force_permission'),
+    ('controller', 'if not permissionOk or permissionSet ~= true then', 'if false then',
+     'entry_permission_refuse_cannot_start_native_route'),
+    ('locomotion', '        captureBarrier(job, verdict)', '        -- barrier capture omitted',
+     'native_failed_edge_is_consumed_into_private_entry_memory'),
+    ('planner', '            SAO.Perception.noteEntryOutcome(id, body, job)', '            -- encounter not consumed',
+     'native_failed_edge_is_consumed_into_private_entry_memory'),
+    ('perception', '        lead.entryFailure = prior.entryFailure', '        lead.entryFailure = nil',
+     'unchanged_barrier_changes_choice_after_backoff'),
+    ('planner', 'if encountered and finite(encountered.atHours) and encountered.atHours <= at then', 'if false then',
+     'unchanged_barrier_changes_choice_after_backoff'),
+    ('planner', 'if delayed and failure.apertureState and candidate.apertureState ~= "unknown"',
+     'if false and failure.apertureState and candidate.apertureState ~= "unknown"',
+     'changed_visual_condition_supersedes_only_own_backoff'),
+    ('locomotion', 'or verdict ~= "FailedObstacle:" .. tostring(reason) then return end', 'or false then return end',
+     'mismatched_barrier_verdict_not_admitted'),
     ('labor', 'if exteriorInspected > 64 then break end', 'if false then break end',
      'oversized_saved_exterior_input_has_bounded_sort'),
     ('planner', 'trimResidenceAttempts(purpose, key)', '-- failed-route trim omitted',
@@ -618,9 +753,9 @@ CONTROLS = [
     ('dormant', 'return target, true', 'return nil, false', 'unload_preserves_search_and_no_forced_return'),
     ('controller', 'if lbody and activityParticipantAtHand(id, body, leaderId, lbody, tick, math.huge) then',
      'if lbody then', 'group_membership_gives_no_unseen_leader_position'),
-    ('controller', 'if purpose.status == "blocked" or (attempt and hours < (attempt.retryAt or 0)) then return false end',
+    ('controller', 'if purpose.status == "blocked" or (attempt and not attempt.supersededAt and hours < (attempt.retryAt or 0)) then return false end',
      'if false then return false end','repeated_decisions_honor_exact_route_retry'),
-    ('dormant', 'if purpose.status == "blocked" or (attempt and hoursNow() < (attempt.retryAt or 0)) then',
+    ('dormant', 'if purpose.status == "blocked" or (attempt and not attempt.supersededAt and hoursNow() < (attempt.retryAt or 0)) then',
      'if false then','unloaded_blocked_route_respects_same_retry'),
     ('controller', 'if agent.residenceRoute then\n        local threat, count, person, key = selectedThreat',
      'if false then\n        local threat, count, person, key = selectedThreat',
@@ -635,7 +770,7 @@ CONTROLS = [
      'conflict_can_preserve_residence_with_own_attachment_and_obligations'),
     ('perception', 'if not ok or not admitted then return end\n    local key, sx, sy, z = fields[2]',
      'if not ok then return end\n    local key, sx, sy, z = fields[2]', 'foreign_body_cannot_teach_exterior_lead'),
-    ('perception', 'lead.personId == tostring(id)', 'true', 'foreign_private_lead_record_is_not_admitted'),
+    ('perception', 'if type(lead) == "table" and lead.personId == tostring(id)\n            and lead.source == "native-visible-exterior" and P.exteriorLeadKey(lead) == key\n            and finiteSoundNumber(lead.cx)', 'if type(lead) == "table"\n            and lead.source == "native-visible-exterior" and P.exteriorLeadKey(lead) == key\n            and finiteSoundNumber(lead.cx)', 'foreign_private_lead_record_is_not_admitted'),
     ('world', 'memory.pending ~= context or context.actorId ~= actorId then return nil end',
      'context.actorId ~= actorId then return nil end', 'fabricated_candidate_cannot_acquire_holder_anchor'),
     ('world', 'if context[key] ~= offered[key] then return nil end',
@@ -648,12 +783,33 @@ CONTROLS = [
 
 
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--required',action='store_true')
+    parser.add_argument('--output',type=Path)
+    args=parser.parse_args()
     game, jdk = fixture.GAME, fixture.JDK
+    owned=[Path(__file__).resolve(),Path(fixture.__file__).resolve(),ROOT/'tools/luacheck/LuaRun.java',*FILES.values()]
+    missing=[str(p) for p in owned if not p.is_file()]
+    if missing:
+        print('FAULT residence planning: owned inputs absent: '+', '.join(missing)); return 1
     if not all(path.is_file() for path in (game/'projectzomboid.jar',game/'stdlib.lua',jdk/'java.exe',jdk/'javac.exe')):
-        print('Residence planning SKIPPED: installed game or JDK absent'); return 0
+        print('Residence planning '+('FAILED' if args.required else 'SKIPPED')+': installed game or JDK absent; production execution unverified'); return 1 if args.required else 0
+    output=(args.output or ROOT/'_scratch/c118-validation/residence').resolve()
+    output.mkdir(parents=True,exist_ok=True)
+    inputs=owned+[game/'projectzomboid.jar',game/'stdlib.lua',jdk/'java.exe',jdk/'javac.exe']
+    def digest(p): return hashlib.sha256(p.read_bytes()).hexdigest()
+    receipt={'schema':'sao-residence-proof/1','status':'RUNNING','boundary':__doc__,
+             'inputs_before':{str(p):digest(p) for p in inputs},'runs':[]}
+    def save(): (output/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
+    def execute(command,cwd,name):
+        done=subprocess.run(command,cwd=cwd,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=60)
+        log=output/(name+'.log');log.write_text(done.stdout+done.stderr,encoding='utf-8')
+        receipt['runs'].append({'name':name,'command':command,'exitCode':done.returncode,'logSha256':digest(log)})
+        save();return done
     texts = {name:path.read_text(encoding='utf-8-sig') for name,path in FILES.items()}
     expose = 'Ctl.__residenceAddress=resolvedHomeAddress\nCtl.__residenceHome=decideHomeAndEquipment\nCtl.__residenceCompany=decideCompany\nCtl.__residenceNeeds=decideNeedsAndCompanion\nCtl.__residenceState=setState\nCtl.__residenceUpdate=updateAgent\nCtl.__residenceTick=function(t) tickCount=t end\nreturn Ctl\n'
-    expected=set(re.findall(r"check\('([a-z0-9_]+)'",CASES))
+    expected=set(re.findall(r"check\('([a-z0-9_]+)'\s*,",CASES))
+    expected.update({"entry_permission_refuse_cannot_start_native_route","entry_permission_throw_cannot_start_native_route"})
     try:
         with tempfile.TemporaryDirectory(prefix='sao-residence-planning-') as directory:
             work=Path(directory)
@@ -661,9 +817,12 @@ def main():
             runner=(ROOT/'tools/luacheck/LuaRun.java').read_text(encoding='utf-8-sig')
             runner=runner.replace('String m = t.getMessage();','String m = t.getMessage();\n            System.out.println("PHASE " + env.rawget("__residencePhase"));\n            System.out.println("DECISION " + env.rawget("__decisionFacts"));\n            System.out.println("FACTS " + env.rawget("__caseFacts"));\n            System.out.println("PARTIAL " + env.rawget("__residencePartial"));\n            System.out.println("AT " + thread.getCurrentCoroutine().stackTrace);')
             (work/'LuaRun.java').write_text(runner,encoding='utf-8')
-            subprocess.run([str(jdk/'javac.exe'),'-cp',str(game/'projectzomboid.jar'),'-d',str(work),
-                            str(work/'LuaRun.java')],check=True,capture_output=True,text=True)
+            compiled=execute([str(jdk/'javac.exe'),'-cp',str(game/'projectzomboid.jar'),'-d',str(work),str(work/'LuaRun.java')],work,'compile')
+            if compiled.returncode: raise RuntimeError('compile failed: '+compiled.stderr)
+            run_number=0
             def run(changed=None,target=None):
+                nonlocal run_number
+                run_number+=1
                 code=dict(texts); code.update(changed or {})
                 if code['controller'].count('return Ctl\n')!=1: raise RuntimeError('Controller export drift')
                 code['controller']=code['controller'].replace('return Ctl\n',expose,1)
@@ -673,9 +832,9 @@ def main():
                     marker=work/(name+'-loading.lua')
                     marker.write_text('__residencePhase='+json.dumps('LOADING '+name),encoding='utf-8');paths.append(marker)
                     path=work/(name+'.lua');path.write_text(text,encoding='utf-8');paths.append(path)
-                done=subprocess.run([str(jdk/'java.exe'),'-Djava.awt.headless=true','-cp',
+                done=execute([str(jdk/'java.exe'),'-Djava.awt.headless=true','-cp',
                     str(work)+os.pathsep+str(game/'projectzomboid.jar'),'LuaRun',*map(str,paths),'--','__residenceResults'],
-                    cwd=work,capture_output=True,text=True,timeout=60)
+                    work,str(run_number)+'-control-'+target if target else 'production')
                 checks=dict(re.findall(r'^([a-z0-9_]+)=(true|false)$',done.stdout.replace('VALUE ',''),re.M))
                 if target:
                     if done.returncode and 'RESIDENCE:'+target in done.stdout:
@@ -691,9 +850,13 @@ def main():
                 if texts[name].count(before)!=1: raise RuntimeError(target+': mutation anchor differs')
                 mutant=run({name:texts[name].replace(before,after,1)},target)
                 if mutant[target]!='false': raise RuntimeError(target+': production mutation survived')
+            receipt.update(status='PASS',cases=len(checks),controls=len(CONTROLS),inputs_after={str(p):digest(p) for p in inputs})
+            if receipt['inputs_before']!=receipt['inputs_after']: raise RuntimeError('relevant inputs changed during proof')
+            save()
             print(f'Border 226 PASS: residence planning; {len(checks)} production Kahlua cases; {len(CONTROLS)} named controls')
             return 0
     except Exception as error:
+        receipt.update(status='FAIL',error=str(error));save()
         print('FAULT residence planning:',error); return 1
 
 if __name__=='__main__': raise SystemExit(main())

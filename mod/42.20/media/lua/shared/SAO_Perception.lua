@@ -1191,6 +1191,8 @@ end
 -- never punished. Asleep, only what is effectively on top of you
 -- registers, and nothing else does.
 local observeOccupiedBuilding
+local APERTURE_STATES = { open = true, closed = true, barricaded = true,
+    smashed = true, clear = true, unknown = true }
 -- Re-observation refreshes evidence without replacing a different entrance.
 function P.exteriorLeadKey(lead)
     if type(lead) ~= "table" then return nil end
@@ -1199,13 +1201,13 @@ function P.exteriorLeadKey(lead)
         or not finiteSoundNumber(lead.cx) or not finiteSoundNumber(lead.cy)
         or not finiteSoundNumber(lead.surfaceX) or not finiteSoundNumber(lead.surfaceY)
         or not finiteSoundNumber(lead.z) or lead.z ~= math.floor(lead.z)
-        or (lead.kind ~= "door" and lead.kind ~= "wall")
+        or (lead.kind ~= "door" and lead.kind ~= "window" and lead.kind ~= "wall")
         or math.abs(lead.surfaceX - lead.cx) + math.abs(lead.surfaceY - lead.cy) ~= 0.5 then return nil end
     return buildingId .. ":" .. tostring(lead.surfaceX) .. ":" .. tostring(lead.surfaceY)
         .. ":" .. tostring(lead.cx) .. ":" .. tostring(lead.cy) .. ":" .. tostring(lead.z) .. ":" .. lead.kind
 end
 local function observeExteriorLead(id, body, b, fields, tick)
-    if #fields ~= 8 or not finiteSoundNumber(tick) or not body then return end
+    if (#fields ~= 8 and #fields ~= 9) or not finiteSoundNumber(tick) or not body then return end
     local rec = SAO.Identity and SAO.Identity.get(id)
     local own = SAO.Body and SAO.Body.get and SAO.Body.get(id)
     local ok, admitted = pcall(function()
@@ -1216,17 +1218,24 @@ local function observeExteriorLead(id, body, b, fields, tick)
     if not ok or not admitted then return end
     local key, sx, sy, z = fields[2], tonumber(fields[3]), tonumber(fields[4]), tonumber(fields[5])
     local x, y, kind = tonumber(fields[6]), tonumber(fields[7]), fields[8]
+    local apertureState = fields[9] or "unknown"
     if not string.match(key or "", "^%-?%d+$") or #key > 20
         or not finiteSoundNumber(sx) or not finiteSoundNumber(sy) or not finiteSoundNumber(z)
         or not finiteSoundNumber(x) or not finiteSoundNumber(y) or z ~= math.floor(z)
-        or (kind ~= "door" and kind ~= "wall")
+        or (kind ~= "door" and kind ~= "window" and kind ~= "wall")
+        or not APERTURE_STATES[apertureState]
         or math.abs(sx - x) + math.abs(sy - y) ~= 0.5 then return end
     local lead = { buildingId = key, cx = x, cy = y, z = z,
         surfaceX = sx, surfaceY = sy, kind = kind, at = tick,
-        source = "native-visible-exterior", personId = tostring(id) }
+        source = "native-visible-exterior", personId = tostring(id), apertureState = apertureState }
     local approachId = P.exteriorLeadKey(lead)
     if not approachId then return end
     b.buildingLeads = b.buildingLeads or {}
+    local prior = b.buildingLeads[approachId]
+    if prior and (apertureState == "unknown" or (prior.apertureState or "unknown") == "unknown"
+        or apertureState == prior.apertureState) then
+        lead.entryFailure = prior.entryFailure
+    end
     if not b.buildingLeads[approachId] then
         local count, oldestKey, oldest = 0, nil, nil
         for savedKey, lead in pairs(b.buildingLeads) do
@@ -1237,6 +1246,58 @@ local function observeExteriorLead(id, body, b, fields, tick)
     end
     b.buildingLeads[approachId] = lead
     P.beliefVersion = P.beliefVersion + 1
+end
+
+-- Native route ownership authenticates the observation. A failed route's goal
+-- never substitutes for the edge the body actually encountered.
+function P.noteEntryOutcome(id, body, job)
+    local rec = SAO.Identity and SAO.Identity.get(id)
+    local own = SAO.Body and SAO.Body.get and SAO.Body.get(id)
+    local live = SAO.Locomotion and SAO.Locomotion.jobs and SAO.Locomotion.jobs[id]
+    local edge = type(job) == "table" and job.barrier
+    if type(job) ~= "table" or not rec or rec.dead or own ~= body or live ~= job or not job.done or job.body ~= body
+        or type(edge) ~= "table" or edge.source ~= "native-route-interaction"
+        or job.result ~= "FailedObstacle:" .. tostring(edge.reason) then return false end
+    local accepted = { FAILED_LOCKED_DOOR = "door", FAILED_BARRICADED_DOOR = "door",
+        FAILED_BARRICADED_WINDOW = "window", FAILED_WINDOW_DECLINED = "window",
+        FAILED_BLOCKED_WINDOW = "window" }
+    if accepted[edge.reason] ~= edge.kind then return false end
+    for _, value in ipairs({ edge.x, edge.y, edge.tx, edge.ty, edge.z }) do
+        if not finiteSoundNumber(value) or value ~= math.floor(value) then return false end
+    end
+    if not (finiteSoundNumber(edge.x) and finiteSoundNumber(edge.y)
+        and finiteSoundNumber(edge.tx) and finiteSoundNumber(edge.ty) and finiteSoundNumber(edge.z))
+        or math.abs(edge.x - edge.tx) + math.abs(edge.y - edge.ty) ~= 1 then return false end
+    local ok, at, tick = pcall(function()
+        local md = body:getModData()
+        if body:isDead() or body:isAsleep() or not md or tostring(md.SAOPersonId) ~= tostring(id)
+            or md.SAO_ObserverAnchor then return nil end
+        return SAO.History.countyHours(), SAO.History.ticks()
+    end)
+    if not ok or not finiteSoundNumber(at) or not finiteSoundNumber(tick) then return false end
+    local b, scanned = P.beliefs[id], 0
+    for key, lead in pairs(b and b.buildingLeads or {}) do
+        scanned = scanned + 1
+        if scanned > 64 then break end
+        if type(lead) == "table" and lead.personId == tostring(id)
+            and lead.source == "native-visible-exterior" and P.exteriorLeadKey(lead) == key
+            and finiteSoundNumber(lead.at) and lead.at <= tick and lead.kind == edge.kind
+            and lead.cx == edge.x + 0.5 and lead.cy == edge.y + 0.5 and lead.z == edge.z
+            and lead.surfaceX == (edge.x + edge.tx + 1) / 2
+            and lead.surfaceY == (edge.y + edge.ty + 1) / 2 then
+            if job.entryOutcomeRecorded then return false end
+            local old = lead.entryFailure
+            local attempts = type(old) == "table" and tonumber(old.attempts) or 0
+            if not finiteSoundNumber(attempts) then attempts = 0 end
+            lead.entryFailure = { reason = edge.reason, apertureState = edge.apertureState,
+                at = tick, atHours = at, attempts = math.min(4, math.max(0, attempts) + 1),
+                source = "native-route-interaction" }
+            job.entryOutcomeRecorded = true
+            P.beliefVersion = P.beliefVersion + 1
+            return true
+        end
+    end
+    return false
 end
 function P.observe(id, body, tick, asleep)
     local b = store(id)
@@ -3035,7 +3096,16 @@ function P.knownBuildingLeads(id, tick)
             and not (known and (known.visits or 0) > 0) then
             leads[key] = { buildingId = lead.buildingId, cx = lead.cx, cy = lead.cy, z = lead.z,
                 surfaceX = lead.surfaceX, surfaceY = lead.surfaceY, kind = lead.kind,
-                at = lead.at, source = lead.source, personId = lead.personId }
+                at = lead.at, source = lead.source, personId = lead.personId,
+                apertureState = APERTURE_STATES[lead.apertureState] and lead.apertureState or "unknown" }
+            local failure = lead.entryFailure
+            if type(failure) == "table" and failure.source == "native-route-interaction"
+                and finiteSoundNumber(failure.at) and (not tick or failure.at <= tick)
+                and finiteSoundNumber(failure.atHours) and finiteSoundNumber(failure.attempts)
+                and failure.attempts >= 1 and failure.attempts <= 4 then
+                leads[key].entryFailure = { reason = failure.reason, apertureState = failure.apertureState,
+                    at = failure.at, atHours = failure.atHours, attempts = failure.attempts, source = failure.source }
+            end
         end
     end
     return leads

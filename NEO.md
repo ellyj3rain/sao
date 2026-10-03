@@ -36,6 +36,13 @@ of skill.
   verification for the behaviors and contracts the batch affects. Existing
   applicable checks and evidence satisfy that verification; a new or changed
   instrument has a control that flips its verdict for the stated reason.
+- **Product-sized batches.** Organize batches around a coherent product outcome.
+  Agent assignments, individual edits, supporting tools, validation, documentation
+  and publication are work inside that outcome. A batch closes when its live
+  producer, decision or consumer, persistence where needed, and relevant proof
+  establish the promised behavior. Supporting repairs stay with the outcome they
+  serve. Preserve existing batch history; a catalogue reorganization needs its
+  own explicit operator direction.
 - **Commit shape.** `[C#] source: ...` for implementation, `[C#] reference: ...`
   for records and documents, `[C#] governance: ...` for closings and process,
   `[REPO] ...` for repository mechanics. One batch is one logical unit and

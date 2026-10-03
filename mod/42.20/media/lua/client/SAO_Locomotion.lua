@@ -53,6 +53,21 @@ local function routeProgress(job)
     return false
 end
 
+local function captureBarrier(job, verdict)
+    local ok, text = pcall(function() return SAOJavaBridge:moveBarrier(job.body) end)
+    if not ok or type(text) ~= "string" then return end
+    local x, y, tx, ty, z, kind, condition, reason = text:match(
+        "^MOVE_BARRIER@([^@]+)@([^@]+)@([^@]+)@([^@]+)@([^@]+)@([^@]+)@([^@]+)@([^@]+)$")
+    x, y, tx, ty, z = finite(x), finite(y), finite(tx), finite(ty), finite(z)
+    if not (x and y and tx and ty and z) or x ~= math.floor(x) or y ~= math.floor(y)
+        or tx ~= math.floor(tx) or ty ~= math.floor(ty) or z ~= math.floor(z)
+        or math.abs(tx - x) + math.abs(ty - y) ~= 1
+        or (kind ~= "door" and kind ~= "window")
+        or verdict ~= "FailedObstacle:" .. tostring(reason) then return end
+    job.barrier = { x = x, y = y, tx = tx, ty = ty, z = z,
+        kind = kind, apertureState = condition, reason = reason, source = "native-route-interaction" }
+end
+
 -- [B47] One door out: everything this module says goes
 -- through the shared logger.
 local function log(msg) SAO.Log.line("LOCO", msg) end
@@ -189,6 +204,7 @@ local function tickInner(id)
         return
     end
     if verdict:find("Failed", 1, true) or verdict == "IDLE" or verdict:find("_FAILED", 1, true) then
+        captureBarrier(job, verdict)
         job.done, job.result = true, verdict
         observed(id, "failed", job, verdict)
         return

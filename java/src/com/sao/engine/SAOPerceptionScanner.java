@@ -14,6 +14,9 @@ import zombie.characters.animals.IsoAnimal;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoGridSquare;
 import zombie.iso.LosUtil;
+import zombie.iso.IsoObject;
+import zombie.iso.objects.IsoDoor;
+import zombie.iso.objects.IsoWindow;
 import zombie.iso.weather.ClimateManager;
 import zombie.inventory.ItemContainer;
 import zombie.scripting.objects.CharacterTrait;
@@ -353,9 +356,12 @@ public final class SAOPerceptionScanner {
                         outside.getY() + offset[1], z);
                     zombie.iso.BuildingDef def = inside == null ? null : inside.getBuildingDef();
                     if (def == null || inside.isOutside()) continue;
-                    boolean door = outside.getDoorTo(inside) != null;
-                    if (pass == 0 ? !door : door || !outside.isWallTo(inside)) continue;
-                    if (!door && (buildingsWithDoors.contains(def.getID())
+                    IsoObject doorObject = outside.getDoorTo(inside);
+                    IsoWindow window = outside.getWindowTo(inside);
+                    boolean door = doorObject != null;
+                    boolean opening = door || window != null;
+                    if (pass == 0 ? !opening : opening || !outside.isWallTo(inside)) continue;
+                    if (!opening && (buildingsWithDoors.contains(def.getID())
                             || buildingsWithWalls.contains(def.getID()))) continue;
                     // Empty terrain needs no LOS query. Only a possible loaded
                     // boundary reaches the same actor-specific visibility law.
@@ -363,17 +369,35 @@ public final class SAOPerceptionScanner {
                     String boundaryKey = def.getID() + ":" + outside.getX() + ":" + outside.getY()
                         + ":" + inside.getX() + ":" + inside.getY() + ":" + z + ":" + door;
                     if (!emitted.add(boundaryKey)) continue;
-                    if (door) buildingsWithDoors.add(def.getID());
+                    if (opening) buildingsWithDoors.add(def.getID());
                     else buildingsWithWalls.add(def.getID());
                     if (out.length() > 0) out.append('|');
                     out.append("B:").append(def.getID()).append(':')
                         .append((outside.getX() + inside.getX() + 1) / 2.0f).append(':')
                         .append((outside.getY() + inside.getY() + 1) / 2.0f).append(':').append(z).append(':')
                         .append(outside.getX() + 0.5f).append(':').append(outside.getY() + 0.5f).append(':')
-                        .append(door ? "door" : "wall");
+                        .append(door ? "door" : window != null ? "window" : "wall")
+                        .append(':').append(exteriorApertureState(observer, doorObject, window));
                 }
             }
         }
+    }
+
+    /** Only visible condition is exported. A closed opening does not reveal a
+     * lock, and a barricade on its hidden side is not a visual observation. */
+    private static String exteriorApertureState(IsoGameCharacter observer,
+            IsoObject doorObject, IsoWindow window) {
+        if (doorObject instanceof IsoDoor door) {
+            if (door.getBarricadeForCharacter(observer) != null) return "barricaded";
+            return door.IsOpen() ? "open" : "closed";
+        }
+        if (window != null) {
+            if (window.getBarricadeForCharacter(observer) != null) return "barricaded";
+            if (window.IsOpen()) return "open";
+            if (window.isSmashed()) return window.isGlassRemoved() ? "clear" : "smashed";
+            return "closed";
+        }
+        return "unknown";
     }
 
     private static Set<SightTile> knownSightTiles(String text) {

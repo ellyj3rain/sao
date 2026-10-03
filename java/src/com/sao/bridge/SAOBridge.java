@@ -2852,6 +2852,18 @@ public final class SAOBridge {
         }
     }
 
+    /** Read the exact barrier encountered by this body's last native route. */
+    public String moveBarrier(Object object) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) return "NOT_A_SHELL";
+            SAORouteState state = routes.get(shell);
+            return state == null || state.barrierResult == null
+                ? "MOVE_BARRIER_UNAVAILABLE" : state.barrierResult;
+        } catch (Throwable unavailable) {
+            return "MOVE_BARRIER_UNAVAILABLE";
+        }
+    }
+
     public String horseRoutePoint(Object object) {
         try {
             if (!(object instanceof SAOIsoPlayerShell shell)) {

@@ -1,0 +1,87 @@
+{
+  "schema": "sao-route-progress/1",
+  "status": "passed",
+  "controls": [
+    {
+      "name": "separation-exclusive",
+      "assertion": "exact_separation_boundary_keeps_revision",
+      "rejected": true
+    },
+    {
+      "name": "unsafe-separation-retained",
+      "assertion": "below_separation_boundary_revises",
+      "rejected": true
+    },
+    {
+      "name": "verdict-stall-restored",
+      "assertion": "repeated_verdict_with_physical_progress_survives",
+      "rejected": true
+    },
+    {
+      "name": "stall-disabled",
+      "assertion": "stationary_route_stalls",
+      "rejected": true
+    },
+    {
+      "name": "final-goal-instead-of-native-waypoint",
+      "assertion": "native_detour_away_from_final_goal_survives",
+      "rejected": true
+    },
+    {
+      "name": "tactical-motion-revision-restored",
+      "assertion": "actor_motion_keeps_revision",
+      "rejected": true
+    },
+    {
+      "name": "changed-threat-ignored",
+      "assertion": "changed_private_threat_context_revises",
+      "rejected": true
+    },
+    {
+      "name": "new-private-cover-ignored",
+      "assertion": "same_coordinate_private_cover_revises",
+      "rejected": true
+    },
+    {
+      "name": "procedure-failure-ignored",
+      "assertion": "known_procedure_failure_revises",
+      "rejected": true
+    },
+    {
+      "name": "intermittent-progress-restored",
+      "assertion": "intermittent_waypoint_reads_do_not_grant_progress_MOVE_PROGRESS_UNAVAILABLE",
+      "rejected": true
+    },
+    {
+      "name": "equal-intent-bypasses-evidence",
+      "assertion": "same_coordinate_private_cover_revises",
+      "rejected": true
+    },
+    {
+      "name": "known-cover-floor-ignored",
+      "assertion": "same_spatial_key_changed_floor_revises",
+      "rejected": true
+    },
+    {
+      "name": "native-node-advance-hidden",
+      "assertion": "actual_node_advance_visible",
+      "rejected": true
+    },
+    {
+      "name": "bridge-read-guard-removed",
+      "assertion": "injected-route-read",
+      "rejected": true
+    }
+  ],
+  "sources": {
+    "mod\\42.20\\media\\lua\\client\\SAO_Locomotion.lua": "decbd27c32ce736d660260d96c9cd6e8e719ba9b5bfecf484da0d285d30ff9c7",
+    "mod\\42.20\\media\\lua\\shared\\SAO_Coordination.lua": "8e971c32de2d601b3345649a5efd470d40874013c475a7d99cb415044e9e41dd",
+    "mod\\42.20\\media\\lua\\shared\\SAO_Organization.lua": "8e3ca1ba0aa460fb67c46ce1547b86337128bc7c19a9731ec621025d1af40f02",
+    "java\\src\\com\\sao\\engine\\SAORouteState.java": "d80784743e1bcae6c966bbe8f4d24eb21c9c2df2bb10fa4e3131501e724ac834",
+    "java\\src\\com\\sao\\bridge\\SAOBridge.java": "42230d7c90a4e410ff4bca171ff37b8c3a0468b41bf92745a2ff72e3401361fc"
+  },
+  "routeCases": 31,
+  "tacticalCases": 56,
+  "nativeCases": 6,
+  "bridgeCases": 3
+}
