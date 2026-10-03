@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.10.3.3-pre-alpha` |
+| Version | `3.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1808,3 +1808,15 @@ the applied command and captured native float pose. Missing observations and
 death clear current claims. Manual camera control and automatic resumption are
 per site; zoom remains the engine's existing projection operation. Current
 control samples and pictured viewport metadata retain separate source clocks.
+
+### Continuous native observation (C116)
+
+`StudyVideoCapture` owns bounded asynchronous framebuffer readback and encoded
+publication under the isolated observer. Optional encoder/fps arguments travel
+through the study session into initial and resumed runs. Per-fragment crop
+identity and pixel bounds require every sampled frame to agree; full camera
+pose and native command epochs require their own stronger agreement. Actual
+capture/frame/world intervals persist without interpolation. Speakeasy owns
+source-bound relay validation, Mousecat owns shared decode and presentation.
+Native cutaway retains the engine alpha owner. Observation produces no NPC
+knowledge, result receipt or training admission by itself.

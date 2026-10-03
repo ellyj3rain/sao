@@ -15,7 +15,7 @@ def run():
     native = os.pathsep.join(str(GAME / name) for name in ("projectzomboid.jar", "ZombieBuddy.jar"))
     with tempfile.TemporaryDirectory(prefix="sao-lua-lookup-") as temporary:
         work = Path(temporary)
-        names = ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java", "StudyExport.java", "NativeBreakpointLookupProbe.java")
+        names = ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java", "StudyVideoCapture.java", "StudyExport.java", "NativeBreakpointLookupProbe.java")
         subprocess.run([str(JDK / "javac.exe"), "-encoding", "UTF-8", "-cp", native, "-d", str(work),
             *(str(source / name) for name in names)], check=True, cwd=GAME, timeout=60)
         def agent(name, entry):

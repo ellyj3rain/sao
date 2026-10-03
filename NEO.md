@@ -33,8 +33,9 @@ of skill.
 - **Batch shape.** A batch is a coherent development unit, closed when the
   work is done, not when a message ends. Closing a batch means the record, the
   `BATCH_LOG.md` row, and the `SESSION_STATE.md` advance, in that order, plus
-  a border for the class the batch found and a control that flips the verdict
-  for the stated reason.
+  verification for the behaviors and contracts the batch affects. Existing
+  applicable checks and evidence satisfy that verification; a new or changed
+  instrument has a control that flips its verdict for the stated reason.
 - **Commit shape.** `[C#] source: ...` for implementation, `[C#] reference: ...`
   for records and documents, `[C#] governance: ...` for closings and process,
   `[REPO] ...` for repository mechanics. One batch is one logical unit and
@@ -55,11 +56,20 @@ of skill.
 - **Verify the tool before trusting its output.** An analysis script is not
   evidence until its own correctness is established against a known-bad
   control.
-- **The gate.** `tools/check.sh` runs every border; the pre-commit hook runs
-  it; CI runs it on every push. Run it before every commit and read the whole
-  verdict, including the exit code. A border that reads the installed game
-  reports SKIPPED and returns 0 where the game is absent, because CI has no
-  game and a machine without one has no defect; Border 128 holds that.
+- **Testing and validation.** Follow `GOVERNANCE.md`'s standing testing
+  and validation rule. Identify changed inputs, affected behaviors and
+  contracts, and reusable evidence before choosing the smallest sufficient
+  checks. Preserve applicable successes across repairs, commits and
+  publication; broaden for affected interfaces, fundamental behavior,
+  wider defects, material uncertainty or an explicit operator request.
+  `tools/check.sh` is the full suite, selected for those reasons.
+  Scale analysis to new interactions and uncertainty as the project grows;
+  preserve settled decisions and justified conclusions, and consolidate
+  repeated work. Each check or review resolves a relevant uncertainty.
+  Read the actual verdict and exit status. Skipped or unobservable
+  behavior remains unverified; Border 128 holds the absent-game boundary.
+  The governance rule states how to avoid redundant local hook runs and
+  identifies required remote CI as a separate concrete constraint.
 - **Publishing.** A closed batch reaches `origin/main` through a branch and a
   pull request, merged by you. `main` is protected and refuses a direct push.
   The shape is CAO's, read off its merged pull requests:

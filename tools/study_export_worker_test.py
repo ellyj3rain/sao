@@ -46,7 +46,7 @@ def run():
         fixture = work / "checks.lua"
         fixture.write_text(prefix + "\n" + TRIALS, encoding="utf-8")
         classpath = str(jar) + os.pathsep + str(GAME / "ZombieBuddy.jar")
-        names = ("StudyExport.java", "StudyObserver.java", "StudyViewCapture.java", "NativeAsyncStudyExportProbe.java")
+        names = ("StudyExport.java", "StudyObserver.java", "StudyViewCapture.java", "StudyVideoCapture.java", "NativeAsyncStudyExportProbe.java")
 
         observer = (Lab.ROOT / "tools/world_lab/StudyObserver.java").read_text(encoding="utf-8")
 

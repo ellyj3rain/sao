@@ -1,11 +1,54 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.10.3.3-pre-alpha` |
+| Version | `3.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+Standing validation follows DR-054 and GOVERNANCE.md's testing and
+validation rule. Scope checks to changed inputs, affected contracts and
+the task objective, preserve applicable passing evidence, and distinguish
+failed, incomplete, skipped and unobservable results. Analysis deepens for
+new interactions and uncertainty while established knowledge and completed
+checks reduce work elsewhere; each check or review has a relevant purpose.
+Commits and publication alone do not require a repeated full run. Required
+remote CI is a concrete separate constraint. The active C116 source run retained its
+frozen inputs while this workflow update was prepared.
+
+GZDS's founding-document validation regulation is an early follow-up
+requested by the operator; ROADMAP.md retains its scope.
+
+**As of** 2026-10-03 04:33 UTC / 21:33 PST, [C116](Batches/C116-20261003-0433Z-2133PST-continuous-native-observation.md) adds optional continuous native
+H264 observation with actual encoded-frame clocks and bounded source receipts.
+Two native slots now retain 1280 by 720 frames. Stable crop geometry qualifies
+independently of moving camera poses; unknown pose acquires no pictured identity
+or overlay. Forced IDR boundaries retain low-rate fragment decodability.
+The selected capture ceiling is 120 and native rendering remains uncapped.
+Configured ceilings, callbacks and accepted PNGs remain distinct from FPS.
+
+Twenty-eight producer cases, nineteen producer/runner controls and eight renderer
+cases pass. The installed repaired trial uses one decoder for both subject
+surfaces and the Window: 1132 shared decoded presentations in 30 seconds, about
+37.7333/s, with no sampled decoder resets or media errors. This measures viewer
+presentations, not engine FPS. The native Window fits its whole client area and
+reveals tools over the picture without reflowing it. Its saved navigation posts
+no native command. Attempt 10 saved normally with exit zero and no runtime errors;
+package and saved-state inventories verify. The complete normal gate passed on
+the frozen native-source candidate; later workflow metadata receives separate
+scoped checks and reuses applicable runtime evidence under DR-054. Earlier
+diagnostic runs remain separate from this acceptance.
+Both new test drivers carry explicit failure returns; selected failing CLI
+controls exit one and silent-zero mutations are detected. Their fixture bodies
+retain the verified source behavior. All 237 mirrors are reachable and can fail.
+The uninterrupted gate identified stale canonical inventory counts; the current
+claims now state 237 invoked test files and 253 distinct scripts. The corrected
+records and current renderer duration retain the tested runtime source.
+The installed Mousecat A26 public source preserves the same saved binding and
+28 pending items. Its actual Window and lazy 40-record/38-reference map browse
+locally without a native command or source advance.
+
 
 **As of** 2026-10-03 03:08 UTC / 20:08 PST, [C115](Batches/C115-20261003-0308Z-2008PST-persistent-subject-observation.md) retains optional sealed subject
 assignments in the observer layout. Speakeasy R87 follows each exact person
@@ -1624,8 +1667,8 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, plus C105's outcome and export-worker controls, the
-repository holds 235 `*_test.py` files. The gate invokes 235 `*_test.py` files
-and 16 other Python entry points, 251 distinct scripts, through direct calls
+repository holds 237 `*_test.py` files. The gate invokes 237 `*_test.py` files
+and 16 other Python entry points, 253 distinct scripts, through direct calls
 and its mirror loop. Native suites also invoke their own controls.
 Border labels extend through 233; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod

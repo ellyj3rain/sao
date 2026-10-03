@@ -254,6 +254,7 @@ UNITS = [
     ('C113', 'patch', 'Repair native study viewing by separating sealed observation areas from saved world identity. Existing camera, renderer, save and gameplay owners remain in place, so patch.'),
     ('C114', 'patch', 'Remove artificial capture pacing and enable native uncapped rendering after startup in isolated observers. Existing publication, save, image and gameplay contracts remain, so patch.'),
     ('C115', 'patch', 'Repair observer identity persistence with optional sealed subject assignments. Existing native slots, save, gameplay and publication owners remain, so patch.'),
+    ('C116', 'minor', 'Introduce optional source-bound native H264 capture with independent crop receipts, exact frame clocks and bounded fragment publication. This is a new observation runtime contract, so minor.'),
 ]
 
 TIER_MEANINGS = [

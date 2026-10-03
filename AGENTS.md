@@ -16,6 +16,11 @@ rest, so they are listed here, in the file that loads on its own:
 `ARCHITECTURE.md` when you touch a pillar. `MEMORY.md` indexes every
 root document and says which are canonical, append-only or historical.
 
+**Testing and validation.** Follow the standing rule in `GOVERNANCE.md`.
+Before checks, identify changed inputs, affected contracts and reusable
+evidence. Select sufficient checks for the task; commit and publication
+events alone do not require another full run.
+
 ## Two things that are decided, so do not ask
 
 **Publishing.** A closed batch reaches `origin/main` through a branch

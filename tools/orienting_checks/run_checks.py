@@ -74,7 +74,7 @@ def main(argv=None, *, default_root=None):
                      HERE / "LateNativeLoadAgent.java", HERE / "LateNativeLoadProbe.java", HERE / "late_loading.py",
                      Path(__file__).resolve(), HERE.parent / "orienting_native_test.py"]
         required += [root / "tools/world_lab" / name for name in
-                     ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java", "StudyExport.java")]
+                     ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java", "StudyVideoCapture.java", "StudyExport.java")]
         assert all(path.is_file() for path in required), "missing owned orientation input: " + ", ".join(str(p) for p in required if not p.is_file())
         java_sources = sorted((root / "java/src").rglob("*.java"))
         input_paths = list(dict.fromkeys(required + java_sources))

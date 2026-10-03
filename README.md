@@ -43,7 +43,7 @@ on the simulation.
 
 ## Status
 
-`3.10.3.3-pre-alpha` - the coordinate is computed by the version machine
+`3.11.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -325,9 +325,13 @@ defects exposed in play, and observations still open. Mechanical closure and
 play acceptance are distinct: an unobserved surface remains unobserved, and a
 fix made from a play receipt awaits observation of its resulting behavior.
 
-Numbered mechanical and behavioural checks run on every commit; their count
-lives in `SESSION_STATE.md`. The implementation audit reproduced defects
-while targeted checks passed, so a green gate establishes only what its
+Mechanical and behavioural validation follows the changed inputs, affected
+contracts and task objective under `GOVERNANCE.md`'s testing rule. Analysis
+deepens for new interactions and uncertainty as the project grows; settled
+decisions, justified conclusions and established evidence carry forward. Applicable
+passing evidence is retained across edits and publication; the full suite
+runs when scope, risk, uncertainty or an explicit request warrants it. Check
+counts live in `SESSION_STATE.md`. A green result establishes only what its
 instruments can observe. Engine claims are checked against the installed
 `projectzomboid.jar` and shipped scripts.
 
@@ -452,3 +456,5 @@ GPL-3.0 - full text in `LICENSE`. Attribution and per-source
 integration status in `CREDITS.md`.
 
 C115 retains optional sealed observer subject assignments through saved continuation. The paired viewer follows each assigned person independently; continuous video and ancillary causal observation continue in the next slice.
+
+C116 supplies optional continuous native H264 observation with independent crop receipts, actual source frame clocks and two wide native subject views. Window Fit and saved-frame navigation preserve useful inspection after the source ends; gameplay and learning retain their existing owners.

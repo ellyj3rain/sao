@@ -222,7 +222,7 @@ def native_checks(root):
     classes = root / "classes"; classes.mkdir()
     native = os.pathsep.join(str(GAME / name) for name in ("projectzomboid.jar", "ZombieBuddy.jar"))
     execute([JDK / "javac.exe", "-cp", native, "-d", classes,
-             *(source / name for name in ("StudyObserver.java", "StudyViewCapture.java", "StudyLoadingAgent.java", "StudyExport.java",
+             *(source / name for name in ("StudyObserver.java", "StudyViewCapture.java", "StudyVideoCapture.java", "StudyLoadingAgent.java", "StudyExport.java",
                                           "NativeObserverSitesProbe.java", "NativeRegionalCaptureProbe.java", "NativeObserverResidencyProbe.java")),
              Lab.ROOT / "tools/luacheck/LuaRun.java"], root)
     manifest = root / "agent.mf"; manifest.write_text("Manifest-Version: 1.0\nPremain-Class: StudyLoadingAgent\nCan-Retransform-Classes: true\n\n")

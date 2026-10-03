@@ -47,8 +47,12 @@ public final class StudyViewCapture {
         return worker;
     });
     private static ByteBuffer captureBuffer;
-    record FrameStamp(long observerSequence, double hours, StudyObserver.SiteFrame[] sites) {
+    record FrameStamp(long observerSequence, double hours, StudyObserver.SiteFrame[] sites,
+                      StudyVideoCapture.Site[] videoSites) {
         FrameStamp(long observerSequence, double hours) { this(observerSequence, hours, new StudyObserver.SiteFrame[0]); }
+        FrameStamp(long observerSequence, double hours, StudyObserver.SiteFrame[] sites) {
+            this(observerSequence, hours, sites, new StudyVideoCapture.Site[0]);
+        }
     }
     private static final Map<Object, FrameStamp> FRAMES = Collections.synchronizedMap(new IdentityHashMap<>());
     private static final ThreadLocal<FrameStamp> RENDERED = new ThreadLocal<>();
@@ -95,8 +99,9 @@ public final class StudyViewCapture {
                 || !Boolean.TRUE.equals(anchor.getModData().rawget("SAO_ObserverStarted"))) return;
         // Game thread: camera and draw buffers are already populated for this
         // exact native state. Do not infer its command from a later timestamp.
+        var sites = StudyObserver.siteFrames();
         FRAMES.put(frame, new FrameStamp(StudyObserver.commandSequence(),
-            zombie.GameTime.getInstance().getWorldAgeHours(), StudyObserver.siteFrames()));
+            zombie.GameTime.getInstance().getWorldAgeHours(), sites, StudyVideoCapture.snapshotSites(sites)));
     }
 
     public static void rendering() {
@@ -113,7 +118,8 @@ public final class StudyViewCapture {
         FrameStamp frame = RENDERED.get();
         RENDERED.remove();
         if (failure != null || frame == null) return;
-        request(frame);
+        StudyVideoCapture.swapped(frame);
+        if (StudyVideoCapture.pngDue()) request(frame);
     }
 
     private static void request(FrameStamp frame) {

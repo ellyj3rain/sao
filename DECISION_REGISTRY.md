@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `3.10.3.3-pre-alpha` |
+| Version | `3.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1852,3 +1852,29 @@ carried-cooler updates, plus complete installed candidate discovery. The
 records the wider work and its unresolved producers. Real human infant anatomy,
 chronological growth, whole-source clinical integration, utility work, movement,
 exercise, repair and preservation retain their own executable joins and proofs.
+
+## DR-054 | 2026-10-03 07:19 UTC / 00:19 PST | Proportionate validation and evidence reuse
+
+**Status.** RATIFIED by the operator's standing workflow instruction on
+2026-10-03.
+
+**Decision.** Validation follows changed inputs, affected behaviors and
+contracts, relevant dependencies and the larger task objective. Applicable
+passing evidence persists while its relevant implementation, test, dependencies,
+configuration and environment remain unchanged. Focused checks resolve the
+necessary uncertainties; broader and full runs follow the specific reasons in
+GOVERNANCE.md or an explicit operator request. Process scales with maturity:
+deeper analysis addresses new interactions and uncertainty; established knowledge,
+settled decisions and justified conclusions carry forward until relevant changes
+or findings warrant reopening. Redundant procedure and repeated analysis retire
+so project size does not become every change's workload. Each check and review
+resolves a relevant uncertainty in the larger objective.
+
+**Application.** GOVERNANCE.md owns the standing rule. NEO.md and both autoload
+shims direct sessions to it; the README and pull-request template use the same
+validation posture. Metadata repairs receive their relevant checks and invoke
+runtime tests for demonstrated runtime or packaging dependencies. Independently
+valid successes survive another check's failure. Failed, incomplete, skipped
+and unobservable results retain their actual status. Cheap invalidating checks
+precede expensive ones, and equivalent active checks are not duplicated.
+Legacy local hook invocation and required remote CI are recorded separately.
