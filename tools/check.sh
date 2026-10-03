@@ -2397,6 +2397,20 @@ if ! "$PY" tools/world_lab_observer_layout_test.py; then
     fail=1
 fi
 
+# Border 234 - admitted native captures retain exact loss and camera receipts;
+# complete encoded bytes and bounded PBO/worker lifecycles have executable controls.
+if ! "$PY" tools/world_lab_native_video_test.py; then
+    note "BORDER FINDING - native video receipts, readback accounting or encoded bytes differ"
+    fail=1
+fi
+
+# Border 235 - installed native camera splits retain wide per-camera sources;
+# initial and resumed renderer options preserve dimensions without duplicate keys.
+if ! "$PY" tools/world_lab_renderer_test.py; then
+    note "BORDER FINDING - native per-camera aspect or renderer dimensions differ"
+    fail=1
+fi
+
 if ! "$PY" tools/source_integration_gate.py; then
     note "BORDER FINDING - source integration lineage or ownership claim differs"
     fail=1

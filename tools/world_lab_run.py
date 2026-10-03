@@ -26,6 +26,22 @@ import world_lab_supervision as Supervision
 import world_lab_profiles as Profiles
 import world_lab_observer_layout as ObserverLayout
 
+OBSERVER_SOURCES = ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java",
+                    "StudyExport.java", "StudyVideoCapture.java")
+
+
+def video_options(args):
+    encoder = getattr(args, "video_encoder", None)
+    fps = getattr(args, "video_fps", 120)
+    Lab.integer(fps, 30, 120, "video capture ceiling")
+    if encoder is None:
+        return {}
+    Lab.require(args.host == "observer", "native video requires observer host")
+    path = Path(encoder).resolve()
+    Lab.require(path.is_file() and not path.is_symlink(), "video encoder must be a local executable file")
+    Lab.require(path.suffix.lower() == ".exe", "video encoder must be a local Windows executable")
+    return {"videoEncoder": str(path), "videoFps": fps}
+
 
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -90,8 +106,7 @@ def build_observer_adapter(destination, game, jdk, source=None):
     classes.mkdir()
     subprocess.run([str(jdk / "javac.exe"), "-cp", os.pathsep.join(str(game / n)
                     for n in ("ZombieBuddy.jar", "projectzomboid.jar")), "-d", str(classes),
-                    *(str(source / name) for name in
-                      ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java", "StudyExport.java"))], check=True)
+                    *(str(source / name) for name in OBSERVER_SOURCES)], check=True)
     manifest = destination / "agent.mf"
     manifest.write_text("Manifest-Version: 1.0\nPremain-Class: StudyLoadingAgent\nCan-Retransform-Classes: true\n\n", encoding="utf-8")
     agent = destination / "StudyLoadingAgent.jar"
@@ -108,7 +123,7 @@ def refresh_observer_adapter(destination, attempt, game, jdk, previous, receipt)
     shutil.copy2(agent, replacement / "previous.jar")
     publish(replacement / "previous-run.json", previous)
     sources = {}
-    for name in ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java", "StudyExport.java"):
+    for name in OBSERVER_SOURCES:
         shutil.copy2(Lab.ROOT / "tools/world_lab" / name, replacement / name)
         sources[name] = digest(replacement / name)
     built = build_observer_adapter(replacement, game, jdk, source=replacement)
@@ -158,7 +173,10 @@ def verify_observer_adapter(destination, receipt):
     prior = Lab.load(root / "previous-run.json")
     Lab.require(prior["loadingAgentSha256"] == replacement["priorSha256"]
                 and prior["launchNumber"] == replacement["priorAttempt"], "observer adapter predecessor differs")
-    names = {"StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java", "StudyExport.java"}
+    # Completed predecessors retain their original four-source adapter receipt.
+    legacy = set(OBSERVER_SOURCES) - {"StudyVideoCapture.java"}
+    names = set(replacement["sources"])
+    Lab.require(names in (legacy, set(OBSERVER_SOURCES)), "observer adapter source inventory differs")
     Lab.require(set(replacement["sources"]) == names and all(
         digest(root / name) == replacement["sources"][name] for name in names), "observer adapter source differs")
 
@@ -234,8 +252,8 @@ def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None)
     # B42 otherwise treats a brand-new cache as a pre-B42 migration and clears
     # default.txt. These copied mods already carry native B42 version folders.
     (mods / "reset-mods-42_00.txt").write_text("Prepared with B42 study mods.\n", encoding="utf-8")
-    dimensions = "width=1920\nheight=1080\n" if len(definition["observation"].get("sites", [])) > 1 else "width=960\nheight=540\n"
-    (cache / "options.ini").write_text("version=8\n" + dimensions + "fullScreen=false\n"
+    width, height = renderer_dimensions(definition["observation"].get("sites", []))
+    (cache / "options.ini").write_text(f"version=8\nwidth={width}\nheight={height}\nfullScreen=false\n"
         "borderless=false\nlanguage=EN\ntermsOfServiceVersion=1\nsoundVolume=0\nmusicVolume=0\n"
         "ambientVolume=0\nvehicleEngineVolume=0\nvsync=false\nuncappedFPS=false\nframeRate=120\n"
         "showSurvivalGuide=false\n", encoding="utf-8")
@@ -253,13 +271,30 @@ def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None)
     return cache, user, agent, manifest, definition
 
 
-def prepare_renderer(cache):
+def renderer_dimensions(sites):
+    """Native IsoCamera halves two-site width and three/four-site height."""
+    Lab.require(isinstance(sites, list) and len(sites) <= 4, "renderer site count differs")
+    if len(sites) == 2:
+        return 2560, 720
+    return (1920, 1080) if len(sites) > 2 else (960, 540)
+
+
+def prepare_renderer(cache, dimensions=None):
     """Start at 120 FPS; the native observer enables uncapped after options load."""
+    if dimensions is not None:
+        Lab.require(isinstance(dimensions, (tuple, list)) and len(dimensions) == 2,
+                    "renderer dimensions differ")
+        Lab.integer(dimensions[0], 1, 4096, "renderer width")
+        Lab.integer(dimensions[1], 1, 2160, "renderer height")
     path = Path(cache) / "options.ini"
     lines = path.read_text(encoding="utf-8").splitlines()
     keys = {"uncappedFPS", "vsync", "frameRate"}
+    additions = []
+    if dimensions is not None:
+        keys.update(("width", "height"))
+        additions = [f"width={dimensions[0]}", f"height={dimensions[1]}"]
     lines = [line for line in lines if line.partition("=")[0].strip() not in keys]
-    path.write_text("\n".join([*lines, "frameRate=120", "uncappedFPS=false", "vsync=false", ""]), encoding="utf-8")
+    path.write_text("\n".join([*lines, *additions, "frameRate=120", "uncappedFPS=false", "vsync=false", ""]), encoding="utf-8")
 
 
 def terminal(log, attempt, save, hours, watch=False, last_observed_hours=None):
@@ -670,6 +705,7 @@ def verify_run(destination, package):
 
 def run(args):
     destination, game = Path(args.out).resolve(), Path(args.game).resolve()
+    video = video_options(args)
     refresh_adapter = getattr(args, "refresh_observer_adapter", False)
     Lab.require(not refresh_adapter or (args.resume and args.host == "observer"),
                 "observer adapter refresh requires an observer continuation")
@@ -684,6 +720,10 @@ def run(args):
                     "resume uses the original copied mods and simulation profile")
         manifest, definition = Lab.verify_package(args.package)
         previous = verify_run(destination, args.package)
+        if video and not refresh_adapter:
+            sources = previous.get("observerAdapterReplacement", {}).get("sources", {})
+            Lab.require("StudyVideoCapture.java" in sources,
+                        "video on a prior adapter requires --refresh-observer-adapter")
         if requested_layout is None:
             layout = ObserverLayout.from_receipt(previous, definition)
         Lab.require(previous.get("host", "player") == args.host, "resume must retain the native host kind")
@@ -734,12 +774,10 @@ def run(args):
         receipt = Lab.load(destination / "run.json")
         receipt["launchNumber"] = 1
     with observer_resume_transaction(destination, previous):
-        if args.host == "observer":
-            prepare_renderer(cache)
         ObserverLayout.bind(receipt, layout)
         selected_sites = ObserverLayout.sites(receipt, definition)
-        if layout is not None:
-            ObserverLayout.resize(cache, selected_sites)
+        if args.host == "observer":
+            prepare_renderer(cache, dimensions=renderer_dimensions(selected_sites))
         attempt = destination / "attempts" / f"{receipt['launchNumber']:04d}"
         attempt.mkdir(parents=True, exist_ok=False)
         if refresh_adapter:
@@ -800,6 +838,7 @@ def run(args):
                 for index, site in enumerate(sites):
                     for key in ("id", "label", "x", "y", "z"):
                         observer[f"site.{index}.{key}"] = site[key]
+            observer.update(video)
             command[1:1] = [f"-Dstudy.{key}={value}" for key, value in observer.items()]
         if args.trace_native:
             native_dump = attempt / "native-classes"
@@ -908,6 +947,10 @@ def main():
     parser.add_argument("--refresh-observer-adapter", action="store_true",
                         help="rebuild isolated observer infrastructure after verifying the saved predecessor")
     parser.add_argument("--trace-native", action="store_true", help="retain transformed native classes in this attempt for diagnosis")
+    parser.add_argument("--video-encoder", type=Path,
+                        help="local FFmpeg executable for continuous native H.264 video; PNG remains available")
+    parser.add_argument("--video-fps", type=int, default=120,
+                        help="native video capture ceiling from 30 to 120 FPS (default: 120); renderer remains uncapped")
     parser.add_argument("--replace-dead-player", action="store_true",
                         help="with --resume, preserve the deceased database and create a native replacement character")
     parser.add_argument("--hours", type=float, default=1)
@@ -928,6 +971,7 @@ def main():
     Lab.require(args.game is not None and args.jdk is not None, "launch requires --game and --jdk")
     Lab.number(args.hours, 1 / 3600, 24 * 365, "run hours")
     Lab.integer(args.timeout, 30, 604800, "wall-time limit")
+    video_options(args)
     return run(args)
 
 

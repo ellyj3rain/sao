@@ -571,7 +571,8 @@ public final class StudyObserver {
 
     /** Installed filming/render options, confined to this single-owner study
      * JVM. Geometry/materials remain native; terrain/model display is fullbright,
-     * without a camera LOS mask or fading. Native lighting and actor perception
+     * without a camera LOS mask. Native per-object cutaway/fading remains active.
+     * Native lighting and actor perception
      * receive no substituted inputs, including when the camera moves.
      */
     public static boolean configureGodView() {
@@ -585,7 +586,7 @@ public final class StudyObserver {
         var options = zombie.debug.DebugOptions.instance;
         options.fboRenderChunk.nolighting.setValue(true);
         options.fboRenderChunk.renderVisionPolygon.setValue(false);
-        options.terrain.renderTiles.forceFullAlpha.setValue(true);
+        options.terrain.renderTiles.forceFullAlpha.setValue(false);
         return true;
     }
 
@@ -1164,6 +1165,17 @@ public final class StudyObserver {
                 IsoCamera.getScreenWidth(index), IsoCamera.getScreenHeight(index));
         }
         return result;
+    }
+
+    /** Video also names the actual primary camera when PNG has no site crops. */
+    public static SiteFrame[] videoFrames() {
+        if (extraCameras.length > 0) return siteFrames();
+        if (camera == null || IsoPlayer.numPlayers != 1) return new SiteFrame[0];
+        boolean declared = System.getProperty("study.site.0.id") != null;
+        return new SiteFrame[] { new SiteFrame(declared ? siteIds[0] : "current",
+            declared ? siteLabels[0] : "Current view", 0, camera.getX(), camera.getY(), camera.getZ(),
+            IsoCamera.getScreenLeft(0), IsoCamera.getScreenTop(0),
+            IsoCamera.getScreenWidth(0), IsoCamera.getScreenHeight(0)) };
     }
 
     private static void statePublicationFailure(IOException cause) {

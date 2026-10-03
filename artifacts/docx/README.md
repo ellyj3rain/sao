@@ -18,3 +18,9 @@ The C112 current doc-pack, native-window batch record and integration scope are
 exported under `audits/c112-currency-drafts/`. All 25 packages pass ZIP and
 document-XML checks. They retain the package-checked draft status above;
 visual rendering is unavailable and Markdown owns the current content.
+
+The C116 standing validation policy and affected canonical documents accompany
+the current native-observation doc-pack under audits/c116-currency-drafts/.
+The retained policy export receipt records source hashes, twin mappings and
+ZIP/document-XML checks. These remain package-checked drafts; an Office visual
+render is unavailable, and Markdown owns the current content.

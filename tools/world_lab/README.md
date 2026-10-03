@@ -185,9 +185,9 @@ detaches values on the game thread and performs encoding, read-back and atomic
 publication on one worker. Live completion starts its next admission cooldown;
 the Lua owner alone acknowledges exact archived sequences. Capacity deferral
 distinguishes encoded bytes, detached nodes and detached depth. Native stop
-pauses time and drains accepted work before save. Image capture retains its
-separate cadence: the current PNG transport targets twenty single-view frames
-or ten regional frame sets per second, rather than a measured 60/120 FPS.
+pauses time and drains accepted work before save. PNG publication admits a completed frame when its one publisher is free.
+Optional H264 capture retains its own encoder/readback owner. Neither a capture
+ceiling nor observer callback count measures rendered or displayed FPS.
 
 Native observer diagnostics carry `sao-study-export-timing/1` rows for owner
 measurement and detachment, then worker encoding, writing, read-back and
@@ -245,3 +245,16 @@ following. Unique identities are sealed with the layout and retained on normal
 continuation. The bridge uses reported positions through the authored world;
 missing, dead or unavailable people acquire no substitute. Current camera
 controls retain their source sample clock independently of pictured zoom.
+
+## Continuous native video
+
+Pass `--video-encoder` with an absolute compatible FFmpeg executable and
+`--video-fps` with a ceiling from 30 through 120 to the native run or persistent
+session. The ceiling defaults to 120; the session forwards both settings on
+initial launch and continuation. PNG remains independently available.
+Initialization and at most eight fragments retain source hashes, actual native
+frame sequences, capture/world-hour ranges, admission/encoding/drop counters,
+qualified crop rectangles and separately qualified pose/command epochs.
+Two sites use a 2560 by 720 composite and two 1280 by 720 frames. Geometry-only
+receipts withhold pose, pictured zoom and person acknowledgement. Native
+wall/roof fading and canopy cutaway preserve their engine alpha owner.

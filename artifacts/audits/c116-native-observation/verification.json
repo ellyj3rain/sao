@@ -1,0 +1,634 @@
+{
+  "schema": "sao-c116-observation-evidence/1",
+  "sourceHashAlgorithm": "sha256",
+  "sources": {
+    "tools/world_lab/StudyVideoCapture.java": "83a166654fe59b01e7dd8330468f0e971195edb48a4650d330da7547aadd759a",
+    "tools/world_lab/StudyViewCapture.java": "12bbdd84800faedecb5ef8e5febe658fe255ca48653aed5d682c81f5c10046ca",
+    "tools/world_lab/StudyObserver.java": "b8ab3640b4be43ac2a7fdbd612c9484c7b0fc62d65d284f84dca82e8d33ac9e2",
+    "tools/world_lab/NativeObserverLightingProbe.java": "c4de60dd159e7f0f42d5a1bcc76477f30ed90047b82e788bbc2fd9bccec16847",
+    "tools/world_lab/observer_probe_checks.py": "252061db3d2bd1d0242968e33891a250b72df23fbce6f3fb069bb3a66ebb4258",
+    "tools/world_lab_run.py": "44f635d98b5a4e2dd7015e8852e6882b1ac56c237698ec627e17958ebd66b63d",
+    "tools/world_lab_native_video_test.py": "05a4b0a0c440f2cbd1810f6e500c1d3284aada4b93ff09c1c10596f429aaf604",
+    "tools/regional_observer_test.py": "1b32c1526dfcdda0140950e387014885c5f97a789e779cf80903415edaae5878",
+    "tools/breakpoint_lookup_test.py": "339f9b5f28fce3a4610995d9b2d46baeda1b321e9a875958c2973832bb248b12",
+    "tools/study_export_worker_test.py": "6d23e6fbf9c259d7592ae0307c78bb06f0852c29a9b9445ae9d39d8c55290070",
+    "tools/orienting_checks/late_loading.py": "9977ee15ca663535f0f05059db1cafebecb22be6401d8f17738a496fe45b5680",
+    "tools/orienting_checks/run_checks.py": "5850a043d0e4b7c6040667c6184b49fb59d1d6fdf353fef2303efb3ca8bfe744",
+    "tools/world_lab/StudyLoadingAgent.java": "fa462b67df6ad5bcb7be019dcadd647e0edca1f256a8a1e35423aefc0c94ea0a",
+    "tools/world_lab/StudyExport.java": "f36f776087f578340df4c4c548c04c76ac3176b0ea72663c6e929756a65efcc1",
+    "tools/world_lab_renderer_test.py": "9576ca3c285980fe084e417a2014e631b6756452c83c084d3f995755adf7459d",
+    "tools/check.sh": "a5487844eaad2218f2b5d9098d73e27073ae149498d00e2df90af7569cb5868a",
+    "tools/world_lab_session.py": "d00459f3a47776c13118877cecad4fabd800bb31c91cebaf80c9984ee95468dd",
+    "tools/world_lab_session_test.py": "45e93aab7f98405a5d2c7e1cc0c340189c96756bb46ca6ad6a8f61625e5893de"
+  },
+  "focusedChecks": {
+    "focusedNativeVideoTests": 28,
+    "focusedNativeVideoSeconds": 97.154,
+    "nativeVideoSourceControls": 19,
+    "focusedRendererTests": 8,
+    "focusedRendererSeconds": 0.753,
+    "rendererSourceControls": 4,
+    "regionalUnitTests": 6,
+    "gateBashSyntax": "passed",
+    "gateWiringStubCases": 4,
+    "scopedDiffCheck": "passed",
+    "compiledNativeVideoControls": 17,
+    "pythonRunnerControls": 2,
+    "sessionDefaultControls": 2,
+    "cliEntryPointControls": 2
+  },
+  "syntheticEncodedProofs": {
+    "lowRate": {
+      "sha256": "d1482e5b5ea889fd939d36436a44b880028a9191d3f465a0bc5f069a373f6078",
+      "stats": {
+        "capturedFrames": 36,
+        "encodedFrames": 36,
+        "droppedFrames": 0
+      },
+      "fragmentDurationsMs": [
+        300.0,
+        308.0,
+        300.0,
+        308.0,
+        300.0,
+        300.0,
+        309.0,
+        233.0
+      ],
+      "nativeFactoryDefault": true,
+      "currentPythonJavaScriptBytesValidated": true
+    },
+    "missingIdrControl": {
+      "sha256": "279604c0320426e12529816df17c9d0325f4bc81c0b074516b328d9f56460cde",
+      "stats": {
+        "capturedFrames": 36,
+        "encodedFrames": 36,
+        "droppedFrames": 0
+      },
+      "fragmentDurationsMs": [
+        2233.0,
+        392.0
+      ],
+      "currentPythonJavaScriptBytesValidated": true
+    },
+    "rawStream": {
+      "sha256": "fafff8ebcc739f9a09762011417ec43f8dbd5358ee7341b27a766719d59eaf1a",
+      "stats": {
+        "capturedFrames": 180,
+        "encodedFrames": 167,
+        "droppedFrames": 13
+      }
+    },
+    "delayedGap": {
+      "sha256": "89e8725c0812e3f339bc0dc2e8a94a22db12d1ddbefb00787d46d3b633e078c3",
+      "stats": {
+        "capturedFrames": 100,
+        "encodedFrames": 99,
+        "droppedFrames": 1
+      },
+      "minimumFullWindowMs": 2141.0,
+      "maximumOneSampleRun": 0,
+      "fragmentDurationsMs": [
+        283.0,
+        284.0,
+        283.0,
+        283.0,
+        275.0,
+        2442.0,
+        283.0,
+        284.0,
+        283.0,
+        283.0,
+        292.0,
+        283.0,
+        284.0,
+        283.0,
+        283.0,
+        284.0,
+        149.0
+      ],
+      "nativeFactoryDefault": true,
+      "currentPythonJavaScriptBytesValidated": true
+    },
+    "oldAbsoluteControl": {
+      "sha256": "bcc46d410c0b56ebf081e1309512024288efa2878fad7c4206614fa5eddf799c",
+      "stats": {
+        "capturedFrames": 100,
+        "encodedFrames": 99,
+        "droppedFrames": 1
+      },
+      "minimumFullWindowMs": 383.0,
+      "maximumOneSampleRun": 10,
+      "fragmentDurationsMs": [
+        283.0,
+        234.0,
+        233.0,
+        283.0,
+        242.0,
+        233.0,
+        2350.0,
+        42.0,
+        50.0,
+        50.0,
+        50.0,
+        50.0,
+        42.0,
+        50.0,
+        50.0,
+        50.0,
+        41.0,
+        200.0,
+        234.0,
+        233.0,
+        283.0,
+        242.0,
+        233.0,
+        284.0,
+        233.0,
+        233.0,
+        242.0,
+        100.0
+      ],
+      "nativeFactoryDefault": true,
+      "currentPythonJavaScriptBytesValidated": true
+    }
+  },
+  "loadedTrial": {
+    "attempt": 10,
+    "nativeRunExitCode": 0,
+    "runtimeErrors": [],
+    "normalSaveReturned": true,
+    "worldHours": {
+      "endHours": 60.44512176513672,
+      "nativeSaveReturned": true,
+      "startHours": 59.487022399902344
+    },
+    "sourceMatchesCompiledAdapter": true,
+    "streamId": "541c82a9-0e15-4645-a5ce-1e5128df031c",
+    "captureCeiling": 120,
+    "compositeWidth": 2560,
+    "compositeHeight": 720,
+    "cropWidth": 1280,
+    "cropHeight": 720,
+    "window": {
+      "title": "Phillip McKinley · Mousecat",
+      "width": 626,
+      "height": 390,
+      "devicePixelRatio": 1.5,
+      "media": {
+        "x": 0,
+        "y": 18.9375,
+        "width": 626,
+        "height": 352.125
+      },
+      "overflow": false,
+      "toolsOpen": false,
+      "captionVisible": false,
+      "externalPanelCount": 0,
+      "frameShape": "frame",
+      "framing": "fit",
+      "decoderCount": 0,
+      "canvas": {
+        "width": 1280,
+        "height": 720,
+        "hidden": false
+      },
+      "redockReachable": true
+    },
+    "windowDisclosure": {
+      "title": "Phillip McKinley · Mousecat",
+      "width": 626,
+      "height": 390,
+      "devicePixelRatio": 1.5,
+      "media": {
+        "x": 0,
+        "y": 18.9375,
+        "width": 626,
+        "height": 352.125
+      },
+      "overflow": false,
+      "toolsOpen": true,
+      "captionVisible": true,
+      "externalPanelCount": 0,
+      "frameShape": "frame",
+      "framing": "fit",
+      "decoderCount": 0,
+      "canvas": {
+        "width": 1280,
+        "height": 720,
+        "hidden": false
+      },
+      "redockReachable": true
+    },
+    "decoderCount": 1,
+    "commonDecodedPresentations": 1132,
+    "sampleSeconds": 30.0,
+    "presentationsPerSecond": 37.733333333333334,
+    "metric": "The same decoded composite callback painted into both subject surfaces, including the native Window; this is not engine rendering FPS.",
+    "decoderResets": 0,
+    "cumulativeDecoderQuality": [
+      {
+        "totalVideoFrames": 1982,
+        "droppedVideoFrames": 746,
+        "error": null
+      }
+    ],
+    "savedNavigation": {
+      "arrows": true,
+      "zoom": true,
+      "keyboard": true,
+      "fit": true,
+      "nativePosts": 0
+    },
+    "renderer": "NVIDIA Corporation NVIDIA GeForce RTX 4090 Laptop GPU/PCIe/SSE2",
+    "vsyncOff": true,
+    "uncappedSelected": true,
+    "proofSha256": "0159afea8bec843811affc399343ebf71edd1a16f278a8d3598f21276d7b8a50",
+    "nativeRunReceiptSha256": "265aace4d36237eba9538c3f9f810edfc2d3c8f402d461e1065da21c8a53ac29",
+    "packageAndSavedStateInventoriesVerified": true,
+    "syntheticPixels": false
+  },
+  "renderedFps": "unmeasured",
+  "performanceBoundary": "Bounded installed observation; renderer, schedule and saved-world state differ from the diagnostic predecessor. No isolated speedup, sustained 120 FPS, trained behavior or general throughput result.",
+  "testDriverVerdicts": {
+    "selectedFailingCasesExit": [
+      1,
+      1
+    ],
+    "silentZeroMutationsExit": [
+      0,
+      0
+    ],
+    "gateReachExitCode": 0,
+    "mirrorsInvokedAndAbleToFail": 237
+  },
+  "installedPublishedObserver": {
+    "mousecatPublicHead": "ba01d0685c4824ed9f23614eecfefe76cf7d64af",
+    "mousecatPublicTree": "6dafc2e1afb01309b94a6329c8e0763346df1cf5",
+    "publications": {
+      "videoWindow": "https://github.com/ellyj3rain/mousecat/pull/12",
+      "observationMap": "https://github.com/ellyj3rain/mousecat/pull/13",
+      "byteRelay": "https://github.com/ellyj3rain/zomboid-speakeasy/pull/56"
+    },
+    "sameRunnerConfigAndSourceBinding": true,
+    "preservedPendingItems": 28,
+    "savedWindowNavigation": {
+      "arrows": true,
+      "zoom": true,
+      "keyboard": true,
+      "fit": true,
+      "nativePosts": 0
+    },
+    "actualSavedGraph": {
+      "schema": "simulation.observation-graph/1",
+      "capturedAtUnixMs": 1791004207123,
+      "nodes": 40,
+      "edges": 38,
+      "sha256": "bbf8c3a67dae14adbd3578da79a80019b92a4ba44f9d1c3ec16327033c699ad5"
+    },
+    "lazyMapUntilRequested": true,
+    "referenceTraversalAndFocus": true,
+    "sourceUnchangedByBrowsing": true,
+    "nativeCommandsFromBrowsing": 0,
+    "evidenceReceipts": {
+      "deployment": {
+        "file": "published-a26-deploy.json",
+        "sha256": "07ef639c286134c0f55db8a1a06e9db91e19cc3e4aba8d43fc3443501ad49b88"
+      },
+      "window": {
+        "file": "installed-disclosure-published-saved-proof.json",
+        "sha256": "53f34b1c4857bdc97cd472b425515eb57189bb2633048b338fc2045504f6654e"
+      },
+      "map": {
+        "file": "installed-map-published-proof.json",
+        "sha256": "7e9f04342c8ed8d52d56db4cd82be367d72cd23d5dcca08cd0355b5792738ccf"
+      },
+      "capture": {
+        "file": "installed-native-window-published-receipt.json",
+        "sha256": "1e725a1751a5b1a6f64c0f1e40d38d30c45fb4409a013715fae372ef0903bfc2"
+      }
+    },
+    "nativeWindowImageSha256": "fd33de02fd20e403b50aa4a29a7c3de7498d7a779fcd683052fd37220e4e481f",
+    "independentInstalledReview": {
+      "file": "published-a26-installed-review.json",
+      "sha256": "9155a39f254f782a88f740765452b3fd0b4d84b94b32c4693157237d5f8f399e"
+    },
+    "loadedPresentationSample": "The earlier 30-second source-matched trial remains the throughput evidence; saved browsing measures no new live rate."
+  },
+  "validationPolicy": {
+    "decision": "DR-054",
+    "canonicalRule": "GOVERNANCE.md: Testing and validation; Process and project maturity",
+    "policyScope": "Proportionate validation, evidence reuse, settled decisions, justified reviews and maturity-scaled analysis",
+    "policyRuntimeChanged": false,
+    "newFramework": false,
+    "acceptedSourceGate": {
+      "candidate": "a747a35e7b58ab9365eecf9879c22f9cd84c36af",
+      "tree": "89094ca799487e465df720b649293762ecd98140",
+      "exitCode": 0,
+      "logSha256": "a524e8ef7a503b606be0827e635f3ed4e33d4ee7b48674de14f7e80b5ee326df",
+      "logPath": "_scratch/c116-video/final-corrected-commit.log",
+      "exitSha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "command": "normal tools/check.sh --staged pre-commit hook",
+      "review": {
+        "path": "_scratch/c116-video/final-gate-review.json",
+        "sha256": "73f0a53370a6661c7b71429a77113edaaf465cbd45d47a9901d0851cfb4ba47e"
+      },
+      "nativeVideo": {
+        "border": 234,
+        "tests": 28,
+        "durationSeconds": 85.798,
+        "verdict": "OK",
+        "logLines": [
+          1305,
+          1309
+        ]
+      },
+      "renderer": {
+        "border": 235,
+        "tests": 8,
+        "durationSeconds": 0.449,
+        "verdict": "OK",
+        "logLines": [
+          1310,
+          1314
+        ]
+      }
+    },
+    "semanticReview": {
+      "path": "_scratch/c116-video/validation-policy/proposal-review.json",
+      "sha256": "a98680f310f39862867edcd29a8874ae649c96d4e4514e4279b827cf072a3e38"
+    },
+    "metadataSources": {
+      "NEO.md": {
+        "beforeSha256": "309599852d28d863567d9427b45f3d1944e4403272b51de6a7503cbf298ffa3e",
+        "afterSha256": "7eebed15dbf8f0b9d1a60d75de833a80a2488f99e31d85e66ab6443ae7a93b3a"
+      },
+      "GOVERNANCE.md": {
+        "beforeSha256": "e2cada9132ce22407c4ca40efc23e6dc7d0fbbd51b2ddef88e36005b2ce1d7da",
+        "afterSha256": "7a0811847c0b1784759befd163439134aa598efcddb03fb24cbed0359687a157"
+      },
+      "AGENTS.md": {
+        "beforeSha256": "dab7615e803fe95ff9de41fe911957bc055600a3d495e4d25b30ce576b486e10",
+        "afterSha256": "68835ab0aecb7f47367da124b3b6d1ef2b778a9b985f98edcc83562b274de96f"
+      },
+      "CLAUDE.md": {
+        "beforeSha256": "5977bba0372b670ce72e971a3498d34a580468a71192df8ee0ea8f18f7ad419d",
+        "afterSha256": "50beaf3a457e6d2778c650de0ab0cfb5ba62bd0a700d15aec6ff55a4c1c55bee"
+      },
+      "README.md": {
+        "beforeSha256": "7346d9d37815b60b3d65d1f18bbcace0ba2bc6762cac812557195f861bf97786",
+        "afterSha256": "18a5a06ab109ae55b6df7f2e7f1e8b933f9d0f021edcf553795cd3fd22a2898d"
+      },
+      ".github/pull_request_template.md": {
+        "beforeSha256": "8b897e517440d32d6c29379dbf2ec66de5aad8a93b23a4efa65be01b012dda32",
+        "afterSha256": "a89f636c10e2d2a17b1e922f88e5c707b18e0a8762066b77c6a8f27bc111ab6d"
+      },
+      "DECISION_REGISTRY.md": {
+        "beforeSha256": "6f937c5cc417c45864c9bb3bc752efe59ee9a9ad9e0fc4e99b8a1bbe5f0d94e6",
+        "afterSha256": "cd832a2d325d33f1b5dce618cd799ba662ec5d8cc9805c05bafff6b21fd3aaa4"
+      },
+      "ROADMAP.md": {
+        "beforeSha256": "7d35c9b5e05f689d056dd3b9df71ad2d0181d3cabf765172b214ddb8e7429596",
+        "afterSha256": "979ec6bf6028a4187bcfb5bb96915a838746cfe9c7bc9f5b059b78631ce6da4d"
+      },
+      "SESSION_STATE.md": {
+        "beforeSha256": "c17d95246f70182cad898a7aec5061b8e746aad0862b7562d6dae2206cef73d0",
+        "afterSha256": "07da9ad22e1f09f573cc066641e5c121f54ceb22f2017bb491cfcdafe4f544ee"
+      },
+      "Batches/C116-20261003-0433Z-2133PST-continuous-native-observation.md": {
+        "beforeSha256": "845d71a6c155d9a7bdebcbb96df9f6aba69dc8904c6c1dacd5773d9f41bec88f",
+        "afterSha256": "fecf570b0dc4fc3c200cb25ce8c3354923df92cf82fe702c58880c2155fb9b7d"
+      },
+      "artifacts/docx/README.md": {
+        "beforeSha256": "15d5479451c5c0de12ac6be4ff656cbe5f94417d9386f4bf4ebfa0a756eda883",
+        "afterSha256": "9f2c227b47a2a43fcd1d1147be9d449ade36094631f3d5db8227478f6a1d6294"
+      }
+    },
+    "metadataChecks": [
+      {
+        "command": "git diff --check",
+        "exitCode": 0,
+        "resolves": "Whitespace in the changed Markdown",
+        "log": {
+          "path": "_scratch/c116-video/validation-policy/diff-check.log",
+          "sha256": "1a63fd3917845167b37eaa63ec18d507a995b95c10fd3a9747745a53e53595dd"
+        },
+        "exit": {
+          "path": "_scratch/c116-video/validation-policy/diff-check.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        }
+      },
+      {
+        "command": "python tools/doc_currency_test.py",
+        "exitCode": 0,
+        "resolves": "Current document versions and root classification",
+        "log": {
+          "path": "_scratch/c116-video/validation-policy/doc-currency.log",
+          "sha256": "a5652a41997d5c1d357c146dcd0323e04c379964c679d88abf8f3492866b0c49"
+        },
+        "exit": {
+          "path": "_scratch/c116-video/validation-policy/doc-currency.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        }
+      },
+      {
+        "command": "python tools/state_counts_test.py",
+        "exitCode": 0,
+        "resolves": "Canonical gate inventory",
+        "log": {
+          "path": "_scratch/c116-video/validation-policy/state-counts.log",
+          "sha256": "e1d885a3dcfede7806e635c19584677d39b998e0abbcb25dd1e9aaa982b84a82"
+        },
+        "exit": {
+          "path": "_scratch/c116-video/validation-policy/state-counts.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        }
+      },
+      {
+        "command": "python tools/session_state_test.py",
+        "exitCode": 0,
+        "resolves": "Current batch and version",
+        "log": {
+          "path": "_scratch/c116-video/validation-policy/session-state.log",
+          "sha256": "3d0f244ca6a0d911673b3ac416af406c6697ada0edf57f6a8c0eac1e8d0e273e"
+        },
+        "exit": {
+          "path": "_scratch/c116-video/validation-policy/session-state.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        }
+      },
+      {
+        "command": "python tools/map_reference_test.py",
+        "exitCode": 0,
+        "resolves": "Canonical document and index references",
+        "log": {
+          "path": "_scratch/c116-video/validation-policy/map-reference.log",
+          "sha256": "33e305002aa3580e44c6f064a89ccd8aa513591e4363bf4ec4a5ee2fa67af0bb"
+        },
+        "exit": {
+          "path": "_scratch/c116-video/validation-policy/map-reference.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        }
+      },
+      {
+        "command": "python tools/receipts_test.py",
+        "exitCode": 0,
+        "resolves": "Project receipt claims",
+        "log": {
+          "path": "_scratch/c116-video/validation-policy/receipts.log",
+          "sha256": "a59c27d44b27af48dfa2727d44a96ec6c7797ae1653ddfffd1529d4272387798"
+        },
+        "exit": {
+          "path": "_scratch/c116-video/validation-policy/receipts.exit",
+          "sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354"
+        }
+      }
+    ],
+    "docxExports": {
+      "count": 11,
+      "documents": [
+        {
+          "source": "NEO.md",
+          "sourceSha256": "7eebed15dbf8f0b9d1a60d75de833a80a2488f99e31d85e66ab6443ae7a93b3a",
+          "docx": "artifacts/docx/audits/c116-currency-drafts/NEO.docx",
+          "docxSha256": "5824d4c1ffc60398469a848c12842305f03c04cc8972003120c05965fd1e76fd",
+          "zipXmlVerified": true
+        },
+        {
+          "source": "GOVERNANCE.md",
+          "sourceSha256": "7a0811847c0b1784759befd163439134aa598efcddb03fb24cbed0359687a157",
+          "docx": "artifacts/docx/audits/c116-currency-drafts/GOVERNANCE.docx",
+          "docxSha256": "381172b943879eda81c77776abf9b3cd5e6598fc871b33f16f77411c73aa54fa",
+          "zipXmlVerified": true
+        },
+        {
+          "source": "AGENTS.md",
+          "sourceSha256": "68835ab0aecb7f47367da124b3b6d1ef2b778a9b985f98edcc83562b274de96f",
+          "docx": "artifacts/docx/audits/c116-currency-drafts/AGENTS.docx",
+          "docxSha256": "0b3260f8df04cc2837d10473db1be69fc82283b30bbd20d944fc467cc40215ce",
+          "zipXmlVerified": true
+        },
+        {
+          "source": "CLAUDE.md",
+          "sourceSha256": "50beaf3a457e6d2778c650de0ab0cfb5ba62bd0a700d15aec6ff55a4c1c55bee",
+          "docx": "artifacts/docx/audits/c116-currency-drafts/CLAUDE.docx",
+          "docxSha256": "3b634aded6f5f55e914998fe6a2b088e4efdd73db141b568c606a5fc01525b89",
+          "zipXmlVerified": true
+        },
+        {
+          "source": "README.md",
+          "sourceSha256": "18a5a06ab109ae55b6df7f2e7f1e8b933f9d0f021edcf553795cd3fd22a2898d",
+          "docx": "artifacts/docx/audits/c116-currency-drafts/README.docx",
+          "docxSha256": "45238d7c30797738242f0faba7c33f1e6c70f460a6d4d046e89674139ea58029",
+          "zipXmlVerified": true
+        },
+        {
+          "source": ".github/pull_request_template.md",
+          "sourceSha256": "a89f636c10e2d2a17b1e922f88e5c707b18e0a8762066b77c6a8f27bc111ab6d",
+          "docx": "artifacts/docx/audits/c116-currency-drafts/.github/pull_request_template.docx",
+          "docxSha256": "51186f896600fc6ce9f3cd790e8e25d7c4494672a0dfc325d284f4f0a3e00fc3",
+          "zipXmlVerified": true
+        },
+        {
+          "source": "DECISION_REGISTRY.md",
+          "sourceSha256": "cd832a2d325d33f1b5dce618cd799ba662ec5d8cc9805c05bafff6b21fd3aaa4",
+          "docx": "artifacts/docx/audits/c116-currency-drafts/DECISION_REGISTRY.docx",
+          "docxSha256": "5298c74102375b213f9b34cb9b903edaf2a401226e6a0bebde624d335648d489",
+          "zipXmlVerified": true
+        },
+        {
+          "source": "ROADMAP.md",
+          "sourceSha256": "979ec6bf6028a4187bcfb5bb96915a838746cfe9c7bc9f5b059b78631ce6da4d",
+          "docx": "artifacts/docx/audits/c116-currency-drafts/ROADMAP.docx",
+          "docxSha256": "c8525610f1936d7e37fc4bb7ff4c1ddd136e5bd26fdc337ad677a6da6beed773",
+          "zipXmlVerified": true
+        },
+        {
+          "source": "SESSION_STATE.md",
+          "sourceSha256": "07da9ad22e1f09f573cc066641e5c121f54ceb22f2017bb491cfcdafe4f544ee",
+          "docx": "artifacts/docx/audits/c116-currency-drafts/SESSION_STATE.docx",
+          "docxSha256": "3b91f3c97d4ff8cd498191496e638214501e7d1ad48f087750bf7e015a7d97c7",
+          "zipXmlVerified": true
+        },
+        {
+          "source": "Batches/C116-20261003-0433Z-2133PST-continuous-native-observation.md",
+          "sourceSha256": "fecf570b0dc4fc3c200cb25ce8c3354923df92cf82fe702c58880c2155fb9b7d",
+          "docx": "artifacts/docx/audits/c116-currency-drafts/Batches/C116-20261003-0433Z-2133PST-continuous-native-observation.docx",
+          "docxSha256": "545f41ae1d31cf29268960f22b926a8cb69ce6f9944049642f79fe6212ddb925",
+          "zipXmlVerified": true
+        },
+        {
+          "source": "artifacts/docx/README.md",
+          "sourceSha256": "9f2c227b47a2a43fcd1d1147be9d449ade36094631f3d5db8227478f6a1d6294",
+          "docx": "artifacts/docx/audits/c116-currency-drafts/artifacts/docx/README.docx",
+          "docxSha256": "5861b7041c0125904a10c608d1355957603c720f3c00e79757edea46f9f0667a",
+          "zipXmlVerified": true
+        }
+      ],
+      "converterSha256": "cf183d5d21d61eac1a428afeb83ee61fde029b347346af48db2d50c3b425a487",
+      "reusedCompletedExports": 10,
+      "resumedConversions": 1,
+      "bundlePackageCount": 29,
+      "initialCommandExit": 1,
+      "resumedCommandExit": 0,
+      "initialFailure": "Batch collector excludes artifacts/; explicit README conversion used the same existing md_to_docx function",
+      "officeVisualRender": "unavailable; no visual-render claim"
+    },
+    "reuseBoundary": {
+      "sourceCandidate": "a747a35e7b58ab9365eecf9879c22f9cd84c36af",
+      "sourceTree": "89094ca799487e465df720b649293762ecd98140",
+      "runtimeSubtrees": {
+        "mod": "ec60281dee2efc99788418c79ba8f34f957e4932",
+        "java": "e1094432a1d0a4ca22dbe18c56e0de9b2bc4f90e",
+        "tools": "f5393a52610fc48daa7287895e57cec9fcfc96a7",
+        ".github/workflows": "c4834ff8b9f56103fd40d25395041503c8276d71"
+      },
+      "unchangedSourceHashes": {
+        "tools/world_lab/StudyVideoCapture.java": "83a166654fe59b01e7dd8330468f0e971195edb48a4650d330da7547aadd759a",
+        "tools/world_lab/StudyViewCapture.java": "12bbdd84800faedecb5ef8e5febe658fe255ca48653aed5d682c81f5c10046ca",
+        "tools/world_lab/StudyObserver.java": "b8ab3640b4be43ac2a7fdbd612c9484c7b0fc62d65d284f84dca82e8d33ac9e2",
+        "tools/world_lab/NativeObserverLightingProbe.java": "c4de60dd159e7f0f42d5a1bcc76477f30ed90047b82e788bbc2fd9bccec16847",
+        "tools/world_lab/observer_probe_checks.py": "252061db3d2bd1d0242968e33891a250b72df23fbce6f3fb069bb3a66ebb4258",
+        "tools/world_lab_run.py": "44f635d98b5a4e2dd7015e8852e6882b1ac56c237698ec627e17958ebd66b63d",
+        "tools/world_lab_native_video_test.py": "05a4b0a0c440f2cbd1810f6e500c1d3284aada4b93ff09c1c10596f429aaf604",
+        "tools/regional_observer_test.py": "1b32c1526dfcdda0140950e387014885c5f97a789e779cf80903415edaae5878",
+        "tools/breakpoint_lookup_test.py": "339f9b5f28fce3a4610995d9b2d46baeda1b321e9a875958c2973832bb248b12",
+        "tools/study_export_worker_test.py": "6d23e6fbf9c259d7592ae0307c78bb06f0852c29a9b9445ae9d39d8c55290070",
+        "tools/orienting_checks/late_loading.py": "9977ee15ca663535f0f05059db1cafebecb22be6401d8f17738a496fe45b5680",
+        "tools/orienting_checks/run_checks.py": "5850a043d0e4b7c6040667c6184b49fb59d1d6fdf353fef2303efb3ca8bfe744",
+        "tools/world_lab/StudyLoadingAgent.java": "fa462b67df6ad5bcb7be019dcadd647e0edca1f256a8a1e35423aefc0c94ea0a",
+        "tools/world_lab/StudyExport.java": "f36f776087f578340df4c4c548c04c76ac3176b0ea72663c6e929756a65efcc1",
+        "tools/world_lab_renderer_test.py": "9576ca3c285980fe084e417a2014e631b6756452c83c084d3f995755adf7459d",
+        "tools/check.sh": "a5487844eaad2218f2b5d9098d73e27073ae149498d00e2df90af7569cb5868a",
+        "tools/world_lab_session.py": "d00459f3a47776c13118877cecad4fabd800bb31c91cebaf80c9984ee95468dd",
+        "tools/world_lab_session_test.py": "45e93aab7f98405a5d2c7e1cc0c340189c96756bb46ca6ad6a8f61625e5893de"
+      },
+      "reason": "Only workflow documentation, their generated DOCX packages and this evidence inventory changed after the passing source gate; relevant runtime implementation, tests, dependencies, configuration and environment remain unchanged.",
+      "fullSuiteRerunForMetadata": false
+    },
+    "localAmendment": {
+      "commandScopedHookBypass": true,
+      "command": "git commit --amend --no-edit --no-verify",
+      "reason": "Reuse applicable successful source validation after sufficient scoped metadata checks; no persistent hook or framework change."
+    },
+    "requiredRemoteChecks": {
+      "contexts": [
+        "ci-verify",
+        "codeql-python"
+      ],
+      "strict": true,
+      "workflow": ".github/workflows/ci-verify.yml",
+      "workflowRawSha256": "8244eac7cf792e5b764a105adcc2ccc34760452d3501b9ee06ac52bd37e50828",
+      "workflowInvocation": "bash tools/check.sh",
+      "observedAt": "2026-10-03T07:24:47Z",
+      "constraintChanged": false,
+      "reason": "Existing GitHub branch protection requires these statuses; ci-verify currently invokes the full suite."
+    },
+    "finalWordingScan": "After this JSON is finalized, the actual result and current input hashes are retained in the closing receipt and PR description.",
+    "gzdsFoundingRegulation": {
+      "status": "open follow-up",
+      "record": "ROADMAP.md",
+      "continuity": "SESSION_STATE.md"
+    }
+  }
+}

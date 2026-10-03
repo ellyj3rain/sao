@@ -210,6 +210,9 @@ def runner_command(args, resume, duration):
                "--timeout", str(duration)]
     if getattr(args, "observer_layout", None) is not None:
         command.extend(("--observer-layout", str(args.observer_layout)))
+    if getattr(args, "video_encoder", None) is not None:
+        command.extend(("--video-encoder", str(args.video_encoder),
+                        "--video-fps", str(getattr(args, "video_fps", 120))))
     if resume:
         command.append("--resume")
         if getattr(args, "refresh_observer_adapter", False):
@@ -376,11 +379,16 @@ def main():
                         help="native observation areas, independent of the saved world")
     parser.add_argument("--site-controls", action="store_true",
                         help="publish independent camera controls to a compatible viewer")
+    parser.add_argument("--video-encoder", type=Path,
+                        help="local FFmpeg executable for continuous native H.264 video")
+    parser.add_argument("--video-fps", type=int, default=120,
+                        help="native video capture ceiling (30-120; default: 120); renderer remains uncapped")
     parser.add_argument("--refresh-observer-adapter", action="store_true",
                         help="rebuild isolated observer infrastructure on verified continuation")
     args = parser.parse_args()
     if args.duration is not None:
         bounded_duration(args.duration)
+    Lab.integer(args.video_fps, 30, 120, "native video capture ceiling")
     return supervise(args)
 
 

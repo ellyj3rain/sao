@@ -122,7 +122,7 @@ public final class NativeObserverLightingProbe {
             "native God-view wall remained dark or altered ordinary display");
         zombie.iso.IsoObject renderedObject = new zombie.iso.IsoObject();
         renderedObject.setAlpha(0, .25f);
-        check(renderedObject.getAlpha(0) == (observer ? 1 : .25f), "native God-view fading differs");
+        check(renderedObject.getAlpha(0) == .25f, "native camera cutaway alpha was forced opaque");
         check(DebugOptions.instance.fboRenderChunk.renderVisionPolygon.getValue() != observer,
             "God-view still uses an observer vision polygon");
         if (observer) {

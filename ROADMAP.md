@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.10.3.3-pre-alpha` |
+| Version | `3.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -257,6 +257,21 @@ wiring; it does not introduce creation recipes or synthesis rules.
 retains the prior requirements and decision references. Its former C labels
 resolve through FORMER_LABELS. Its historical progress and completion claims
 are superseded by this roadmap and the audit. Settled operator ideas remain.
+
+## Governance follow-up
+
+The operator requested an early GZDS founding-document revision on
+2026-10-03. Repeated full validation after metadata repairs is a major
+output cost. Extend the standing proportionate-validation rule in
+GOVERNANCE.md and DR-054 into a complete foundation regulation: affected
+contracts and dependencies, evidence applicability and invalidation,
+independently valid partial results, justified escalation, cheap-first
+ordering and concrete hook/CI constraints. Scale analysis with maturity,
+preserve settled decisions and justified conclusions, and retire redundant
+procedure. Each check or review resolves a relevant uncertainty. Inspect
+GZDS's live canonical documents and actual enforcement before revision.
+This follow-up remains
+open; the SAO instruction update does not claim GZDS is revised.
 
 ## Evidence and open decisions
 

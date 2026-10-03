@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Governance |
 |---|---|
-| Version | `3.10.3.3-pre-alpha` |
+| Version | `3.11.0.0-pre-alpha` |
 | Design authority | ellyj3rain |
 | Repository | `GOVERNANCE.md` |
 | Status | ACTIVE - operating discipline for this repository. |
@@ -106,6 +106,93 @@ inputs and its verification method is recorded. Log-derived findings state the
 log, the counts, and the normalization used - raw counts across sessions of
 different length are not comparable and are normalized before being reported
 as change.
+
+## Testing and validation
+
+Validation is proportional to the actual changes, their dependencies and the
+larger task objective. Before running checks, identify the changed inputs, the
+behaviors or contracts they can affect, the uncertainties necessary to establish
+the requested outcome, and the existing results that remain applicable. Run the
+smallest sufficient set of checks that covers those effects.
+
+A passing result remains valid while the implementation, test, dependencies,
+configuration and environment relevant to that result remain unchanged. Preserve
+enough provenance to establish that applicability: the result and actual exit
+status, the relevant input revisions or hashes, test identity, dependency and
+configuration scope, environment, and a retained log or receipt. Reuse applicable
+results across subsequent edits, documentation repairs, commits and publication.
+A changed commit identifier alone does not invalidate unchanged relevant inputs.
+
+Preserve independently valid successes when another check fails. A failed or
+incomplete result is never passing evidence, and a failed full run is never
+reported as a passing full suite. Rerun the failed check and checks affected by its
+repair. Checks that were skipped, could not run or could not observe the relevant
+behavior remain explicitly unverified. Inherited or assumed coverage is
+distinguished from verification completed in the task.
+
+Documentation, formatting, version, inventory and other metadata changes receive
+their relevant checks. They require runtime tests for demonstrated effects on
+runtime inputs, generated runtime artifacts, runtime packaging contracts or other
+runtime dependencies.
+A documentation count correction receives the count and affected document checks;
+it does not restart unrelated simulation tests.
+
+Broaden validation when changes cross shared interfaces, alter fundamental
+behavior, reveal a wider defect, or leave a material uncertainty that focused
+checks cannot resolve. Use the full suite when the scope or risk warrants it,
+relevant dependencies cannot be bounded confidently, or the operator explicitly
+requests it. Commit and publication events alone do not justify repeating an
+already valid full-suite result. This rule supersedes blanket requirements to run
+everything before every commit.
+
+Order validation so cheap checks that can invalidate the candidate precede
+expensive checks. Do not duplicate an equivalent check already running against
+the same relevant inputs. Preserve an active run's inputs and provenance while
+preparing independent work; apply later repairs with checks for their actual
+effects.
+
+Once the uncertainties necessary to establish the requested outcome are resolved,
+proceed. Additional checks require a specific reason grounded in changed inputs,
+an observed failure, uncovered behavior or material risk. Test volume, repeated
+clean runs and procedural activity are not completion criteria.
+
+Report briefly what ran, which valid evidence was reused and why it applies,
+why any broader run was necessary, and what remains unverified. An existing
+instrument's controls remain reusable under the same applicability rule; writing
+a new test or framework is warranted only by a concrete gap.
+
+### Process and project maturity
+
+As the project grows, analysis deepens where a change introduces new
+interactions or uncertainty. Established knowledge and valid verification reduce
+the work required elsewhere. Preserve settled decisions, applicable evidence,
+completed checks and justified conclusions across the task. Reopen them when a
+relevant change or new finding warrants it.
+
+Create room for deeper work by retiring redundant procedure, consolidating
+repeated analysis and carrying forward justified conclusions. The accumulated
+size of the project does not automatically become the workload of every change.
+Evaluate each proposed check or review by the uncertainty it resolves and its
+relevance to the larger objective. Verification builds on previous work so that
+increasing complexity remains manageable.
+
+### Existing hook and required CI
+
+`tools/check.sh` is the complete suite. The current local hook in
+`tools/pre-commit` invokes it with `--staged`; that flag narrows the initial Lua
+file selection and still runs all borders. When that automatic invocation would
+repeat applicable evidence beyond the sufficient scoped checks, record the
+checks, reuse and reason in the batch record, and use the hook's existing
+command-scoped `git commit --no-verify` option. This permits evidence reuse;
+it is not a passing gate result. Persistent hook disabling is unnecessary.
+
+The required GitHub `ci-verify` job in
+`.github/workflows/ci-verify.yml` currently invokes the full suite for pull
+requests and main pushes. Main branch protection requires `ci-verify` and
+`codeql-python`. Report that concrete external publication constraint
+when it causes additional work; it does not create a local requirement to
+repeat the suite. Required remote checks still complete before merge. Their
+results retain their own environment and skipped-observation boundaries.
 
 ## Analysis discipline
 
