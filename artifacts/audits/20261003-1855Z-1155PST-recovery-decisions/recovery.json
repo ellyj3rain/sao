@@ -1,0 +1,114 @@
+{
+  "schema": "sao-loaded-recovery-checks/1",
+  "inputs": {
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar": "e1a69eb743ede60b213a0fe7f8b83d4fcab773036d256cc4543a336f3b058a33",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\mod\\42.20\\media\\java\\SAO.jar": "398e1fd19b20c2f6327424e66af812e46abe7bd9a4d35ad006c6c070bc71231a",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\mod\\42.20\\media\\lua\\client\\SAO_Controller.lua": "14ee261d9433cd9fa4fdf6d7926d0eaf96aa5ac07f1de00baea1c2dde80f3f42",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\mod\\42.20\\media\\lua\\client\\SAO_Needs.lua": "91e4ea7e11fcb80b25cafa96305964a479a4aa7121b395083c5576f8532e7a62",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\java\\src\\com\\sao\\engine\\SAONeeds.java": "e364b9e3be70c76cf40c3aefd3dbd2876dd619ea20e4b3bac0ad89b66d7df478",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\mod\\42.20\\media\\lua\\client\\SAO_ResourceProduction.lua": "1356b4b19b5e1047d2c7755f9b340be8b713bea99d24f602809330bc1ff38da9",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\mod\\42.20\\media\\lua\\shared\\SAO_Perception.lua": "9ae97d22bcb335250e03047cdb33cad2e59bfee8023d9d419b2acbbe51d66f9e",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\tools\\loaded_recovery_test.py": "65c5739611a8fb4e962792f6d990678c9cb8891898fa90e3d3f065d090d90b18",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\tools\\resource_production_test.py": "4e1e754d5679b3121d910cff495b82a9e7637f05e72f7ae4bcd7cbddc6ad369c",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\tools\\luacheck\\MovementCrossingProbe.java": "ca9dbe9c356c98ff40e6aa63d577fd2ace052c139b83fc6f43664701fd2f1bd1",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\defines.lua": "68eb8bcabfb54fd658b5ab324ae95f429f46242991038dc5182dd3be69aac47a"
+  },
+  "variants": [
+    {
+      "name": "production",
+      "exit": 0,
+      "expected": null,
+      "sha256": "b76cb8151919cd3f15d22df819ab612d7fcc42d8ffd7f144ca0ddb757db5dc1a"
+    },
+    {
+      "name": "restore-fatigue-cutoff",
+      "exit": 1,
+      "expected": "tired_survival_strategy_reaches_existing_planner",
+      "sha256": "ff3f9895c812615fbdf82a5ef21578e861af35e807605f0ec7dc4d8aca7b9413"
+    },
+    {
+      "name": "restore-minor-need-monopoly",
+      "exit": 1,
+      "expected": "minor_needs_do_not_preempt_social_plan",
+      "sha256": "b55cf05fbee28a303110fdbf2e044328e586fbed5e1d3bafe28f8b51d46961fa"
+    },
+    {
+      "name": "remove-day-recovery",
+      "exit": 1,
+      "expected": "daytime_recovery_admitted",
+      "sha256": "03daab6084b08598c063b2e91789307876ea1e612f08f39477d9debb398afdac"
+    },
+    {
+      "name": "pose-as-completion",
+      "exit": 1,
+      "expected": "pose_only_keeps_outcome_pending",
+      "sha256": "fcd5f180ef69b4bd95b88067d29515724a3655f822cd62d79175215e32b63c4f"
+    },
+    {
+      "name": "restore-production-fatigue-cutoff",
+      "exit": 1,
+      "expected": "fatigue_does_not_interrupt_native_resource_owner",
+      "sha256": "27f716c24969df24ed21503d89f83c70bae780583f3d17b6a4de7ff877cae2c9"
+    },
+    {
+      "name": "restore-manual-recovery",
+      "exit": 1,
+      "expected": "controller_elapsed_time_grants_no_credit",
+      "sha256": "24ddd82579a90cd08ba54d63c4a6117d77859899acb06d7d972dca6b60091363"
+    },
+    {
+      "name": "wrong-threat-arguments",
+      "exit": 1,
+      "expected": "actual_private_threat_reader_declines_recovery",
+      "sha256": "05b8b5f01894b2ec0a0e06892c1c103eea109a440426cc65cc01cbbe43972d63"
+    },
+    {
+      "name": "wrong-seat-arguments",
+      "exit": 1,
+      "expected": "seat_receives_actual_identity_and_body",
+      "sha256": "c355c0ac5a7f7092cf32c3f6285dd7f18d940da2af9ef27d36ae5716292a3298"
+    },
+    {
+      "name": "ignore-active-urgent-pressure",
+      "exit": 1,
+      "expected": "active_hunger_interrupts_recovery",
+      "sha256": "ffe6ea1c3e205bb2370add8968b25678cdc1ce03cdc67674268919ced32cccae"
+    },
+    {
+      "name": "rest-before-carried-relief",
+      "exit": 1,
+      "expected": "ready_carried_relief_precedes_recovery",
+      "sha256": "e60f601950519f0093d98744398d974f82b344b738c69487ab0b7c55b6a62f17"
+    },
+    {
+      "name": "omit-drop-retirement",
+      "exit": 1,
+      "expected": "controller_drop_retires_without_waking_handoff",
+      "sha256": "e149bac691f43dcaa0569590c431f128a9958a4ed55c1b500fe7836e3a1c5550"
+    },
+    {
+      "name": "omit-death-retirement",
+      "exit": 1,
+      "expected": "death_retires_receiver_without_recovery_credit",
+      "sha256": "224922857fc58e53969d27ac0419016bc73809898c0e47ad0a7a0df8ec23d5b8"
+    },
+    {
+      "name": "omit-reset-retirement",
+      "exit": 1,
+      "expected": "world_reset_retires_without_old_world_actuation",
+      "sha256": "7e64ea0afc7ffe05d50aa7854fdff29a213e8720dcf07403657e62b9ddca3a58"
+    },
+    {
+      "name": "omit-reload-retirement",
+      "exit": 1,
+      "expected": "module_reload_releases_prior_receiver",
+      "sha256": "657383fd85c2ddacd2924ab0f318b22f4e137ba54cf57be4bb7a6e719c99d75c"
+    },
+    {
+      "name": "mutate-released-receiver",
+      "exit": 1,
+      "expected": "replacement_foreign_body_is_never_mutated",
+      "sha256": "b5223feff87c268ad831adfd7a0bdfbfd9c8a62e5b5708777b80a26093c7e16d"
+    }
+  ]
+}

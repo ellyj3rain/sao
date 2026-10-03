@@ -1,0 +1,13 @@
+{
+  "schema": "sao-native-proof-reuse/1",
+  "fromBatch": "C118",
+  "candidateBatch": "C119",
+  "previousJarSha256": "1849b5ed5eb652b30190b066644d902e329098857cbe927fa32b903c44d773c3",
+  "candidateJarSha256": "398e1fd19b20c2f6327424e66af812e46abe7bd9a4d35ad006c6c070bc71231a",
+  "changedEntries": [
+    "com/sao/SAOVersion.class",
+    "com/sao/bridge/SAOBridge.class"
+  ],
+  "onlyChange": "Derived version literal from 3.11.2.0-pre-alpha to 3.11.3.0-pre-alpha; all other packaged bytes identical.",
+  "applicableEvidence": "C118 installed exterior perception and native movement proof; no native entry implementation change. Lua decision callers receive C119 verification."
+}

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.11.2.0-pre-alpha` |
+| Version | `3.11.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
@@ -21,6 +21,17 @@ GZDS's founding-document validation and process-maturity regulation is published
 in B2.17, [PR 25](https://github.com/ellyj3rain/gzds-internal/pull/25), merge
 `9cc109d83bac2c38023641cf799668b3dd2e08ec`. C117 verified that publication;
 the earlier follow-up pointer is closed.
+
+**As of** 2026-10-03 18:55 UTC / 11:55 PST, [C119](Batches/C119-20261003-1855Z-1155PST-recovery-decisions.md)
+closes recovery as a competitor to ongoing search and travel, using the existing
+native recovery owner and private destination knowledge. Safe preemption follows
+the current movement verdict and preserves native opening, smashing and climbing.
+The same unfinished search purpose is later reconsidered from current evidence.
+The final residence proof passes 137 cases/47 controls; recovery passes 47 Lua
+checks, ten native assertions and 15 controls. Explicit applicability preserves
+the recovery result across movement-only repair, and C118 native entry evidence
+remains applicable. Loaded behavior is still unverified. C120 personal experience
+and the subsequent loaded observation remain the authorized continuation.
 
 **As of** 2026-10-03 18:32 UTC / 11:32 PST, [C118](Batches/C118-20261003-1832Z-1132PST-private-entry-decisions.md)
 closes private window alternatives and exact encountered-edge observations.

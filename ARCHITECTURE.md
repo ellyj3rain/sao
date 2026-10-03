@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.11.2.0-pre-alpha` |
+| Version | `3.11.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1722,6 +1722,16 @@ retirement protects the exact body across handoff, death, forget, reload and
 reset. ResourceProduction keeps unfinished work through ordinary appetite or
 fatigue while current injury, urgent deprivation and executable relief retain
 their preemption authority.
+
+C119 lets that same bodily preference compete with speculative residence search
+and optional resource travel after immediate carried relief. Labor requires
+private permitted home geometry for recovery return. Controller reconsiders an
+admitted search after the existing movement tick supplies a current verdict;
+native opening, smashing, climbing and queued actions retain their ownership.
+A safe pause preserves the maintained purpose, private evidence and retry ledger.
+Recovery arrival retains intent while actual native occupancy and Needs admission
+decide whether recovery begins. The unfinished search is reconsidered using
+current needs and evidence after recovery or interruption.
 
 ProceduralPlanning persists a residence purpose separately from practical work.
 Labor acquires its private home, comparative remembered danger, attachment,

@@ -20,6 +20,7 @@ import flee_continuity_test as fixture
 ROOT = Path(__file__).resolve().parents[1]
 LUA = ROOT / 'mod/42.20/media/lua'
 FILES = {
+    'needs': LUA / 'client/SAO_Needs.lua',
     'perception': LUA / 'shared/SAO_Perception.lua',
     'world': LUA / 'shared/SAO_WorldSources.lua',
     'standing': LUA / 'shared/SAO_Standing.lua',
@@ -51,6 +52,16 @@ SAO.Disposition.traits=function() return {nerve=.6,initiative=.5} end
 SAO.Disposition.drinkAt=function() return .4 end
 SAO.Needs.read=function() return __needs end
 SAO.Needs.busy=function() return __busy==true end
+SAO.Needs.cold=function() return __cold or 0 end
+SAO.Needs.ownsRecoveryBody=function(id,b) return SAO.Body.active[id]==b end
+SAO.Needs.workAvailable=function(b) return not __busy and not b:isAsleep() end
+SAO.Needs.beginRecovery=function(id,b,kind)
+    __recoveryAttempts=__recoveryAttempts+1
+    if not __recoveryAdmit then return false end
+    b.asleep=kind=='sleep'; __records[id].recoveryIntent={kind=kind,status='recovering'}
+    return true
+end
+SAO.Gesture={seat=function() end,standUp=function() end}
 SAO.Needs.findGear=function() return nil end
 SAO.Needs.needsAmmo=function() return false end
 SAO.Needs.bleeding=function() return __bleeding or 0 end
@@ -112,6 +123,8 @@ local function body(id,x,y)
     function b:getModData() return self.md end
     function b:isDead() return self.dead==true end
     function b:isAsleep() return self.asleep==true end
+    function b:isClimbing() return self.climbing==true end
+    function b:getCurrentStateName() return self.nativeState or "IdleState" end
     function b:isExistInTheWorld() return self.attached~=false end
     function b:getVehicle() return nil end
     function b:setSitOnGround() end
@@ -134,7 +147,7 @@ local function reset(hunger)
     SAO.Organization.offices={}
     __personVisible=true
     __seen='' __holders=nil __inspectionMemory={}
-    __bleeding=0 __bandage=false
+    __bleeding=0 __bandage=false __cold=0 __recoveryAttempts=0 __recoveryAdmit=false
     __forbidden={} __blockAll=false __group=nil __fellows={} __player=nil __injury=0
     __needs={hunger=hunger or .8,thirst=.1,fatigue=.25,endurance=.8}
     __records={a={id='a',homeX=10,homeY=10,homeZ=0,x=10,y=10,z=0},
@@ -685,10 +698,129 @@ residenceTime(2.22);observeEntrances('B:42:100.0:10.5:0:99.5:10.5:door:open');p=
 check('changed_visual_condition_supersedes_only_own_backoff',__hours<solitaryDeadline
     and p.destination and p.destination.apertureState=='open' and p.status~='blocked' and C.advanceResidencePurpose('a',a,b,__tick))
 
+
+-- Changing fatigue competes with the actual admitted search in updateAgent.
+local function recoverySearch()
+    local a,b=reset(.55)
+    b.x=40 b.building=nil
+    local p=consider(a,b)
+    C.advanceResidencePurpose('a',a,b,__tick)
+    return a,b,p,SAO.Locomotion.jobs.a
+end
+local function bodyChanged(a,b,fatigue)
+    __needs.fatigue=fatigue or 1
+    __tick=__tick+120 C.__residenceTick(__tick)
+    C.__residenceUpdate('a',a)
+end
+a,b,p,route=recoverySearch()
+bodyChanged(a,b)
+check('actual_live_fatigue_changes_search_into_recovery_return',p.mode=='recover' and a.state=='TRAVEL'
+    and SAO.Locomotion.jobs.a~=route and SAO.Locomotion.jobs.a.goal.x==10 and __cancels==1)
+check('recovery_pause_preserves_unfinished_search_without_failed_route',p.recoveryInterrupted
+    and p.recoveryInterrupted.destination.id=='2' and p.recoveryInterrupted.steps[1].status=='available'
+    and (not p.residenceAttempts or not p.residenceAttempts['2']) and p.lastResidenceResult==nil)
+local unfinished=p.recoveryInterrupted
+P.detachResidence('a','controller-drop');a.residenceRoute=nil;SAO.Locomotion.jobs.a=nil;a.state='IDLE'
+__hours=2.2;a.nextResidenceAt=0;p=consider(a,b)
+check('recovery_return_reload_keeps_unfinished_search',p.recoveryInterrupted==unfinished and p.mode=='recover'
+    and p.destination.id=='home' and p.admission==nil)
+C.advanceResidencePurpose('a',a,b,__tick);route=SAO.Locomotion.jobs.a
+b.x=10;b.y=10;b.building=nil;route.done=true;route.result='arrived'
+C.finishResidenceMovement('a',a,b)
+check('recovery_arrival_without_occupancy_cannot_start_sleep',not C.offerRecovery('a',a,b,__tick,__needs)
+    and not a.recovery and __recoveryAttempts==0)
+b.building=1;__recoveryAdmit=true
+check('occupied_recovery_destination_uses_existing_native_admission',C.offerRecovery('a',a,b,__tick,__needs)
+    and a.recovery and b.asleep and __recoveryAttempts==1)
+__hours=2.4;a.nextResidenceAt=0
+local held=consider(a,b)
+__caseFacts=tostring(held==p)..':'..tostring(p.mode)..':'..tostring(p.recoveryInterrupted==unfinished)..':'..tostring(a.recovery)..':'..tostring(a.resting)
+check('sleep_preserves_paused_search_until_recovery_ends',held==p and p.mode=='recover'
+    and p.recoveryInterrupted==unfinished)
+a.recovery=nil;a.resting=nil;a.sleeping=nil;b.asleep=false;__needs.fatigue=.2;__hours=2.6;a.nextResidenceAt=0
+p=consider(a,b)
+check('recovered_person_reconsiders_unfinished_search',p.mode=='search' and p.destination.id=='2'
+    and p.recoveryInterrupted==nil)
+a,b,p,route=recoverySearch();bodyChanged(a,b,.3)
+check('low_fatigue_keeps_admitted_search',p.mode=='search' and SAO.Locomotion.jobs.a==route and __cancels==0)
+a,b,p,route=recoverySearch();__needs.hunger=.95;bodyChanged(a,b)
+check('emergency_deprivation_retains_search_with_energy',p.mode=='search' and SAO.Locomotion.jobs.a==route)
+a,b,p,route=recoverySearch();__food={};bodyChanged(a,b)
+check('ready_carried_relief_does_not_get_replaced_by_recovery',p.mode=='search' and SAO.Locomotion.jobs.a==route)
+a,b,p,route=recoverySearch();__cold=2;bodyChanged(a,b)
+check('severe_cold_does_not_start_recovery_return',p.mode=='search' and SAO.Locomotion.jobs.a==route)
+a,b,p,route=recoverySearch();__bleeding=1;bodyChanged(a,b)
+check('unresolved_bleeding_does_not_start_recovery_return',p.mode=='search' and SAO.Locomotion.jobs.a==route)
+a,b,p,route=recoverySearch();b.climbing=true;bodyChanged(a,b)
+check('native_climbing_retains_search_receiver',SAO.Locomotion.jobs.a==route and p.admission and __cancels==0)
+b.climbing=false;bodyChanged(a,b)
+check('finished_crossing_can_reconsider_recovery',p.mode=='recover' and SAO.Locomotion.jobs.a~=route)
+a,b,p,route=recoverySearch();__verdict='Transition:STARTED_WINDOW_CLIMB';bodyChanged(a,b)
+check('pending_native_crossing_verdict_retains_search_receiver',SAO.Locomotion.jobs.a==route and p.mode=='search' and route.lastVerdict=='Transition:STARTED_WINDOW_CLIMB')
+a,b,p,route=recoverySearch();__verdict='Transition:CLIMBING';bodyChanged(a,b)
+check('acknowledged_crossing_before_state_entry_keeps_native_owner',SAO.Locomotion.jobs.a==route and p.mode=='search' and not b:isClimbing())
+a,b,p,route=recoverySearch();__verdict='Transition:STARTED_FENCE_CLIMB';bodyChanged(a,b)
+check('pending_native_fence_crossing_keeps_owner',SAO.Locomotion.jobs.a==route and p.mode=='search')
+a,b,p,route=recoverySearch();b.nativeState='ClimbThroughWindowState';bodyChanged(a,b)
+check('native_window_state_without_rope_flag_keeps_owner',SAO.Locomotion.jobs.a==route and p.mode=='search' and not b:isClimbing())
+a,b,p,route=recoverySearch();__verdict='Transition:STARTED_WINDOW_OPEN';bodyChanged(a,b)
+check('native_window_open_admission_keeps_owner',SAO.Locomotion.jobs.a==route and p.mode=='search')
+a,b,p,route=recoverySearch();__verdict='Transition:OPENING_WINDOW';bodyChanged(a,b)
+check('native_window_opening_keeps_owner',SAO.Locomotion.jobs.a==route and p.mode=='search')
+a,b,p,route=recoverySearch();__verdict='Transition:STARTED_WINDOW_SMASH';bodyChanged(a,b)
+check('native_window_smash_admission_keeps_owner',SAO.Locomotion.jobs.a==route and p.mode=='search')
+a,b,p,route=recoverySearch();__verdict='Transition:SMASHING_WINDOW';bodyChanged(a,b)
+check('native_window_smashing_keeps_owner',SAO.Locomotion.jobs.a==route and p.mode=='search')
+a,b,p,route=recoverySearch();b.nativeState='OpenWindowState';bodyChanged(a,b)
+check('native_window_state_before_updated_verdict_keeps_owner',SAO.Locomotion.jobs.a==route and p.mode=='search')
+a,b,p,route=recoverySearch();b.nativeState='SmashWindowState';bodyChanged(a,b)
+check('native_smash_state_before_updated_verdict_keeps_owner',SAO.Locomotion.jobs.a==route and p.mode=='search')
+a,b,p,route=recoverySearch();__busy=true;bodyChanged(a,b)
+check('pending_native_action_prevents_recovery_preemption',SAO.Locomotion.jobs.a==route and p.mode=='search')
+a,b,p,route=recoverySearch();SAO.Perception.beliefs.a.known[1]=nil;bodyChanged(a,b)
+check('unseen_home_address_does_not_supply_recovery_destination',p.mode=='search' and SAO.Locomotion.jobs.a==route)
+a,b,p,route=recoverySearch();S.claim('c',5,5,15,15,0);SAO.Perception.beliefs.a.places.c={minX=5,minY=5,maxX=15,maxY=15,at=__tick,source='observed'};bodyChanged(a,b)
+check('forbidden_home_does_not_supply_recovery_destination',p.mode=='search' and SAO.Locomotion.jobs.a==route)
+a,b,p,route=recoverySearch();__seen='Z:41:10:1:track:recovery-danger:floor:0';bodyChanged(a,b)
+check('actual_threat_owns_response_before_recovery',a.state=='FLEE' and not a.recovery and p.mode~='recover')
+a,b=reset(.55);b.x=40;b.building=nil;__needs.fatigue=1;p=consider(a,b)
+check('unadmitted_search_can_choose_recovery_before_travel',p.mode=='recover' and p.destination.id=='home')
+a,b=reset(.55);__needs.fatigue=1;__recoveryAdmit=true
+SAO.Needs.eatCarried=function() return false end
+SAO.Needs.findSource=function() return 100,10,0,'known food' end
+SAO.Lessons.desperationBump=function() return 0 end
+SAO.Needs.approach=function(body,kind,x,y,z) return x,y,z end
+check('actual_needs_decision_recovers_before_speculative_food_route',C.__residenceNeeds('a',a,b,__tick,__needs)
+    and a.recovery and b.asleep and __starts==0)
+a,b=reset(.55);b.x=40;b.building=nil;__needs.fatigue=1
+check('actual_needs_decision_returns_before_another_food_route',C.__residenceNeeds('a',a,b,__tick,__needs)
+    and P.residencePurpose('a').mode=='recover' and a.state=='TRAVEL' and SAO.Locomotion.jobs.a.goal.x==10)
+a,b,p,route=recoverySearch();__needs.fatigue=1
+local priorChange=SAO.SourceUse
+SAO.SourceUse={beforeStateChange=function() return false end}
+check('refused_state_change_preserves_search_admission',not C.preemptResidenceForRecovery('a',a,b,__tick)
+    and SAO.Locomotion.jobs.a==route and p.admission and not p.recoveryInterrupted)
+SAO.SourceUse=priorChange
+
 __residenceResults=table.concat(checks,'\n')
 '''
 
 CONTROLS = [
+    ('controller', '        if agent.residenceRoute and Ctl.preemptResidenceForRecovery(id, agent, body, tickCount) then return true end',
+     '        -- recovery reconsideration omitted', 'actual_live_fatigue_changes_search_into_recovery_return'),
+    ('planner', '    if recovery then\n', '    if false then\n', 'actual_live_fatigue_changes_search_into_recovery_return'),
+    ('controller', '    if not ok or crossing or tostring(job.lastVerdict):sub(1, 11) == "Transition:" then return false end',
+     '    if not ok or tostring(job.lastVerdict):sub(1, 11) == "Transition:" then return false end', 'native_climbing_retains_search_receiver'),
+    ('controller', 'or tostring(job.lastVerdict):sub(1, 11) == "Transition:" then return false end',
+     'then return false end', 'pending_native_crossing_verdict_retains_search_receiver'),
+    ('controller', 'or agent.forageInspection or SAO.Needs.busy(body)\n',
+     'or agent.forageInspection\n', 'pending_native_action_prevents_recovery_preemption'),
+    ('labor', '    local inspected = 0\n', '    out.recoveryHome = true\n    local inspected = 0\n',
+     'unseen_home_address_does_not_supply_recovery_destination'),
+    ('labor', 'and standing.mayAttemptBelieved(id, rec.homeX, rec.homeY, "standing") then',
+     'then', 'forbidden_home_does_not_supply_recovery_destination'),
+    ('controller', '    if Ctl.recoveryChoice(id, agent, body, tick, needs) then\n',
+     '    if false then\n', 'actual_needs_decision_recovers_before_speculative_food_route'),
     ('controller', 'return SAOJavaBridge:setForceEntry(body, false)\n    end)', 'return true\n    end)',
      'ordinary_window_route_revokes_prior_force_permission'),
     ('controller', 'if not permissionOk or permissionSet ~= true then', 'if false then',
@@ -807,6 +939,11 @@ def main():
         receipt['runs'].append({'name':name,'command':command,'exitCode':done.returncode,'logSha256':digest(log)})
         save();return done
     texts = {name:path.read_text(encoding='utf-8-sig') for name,path in FILES.items()}
+    # Execute the unchanged production preference; native recovery remains in
+    # Border 225. Controlled bodies here expose only decision inputs/admission.
+    preference = texts['needs'].split('function N.recoveryPreference(',1)[1].split(
+        '-- A module reload releases',1)[0]
+    texts['needs'] = 'local N=SAO.Needs\nfunction N.recoveryPreference('+preference
     expose = 'Ctl.__residenceAddress=resolvedHomeAddress\nCtl.__residenceHome=decideHomeAndEquipment\nCtl.__residenceCompany=decideCompany\nCtl.__residenceNeeds=decideNeedsAndCompanion\nCtl.__residenceState=setState\nCtl.__residenceUpdate=updateAgent\nCtl.__residenceTick=function(t) tickCount=t end\nreturn Ctl\n'
     expected=set(re.findall(r"check\('([a-z0-9_]+)'\s*,",CASES))
     expected.update({"entry_permission_refuse_cannot_start_native_route","entry_permission_throw_cannot_start_native_route"})

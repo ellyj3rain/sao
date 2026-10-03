@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.11.2.0-pre-alpha` |
-| Closed chronology | `A1-C118` |
-| Next batch | `C119` |
+| Current version | `3.11.3.0-pre-alpha` |
+| Closed chronology | `A1-C119` |
+| Next batch | `C120` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -234,6 +234,7 @@ the machine. Names, dates, and threads below come from
 | `C116` | 2026-10-03 | minor | `3.11.0.0-pre-alpha` | Continuous native observation | Introduce optional source-bound native H264 capture with independent crop receipts, exact frame clocks and bounded fragment publication. This is a new observation runtime contract, so minor. |
 | `C117` | 2026-10-03 | kohai | `3.11.1.0-pre-alpha` | Shared furniture movement | Integrate existing single-player furniture relocation with exact delayed identity, measured contents and optional fixture ownership. This extends shared physical mechanics without adding autonomous NPC furniture decisions. |
 | `C118` | 2026-10-03 | kohai | `3.11.2.0-pre-alpha` | Private entry decisions | Extend existing private residence deliberation through observed windows, exact native encountered-edge evidence and revisable per-entrance retry. Existing perception, planning, persistence and movement owners retain authority. |
+| `C119` | 2026-10-03 | kohai | `3.11.3.0-pre-alpha` | Recovery decisions | Integrate existing bodily recovery into ongoing private search and travel decisions, preserving exact movement ownership, admitted destinations and measured native recovery. |
 
 ## The former number
 
@@ -254,11 +255,11 @@ establish release maturity.
 
 ## Next movement
 
-`C119` is the next batch. Its content determines its tier after it
+`C120` is the next batch. Its content determines its tier after it
 exists:
 
-| If C119 is | Result |
+| If C120 is | Result |
 |---|---|
-| patch or hotfix | `3.11.2.1-pre-alpha` |
-| kohai | `3.11.3.0-pre-alpha` |
+| patch or hotfix | `3.11.3.1-pre-alpha` |
+| kohai | `3.11.4.0-pre-alpha` |
 | minor | `3.12.0.0-pre-alpha` |

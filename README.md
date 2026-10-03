@@ -43,9 +43,16 @@ on the simulation.
 
 ## Status
 
-`3.11.2.0-pre-alpha` - the coordinate is computed by the version machine
+`3.11.3.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C119 lets bodily recovery compete with ongoing search and optional resource
+travel. A survivor can pause a speculative search, return to a personally known
+permitted home and attempt existing native recovery. Native opening, smashing
+and climbing retain the body until a safe interruption point. The same unfinished
+purpose is reconsidered afterward. Focused production and native recovery proofs
+pass; loaded observation follows C120's personal-experience integration.
 
 C118 extends private entry decisions to observed windows. Survivors compare
 visible openings and personally encountered barriers through their existing

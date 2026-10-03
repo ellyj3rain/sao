@@ -457,6 +457,19 @@ function P.detachResidence(id, reason)
     return true
 end
 
+-- Pausing for recovery preserves the uncompleted search without teaching a
+-- route failure or carrying an old native admission through reload.
+function P.pauseResidenceForRecovery(id)
+    local purpose = P.residencePurpose(id)
+    if not purpose or purpose.mode ~= "search" then return false end
+    purpose.recoveryInterrupted = { mode = purpose.mode, destination = dataCopy(purpose.destination),
+        steps = dataCopy(purpose.steps), cursor = purpose.cursor, at = nowHours() }
+    purpose.admission, purpose.exteriorEntryPending = nil, nil
+    purpose.status, purpose.nextAppraisalAt = "maintained", nowHours()
+    addEvent(purpose, "residence-search-paused", "bodily-recovery", nowHours())
+    return true
+end
+
 -- Thinking keeps its own cadence and can run while a native owner is busy.
 -- It does not replace that owner's route or imply knowledge of any stock.
 function P.planResidence(id, context)
@@ -472,7 +485,10 @@ function P.planResidence(id, context)
     purpose.residence = true
     purpose.appraisal, purpose.assessedAt, purpose.nextAppraisalAt = dataCopy(appraisal), at, at + 0.1
     if purpose.admission then return purpose end
-    if purpose.exteriorEntryPending and at < (purpose.exteriorEntryUntil or 0)
+    local recovery = (appraisal.recoveryKind == "sleep" or appraisal.recoveryKind == "rest")
+        and appraisal.recoveryHome == true and appraisal.conflict == 0 and appraisal.homeDanger.count == 0
+        and not appraisal.currentResourceOwner and not appraisal.localRelief
+    if purpose.exteriorEntryPending and not recovery and at < (purpose.exteriorEntryUntil or 0)
         and purpose.status ~= "blocked" then return purpose end
     purpose.exteriorEntryPending = nil
     local hunger, thirst = tonumber(appraisal.needs.hunger) or 0, tonumber(appraisal.needs.thirst) or 0
@@ -523,7 +539,10 @@ function P.planResidence(id, context)
     purpose.stayScore = stayScore
     local depart = travelAvailable and (unsafeHome or not appraisal.home) and bestScore > stayScore
     local search = travelAvailable and urgent and not appraisal.localRelief and not appraisal.currentResourceOwner
-    if depart then
+    if recovery then
+        if purpose.mode == "search" then P.pauseResidenceForRecovery(id) end
+        mode, reason = "recover", "chooses bodily recovery at the remembered permitted home"
+    elseif depart then
         mode, reason = "depart", "reconsiders residence from remembered danger, conflict or lack of shelter"
     elseif search then
         mode, reason = "search", "checks a personally known building whose supplies remain unknown"
@@ -535,14 +554,18 @@ function P.planResidence(id, context)
     -- Reaching a search lead gives its local perception and interaction owners
     -- time to inspect. Arrival itself has learned no contents.
     if purpose.mode == "search" and finite(purpose.inspectUntil) and at < purpose.inspectUntil
-        and not unsafeHome then mode, reason = "search", "observes and inspects the reached place"; best = nil end
+        and not unsafeHome and not recovery then mode, reason = "search", "observes and inspects the reached place"; best = nil end
     local destination = (mode == "search" or mode == "depart") and best
-        or mode == "return" and { id = "home", cx = appraisal.home.x, cy = appraisal.home.y, z = appraisal.home.z } or nil
+        or (mode == "return" or mode == "recover" and context.awayFromHome) and { id = "home", cx = appraisal.home.x, cy = appraisal.home.y, z = appraisal.home.z } or nil
     local priorTarget = purpose.destination and purpose.destination.id
     local newTarget = destination and destination.id
     if purpose.mode ~= mode or priorTarget ~= newTarget then
         purpose.revision = purpose.revision + 1
         addEvent(purpose, "residence-choice", mode .. ":" .. tostring(newTarget or "current-place"), at)
+    end
+    if purpose.mode == "recover" and mode ~= "recover" and purpose.recoveryInterrupted then
+        addEvent(purpose, "residence-search-reconsidered", mode, at)
+        purpose.recoveryInterrupted = nil
     end
     purpose.mode, purpose.destination, purpose.rationale = mode, dataCopy(destination), reason
     purpose.status, purpose.updatedAt = "maintained", at
@@ -680,7 +703,7 @@ function P.finishResidenceRoute(id, body, routeId, job)
     purpose.lastResidenceResult = { at = at, mode = mode, status = "arrived", target = step.target,
         correlationId = routeId, stock = "unknown-until-private-inspection" }
     purpose.exteriorEntryPending = nil
-    purpose.mode = (mode == "search" or exterior) and mode or "stay"
+    purpose.mode = (mode == "search" or mode == "recover" or exterior) and mode or "stay"
     purpose.inspectUntil = (mode == "search" or exterior) and at + 0.25 or nil
     purpose.status, purpose.nextAppraisalAt = "maintained", at
     addEvent(purpose, "residence-arrived", mode .. ":" .. step.target, at)
