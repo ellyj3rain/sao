@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.11.0.0-pre-alpha` |
+| Version | `3.11.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
@@ -17,8 +17,29 @@ Commits and publication alone do not require a repeated full run. Required
 remote CI is a concrete separate constraint. The active C116 source run retained its
 frozen inputs while this workflow update was prepared.
 
-GZDS's founding-document validation regulation is an early follow-up
-requested by the operator; ROADMAP.md retains its scope.
+GZDS's founding-document validation and process-maturity regulation is published
+in B2.17, [PR 25](https://github.com/ellyj3rain/gzds-internal/pull/25), merge
+`9cc109d83bac2c38023641cf799668b3dd2e08ec`. C117 verified that publication;
+the earlier follow-up pointer is closed.
+
+**As of** 2026-10-03 09:30 UTC / 02:30 PST, [C117](Batches/C117-20261003-0930Z-0230PST-shared-furniture-movement.md)
+integrates optional installed single-player furniture push/pull with exact
+actor/object/footprint/content bindings and a bounded delayed queue. Measured
+relocation owns completion; effort callbacks and rescued contents do not grant
+success. Native carrying wrappers and events retain their fixture owners.
+Registered bath state refuses before effects. Empty WaterPipes fixtures use
+verified authoritative registration relocation; unsupported water state refuses.
+
+The final installed-Kahlua proof passes 47 checks and eleven defect controls,
+with unchanged input hashes and actual exit zero. Complete installed furniture,
+WaterPipes and bathing Lua executes against controlled geometry and native
+receivers. Loaded native movement, actual LG callback execution, multiplayer,
+NPC furniture planning and private learning remain unverified or unimplemented.
+The existing player actions are the caller; bounded scalar diagnostics grant no
+person knowledge. Version-stamped packaging and scoped repository checks retain
+separate evidence. Unrelated simulation evidence is preserved under DR-054.
+Pico owns the appearance pipeline; the wider integration and learning queue
+remains authorized. GZDS's founding-document follow-up is closed above.
 
 **As of** 2026-10-03 04:33 UTC / 21:33 PST, [C116](Batches/C116-20261003-0433Z-2133PST-continuous-native-observation.md) adds optional continuous native
 H264 observation with actual encoded-frame clocks and bounded source receipts.
@@ -1667,12 +1688,12 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, plus C105's outcome and export-worker controls, the
-repository holds 237 `*_test.py` files. The gate invokes 237 `*_test.py` files
-and 16 other Python entry points, 253 distinct scripts, through direct calls
+repository holds 238 `*_test.py` files. The gate invokes 238 `*_test.py` files
+and 16 other Python entry points, 254 distinct scripts, through direct calls
 and its mirror loop. Native suites also invoke their own controls.
 Border labels extend through 233; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
-ships 188 Lua source files.
+ships 189 Lua source files.
 ZAO A41 has fifteen borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks

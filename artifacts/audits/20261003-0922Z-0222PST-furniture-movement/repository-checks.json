@@ -1,0 +1,112 @@
+{
+  "checks": [
+    {
+      "check": "globals_census_test.py",
+      "exitCode": 0,
+      "logSha256": "a39180cd31bc6b7191b0b7bfd87c9ef60e8556f78e7d7df27d727e32424cb959",
+      "command": [
+        "python",
+        "tools/globals_census_test.py"
+      ],
+      "scriptSha256": "323aada740fddbbf4793cc3b707721759483d49c9cb7a7d8605d36321aee358a"
+    },
+    {
+      "check": "doc_currency_test.py",
+      "exitCode": 0,
+      "logSha256": "a23f73909c57bd256c806a0d5f349b955b405ef8ca5e700d804b831c5adaa9a2",
+      "command": [
+        "python",
+        "tools/doc_currency_test.py"
+      ],
+      "scriptSha256": "e4b33dd8e26e1377d290b38b3ce101d1b6f72eb6c4ebd0347cd54d53a03e3c98"
+    },
+    {
+      "check": "state_counts_test.py",
+      "exitCode": 0,
+      "logSha256": "6dd8518f96602562a7854ff76651435baf52f59c620573901ec3fd520402b184",
+      "command": [
+        "python",
+        "tools/state_counts_test.py"
+      ],
+      "scriptSha256": "91d6de2280c42a166a5d1b0431dc7580a3da572b5928ba366c5fa5b238342090"
+    },
+    {
+      "check": "version_replay.py",
+      "exitCode": 0,
+      "logSha256": "1dedf041963279f168f0fa06c85ca35af2607963d9d8e27c9615a5c87ac79142",
+      "command": [
+        "python",
+        "tools/version_replay.py"
+      ],
+      "scriptSha256": "a7e959ab1c5d86b5ab7048614a255882ca105c49d12bb74d1aac90783c84b593"
+    },
+    {
+      "check": "version_stamp_test.py",
+      "exitCode": 0,
+      "logSha256": "8b17f31b29aa80573b14254cf5826d39983098323500f9c5b7157b95ce3ca449",
+      "command": [
+        "python",
+        "tools/version_stamp_test.py"
+      ],
+      "scriptSha256": "579e9a8af3a23e64aa9defecef58f9ad2c1b71a530e0e778f29a9081ef679d55"
+    },
+    {
+      "check": "gate_reach_test.py",
+      "exitCode": 0,
+      "logSha256": "780ea141e96059bce685a3edd177737ed33af9e167f9ca70333d87c5aa764e39",
+      "command": [
+        "python",
+        "tools/gate_reach_test.py"
+      ],
+      "scriptSha256": "d41f1c7273813edaedaa401d59045bc3c8b2d0395c80f23cec0c157d25a2d812"
+    },
+    {
+      "check": "operator_speech_test.py",
+      "exitCode": 0,
+      "logSha256": "3ed9cfe8b38c16c028c08c93fc47cd301034c6cc3284994f4fcf5b241d85957c",
+      "command": [
+        "python",
+        "tools/operator_speech_test.py"
+      ],
+      "scriptSha256": "f4b53c25b9df1c0e4b64566a8ebba7f2bcf83bfb72822237b99c63c8a583cb05"
+    },
+    {
+      "check": "session_state_test.py",
+      "exitCode": 0,
+      "scriptSha256": "705d506609a0c4c4d69811f309a038618d4de48aedbf58217efbff88f53250ed",
+      "logSha256": "f73aa37c0c11b6e20d8ff77f41186735b1eb1722ceda8fdc3d0291e79500ed84",
+      "command": [
+        "python",
+        "tools/session_state_test.py"
+      ]
+    }
+  ],
+  "reusedLifetime": {
+    "result": {
+      "name": "lifetime",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tools/forget_on_death_test.py"
+      ],
+      "exitCode": 0,
+      "log": "_scratch\\c117-contracts\\lifetime.log",
+      "logSha256": "2fe8058eb7843b57fb857d32af90a89be990db8919296887bd50fc3b179338a2"
+    },
+    "testedRuntimeSha256": "4cb822fe3ed280199e050a6b654017c3f6592e97e475255967f97197c702c822",
+    "applicability": "Final runtime change only bounds diagnostic reason strings; no per-person cache declarations, indexes or lifetime calls change."
+  },
+  "build": {
+    "exitCode": 0,
+    "version": "3.11.1.0-pre-alpha",
+    "logSha256": "0b71997b276e0366b0e019b4b388c5a4f6fd6a9fc1a77c7a111ab461bd0a6680"
+  },
+  "packageSha256": "7221c076c40cb76e57f8ab4ff6023fd09bd68758c0f2a5254bd6aa4735900c95",
+  "packageCopiesIdentical": true,
+  "base": "05b55410d59894c516e733c436baa6b4d80a7532",
+  "failedExploratoryCheck": "Proposed FurnitureMovement omission assertion was inapplicable because dormant loaded modules never reference this client-only owner. Removed changes; county_sweep.py and trajectory_simulation_test.py match the base. This result is not a pass.",
+  "firstRemoteCi": {
+    "runId": 37113894008,
+    "result": "failed",
+    "reason": "Session-state As of batch was on a following line; existing parser requires same line. Documentation-only repair passes the focused check. Runtime proof remains unchanged."
+  }
+}

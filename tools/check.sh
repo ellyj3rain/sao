@@ -2411,6 +2411,13 @@ if ! "$PY" tools/world_lab_renderer_test.py; then
     fail=1
 fi
 
+# Border 236 - installed furniture movement retains exact delayed targets and
+# verifies physical relocation and contents before reporting completion.
+if ! "$PY" tools/furniture_movement_test.py; then
+    note "BORDER FINDING - furniture movement identity or physical completion differs"
+    fail=1
+fi
+
 if ! "$PY" tools/source_integration_gate.py; then
     note "BORDER FINDING - source integration lineage or ownership claim differs"
     fail=1

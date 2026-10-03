@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `3.11.0.0-pre-alpha` |
+| Version | `3.11.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -3021,3 +3021,24 @@ documentation outputs: the portable proof JSON, scope Markdown and
 four corresponding batch/FINDINGS/SESSION/scope DOCX drafts. The other
 572 protected paths, including model/R84/C88 inputs, retain exact bytes.
 The original generation receipt and this ledger entry remain preserved.
+
+
+## F-132 | 2026-10-03 09:30 UTC / 02:30 PST | Delayed furniture relocation and fixture ownership
+
+The inspected FurniturePushPull 1.2.1 single-player effort callback returns true
+before its private delayed queue relocates the object. That queue resolves a
+future source by coordinates and sprite. A replacement can therefore become the
+physical target unless the delayed owner retains exact identity. Native pickup
+and placement preserve LG carrying wrappers and object events; replaying those
+events would duplicate ownership. WaterPipes' separate movement callback omits
+barrel removal and is bypassed by direct relocation. TABAS pickup eligibility is
+also bypassed by that direct path.
+
+C117 retains the installed physical owner while owning one bounded single-player
+delay and measured result. Its final installed-Kahlua proof executes 47 cases and
+eleven named defect controls, including same-sprite substitution, incomplete
+contents, duplicate scheduling, registered bath state, virtual-water refusal,
+registry mutation and reset. Exact source pins and results are retained in
+`artifacts/audits/20261003-0922Z-0222PST-furniture-movement/`.
+Map, body, item and pickup/placement receivers are controlled. This evidence does
+not establish loaded native relocation or autonomous NPC furniture work.

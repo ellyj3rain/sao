@@ -1,0 +1,206 @@
+{
+  "schema": "sao-installed-source-inspection/1",
+  "capturedUtc": "2026-10-03T09:23:26.582596+00:00",
+  "purpose": "C117 physical furniture compatibility source inspection",
+  "runtimeEvidence": false,
+  "redistribution": "API adapters only; no inspected third-party source copied into the shipped mod",
+  "sources": [
+    {
+      "root": "Workshop/108600",
+      "path": "3781319724/mods/FurniturePushPull/42/media/lua/shared/FurniturePushPull/FurniturePushPull_Core.lua",
+      "sha256": "4c8ae89946523e32a61db4972402b7fda7e1992269e0e61cea928b0ecf98bfd0",
+      "bytes": 60838,
+      "anchors": [
+        {
+          "text": "function FurniturePushPull.executeMove(",
+          "lines": [
+            1506
+          ]
+        },
+        {
+          "text": "function FurniturePushPull.executeServerMove(",
+          "lines": [
+            1619
+          ]
+        }
+      ]
+    },
+    {
+      "root": "Workshop/108600",
+      "path": "3781319724/mods/FurniturePushPull/42/media/lua/shared/FurniturePushPull/FurniturePushPull_Actions.lua",
+      "sha256": "ebdf35e640305dac28260b8e6e9adc9e6665c1a798bb604bd9dff99bf6795b55",
+      "bytes": 9542,
+      "anchors": [
+        {
+          "text": "function ISFurniturePushPullEffortAction:complete()",
+          "lines": [
+            235
+          ]
+        },
+        {
+          "text": "function ISFurniturePullCommitAction:complete()",
+          "lines": [
+            389
+          ]
+        }
+      ]
+    },
+    {
+      "root": "Workshop/108600",
+      "path": "3781319724/mods/FurniturePushPull/42/media/lua/client/FurniturePushPull/FurniturePushPull_Client.lua",
+      "sha256": "d88c30bb4f7924188f4d89da996e5867ca1d4a62f8d9d2a827f8de024dd45885",
+      "bytes": 14112,
+      "anchors": [
+        {
+          "text": "local pendingSingleplayerPushes",
+          "lines": [
+            10
+          ]
+        },
+        {
+          "text": "function FurniturePushPullClient.playOriginalPushShove",
+          "lines": [
+            53
+          ]
+        }
+      ]
+    },
+    {
+      "root": "Workshop/108600",
+      "path": "2699828474/mods/Rebalanced Prop Moving/42.21/media/lua/shared/Moveables/ISMoveableSpriteProps.lua",
+      "sha256": "dd139db402a17fa78e4f5c26383523e8f42e11a1aea67a44316047b70c03b9fb",
+      "bytes": 213023,
+      "anchors": [
+        {
+          "text": "function ISMoveableSpriteProps:pickUpMoveableInternal",
+          "lines": [
+            1400
+          ]
+        },
+        {
+          "text": "function ISMoveableSpriteProps:placeMoveableInternal",
+          "lines": [
+            2099
+          ]
+        }
+      ]
+    },
+    {
+      "root": "Workshop/108600",
+      "path": "3546314080/mods/WaterPipes/42.20/media/lua/shared/Moveables/ISMoveablesActionPatch.lua",
+      "sha256": "794beed59ff17f9f642a878ab3375d75f46f24b755c9ffc3b14859b9d9860272",
+      "bytes": 228,
+      "anchors": [
+        {
+          "text": "function ISMoveablesAction:complete()",
+          "lines": [
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "root": "Workshop/108600",
+      "path": "3546314080/mods/WaterPipes/42.20/media/lua/client/WPObjectHandlers.lua",
+      "sha256": "346d4d5ee75dbf32600ad199750fc2d3a48d0199117e5b2c415e35a9503f2d8f",
+      "bytes": 4098,
+      "anchors": [
+        {
+          "text": "Events.OnMoveablesActionComplete.Add",
+          "lines": [
+            132
+          ]
+        }
+      ]
+    },
+    {
+      "root": "Workshop/108600",
+      "path": "3546314080/mods/WaterPipes/42.20/media/lua/server/WPServerCommands.lua",
+      "sha256": "a522ba05930295dd8d4196e92f176e68b86dbdeff1d951025943e4bf02a97e5a",
+      "bytes": 4235,
+      "anchors": [
+        {
+          "text": "WPServer.Commands.BarrelAdd",
+          "lines": [
+            82
+          ]
+        },
+        {
+          "text": "WPServer.Commands.BarrelRemove",
+          "lines": [
+            88
+          ]
+        }
+      ]
+    },
+    {
+      "root": "Workshop/108600",
+      "path": "3779561845/mods/LGExtendedPlumbing/42.20/media/lua/shared/LGExtendedPlumbing/LGEPCarry.lua",
+      "sha256": "6bfd6345b45ce949d8a4ffbdecc3ecd93c7f39d4db6319309f43c7761ea6d25f",
+      "bytes": 11745,
+      "anchors": [
+        {
+          "text": "installCarryWraps",
+          "lines": [
+            218
+          ]
+        }
+      ]
+    },
+    {
+      "root": "Workshop/108600",
+      "path": "3779562002/mods/LGExtendedElectricity/42.20/media/lua/shared/LGExtendedElectricity/LGEECarry.lua",
+      "sha256": "7b5592c49e0189545fd8dc87a7edc942497014c437e59967cc39bb3637d1bd48",
+      "bytes": 10703,
+      "anchors": [
+        {
+          "text": "installCarryWraps",
+          "lines": [
+            222
+          ]
+        }
+      ]
+    },
+    {
+      "root": "Workshop/108600",
+      "path": "3592172476/mods/Take A Bath And Shower New/42.20/media/lua/shared/TABAS_MoveablesPatch.lua",
+      "sha256": "e45dcb6cf1614409741e65893b3588ad4c59ea17e1800f3b24d7f3be1124863e",
+      "bytes": 2615,
+      "anchors": [
+        {
+          "text": "old_canPickUpMoveableInternal",
+          "lines": [
+            26,
+            28
+          ]
+        },
+        {
+          "text": "old_canRotateMoveable",
+          "lines": [
+            36,
+            38
+          ]
+        },
+        {
+          "text": "old_canScrapObjectInternal",
+          "lines": [
+            46,
+            48
+          ]
+        }
+      ]
+    },
+    {
+      "root": "ProjectZomboid",
+      "path": "projectzomboid.jar",
+      "sha256": "e1a69eb743ede60b213a0fe7f8b83d4fcab773036d256cc4543a336f3b058a33",
+      "bytes": 65682033
+    },
+    {
+      "root": "ProjectZomboid",
+      "path": "media/lua/shared/Moveables/ISMoveableSpriteProps.lua",
+      "sha256": "a6a5ab5b36da07ce53587218bffd33963d9caf0b53e571107cc66dbe9f77ab4c",
+      "bytes": 206948
+    }
+  ]
+}

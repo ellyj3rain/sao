@@ -1,0 +1,192 @@
+{
+  "schema": "sao-furniture-proof-summary/1",
+  "result": "PASS",
+  "boundary": "Installed FPP/SAO Lua in installed Kahlua with controlled map, body, inventory,\ngeometry and pickup/placement receivers. Executes complete installed core/action/\nclient modules; does not establish native relocation, graphics, multiplayer,\nloaded-world acceptance or NPC planning/learning. Missing installed inputs remain\nexplicitly unchecked; missing owned proof inputs fail.\n",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "pythonVersion": "3.14.6",
+  "retainedReceipt": "_scratch/c117-furniture-final/verification.json",
+  "retainedReceiptSha256": "9afc42dfc1b98fb6404a1d6ac1e5259599ce3197ea409ef735ad574925e97f5e",
+  "cases": 47,
+  "controls": [
+    {
+      "name": "premature-delay",
+      "target": "delay_preserved",
+      "sourceSha256": "2953121e2c6cdf30c92b42c013abdf503042707423c82054b1d034b5ee9183f4",
+      "verdict": "expected failure"
+    },
+    {
+      "name": "accept-replaced-source",
+      "target": "same_sprite_replacement_refused",
+      "sourceSha256": "178eb8fbe6a313895cf442497626dbedabf8eac5b919ff4dbe96f9fadabf4a0c",
+      "verdict": "expected failure"
+    },
+    {
+      "name": "accept-substituted-content",
+      "target": "same_id_content_substitution_refused",
+      "sourceSha256": "a7b6b52a32c7301a70d697ee539c502e69a1aa2cd6371f55c70f6d61431f6e8c",
+      "verdict": "expected failure"
+    },
+    {
+      "name": "false-content-completion",
+      "target": "incomplete_content_restore_not_completed",
+      "sourceSha256": "855546f333e7cc44bda765c5c33dcfd09c0363bc07774543e63bdaf209642c33",
+      "verdict": "expected failure"
+    },
+    {
+      "name": "ignore-wet-bath",
+      "target": "wet_bath_refused_before_effect",
+      "sourceSha256": "613162682fab45547f48285719d46000870da41fed16663d5be554c04869dfe0",
+      "verdict": "expected failure"
+    },
+    {
+      "name": "ignore-virtual-water",
+      "target": "virtual_water_refused_before_effect",
+      "sourceSha256": "078c5afdcde64df74cdaccbfaecf6a23c1a78164cda69d47fb0e13b2a133d951",
+      "verdict": "expected failure"
+    },
+    {
+      "name": "ignore-nested-content",
+      "target": "nested_content_substitution_refused",
+      "sourceSha256": "2f489de80ba988a02d4660b2c9346fe278034e2d65987185c41212617beef19a",
+      "verdict": "expected failure"
+    },
+    {
+      "name": "overwrite-midmove-registry",
+      "target": "midmove_registry_change_preserved",
+      "sourceSha256": "d6e6dcb2d3d432abb89f7c24cf10ce0eb1a9db215870055ef806e2dfc3d542e7",
+      "verdict": "expected failure"
+    },
+    {
+      "name": "ignore-reentrant-reset",
+      "target": "reset_during_native_callback_is_bounded",
+      "sourceSha256": "8081006e13be6887012990480ed51768fb339f9db733cff8e1d9e326608920dd",
+      "verdict": "expected failure"
+    },
+    {
+      "name": "retain-nonscalar-reason",
+      "target": "reset_non_scalar_reason_sanitized",
+      "sourceSha256": "aef7639071482005fc685d359299ae6e641ae8c2bbbcd332e5b1b421318bd284",
+      "verdict": "expected failure"
+    },
+    {
+      "name": "ignore-expiry",
+      "target": "expired_push_no_native_effect",
+      "sourceSha256": "884cded70d7c9949be40adba99f02005f45db7149030fd0e8ef52375aa57894e",
+      "verdict": "expected failure"
+    }
+  ],
+  "inputs": {
+    "repo/tools/furniture_movement_test.py": "fa5f6537b87fc0fcb5ccad915093969f165d23bf87033562554f1e0117acdb98",
+    "repo/tools/native_proof_preflight.py": "051ae8b6621627860ede97f48c502b56197593199db6002e5235cebcbb27e30d",
+    "repo/mod/42.20/media/lua/client/SAO_FurnitureMovement.lua": "7d35ef9f1e81b186820f249e59ba3cd9c5d88769b5287b0e402b99e24606b5e5",
+    "repo/tools/luacheck/FurnitureMovementProbe.java": "46ff012d306213c608f4d6722ae1feeea6d44ad488ca7bb6dece39f5b31b8f30",
+    "repo/tools/luacheck/furniture_movement_prelude.lua": "ba17d4829fb79c48e5d7150708f86e5f4000f6cab655e8fdbd11313386d3d1a0",
+    "repo/tools/luacheck/furniture_movement_geometry.lua": "6dc4af940f636bc690a0a131fc83c7c51192064a75e9134eff3bde1b4ce8d8ce",
+    "repo/tools/luacheck/furniture_movement_cases.lua": "6912cd1db559dd9cf6dd9f2708d21beaf4845d623c228eab17c92011b42efe1d",
+    "Workshop/108600/3781319724/mods/FurniturePushPull/42/media/lua/shared/FurniturePushPull/FurniturePushPull_Core.lua": "4c8ae89946523e32a61db4972402b7fda7e1992269e0e61cea928b0ecf98bfd0",
+    "Workshop/108600/3781319724/mods/FurniturePushPull/42/media/lua/shared/FurniturePushPull/FurniturePushPull_Actions.lua": "ebdf35e640305dac28260b8e6e9adc9e6665c1a798bb604bd9dff99bf6795b55",
+    "Workshop/108600/3781319724/mods/FurniturePushPull/42/media/lua/client/FurniturePushPull/FurniturePushPull_Client.lua": "d88c30bb4f7924188f4d89da996e5867ca1d4a62f8d9d2a827f8de024dd45885",
+    "Workshop/108600/3592172476/mods/Take A Bath And Shower New/42.20/media/lua/shared/TABAS_Sprites.lua": "aec186b1c9a1353d2ae586faa51ae51221ec9d1cd57b6f87ff41f0cc875902bc",
+    "Workshop/108600/3592172476/mods/Take A Bath And Shower New/42.20/media/lua/shared/TubFluidContainer/TABAS_TubFluidContainerSystemUtils.lua": "fd2d06c63727da282beeb36be3a501b25f96fbf5579c2a531df8369fdcfaa3e8",
+    "Workshop/108600/3592172476/mods/Take A Bath And Shower New/42.20/media/lua/shared/TABAS_Iso.lua": "42873e815054c2895eef4b2df0c70e2a4bec756fdf2d925a6f23ab88f75eced0",
+    "Workshop/108600/3546314080/mods/WaterPipes/42.20/media/lua/server/WPServerCommands.lua": "a522ba05930295dd8d4196e92f176e68b86dbdeff1d951025943e4bf02a97e5a",
+    "Workshop/108600/3546314080/mods/WaterPipes/42.20/media/lua/shared/WPIso.lua": "e7463716852737bc6c08130c768161c29c1978e11ac23660fb90907fb6ad5106",
+    "Workshop/108600/3781319724/mods/FurniturePushPull/42/mod.info": "348d34b1775862bf1457a0ffcb4c796bc5507b50e76e9419c0936a0143df7246",
+    "ProjectZomboid/projectzomboid.jar": "e1a69eb743ede60b213a0fe7f8b83d4fcab773036d256cc4543a336f3b058a33",
+    "ProjectZomboid/stdlib.lua": "583c294996ae65310fb1191b9a70584b59c163a0f2d257af53f06728ba3931eb",
+    "JDK/java.exe": "d5f1b9e03e298ebfb04d2326ecc1e2af3e6817f9b4d7f9f151fe856d56975650",
+    "JDK/javac.exe": "74f283ef1e26b3dfccfb56673d74a8a720d2c142e80881aa0084ce2e0379004e"
+  },
+  "inputsUnchangedDuringRun": true,
+  "runs": [
+    {
+      "name": "compile",
+      "exitCode": 0,
+      "log": "compile.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "candidate",
+      "exitCode": 0,
+      "log": "candidate.log",
+      "logSha256": "b3b36c5e0cfa8ce1e1292de3f6c330f8d699fb27f74711604da9111f10ab1f07"
+    },
+    {
+      "name": "premature-delay",
+      "exitCode": 1,
+      "log": "premature-delay.log",
+      "logSha256": "7fa47202741313681deba6c70d1be1e2c7fcf162b8585abfcc2394026186a617"
+    },
+    {
+      "name": "accept-replaced-source",
+      "exitCode": 1,
+      "log": "accept-replaced-source.log",
+      "logSha256": "f6cffdf2225946f1697873a40e823ebf7bc0d8fe98b632c01fc2e87205aabb64"
+    },
+    {
+      "name": "accept-substituted-content",
+      "exitCode": 1,
+      "log": "accept-substituted-content.log",
+      "logSha256": "3c24295839dc538e0652b1d99840cede739e8dae0abd526d85bc65d74670d70c"
+    },
+    {
+      "name": "false-content-completion",
+      "exitCode": 1,
+      "log": "false-content-completion.log",
+      "logSha256": "cce475e941b93f820038416daa859ac3b3324e5a01ac3aebb6370351824962d4"
+    },
+    {
+      "name": "ignore-wet-bath",
+      "exitCode": 1,
+      "log": "ignore-wet-bath.log",
+      "logSha256": "f0beb1ddd14bf4d405409105d1cad92eb63a1cc5d4b5249bd64f1961ecd1e1bf"
+    },
+    {
+      "name": "ignore-virtual-water",
+      "exitCode": 1,
+      "log": "ignore-virtual-water.log",
+      "logSha256": "c3c020248e3fa4df91549ab26ace97be975eee4836ef7bbd69203f8e78bfe062"
+    },
+    {
+      "name": "ignore-nested-content",
+      "exitCode": 1,
+      "log": "ignore-nested-content.log",
+      "logSha256": "1750485c6a7cd9b34fe169362aee30b0cdf1eea1588dede7e960e61606cbfa04"
+    },
+    {
+      "name": "overwrite-midmove-registry",
+      "exitCode": 1,
+      "log": "overwrite-midmove-registry.log",
+      "logSha256": "af16db5c9ebedefb84173219278d7520899c7e8c6f8cd7cd5dbdf07bf5f0e42f"
+    },
+    {
+      "name": "ignore-reentrant-reset",
+      "exitCode": 1,
+      "log": "ignore-reentrant-reset.log",
+      "logSha256": "c7ee54d251b0bf173e23d05edeb9a15200373ddc5f953b082e3e1eabb9536c0a"
+    },
+    {
+      "name": "retain-nonscalar-reason",
+      "exitCode": 1,
+      "log": "retain-nonscalar-reason.log",
+      "logSha256": "050367ab7e093f5989f9c07eacea2186465afd4b68afa0692cc3ed3b5868431a"
+    },
+    {
+      "name": "ignore-expiry",
+      "exitCode": 1,
+      "log": "ignore-expiry.log",
+      "logSha256": "87333575e6386e2000ff5741e3edd75aa0dc842df2e5cf71fc62362c8afecc34"
+    }
+  ],
+  "classificationBoundary": "Missing installed inputs skip with explicit unchecked status by default and fail with --required; missing owned files or shared preflight helper fail in both modes; omission mutation detected.",
+  "publishedTextInputs": {
+    "repo/tools/furniture_movement_test.py": "d327cf6dde3075e052e80922cb852386cc9608ec858e62286e48bb1bcfb3aa22",
+    "repo/tools/native_proof_preflight.py": "051ae8b6621627860ede97f48c502b56197593199db6002e5235cebcbb27e30d",
+    "repo/mod/42.20/media/lua/client/SAO_FurnitureMovement.lua": "7d35ef9f1e81b186820f249e59ba3cd9c5d88769b5287b0e402b99e24606b5e5",
+    "repo/tools/luacheck/FurnitureMovementProbe.java": "d39a108abc5ed722b3c2b19bb982798ea4725aef0ff13e8a4b4766424dba9e71",
+    "repo/tools/luacheck/furniture_movement_prelude.lua": "b50d2310c8b26fcb886aa19e5e1e20425e826e766ba7cd7ea18275dc843c1fd6",
+    "repo/tools/luacheck/furniture_movement_geometry.lua": "ebdf7e553364059a4f0430aa06d829d5d8de2978a964fc1ce3e9e1a50e931986",
+    "repo/tools/luacheck/furniture_movement_cases.lua": "633f7b9cacf1fb28af4f4ab4ef8f33a294b5291ddfcc8b518794ac22d7b616c2"
+  },
+  "textInputApplicability": "Git stores LF; local Python/Java/Lua proof fixtures may use CRLF. Every published text input was compared byte-for-byte after CRLF-to-LF normalization; implementation and test statements are unchanged. Raw native-run hashes remain above."
+}

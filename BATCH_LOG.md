@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.11.0.0-pre-alpha` |
+| Version | `3.11.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -223,3 +223,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C114](Batches/C114-20261002-2244Z-1544PST-uncapped-native-observation.md) | 2026-10-02 | Uncapped native observation | [`T-030`](Batches/THREADS.md#t-030) |
 | [C115](Batches/C115-20261003-0308Z-2008PST-persistent-subject-observation.md) | 2026-10-03 | Persistent subject observation | [`T-030`](Batches/THREADS.md#t-030) |
 | [C116](Batches/C116-20261003-0433Z-2133PST-continuous-native-observation.md) | 2026-10-03 | Continuous native observation | [`T-030`](Batches/THREADS.md#t-030) |
+| [C117](Batches/C117-20261003-0930Z-0230PST-shared-furniture-movement.md) | 2026-10-03 | Shared furniture movement | [`T-030`](Batches/THREADS.md#t-030) |

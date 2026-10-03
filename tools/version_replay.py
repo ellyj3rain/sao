@@ -255,6 +255,7 @@ UNITS = [
     ('C114', 'patch', 'Remove artificial capture pacing and enable native uncapped rendering after startup in isolated observers. Existing publication, save, image and gameplay contracts remain, so patch.'),
     ('C115', 'patch', 'Repair observer identity persistence with optional sealed subject assignments. Existing native slots, save, gameplay and publication owners remain, so patch.'),
     ('C116', 'minor', 'Introduce optional source-bound native H264 capture with independent crop receipts, exact frame clocks and bounded fragment publication. This is a new observation runtime contract, so minor.'),
+    ('C117', 'kohai', 'Integrate existing single-player furniture relocation with exact delayed identity, measured contents and optional fixture ownership. This extends shared physical mechanics without adding autonomous NPC furniture decisions.'),
 ]
 
 TIER_MEANINGS = [
