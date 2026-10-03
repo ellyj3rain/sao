@@ -257,6 +257,7 @@ UNITS = [
     ('C116', 'minor', 'Introduce optional source-bound native H264 capture with independent crop receipts, exact frame clocks and bounded fragment publication. This is a new observation runtime contract, so minor.'),
     ('C117', 'kohai', 'Integrate existing single-player furniture relocation with exact delayed identity, measured contents and optional fixture ownership. This extends shared physical mechanics without adding autonomous NPC furniture decisions.'),
     ('C118', 'kohai', 'Extend existing private residence deliberation through observed windows, exact native encountered-edge evidence and revisable per-entrance retry. Existing perception, planning, persistence and movement owners retain authority.'),
+    ('C119', 'kohai', 'Integrate existing bodily recovery into ongoing private search and travel decisions, preserving exact movement ownership, admitted destinations and measured native recovery.'),
 ]
 
 TIER_MEANINGS = [

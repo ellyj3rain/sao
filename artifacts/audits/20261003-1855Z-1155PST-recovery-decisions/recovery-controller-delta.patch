@@ -1,0 +1,37 @@
+--- C:\Users\jleyv\Peanut Butter\AI Assisted Software Engineering Mass Repository\Projects\.worktrees\sao-c119-recovery\_scratch\c109-loaded-recovery\checks\production.lua
++++ C:\Users\jleyv\Peanut Butter\AI Assisted Software Engineering Mass Repository\Projects\.worktrees\sao-c119-recovery\mod\42.20\media\lua\client\SAO_Controller.lua
+@@ -4355,9 +4355,13 @@
+         or agent.forageInspection or SAO.Needs.busy(body)
+         or tick < (agent.nextRecoveryDecisionAt or 0) then return false end
+     agent.nextRecoveryDecisionAt = tick + 60
+-    local ok, crossing = pcall(function() return body:isClimbing() end)
+-    if not ok or crossing or job.lastVerdict == "CLIMBING"
+-        or job.lastVerdict == "STARTED_FENCE_CLIMB" or job.lastVerdict == "STARTED_WINDOW_CLIMB" then return false end
++    local ok, crossing = pcall(function()
++        local nativeState = body:getCurrentStateName()
++        return body:isClimbing() or nativeState == "ClimbOverFenceState"
++            or nativeState == "ClimbThroughWindowState" or nativeState == "SmashWindowState"
++            or tostring(nativeState):find("OpenWindowState", 1, true) ~= nil
++    end)
++    if not ok or crossing or tostring(job.lastVerdict):sub(1, 11) == "Transition:" then return false end
+     local needs = SAO.Needs.read(body)
+     local kind = Ctl.recoveryChoice(id, agent, body, tick, needs)
+     if not kind then return false end
+@@ -7628,6 +7632,9 @@
+             setState(agent, id, "IDLE", "water approach exceeded its time limit")
+             return true
+         end
++        -- Read the native movement owner's current verdict before choosing to
++        -- interrupt: accepted crossing events can precede native state entry.
++        if agent.residenceRoute and Ctl.preemptResidenceForRecovery(id, agent, body, tickCount) then return true end
+         if agent.residenceRoute and Ctl.finishResidenceMovement(id, agent, body) then return true end
+         if agent.state == "FORAGE" and agent.forageInspection
+             and agent.taskDeadline and tickCount >= agent.taskDeadline
+@@ -9220,7 +9227,6 @@
+         local needs = SAO.Needs.read(body)
+         local immediate = SAO.Needs.bleeding(body) > 0
+         if immediate and decideNeedsAndCompanion(id, agent, body, tickCount, needs) then return end
+-        if Ctl.preemptResidenceForRecovery(id, agent, body, tickCount) then return end
+     end
+     if CONTACT_STATES[agent.state] and tickCount >= (agent.nextContactNeedsAt or 0) then
+         agent.nextContactNeedsAt = tickCount + 60

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.11.2.0-pre-alpha` |
+| Version | `3.11.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -22,7 +22,7 @@ serve. The next general simulation observes the changed decision paths.
 | Batch | Product outcome | Completion evidence |
 |---|---|---|
 | C118 | Compare personally observed entry alternatives, including windows, and respond to the actual encountered barrier. | Closed source: 105 residence and 33 installed exterior assertions, mutation controls and route regression pass; loaded observation follows the arc. |
-| C119 | Make bodily recovery compete with ongoing search, reach a privately known permitted recovery place and resume unfinished work. | Actual controller preemption and native recovery, with emergency, danger, crossing and ownership controls. |
+| C119 | Make bodily recovery compete with ongoing search, reach a privately known permitted recovery place and resume unfinished work. | Closed source: 137 residence cases/47 controls and measured native recovery proof; current transition ownership is protected. |
 | C120 | Retain authentic entry and recovery experience that changes later individual choices. | Producer and consumer effects, durable identity, contradiction, decay and controls against false or duplicate experience. |
 
 Pico retains the identity-preserving appearance pipeline. The educational and

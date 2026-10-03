@@ -91,7 +91,7 @@ function Labor.assessResidence(id, context)
         attachment = 0, responsibilities = 0, candidates = {},
         stock = "unknown-until-private-inspection", routeCoverage = "unknown",
         currentResourceOwner = context.currentResourceOwner == true,
-        localRelief = context.localRelief == true }
+        localRelief = context.localRelief == true, recoveryKind = context.recoveryKind }
     if out.home and perception and perception.believedThreatCount then
         out.homeDanger.count = perception.believedThreatCount(id, tick, 12, rec.homeX, rec.homeY)
         if out.homeDanger.count > 0 then out.homeDanger.status = "remembered-danger" end
@@ -125,6 +125,10 @@ function Labor.assessResidence(id, context)
             local atHome = out.home and belief.cx >= (belief.minX or belief.cx)
                 and rec.homeX >= (belief.minX or belief.cx) and rec.homeX <= (belief.maxX or belief.cx)
                 and rec.homeY >= (belief.minY or belief.cy) and rec.homeY <= (belief.maxY or belief.cy)
+            if atHome and z == (rec.homeZ or 0) and standing
+                and standing.mayAttemptBelieved(id, rec.homeX, rec.homeY, "standing") then
+                out.recoveryHome = true
+            end
             if not atHome and standing and standing.mayAttemptBelieved(id, belief.cx, belief.cy, "standing") then
                 local danger = perception.believedThreatCount
                     and perception.believedThreatCount(id, tick, 12, belief.cx, belief.cy) or 0

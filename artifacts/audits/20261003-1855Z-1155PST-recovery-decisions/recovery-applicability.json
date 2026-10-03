@@ -1,0 +1,73 @@
+{
+  "schema": "sao-scoped-evidence-applicability/1",
+  "status": "APPLICABLE_SCOPED",
+  "priorReceipt": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\_scratch\\c109-loaded-recovery\\checks\\receipt.json",
+  "priorReceiptSha256": "fa1e03e68d2f948c9dbfbdf80096b7a6b42b19a0320f80f976c72ea8998dc87a",
+  "testedGeneratedController": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\_scratch\\c109-loaded-recovery\\checks\\production.lua",
+  "testedControllerSha256": "14ee261d9433cd9fa4fdf6d7926d0eaf96aa5ac07f1de00baea1c2dde80f3f42",
+  "currentControllerSha256": "7758ff150521c8f9d5fd2058293403bdcb3e2b7af32b6234f471d123a7c01844",
+  "unchangedExecutedFunctions": {
+    "Ctl.recoveryChoice": "90c05894c4a071c18af0c079c1cc6bce693ddb0eafc0ad46c9e667ebe3382215",
+    "Ctl.offerRecovery": "a65d5f0961a403ea33addf83503c639d500fdf4a3928f8a3b106860dd4796bdc",
+    "Ctl.updateRecovery": "528b318f4cc3d26db9ea4e9e1e798df15ca26757da0799ef4a5abc9323c7185c",
+    "decideNeedsAndCompanion": "3794dbca8692d2aacec4263b1e32cf4c8117ad1cf40f59f96c032855a545b817",
+    "retireDeadBodyWork": "0924336fa76ce83c364d35288e85009009a7b3f00d55862239aaf9bac62948d6"
+  },
+  "changedOnlyUnexecutedFunctions": [
+    {
+      "kind": "replace",
+      "oldLines": [
+        4358,
+        4360
+      ],
+      "newLines": [
+        4358,
+        4364
+      ],
+      "owners": [
+        "Ctl.preemptResidenceForRecovery"
+      ]
+    },
+    {
+      "kind": "insert",
+      "oldLines": [
+        7631,
+        7630
+      ],
+      "newLines": [
+        7635,
+        7637
+      ],
+      "owners": [
+        "updateMovement"
+      ]
+    },
+    {
+      "kind": "delete",
+      "oldLines": [
+        9223,
+        9223
+      ],
+      "newLines": [
+        9230,
+        9229
+      ],
+      "owners": [
+        "updateAgent"
+      ]
+    }
+  ],
+  "allOtherReceiptInputsUnchanged": [
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\mod\\42.20\\media\\java\\SAO.jar",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\mod\\42.20\\media\\lua\\client\\SAO_Needs.lua",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\java\\src\\com\\sao\\engine\\SAONeeds.java",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\mod\\42.20\\media\\lua\\client\\SAO_ResourceProduction.lua",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\mod\\42.20\\media\\lua\\shared\\SAO_Perception.lua",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\tools\\loaded_recovery_test.py",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\tools\\resource_production_test.py",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c119-recovery\\tools\\luacheck\\MovementCrossingProbe.java",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\defines.lua"
+  ],
+  "boundary": "Loaded recovery executes its Needs admission, update and retirement callers. The modified movement preemption path is executed separately by final residence proof; whole Controller source is changed, not claimed unchanged."
+}

@@ -241,6 +241,10 @@ check("minor_pressure_keeps_recovery",SAO.Controller.updateRecovery("runner",a,b
 -- controlled admission proves ordering in the actual Controller decision.
 n=fresh(.95,.7,.2,.51)
 local drinkCarried,readyCalls=SAO.Needs.drinkCarried,0
+-- Match the controlled admitted drink with its carried-item observation. All
+-- other bridge methods still dispatch to the exact native receiver.
+SAOJavaBridge=setmetatable({findCarriedDrink=function() return {} end}, {
+ __index=function(_,key) return function(_,...) return __bridge[key](__bridge,...) end end})
 SAO.Needs.drinkCarried=function(id,body)
  if id=="runner" and body==b then readyCalls=readyCalls+1;return true end
  return false
@@ -248,6 +252,7 @@ end
 check("ready_carried_relief_precedes_recovery",SAO.Controller.__recoveryNeedsProbe("runner",a,b,316,n)
  and readyCalls==1 and a.state=="DRINK" and not a.recovery and not b:isAsleep())
 SAO.Needs.drinkCarried=drinkCarried
+SAOJavaBridge=__bridge
 n=fresh(.9,.85,1,.1)
 -- Only detached appraisal and external dispatch are controlled here. The
 -- production admission must reach planning despite fatigue; native resource
@@ -366,13 +371,18 @@ def run():
          "and not SAO.Needs.busy(body) and needs and needs.fatigue < 0.7\n", "tired_survival_strategy_reaches_existing_planner"),
         ("restore-minor-need-monopoly", "math.max(SAO.Disposition.drinkAt(id), policy().desperation)",
          "SAO.Disposition.drinkAt(id)", "minor_needs_do_not_preempt_social_plan"),
-        ("remove-day-recovery", "if Ctl.offerRecovery(id, agent, body, tick, needs) then return true end",
-         "-- recovery producer omitted", "daytime_recovery_admitted"),
+        ("remove-day-recovery", "function Ctl.offerRecovery(id, agent, body, tick, needs)\n",
+         "function Ctl.offerRecovery(id, agent, body, tick, needs)\n    if true then return false end\n", "daytime_recovery_admitted"),
         ("pose-as-completion", None, None, "pose_only_keeps_outcome_pending"),
         ("restore-production-fatigue-cutoff", None, None, "fatigue_does_not_interrupt_native_resource_owner"),
         ("restore-manual-recovery", None, None, "controller_elapsed_time_grants_no_credit"),
-        ("wrong-threat-arguments", "SAO.Perception.believedThreatCount(id, tick, 10, body:getX(), body:getY())",
-         "SAO.Perception.believedThreatCount(id, body:getX(), body:getY(), tick)", "actual_private_threat_reader_declines_recovery"),
+        ("wrong-threat-arguments", 'local kind = SAO.Needs.recoveryPreference(id, needs, {\n'
+         '        emergency = policy().desperation, committed = agent.coordinationCommitment ~= nil,\n'
+         '        threat = SAO.Perception.believedThreatCount(id, tick, 10, body:getX(), body:getY())',
+         'local kind = SAO.Needs.recoveryPreference(id, needs, {\n'
+         '        emergency = policy().desperation, committed = agent.coordinationCommitment ~= nil,\n'
+         '        threat = SAO.Perception.believedThreatCount(id, body:getX(), body:getY(), tick)',
+         "actual_private_threat_reader_declines_recovery"),
         ("wrong-seat-arguments", "body:setSitOnGround(true); SAO.Gesture.seat(id, body) end)", "body:setSitOnGround(true); SAO.Gesture.seat(body) end)", "seat_receives_actual_identity_and_body"),
         ("ignore-active-urgent-pressure",
          "        or needs and math.max(needs.hunger, needs.thirst) >= policy().desperation\n            and needs.endurance > 0.2 then",

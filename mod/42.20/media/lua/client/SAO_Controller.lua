@@ -791,7 +791,11 @@ local function setState(agent, id, state, why, answer, repairingSourceProjection
         if SAO.ProceduralPlanning and SAO.ProceduralPlanning.residencePurpose then
             local residence = SAO.ProceduralPlanning.residencePurpose(id)
             if residence and residence.admission then
-                SAO.ProceduralPlanning.deferResidenceRoute(id, "interrupted:" .. tostring(state))
+                if why == "pauses search for bodily recovery" then
+                    SAO.ProceduralPlanning.pauseResidenceForRecovery(id)
+                else
+                    SAO.ProceduralPlanning.deferResidenceRoute(id, "interrupted:" .. tostring(state))
+                end
             end
         end
         agent.residenceRoute = nil
@@ -3187,6 +3191,17 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
         end
     end
 
+    -- Carried relief keeps its immediate opportunity. Otherwise exhaustion can
+    -- change an optional search before another resource route takes the body.
+    if Ctl.recoveryChoice(id, agent, body, tick, needs) then
+        if Ctl.offerRecovery(id, agent, body, tick, needs) then return true end
+        if agent.state == "IDLE" then
+            local purpose = Ctl.considerResidence(id, agent, body, tick)
+            if purpose and purpose.mode == "recover"
+                and Ctl.advanceResidencePurpose(id, agent, body, tick) then return true end
+        end
+    end
+
     local selection, episodeId = competeForResources(id, agent, body, tick, needs)
     local function cognitionStarted(admitted, reason)
         if episodeId then SAO.Cognition.started(id, episodeId, admitted, reason); episodeId = nil end
@@ -4178,6 +4193,27 @@ local function resolvedHomeAddress(id, rec)
     return rec.homeX, rec.homeY, rec.homeZ
 end
 
+-- A remembered address and occupying its interior are distinct facts. Lived
+-- building knowledge survives reload; checking it does not reveal new places
+-- or confer a property claim. Native room geometry resolves the current body.
+local function occupiesKnownHome(id, body, x, y, z)
+    if not x or not y then return false, false end
+    local ok, inside, known = pcall(function()
+        local place = SAO.Places.at(x, y)
+        local places = SAO.Perception.knownPlaces(id)
+        if not place or not (places[place.id] or places[tostring(place.id)])
+            or not mayEnterBelieved(id, x, y) then
+            return false, false
+        end
+        if not mayEnterBelieved(id, body:getX(), body:getY()) then return false, true end
+        local square = body:getCurrentSquare()
+        local def = square and square:getBuildingDef() or nil
+        return def ~= nil and def:getID() == place.id
+            and math.floor(body:getZ()) == math.floor(z or 0), true
+    end)
+    return ok and inside == true, ok and known == true
+end
+
 function Ctl.considerResidence(id, agent, body, tick)
     local planning = SAO.ProceduralPlanning
     if not (planning and planning.planResidence and SAO.Labor and SAO.Body.active[id] == body
@@ -4189,7 +4225,7 @@ function Ctl.considerResidence(id, agent, body, tick)
         planning.deferResidenceRoute(id, "native-residence-owner-interrupted")
         agent.residenceRoute = nil
     end
-    if tick < (agent.nextResidenceAt or 0) then return purpose end
+    if agent.recovery or agent.resting or tick < (agent.nextResidenceAt or 0) then return purpose end
     agent.nextResidenceAt = tick + 600
     local needs = SAO.Needs.read(body)
     if not needs then return purpose end
@@ -4200,12 +4236,15 @@ function Ctl.considerResidence(id, agent, body, tick)
     local hx, hy = agent.rec.homeX, agent.rec.homeY
     local dx, dy = hx and body:getX() - hx or 0, hy and body:getY() - hy or 0
     local hour = SAO.History.countyTimeOfDay()
+    local recoveryKind = Ctl.recoveryChoice(id, agent, body, tick, needs)
     local context = { atHours = SAO.History.countyHours(), tick = tick,
-        needs = needs, position = { x = body:getX(), y = body:getY(), z = body:getZ() },
+        needs = needs, recoveryKind = recoveryKind,
+        position = { x = body:getX(), y = body:getY(), z = body:getZ() },
         canMove = not body:isAsleep() and not body:isDead(),
         localRelief = urgentFood and food ~= nil or not urgentFood and drink ~= nil,
         awayFromHome = hx ~= nil and hy ~= nil
-            and dx * dx + dy * dy > ARRIVAL_REACH * ARRIVAL_REACH,
+            and (dx * dx + dy * dy > ARRIVAL_REACH * ARRIVAL_REACH
+                or recoveryKind ~= nil and not occupiesKnownHome(id, body, hx, hy, agent.rec.homeZ)),
         night = hour >= 20 or hour < 6,
         currentResourceOwner = agent.rec.worldSourceReservation ~= nil
             or agent.rec.cookingWork ~= nil or agent.rec.resourceProductionWork ~= nil }
@@ -4280,25 +4319,65 @@ function Ctl.finishResidenceMovement(id, agent, body)
     return true
 end
 
--- A remembered address and occupying its interior are distinct facts. Lived
--- building knowledge survives reload; checking it does not reveal new places
--- or confer a property claim. Native room geometry resolves the current body.
-local function occupiesKnownHome(id, body, x, y, z)
-    if not x or not y then return false, false end
-    local ok, inside, known = pcall(function()
-        local place = SAO.Places.at(x, y)
-        local places = SAO.Perception.knownPlaces(id)
-        if not place or not (places[place.id] or places[tostring(place.id)])
-            or not mayEnterBelieved(id, x, y) then
-            return false, false
-        end
-        if not mayEnterBelieved(id, body:getX(), body:getY()) then return false, true end
-        local square = body:getCurrentSquare()
-        local def = square and square:getBuildingDef() or nil
-        return def ~= nil and def:getID() == place.id
-            and math.floor(body:getZ()) == math.floor(z or 0), true
+-- The same bodily choice informs a current rest and a return journey. It
+-- grants neither a known destination nor permission nor native admission.
+function Ctl.recoveryChoice(id, agent, body, tick, needs)
+    if not needs or not SAO.Needs.recoveryPreference or agent.passive
+        or agent.recovery or agent.resting
+        or SAO.History.countyHours() < (agent.nextRecoveryHours or 0) then return nil end
+    local ready = false
+    local ok = pcall(function()
+        ready = needs.thirst >= SAO.Disposition.drinkAt(id)
+            and SAOJavaBridge:findCarriedDrink(body) ~= nil
+            or needs.hunger >= SAO.Disposition.eatAt(id)
+            and SAOJavaBridge:findCarriedFood(body) ~= nil
     end)
-    return ok and inside == true, ok and known == true
+    if not ok or ready then return nil end
+    return SAO.Needs.recoveryPreference(id, needs, {
+        emergency = policy().desperation, committed = agent.coordinationCommitment ~= nil,
+        threat = SAO.Perception.believedThreatCount(id, tick, 10, body:getX(), body:getY()) > 0,
+        bleeding = SAO.Needs.bleeding(body) > 0, cold = SAO.Needs.cold(body) >= 1.5,
+    })
+end
+
+-- An admitted speculative search must still feel a changing body. The exact
+-- native crossing/action keeps ownership until it reaches a safe boundary.
+function Ctl.preemptResidenceForRecovery(id, agent, body, tick)
+    local planning = SAO.ProceduralPlanning
+    local purpose = planning and planning.residencePurpose(id)
+    local binding = agent.residenceRoute
+    local job = binding and SAO.Locomotion.jobs[id]
+    if not purpose or purpose.mode ~= "search" or not purpose.admission
+        or not job or job ~= binding.job or job.body ~= body or job.done
+        or SAO.Body.active[id] ~= body or SAO.Identity.get(id) ~= agent.rec
+        or agent.rec.bodyOwner or agent.rec.dead or agent.passive
+        or agent.rec.worldSourceReservation or agent.rec.cookingWork or agent.rec.resourceProductionWork
+        or agent.forageInspection or SAO.Needs.busy(body)
+        or tick < (agent.nextRecoveryDecisionAt or 0) then return false end
+    agent.nextRecoveryDecisionAt = tick + 60
+    local ok, crossing = pcall(function()
+        local nativeState = body:getCurrentStateName()
+        return body:isClimbing() or nativeState == "ClimbOverFenceState"
+            or nativeState == "ClimbThroughWindowState" or nativeState == "SmashWindowState"
+            or tostring(nativeState):find("OpenWindowState", 1, true) ~= nil
+    end)
+    if not ok or crossing or tostring(job.lastVerdict):sub(1, 11) == "Transition:" then return false end
+    local needs = SAO.Needs.read(body)
+    local kind = Ctl.recoveryChoice(id, agent, body, tick, needs)
+    if not kind then return false end
+    local appraisal = SAO.Labor.assessResidence(id, {
+        atHours = SAO.History.countyHours(), tick = tick, needs = needs, recoveryKind = kind,
+        position = { x = body:getX(), y = body:getY(), z = body:getZ() },
+    })
+    if not appraisal or not appraisal.recoveryHome or appraisal.conflict > 0
+        or appraisal.homeDanger.count > 0 then return false end
+    if not setState(agent, id, "IDLE", "pauses search for bodily recovery", "need") then return false end
+    agent.nextResidenceAt, agent.nextDecisionAt = 0, 0
+    Ctl.considerResidence(id, agent, body, tick)
+    if not Ctl.offerRecovery(id, agent, body, tick, needs) then
+        Ctl.advanceResidencePurpose(id, agent, body, tick)
+    end
+    return true
 end
 
 local function stopRecovery(id, agent, body, reason)
@@ -7553,6 +7632,9 @@ local function updateMovement(id, agent, body)
             setState(agent, id, "IDLE", "water approach exceeded its time limit")
             return true
         end
+        -- Read the native movement owner's current verdict before choosing to
+        -- interrupt: accepted crossing events can precede native state entry.
+        if agent.residenceRoute and Ctl.preemptResidenceForRecovery(id, agent, body, tickCount) then return true end
         if agent.residenceRoute and Ctl.finishResidenceMovement(id, agent, body) then return true end
         if agent.state == "FORAGE" and agent.forageInspection
             and agent.taskDeadline and tickCount >= agent.taskDeadline

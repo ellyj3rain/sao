@@ -1,0 +1,86 @@
+{
+  "schema": "sao-proof-applicability/1",
+  "batch": "C119",
+  "allFinalResidenceInputsMatch": true,
+  "publicationInputs": {
+    "tools/residence_planning_test.py": {
+      "testedSha256": "91da664a2c2d781969cc3a5cb78b9462880b130beab4196087c9f63614e4e0e6",
+      "publishedSha256": "91da664a2c2d781969cc3a5cb78b9462880b130beab4196087c9f63614e4e0e6",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "tools/flee_continuity_test.py": {
+      "testedSha256": "dff11b80b7eb3f10ef213830c34d3aef9469c457586aa494006c0038fa38232b",
+      "publishedSha256": "dff11b80b7eb3f10ef213830c34d3aef9469c457586aa494006c0038fa38232b",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "tools/luacheck/LuaRun.java": {
+      "testedSha256": "f6f55e6da98c1f1249720666d862720efc025167d1df37d35820e877b14df741",
+      "publishedSha256": "f6f55e6da98c1f1249720666d862720efc025167d1df37d35820e877b14df741",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/client/SAO_Needs.lua": {
+      "testedSha256": "91e4ea7e11fcb80b25cafa96305964a479a4aa7121b395083c5576f8532e7a62",
+      "publishedSha256": "91e4ea7e11fcb80b25cafa96305964a479a4aa7121b395083c5576f8532e7a62",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/shared/SAO_Perception.lua": {
+      "testedSha256": "9ae97d22bcb335250e03047cdb33cad2e59bfee8023d9d419b2acbbe51d66f9e",
+      "publishedSha256": "9ae97d22bcb335250e03047cdb33cad2e59bfee8023d9d419b2acbbe51d66f9e",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/shared/SAO_WorldSources.lua": {
+      "testedSha256": "0da61437034a3206bbf1233a275c3647a916d163cf894dda5df5c1f8c30da414",
+      "publishedSha256": "0da61437034a3206bbf1233a275c3647a916d163cf894dda5df5c1f8c30da414",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/shared/SAO_Standing.lua": {
+      "testedSha256": "69ee137cca73f0e539363f8d1b079c4a833b9269b05c438beb5a58df6a965e22",
+      "publishedSha256": "69ee137cca73f0e539363f8d1b079c4a833b9269b05c438beb5a58df6a965e22",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/shared/SAO_Labor.lua": {
+      "testedSha256": "34808d2d84124ffba23fddf63fce0309e4a91253ae221b0f8ef65d67a800e3f8",
+      "publishedSha256": "34808d2d84124ffba23fddf63fce0309e4a91253ae221b0f8ef65d67a800e3f8",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua": {
+      "testedSha256": "0a53dcafc569534a82870ba2952b5e7895c4cd4fa050279ba948b579452fb2dd",
+      "publishedSha256": "0a53dcafc569534a82870ba2952b5e7895c4cd4fa050279ba948b579452fb2dd",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/client/SAO_Locomotion.lua": {
+      "testedSha256": "decbd27c32ce736d660260d96c9cd6e8e719ba9b5bfecf484da0d285d30ff9c7",
+      "publishedSha256": "decbd27c32ce736d660260d96c9cd6e8e719ba9b5bfecf484da0d285d30ff9c7",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/client/SAO_DormantPopulation.lua": {
+      "testedSha256": "278d8062c735c070e9b627fc6be714ce77adc0ee2792395fc88c15904d4247fa",
+      "publishedSha256": "278d8062c735c070e9b627fc6be714ce77adc0ee2792395fc88c15904d4247fa",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/client/SAO_Controller.lua": {
+      "testedSha256": "7758ff150521c8f9d5fd2058293403bdcb3e2b7af32b6234f471d123a7c01844",
+      "publishedSha256": "7758ff150521c8f9d5fd2058293403bdcb3e2b7af32b6234f471d123a7c01844",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    },
+    "mod/42.20/media/lua/client/SAO_Harness.lua": {
+      "testedSha256": "1d9e36c130c4a426bbaaee1134df4e49c93a1915eab49fcc5e5bfced60510f70",
+      "publishedSha256": "1d9e36c130c4a426bbaaee1134df4e49c93a1915eab49fcc5e5bfced60510f70",
+      "identicalBytes": true,
+      "lineEndingEquivalent": true
+    }
+  },
+  "recoveryEvidence": "recovery-applicability.json retains the separate function-scoped comparison; whole Controller equality is not asserted."
+}

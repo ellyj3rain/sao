@@ -1,0 +1,27 @@
+NATIVE real_native_sleep_admitted=true
+NATIVE off_singleton_dispatch_is_inert=true
+NATIVE native_singleton_sleep_recovers=true
+NATIVE controller_elapsed_time_grants_no_credit=true
+NATIVE inherited_dispatch_exactly_one_sleep_step=true
+NATIVE native_bed_quality_changes_recovery=true
+NATIVE native_insomnia_changes_recovery=true
+NATIVE native_time_multiplier_changes_recovery=true
+NATIVE sleep_does_not_suppress_hunger=true
+NATIVE awake_needs_still_accrue=true
+LOAD prelude.lua
+LOAD ISBaseObject.lua
+LOAD ISBaseTimedAction.lua
+LOAD ISTransferAction.lua
+LOAD ISInventoryTransferAction.lua
+LOAD ISTakeWaterAction.lua
+LOAD SAO_Needs.lua
+LOAD needs-path.lua
+LOAD SAO_Perception.lua
+LOAD SAO_ResourceProduction.lua
+LOAD capture-production.lua
+LOAD production.lua
+LOAD probe.lua
+CADENCE 2000 native stat-owner pairs: 20.9899 ms
+CADENCE 4000 native stat-owner pairs: 14.9173 ms
+CADENCE 15000 native stat-owner pairs: 27.6571 ms
+VALUE PASS loaded recovery production/native receivers 47 checks
