@@ -43,7 +43,7 @@ on the simulation.
 
 ## Status
 
-`3.10.3.2-pre-alpha` - the coordinate is computed by the version machine
+`3.10.3.3-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -450,3 +450,5 @@ so no mod is named anywhere in this codebase's logic.
 
 GPL-3.0 - full text in `LICENSE`. Attribution and per-source
 integration status in `CREDITS.md`.
+
+C115 retains optional sealed observer subject assignments through saved continuation. The paired viewer follows each assigned person independently; continuous video and ancillary causal observation continue in the next slice.

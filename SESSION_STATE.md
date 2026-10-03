@@ -1,11 +1,27 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.10.3.2-pre-alpha` |
+| Version | `3.10.3.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-10-03 03:08 UTC / 20:08 PST, [C115](Batches/C115-20261003-0308Z-2008PST-persistent-subject-observation.md) retains optional sealed subject
+assignments in the observer layout. Speakeasy R87 follows each exact person
+within the authored world and binds pictured identity to native command and
+binary32 pose acknowledgement. Current camera control samples remain separate
+from image projection. Mousecat A23.4 supplies subject captions, persisted
+shape/framing choices and independent resizable Window tools.
+
+The copied native pass saved normally at hour 38.080657958984375, with exit zero
+and no runtime errors. Its successor loads the corrected bridge and acknowledges
+the two different assigned people in distinct same-frame native images.
+Original saved sources survive unchanged. The capped/uncapped comparison is
+complete on four independent verified copies; its two-repeat means are 3.0375
+and 1.9333 composite images/s. Uncapped remains selected. Native and browser
+rendering FPS remain unmeasured. Continuous video, building cutaway and a typed
+ancillary observation map/graph continue in C116 and their sibling owners.
 
 **As of** 2026-10-02 22:44 UTC / 15:44 PST, [C114](Batches/C114-20261002-2244Z-1544PST-uncapped-native-observation.md)
 removes the native capture timer while preserving one outstanding publication.

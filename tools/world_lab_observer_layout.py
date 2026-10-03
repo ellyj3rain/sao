@@ -16,9 +16,18 @@ def validate(value, definition):
     extent = definition["extent"]
     left, top = extent["minCellX"] * 256, extent["minCellY"] * 256
     right, bottom = left + extent["cellsX"] * 256, top + extent["cellsY"] * 256
-    identities, positions = set(), set()
+    identities, positions, subjects = set(), set(), set()
     for site in sites:
-        Lab.fields(site, {"id", "label", "x", "y", "z"}, "observer area")
+        Lab.require(isinstance(site, dict), "observer area must be an object")
+        Lab.fields(site, {"id", "label", "x", "y", "z"}
+                   | ({"subjectId"} if "subjectId" in site else set()), "observer area")
+        if "subjectId" in site:
+            subject = site["subjectId"]
+            Lab.require(isinstance(subject, str) and 0 < len(subject) <= 128
+                        and subject.strip() == subject
+                        and all(33 <= ord(char) < 127 for char in subject)
+                        and subject not in subjects, "invalid or duplicate observer subject")
+            subjects.add(subject)
         Lab.require(isinstance(site["id"], str) and re.fullmatch(r"[a-z][a-z0-9-]{0,47}", site["id"])
                     and site["id"] not in identities, "invalid or duplicate observer area id")
         Lab.require(isinstance(site["label"], str) and 0 < len(site["label"]) <= 160

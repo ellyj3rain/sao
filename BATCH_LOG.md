@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.10.3.2-pre-alpha` |
+| Version | `3.10.3.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -221,3 +221,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C112](Batches/C112-20261002-0328Z-2028PST-native-window-repair.md) | 2026-10-02 | Native window repair | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
 | [C113](Batches/C113-20261002-0924Z-0224PST-independent-native-observation-layouts.md) | 2026-10-02 | Independent native observation layouts | [`T-030`](Batches/THREADS.md#t-030) |
 | [C114](Batches/C114-20261002-2244Z-1544PST-uncapped-native-observation.md) | 2026-10-02 | Uncapped native observation | [`T-030`](Batches/THREADS.md#t-030) |
+| [C115](Batches/C115-20261003-0308Z-2008PST-persistent-subject-observation.md) | 2026-10-03 | Persistent subject observation | [`T-030`](Batches/THREADS.md#t-030) |

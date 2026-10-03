@@ -63,9 +63,9 @@ command. A selected person's inspector shows source-owned needs, inventory,
 current action, action receipts, reception and work on a separate bounded
 cadence. Optional detail failures preserve the core feed and archival export.
 
-Single-view live capture targets twenty frames per second; regional capture
-targets ten complete viewport sets per second. These are admission caps, while
-actual delivery also depends on native rendering and publication. Pixel readback happens after the
+Isolated observer rendering uses the installed uncapped selection after
+startup. Live PNG capture admits a completed frame when its one publisher is
+free; actual delivery depends on native rendering, readback and publication. Pixel readback happens after the
 native renderer swaps its completed frame; one background worker converts,
 encodes, validates and publishes it. Lossless PNG uses stored deflate blocks to
 avoid compression delay in the local image feed. A busy worker drops capture requests before
@@ -239,3 +239,9 @@ origin catalog can validate `initialPeopleBySite`. Frames describe observations
 and do not contain that catalog. The inspector reports an unbound cohort instead
 of substituting a synthetic spawn location. Package inspection retains the exact
 definition, source and native origin bindings.
+
+An independent observer site may declare `subjectId` for persistent person
+following. Unique identities are sealed with the layout and retained on normal
+continuation. The bridge uses reported positions through the authored world;
+missing, dead or unavailable people acquire no substitute. Current camera
+controls retain their source sample clock independently of pictured zoom.

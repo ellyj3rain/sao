@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.10.3.2-pre-alpha` |
+| Version | `3.10.3.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1798,3 +1798,13 @@ repair is reanchored onto the actual public C109 parent and rebuilt there.
 The complete normal closing gate and public checks have their own receipts.
 Loaded behavior, broader threat reasoning, educational competence and speech
 retain separate verification boundaries. No game or global deployment occurs.
+
+### Persistent observer subjects (C115)
+
+The independent sealed observer layout owns optional unique subject identities.
+The bridge follows the assigned person's reported position through the authored
+world and retains the native site identity. It qualifies pictured labels with
+the applied command and captured native float pose. Missing observations and
+death clear current claims. Manual camera control and automatic resumption are
+per site; zoom remains the engine's existing projection operation. Current
+control samples and pictured viewport metadata retain separate source clocks.
