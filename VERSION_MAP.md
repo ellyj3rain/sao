@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.10.3.2-pre-alpha` |
-| Closed chronology | `A1-C114` |
-| Next batch | `C115` |
+| Current version | `3.10.3.3-pre-alpha` |
+| Closed chronology | `A1-C115` |
+| Next batch | `C116` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -230,6 +230,7 @@ the machine. Names, dates, and threads below come from
 | `C112` | 2026-10-02 | kohai | `3.10.3.0-pre-alpha` | Native window repair | Connect installed native window repair to the existing fortification purpose, exact actor/material/queue ownership, durable completion and independent private experience. Existing planning, physical action and cognition owners retain authority, so kohai. |
 | `C113` | 2026-10-02 | patch | `3.10.3.1-pre-alpha` | Independent native observation layouts | Repair native study viewing by separating sealed observation areas from saved world identity. Existing camera, renderer, save and gameplay owners remain in place, so patch. |
 | `C114` | 2026-10-02 | patch | `3.10.3.2-pre-alpha` | Uncapped native observation | Remove artificial capture pacing and enable native uncapped rendering after startup in isolated observers. Existing publication, save, image and gameplay contracts remain, so patch. |
+| `C115` | 2026-10-03 | patch | `3.10.3.3-pre-alpha` | Persistent subject observation | Repair observer identity persistence with optional sealed subject assignments. Existing native slots, save, gameplay and publication owners remain, so patch. |
 
 ## The former number
 
@@ -250,11 +251,11 @@ establish release maturity.
 
 ## Next movement
 
-`C115` is the next batch. Its content determines its tier after it
+`C116` is the next batch. Its content determines its tier after it
 exists:
 
-| If C115 is | Result |
+| If C116 is | Result |
 |---|---|
-| patch or hotfix | `3.10.3.3-pre-alpha` |
+| patch or hotfix | `3.10.3.4-pre-alpha` |
 | kohai | `3.10.4.0-pre-alpha` |
 | minor | `3.11.0.0-pre-alpha` |

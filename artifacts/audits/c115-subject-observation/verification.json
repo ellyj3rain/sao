@@ -1,0 +1,238 @@
+{
+  "schema": "sao-c115-observation-evidence/1",
+  "comparison": {
+    "schema": "sao-c114-live-ready-pacing-analysis/1",
+    "method": "120 seconds beginning 30 seconds after world advancement, native image and bridge image are all observed; constant normal speed",
+    "instrumentControls": "synthetic late-producer readiness and percentile controls passed",
+    "trials": [
+      {
+        "trial": "capped-1",
+        "capped": true,
+        "nativeExit": 0,
+        "bridgeExit": 0,
+        "status": "completed",
+        "runtimeErrors": [],
+        "nativeSaveReturned": true,
+        "startWorldHours": 32.38853073120117,
+        "windowSeconds": 120.0,
+        "windowStartMonotonic": 697.3399524,
+        "windowEndMonotonic": 817.3399524,
+        "nativeImagesPerSecond": 3.2083333333333335,
+        "bridgeImagesPerSecond": 3.2083333333333335,
+        "nativeImages": 385,
+        "bridgeImages": 385,
+        "nativeMedianCaptureAgeMs": 212.14306640625,
+        "bridgeMedianCaptureAgeMs": 276.6318359375,
+        "bridgeP95CaptureAgeMs": 308.0208496093749,
+        "bridgeP95InterarrivalMs": 476.28873000007263,
+        "gameHoursPerWallMinute": 0.7367317066914313,
+        "nativeObserverCallbacksPerSecond": 54.72420538714909,
+        "nativeCpuCoreEquivalents": 2.3474483607290444,
+        "bridgeCpuCoreEquivalents": 0.13640966762780377,
+        "combinedCpuCoreEquivalents": 2.483858028356848,
+        "peakSampledNativeWorkingSetGiB": 14.14483642578125,
+        "uncappedNativeFlagConfirmed": false,
+        "renderedAndBrowserFps": "unmeasured"
+      },
+      {
+        "trial": "uncapped-1",
+        "capped": false,
+        "nativeExit": 0,
+        "bridgeExit": 0,
+        "status": "completed",
+        "runtimeErrors": [],
+        "nativeSaveReturned": true,
+        "startWorldHours": 32.38853073120117,
+        "windowSeconds": 120.0,
+        "windowStartMonotonic": 1164.7715622,
+        "windowEndMonotonic": 1284.7715622,
+        "nativeImagesPerSecond": 1.975,
+        "bridgeImagesPerSecond": 1.975,
+        "nativeImages": 237,
+        "bridgeImages": 237,
+        "nativeMedianCaptureAgeMs": 211.469970703125,
+        "bridgeMedianCaptureAgeMs": 271.935546875,
+        "bridgeP95CaptureAgeMs": 307.9791015624999,
+        "bridgeP95InterarrivalMs": 739.3232250001347,
+        "gameHoursPerWallMinute": 0.5895550994627728,
+        "nativeObserverCallbacksPerSecond": 111.48512861736334,
+        "nativeCpuCoreEquivalents": 1.794340885506125,
+        "bridgeCpuCoreEquivalents": 0.21744845953387218,
+        "combinedCpuCoreEquivalents": 2.0117893450399973,
+        "peakSampledNativeWorkingSetGiB": 13.980888366699219,
+        "uncappedNativeFlagConfirmed": true,
+        "renderedAndBrowserFps": "unmeasured"
+      },
+      {
+        "trial": "uncapped-2",
+        "capped": false,
+        "nativeExit": 0,
+        "bridgeExit": 0,
+        "status": "completed",
+        "runtimeErrors": [],
+        "nativeSaveReturned": true,
+        "startWorldHours": 32.38853073120117,
+        "windowSeconds": 120.0,
+        "windowStartMonotonic": 1574.4470983,
+        "windowEndMonotonic": 1694.4470983,
+        "nativeImagesPerSecond": 1.8916666666666666,
+        "bridgeImagesPerSecond": 1.8916666666666666,
+        "nativeImages": 227,
+        "bridgeImages": 227,
+        "nativeMedianCaptureAgeMs": 214.435791015625,
+        "bridgeMedianCaptureAgeMs": 272.771240234375,
+        "bridgeP95CaptureAgeMs": 297.38405761718747,
+        "bridgeP95InterarrivalMs": 787.6082249999854,
+        "gameHoursPerWallMinute": 0.5727432736530794,
+        "nativeObserverCallbacksPerSecond": 111.48816490817383,
+        "nativeCpuCoreEquivalents": 1.6629445226446984,
+        "bridgeCpuCoreEquivalents": 0.2060042176471134,
+        "combinedCpuCoreEquivalents": 1.868948740291812,
+        "peakSampledNativeWorkingSetGiB": 14.262088775634766,
+        "uncappedNativeFlagConfirmed": true,
+        "renderedAndBrowserFps": "unmeasured"
+      },
+      {
+        "trial": "capped-2",
+        "capped": true,
+        "nativeExit": 0,
+        "bridgeExit": 0,
+        "status": "completed",
+        "runtimeErrors": [],
+        "nativeSaveReturned": true,
+        "startWorldHours": 32.38853073120117,
+        "windowSeconds": 120.0,
+        "windowStartMonotonic": 1988.6225512,
+        "windowEndMonotonic": 2108.6225512,
+        "nativeImagesPerSecond": 2.8666666666666667,
+        "bridgeImagesPerSecond": 2.8666666666666667,
+        "nativeImages": 344,
+        "bridgeImages": 344,
+        "nativeMedianCaptureAgeMs": 233.5546875,
+        "bridgeMedianCaptureAgeMs": 306.1737060546875,
+        "bridgeP95CaptureAgeMs": 345.80657958984364,
+        "bridgeP95InterarrivalMs": 541.6846899997608,
+        "gameHoursPerWallMinute": 0.7329385756868324,
+        "nativeObserverCallbacksPerSecond": 54.31635298474799,
+        "nativeCpuCoreEquivalents": 2.427519473231414,
+        "bridgeCpuCoreEquivalents": 0.1366770033911109,
+        "combinedCpuCoreEquivalents": 2.564196476622525,
+        "peakSampledNativeWorkingSetGiB": 14.12331771850586,
+        "uncappedNativeFlagConfirmed": false,
+        "renderedAndBrowserFps": "unmeasured"
+      }
+    ],
+    "means": {
+      "capped": {
+        "nativeImagesPerSecond": 3.0375,
+        "bridgeImagesPerSecond": 3.0375,
+        "bridgeMedianCaptureAgeMs": 291.40277099609375,
+        "bridgeP95CaptureAgeMs": 326.9137145996093,
+        "bridgeP95InterarrivalMs": 508.98670999991674,
+        "gameHoursPerWallMinute": 0.7348351411891318,
+        "nativeObserverCallbacksPerSecond": 54.52027918594854,
+        "nativeCpuCoreEquivalents": 2.387483916980229,
+        "bridgeCpuCoreEquivalents": 0.13654333550945735,
+        "combinedCpuCoreEquivalents": 2.5240272524896863,
+        "peakSampledNativeWorkingSetGiB": 14.134077072143555,
+        "replicates": 2
+      },
+      "uncapped": {
+        "nativeImagesPerSecond": 1.9333333333333333,
+        "bridgeImagesPerSecond": 1.9333333333333333,
+        "bridgeMedianCaptureAgeMs": 272.3533935546875,
+        "bridgeP95CaptureAgeMs": 302.6815795898437,
+        "bridgeP95InterarrivalMs": 763.46572500006,
+        "gameHoursPerWallMinute": 0.5811491865579261,
+        "nativeObserverCallbacksPerSecond": 111.48664676276859,
+        "nativeCpuCoreEquivalents": 1.7286427040754115,
+        "bridgeCpuCoreEquivalents": 0.21172633859049278,
+        "combinedCpuCoreEquivalents": 1.9403690426659046,
+        "peakSampledNativeWorkingSetGiB": 14.121488571166992,
+        "replicates": 2
+      }
+    },
+    "uncappedPercentChange": {
+      "nativeImagesPerSecond": -36.35116598079561,
+      "bridgeImagesPerSecond": -36.35116598079561,
+      "bridgeMedianCaptureAgeMs": -6.537129820794196,
+      "bridgeP95CaptureAgeMs": -7.41239474747768,
+      "bridgeP95InterarrivalMs": 49.99718263767336,
+      "gameHoursPerWallMinute": -20.914344730779554,
+      "nativeObserverCallbacksPerSecond": 104.48656615005363,
+      "nativeCpuCoreEquivalents": -27.595629366087728,
+      "bridgeCpuCoreEquivalents": 55.06164237201314,
+      "combinedCpuCoreEquivalents": -23.124085100430847,
+      "peakSampledNativeWorkingSetGiB": -0.089064895516755
+    },
+    "completed": true,
+    "originalSaveVerifiedUnchanged": true,
+    "limits": "Two replicates per setting, one save and workload; browser presentation, rendered FPS and GPU utilization unmeasured. No policy-quality conclusion."
+  },
+  "subjectFollowing": {
+    "bindingId": "cc4fa85d2be440f1855c4f818ed8a52bf437b51a96d466e9e4efee2512d2af41",
+    "sessionId": "62731977-57ab-478b-9a97-c131e039d108",
+    "sequence": 123,
+    "capturedAtUnixMs": 1790996441907,
+    "feeds": [
+      {
+        "id": "site:east-residence",
+        "siteId": "east-residence",
+        "label": "Barney Billingsley",
+        "capturedAtUnixMs": 1790996441907,
+        "camera": {
+          "mode": "automatic",
+          "personIds": [
+            "sao-2"
+          ],
+          "summary": "Following Barney Billingsley"
+        },
+        "image": {
+          "file": "study-live-0000000000000072-site1.png",
+          "height": 1080,
+          "sha256": "738e6f1db3c93a82ebd44fb282ebd1e644c39eede19273b336e418d8036fa61d",
+          "width": 960
+        }
+      },
+      {
+        "id": "site:west-residence",
+        "siteId": "west-residence",
+        "label": "Phillip McKinley",
+        "capturedAtUnixMs": 1790996441907,
+        "camera": {
+          "mode": "automatic",
+          "personIds": [
+            "sao-1"
+          ],
+          "summary": "Following Phillip McKinley"
+        },
+        "image": {
+          "file": "study-live-0000000000000072-site0.png",
+          "height": 1080,
+          "sha256": "77ab59356f352beccf80a1c32512425da4066cae74185da2f397b088ab245bc7",
+          "width": 960
+        }
+      }
+    ]
+  },
+  "layoutTests": 16,
+  "layoutControls": [
+    {
+      "mutation": "duplicate-subject",
+      "test": "test_rejects_invalid_or_duplicate_subjects_even_when_resealed",
+      "verdict": "expected assertion failure",
+      "mutationApplied": true
+    },
+    {
+      "mutation": "unsealed-subject",
+      "test": "test_subject_assignments_survive_saved_continuation_and_are_sealed",
+      "verdict": "expected assertion failure",
+      "mutationApplied": true
+    }
+  ],
+  "renderedAndBrowserFps": "unmeasured",
+  "sources": {
+    "tools/world_lab_observer_layout.py": "650bcc1c62c0d40acafc161680463a499169d42dd4b52e90d62f73d997c68650",
+    "tools/world_lab_observer_layout_test.py": "6e4f9dbe6fcc5a83ca5fe30aa7ad3bf0e5c818d3bec4baf1c5401b1a012d8eb1"
+  }
+}

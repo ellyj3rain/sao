@@ -12,6 +12,11 @@ import world_lab_run as Run
 
 
 class ObserverLayoutTests(unittest.TestCase):
+    def test_malformed_site_is_a_contract_refusal(self):
+        for value in (None, False, 7, "area", []):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "must be an object"):
+                Layout.validate({"schema": "sao-study-observer-layout/1", "sites": [value]}, self.definition)
+
     def setUp(self):
         self.definition = {"extent": dict(minCellX=13, minCellY=42, cellsX=2, cellsY=5),
                            "observation": {"sites": [dict(id="original", label="Original", x=3426, y=10910, z=0)]}}
@@ -37,6 +42,35 @@ class ObserverLayoutTests(unittest.TestCase):
             with self.assertRaises(ValueError): Layout.from_receipt(bad, self.definition)
         receipt["observerLayout"]["sites"][0]["x"] += 1
         with self.assertRaises(ValueError): Layout.from_receipt(receipt, self.definition)
+
+    def test_subject_assignments_survive_saved_continuation_and_are_sealed(self):
+        layout = copy.deepcopy(self.layout)
+        for site, subject, label in zip(layout['sites'], ('sao-1', 'sao-2'), ('Phillip McKinley', 'Barney Billingsley')):
+            site.update(subjectId=subject, label=label)
+        before = copy.deepcopy(self.definition)
+        receipt = {'save': 'same-world', 'mods': {'original': 'same'}}
+        Layout.validate(layout, self.definition)
+        Layout.bind(receipt, layout)
+        self.assertEqual(Layout.select(None, receipt, self.definition), layout)
+        self.assertEqual([site['subjectId'] for site in Layout.sites(receipt, self.definition)], ['sao-1', 'sao-2'])
+        self.assertEqual(self.definition, before)
+        receipt['observerLayout']['sites'][0]['subjectId'] = 'sao-3'
+        with self.assertRaisesRegex(ValueError, 'observer layout seal differs'):
+            Layout.from_receipt(receipt, self.definition)
+
+    def test_rejects_invalid_or_duplicate_subjects_even_when_resealed(self):
+        for subject in ('', ' ', 'sao-1\n', 'sao 1', 'a'*129, True, 1, None):
+            with self.subTest(subject=subject):
+                layout = copy.deepcopy(self.layout)
+                layout['sites'][0]['subjectId'] = subject
+                receipt = {}; Layout.bind(receipt, layout)
+                with self.assertRaisesRegex(ValueError, 'invalid or duplicate observer subject'):
+                    Layout.from_receipt(receipt, self.definition)
+        layout = copy.deepcopy(self.layout)
+        for site in layout['sites']: site['subjectId'] = 'sao-1'
+        receipt = {}; Layout.bind(receipt, layout)
+        with self.assertRaisesRegex(ValueError, 'invalid or duplicate observer subject'):
+            Layout.from_receipt(receipt, self.definition)
 
     def test_rejects_invalid_areas_even_with_new_hash(self):
         changes = [lambda x: x.update(schema="wrong"), lambda x: x.update(sites=[]),

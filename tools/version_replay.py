@@ -253,6 +253,7 @@ UNITS = [
     ('C112', 'kohai', 'Connect installed native window repair to the existing fortification purpose, exact actor/material/queue ownership, durable completion and independent private experience. Existing planning, physical action and cognition owners retain authority, so kohai.'),
     ('C113', 'patch', 'Repair native study viewing by separating sealed observation areas from saved world identity. Existing camera, renderer, save and gameplay owners remain in place, so patch.'),
     ('C114', 'patch', 'Remove artificial capture pacing and enable native uncapped rendering after startup in isolated observers. Existing publication, save, image and gameplay contracts remain, so patch.'),
+    ('C115', 'patch', 'Repair observer identity persistence with optional sealed subject assignments. Existing native slots, save, gameplay and publication owners remain, so patch.'),
 ]
 
 TIER_MEANINGS = [
