@@ -1,0 +1,196 @@
+{
+  "schema": "sao-shared-reasoning-continuation/1",
+  "recordedAt": "2026-10-03T22:04:53.745159+00:00",
+  "status": "PASS_WITH_SCOPED_REUSE",
+  "scope": "First executable shared-reasoning slice; broader product outcome remains open.",
+  "workingDirectory": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience",
+  "branch": "neo/c120-personal-experience",
+  "head": "6bfcd46e72146b941db6c26086201bc79e883a40",
+  "version": "3.11.4.0-pre-alpha",
+  "inputs": {
+    "production": [
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_CognitiveModels.lua",
+        "sha256": "3345689857311964a0253fdcb6fb78c32528d66657b8f253ad9cd999e96a9859"
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_Cognition.lua",
+        "sha256": "388e6b62fee9c192473e880e04f86aa68b7abbe4e43a52cdeefae5ed7b85d7aa"
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_Labor.lua",
+        "sha256": "75c7c4fc3d1f62a496085cdef7ce3417dfdb425383807844a665121d0d49681b"
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_ProceduralPlanning.lua",
+        "sha256": "252b8dde1465147656772911362838aa8ddfd1a676368765f88901f99bbb8535"
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\client\\SAO_Needs.lua",
+        "sha256": "c3fe69ee8eef55296e8c0bf642d720c581c27444d6cb60d391f0939213a5761b"
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\client\\SAO_Controller.lua",
+        "sha256": "f26a0592497d30903f84df6309d7c5c9c6eb9e25e953518d640d98e40cdfef30"
+      }
+    ],
+    "tests": [
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\cognitive_models_test.py",
+        "sha256": "4e781c578ea400c5f97e3c57282bad9a7302ad32bbcd8d86f9f4def0a7cb5360"
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\luacheck\\CognitiveModelChecks.lua",
+        "sha256": "5719b8565c1ce7f0b2075f6c88e2bbe377a93a942748bd6973a6a6f79b3a50ec"
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\labor_planning_test.py",
+        "sha256": "9c6ad94bb37e8e1001c1de53b00ac6d1265e6b948152495d7ef7af458dba7c6c"
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\residence_planning_test.py",
+        "sha256": "f8bd1870b8ede81b66de92d724388ff13d42f78992e39e7a1828a328f17b3004"
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\loaded_recovery_test.py",
+        "sha256": "3780debff321a20d8410de8241a3f6fe1b27aa396f4f296484632080ca2bd1b0"
+      }
+    ],
+    "documents": [
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\ARCHITECTURE.md",
+        "sha256": "8f5297b9f4673462b00256c88c962643a39d735e29c299b8deb9dc6160d514b4"
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\ROADMAP.md",
+        "sha256": "218d4cb21d85c3a29d87d2781afda3d69547a763a13b1faba965d1eb2f25558f"
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\SESSION_STATE.md",
+        "sha256": "c05f65d0e43b93222c306eedae9b1123e06c4d246c19d5b5f1217d82781377fc"
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\shared-reasoning\\model\\combined-receipt.json",
+      "sha256": "cd5f0e1343d044968193393938ba306e719062de8ad68eb2b4ab563db616dcfd"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\shared-reasoning\\model\\review-repair.json",
+      "sha256": "f9239296036b3e5a27ce7393b5b341323dfc85fb86e3a52f63718d35b4f0396a"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\shared-reasoning\\model\\structural-control-repair.json",
+      "sha256": "71c62f910c5f6844d6b1914eb4614291ef356e1654118e02eef6599e09f3b6a9"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\shared-reasoning\\consumer-applicability.json",
+      "sha256": "dc14acd125730ee6ac5773f0e9e18bbfe4d5d707bfed28d7e1586fbf2efc5dee"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\shared-reasoning\\procedural-final-receipt.json",
+      "sha256": "f8015463e1f027415ff4638a036a3cd152df631930535beedf460736c080495a"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\shared-reasoning\\procedural-final-review.json",
+      "sha256": "8e09a545b917942a6e5df8f2d8e40b7645b0ff9481425f4ca2bb31a51e53f560"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\shared-reasoning\\coherence-review.json",
+      "sha256": "4576ef8e8e58baf14fb06046a7e49efd9aed0523b76602331f6998b81b7ce52c"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\shared-reasoning\\ledger-command.json",
+      "sha256": "05786fe5fdc82e5a960e375c65497de32c29b807cc4ade582b998dc315922216"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\shared-reasoning\\ledger\\receipt.json",
+      "sha256": "dd3107fef7fbdcabb99f50b74dd34526a5b1b37eff71298513d0647777031269"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\shared-reasoning\\native-pose-reuse.json",
+      "sha256": "85f420b357994ed6a22d835c859b9b288c6467c15b37a017f813607d0e1cf30e"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\shared-reasoning\\document-checks.json",
+      "sha256": "1c3147f5203e31a54414a947ee1de65092bd8e51fd12bbb814ef6629912aa3fc"
+    }
+  ],
+  "coverage": {
+    "cognitiveModels": {
+      "cases": 43,
+      "controls": 52,
+      "assembly": "51 retained current-production controls plus repaired targeted control; current baseline passes."
+    },
+    "labor": {
+      "cases": 116,
+      "controls": 41,
+      "assembly": "35 retained controls plus six resumed after fixture guard repair; current baseline passes."
+    },
+    "residence": {
+      "cases": 177,
+      "controls": 57,
+      "assembly": "Single complete source-bound passing invocation."
+    },
+    "recovery": {
+      "luaChecks": 95,
+      "nativeAssertions": 10,
+      "controls": 27,
+      "assembly": "Baseline and 11 controls retained; 16 resumed after mutation-anchor repair."
+    },
+    "proceduralPlanning": {
+      "cases": 17,
+      "controls": 3,
+      "assembly": "Final source-bound passing invocation, including static joins."
+    },
+    "cognitionLedger": {
+      "cases": 49,
+      "controls": 15,
+      "assembly": "Runtime regression including 14 named controls and one encoded Unicode budget control."
+    },
+    "nativePose": {
+      "checks": 20,
+      "controls": 5,
+      "assembly": "Reused C120 proof; all 24 relevant source and dependency pins still match."
+    }
+  },
+  "ledgerApplicability": {
+    "changedInputsSinceExecution": [
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_Cognition.lua",
+        "sha256": "388e6b62fee9c192473e880e04f86aa68b7abbe4e43a52cdeefae5ed7b85d7aa",
+        "executedSha256": "93ebe0144ed97ddccfdf502f900a7eea970a2bf8af5962bc7704ee99fc9dd353"
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_CognitiveModels.lua",
+        "sha256": "3345689857311964a0253fdcb6fb78c32528d66657b8f253ad9cd999e96a9859",
+        "executedSha256": "1f3b85dfc8982441eb97a4f76b2b2c35ea0c6736d99a8872e6df3c98a81c08fa"
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_Labor.lua",
+        "sha256": "75c7c4fc3d1f62a496085cdef7ce3417dfdb425383807844a665121d0d49681b",
+        "executedSha256": "6a42199d766c59e8bb52312f2148c77c69145054217d8c22001a6925c8f83855"
+      }
+    ],
+    "basis": "Later CognitiveModels edits change planCandidate/planScore structural fallback only; Cognition tightens planFrame time to the current county clock; Labor removes early source pruning and redundant plan pre-scoring. The ledger fixture exercises immediate choose, experience qualification, duplicate receipt handling, pending episode binding, model allocation and bounded export. Those contracts and fixture/dependency inputs remain unchanged. Final model and consumer proofs cover the revised planning contracts.",
+    "limit": "The ledger receipt is not represented as a full cognition suite run on the final tree."
+  },
+  "preservedStatus": {
+    "C118": "Completed and merged PR135; original 105 residence/39 controls and 33 installed exterior/7 controls retain their original attribution.",
+    "C119": "Completed and merged PR136; original 137 residence/47 controls and 47 recovery Lua/10 native/15 controls retain their original attribution.",
+    "C120": "Implemented and locally verified, unmerged. Original controller176/56, recovery88 Lua/10 native/25 controls, animator20/5 and pre-repair rendered study preserved; subsequent reasoning proofs are separate.",
+    "catalogue": "120 records grouped into71 proposed units; identifiers/version replay unmigrated. Forecast8-12 further product outcomes retained without assigning a new batch ID."
+  },
+  "openAcceptance": [
+    "Wider arbitration among bodily, social and personally valued purposes.",
+    "Education, culture, age, occupation and regional priors; literal corpus, assessed understanding, retention and transfer.",
+    "Consequential trained execution/conversation through the established Speakeasy and native owners.",
+    "Revised rendered recovery and end-to-end acceptance; this turn ran no loaded save or general simulation.",
+    "Public redistribution terms for the inherited source-integrated recovery and eventual publication.",
+    "Catalogue identifier and version replay migration."
+  ],
+  "evidenceBoundary": "Controlled production Lua decisions and specific installed native recovery/animator contracts. No learned general competence or broader gameplay claim. Acquisition no-effect remains censored without a measured negative-transfer producer.",
+  "failedAttempts": "Original instrument-failure receipts remain failed/incomplete. Applicability receipts retain independent successful coverage and explain each scoped repair; no full-run PASS is fabricated.",
+  "publication": "Local uncommitted continuation on the authorized dirty C120 worktree. No deployment, commit, push, PR or merge performed."
+}

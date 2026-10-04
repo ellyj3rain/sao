@@ -1,0 +1,2366 @@
+{
+  "schema": "sao-current-shared-contract-audit/1",
+  "scope": "Former C61-C120 source contributions plus unnumbered shared reasoning. Existing owner/interfaces organize current catalogue; no target count or adjacent grouping. Future continuity graph is separate authorized work, not prerequisite.",
+  "recordedAt": "2026-10-03T22:56:33.780Z",
+  "workingDirectory": "C:/Users/jleyv/Peanut Butter/AI Assisted Software Engineering Mass Repository/Projects/.worktrees/sao-c120-experience",
+  "method": "Full source substance read. All source/archive hashes compared; code-owner function seams corroborated. Proposals are many-to-many contribution mappings for root integration, not new chronological batches or rewritten history.",
+  "boundaries": {
+    "native-source-ledger": {
+      "authoritativeOwner": "WorldSources; native SAOWorldSources",
+      "inputs": "Exact actor/source/item/revision, current native access and acquired private context.",
+      "outputsAndLifecycle": "Hydrate/observe, privately admit inspection or reserve exact choice, publish terminal measured result and retain until consumer acknowledgments.",
+      "durableState": "Bounded source revisions/fingerprints, reservations, inspection admissions/results, per-consumer acknowledgments.",
+      "consumers": "SourceUse, ProceduralPlanning, Provisioning, Cognition.",
+      "remainingDJoin": "R6/R7/R9: wider native/dormant opportunities and private forage need authentic producers; observed source is neither executable access nor full-house coverage.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
+          "line": 1215,
+          "symbol": "WS.actionOptions"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
+          "line": 1548,
+          "symbol": "WS.beginPurposeInspection"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
+          "line": 2384,
+          "symbol": "WS.completedResults"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C61",
+        "C62",
+        "C65",
+        "C87",
+        "C106",
+        "C108"
+      ]
+    },
+    "performed-material-actions": {
+      "authoritativeOwner": "SourceUse actor executor; Needs/native transfer/use; Handover bilateral delivery",
+      "inputs": "Reserved private option, exact body/item/holder, permission and optional commitment.",
+      "outputsAndLifecycle": "Approach, revalidate, transfer/use/deliver, measure completed/partial/interrupted effects; detach/reload without duplicate material.",
+      "durableState": "WorldSources reservation/results; Handover terms and exactly-once consequence phases; native references transient.",
+      "consumers": "Organization, Provisioning, ProceduralPlanning, Cognition, Disposition.",
+      "remainingDJoin": "R7/R9: expand material recipes through current native owners; queue admission, arrival and depleted queue cannot prove transfer. Dormant work needs actual authority.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/client/SAO_SourceUse.lua",
+          "line": 554,
+          "symbol": "SU.beginAcquisition"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Handover.lua",
+          "line": 662,
+          "symbol": "H.completedSince"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_Needs.lua",
+          "line": 202,
+          "symbol": "N.worldStoreTransferAction"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C62",
+        "C66",
+        "C68",
+        "C83",
+        "C103",
+        "C105"
+      ]
+    },
+    "material-entitlement-projection": {
+      "authoritativeOwner": "Material exact-source stores; Provisioning result consumer; Standing claims; Settlement performed place-development",
+      "inputs": "Completed source result, action-time option/claim incarnation, current fingerprint and held ground.",
+      "outputsAndLifecycle": "Project observed coverage, retain derivation phases across refusal/reload, follow ambient changes, retire released/reincarnated claims and acknowledge last.",
+      "durableState": "Source-owner index, projection generation, transaction receipts, provenance-tagged Standing/material records.",
+      "consumers": "Labor, Knowledge, GraphPersistence, household and settlement readers.",
+      "remainingDJoin": "R9/R10: complete coverage or performed producers must justify aggregate stock/settlement. C64 corrected C63 totals; proximity/origin radius never confers property.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Provisioning.lua",
+          "line": 220,
+          "symbol": "Provisioning.processReceipt"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Material.lua",
+          "line": 360,
+          "symbol": "Material.reconcileSource"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C63",
+        "C64",
+        "C71"
+      ]
+    },
+    "private-evidence": {
+      "authoritativeOwner": "Perception acquired sensory/testimony/entry facts; WorldKnowledge report acquisition; Disposition recipient appraisal",
+      "inputs": "Actual observer/channel/body/item/event identity, source/acquisition times and visible geometry/completed reading.",
+      "outputsAndLifecycle": "Retain bounded actor-private fact; testimony keeps teller/source separate; appraise current recipient context; absent/unknown facts remain unknown.",
+      "durableState": "Private beliefs, transfer episodes, entry outcomes, presence history and acquired report records.",
+      "consumers": "Labor, Knowledge, Cognition, Coordination, residence choices.",
+      "remainingDJoin": "R8/R12: extend evidenced acquisition and educational/cultural priors. Residency, global observation or another actor receipt does not establish reading, safety, claims or personal knowledge.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Perception.lua",
+          "line": 534,
+          "symbol": "P.receiveTransferResult"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Perception.lua",
+          "line": 1320,
+          "symbol": "P.noteEntryOutcome"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_WorldKnowledge.lua",
+          "line": 305,
+          "symbol": "W.installReadingObserver"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C67",
+        "C69",
+        "C74",
+        "C77",
+        "C86",
+        "C108",
+        "C118",
+        "C120"
+      ]
+    },
+    "communication-access": {
+      "authoritativeOwner": "Communication delivery and execution-owner access; private radio/rest state; Perception reception",
+      "inputs": "Addressed revision/payload, actual current speaker/listener access, wake/radio state and provenance.",
+      "outputsAndLifecycle": "Check channel, deliver to actual recipient, retain receipt before effects. Arrival, membership and broadcast emission are not reception.",
+      "durableState": "Pending messages/private reception receipts; persisted native radio/rest state.",
+      "consumers": "Organization proposal/response, testimony, Knowledge, CountyWire.",
+      "remainingDJoin": "R8/R9/R14: natural social reach and constrained conversation must use actual channel availability; broader radio schedules/shortage producers remain open.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Communication.lua",
+          "line": 196,
+          "symbol": "Communication.canConverse"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Communication.lua",
+          "line": 267,
+          "symbol": "Communication.radioReceiverAccess"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Communication.lua",
+          "line": 563,
+          "symbol": "Communication.deliverPendingResponses"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C67",
+        "C72",
+        "C73",
+        "C79",
+        "C85"
+      ]
+    },
+    "claim-catalogue": {
+      "authoritativeOwner": "Knowledge typed read-only projection and exact snapshot reference selection",
+      "inputs": "Actor/listener/tick/topics, acquired claims and typed owner projections.",
+      "outputsAndLifecycle": "Compile stable snapshot-local references; select exact factual fence; expose failure/unknown; reads cannot change underlying state.",
+      "durableState": "Detached catalogue/capture; durable facts stay with their existing owners.",
+      "consumers": "Speakeasy understander/retriever/speaker inputs and runtime conversation.",
+      "remainingDJoin": "R12-R14: broader acquired claims, independent tasks and assessed retrieval/understanding are still needed; catalogue existence is not literacy or comprehension.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Knowledge.lua",
+          "line": 848,
+          "symbol": "K.behaviorEvidence"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Knowledge.lua",
+          "line": 1017,
+          "symbol": "K.claimCatalogue"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Knowledge.lua",
+          "line": 1219,
+          "symbol": "K.flatSelectedClaims"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C75",
+        "C76",
+        "C78"
+      ]
+    },
+    "person-continuity": {
+      "authoritativeOwner": "Body/BodySnapshot representation; DormantPopulation authorized offscreen advance; registered ZAO owner; ModMechanics physical cooler interval",
+      "inputs": "Stable person, exact body/owner token, native state/elapsed interval and transfer/checkpoint request.",
+      "outputsAndLifecycle": "Capture/restore/verify before publication; transactional rollback/refusal; one owner advances interval; detach callbacks; preserve nested inventory and physical location.",
+      "durableState": "Versioned snapshots, inventory/physiology/radio sidecars, external owner token and failed-interval bookkeeping.",
+      "consumers": "Controller, dormant scheduler, ZAO, material/action owners.",
+      "remainingDJoin": "R1/R4/R5/R7: complete state-specific life and cooler-aware dormant meals without double advance. Unknown legacy state or failed intervals cannot be certified by clock.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/client/SAO_Body.lua",
+          "line": 793,
+          "symbol": "Body.prepareExternalTransfer"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_Body.lua",
+          "line": 932,
+          "symbol": "Body.checkpointActive"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_DormantPopulation.lua",
+          "line": 749,
+          "symbol": "D.advanceRest"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_ModMechanics.lua",
+          "line": 162,
+          "symbol": "M.beforeSnapshot"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C64",
+        "C71",
+        "C72",
+        "C73",
+        "C80",
+        "C87",
+        "C89",
+        "C111"
+      ]
+    },
+    "physiological-recovery": {
+      "authoritativeOwner": "Needs measured loaded physiology; RecoveryPose/native animator pose admission; DormantPopulation separate dormant rest",
+      "inputs": "Current pressure/private permitted place, exact admitted body/action/pose and same-body samples.",
+      "outputsAndLifecycle": "Preparation grants no recovery; active native pose precedes measured segment; owner/body/pose loss interrupts; authentic no-progress differs from unobserved interruption.",
+      "durableState": "Actor-qualified recovery outcomes/owner positions; runtime action handles detach/reacknowledge across lifecycle.",
+      "consumers": "Controller arbitration, Cognition, residence pause/return.",
+      "remainingDJoin": "R5/R7/R9: revised carried poses still need rendered acceptance and redistribution terms; wider valued activity arbitration must preserve urgency and native transition ownership.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/client/SAO_Needs.lua",
+          "line": 1074,
+          "symbol": "N.recoveryPreference"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_Needs.lua",
+          "line": 1186,
+          "symbol": "N.beginRecovery"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_Needs.lua",
+          "line": 1319,
+          "symbol": "N.pollRecovery"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C108",
+        "C119",
+        "C120"
+      ]
+    },
+    "action-result-lifecycle": {
+      "authoritativeOwner": "Named physical producers: Treatment, Cooking, Study, ResourceProduction, Posture, AnimalCare, WindowRepair, FurnitureMovement and horse adapter; no new universal executor",
+      "inputs": "Exact actor/body/world/material/target plus native capability and purpose/procedure token.",
+      "outputsAndLifecycle": "Admit; retain exact native owner; measure domain-specific effect; publish scalar result; acknowledge planning/learning independently; cancel and dispose references safely.",
+      "durableState": "Owner-specific scalar receipts/outboxes and correlation; runtime native refs/cancellation capsules transient.",
+      "consumers": "ProceduralPlanning, Organization, Cognition/CapabilityExperience, authorized consequence owners.",
+      "remainingDJoin": "R7/R9: farming approach, boarding execution, meaningful leisure/instrument effects, mourning acquisition, window materials/approach and NPC furniture need real producers, not generic completion.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Treatment.lua",
+          "line": 459,
+          "symbol": "T.begin"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_Study.lua",
+          "line": 147,
+          "symbol": "S.beforeQueue"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_WindowRepair.lua",
+          "line": 238,
+          "symbol": "W.deliverLearning"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_FurnitureMovement.lua",
+          "line": 49,
+          "symbol": "M.outcomes"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_Posture.lua",
+          "line": 96,
+          "symbol": "P.begin"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C70",
+        "C89",
+        "C92",
+        "C102",
+        "C103",
+        "C104",
+        "C106",
+        "C111",
+        "C112",
+        "C117",
+        "C120"
+      ]
+    },
+    "acquired-purpose-planning": {
+      "authoritativeOwner": "ProceduralPlanning durable purposes; Labor private context; Controller actual native admission",
+      "inputs": "Acquired objectives, body/skills, private opportunities/permission/threats, accepted responsibilities and model interpretations.",
+      "outputsAndLifecycle": "Maintain/revise purpose, filter retries/continuity before bounding alternatives, select exact step, consume canonical result, pause without false completion.",
+      "durableState": "Private purposes/spatial provenance, pending tokens, retry ledgers and detached interpretations.",
+      "consumers": "Resource/residence/study/fortification/leisure/mobility selectors, dormant residence, Observation.",
+      "remainingDJoin": "R8/R9: broader valued alternatives need shared predictions and acquired priors. Authored study goals and observation bounds are not autonomous purposes or world facts.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
+          "line": 108,
+          "symbol": "P.maintain"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
+          "line": 476,
+          "symbol": "P.planResidence"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
+          "line": 766,
+          "symbol": "P.planResource"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Labor.lua",
+          "line": 337,
+          "symbol": "Labor.assess"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C87",
+        "C95",
+        "C102",
+        "C103",
+        "C104",
+        "C108",
+        "C118",
+        "C119"
+      ]
+    },
+    "conditional-cognition": {
+      "authoritativeOwner": "Cognition authenticates experience/configured model; CognitiveModels independent ordinary and associative predictions",
+      "inputs": "Canonical producer receipt, or read-only current actor frame with candidate-specific kind/source/item/condition consequences.",
+      "outputsAndLifecycle": "Requery producer and admit once; revise independent states; compare detached candidates with uncertainty/evidence IDs; configured view can select actual action. Cold appraisal writes no experience/model state.",
+      "durableState": "Per-person evidence, hypotheses, contradictions, revisions and bounded choice/experience ledger.",
+      "consumers": "Resource/entry planning, Needs sleep/rest/continue, immediate chooser, observer export.",
+      "remainingDJoin": "R8/R13/R14: literal educational/cultural corpus, usable acquired priors, comprehension/retention/transfer and broader arbitration remain. Local mechanism is not a fitted general model or approved trained execution.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Cognition.lua",
+          "line": 342,
+          "symbol": "C.experience"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Cognition.lua",
+          "line": 758,
+          "symbol": "C.interpretPlans"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
+          "line": 867,
+          "symbol": "M.planPrediction"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
+          "line": 911,
+          "symbol": "M.interpretPlans"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C88",
+        "C95",
+        "C120"
+      ]
+    },
+    "enacted-social-procedures": {
+      "authoritativeOwner": "Organization revisioned matters/assent/commitments/progress; Coordination private appraisal; GraphPersistence social persistence",
+      "inputs": "Private needs/contacts/terms, actually received proposal/returned response, capability and native results.",
+      "outputsAndLifecycle": "Form/revise/contact; independent response; delivered assent grants scoped responsibility; bounded role/dependency/same-actor/barrier; exact result once; failed work requires explicit revision.",
+      "durableState": "Process revisions/private projections, commitments, role claims, contact/route attempts and receipts.",
+      "consumers": "Communication, Controller, SourceUse, Handover, Cooking, Posture, Labor/Needs.",
+      "remainingDJoin": "R8/R9: elections, succession, broader care/production/authority/doctrine require real producers and receptions. Global progress and arrival confer neither knowledge nor assent.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Organization.lua",
+          "line": 1847,
+          "symbol": "Org.deliverResponse"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Organization.lua",
+          "line": 1977,
+          "symbol": "Org.activeCommitments"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Organization.lua",
+          "line": 2105,
+          "symbol": "Org.privateProcedure"
+        },
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_Organization.lua",
+          "line": 2294,
+          "symbol": "Org.consumeProcedureResult"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C79",
+        "C80",
+        "C83",
+        "C84",
+        "C85",
+        "C89",
+        "C90",
+        "C91",
+        "C92",
+        "C104",
+        "C110"
+      ]
+    },
+    "physical-movement": {
+      "authoritativeOwner": "Locomotion route owner; native SAOMovement path/crossing/failed-edge producer; Coordination separate tactical intent",
+      "inputs": "Exact actor/body/route admission and privately selected target; native position/node evidence.",
+      "outputsAndLifecycle": "Retain native transitions; recognize physical progress; expire stalled/jitter routes; bind actual failed edge or crossing to exact generation. Route arrival is not activity completion.",
+      "durableState": "Purpose/procedure route identity and private failures; native handles transient.",
+      "consumers": "Controller, SourceUse, residence, Organization, Perception, horse adapter.",
+      "remainingDJoin": "R7/R9: broader native execution must preserve route owner and meaningful tactical proposal identity; moving fallback tile is not changed intent.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/client/SAO_Locomotion.lua",
+          "line": 112,
+          "symbol": "Loco.order"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_Locomotion.lua",
+          "line": 257,
+          "symbol": "Loco.tick"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C86",
+        "C98",
+        "C107",
+        "C108",
+        "C110",
+        "C118"
+      ]
+    },
+    "mobile-place-continuity": {
+      "authoritativeOwner": "MobileHousehold exact vehicle/interior/exterior relation; native provider transition; Body representation position",
+      "inputs": "Exact vehicle/parts/tow/passengers, actor and current provider admission.",
+      "outputsAndLifecycle": "Enter verified physical room, retain separate exterior anchor, follow actual moved vehicle, exit/rebind exact vehicle; no transition credit from desired placement.",
+      "durableState": "Vehicle/interior anchor, occupancy, failures and exact identity.",
+      "consumers": "ProceduralPlanning mobile purpose, Body restore, night shelter.",
+      "remainingDJoin": "R7/R9: C100 closes C99 loaded provider gap; general autonomous mobile household competence and optional source activation remain distinct.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/client/SAO_MobileHousehold.lua",
+          "line": 343,
+          "symbol": "M.enterInterior"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_MobileHousehold.lua",
+          "line": 469,
+          "symbol": "M.representationPosition"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_MobileHousehold.lua",
+          "line": 495,
+          "symbol": "M.restoreInterior"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C99",
+        "C100"
+      ]
+    },
+    "capture-lineage": {
+      "authoritativeOwner": "SAO immutable decision/conversation capture; Speakeasy exact joins, independent review and admission",
+      "inputs": "Person/run/namespace/source hashes, before-choice options/context, separate later outcome and whole lineage.",
+      "outputsAndLifecycle": "Serialize before choice; publish complete atomically; refuse stale/foreign/outcome leakage; preserve corrected historical bytes/revoked eligibility.",
+      "durableState": "Immutable capture/result/source manifests and approval/revocation lineage.",
+      "consumers": "Speakeasy training/evaluation, cognition comparison, review outbox.",
+      "remainingDJoin": "R11-R13: more natural outcome coverage and independently reviewed targets needed; C74-grant and future-contaminated sources remain ineligible.",
+      "codeAnchors": [
+        {
+          "path": "tools/sweep/decision_capture.lua"
+        },
+        {
+          "path": "tools/sweep/conversation_capture.lua"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C64",
+        "C65",
+        "C66",
+        "C74",
+        "C76",
+        "C77",
+        "C78",
+        "C81",
+        "C88",
+        "C101"
+      ]
+    },
+    "bounded-inference": {
+      "authoritativeOwner": "CoordinationInference and Java coordination worker; Organization remains present shadow decision authority",
+      "inputs": "Validated model/tokenizer/tensors, immutable post-appraisal payload and exact request/revision/actor/owner.",
+      "outputsAndLifecycle": "Bounded async evaluation; refuse stale/foreign/changed-owner output; cancel on detach/death; current shadow output cannot select response/create work.",
+      "durableState": "Artifact provenance and observational results; pending work transient, not social save state.",
+      "consumers": "Organization observation, Speakeasy parity/evaluation.",
+      "remainingDJoin": "R13/R14: extend understander/retriever/speaker, measure loaded resources and separately establish consequential reviewed activation.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/shared/SAO_CoordinationInference.lua"
+        },
+        {
+          "path": "java/src/com/sao/engine/SAOCoordinationWorker.java"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C82"
+      ]
+    },
+    "causal-episodes": {
+      "authoritativeOwner": "Causal county episode runner; production population and action owners produce events",
+      "inputs": "Fixed seed/initial conditions/source-policy version/maximum horizon.",
+      "outputsAndLifecycle": "One causal run with prefix checkpoints, fresh-process exact replay and atomic whole-episode publication; retain zero-decision episodes.",
+      "durableState": "Trajectory/checkpoint manifests/hashes, not selected desired endings.",
+      "consumers": "Speakeasy intake and future late-start accelerator evaluation.",
+      "remainingDJoin": "R10b/R15: several repaired baselines and matched equivalence/error/performance needed; 30-day zero-matter seed is not sufficient training or acceleration evidence.",
+      "codeAnchors": [
+        {
+          "path": "tools/county_episode.py",
+          "line": 116,
+          "symbol": "def run_episode"
+        },
+        {
+          "path": "tools/county_episode.py",
+          "line": 158,
+          "symbol": "def export_records"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C84"
+      ]
+    },
+    "study-world-admission": {
+      "authoritativeOwner": "StudyWorld and PopulationAdmissions experimental initial conditions; native engine/cohort physical construction",
+      "inputs": "Sealed scenario/module origins, population/pressure/objective/hazard inputs, engine hashes and isolated save.",
+      "outputsAndLifecycle": "Admit actual bodies/initial state once by identity; measure actual count; experimental input creates neither acquired knowledge nor completed work and cannot reset later physiology.",
+      "durableState": "Definition/cohort hashes and once-only person/pressure/objective/hazard admission records.",
+      "consumers": "Native supervisor, runtime producers and observer region setup.",
+      "remainingDJoin": "R10/R11: controlled diagnosis is distinct from autonomous formation; target-seeking population/refill policy remains substantive reconciliation.",
+      "codeAnchors": [
+        {
+          "path": "tools/world_lab/StudyWorld.lua"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_PopulationAdmissions.lua",
+          "line": 61,
+          "symbol": "A.stageInitialPeople"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C86",
+        "C94",
+        "C96",
+        "C100",
+        "C105",
+        "C106",
+        "C107",
+        "C115"
+      ]
+    },
+    "study-session-lifecycle": {
+      "authoritativeOwner": "world_lab and world_lab_session native attempt supervision/checkpoint continuation/review outbox",
+      "inputs": "Exact isolated save/definition/cohort, finite duration, command identity and verified prior terminal state.",
+      "outputsAndLifecycle": "Native normal stop/drain/save; verify phases/files before continuation; strict legacy metadata recovery; preserve failed attempts and independent delivery retries.",
+      "durableState": "Attempt/session manifests, simulated time, saved-file inventories, terminal receipts and outbox status.",
+      "consumers": "Speakeasy/Mousecat study controls, later acceptance trials/export.",
+      "remainingDJoin": "R11/R15: longer sessions do not approve scenarios or gameplay. Sharing refusals preserve bytes and bounded retry; metadata repair cannot alter underlying native evidence.",
+      "codeAnchors": [
+        {
+          "path": "tools/world_lab.py"
+        },
+        {
+          "path": "tools/world_lab_session.py"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C87",
+        "C93",
+        "C101",
+        "C109"
+      ]
+    },
+    "observation-publication": {
+      "authoritativeOwner": "Observation game-thread projections; StudyExport bounded detached serialization/atomic async publication",
+      "inputs": "Produced private/runtime state, explicitly inspected person, budget and world/session epoch.",
+      "outputsAndLifecycle": "Lean cache retains source clock; reserve bounded channel before copy; worker handles detached values only; truthful omission/defer/epoch result; drain on stop.",
+      "durableState": "Hashed snapshots/publication receipts; transient worker queue, never actor belief.",
+      "consumers": "Study archives, Speakeasy review, Mousecat inspect, diagnostics.",
+      "remainingDJoin": "R11/R14/R15: currentness/completeness/timing remain separate; bounded export cannot silently erase decision inputs or prove game-wide throughput.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/client/SAO_Observation.lua",
+          "line": 599,
+          "symbol": "O.capture"
+        },
+        {
+          "path": "tools/world_lab/StudyExport.java"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C87",
+        "C104",
+        "C105",
+        "C106",
+        "C109"
+      ]
+    },
+    "native-view-transport": {
+      "authoritativeOwner": "Native observer region/camera/framebuffer; capture/video exporter; Speakeasy/Mousecat transport and presentation",
+      "inputs": "Independent sealed observation layout, exact subject, captured pose and native pixels.",
+      "outputsAndLifecycle": "Retain native regions/physics separately from view; binary32 geometry; bounded images/H264 with actual sequence/time/IDR interval; exact crops; absent subjects remain unavailable.",
+      "durableState": "Layout/frame/video hashes and captured pose; transient native contexts restored on orderly exit.",
+      "consumers": "Human acceptance review and native study archive.",
+      "remainingDJoin": "R11/R15: image presentation, render rate and simulated progress are distinct; observation setup does not prove behavior. This existing boundary imposes no future continuity-graph prerequisite.",
+      "codeAnchors": [
+        {
+          "path": "tools/world_lab/StudyWorld.lua"
+        },
+        {
+          "path": "tools/world_lab/StudyExport.java"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C86",
+        "C107",
+        "C113",
+        "C114",
+        "C115",
+        "C116"
+      ]
+    },
+    "curated-source-adapters": {
+      "authoritativeOwner": "Discovery/provenance inventories; domain physical adapters retain individual effect authority and attribution",
+      "inputs": "Actual installed/versioned source, native compatibility, assets/dependencies, rights and authorized scope.",
+      "outputsAndLifecycle": "Discover/assess semantics, adapt justified physical owner, preserve provenance/refusals and verify actual effect before NPC-use claims.",
+      "durableState": "Source manifests/licence state plus domain state under existing owners.",
+      "consumers": "Horse, MobileHousehold, ModMechanics, AnimalCare, WindowRepair, FurnitureMovement, RecoveryPose and further domain adapters.",
+      "remainingDJoin": "R9/private assembly: cooler meals, clinical/traits, growth, preservation, weapons/exercise/utilities and asset rights remain joins; inventory is not activation or completion.",
+      "codeAnchors": [
+        {
+          "path": "mod/42.20/media/lua/client/SAO_ModMechanics.lua",
+          "line": 162,
+          "symbol": "M.beforeSnapshot"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_FurnitureMovement.lua",
+          "line": 367,
+          "symbol": "M.install"
+        },
+        {
+          "path": "mod/42.20/media/lua/client/SAO_WindowRepair.lua",
+          "line": 306,
+          "symbol": "W.install"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C97",
+        "C98",
+        "C111",
+        "C112",
+        "C117",
+        "C120"
+      ]
+    },
+    "process-evidence-governance": {
+      "authoritativeOwner": "GOVERNANCE/decision records; source archive and canonical catalogue",
+      "inputs": "Changed inputs/contracts, source-pinned reusable evidence and actual task/publication requirements.",
+      "outputsAndLifecycle": "Choose sufficient affected verification, preserve valid passes, distinguish failure/incomplete/skipped/unobservable, retain remote constraints; catalogue maps preserved history.",
+      "durableState": "Receipts, source archives, decision records and canonical indexes.",
+      "consumers": "Every D development/acceptance slice; not a runtime feature dependency.",
+      "remainingDJoin": "DR-054/055 and GZDS B2.17 are adopted; no duplicate full-suite work for record publication or catalogue-count-as-capability inference.",
+      "codeAnchors": [
+        {
+          "path": "GOVERNANCE.md"
+        }
+      ],
+      "contributingFormerRecords": [
+        "C116",
+        "C117"
+      ]
+    }
+  },
+  "records": {
+    "C61": {
+      "path": "Batches/C61-2026-09-20-demand-led-native-hydration.md",
+      "sha256": "49424e1a525b770f17c09fc035c4fa7d1c00bd0410d5f628da92a9e8b6d8cec8",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C61-2026-09-20-demand-led-native-hydration.md",
+      "sourceStatus": "| Status | Closed through the enforced full commit gate. |",
+      "contributions": [
+        {
+          "boundary": "native-source-ledger",
+          "contribution": "Demand-led native hydration, UUID/fingerprint source revisions and bounded reconciliation; private observation is separate from executable access."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Unsupported dormant vehicles and wider physical work require actual native owners.",
+      "relatedNonadjacentRecords": [
+        "C71",
+        "C87",
+        "C103",
+        "C106",
+        "C108"
+      ]
+    },
+    "C62": {
+      "path": "Batches/C62-2026-09-20-source-access-and-native-use.md",
+      "sha256": "68cf19f6013887db51931f32ca1df14e79625dda528f7d6725a86e302ca5b7a3",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C62-2026-09-20-source-access-and-native-use.md",
+      "sourceStatus": "| Status | Closed through the enforced full commit gate. |",
+      "contributions": [
+        {
+          "boundary": "performed-material-actions",
+          "contribution": "Exact reservation-to-route/access/transfer/native-use lifecycle and reload custody suppress competing dormant writers."
+        },
+        {
+          "boundary": "native-source-ledger",
+          "contribution": "Durable ordered scalar terminal results remain until consumer acknowledgement."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Later consumers must preserve partial measured quantities and external native-use ownership.",
+      "relatedNonadjacentRecords": [
+        "C66",
+        "C80",
+        "C103",
+        "C107"
+      ]
+    },
+    "C63": {
+      "path": "Batches/C63-2026-09-20-provisioning-result-consumption.md",
+      "sha256": "72ab0c9f3606707599ebc10e4c88302c6564ff664a8dacbcbecc89f3c7df2173",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C63-2026-09-20-provisioning-result-consumption.md",
+      "sourceStatus": "| Status | Closed, validated and deployed. |",
+      "contributions": [
+        {
+          "boundary": "material-entitlement-projection",
+          "contribution": "Consumes completed source with action-time settings/claim incarnation and durable derivation phases; removes queue-created provisioning and settlements."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "C64 corrects this record's unsupported whole-house interpretation; broader storage/development needs performed producers.",
+      "relatedNonadjacentRecords": [
+        "C66",
+        "C71",
+        "C85",
+        "C104"
+      ]
+    },
+    "C64": {
+      "path": "Batches/C64-2026-09-20-corrective-integrity-and-decision-evidence.md",
+      "sha256": "ef151d2ba0ce9af04f78518cca7e58e73064cac4cbcfa6838fe581d15f6e4ca9",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C64-2026-09-20-corrective-integrity-and-decision-evidence.md",
+      "sourceStatus": "| Status | Closed, validated and deployed. |",
+      "contributions": [
+        {
+          "boundary": "material-entitlement-projection",
+          "contribution": "Corrects C63 to partial coverage and follows ambient source change without minting work."
+        },
+        {
+          "boundary": "capture-lineage",
+          "contribution": "Freezes context before choice and separate outcome; exact atomic namespace/hash join identifies contaminated legacy conditioning."
+        },
+        {
+          "boundary": "person-continuity",
+          "contribution": "Transactional graph rollback and returned-body timer ownership repaired."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Independent owner corrections must remain separate contributions; contaminated data stays training-ineligible.",
+      "relatedNonadjacentRecords": [
+        "C71",
+        "C77",
+        "C81",
+        "C101",
+        "C111"
+      ]
+    },
+    "C65": {
+      "path": "Batches/C65-2026-09-21-source-action-decisions.md",
+      "sha256": "b76c5eff2569707c9fc0b2bd9dc484110f1dd3107e30634ce7ba152197925dce",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C65-2026-09-21-source-action-decisions.md",
+      "sourceStatus": "| Status | Closed, validated and deployed; full gate enforced by the closing commit. |",
+      "contributions": [
+        {
+          "boundary": "native-source-ledger",
+          "contribution": "Actor-private exact source/item/revision offers and final exact-choice revalidation."
+        },
+        {
+          "boundary": "capture-lineage",
+          "contribution": "Actual offer set captured before selector, reservation and native result joined later."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "General alternatives and consequential learned selector remain separate work.",
+      "relatedNonadjacentRecords": [
+        "C88",
+        "C103",
+        "C104",
+        "C120"
+      ]
+    },
+    "C66": {
+      "path": "Batches/C66-2026-09-21-performed-provisioning.md",
+      "sha256": "f067bdaa25c7ece0836abe5a3fbe52fcf0e1f11cd6852efe2d83263c45931d48",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C66-2026-09-21-performed-provisioning.md",
+      "sourceStatus": "| Status | Closed, validated and deployed; full gate enforced by the closing commit. |",
+      "contributions": [
+        {
+          "boundary": "performed-material-actions",
+          "contribution": "Acquire/store exact-item conservation, mutation-time claim checks and carried reload custody; measured completion owns XP/speech."
+        },
+        {
+          "boundary": "capture-lineage",
+          "contribution": "Acquire/store choices extend immutable capture."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Runtime next-haul plan may be lost on reload; no atomic native/global save claim.",
+      "relatedNonadjacentRecords": [
+        "C68",
+        "C79",
+        "C103",
+        "C105"
+      ]
+    },
+    "C67": {
+      "path": "Batches/C67-2026-09-21-delivery-knowledge.md",
+      "sha256": "36d9846ed9e426d592a73511c550aeaf83535e4008e83229e04a09e1e1d06e3b",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C67-2026-09-21-delivery-knowledge.md",
+      "sourceStatus": "| Status | Closed; complete repository gate enforced by the publishing commit. |",
+      "contributions": [
+        {
+          "boundary": "private-evidence",
+          "contribution": "Contemporaneous transfer observer/event identity is frozen before reconciliation; recipient-private episode precedes acknowledgement."
+        },
+        {
+          "boundary": "communication-access",
+          "contribution": "Loaded/bodyless testimony preserves teller/source and recipient appraisal, without copying feelings."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Actual channel access and wider social valuation require acquired inputs; witnessing creates no automatic debt/trust.",
+      "relatedNonadjacentRecords": [
+        "C69",
+        "C73",
+        "C79",
+        "C108"
+      ]
+    },
+    "C68": {
+      "path": "Batches/C68-2026-09-21-personal-handovers-and-terms.md",
+      "sha256": "4382b4a56fac96b6c8c976fa3f5720ac2a23282c219ddd6e91f53b4991d9adb6",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C68-2026-09-21-personal-handovers-and-terms.md",
+      "sourceStatus": "| Status | Closed; complete repository gate enforced by the publishing commit. |",
+      "contributions": [
+        {
+          "boundary": "performed-material-actions",
+          "contribution": "Exact Handover actor/recipient/item with independently admitted bilateral terms; measured legs own trust or agreed debt once."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Pending reload may remain unknown; broader trade consumes actual leg results.",
+      "relatedNonadjacentRecords": [
+        "C79",
+        "C83",
+        "C85",
+        "C105"
+      ]
+    },
+    "C69": {
+      "path": "Batches/C69-2026-09-21-recipient-appraisal-after-testimony.md",
+      "sha256": "9174710dae2f33f4dfd19463e595da555cf610e70c2144d0abe3732b51d11d57",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C69-2026-09-21-recipient-appraisal-after-testimony.md",
+      "sourceStatus": "| Status | Closed; complete repository gate enforced by the publishing commit. |",
+      "contributions": [
+        {
+          "boundary": "private-evidence",
+          "contribution": "Recipient appraises told store event using own current household, acquired aid request and explicit private claim; frozen testimony basis retained."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Charity slice does not implement general valuation, social ledger or globally shared knowledge.",
+      "relatedNonadjacentRecords": [
+        "C67",
+        "C78",
+        "C108",
+        "C120"
+      ]
+    },
+    "C70": {
+      "path": "Batches/C70-2026-09-21-treatment-completion.md",
+      "sha256": "c1e190de102f38eb00b349f5c604f3e0e1415aaff97dac136c80cacda615e9b8",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C70-2026-09-21-treatment-completion.md",
+      "sourceStatus": "| Status | Closed; complete repository gate enforced by the publishing commit. |",
+      "contributions": [
+        {
+          "boundary": "action-result-lifecycle",
+          "contribution": "Treatment measures exact native patient/bodypart bandage and consumed dressing; once-only consequences and lifecycle cleanup."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "C120 repairs subsequent Controller duplicate Doctor credit and queue-drain closure; wider care remains open.",
+      "relatedNonadjacentRecords": [
+        "C89",
+        "C111",
+        "C112",
+        "C120"
+      ]
+    },
+    "C71": {
+      "path": "Batches/C71-2026-09-21-complete-private-inventory.md",
+      "sha256": "52213d3771be729101a99a6d49f92fcb9172e1ffe737adf2cf92556bc03530d9",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C71-2026-09-21-complete-private-inventory.md",
+      "sourceStatus": "| Status | Closed; complete repository gate enforced by the publishing commit. |",
+      "contributions": [
+        {
+          "boundary": "person-continuity",
+          "contribution": "Recursive actor-private exact inventory holders and v4 dormant carriage, with current vehicle access revalidation."
+        },
+        {
+          "boundary": "material-entitlement-projection",
+          "contribution": "Bounded view cannot establish aggregate house stock; nearby-shelf totals retired."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Inventory observation is not executable world access; nested producers and cooler meals require exact holder joins.",
+      "relatedNonadjacentRecords": [
+        "C61",
+        "C68",
+        "C103",
+        "C111",
+        "C112"
+      ]
+    },
+    "C72": {
+      "path": "Batches/C72-2026-09-21-dormant-spoken-access.md",
+      "sha256": "e76f12a8e7ab7784b931c57545183e7d1d6e62e16c9957ac888dc320a74cf40a",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C72-2026-09-21-dormant-spoken-access.md",
+      "sourceStatus": "| Status | Closed; complete repository gate enforced by the publishing commit. |",
+      "contributions": [
+        {
+          "boundary": "person-continuity",
+          "contribution": "Persisted native rest state advances dormant county-clock sleep/wake before encounters and verifies loaded restoration."
+        },
+        {
+          "boundary": "communication-access",
+          "contribution": "Actual sleeping/moving state governs spoken access."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Dormant sleep projection is distinct from loaded pose/physiology proof and external owner authority.",
+      "relatedNonadjacentRecords": [
+        "C80",
+        "C108",
+        "C119",
+        "C120"
+      ]
+    },
+    "C73": {
+      "path": "Batches/C73-2026-09-21-radio-reception.md",
+      "sha256": "04c0b4c9f14919276231cdcce56dff3c2beed57f955cbd59c1994aaa3b0c3a6a",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C73-2026-09-21-radio-reception.md",
+      "sourceStatus": "| Status | Closed; complete repository gate enforced by the publishing commit. |",
+      "contributions": [
+        {
+          "boundary": "communication-access",
+          "contribution": "Exact direct-root radio endpoint/channel/power/audibility with reception receipt before effects."
+        },
+        {
+          "boundary": "person-continuity",
+          "contribution": "Radio sidecar/dormant battery continuity validates the whole restored set."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "No autonomous radio scheduler or full shortage producer; bag possession is not endpoint access.",
+      "relatedNonadjacentRecords": [
+        "C67",
+        "C76",
+        "C79",
+        "C106"
+      ]
+    },
+    "C74": {
+      "path": "Batches/C74-2026-09-21-personal-world-knowledge-evidence.md",
+      "sha256": "3290e590e0ff3b0ed0370ce91e71f2f66c91fb64977784d74b74d48e84ae091f",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C74-2026-09-21-personal-world-knowledge-evidence.md",
+      "sourceStatus": "| Status | Closed; complete repository gate enforced by the publishing commit. |",
+      "contributions": [
+        {
+          "boundary": "private-evidence",
+          "contribution": "County calendar/presence provenance retained; original residency/age report grant is later revoked by C77."
+        },
+        {
+          "boundary": "capture-lineage",
+          "contribution": "Protected historical acquisition evidence remains traceable but ineligible after correction."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Retain biography/calendar; presence is not reading or education.",
+      "relatedNonadjacentRecords": [
+        "C77",
+        "C95",
+        "C120"
+      ]
+    },
+    "C75": {
+      "path": "Batches/C75-2026-09-21-typed-claim-catalogues.md",
+      "sha256": "91d391e362532055e9e39bda1340c5f45ccd6dcfb999514098b87eeb9fef4476",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C75-2026-09-21-typed-claim-catalogues.md",
+      "sourceStatus": "| Status | Closed; complete repository gate enforced by the publishing commit. |",
+      "contributions": [
+        {
+          "boundary": "claim-catalogue",
+          "contribution": "Deterministic topic/actor/listener/tick catalogue, snapshot-local references and atomic selected-claim factual fence."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Catalogue is not trained retrieval; source coverage and downstream task quality remain.",
+      "relatedNonadjacentRecords": [
+        "C78",
+        "C82",
+        "C88",
+        "C120"
+      ]
+    },
+    "C76": {
+      "path": "Batches/C76-2026-09-22-conversation-capture.md",
+      "sha256": "94a80a7962dbbe6201849e1b5b6c2f5b6d556a2cba8a286c69563cdd4a6df3d3",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C76-2026-09-22-conversation-capture.md",
+      "sourceStatus": "| Status | Closed; complete repository gate enforced by the publishing commit. |",
+      "contributions": [
+        {
+          "boundary": "claim-catalogue",
+          "contribution": "Strict evidence-aware owner readers expose failures/availability and preserve read purity."
+        },
+        {
+          "boundary": "capture-lineage",
+          "contribution": "Immutable identity/calendar/catalogue/question capture with whole-store purity and no overwrite."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "C77 revokes C74-dependent scenario knowledge; retain machinery and explicit loaded conditioning limits.",
+      "relatedNonadjacentRecords": [
+        "C73",
+        "C78",
+        "C82",
+        "C101"
+      ]
+    },
+    "C77": {
+      "path": "Batches/C77-2026-09-22-evidenced-world-knowledge.md",
+      "sha256": "b9611bfbce21a16308f2c6726819e6eb4630401c56aa626ca2359bd559ca968b",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C77-2026-09-22-evidenced-world-knowledge.md",
+      "sourceStatus": "| Status | Closed; complete repository gate enforced by the publishing commit. |",
+      "contributions": [
+        {
+          "boundary": "private-evidence",
+          "contribution": "Exact held-newspaper native reading completion establishes schema2 acquisition; old presence grants withheld."
+        },
+        {
+          "boundary": "capture-lineage",
+          "contribution": "Historical revoked bytes/hashes preserved; obsolete exporters refuse."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Further book/computer/report carriers need actual acquisition; literal education corpus cannot be replaced by numeric upbringing.",
+      "relatedNonadjacentRecords": [
+        "C74",
+        "C102",
+        "C120"
+      ]
+    },
+    "C78": {
+      "path": "Batches/C78-2026-09-23-person-state-comparisons.md",
+      "sha256": "2f3ea21b99c3b35e50ed9045437071ac6c981354322fb83a0f56db7a9be73f36",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C78-2026-09-23-person-state-comparisons.md",
+      "sourceStatus": "| Status | Implementation complete; publication requires the complete repository gate. |",
+      "contributions": [
+        {
+          "boundary": "claim-catalogue",
+          "contribution": "Typed Disposition/Conditions/Standing/Neuro/Perception/Lessons evidence and exact body/controller binding."
+        },
+        {
+          "boundary": "capture-lineage",
+          "contribution": "Person-state comparison captures stay one source lineage; read guards avoid native allocation."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Broader learned expression and alternatives need execution; paired scenarios are not independent held-out sources.",
+      "relatedNonadjacentRecords": [
+        "C69",
+        "C75",
+        "C88",
+        "C120"
+      ]
+    },
+    "C79": {
+      "path": "Batches/C79-2026-09-24-enacted-social-coordination.md",
+      "sha256": "9857927e2fb423366a973e53d06627e0e7f32409153ac9911512616a13424705",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C79-2026-09-24-enacted-social-coordination.md",
+      "sourceStatus": "| Status | Closed implementation batch; complete Windows-runtime repository gate clean. |",
+      "contributions": [
+        {
+          "boundary": "enacted-social-procedures",
+          "contribution": "Revisioned actual proposals/independent responses/delivered assent create scoped commitments; exact acquisition/carry/handover closes work."
+        },
+        {
+          "boundary": "communication-access",
+          "contribution": "Registered external human shells participate through real capability/channel access."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Elections, succession, schism and broader institutions remain unproduced; capture preserves formation versus outcome horizons.",
+      "relatedNonadjacentRecords": [
+        "C68",
+        "C83",
+        "C85",
+        "C90",
+        "C120"
+      ]
+    },
+    "C80": {
+      "path": "Batches/C80-20260924-2016Z-1316PST-zao-owned-living-person-handoff.md",
+      "sha256": "5475cea87d824ce8167da5815bfe6a7c555334178e7b39bb603bed544b3177fc",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C80-20260924-2016Z-1316PST-zao-owned-living-person-handoff.md",
+      "sourceStatus": "| Status | Closed implementation batch; complete Windows-runtime repository gate clean. |",
+      "contributions": [
+        {
+          "boundary": "person-continuity",
+          "contribution": "Stable ZAO living driver persists across Afflicted/Crossed handoff; absent owner stays pending; no SAO elapsed overwrite."
+        },
+        {
+          "boundary": "enacted-social-procedures",
+          "contribution": "External registration supports actual access, arrival effects and received response inputs."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "State-specific lives remain bounded; human shell/native diet ownership and private disease separation persist.",
+      "relatedNonadjacentRecords": [
+        "C62",
+        "C72",
+        "C83",
+        "C89",
+        "C111"
+      ]
+    },
+    "C81": {
+      "path": "Batches/C81-20260925-0221Z-1921PST-coordination-reference-source.md",
+      "sha256": "1ce68adc98492a08cdfd23f9ff692fa3ea543f7550f088eac9b2ddb0d01f78c9",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C81-20260925-0221Z-1921PST-coordination-reference-source.md",
+      "sourceStatus": "| Status | Closed; complete repository gate passed. |",
+      "contributions": [
+        {
+          "boundary": "capture-lineage",
+          "contribution": "Twenty pre-partitioned synthetic coordination situations execute production appraisal across owner states; source-hashed responses cover five classes."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Reference scenes are not natural loaded prevalence; decline/withdrawal and dormant timeout labels remain missing.",
+      "relatedNonadjacentRecords": [
+        "C64",
+        "C79",
+        "C84",
+        "C88"
+      ]
+    },
+    "C82": {
+      "path": "Batches/C82-20260925-0525Z-2225PST-native-coordination-shadow.md",
+      "sha256": "c2c5e505ffb27ee6ab2bd726a4dd066b2e40cf8b3d019284095e68af5af5e7e6",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C82-20260925-0525Z-2225PST-native-coordination-shadow.md",
+      "sourceStatus": "| Status | Closed; complete repository gate passed. |",
+      "contributions": [
+        {
+          "boundary": "bounded-inference",
+          "contribution": "Exact packaged artifact/tokenizer/tensor parity, bounded worker and actor/revision/owner validation; shadow cannot select response."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Broader tasks, loaded costs and consequential reviewed activation remain D work.",
+      "relatedNonadjacentRecords": [
+        "C75",
+        "C78",
+        "C88",
+        "C105"
+      ]
+    },
+    "C83": {
+      "path": "Batches/C83-20260925-0855Z-0155PST-external-life-coordination.md",
+      "sha256": "85fba1cc49db3a6ef2179fd9089d255b4279eb883ab8c542df45bf253ca14570",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C83-20260925-0855Z-0155PST-external-life-coordination.md",
+      "sourceStatus": "| Status | Closed implementation batch; loaded-world receipt pending. |",
+      "contributions": [
+        {
+          "boundary": "enacted-social-procedures",
+          "contribution": "External owners enact private necessities, portable food/water and bounded rendezvous/hold with exact revision/route/cargo identity."
+        },
+        {
+          "boundary": "performed-material-actions",
+          "contribution": "SourceUse/Handover owns external material work."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Natural wider life remains open; tap availability is not portable cargo and unregistered ownership is not capability.",
+      "relatedNonadjacentRecords": [
+        "C68",
+        "C79",
+        "C85",
+        "C92"
+      ]
+    },
+    "C84": {
+      "path": "Batches/C84-20260925-1201Z-0501PST-causal-episode-runtime.md",
+      "sha256": "526b6206566642965deda7a50eb421b162c7361fda32d1084a5ba76c158306b0",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C84-20260925-1201Z-0501PST-causal-episode-runtime.md",
+      "sourceStatus": "| Status | Closed implementation batch; loaded-world receipt pending. |",
+      "contributions": [
+        {
+          "boundary": "causal-episodes",
+          "contribution": "One maximum-horizon county trajectory, prefix checkpoints, fresh-process exact replay and atomic whole-episode publication."
+        },
+        {
+          "boundary": "enacted-social-procedures",
+          "contribution": "Shared loaded/dormant private recipient appraisal with bounded ZAO overrides strips hidden truth."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Thirty-day zero-matter seed is valid baseline, not acceleration corpus or natural production success; authored scenes remain distinct.",
+      "relatedNonadjacentRecords": [
+        "C64",
+        "C81",
+        "C93",
+        "C101"
+      ]
+    },
+    "C85": {
+      "path": "Batches/C85-20260925-2145Z-1445PST-private-situation-contact-and-enacted-work.md",
+      "sha256": "4effe52554e5af82333a7cb4d4a56a8b69206c73354d417c38b6b975e760b1a8",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C85-20260925-2145Z-1445PST-private-situation-contact-and-enacted-work.md",
+      "sourceStatus": "| Status | Closed implementation batch; loaded-world receipt pending. |",
+      "contributions": [
+        {
+          "boundary": "enacted-social-procedures",
+          "contribution": "Private pressure forms contact, returned assent precedes exact source/carry/handover work; terminal source failures clear pending once."
+        },
+        {
+          "boundary": "communication-access",
+          "contribution": "Arrival remains distinct from actual hearing."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Ten-day 78 matters/96 arrivals/zero receptions exposes channel gap, not social competence or prevalence.",
+      "relatedNonadjacentRecords": [
+        "C68",
+        "C79",
+        "C90",
+        "C104",
+        "C110"
+      ]
+    },
+    "C86": {
+      "path": "Batches/C86-20260926-0526Z-2226PST-native-study-worlds.md",
+      "sha256": "d6dcf1ffb9d32b6a7c375b8cfcaffc8b9c1e5624939a78762db91bc5ecb1e904",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C86-20260926-0526Z-2226PST-native-study-worlds.md",
+      "sourceStatus": "| Status | Closed; native verification recorded and complete gate enforced by the closing commit. |",
+      "contributions": [
+        {
+          "boundary": "study-world-admission",
+          "contribution": "Isolated sealed native modules/cohort and detached observer; removes invented origin-radius territory."
+        },
+        {
+          "boundary": "native-view-transport",
+          "contribution": "Native region residency and bounded image publication preserve global context."
+        },
+        {
+          "boundary": "private-evidence",
+          "contribution": "Self-sound exclusion and actor/floor sight tracking remove phantom/shared threats."
+        },
+        {
+          "boundary": "physical-movement",
+          "contribution": "Flee/follow retains native crossing/routes."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Separate these owners; normal native save/reopen and two-person survival do not establish social competence.",
+      "relatedNonadjacentRecords": [
+        "C64",
+        "C95",
+        "C104",
+        "C110",
+        "C113",
+        "C116"
+      ]
+    },
+    "C87": {
+      "path": "Batches/C87-20260926-2218Z-1518PST-survival-observation-and-continuity.md",
+      "sha256": "301093b2cdff76be8c9e08d60380db7385361dfdea67c63c1a78c6afe124f166",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C87-20260926-2218Z-1518PST-survival-observation-and-continuity.md",
+      "sourceStatus": "| Status | Closed; native verification recorded and complete gate enforced by the closing commit. |",
+      "contributions": [
+        {
+          "boundary": "study-session-lifecycle",
+          "contribution": "Finite watchdog/native normal save and complete map coverage."
+        },
+        {
+          "boundary": "person-continuity",
+          "contribution": "Exact descriptor retirement and bridge-construction refusal."
+        },
+        {
+          "boundary": "native-source-ledger",
+          "contribution": "Native private inspection/interaction preserves revisions and offslot action access."
+        },
+        {
+          "boundary": "acquired-purpose-planning",
+          "contribution": "Private home occupancy/rest, urgency and bounded work-route retries keep needs viable."
+        },
+        {
+          "boundary": "observation-publication",
+          "contribution": "Bounded cached private source-clock state."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "One native acquire/eat is bounded evidence; view infrastructure, routing custody and maintained decisions stay distinct.",
+      "relatedNonadjacentRecords": [
+        "C61",
+        "C79",
+        "C95",
+        "C102",
+        "C108"
+      ]
+    },
+    "C88": {
+      "path": "Batches/C88-20260927-0208Z-1908PST-competing-cognition.md",
+      "sha256": "8e7607de96dab3e0ef652c6dad142ec6a16da4e778cdf1773df3812522ac7775",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C88-20260927-0208Z-1908PST-competing-cognition.md",
+      "sourceStatus": "Retain source narrative closure and evidence.",
+      "contributions": [
+        {
+          "boundary": "conditional-cognition",
+          "contribution": "Independent ordinary/associative hypotheses, evidence, contradiction/revision and opportunity ledger consume authentic outcomes."
+        },
+        {
+          "boundary": "capture-lineage",
+          "contribution": "Source-bound cognition export/compare remains unreviewed."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Native run had 15 associative outcomes versus 1348 censored ordinary choices, not superiority; continuation repairs candidate-independent planning.",
+      "relatedNonadjacentRecords": [
+        "C65",
+        "C78",
+        "C95",
+        "C111",
+        "C120"
+      ]
+    },
+    "C89": {
+      "path": "Batches/C89-20260927-0516Z-2216PST-native-perception-and-capabilities.md",
+      "sha256": "45891fa2db8ecbece5558691551789684aeeffdec3d4d913e0661f9eed706905",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C89-20260927-0516Z-2216PST-native-perception-and-capabilities.md",
+      "sourceStatus": "Retain source narrative closure and evidence.",
+      "contributions": [
+        {
+          "boundary": "action-result-lifecycle",
+          "contribution": "Native orienting, owned pharmacological dose and heat/retrieve/shutdown cooking retain distinct physical owners/experience receipts."
+        },
+        {
+          "boundary": "person-continuity",
+          "contribution": "Drug effects survive loaded/dormant/restore and ZAO rollback."
+        },
+        {
+          "boundary": "enacted-social-procedures",
+          "contribution": "Delivery uses private current recipient position/floor or acquired destination, retaining cargo."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "One cooked mutton and partial social intake are not generic action choice or completed delivery; split named producers.",
+      "relatedNonadjacentRecords": [
+        "C70",
+        "C80",
+        "C103",
+        "C106",
+        "C111"
+      ]
+    },
+    "C90": {
+      "path": "Batches/C90-20260927-2033Z-1333PST-cooperative-procedures.md",
+      "sha256": "3d54341158dc9057fb03a7acdf0e23c357b2e2325e01058c634529dc0244eafd",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C90-20260927-2033Z-1333PST-cooperative-procedures.md",
+      "sourceStatus": "Retain source narrative closure and evidence.",
+      "contributions": [
+        {
+          "boundary": "enacted-social-procedures",
+          "contribution": "Durable acyclic procedure graph, person-private projections and exact native tokens; actual progress differs from each recipient awareness."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Remaining native owners/autonomous meaningful formation need producers; migration invents no historical progress.",
+      "relatedNonadjacentRecords": [
+        "C79",
+        "C85",
+        "C95",
+        "C104"
+      ]
+    },
+    "C91": {
+      "path": "Batches/C91-20260928-0058Z-1758PST-autonomous-cooperative-action.md",
+      "sha256": "4ebf7dc1d3f5c863564ff1e0defda79c446c02b59d58d76511ccf1368c707724",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C91-20260928-0058Z-1758PST-autonomous-cooperative-action.md",
+      "sourceStatus": "Retain source narrative closure and evidence.",
+      "contributions": [
+        {
+          "boundary": "enacted-social-procedures",
+          "contribution": "Capability/capacity-bound role claims, delivered assent, dependency/barrier thresholds and exact Locomotion/Cooking receipts; failures require revision."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Authored procedure API is not natural doctrine; replacement terms need new actual reception and assent.",
+      "relatedNonadjacentRecords": [
+        "C79",
+        "C85",
+        "C95",
+        "C110"
+      ]
+    },
+    "C92": {
+      "path": "Batches/C92-20260928-0433Z-2133PST-natural-cooperative-formation.md",
+      "sha256": "4d8090b26e945117b2a1806f19a1cb3f0db8da9f9e0dcf3ce1bb165250cfad5f",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C92-20260928-0433Z-2133PST-natural-cooperative-formation.md",
+      "sourceStatus": "Retain source narrative closure and evidence.",
+      "contributions": [
+        {
+          "boundary": "enacted-social-procedures",
+          "contribution": "Natural private-food collect/prepare/deliver preserves same actor/material; private distant-threat watch/fallback formation."
+        },
+        {
+          "boundary": "action-result-lifecycle",
+          "contribution": "Native Posture orientation interval owns completion and interrupts for competing body owner."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Broader tactics/institutions and loaded frequency remain; formation grants no skill or stock.",
+      "relatedNonadjacentRecords": [
+        "C79",
+        "C83",
+        "C95",
+        "C110"
+      ]
+    },
+    "C93": {
+      "path": "Batches/C93-20260928-0657Z-2357PST-durable-study-sessions.md",
+      "sha256": "e5bb408b7af5fe17b60da1114faf3ffae26d929be52032a2f6170a5545201dc5",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C93-20260928-0657Z-2357PST-durable-study-sessions.md",
+      "sourceStatus": "| Status | Closed; mechanical verification complete. |",
+      "contributions": [
+        {
+          "boundary": "study-session-lifecycle",
+          "contribution": "Durable finite attempts and configurable checkpoint/continue/chaining with exact-once commands and complete successor frame."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Longer sessions do not approve scenarios or fill absent behavior evidence.",
+      "relatedNonadjacentRecords": [
+        "C84",
+        "C101",
+        "C109",
+        "C120"
+      ]
+    },
+    "C94": {
+      "path": "Batches/C94-20260928-0910Z-0210PDT-study-situation-pressure.md",
+      "sha256": "4254defd81a8ea0dd8a5c775cd0c402c03af453a4ae83f04b60999dc6916fa7a",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C94-20260928-0910Z-0210PDT-study-situation-pressure.md",
+      "sourceStatus": "| Status | Closed; mechanical and bounded loaded diagnostic complete. |",
+      "contributions": [
+        {
+          "boundary": "study-world-admission",
+          "contribution": "Definition-bound initial native hunger/thirst/fatigue applied once to exact actor/body with durable identity."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Six-person diagnostic exposes weak sustained purpose; initial conditions cannot reset later physiology.",
+      "relatedNonadjacentRecords": [
+        "C86",
+        "C104",
+        "C105",
+        "C106",
+        "C120"
+      ]
+    },
+    "C95": {
+      "path": "Batches/C95-20260928-1021Z-0321PDT-person-private-procedural-planning.md",
+      "sha256": "c733883a3a0b2d705908eb267034ae3feb538959a8828824c29debc425acf4b6",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C95-20260928-1021Z-0321PDT-person-private-procedural-planning.md",
+      "sourceStatus": "| Status | Closed mechanically; loaded behavioral evaluation remains unreviewed. |",
+      "contributions": [
+        {
+          "boundary": "acquired-purpose-planning",
+          "contribution": "Durable private objectives/prerequisites/retries/interruptions/native tokens; spatial provenance, reading/practice/fortification/leisure purposes."
+        },
+        {
+          "boundary": "conditional-cognition",
+          "contribution": "Independent interpretations exist but historical heuristic plan scoring lacks shared conditional learning."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Purpose state is not executor competence; native reading/acquisition/production and shared predictions are later joins.",
+      "relatedNonadjacentRecords": [
+        "C74",
+        "C88",
+        "C102",
+        "C108",
+        "C120"
+      ]
+    },
+    "C96": {
+      "path": "Batches/C96-20260928-2010Z-1310PDT-current-engine-study-activation.md",
+      "sha256": "1a729f7cebbdb2319a6b3a2bd12d79a3318561fcd3c4e0ece9fdc0557b0655c2",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C96-20260928-2010Z-1310PDT-current-engine-study-activation.md",
+      "sourceStatus": "| Status | Closed mechanically; loaded behavioral evaluation remains unreviewed. |",
+      "contributions": [
+        {
+          "boundary": "study-world-admission",
+          "contribution": "Actual 42.21 engine/hash cohort loads before client Lua; stale loose classes quarantined and native API/observer compatibility repaired."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Loaded 20-hour run exposes missing purpose producers; engine activation is not behavior acceptance.",
+      "relatedNonadjacentRecords": [
+        "C86",
+        "C98",
+        "C104",
+        "C113"
+      ]
+    },
+    "C97": {
+      "path": "Batches/C97-20260928-2053Z-1353PDT-source-integration-lineage.md",
+      "sha256": "0f5a16b05d104847316945f339ad6bb5c93c45bef94e73f76535d7deadb56ec9",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C97-20260928-2053Z-1353PDT-source-integration-lineage.md",
+      "sourceStatus": "| Status | Closed mechanically; five recovered ownership obligations remain explicitly open. |",
+      "contributions": [
+        {
+          "boundary": "curated-source-adapters",
+          "contribution": "Retained source/session lineage establishes four built families, six directives, eighteen domains and nonexhaustive gaps."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Inventory discovery is not integration completion; curate by actual physical owner and source rights.",
+      "relatedNonadjacentRecords": [
+        "C89",
+        "C100",
+        "C111",
+        "C112",
+        "C117"
+      ]
+    },
+    "C98": {
+      "path": "Batches/C98-20260928-2130Z-1430PDT-owned-horse-life-and-mobility.md",
+      "sha256": "9fe0b8e1e5995a109cbe7831bf27123ebe9301191ca48df3d49c2abdf9bc77dc",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C98-20260928-2130Z-1430PDT-owned-horse-life-and-mobility.md",
+      "sourceStatus": "| Status | Closed with current-engine loaded travel acceptance. |",
+      "contributions": [
+        {
+          "boundary": "curated-source-adapters",
+          "contribution": "Attributed horse source/assets retain native life/physics while replacing player-slot identity."
+        },
+        {
+          "boundary": "physical-movement",
+          "contribution": "Native waypoints and actual mount/ride/dismount join private travel purpose."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Loaded mounted travel verified; general autonomous choice, training eligibility and other animal work remain distinct.",
+      "relatedNonadjacentRecords": [
+        "C80",
+        "C95",
+        "C110",
+        "C111"
+      ]
+    },
+    "C99": {
+      "path": "Batches/C99-20260929-0312Z-2012PDT-mobile-household-continuity.md",
+      "sha256": "cd688a7fdb3703aba306a95bf2c4918ff0ffcf3c1202459daedad3220f89d265",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C99-20260929-0312Z-2012PDT-mobile-household-continuity.md",
+      "sourceStatus": "| Status | Source implementation and installed-Kahlua verification complete; loaded physical-room acceptance open. |",
+      "contributions": [
+        {
+          "boundary": "mobile-place-continuity",
+          "contribution": "Exact durable vehicle/interior/exterior anchor, passengers/tow/stores and actual transitions via optional provider."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "C100 closes this record's initial loaded gap; general autonomous mobile household competence is still distinct.",
+      "relatedNonadjacentRecords": [
+        "C80",
+        "C95",
+        "C108"
+      ]
+    },
+    "C100": {
+      "path": "Batches/C100-20260929-0901Z-0201PDT-mobile-household-loaded-acceptance.md",
+      "sha256": "cf460131c9cc7dcf723ed1c8809b8c9426c800033a1a4ac50be895202ded0072",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C100-20260929-0901Z-0201PDT-mobile-household-loaded-acceptance.md",
+      "sourceStatus": "| Status | Source repair, retained current-engine receipt and verification complete. |",
+      "contributions": [
+        {
+          "boundary": "mobile-place-continuity",
+          "contribution": "Native enter/use/moved-anchor/exit verifies C99; Body restore/release preserves room versus exterior coordinates."
+        },
+        {
+          "boundary": "study-world-admission",
+          "contribution": "Declared bounded provider copy/seal enables native scenario."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Same provider continuity contract as C99; incidental compiler tooling is not separate capability.",
+      "relatedNonadjacentRecords": [
+        "C80",
+        "C95",
+        "C113"
+      ]
+    },
+    "C101": {
+      "path": "Batches/C101-20260929-1941Z-1241PDT-study-terminal-and-human-review-handoff.md",
+      "sha256": "312bb0b78cb72f7a1f91bdf4def3e1f1e1b1c46762621004d0657dab3e62488a",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C101-20260929-1941Z-1241PDT-study-terminal-and-human-review-handoff.md",
+      "sourceStatus": "| Status | Terminal receipt repair, durable saved-state recovery and immediate human-review handoff complete. |",
+      "contributions": [
+        {
+          "boundary": "study-session-lifecycle",
+          "contribution": "Exact terminal attempt/save phases, strict sole-error legacy recovery/final frame, and durable retrying review outbox."
+        },
+        {
+          "boundary": "capture-lineage",
+          "contribution": "Export/review handoff does not approve data or fabricate disagreement."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Keep completed/censored attempts and exact manifests; metadata repair cannot rewrite old native evidence.",
+      "relatedNonadjacentRecords": [
+        "C64",
+        "C84",
+        "C93",
+        "C109",
+        "C120"
+      ]
+    },
+    "C102": {
+      "path": "Batches/C102-20260929-2320Z-1620PST-native-skill-book-study.md",
+      "sha256": "ca99b4e430d7c38d51d111e05fb310d459b357694fdc922724eecca5244bb3ee",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C102-20260929-2320Z-1620PST-native-skill-book-study.md",
+      "sourceStatus": "| Status | Mechanically closed through the enforced repository gate; loaded behavior remains unobserved. |",
+      "contributions": [
+        {
+          "boundary": "action-result-lifecycle",
+          "contribution": "Study executes native ISReadABook pages/literacy/duration with exact item/body/token and cancellation before successor action."
+        },
+        {
+          "boundary": "acquired-purpose-planning",
+          "contribution": "Useful carried manual can be selected without designation, with prerequisites retained."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Fetching manuals and productive practice need physical producers; queue disappearance grants neither reading nor literacy.",
+      "relatedNonadjacentRecords": [
+        "C77",
+        "C95",
+        "C104",
+        "C120"
+      ]
+    },
+    "C103": {
+      "path": "Batches/C103-20260930-0306Z-2006PST-retained-acquisition-and-productive-work.md",
+      "sha256": "0a60608494d25f769add676776e2921e76acfd54caff6d9973e581a94a2778a1",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C103-20260930-0306Z-2006PST-retained-acquisition-and-productive-work.md",
+      "sourceStatus": "| Status | Mechanical implementation closed through the enforced repository gate; loaded prevalence remains unobserved. |",
+      "contributions": [
+        {
+          "boundary": "performed-material-actions",
+          "contribution": "Fifteen material/tool/book categories extend existing exact native/private acquisition owner."
+        },
+        {
+          "boundary": "acquired-purpose-planning",
+          "contribution": "Study/practice can inspect/acquire prerequisites and consume measured cooking completion."
+        },
+        {
+          "boundary": "action-result-lifecycle",
+          "contribution": "Purpose-bound terminal source/cooking receipts have independent learning/social consumers."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Wider practices require actual outcomes; possession/intention cannot establish skill completion.",
+      "relatedNonadjacentRecords": [
+        "C65",
+        "C71",
+        "C89",
+        "C95",
+        "C120"
+      ]
+    },
+    "C104": {
+      "path": "Batches/C104-20260930-0455Z-2155PST-sustained-resource-planning.md",
+      "sha256": "0c999ead96f9e084be5b278f8a9529d434194ca4eb8e200482f8edf3f6257c2b",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C104-20260930-0455Z-2155PST-sustained-resource-planning.md",
+      "sourceStatus": "| Status | Native implementation and controlled verification; the repository gate and publication complete closure. |",
+      "contributions": [
+        {
+          "boundary": "acquired-purpose-planning",
+          "contribution": "Labor private needs/skills/priorlife/time/responsibility support durable resource chain/retries; historical ordinary-only choice later corrected."
+        },
+        {
+          "boundary": "action-result-lifecycle",
+          "contribution": "Native refill gain distinguishes completed production from partial stock relief."
+        },
+        {
+          "boundary": "enacted-social-procedures",
+          "contribution": "Known-contact request and equivalent failed contact backoff."
+        },
+        {
+          "boundary": "observation-publication",
+          "contribution": "Bounded/deferred encoding and stable regions prevent observation/physics failure."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Split planning, physical refill, contact and observation; private forage discovery and sustained competence remain open.",
+      "relatedNonadjacentRecords": [
+        "C79",
+        "C85",
+        "C95",
+        "C108",
+        "C116",
+        "C120"
+      ]
+    },
+    "C105": {
+      "path": "Batches/C105-20260930-1100Z-0400PST-resource-outcome-trials-and-asynchronous-observation.md",
+      "sha256": "8a93f096077f1901b06cd45b044fc375d894da2fa80e1beef2d1dd8c69f87c68",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C105-20260930-1100Z-0400PST-resource-outcome-trials-and-asynchronous-observation.md",
+      "sourceStatus": "| Status | Mechanical closure enforced by the closing commit; publication and loaded acceptance remain separate. |",
+      "contributions": [
+        {
+          "boundary": "study-world-admission",
+          "contribution": "Authored exact actor/site/version/time resource objective distinguishes usable stock from work-step completion."
+        },
+        {
+          "boundary": "observation-publication",
+          "contribution": "Game-thread detached capture, bounded async encoding/epoch/atomic write and stop drain."
+        },
+        {
+          "boundary": "performed-material-actions",
+          "contribution": "Offslot Handover native facing removes player-UI failure."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Study objective is not autonomous motive; exporter worker differs from model shadow authority and performance conclusions.",
+      "relatedNonadjacentRecords": [
+        "C68",
+        "C82",
+        "C94",
+        "C109",
+        "C116"
+      ]
+    },
+    "C106": {
+      "path": "Batches/C106-20260930-1320Z-0620PST-regional-study-conditions-hydration-and-timing.md",
+      "sha256": "2bda3287d7502f3fa66e578f3c95dad30a01383405e870dd266793f7442d9b64",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C106-20260930-1320Z-0620PST-regional-study-conditions-hydration-and-timing.md",
+      "sourceStatus": "| Status | Mechanical closure enforced by the closing commit; publication and loaded acceptance remain separate. |",
+      "contributions": [
+        {
+          "boundary": "study-world-admission",
+          "contribution": "Regional quota before generation and durable once-only actual-body binding."
+        },
+        {
+          "boundary": "native-source-ledger",
+          "contribution": "Observed material hydration/actual relief stays distinct from clean-water stock."
+        },
+        {
+          "boundary": "observation-publication",
+          "contribution": "Six coherent timing stages, scoped diagnostics and bounded atomic retry."
+        },
+        {
+          "boundary": "action-result-lifecycle",
+          "contribution": "Installed antibiotic property API repaired."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Failed trials/expired goals remain failures; population controls/timing establish neither competence nor county fidelity.",
+      "relatedNonadjacentRecords": [
+        "C61",
+        "C89",
+        "C94",
+        "C104",
+        "C116"
+      ]
+    },
+    "C107": {
+      "path": "Batches/C107-20260930-1745Z-1045PST-resource-approaches-and-native-threat-conditions.md",
+      "sha256": "eb5b29702d00dbcd34f37f7a2c873ff4a66e0392b628616ec7a20d6a6d489bf0",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C107-20260930-1745Z-1045PST-resource-approaches-and-native-threat-conditions.md",
+      "sourceStatus": "Retain source narrative closure and evidence.",
+      "contributions": [
+        {
+          "boundary": "physical-movement",
+          "contribution": "Native interaction target precedes source approach; WATERWARD stall/deadline releases with backoff, death cannot rewrite terminal goals."
+        },
+        {
+          "boundary": "study-world-admission",
+          "contribution": "Once-only initial native hazard admits no pursuit/person knowledge."
+        },
+        {
+          "boundary": "native-view-transport",
+          "contribution": "Scoped debugger lookup optimization preserves native behavior."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Split route lifecycle from hazards/instrumentation; permission and exact transfer still revalidate at mutation.",
+      "relatedNonadjacentRecords": [
+        "C62",
+        "C86",
+        "C104",
+        "C110",
+        "C113"
+      ]
+    },
+    "C108": {
+      "path": "Batches/C108-20260930-2000Z-1300PST-private-survival-planning-and-residence.md",
+      "sha256": "b58c43e4b323edf3f0739f3bdf17110eb2772a3e6dc5ea7513588dc3f2c55b14",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C108-20260930-2000Z-1300PST-private-survival-planning-and-residence.md",
+      "sourceStatus": "Retain source narrative closure and evidence.",
+      "contributions": [
+        {
+          "boundary": "acquired-purpose-planning",
+          "contribution": "Private body/social/threat/place context drives resource/residence alternatives and retries."
+        },
+        {
+          "boundary": "native-source-ledger",
+          "contribution": "Canonical inspection admission/result requery and exact acknowledgement."
+        },
+        {
+          "boundary": "physiological-recovery",
+          "contribution": "Measured loaded native sleep/rest with exact preemption/cleanup."
+        },
+        {
+          "boundary": "private-evidence",
+          "contribution": "Visible doorway geometry reveals no hidden layout/claims."
+        },
+        {
+          "boundary": "physical-movement",
+          "contribution": "Native strafe basis repaired."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Home is not property, arrival is not recovery, and group truth is not private knowledge; broader reasoning follows existing owners.",
+      "relatedNonadjacentRecords": [
+        "C67",
+        "C79",
+        "C95",
+        "C110",
+        "C118",
+        "C120"
+      ]
+    },
+    "C109": {
+      "path": "Batches/C109-20261001-0459Z-2159PST-observer-capture-and-session-completion.md",
+      "sha256": "ec4b06bf46a057701878fbad9c9f6b10b7b8e205605182ad47431757e88c6167",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C109-20261001-0459Z-2159PST-observer-capture-and-session-completion.md",
+      "sourceStatus": "Retain source narrative closure and evidence.",
+      "contributions": [
+        {
+          "boundary": "observation-publication",
+          "contribution": "Lean cached versus explicitly inspected rich state retains source clock; truthful loaded-omitted/unavailable geometry budgets."
+        },
+        {
+          "boundary": "study-session-lifecycle",
+          "contribution": "Exact initiating stop/drain/save phases and strict legacy correction preserve old receipts."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Observation throughput is not gameplay FPS; metadata completion is not behavior success.",
+      "relatedNonadjacentRecords": [
+        "C87",
+        "C93",
+        "C101",
+        "C105",
+        "C116"
+      ]
+    },
+    "C110": {
+      "path": "Batches/C110-20261001-0730Z-0030PST-route-progress-and-tactical-continuity.md",
+      "sha256": "f480913136d6747ad68a76a5d082b53fa4bf55b87f7ff9678469929ef8835dbe",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C110-20261001-0730Z-0030PST-route-progress-and-tactical-continuity.md",
+      "sourceStatus": "Retain source narrative closure and evidence.",
+      "contributions": [
+        {
+          "boundary": "physical-movement",
+          "contribution": "Real distance/native node progress resets bounded stall; jitter/circling/missing telemetry do not."
+        },
+        {
+          "boundary": "enacted-social-procedures",
+          "contribution": "Tactical intent identity stays stable within meaningful private threat band despite fallback tile changes."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Separate route and proposal-owner repairs; native acceptance retains actual two-person bounds.",
+      "relatedNonadjacentRecords": [
+        "C83",
+        "C85",
+        "C92",
+        "C98",
+        "C118"
+      ]
+    },
+    "C111": {
+      "path": "Batches/C111-20261001-2355Z-1655PST-native-feeding-and-carried-coolers.md",
+      "sha256": "e93aec57db5c414e1b0ba24738b25823459d6ddffdf4ac730b6a5fbd2f9c03db",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C111-20261001-2355Z-1655PST-native-feeding-and-carried-coolers.md",
+      "sourceStatus": "Retain source narrative closure and evidence.",
+      "contributions": [
+        {
+          "boundary": "action-result-lifecycle",
+          "contribution": "Native feeding requires item consumed plus improved hunger; private bounded learning outbox rejects foreign/duplicate effects."
+        },
+        {
+          "boundary": "person-continuity",
+          "contribution": "Loaded cooler physics precedes checkpoint; partial failed interval cannot be certified by clock."
+        },
+        {
+          "boundary": "curated-source-adapters",
+          "contribution": "312-root/235-package inventory retains unknown versions/rights."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Cooler-aware dormant meals, nonfeeding care, traits/clinical/growth remain open.",
+      "relatedNonadjacentRecords": [
+        "C71",
+        "C80",
+        "C89",
+        "C97",
+        "C120"
+      ]
+    },
+    "C112": {
+      "path": "Batches/C112-20261002-0328Z-2028PST-native-window-repair.md",
+      "sha256": "f0c2e4d8ef6e698aa4123a4bf993db697617e8c5424c9acfdf29e9ca6999e3ba",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C112-20261002-0328Z-2028PST-native-window-repair.md",
+      "sourceStatus": "Retain source narrative closure and evidence.",
+      "contributions": [
+        {
+          "boundary": "action-result-lifecycle",
+          "contribution": "Exact adjacent window/pane/body/cell measures consumed pane/restored glass; separate planning/learning acknowledgements and cancellation disposal."
+        },
+        {
+          "boundary": "curated-source-adapters",
+          "contribution": "Optional installed AddWindowAction authority retained without redistributed source."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Approach/nested pane/acquisition/crafting, dormant/multiplayer and loaded acceptance remain; generic repair theme cannot hide physical owner.",
+      "relatedNonadjacentRecords": [
+        "C70",
+        "C95",
+        "C117",
+        "C120"
+      ]
+    },
+    "C113": {
+      "path": "Batches/C113-20261002-0924Z-0224PST-independent-native-observation-layouts.md",
+      "sha256": "81e6d67c62ddef352634f5dee87db759ef5d1a4932a658f54f281e71840b4628",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C113-20261002-0924Z-0224PST-independent-native-observation-layouts.md",
+      "sourceStatus": "| Status | Implemented and measured; normal closing hook owns the complete gate |",
+      "contributions": [
+        {
+          "boundary": "native-view-transport",
+          "contribution": "Independent sealed 1-4 area layouts, binary32 coordinates, native chunkmap/lighting/physics, transactional adapter rollback."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Two-feed normal checkpoint proves observation infrastructure, not entry competence; abrupt process-death rollback outside proof.",
+      "relatedNonadjacentRecords": [
+        "C86",
+        "C100",
+        "C107",
+        "C115"
+      ]
+    },
+    "C114": {
+      "path": "Batches/C114-20261002-2244Z-1544PST-uncapped-native-observation.md",
+      "sha256": "273e121527809a3746cb4d2dab84c53d2caf3f6b00c0ac3b95f9574e9041e695",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C114-20261002-2244Z-1544PST-uncapped-native-observation.md",
+      "sourceStatus": "| Status | Implemented; required verification has separate receipts |",
+      "contributions": [
+        {
+          "boundary": "native-view-transport",
+          "contribution": "Readiness-driven single-pending capture removes polling cap; observer-only native FPS option set/restore verified."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Presented/captured/native callback rates differ; bounded image rate proves no broad performance or aggression policy.",
+      "relatedNonadjacentRecords": [
+        "C86",
+        "C104",
+        "C116"
+      ]
+    },
+    "C115": {
+      "path": "Batches/C115-20261003-0308Z-2008PST-persistent-subject-observation.md",
+      "sha256": "b19b955128f7c523f75253a361a114c794e4601d7d758d18e3036a005bd3716e",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C115-20261003-0308Z-2008PST-persistent-subject-observation.md",
+      "sourceStatus": "Retain source narrative closure and evidence.",
+      "contributions": [
+        {
+          "boundary": "native-view-transport",
+          "contribution": "Persistent exact subject/captured pose separates source frame from current controls; unavailable/dead subject is not silently replaced."
+        },
+        {
+          "boundary": "study-world-admission",
+          "contribution": "Observation subject layout remains separate from simulation definition."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Real capped/uncapped copies measure declared observation windows; decoder/video geometry needs own proof.",
+      "relatedNonadjacentRecords": [
+        "C86",
+        "C109",
+        "C113"
+      ]
+    },
+    "C116": {
+      "path": "Batches/C116-20261003-0433Z-2133PST-continuous-native-observation.md",
+      "sha256": "fb4768bfa1f0badd1e27ced2d4462b12113fbc496e96f35bc854a12d615d1053",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C116-20261003-0433Z-2133PST-continuous-native-observation.md",
+      "sourceStatus": "Retain source narrative closure and evidence.",
+      "contributions": [
+        {
+          "boundary": "native-view-transport",
+          "contribution": "Bounded H264 uses actual sequence/time/keyframe intervals, shared decoder and stable crops/subject pose."
+        },
+        {
+          "boundary": "process-evidence-governance",
+          "contribution": "DR-054 proportional pinned validation and separate remote constraints are independent contribution."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "37.7333 presentations/s is not native render/simulation throughput; GZDS follow-up closed in C117.",
+      "relatedNonadjacentRecords": [
+        "C64",
+        "C93",
+        "C105",
+        "C109",
+        "C114"
+      ]
+    },
+    "C117": {
+      "path": "Batches/C117-20261003-0930Z-0230PST-shared-furniture-movement.md",
+      "sha256": "1a998b809f6ac94e18daa32fc1b62efbac02ba123949d65ae925ddc9e5153f76",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C117-20261003-0930Z-0230PST-shared-furniture-movement.md",
+      "sourceStatus": "| Status | Closed source batch; loaded acceptance remains open |",
+      "contributions": [
+        {
+          "boundary": "action-result-lifecycle",
+          "contribution": "Installed furniture movement verifies exact source/footprint/contents and unique native relocation; plumbing/electricity retain callbacks."
+        },
+        {
+          "boundary": "curated-source-adapters",
+          "contribution": "Dry WaterPipes joins explicit; installed multiplayer behavior source-owned."
+        },
+        {
+          "boundary": "process-evidence-governance",
+          "contribution": "Confirms GZDS B2.17 PR25 merged."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Player caller/controlled proof do not implement NPC furniture purpose/learning or loaded plumbing callbacks; unsupported wet/registered cases refuse.",
+      "relatedNonadjacentRecords": [
+        "C89",
+        "C97",
+        "C111",
+        "C112"
+      ]
+    },
+    "C118": {
+      "path": "Batches/C118-20261003-1832Z-1132PST-private-entry-decisions.md",
+      "sha256": "c16103026415ee8ca804c49633f7a4c53eae1f89da01f344210dc01d3f3e4244",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C118-20261003-1832Z-1132PST-private-entry-decisions.md",
+      "sourceStatus": "| Status | Closed source batch; loaded behavior acceptance follows C120 |",
+      "contributions": [
+        {
+          "boundary": "private-evidence",
+          "contribution": "Visible doors/windows retain actor/geometry/time and exact barrier condition; closed opening reveals no hidden lock."
+        },
+        {
+          "boundary": "acquired-purpose-planning",
+          "contribution": "Residence compares private entry alternatives with resistance/retry supersession."
+        },
+        {
+          "boundary": "physical-movement",
+          "contribution": "Exact body/route/edge binding and reset forced-entry permission prevent unrelated learning."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Completed merged source PR135; rendered behavior follows actual candidate, not constructed native fixtures.",
+      "relatedNonadjacentRecords": [
+        "C95",
+        "C108",
+        "C110",
+        "C120"
+      ],
+      "measuredCurrentStatus": {
+        "implementation": "completed_source",
+        "publication": "Merged PR135",
+        "authority": "SESSION_STATE.md current status; source record preserved"
+      }
+    },
+    "C119": {
+      "path": "Batches/C119-20261003-1855Z-1155PST-recovery-decisions.md",
+      "sha256": "333e1f7b7d086ab797d956e6636aa6a17d1bf07c32b390834ddea0c9bcc50891",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C119-20261003-1855Z-1155PST-recovery-decisions.md",
+      "sourceStatus": "| Status | Closed source batch; loaded behavior acceptance follows C120 |",
+      "contributions": [
+        {
+          "boundary": "acquired-purpose-planning",
+          "contribution": "Recovery pauses owned search preserving purpose/candidates/retries and can return to private permitted home."
+        },
+        {
+          "boundary": "physiological-recovery",
+          "contribution": "Actual occupancy/admission and fresh movement verdict preserve native transition ownership."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Completed merged source PR136; measured recovery does not establish visibly correct later carried pose.",
+      "relatedNonadjacentRecords": [
+        "C72",
+        "C108"
+      ],
+      "measuredCurrentStatus": {
+        "implementation": "completed_source",
+        "publication": "Merged PR136",
+        "authority": "SESSION_STATE.md current status; source record preserved"
+      }
+    },
+    "C120": {
+      "path": "Batches/C120-20261003-1917Z-1217PST-entry-and-recovery-learning.md",
+      "sha256": "1705c6a801bcf882a8f2a47242c1ff4ce1b4e0c00772e2a4a505f95f8aef8c34",
+      "archivePath": "Batches/history/c-20261003-source/Batches/C120-20261003-1917Z-1217PST-entry-and-recovery-learning.md",
+      "sourceStatus": "| Status | Learning source verified; native observation exposed a recovery posture gap |",
+      "contributions": [
+        {
+          "boundary": "conditional-cognition",
+          "contribution": "Canonical entry/recovery receipts revise independent models; exact source/condition, contradiction/decay and actual choices verified."
+        },
+        {
+          "boundary": "private-evidence",
+          "contribution": "Exact crossing/ROAM barrier revises matching entrance."
+        },
+        {
+          "boundary": "physiological-recovery",
+          "contribution": "Carried rest/sleep pose gates measurement; callback/reload/retirement owners repaired."
+        },
+        {
+          "boundary": "action-result-lifecycle",
+          "contribution": "Treatment owns Doctor credit; exact pickup transfer owns completion without invented giver."
+        },
+        {
+          "boundary": "curated-source-adapters",
+          "contribution": "Lean & Lie provenance and unresolved redistribution retained."
+        }
+      ],
+      "remainingDDependencyOrCorrection": "Implemented/focused-verified local, unmerged. Earlier frozen native run exposed standing sleep/missed ROAM; revised poses lack rendered acceptance. General reasoning and remaining physical work are distinct.",
+      "relatedNonadjacentRecords": [
+        "C70",
+        "C88",
+        "C95",
+        "C108",
+        "C111",
+        "C118"
+      ],
+      "measuredCurrentStatus": {
+        "implementation": "implemented_verified_local",
+        "publication": "Unmerged",
+        "remaining": "Rendered acceptance of revised carried recovery actions and public redistribution terms remain unresolved; these do not erase completed learning and repair proofs.",
+        "authority": "SESSION_STATE.md current status and C120 source record"
+      }
+    }
+  },
+  "unnumberedContinuation": {
+    "name": "Local shared-reasoning continuation",
+    "status": "Implemented and focused-verified locally, unmerged; broader outcome and rendered acceptance open. No new catalogue ID.",
+    "receipt": {
+      "path": "_scratch/shared-reasoning/verification-summary.json",
+      "sha256": "ad08be8ddaf6e0fb5825a9e514a52a776472c58c2579fa88052d59d32d7821e8"
+    },
+    "boundaries": [
+      "conditional-cognition",
+      "acquired-purpose-planning",
+      "physiological-recovery",
+      "enacted-social-procedures"
+    ],
+    "implemented": "Candidate-specific acquire/prepare/inspect/entry and sleep/rest/continue predictions retain exact source/item/condition, uncertainty and evidence IDs. Current native capability supplies labelled preparation prior; authentic own received and accepted responsibility affects continuation. Configured independent model selects actual resource action. Cold reads pure; retry/continuity filtering precedes bounding; long identities receive neutral structural fallback without invented evidence.",
+    "coverage": {
+      "cognitiveModels": {
+        "cases": 43,
+        "controls": 52,
+        "assembly": "51 retained current-production controls plus repaired targeted control; current baseline passes."
+      },
+      "labor": {
+        "cases": 116,
+        "controls": 41,
+        "assembly": "35 retained controls plus six resumed after fixture guard repair; current baseline passes."
+      },
+      "residence": {
+        "cases": 177,
+        "controls": 57,
+        "assembly": "Single complete source-bound passing invocation."
+      },
+      "recovery": {
+        "luaChecks": 95,
+        "nativeAssertions": 10,
+        "controls": 27,
+        "assembly": "Baseline and 11 controls retained; 16 resumed after mutation-anchor repair."
+      },
+      "proceduralPlanning": {
+        "cases": 17,
+        "controls": 3,
+        "assembly": "Final source-bound passing invocation, including static joins."
+      },
+      "cognitionLedger": {
+        "cases": 49,
+        "controls": 15,
+        "assembly": "Runtime regression including 14 named controls and one encoded Unicode budget control."
+      },
+      "nativePose": {
+        "checks": 20,
+        "controls": 5,
+        "assembly": "Reused C120 proof; all 24 relevant source and dependency pins still match."
+      }
+    },
+    "remainingDJoin": "Broader personal priors from literal educational/cultural corpora and acquired life, assessed understanding/retention/transfer, more purposeful alternatives and consequential learned execution remain. Current immediate chooser stays limited; no general mastery or full arbitration claim.",
+    "evidenceBoundary": "Aggregate contains independently pinned passing controls reused across test-instrument repairs; not a claim of one complete all-suite invocation. Native pose proof retained with matching pins; no rendered continuation trial."
+  },
+  "proposedJoinsAndSplits": [
+    {
+      "contracts": [
+        "native-source-ledger",
+        "performed-material-actions",
+        "material-entitlement-projection"
+      ],
+      "records": [
+        "C61",
+        "C62",
+        "C63",
+        "C64",
+        "C65",
+        "C66",
+        "C71",
+        "C87",
+        "C103",
+        "C106",
+        "C108"
+      ],
+      "decision": "Reuse shared result identity across native source truth, actor execution and attributed projection; retain these three authorities, including C64 correction."
+    },
+    {
+      "contracts": [
+        "private-evidence",
+        "claim-catalogue",
+        "capture-lineage"
+      ],
+      "records": [
+        "C67",
+        "C69",
+        "C74",
+        "C75",
+        "C76",
+        "C77",
+        "C78",
+        "C81",
+        "C88",
+        "C120"
+      ],
+      "decision": "Acquisition, read-only fact selection and dataset eligibility are separate sequential boundaries. C77 revokes C74 inference while retaining calendar and historical bytes."
+    },
+    {
+      "contracts": [
+        "enacted-social-procedures"
+      ],
+      "records": [
+        "C79",
+        "C83",
+        "C85",
+        "C90",
+        "C91",
+        "C92",
+        "C104",
+        "C110",
+        "C120"
+      ],
+      "decision": "One revision/reception/assent process serves contact, multi-person work and responsibility readers. Domain physical producers retain exact result ownership; avoid duplicate broad social-work units."
+    },
+    {
+      "contracts": [
+        "acquired-purpose-planning",
+        "conditional-cognition",
+        "action-result-lifecycle"
+      ],
+      "records": [
+        "C88",
+        "C95",
+        "C102",
+        "C103",
+        "C104",
+        "C108",
+        "C111",
+        "C112",
+        "C118",
+        "C119",
+        "C120"
+      ],
+      "decision": "Personal purpose, conditional interpretation/authenticated learning and native completion are existing separate owners. Missing D producers and acquired priors join these interfaces; do not create per-feature reasoning systems."
+    },
+    {
+      "splitRecords": [
+        "C86",
+        "C87",
+        "C89",
+        "C104",
+        "C105",
+        "C106",
+        "C107",
+        "C108",
+        "C111",
+        "C116",
+        "C117",
+        "C120"
+      ],
+      "decision": "Map substantive facets to each actual contract; no single primary theme or chronological adjacency merger."
+    },
+    {
+      "contracts": [
+        "study-world-admission",
+        "study-session-lifecycle",
+        "observation-publication",
+        "native-view-transport"
+      ],
+      "records": [
+        "C86",
+        "C93",
+        "C94",
+        "C96",
+        "C101",
+        "C105",
+        "C109",
+        "C113",
+        "C114",
+        "C115",
+        "C116"
+      ],
+      "decision": "Authored conditions, native attempt/checkpoint, scalar evidence and rendered media are separate authorities; each supports acceptance without producing person knowledge or completed work."
+    },
+    {
+      "contracts": [
+        "person-continuity",
+        "mobile-place-continuity"
+      ],
+      "records": [
+        "C64",
+        "C71",
+        "C72",
+        "C73",
+        "C80",
+        "C89",
+        "C98",
+        "C99",
+        "C100",
+        "C111",
+        "C120"
+      ],
+      "decision": "Exact owner and physical interval continuity spans external states, inventories and representation. Mobile place relationship keeps its own owner; C100 closes C99 loaded gap."
+    },
+    {
+      "preserve": [
+        "C118 completed/merged",
+        "C119 completed/merged",
+        "C120 implemented/verified local",
+        "shared reasoning unnumbered"
+      ],
+      "decision": "Implementation, proof, rendered acceptance, source rights and publication are separate status dimensions; do not flatten them into one incomplete final unit."
+    }
+  ],
+  "validation": {
+    "sourceRecordCount": 60,
+    "sourceArchiveHashMatches": 60,
+    "allRecordsHaveContributions": true,
+    "relatedReferencesNonadjacent": true,
+    "codeOwnerFunctionSeamsInspected": true,
+    "runtimeTestsRunForAudit": false,
+    "reason": "Documentation/ownership mapping only; preserve applicable source-pinned runtime evidence.",
+    "codeAnchorsVerifiedAgainstCurrentFiles": true
+  }
+}

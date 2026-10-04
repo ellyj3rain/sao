@@ -20,8 +20,8 @@ WHAT THIS HOLDS
      and at least one of Settles / Exposed / Still open - an entry
      that observes nothing settles nothing.
   3. Every finding a receipt cites exists in FINDINGS.md and every
-     batch it cites exists in BATCH_LOG.md - receipts point at real
-     records, not at memory.
+     batch it cites resolves in BATCH_LOG.md or a retained source
+     generation - receipt prose retains its historical labels.
   4. The blanket claim is banned in every document that speaks for
      the project - every root .md and both mod.info descriptions -
      rather than in the two files this border first happened to name.
@@ -40,6 +40,9 @@ how the control runs against the pre-[C19] tree.
 import pathlib
 import re
 import sys
+
+from catalogue import (CatalogueError, MANIFEST, historical_generations,
+                       index_rows, load_catalogue, validate_catalogue)
 
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
@@ -134,15 +137,29 @@ def main():
         if FINDINGS.exists() else ""
     batches = BATCH_LOG.read_text(encoding="utf-8", errors="ignore") \
         if BATCH_LOG.exists() else ""
+    generations = {}
+    try:
+        current_batches = set(index_rows(batches))
+        if (ROOT / MANIFEST).exists() or ROOT == pathlib.Path(__file__).resolve().parent.parent:
+            manifest = load_catalogue(ROOT)
+            catalogue_faults = validate_catalogue(ROOT, manifest)
+            if catalogue_faults:
+                faults.extend(catalogue_faults)
+            else:
+                generations = historical_generations(ROOT, manifest)
+    except CatalogueError as exc:
+        current_batches = set()
+        faults.append(str(exc))
+    historical_batches = set().union(*generations.values()) if generations else set()
     for rid, body in zip(ids, bodies):
         for f in set(re.findall(r"\bF-\d{3}\b", body)):
             if f"## {f}" not in findings:
                 faults.append(f"{rid} cites {f} and FINDINGS.md has no "
                               "such finding")
         for b in set(re.findall(r"\[([ABC]\d+)\]", body)):
-            if f"[{b}]" not in batches:
-                faults.append(f"{rid} cites [{b}] and BATCH_LOG.md has no "
-                              "such batch")
+            if b not in current_batches and b not in historical_batches:
+                faults.append(f"{rid} cites [{b}] and neither the current catalogue "
+                              "nor its retained source generations has that batch")
 
     # A receipt names the build it happened on; the header's Version
     # cell tracks the tree. If every version string in the ledger body

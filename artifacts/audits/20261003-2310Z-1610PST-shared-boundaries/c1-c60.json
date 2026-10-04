@@ -1,0 +1,4435 @@
+{
+  "schema": "sao.d-shared-boundary-map/1",
+  "scope": {
+    "formerIDs": "Current C1-C60",
+    "records": 60,
+    "sourceHead": "6bfcd46e72146b941db6c26086201bc79e883a40",
+    "readOnlySourceReview": true,
+    "writeScope": "_scratch/d-boundaries/c1-c60.json",
+    "workingTree": "Dirty C120 and local shared-reasoning continuation preserved"
+  },
+  "method": {
+    "sourceReading": "Actual bodies of all current C1-C60 records, mandatory governance/core/session files, PROJECTS, relevant ARCHITECTURE/SUBSTRATE and previous consolidation provenance.",
+    "classification": "Many-to-many existing owner/interface/lifecycle/state/evidence contracts. Neither adjacency nor proposed 71 grouping determines boundaries.",
+    "granularity": "Candidate contract keys are indexes, not final catalogue unit count. Supporting concerns may join the product boundary they serve while preserving each distinct authority.",
+    "limits": "Current source pointers identify present owner seams, not claims that each historical record implemented today's module. Later-record joins identify corrections/dependencies; those later records are outside this audit's independent source scope.",
+    "continuityGraph": "This artifact maps existing work; future graph presentation is not an organizing prerequisite for catalogue classification."
+  },
+  "provenance": {
+    "prior127to50": {
+      "path": "Batches/C_RECATALOG.json",
+      "sha256": "1dfec2e0c98e56cffb284f4b264539e77e690b35a41b4f13c68ad87e69453733",
+      "sourceRef": "archive/c-era-raw-20260919",
+      "sourceCommit": "edee13ced379e865b745140dff74c5601ca7f5ca",
+      "oldCount": 127,
+      "newCount": 50,
+      "audit": "artifacts/audits/20260919-0356Z-2056PST-c112-c126-implementation-audit.md"
+    },
+    "rawHistory": "All 127 prior raw paths/hashes retained under the 50 consolidated records, labelled by generation. C51-C60 postdate that consolidation.",
+    "rejected71Grouping": "Historical proposal only; its grouping/count is not used as design authority."
+  },
+  "candidateBoundaryFamilies": {
+    "catalogue_replay": {
+      "title": "History, contract catalogue and version replay",
+      "authoritativeOwners": [
+        "NEO.md",
+        "BATCH_LOG.md",
+        "tools/version_replay.py"
+      ],
+      "input": "Classified units and preserved raw provenance",
+      "output": "Traceable identities and deterministic version coordinate",
+      "durableState": "Raw records, crosswalks, replay inputs",
+      "remainingDJoin": "Apply contract recatalogue before next batch/letter; preserve measured completion.",
+      "mergeSplitRationale": "C1 and later catalogue repairs share this boundary; runtime proof and publishing are separate outputs.",
+      "sourcePointers": [],
+      "documentPointers": [
+        "NEO.md",
+        "Batches/C_RECATALOG.json",
+        "GOVERNANCE.md"
+      ],
+      "contributors": [
+        "C1"
+      ]
+    },
+    "verification": {
+      "title": "Scoped evidence and instrument validity",
+      "authoritativeOwners": [
+        "GOVERNANCE.md",
+        "FINDINGS.md",
+        "tools/check.sh"
+      ],
+      "input": "Changed inputs, controlled instruments, native/headless/rendered observations",
+      "output": "Pinned PASS/FAIL/SKIP/unobservable receipts",
+      "durableState": "Immutable receipts and source provenance",
+      "remainingDJoin": "Reuse applicable proof; verify new interfaces proportionately without upgrading rendered acceptance.",
+      "mergeSplitRationale": "Merge evidence semantics across nonadjacent features; tooling is supporting work, not a completed simulation mechanism.",
+      "sourcePointers": [],
+      "documentPointers": [
+        "GOVERNANCE.md",
+        "SESSION_STATE.md"
+      ],
+      "contributors": [
+        "C1",
+        "C8",
+        "C24",
+        "C27",
+        "C31",
+        "C39",
+        "C50",
+        "C57",
+        "C59"
+      ]
+    },
+    "source_ownership": {
+      "title": "Cross-project authority and assembly",
+      "authoritativeOwners": [
+        "PROJECTS.md",
+        "SUBSTRATE.md",
+        "DECISION_REGISTRY.md"
+      ],
+      "input": "Ratified responsibilities, exact revisions and licences",
+      "output": "One authoritative service/actor owner and compatible assembly",
+      "durableState": "Stable mod/save identities and provenance",
+      "remainingDJoin": "DR-041/042 assembly must preserve loading, models, save migration and current ZAO living-state ownership.",
+      "mergeSplitRationale": "Source layout is not a reason to merge private knowledge, permission, pathogen and execution authority.",
+      "sourcePointers": [],
+      "documentPointers": [
+        "PROJECTS.md",
+        "SUBSTRATE.md"
+      ],
+      "contributors": [
+        "C24",
+        "C30",
+        "C34",
+        "C39"
+      ]
+    },
+    "identity": {
+      "title": "Durable person identity and admission",
+      "authoritativeOwners": [
+        "Identity",
+        "PopulationAdmissions",
+        "Census"
+      ],
+      "input": "Origin/adoption facts, death and existing person records",
+      "output": "Stable person identity, life status and admission",
+      "durableState": "Person records, identity keys, death/census entries",
+      "remainingDJoin": "Extend actors without invented refill or biography.",
+      "mergeSplitRationale": "C2/C4/C9/C29/C51/C58 share identity; body codec and scheduling have separate lifecycles.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/client/SAO_PopulationAdmissions.lua",
+        "mod/42.20/media/lua/shared/SAO_Census.lua"
+      ],
+      "documentPointers": [
+        "CORE.md",
+        "ARCHITECTURE.md",
+        "PROJECTS.md"
+      ],
+      "contributors": [
+        "C2",
+        "C3",
+        "C4",
+        "C7",
+        "C9",
+        "C29",
+        "C58"
+      ]
+    },
+    "snapshot": {
+      "title": "Validated native person envelope",
+      "authoritativeOwners": [
+        "BodySnapshot"
+      ],
+      "input": "Owned native state, position/time/physical facts and version",
+      "output": "Validated capture/commit/restore payload or refusal",
+      "durableState": "Versioned inventory/stats/wounds/XP; v4 physiology/appearance/modData/learned-state fields",
+      "remainingDJoin": "Retain legacy reader limits; refuse unsafe data while preserving old state.",
+      "mergeSplitRationale": "C6/C51/C54/C57 share serialization; C52 source removal and C55 runtime reconstruction remain separate.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/shared/SAO_BodySnapshot.lua"
+      ],
+      "documentPointers": [
+        "SUBSTRATE.md",
+        "ARCHITECTURE.md"
+      ],
+      "contributors": [
+        "C6",
+        "C47",
+        "C51",
+        "C52",
+        "C54",
+        "C57"
+      ]
+    },
+    "custody": {
+      "title": "One native body owner and representation",
+      "authoritativeOwners": [
+        "Body",
+        "PopulationRepresentation",
+        "Controller"
+      ],
+      "input": "Person, native shell/foreign owner, representation band and outstanding work",
+      "output": "Materialize/release/checkpoint/adopt/stage with failure retaining custody",
+      "durableState": "Pending transitions, snapshots and owner markers; runtime handles reconstructed",
+      "remainingDJoin": "All callbacks/actions respect pending or foreign custody and commit-before-publication.",
+      "mergeSplitRationale": "Identity, envelope and return transaction collaborate but do not become a second body owner.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_PopulationRepresentation.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua"
+      ],
+      "documentPointers": [
+        "PROJECTS.md",
+        "ARCHITECTURE.md"
+      ],
+      "contributors": [
+        "C2",
+        "C4",
+        "C9",
+        "C33",
+        "C51",
+        "C54",
+        "C56",
+        "C57",
+        "C58"
+      ]
+    },
+    "return": {
+      "title": "Authorized cross-owner return",
+      "authoritativeOwners": [
+        "AfflictedReturn",
+        "Body",
+        "PROJECTS.md"
+      ],
+      "input": "ZAO authorization/source, current possessions, matching predeath state",
+      "output": "Stage viable body, acknowledge source removal, publish adoption; dormant return without shell",
+      "durableState": "Authorization/phase/source id, generation journal and tombstones",
+      "remainingDJoin": "Keep cross-save recovery and current pathogen-state execution ownership consistent.",
+      "mergeSplitRationale": "C43 intent is corrected by C52; ordinary release does not own the distinct source-removal acknowledgement.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/client/SAO_AfflictedReturn.lua",
+        "mod/42.20/media/lua/client/SAO_Body.lua"
+      ],
+      "documentPointers": [
+        "SUBSTRATE.md",
+        "PROJECTS.md"
+      ],
+      "contributors": [
+        "C43",
+        "C52",
+        "C55"
+      ]
+    },
+    "reconstruction": {
+      "title": "Durable data and runtime reconstruction",
+      "authoritativeOwners": [
+        "GraphPersistence",
+        "Branching",
+        "Integration",
+        "Population"
+      ],
+      "input": "Plain durable data and load/save/world-reset events",
+      "output": "Rebuilt indexes/callbacks/controllers/memos and narrowly replayed journals",
+      "durableState": "Graph/person/world data and stable IDs; no persisted functions or Java handles",
+      "remainingDJoin": "Each D service declares durable state and fresh/second-world reset.",
+      "mergeSplitRationale": "C6/C29/C55/C58 meet at reconstruction; snapshot codec and return acknowledgement remain independent.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/shared/SAO_GraphPersistence.lua",
+        "mod/42.20/media/lua/shared/SAO_Branching.lua",
+        "mod/42.20/media/lua/shared/SAO_Integration.lua",
+        "mod/42.20/media/lua/client/SAO_Population.lua"
+      ],
+      "documentPointers": [
+        "SUBSTRATE.md",
+        "ARCHITECTURE.md"
+      ],
+      "contributors": [
+        "C6",
+        "C13",
+        "C29",
+        "C35",
+        "C52",
+        "C55",
+        "C58"
+      ]
+    },
+    "time": {
+      "title": "Authoritative county time and explicit units",
+      "authoritativeOwners": [
+        "History"
+      ],
+      "input": "Calendar/start date, actual elapsed interval and historical substep",
+      "output": "Current county hours/ticks; separate wall/native callback clocks",
+      "durableState": "Origins and typed timestamps",
+      "remainingDJoin": "Pass authoritative current county time into all historical/model/health consumers.",
+      "mergeSplitRationale": "C15/C26/C41/C53 form one contract; UI milliseconds and native callback pacing keep their semantics.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/shared/SAO_History.lua"
+      ],
+      "documentPointers": [
+        "SUBSTRATE.md",
+        "ARCHITECTURE.md"
+      ],
+      "contributors": [
+        "C15",
+        "C18",
+        "C26",
+        "C41",
+        "C47",
+        "C53"
+      ]
+    },
+    "population": {
+      "title": "County scheduling and loaded/dormant orchestration",
+      "authoritativeOwners": [
+        "Population",
+        "DormantPopulation",
+        "PopulationAdmissions",
+        "PopulationRepresentation",
+        "PhysicalFacts"
+      ],
+      "input": "History ticks, inhabitants, loaded band and physical facts",
+      "output": "Ordered pulses, admissions/representation calls, catch-up progress and explicit faults",
+      "durableState": "County positions/workplaces, encounters and restitution ledger",
+      "remainingDJoin": "D needs causal domain producers and measured scale, not only scheduled reads.",
+      "mergeSplitRationale": "Scheduler orchestrates independent admission, custody and material authorities; C58 makes these seams explicit.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/client/SAO_Population.lua",
+        "mod/42.20/media/lua/client/SAO_DormantPopulation.lua",
+        "mod/42.20/media/lua/client/SAO_PopulationAdmissions.lua",
+        "mod/42.20/media/lua/client/SAO_PopulationRepresentation.lua",
+        "mod/42.20/media/lua/shared/SAO_PhysicalFacts.lua"
+      ],
+      "documentPointers": [
+        "ARCHITECTURE.md",
+        "SUBSTRATE.md"
+      ],
+      "contributors": [
+        "C7",
+        "C18",
+        "C26",
+        "C29",
+        "C41",
+        "C50",
+        "C53",
+        "C58"
+      ]
+    },
+    "health": {
+      "title": "Owned health courses and integrated physiology",
+      "authoritativeOwners": [
+        "Conditions",
+        "Habits",
+        "Course",
+        "Neuro",
+        "Drugs",
+        "Medical",
+        "PathogenEvents",
+        "PROJECTS.md"
+      ],
+      "input": "Native health/consumption, genuine exposure receipts, elapsed time and optional inputs",
+      "output": "Condition/withdrawal/brain course and measured native effects",
+      "durableState": "Person conditions/habits/onsets/course history and native physiology",
+      "remainingDJoin": "Consume actual ZAO pathogen truth and real partial-consumption receipts; retain scoped partition-equivalence limits.",
+      "mergeSplitRationale": "C13/C17/C32/C47/C49/C56 join by course and clock; examiner knowledge is a separate projection.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua",
+        "mod/42.20/media/lua/shared/SAO_Habits.lua",
+        "mod/42.20/media/lua/shared/SAO_Course.lua",
+        "mod/42.20/media/lua/shared/SAO_Neuro.lua",
+        "mod/42.20/media/lua/client/SAO_Drugs.lua",
+        "mod/42.20/media/lua/client/SAO_Medical.lua",
+        "mod/42.20/media/lua/shared/SAO_PathogenEvents.lua"
+      ],
+      "documentPointers": [
+        "SUBSTRATE.md",
+        "PROJECTS.md"
+      ],
+      "contributors": [
+        "C4",
+        "C13",
+        "C17",
+        "C21",
+        "C32",
+        "C37",
+        "C45",
+        "C46",
+        "C47",
+        "C49",
+        "C56"
+      ]
+    },
+    "capacity": {
+      "title": "Embodied age, form and authentic acquired capabilities",
+      "authoritativeOwners": [
+        "Age",
+        "Appearance",
+        "BodySnapshot",
+        "Conditions"
+      ],
+      "input": "Durable age, native form, authentic skills/XP/recipes and current physiology",
+      "output": "Scaled form and capability constraints inside human limits",
+      "durableState": "Age/form and acquired native fields persisted through envelope",
+      "remainingDJoin": "Education/culture priors need supplied or acquired knowledge; age/role do not grant experience.",
+      "mergeSplitRationale": "Age and preserved recipe/XP state feed many actions; neither owns cultural learning or action completion.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/client/SAO_Age.lua",
+        "mod/42.20/media/lua/client/SAO_Appearance.lua",
+        "mod/42.20/media/lua/shared/SAO_BodySnapshot.lua",
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua"
+      ],
+      "documentPointers": [
+        "CORE.md",
+        "ARCHITECTURE.md",
+        "SUBSTRATE.md"
+      ],
+      "contributors": [
+        "C12",
+        "C43",
+        "C46",
+        "C54"
+      ]
+    },
+    "knowledge": {
+      "title": "Typed private evidence and attribution",
+      "authoritativeOwners": [
+        "Perception",
+        "Knowledge",
+        "WorldKnowledge",
+        "Communication"
+      ],
+      "input": "Admitted observation/telling/reading with provenance, time and uncertainty",
+      "output": "Observer-conditioned facts and memories",
+      "durableState": "Per-person evidence/source identities and decay",
+      "remainingDJoin": "Never replace personal evidence with global truth, proximity, role or diagnostics.",
+      "mergeSplitRationale": "C10/C11/C21/C23/C32/C37/C60 share admission; medical truth, permission and physical access remain distinct.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_Knowledge.lua",
+        "mod/42.20/media/lua/shared/SAO_WorldKnowledge.lua",
+        "mod/42.20/media/lua/shared/SAO_Communication.lua"
+      ],
+      "documentPointers": [
+        "CORE.md",
+        "ARCHITECTURE.md"
+      ],
+      "contributors": [
+        "C10",
+        "C11",
+        "C17",
+        "C21",
+        "C23",
+        "C32",
+        "C37",
+        "C40",
+        "C46",
+        "C48",
+        "C60"
+      ]
+    },
+    "choice": {
+      "title": "Individual disposition and private plan predictions",
+      "authoritativeOwners": [
+        "Disposition",
+        "Cognition",
+        "CognitiveModels",
+        "ProceduralPlanning",
+        "Labor",
+        "Needs"
+      ],
+      "input": "Private evidence, actual needs/capability, willingness, feasible alternatives and time",
+      "output": "Predicted consequences/uncertainty and selected intention",
+      "durableState": "Disposition, authentic experience/model state and owned intentions",
+      "remainingDJoin": "Shared-reasoning continuation is local/unmerged; authentic priors/generalization remain broader work.",
+      "mergeSplitRationale": "Choice consumes evidence and constraints; it grants neither facts, social authority nor native success.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_Cognition.lua",
+        "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
+        "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
+        "mod/42.20/media/lua/shared/SAO_Labor.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua"
+      ],
+      "documentPointers": [
+        "CORE.md",
+        "ARCHITECTURE.md",
+        "SESSION_STATE.md"
+      ],
+      "contributors": [
+        "C11",
+        "C13",
+        "C22",
+        "C40",
+        "C49"
+      ]
+    },
+    "standing": {
+      "title": "Relations, claims, recognition and command acceptance",
+      "authoritativeOwners": [
+        "Standing",
+        "Claims",
+        "Command",
+        "Exchange"
+      ],
+      "input": "Actual relationship, claim/recognition, asker and requested matter",
+      "output": "Permission/refusal, accepted instruction, obligations and hostility",
+      "durableState": "Relations, membership, claims and contextual authority",
+      "remainingDJoin": "Join accepted responsibility to reception/enactment/results; a claim is not universal recognition.",
+      "mergeSplitRationale": "C10/C16/C20/C22/C35/C38/C40 share authority; source reach and actual transfer stay separate.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/shared/SAO_Standing.lua",
+        "mod/42.20/media/lua/shared/SAO_Claims.lua",
+        "mod/42.20/media/lua/shared/SAO_Command.lua",
+        "mod/42.20/media/lua/client/SAO_Exchange.lua"
+      ],
+      "documentPointers": [
+        "CORE.md",
+        "ARCHITECTURE.md",
+        "SUBSTRATE.md"
+      ],
+      "contributors": [
+        "C10",
+        "C16",
+        "C20",
+        "C22",
+        "C23",
+        "C35",
+        "C38",
+        "C44"
+      ]
+    },
+    "social": {
+      "title": "Enacted organization and coordination lifecycle",
+      "authoritativeOwners": [
+        "Organization",
+        "Coordination",
+        "Communication",
+        "GraphPersistence",
+        "Standing"
+      ],
+      "input": "Individual motives, accepted membership/responsibility, actual reception and effect receipts",
+      "output": "Created/dissolved organizations and justified process transitions",
+      "durableState": "Membership, agreements and causal process graph",
+      "remainingDJoin": "Close proposal/reception/assent/work/delivery joins; observer summaries cannot produce society.",
+      "mergeSplitRationale": "Social process invokes Standing and native effects, not a mega-owner subsuming them.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/shared/SAO_Organization.lua",
+        "mod/42.20/media/lua/shared/SAO_Coordination.lua",
+        "mod/42.20/media/lua/shared/SAO_Communication.lua",
+        "mod/42.20/media/lua/shared/SAO_GraphPersistence.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "documentPointers": [
+        "ARCHITECTURE.md",
+        "SUBSTRATE.md"
+      ],
+      "contributors": [
+        "C29",
+        "C35",
+        "C36",
+        "C37",
+        "C40",
+        "C43",
+        "C44"
+      ]
+    },
+    "action": {
+      "title": "Native queue custody and measured action completion",
+      "authoritativeOwners": [
+        "Controller",
+        "Gesture",
+        "Medical",
+        "Needs",
+        "SourceUse",
+        "Animals"
+      ],
+      "input": "Admitted intention, actor/target, current feasibility and native queue",
+      "output": "Running/refused/interrupted/completed action with authentic effect receipt",
+      "durableState": "Supported work/receipts; native action runtime reconstructs or cancels",
+      "remainingDJoin": "Learn consequences from results; arrival, demand or queued care cannot count as transfer/treatment.",
+      "mergeSplitRationale": "C8/C10/C14/C44/C45/C48/C55/C60 share lifecycle; per-domain effect authority stays explicit.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Gesture.lua",
+        "mod/42.20/media/lua/client/SAO_Medical.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua",
+        "mod/42.20/media/lua/client/SAO_SourceUse.lua",
+        "mod/42.20/media/lua/client/SAO_Animals.lua"
+      ],
+      "documentPointers": [
+        "ARCHITECTURE.md",
+        "SUBSTRATE.md"
+      ],
+      "contributors": [
+        "C2",
+        "C10",
+        "C12",
+        "C14",
+        "C16",
+        "C41",
+        "C44",
+        "C45",
+        "C46",
+        "C48",
+        "C51",
+        "C55",
+        "C56",
+        "C60"
+      ]
+    },
+    "access": {
+      "title": "Current physical reach, entry and source feasibility",
+      "authoritativeOwners": [
+        "PhysicalFacts",
+        "Perception",
+        "Controller",
+        "Needs",
+        "SourceUse"
+      ],
+      "input": "Loaded floor/position/occlusion, exact aperture/part/item identity and actor reach",
+      "output": "Admitted native target/action or refusal, revalidated during execution",
+      "durableState": "Observed identity/revision and private memory; current reach is ephemeral",
+      "remainingDJoin": "Refresh native feasibility without leaking unseen sources or truncating identities.",
+      "mergeSplitRationale": "C20/C48/C60 meet here; permission and conserved stock belong elsewhere.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/shared/SAO_PhysicalFacts.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua",
+        "mod/42.20/media/lua/client/SAO_SourceUse.lua"
+      ],
+      "documentPointers": [
+        "ARCHITECTURE.md",
+        "SUBSTRATE.md"
+      ],
+      "contributors": [
+        "C8",
+        "C20",
+        "C48",
+        "C60"
+      ]
+    },
+    "material": {
+      "title": "Conserved sources, reservations and native transfer",
+      "authoritativeOwners": [
+        "WorldSources",
+        "Material",
+        "Provisioning",
+        "SourceUse",
+        "ResourceProduction",
+        "Needs"
+      ],
+      "input": "Actual observations/revision, access, reservations and native quantity outcomes",
+      "output": "Reconciled availability/depletion and exact transfer receipts",
+      "durableState": "Source observations/revisions, reservations and quantities/receipts",
+      "remainingDJoin": "Join loaded/dormant effects without room-name stock or arrival-as-acquisition.",
+      "mergeSplitRationale": "C25/C38/C48/C56 link through conservation; C60 was a source contract proposal, C61 implements it.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
+        "mod/42.20/media/lua/shared/SAO_Material.lua",
+        "mod/42.20/media/lua/shared/SAO_Provisioning.lua",
+        "mod/42.20/media/lua/client/SAO_SourceUse.lua",
+        "mod/42.20/media/lua/client/SAO_ResourceProduction.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua"
+      ],
+      "documentPointers": [
+        "ARCHITECTURE.md",
+        "SUBSTRATE.md"
+      ],
+      "contributors": [
+        "C25",
+        "C38",
+        "C48",
+        "C56",
+        "C60"
+      ]
+    },
+    "movement": {
+      "title": "Physical progress, route continuity and transport",
+      "authoritativeOwners": [
+        "Locomotion",
+        "Driving",
+        "Controller",
+        "DormantPopulation"
+      ],
+      "input": "Accepted destination, passenger assent, known route, native vehicle and elapsed time",
+      "output": "Progress/arrival/failure and appropriate continuation",
+      "durableState": "Location/destination/intent; native route and vehicle handles transient",
+      "remainingDJoin": "Unify movement consequences while preserving actual progress and individual choices.",
+      "mergeSplitRationale": "C8/C22/C31/C33/C42/C43 concern movement; Driving cannot own social assent or teleport groups.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/client/SAO_Locomotion.lua",
+        "mod/42.20/media/lua/client/SAO_Driving.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_DormantPopulation.lua"
+      ],
+      "documentPointers": [
+        "ARCHITECTURE.md",
+        "SUBSTRATE.md"
+      ],
+      "contributors": [
+        "C8",
+        "C22",
+        "C31",
+        "C33",
+        "C42",
+        "C43",
+        "C44"
+      ]
+    },
+    "expression": {
+      "title": "Expression constrained to acquired facts",
+      "authoritativeOwners": [
+        "Voice",
+        "Knowledge",
+        "Communication"
+      ],
+      "input": "Admitted facts/vocabulary and communicative intention",
+      "output": "Factual expression delivered through communication",
+      "durableState": "Acquired knowledge and supported conversation provenance",
+      "remainingDJoin": "Connect authentic language/cognition data and models; constrained vocabulary alone is not learned expression.",
+      "mergeSplitRationale": "C19/C21 share expression; C11 benchmark and C34 capture are upstream evidence interfaces.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/client/SAO_Voice.lua",
+        "mod/42.20/media/lua/shared/SAO_Knowledge.lua",
+        "mod/42.20/media/lua/shared/SAO_Communication.lua"
+      ],
+      "documentPointers": [
+        "ARCHITECTURE.md",
+        "SPEECH.md",
+        "PROJECTS.md"
+      ],
+      "contributors": [
+        "C19",
+        "C21"
+      ]
+    },
+    "data": {
+      "title": "Immutable decision-time evidence and model/data joins",
+      "authoritativeOwners": [
+        "tools/sweep/decision_capture.lua",
+        "tools/decision_capture_test.py",
+        "PROJECTS.md"
+      ],
+      "input": "Person/decision-hour keys, immutable private inputs, choice and actual later result",
+      "output": "Cross-project rows separating facts, decision and outcomes",
+      "durableState": "Pinned artifacts/schemas and ratified vocabulary",
+      "remainingDJoin": "D requires admissible data and actual models; repair does not reopen 112/78 choices.",
+      "mergeSplitRationale": "C11/C28/C34/C37/C39/C50 join data provenance; diagnostic truth/trajectories are not automatic training labels.",
+      "sourcePointers": [],
+      "documentPointers": [
+        "ARCHITECTURE.md",
+        "SUBSTRATE.md",
+        "PROJECTS.md"
+      ],
+      "contributors": [
+        "C11",
+        "C28",
+        "C34",
+        "C37",
+        "C39",
+        "C50"
+      ]
+    },
+    "observation": {
+      "title": "Read-only person/world observation",
+      "authoritativeOwners": [
+        "Inspect",
+        "Observation",
+        "Telemetry",
+        "Isolation",
+        "PlaceAttachment",
+        "WorldDevelopment",
+        "Harness"
+      ],
+      "input": "Existing person/world/graph state and run bounds",
+      "output": "Scoped summaries, inspection and explicit unknowns",
+      "durableState": "Diagnostic receipts and run provenance",
+      "remainingDJoin": "Build missing causal producers rather than treating summaries as outcomes.",
+      "mergeSplitRationale": "C3/C28/C36/C50 share observer semantics; observations become knowledge only through admission.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/client/SAO_Inspect.lua",
+        "mod/42.20/media/lua/client/SAO_Observation.lua",
+        "mod/42.20/media/lua/client/SAO_Telemetry.lua",
+        "mod/42.20/media/lua/shared/SAO_Isolation.lua",
+        "mod/42.20/media/lua/shared/SAO_PlaceAttachment.lua",
+        "mod/42.20/media/lua/shared/SAO_WorldDevelopment.lua",
+        "mod/42.20/media/lua/client/SAO_Harness.lua"
+      ],
+      "documentPointers": [
+        "SUBSTRATE.md",
+        "ARCHITECTURE.md"
+      ],
+      "contributors": [
+        "C3",
+        "C28",
+        "C36",
+        "C50"
+      ]
+    },
+    "place": {
+      "title": "Inhabited ground and causal place development",
+      "authoritativeOwners": [
+        "Places",
+        "Settlement",
+        "PlaceAttachment",
+        "WorldDevelopment",
+        "Material"
+      ],
+      "input": "Actual use/return/activity, material availability and completed work",
+      "output": "Justified inhabitation/development and ground state",
+      "durableState": "Place use/attachment, settlement and development process data",
+      "remainingDJoin": "Close work/material/access/result joins; choices and visits do not prove construction.",
+      "mergeSplitRationale": "C18/C25/C31/C35/C36/C38/C41 meet here; movement and observers cannot own development completion.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/shared/SAO_Places.lua",
+        "mod/42.20/media/lua/shared/SAO_Settlement.lua",
+        "mod/42.20/media/lua/shared/SAO_PlaceAttachment.lua",
+        "mod/42.20/media/lua/shared/SAO_WorldDevelopment.lua",
+        "mod/42.20/media/lua/shared/SAO_Material.lua"
+      ],
+      "documentPointers": [
+        "ARCHITECTURE.md",
+        "SUBSTRATE.md"
+      ],
+      "contributors": [
+        "C18",
+        "C25",
+        "C31",
+        "C35",
+        "C36",
+        "C38",
+        "C41"
+      ]
+    },
+    "random": {
+      "title": "Deterministic county draw state",
+      "authoritativeOwners": [
+        "Rand",
+        "Hash"
+      ],
+      "input": "Stable context and persisted stream",
+      "output": "Reproducible draws isolated from unrelated runtime order",
+      "durableState": "County random state and run seed/provenance",
+      "remainingDJoin": "Separate reproducibility from valid causal behavior; reset runtime wrappers without inventing stream state.",
+      "mergeSplitRationale": "C28/C55 concern reproducibility; C50 withdrawn fixed trajectory is not this mechanism.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/shared/SAO_Rand.lua",
+        "mod/42.20/media/lua/shared/SAO_Hash.lua"
+      ],
+      "documentPointers": [
+        "ARCHITECTURE.md"
+      ],
+      "contributors": [
+        "C28",
+        "C55"
+      ]
+    },
+    "compatibility": {
+      "title": "Installed compilation, loading and native adapters",
+      "authoritativeOwners": [
+        "tools/check.sh",
+        "Controller",
+        "Standing",
+        "BodySnapshot"
+      ],
+      "input": "Installed API/compiler behavior, dependency order and source revisions",
+      "output": "Loadable scripts/classes and verified native calls or refusal",
+      "durableState": "Compatibility/provenance manifests and pinned receipts",
+      "remainingDJoin": "D assembly retains debug/release compilation and exact identifiers; startup is not gameplay proof.",
+      "mergeSplitRationale": "C5/C24/C33/C57/C59 share runtime compatibility evidence without changing behavioral ownership.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua",
+        "mod/42.20/media/lua/shared/SAO_BodySnapshot.lua"
+      ],
+      "documentPointers": [
+        "NEO.md",
+        "GOVERNANCE.md"
+      ],
+      "contributors": [
+        "C5",
+        "C24",
+        "C33",
+        "C57",
+        "C59"
+      ]
+    },
+    "configuration": {
+      "title": "Truthful settings and interaction surfaces",
+      "authoritativeOwners": [
+        "Sandbox",
+        "UI",
+        "PROJECTS.md"
+      ],
+      "input": "Ratified options and implemented availability",
+      "output": "Copy/options matching real behavior",
+      "durableState": "Sandbox settings and stable identifiers",
+      "remainingDJoin": "Assembly preserves tested settings; unsupported behavior is not advertised.",
+      "mergeSplitRationale": "C5/C9/C42/C45 share surface truth, not the distinct mechanics those options configure.",
+      "sourcePointers": [
+        "mod/42.20/media/lua/client/SAO_Sandbox.lua",
+        "mod/42.20/media/lua/client/SAO_UI.lua"
+      ],
+      "documentPointers": [
+        "GOVERNANCE.md",
+        "PROJECTS.md"
+      ],
+      "contributors": [
+        "C5",
+        "C7",
+        "C9",
+        "C42",
+        "C45"
+      ]
+    }
+  },
+  "records": {
+    "C1": {
+      "completionClass": "completed_governance",
+      "contributions": [
+        {
+          "boundary": "catalogue_replay",
+          "standing": "implemented",
+          "contribution": "Catalogue links/chronology and executable classified-unit version replay."
+        },
+        {
+          "boundary": "verification",
+          "standing": "implemented",
+          "contribution": "Gate environment and runtime maps corrected."
+        }
+      ],
+      "correctionAndDDependency": "Classify actual shared contracts before replay; coordinate does not certify behavior.",
+      "relatedNonadjacentRecords": [
+        "C24",
+        "C27",
+        "C30",
+        "C39",
+        "C57"
+      ],
+      "mergeSplitRationale": "Version arithmetic, proof verdict and publication have different outputs.",
+      "formerID": "C1",
+      "sourcePath": "Batches/C1-2026-08-28-catalog-and-version-governance.md",
+      "sourceSha256": "ef483a80b6522058a191dca1d13c72c5fb9cb640acfe77f9a5f74b75ab77ff48",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C1",
+          "path": "Batches/C1-2026-08-28-catalog-consistency-and-the-three-maps.md",
+          "sha256": "57e7dfd59e54bd781ce21129c7ce3877bd1eb5a9385627b10f144c81b4d8e808"
+        },
+        {
+          "former": "C2",
+          "path": "Batches/C2-2026-08-28-the-version-machine.md",
+          "sha256": "c776e3b871eb0f45e405e7c845624664c4f558bd8a33304978523373f29f3f3d"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C2": {
+      "completionClass": "completed_scoped",
+      "contributions": [
+        {
+          "boundary": "identity",
+          "standing": "implemented",
+          "contribution": "Unified person naming/neighbour identity across interactions."
+        },
+        {
+          "boundary": "custody",
+          "standing": "implemented",
+          "contribution": "Crossings/seats connect existing execution without another body owner."
+        },
+        {
+          "boundary": "action",
+          "standing": "implemented",
+          "contribution": "Spoken-interaction and controller errors made visible."
+        }
+      ],
+      "correctionAndDDependency": "Later preservation and transfer contracts harden these seams; no all-actions acceptance.",
+      "relatedNonadjacentRecords": [
+        "C6",
+        "C9",
+        "C33",
+        "C51",
+        "C57",
+        "C58"
+      ],
+      "mergeSplitRationale": "Stable identity, native custody and action effects own different state.",
+      "formerID": "C2",
+      "sourcePath": "Batches/C2-2026-08-29-identity-and-execution-continuity.md",
+      "sourceSha256": "364d1bab41a5b0d90061c1db4440d8729852f82a27bb18fc5a6c525e868bc54f",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C3",
+          "path": "Batches/C3-2026-08-28-one-person-one-name-the-neighbour-folded.md",
+          "sha256": "1ddd9787d8c3a17cd4d022a5fe127d397aed1bcdfe994053197cee17c3f46059"
+        },
+        {
+          "former": "C4",
+          "path": "Batches/C4-2026-08-28-follow-through-the-crossing-the-wheels-fold-in.md",
+          "sha256": "2c0e0037622834304c73ae93718544cc927bf1427af392a4ea9d03286858673d"
+        },
+        {
+          "former": "C5",
+          "path": "Batches/C5-2026-08-29-the-spoken-word-and-the-swallowed-functions.md",
+          "sha256": "4c793d8176b884fe5368504a95c9399706fa744a375c710312a79831226bda34"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C3": {
+      "completionClass": "completed_observation",
+      "contributions": [
+        {
+          "boundary": "observation",
+          "standing": "implemented",
+          "contribution": "Harness/person-state/menu inspection exposes prediction and fallback boundaries."
+        },
+        {
+          "boundary": "identity",
+          "standing": "projection",
+          "contribution": "Exposes owned person state."
+        }
+      ],
+      "correctionAndDDependency": "Inspection establishes state visibility, not behavior completion.",
+      "relatedNonadjacentRecords": [
+        "C11",
+        "C28",
+        "C36",
+        "C50",
+        "C60"
+      ],
+      "mergeSplitRationale": "Reuse the observer projection; menu commands do not constitute another behavior owner.",
+      "formerID": "C3",
+      "sourcePath": "Batches/C3-2026-08-29-inspection-and-person-state.md",
+      "sourceSha256": "21e88ace423f109a31e12b92e42133210c80cde274b43fb0f57aa8e2db20c191",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C6",
+          "path": "Batches/C6-2026-08-29-the-inspect-harness.md",
+          "sha256": "2250a84908627641ebe6b1cfc98584ffd14ef3478d28827ed8d3aaa9894233ff"
+        },
+        {
+          "former": "C7",
+          "path": "Batches/C7-2026-08-29-superimposed-not-beside.md",
+          "sha256": "ec97de8849a92ff948ca03ac10674344f2d7713e1e31a82dcdec8de1b37b93fd"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C4": {
+      "completionClass": "completed_scoped_with_corrections",
+      "contributions": [
+        {
+          "boundary": "identity",
+          "standing": "implemented",
+          "contribution": "Durable death and persistent versus fungible crowd identity."
+        },
+        {
+          "boundary": "custody",
+          "standing": "implemented",
+          "contribution": "Risen/dead ownership transitions."
+        },
+        {
+          "boundary": "health",
+          "standing": "implemented_scoped",
+          "contribution": "Infection timing and course state."
+        }
+      ],
+      "correctionAndDDependency": "C52/C56 correct later Afflicted defects; death knowledge and pathogen truth retain distinct authority.",
+      "relatedNonadjacentRecords": [
+        "C7",
+        "C23",
+        "C32",
+        "C43",
+        "C52",
+        "C56"
+      ],
+      "mergeSplitRationale": "Death identity/custody and infection clock are distinct contracts.",
+      "formerID": "C4",
+      "sourcePath": "Batches/C4-2026-08-29-death-ownership-and-infection-timing.md",
+      "sourceSha256": "70e85e4e71e0b5b687ac7272fca4ab5090e34d9af7fbdb38e91bb03beb33bc4d",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C8",
+          "path": "Batches/C8-2026-08-29-the-turn-is-real.md",
+          "sha256": "f257fe0ec0334826baf515ada8a842a1f85e4d963f8eb924f8752332705373d5"
+        },
+        {
+          "former": "C9",
+          "path": "Batches/C9-2026-08-29-the-pool-is-only-the-fungible-crowd.md",
+          "sha256": "9dee960c4b64203abc49f03fea1da61d1a68bce627dd5f0be68c5b700cf73825"
+        },
+        {
+          "former": "C10",
+          "path": "Batches/C10-2026-08-29-the-promise-swings-at-the-body.md",
+          "sha256": "33a7645daad36b364835ce1e448ec70d9d48d3eecba99df2ab2bbec5a9b7da3d"
+        },
+        {
+          "former": "C11",
+          "path": "Batches/C11-2026-08-29-the-bite-kills-on-the-engines-clock.md",
+          "sha256": "659d5d46abcfb857c7fedb09d09ce4091e5b0c7d287bd7b34741fce30e612a4d"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C5": {
+      "completionClass": "completed_surface_review",
+      "contributions": [
+        {
+          "boundary": "configuration",
+          "standing": "implemented",
+          "contribution": "Frontend/settings copy corrected to available behavior."
+        },
+        {
+          "boundary": "compatibility",
+          "standing": "evidence",
+          "contribution": "Scoped interface/integration review."
+        }
+      ],
+      "correctionAndDDependency": "Inspected interfaces do not establish acceptance against every other mod.",
+      "relatedNonadjacentRecords": [
+        "C9",
+        "C24",
+        "C42",
+        "C45",
+        "C59"
+      ],
+      "mergeSplitRationale": "Surface truth and installed-interface evidence have different outputs.",
+      "formerID": "C5",
+      "sourcePath": "Batches/C5-2026-08-29-player-surfaces-and-compatibility-review.md",
+      "sourceSha256": "86f923b37757624435ea5eea689c72589106c9d64da8da3698dc367d6cfdb6ce",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C12",
+          "path": "Batches/C12-2026-08-29-the-front-end-speaks-player.md",
+          "sha256": "5a955906b56f61954da827daf8e896700a96bcef255b487694ccbf217496b721"
+        },
+        {
+          "former": "C13",
+          "path": "Batches/C13-2026-08-29-no-claudeisms-in-the-copy.md",
+          "sha256": "e906d7e08dc516ad7b44795f204ac380ec7067cef8e36658d511ca0d58e2abd9"
+        },
+        {
+          "former": "C14",
+          "path": "Batches/C14-2026-08-29-the-sweep-round-one.md",
+          "sha256": "fe9f77cc95fcf5cc9421b5da5d2b2178d300bf925b1433cfbdc8fb5948f8c3ca"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C6": {
+      "completionClass": "partial_historical",
+      "contributions": [
+        {
+          "boundary": "snapshot",
+          "standing": "implemented_partial",
+          "contribution": "Durable person decision/native state separated from temporary bodies."
+        },
+        {
+          "boundary": "reconstruction",
+          "standing": "partial",
+          "contribution": "Reload continuity retained gaps in optional counters and graph persistence."
+        }
+      ],
+      "correctionAndDDependency": "C51/C54/C55/C57 supply validated capture and reconstruction; preserve earlier limits.",
+      "relatedNonadjacentRecords": [
+        "C2",
+        "C13",
+        "C29",
+        "C47",
+        "C51",
+        "C54",
+        "C55",
+        "C57"
+      ],
+      "mergeSplitRationale": "Serializable state differs from reconstructed indexes and native custody.",
+      "formerID": "C6",
+      "sourcePath": "Batches/C6-2026-08-29-person-state-across-reload.md",
+      "sourceSha256": "f5f6fed8809e22e59b2a4c0fcf1ee24ebf91ccd3e50683b0c17a28b32bc83406",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C15",
+          "path": "Batches/C15-2026-08-29-whole-minds-survive-the-reload.md",
+          "sha256": "d3e2b23a8f19e94a2aaf09aff9d1994d67d6fd9836e3d8d258925f6c4c63e368"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C7": {
+      "completionClass": "completed_bounded",
+      "contributions": [
+        {
+          "boundary": "identity",
+          "standing": "implemented",
+          "contribution": "Dead census and durable taken-crowd accounting."
+        },
+        {
+          "boundary": "population",
+          "standing": "implemented_bounded",
+          "contribution": "Restitution repays prior takes outside hibernation radius, at most six/day."
+        },
+        {
+          "boundary": "configuration",
+          "standing": "implemented",
+          "contribution": "RestoreTakenZombies defaults false; ledger continues either way."
+        }
+      ],
+      "correctionAndDDependency": "Bounded restitution is not demographic calibration or invented population refill.",
+      "relatedNonadjacentRecords": [
+        "C4",
+        "C18",
+        "C29",
+        "C50",
+        "C58"
+      ],
+      "mergeSplitRationale": "Place repayment under scheduler/accounting, separate from person admission.",
+      "formerID": "C7",
+      "sourcePath": "Batches/C7-2026-08-29-zombie-census-and-bounded-restitution.md",
+      "sourceSha256": "2de9d2f46d511ddb900c974a24b43e18ff781e04b383307c63b5d71ce440eeb4",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C16",
+          "path": "Batches/C16-2026-08-29-the-dead-census.md",
+          "sha256": "497a4dba5830df9be19e2388ee77efa47d9bb4025020f12a4d3f958bd2034930"
+        },
+        {
+          "former": "C17",
+          "path": "Batches/C17-2026-08-29-the-crowd-ledger.md",
+          "sha256": "37f534be5ff26602a6630e00c11b99a480a1dc7a34e2cd7e929277f45c7348a1"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C8": {
+      "completionClass": "partial_historical",
+      "contributions": [
+        {
+          "boundary": "movement",
+          "standing": "repair",
+          "contribution": "Fixed restarting routes from first play receipts."
+        },
+        {
+          "boundary": "access",
+          "standing": "repair",
+          "contribution": "Corrected room-item parsing."
+        },
+        {
+          "boundary": "verification",
+          "standing": "bounded_observation",
+          "contribution": "First-play evidence retained within measured scope."
+        }
+      ],
+      "correctionAndDDependency": "Later route/source work owns remaining joins; partial play is not whole acceptance.",
+      "relatedNonadjacentRecords": [
+        "C20",
+        "C33",
+        "C42",
+        "C48",
+        "C60",
+        "C110"
+      ],
+      "mergeSplitRationale": "Route progress, source parsing and observation are separate contributions.",
+      "formerID": "C8",
+      "sourcePath": "Batches/C8-2026-08-29-play-evidence-and-execution-corrections.md",
+      "sourceSha256": "f06caed4fde9eef82dc9b9cb143fb008f5a3ad22b21732285ce95279c5b5735c",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C18",
+          "path": "Batches/C18-2026-08-29-the-first-play-receipts.md",
+          "sha256": "bb475e2ffc5c0e33cf23bbe06a8b15b3f3487cb3404e43022834f8ddac427d8e"
+        },
+        {
+          "former": "C19",
+          "path": "Batches/C19-2026-08-29-partial-receipts-are-receipts.md",
+          "sha256": "3ab1a070d5d7d5bd24beb46edf95636390a905d77d8e7f3c67f9fe2c5917652c"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C9": {
+      "completionClass": "completed_scoped",
+      "contributions": [
+        {
+          "boundary": "identity",
+          "standing": "implemented",
+          "contribution": "Adoption identity and failure handling."
+        },
+        {
+          "boundary": "custody",
+          "standing": "implemented",
+          "contribution": "One person/body owner across adoption."
+        },
+        {
+          "boundary": "configuration",
+          "standing": "implemented",
+          "contribution": "Removed unsupported surfaces and clarified options."
+        }
+      ],
+      "correctionAndDDependency": "C51/C58 make admission/representation lifecycle explicit.",
+      "relatedNonadjacentRecords": [
+        "C2",
+        "C5",
+        "C33",
+        "C51",
+        "C58"
+      ],
+      "mergeSplitRationale": "Admission and representation collaborate; settings only expose their actual support.",
+      "formerID": "C9",
+      "sourcePath": "Batches/C9-2026-08-29-adoption-and-configuration-boundaries.md",
+      "sourceSha256": "010cdc9496df011a7faf3b3d3d6811424d3b86ee9d02ed7512bc96bac1a6506c",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C20",
+          "path": "Batches/C20-2026-08-29-the-county-takes-them-whole.md",
+          "sha256": "09b8fb54dae5b861b18d13bec38ea7e85d0ce009e2b566b8b5753fc6db88d3f4"
+        },
+        {
+          "former": "C21",
+          "path": "Batches/C21-2026-08-29-fail-completely-never-his-way.md",
+          "sha256": "46a47bb02dd432c8c6abae182175a200dc9c5ea8deb1533082f481f7a9b9aa00"
+        },
+        {
+          "former": "C22",
+          "path": "Batches/C22-2026-08-29-the-switch-gates-the-field.md",
+          "sha256": "3c500ac09b3e0372e884fa923be8784548abcbf73441a4aaee3b0c057861d0bb"
+        },
+        {
+          "former": "C23",
+          "path": "Batches/C23-2026-08-29-deleted-not-greyed.md",
+          "sha256": "d8fa72c47fc3dfbb668ccbee2bf57ee33d5029a01a33eecf1373857a514a862e"
+        },
+        {
+          "former": "C24",
+          "path": "Batches/C24-2026-08-29-the-anchor-was-never-there.md",
+          "sha256": "032850139acd5925c659521b1aab129d8faad365e27c7bcd739289d8f166e72c"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C10": {
+      "completionClass": "partial_historical",
+      "contributions": [
+        {
+          "boundary": "knowledge",
+          "standing": "implemented",
+          "contribution": "Need routes use memory."
+        },
+        {
+          "boundary": "standing",
+          "standing": "implemented",
+          "contribution": "Player interaction and claim-aware wake use Standing."
+        },
+        {
+          "boundary": "action",
+          "standing": "implemented",
+          "contribution": "Dressing completion verified by actual result."
+        }
+      ],
+      "correctionAndDDependency": "Knowing, permission and successful execution remain independent; later C60/C61 ground access.",
+      "relatedNonadjacentRecords": [
+        "C16",
+        "C20",
+        "C25",
+        "C48",
+        "C60",
+        "C61"
+      ],
+      "mergeSplitRationale": "Three owners contribute to one behavior without becoming one owner.",
+      "formerID": "C10",
+      "sourcePath": "Batches/C10-2026-08-29-known-needs-and-social-interaction.md",
+      "sourceSha256": "03343eed00a35a21fb5a1546505f76d34bb9416ab4961a7bc8dd984ced10e882",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C25",
+          "path": "Batches/C25-2026-08-29-need-reaches-for-what-they-know.md",
+          "sha256": "66285fc7935222d45f00538143af4514900eb714db9887cb40a802ec0a264b08"
+        },
+        {
+          "former": "C26",
+          "path": "Batches/C26-2026-08-29-the-click-lands-and-the-line-holds.md",
+          "sha256": "2bc067dc2c42ca07db9defd3b7adb1689b703c3ff28fa6dec8f0453a5d937d7d"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C11": {
+      "completionClass": "completed_contract_and_benchmark",
+      "contributions": [
+        {
+          "boundary": "knowledge",
+          "standing": "implemented",
+          "contribution": "Shared private Knowledge view conditions inference."
+        },
+        {
+          "boundary": "data",
+          "standing": "benchmark_only",
+          "contribution": "In-process arithmetic ceiling measured."
+        },
+        {
+          "boundary": "choice",
+          "standing": "input_contract",
+          "contribution": "Private conditioning supplies decision inputs."
+        }
+      ],
+      "correctionAndDDependency": "Benchmark proves neither selected model size nor loaded cost; authentic data/models still require proof.",
+      "relatedNonadjacentRecords": [
+        "C19",
+        "C21",
+        "C34",
+        "C37",
+        "C39",
+        "C118",
+        "C119"
+      ],
+      "mergeSplitRationale": "Keep evidence admission separate from performance measurement and learned policy.",
+      "formerID": "C11",
+      "sourcePath": "Batches/C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md",
+      "sourceSha256": "21139c3884f68232174faa0ec0b357d0c95e5526c3cb560d5dd79676d6761e7c",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C27",
+          "path": "Batches/C27-2026-08-30-what-one-person-knows-as-one-surface.md",
+          "sha256": "352b9fe1df34128b6049df6c9fdf2c03983c0212c3c39de70f9ef350fae3f724"
+        },
+        {
+          "former": "C28",
+          "path": "Batches/C28-2026-08-30-the-inference-budget-instrument.md",
+          "sha256": "3be29bdeade3cf47f763ead82e50412f6cae49f45b9b123d2b9db39d693618f4"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C12": {
+      "completionClass": "partial_historical",
+      "contributions": [
+        {
+          "boundary": "capacity",
+          "standing": "implemented",
+          "contribution": "Native scaling, durable age and child capacities."
+        },
+        {
+          "boundary": "action",
+          "standing": "partial",
+          "contribution": "Childhood activities use native execution."
+        }
+      ],
+      "correctionAndDDependency": "C46 exposes zero-wound truthiness; body support does not certify decisions or cultural knowledge.",
+      "relatedNonadjacentRecords": [
+        "C21",
+        "C46",
+        "C54",
+        "C56",
+        "C89"
+      ],
+      "mergeSplitRationale": "Capacity and activity policy are distinct consumers of age.",
+      "formerID": "C12",
+      "sourcePath": "Batches/C12-2026-09-06-body-scale-age-and-childhood.md",
+      "sourceSha256": "b81d6e7ad1b894e25ab6b5057ccfb1bae7817cffaf96e39928a023d459773462",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C29",
+          "path": "Batches/C29-2026-09-06-the-body-is-scaled-from-inside-the-animation-player.md",
+          "sha256": "281f1d1df64457688f27f5aab1dedd931ecdfc8149832d6b6f4a8825c445fc9b"
+        },
+        {
+          "former": "C30",
+          "path": "Batches/C30-2026-09-06-age-is-a-system-on-the-countys-people.md",
+          "sha256": "c7ba18370706c3f81539ace1f419b18865584231effdc6dddb993496500bd3e5"
+        },
+        {
+          "former": "C31",
+          "path": "Batches/C31-2026-09-06-the-childs-day.md",
+          "sha256": "02cb69ecc995b87ca5511a767a94eec1c2547bd20b8abec8cea48040333739ed"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C13": {
+      "completionClass": "partial_historical",
+      "contributions": [
+        {
+          "boundary": "health",
+          "standing": "implemented_partial",
+          "contribution": "Durable conditions/habits and transient strain."
+        },
+        {
+          "boundary": "choice",
+          "standing": "input_contract",
+          "contribution": "Conditions influence decisions rather than prescribe outcomes."
+        },
+        {
+          "boundary": "reconstruction",
+          "standing": "partial",
+          "contribution": "Later drug/brain persistence gaps remain."
+        }
+      ],
+      "correctionAndDDependency": "C47/C49 defects and C56 corrections determine cadence/owner acceptance.",
+      "relatedNonadjacentRecords": [
+        "C17",
+        "C32",
+        "C47",
+        "C49",
+        "C55",
+        "C56"
+      ],
+      "mergeSplitRationale": "Durable course state differs from transient appraisal.",
+      "formerID": "C13",
+      "sourcePath": "Batches/C13-2026-09-06-conditions-habits-and-strain.md",
+      "sourceSha256": "4bfadba8b1d3ba3cfc66597d271e87a392e447b380ec0d024b01906a6323f656",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C32",
+          "path": "Batches/C32-2026-09-06-conditions-are-facts-about-a-person.md",
+          "sha256": "2c04fd0d89c5670d423c0e3c5ee5f40aaa34494ec65b415a1162b19814f62a82"
+        },
+        {
+          "former": "C33",
+          "path": "Batches/C33-2026-09-06-habits-are-facts-about-a-person.md",
+          "sha256": "41d0c321be6ef9f54d0b963ce078fe3e3801b8e3872c5f009883c726f3f72970"
+        },
+        {
+          "former": "C34",
+          "path": "Batches/C34-2026-09-06-the-moment-carries-the-strain.md",
+          "sha256": "892d06918b38fb88dc11ecea50bcdef91dce4050a6e6616b4195319052bc1cdb"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C14": {
+      "completionClass": "completed_scoped",
+      "contributions": [
+        {
+          "boundary": "action",
+          "standing": "implemented",
+          "contribution": "Native gestures preserve queue custody, interruption and completion."
+        }
+      ],
+      "correctionAndDDependency": "Queued gesture is not completed care; C45 requires domain effect evidence.",
+      "relatedNonadjacentRecords": [
+        "C10",
+        "C45",
+        "C55",
+        "C60",
+        "C117"
+      ],
+      "mergeSplitRationale": "Reuse native lifecycle while care owns its measured effect.",
+      "formerID": "C14",
+      "sourcePath": "Batches/C14-2026-09-07-physical-gestures.md",
+      "sourceSha256": "93776be00ac5a69f38109c0f9e440beaad9d623fe02006b385cfd9a65fddd59c",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C35",
+          "path": "Batches/C35-2026-09-07-the-countys-gestures.md",
+          "sha256": "7f372842d6e65faa1e50c98a608a91f44dff2c38c77de26571abe80dc8b7d3e6"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C15": {
+      "completionClass": "completed_scoped",
+      "contributions": [
+        {
+          "boundary": "time",
+          "standing": "implemented",
+          "contribution": "Historical records use county calendar."
+        }
+      ],
+      "correctionAndDDependency": "C26/C53 later establish elapsed stepping and explicit units.",
+      "relatedNonadjacentRecords": [
+        "C18",
+        "C26",
+        "C41",
+        "C53"
+      ],
+      "mergeSplitRationale": "Calendar contribution joins the shared clock contract.",
+      "formerID": "C15",
+      "sourcePath": "Batches/C15-2026-09-07-historical-record-calendar.md",
+      "sourceSha256": "aaf3cf1a870058152c6934d96e3ec61c0a0cf71db4f3836801b5d7d1ed49a383",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C36",
+          "path": "Batches/C36-2026-09-07-the-record-on-the-countys-calendar.md",
+          "sha256": "6756182a8313f1d73c7ee312f5627af77b1f6a8fa2e4743bcdcabcf8446d8a4e"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C16": {
+      "completionClass": "completed_scoped",
+      "contributions": [
+        {
+          "boundary": "standing",
+          "standing": "implemented",
+          "contribution": "Matter/person-specific command acceptance and refusal before execution."
+        },
+        {
+          "boundary": "action",
+          "standing": "consumer",
+          "contribution": "Only accepted instructions reach execution."
+        }
+      ],
+      "correctionAndDDependency": "Contextual authority is not a fixed leader flag; responsibility requires reception/enactment.",
+      "relatedNonadjacentRecords": [
+        "C10",
+        "C20",
+        "C22",
+        "C35",
+        "C38",
+        "C79"
+      ],
+      "mergeSplitRationale": "Standing acceptance is independent of the requested native action.",
+      "formerID": "C16",
+      "sourcePath": "Batches/C16-2026-09-07-orders-through-standing.md",
+      "sourceSha256": "4dc412ed3143ecd91608c6a08b2a5039b20cfdeadd1ce69c46fc5e18f5c76eea",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C37",
+          "path": "Batches/C37-2026-09-07-an-order-lands-through-standing.md",
+          "sha256": "c3039d84fffa65bbd2b0bab9a45b46f1a381f14b324e08ef55ebf32aede9b329"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C17": {
+      "completionClass": "completed_scoped",
+      "contributions": [
+        {
+          "boundary": "health",
+          "standing": "implemented",
+          "contribution": "SAO-owned conditions consume optional integration inputs."
+        },
+        {
+          "boundary": "knowledge",
+          "standing": "implemented",
+          "contribution": "Remembered era is owned personal state."
+        }
+      ],
+      "correctionAndDDependency": "Optional integration cannot manufacture memory or replace authoritative pathogen state.",
+      "relatedNonadjacentRecords": [
+        "C13",
+        "C21",
+        "C32",
+        "C47",
+        "C56"
+      ],
+      "mergeSplitRationale": "Remembered content and physiological course are separate ownership.",
+      "formerID": "C17",
+      "sourcePath": "Batches/C17-2026-09-07-remembered-era-and-owned-condition-state.md",
+      "sourceSha256": "dea3b51f51b9fa0c92a2141d1cb9aed6b88ded7a9c4947c18e46b2e16cbe8193",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C38",
+          "path": "Batches/C38-2026-09-07-the-era-remembered.md",
+          "sha256": "f2303c6285668507c6f11163addfe93d1031d951dbc074d89d74f88746e1bf7a"
+        },
+        {
+          "former": "C39",
+          "path": "Batches/C39-2026-09-07-the-conditions-are-saos-own.md",
+          "sha256": "e2762f4c543fe438c7a6cd1f42afa2f1e71b6ca0ff3567cadb55173ec05c95fb"
+        },
+        {
+          "former": "C40",
+          "path": "Batches/C40-2026-09-07-the-county-stands-on-its-own.md",
+          "sha256": "a1a3acf87b7910747538cdc3e216b54f884d5ba53c2fa1e826a158166c88816e"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C18": {
+      "completionClass": "partial_historical",
+      "contributions": [
+        {
+          "boundary": "population",
+          "standing": "implemented_partial",
+          "contribution": "Pre-spawn/precollapse historical county activity."
+        },
+        {
+          "boundary": "time",
+          "standing": "implemented_partial",
+          "contribution": "Start date and years-passed inputs."
+        },
+        {
+          "boundary": "place",
+          "standing": "partial",
+          "contribution": "Construction choices and ground represented."
+        }
+      ],
+      "correctionAndDDependency": "Later clocks matter; full dormant life producers, grounded realization and scale were incomplete.",
+      "relatedNonadjacentRecords": [
+        "C15",
+        "C26",
+        "C31",
+        "C35",
+        "C38",
+        "C41",
+        "C50",
+        "C58"
+      ],
+      "mergeSplitRationale": "Orchestration/time do not own completed construction.",
+      "formerID": "C18",
+      "sourcePath": "Batches/C18-2026-09-07-historical-county-simulation.md",
+      "sourceSha256": "2a1ae46fd778484734bd1c131352423d6a473f031720ad4e3e5a1034f529d9e0",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C41",
+          "path": "Batches/C41-2026-09-07-the-world-before-the-spawn.md",
+          "sha256": "3377679d303fe5f4fc1f8dd060439dc5860541a82e0e378b15e011b8146f4198"
+        },
+        {
+          "former": "C42",
+          "path": "Batches/C42-2026-09-07-before-the-fall-an-ordinary-life.md",
+          "sha256": "ed66e4ff47d66390a437b32333fa045c16f0d0e2c1942023b0affd9cf4a9dc57"
+        },
+        {
+          "former": "C43",
+          "path": "Batches/C43-2026-09-07-the-records-timeline-shifts-to-the-game.md",
+          "sha256": "b4ab020278f10a3ef7af77aa74d09e92e5ddd15c27a6648abe64f949c478d1cf"
+        },
+        {
+          "former": "C44",
+          "path": "Batches/C44-2026-09-07-they-either-build-or-they-do-not.md",
+          "sha256": "6a469e1ff9e021f98aeff31e4d51c6932336925994e107baa34038c9a4e88cd5"
+        },
+        {
+          "former": "C45",
+          "path": "Batches/C45-2026-09-07-the-years-between.md",
+          "sha256": "ffab929c9d4c69d24bd089e2b6216c6e4eb28fcc41e257cd1050e061a3c4d1f3"
+        },
+        {
+          "former": "C46",
+          "path": "Batches/C46-2026-09-07-the-ground-is-read-during-the-years.md",
+          "sha256": "b40bbebcf283758c6ac108c03c1849929ceeba82200bf9d781e2bb1e6e0e83d9"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C19": {
+      "completionClass": "completed_interface",
+      "contributions": [
+        {
+          "boundary": "expression",
+          "standing": "implemented",
+          "contribution": "Decoder constrained to admitted fact vocabulary."
+        }
+      ],
+      "correctionAndDDependency": "Interface does not establish training for cognition or expression.",
+      "relatedNonadjacentRecords": [
+        "C11",
+        "C21",
+        "C34",
+        "C37",
+        "C39"
+      ],
+      "mergeSplitRationale": "Merge with acquired-fact expression, preserving private input admission.",
+      "formerID": "C19",
+      "sourcePath": "Batches/C19-2026-09-07-constrained-factual-expression.md",
+      "sourceSha256": "a814077bcec95b3bfbb5c875e3150ffa4f4ac4cf5dd14880629fec297ab71e77",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C47",
+          "path": "Batches/C47-2026-09-07-the-fence.md",
+          "sha256": "dc5d1d479385fbd4ccd30387966795dc8ef31a052c253f2452379799091bf489"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C20": {
+      "completionClass": "partial_historical",
+      "contributions": [
+        {
+          "boundary": "access",
+          "standing": "implemented_partial",
+          "contribution": "Physical entry difficulty and available ground."
+        },
+        {
+          "boundary": "standing",
+          "standing": "implemented",
+          "contribution": "Shared command permission check."
+        }
+      ],
+      "correctionAndDDependency": "Knowledge, permission and native feasibility all remain necessary; later access/entry learning refines them.",
+      "relatedNonadjacentRecords": [
+        "C10",
+        "C16",
+        "C38",
+        "C48",
+        "C60",
+        "C112",
+        "C120"
+      ],
+      "mergeSplitRationale": "Aperture/ground authority differs from social acceptance.",
+      "formerID": "C20",
+      "sourcePath": "Batches/C20-2026-09-07-entry-and-command-permission.md",
+      "sourceSha256": "9cde8308584d138a31f1979f4c76ea8b83e80e7ba0c7cabb9b1d97ce4c5740de",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C48",
+          "path": "Batches/C48-2026-09-07-how-hard-a-place-is-to-get-into.md",
+          "sha256": "b5fb13b86a7bfb5a088a70aea610495b7e8477e9dfab5e74ab0093cb68ba6b8d"
+        },
+        {
+          "former": "C49",
+          "path": "Batches/C49-2026-09-07-survivor-orders-use-the-command-check.md",
+          "sha256": "25db7ac99e3b88a0728ac7ad4eee07cc151ec530c35c4c7d802f02df8220f1cf"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C21": {
+      "completionClass": "partial_historical",
+      "contributions": [
+        {
+          "boundary": "expression",
+          "standing": "implemented_partial",
+          "contribution": "Speech uses actual acquired knowledge."
+        },
+        {
+          "boundary": "health",
+          "standing": "implemented_partial",
+          "contribution": "Player habits, psychosis/insomnia integration."
+        },
+        {
+          "boundary": "knowledge",
+          "standing": "contract",
+          "contribution": "Role/date cannot substitute for personal experience."
+        }
+      ],
+      "correctionAndDDependency": "Condition corrections and authentic knowledge boundaries remain; figures do not prove broad learned cognition.",
+      "relatedNonadjacentRecords": [
+        "C13",
+        "C17",
+        "C19",
+        "C34",
+        "C47",
+        "C49",
+        "C56"
+      ],
+      "mergeSplitRationale": "Expression, condition course and admission are distinct contracts.",
+      "formerID": "C21",
+      "sourcePath": "Batches/C21-2026-09-08-learned-expression-and-condition-integration.md",
+      "sourceSha256": "323eb222712592be46c6a5ca87f370a2a6fc09ba24a59d2a364f834d476328f2",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C50",
+          "path": "Batches/C50-2026-09-07-what-a-survivor-says-follows-what-they-have-learned.md",
+          "sha256": "163a7a02374b135b1ccba328afdc3aa444d14e44228bffc40853f2e6c7a02c12"
+        },
+        {
+          "former": "C51",
+          "path": "Batches/C51-2026-09-07-the-habits-are-the-players-too.md",
+          "sha256": "034dc6dd695e634e4802212a7586d6c97757341135d50aa50509cc09063515b2"
+        },
+        {
+          "former": "C52",
+          "path": "Batches/C52-2026-09-08-psychosis-and-insomnia-get-their-figures.md",
+          "sha256": "f37da67402e1bf13315f551865df305ffc3ade5ed2fd69561c50fca462d8716f"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C22": {
+      "completionClass": "completed_scoped",
+      "contributions": [
+        {
+          "boundary": "choice",
+          "standing": "implemented",
+          "contribution": "Asker-dependent willingness and individual passenger objections."
+        },
+        {
+          "boundary": "standing",
+          "standing": "implemented",
+          "contribution": "Personal assent, not automatic group consent."
+        },
+        {
+          "boundary": "movement",
+          "standing": "implemented_scoped",
+          "contribution": "Other acceptable vehicles remain available after refusal."
+        }
+      ],
+      "correctionAndDDependency": "Group procedures retain each person's alternatives; no group teleportation.",
+      "relatedNonadjacentRecords": [
+        "C16",
+        "C33",
+        "C40",
+        "C42",
+        "C43",
+        "C79"
+      ],
+      "mergeSplitRationale": "Mobility consumes willingness and assent without owning them.",
+      "formerID": "C22",
+      "sourcePath": "Batches/C22-2026-09-08-personal-choice-in-shared-travel.md",
+      "sourceSha256": "5d70ee82fa2d3fd6d9466412ebd16d833e24f96c57542b257e0cdbcb4134a7b4",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C53",
+          "path": "Batches/C53-2026-09-08-who-goes-along-weighs-who-is-asking.md",
+          "sha256": "a61ec5d8c3b60671ab0c11982f17a22c990556d2d4c1f9511b2be1978dbcf9c9"
+        },
+        {
+          "former": "C54",
+          "path": "Batches/C54-2026-09-08-the-objection-picks-the-car.md",
+          "sha256": "acdc8752616a49b8a66d92b3464a4a632a44a70cdcc760ae581e235797854601"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C23": {
+      "completionClass": "completed_scoped_open_limits",
+      "contributions": [
+        {
+          "boundary": "knowledge",
+          "standing": "implemented",
+          "contribution": "Death witness and culprit witness are distinct evidence."
+        },
+        {
+          "boundary": "standing",
+          "standing": "consumer",
+          "contribution": "Hostility attribution requires admitted culprit knowledge."
+        }
+      ],
+      "correctionAndDDependency": "Proximity grants no killer knowledge; preserve documented witness-rule limits.",
+      "relatedNonadjacentRecords": [
+        "C4",
+        "C11",
+        "C37",
+        "C44",
+        "C60"
+      ],
+      "mergeSplitRationale": "Attribution belongs with private evidence, not death execution.",
+      "formerID": "C23",
+      "sourcePath": "Batches/C23-2026-09-08-witnessed-violence-attribution.md",
+      "sourceSha256": "1ca5b968740c66760ec8b2a57faa0f2763575e8b40690b1c36f7afb066e73090",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C55",
+          "path": "Batches/C55-2026-09-08-seeing-a-death-is-not-seeing-who-did-it.md",
+          "sha256": "e820e7a8bf20cffab593c1115b1299314be73a286d30a96c9f74598372d54ba6"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C24": {
+      "completionClass": "completed_governance",
+      "contributions": [
+        {
+          "boundary": "verification",
+          "standing": "implemented",
+          "contribution": "Unavailable engine evidence is SKIP; CI/publication report actual outcomes."
+        },
+        {
+          "boundary": "compatibility",
+          "standing": "implemented",
+          "contribution": "Native availability checked explicitly."
+        },
+        {
+          "boundary": "source_ownership",
+          "standing": "publishing_contract",
+          "contribution": "Protected-main branch/PR self-merge."
+        }
+      ],
+      "correctionAndDDependency": "Reuse applicable proof under standing rule; publishing adds no behavior evidence.",
+      "relatedNonadjacentRecords": [
+        "C1",
+        "C5",
+        "C27",
+        "C39",
+        "C57",
+        "C59"
+      ],
+      "mergeSplitRationale": "Evidence verdict, runtime availability and publication remain distinct.",
+      "formerID": "C24",
+      "sourcePath": "Batches/C24-2026-09-08-verification-and-publication-machinery.md",
+      "sourceSha256": "e36b80010ea24999d6f97bc8e42c2f91e13378b9bcfd2177cad091c6c263e8f7",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C56",
+          "path": "Batches/C56-2026-09-08-borders-skip-when-the-game-is-absent.md",
+          "sha256": "425637d60d64d6137ed01a3e30bcfa3239f35ac0883a193fbdfcb1d73caa5c35"
+        },
+        {
+          "former": "C57",
+          "path": "Batches/C57-2026-09-08-a-skip-is-not-a-vacuous-pass.md",
+          "sha256": "46f5a8cee20833adc97c4f09bd4b3303ea9cb4d2b73e9ff479eb4e8e97e64196"
+        },
+        {
+          "former": "C58",
+          "path": "Batches/C58-2026-09-08-the-codeql-action-halves-travel-together.md",
+          "sha256": "537aff5fa17386bd7d8c25a2e1f904d9e3439debbb903686509ab878c6bfaa02"
+        },
+        {
+          "former": "C59",
+          "path": "Batches/C59-2026-09-08-main-is-protected-and-batches-arrive-by-pull-request.md",
+          "sha256": "38fd2593c70d5ea1ed03c17d125695c111d42c6b07a54ff625a942fcdff5a05a"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C25": {
+      "completionClass": "completed_scoped",
+      "contributions": [
+        {
+          "boundary": "material",
+          "standing": "implemented",
+          "contribution": "Player looting updates county depletion."
+        },
+        {
+          "boundary": "place",
+          "standing": "consumer",
+          "contribution": "Place material state reflects actual use."
+        }
+      ],
+      "correctionAndDDependency": "Source revisions must reconcile all producers; room/place labels are not stock.",
+      "relatedNonadjacentRecords": [
+        "C10",
+        "C31",
+        "C38",
+        "C48",
+        "C60",
+        "C61",
+        "C64"
+      ],
+      "mergeSplitRationale": "Depletion is conserved effect; place description and private belief are projections.",
+      "formerID": "C25",
+      "sourcePath": "Batches/C25-2026-09-08-player-depletion-of-places.md",
+      "sourceSha256": "5367a66687cca2a6120a31dfb6775ddd7790708cb3a63e1492e5146a4456fabf",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C60",
+          "path": "Batches/C60-2026-09-08-the-players-looting-spends-a-place.md",
+          "sha256": "9bc38874130c69580a4c8d34e771b154f29d2500101a2923d03062645f952c3c"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C26": {
+      "completionClass": "completed_scoped_later_corrections",
+      "contributions": [
+        {
+          "boundary": "time",
+          "standing": "implemented_partial",
+          "contribution": "Historical/live county hours, years-passed and genuine day-zero."
+        },
+        {
+          "boundary": "population",
+          "standing": "consumer",
+          "contribution": "Historical progression uses shared timeline."
+        }
+      ],
+      "correctionAndDDependency": "C41 cache/tick defects and C53 corrections limit earlier equivalence claims.",
+      "relatedNonadjacentRecords": [
+        "C15",
+        "C18",
+        "C41",
+        "C50",
+        "C53",
+        "C58"
+      ],
+      "mergeSplitRationale": "Calendar and substep repairs share one clock; scheduler consumes it.",
+      "formerID": "C26",
+      "sourcePath": "Batches/C26-2026-09-08-shared-county-time-and-day-zero.md",
+      "sourceSha256": "4122199798bd8320c1e5c2e256dfbfcc095c15795ff361ba160764149ffb3350",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C61",
+          "path": "Batches/C61-2026-09-08-one-clock-for-how-long-this-has-been-going-on.md",
+          "sha256": "01e251909bf1a7375200458a82d9bb84e460ee1658126734472f525dbb92aa88"
+        },
+        {
+          "former": "C62",
+          "path": "Batches/C62-2026-09-08-one-clock-for-the-county-and-the-years-pass-moves-it.md",
+          "sha256": "ed5acab3149231e7b1860cb8d274c4c231438007a309f7fc14508fbd02d5dadc"
+        },
+        {
+          "former": "C63",
+          "path": "Batches/C63-2026-09-08-a-day-zero-start-owes-no-years.md",
+          "sha256": "15655c533c2fed9eea73eb8dfed6f3461407dcfd3afaa8fa53cb8b2a92527484"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C27": {
+      "completionClass": "completed_governance",
+      "contributions": [
+        {
+          "boundary": "verification",
+          "standing": "implemented",
+          "contribution": "Replaced blanket complete claims with code/runtime/player evidence distinctions."
+        }
+      ],
+      "correctionAndDDependency": "Preserve C118/C119 completed source, C120 scoped results and local continuation status.",
+      "relatedNonadjacentRecords": [
+        "C1",
+        "C8",
+        "C24",
+        "C39",
+        "C50",
+        "C118",
+        "C119",
+        "C120"
+      ],
+      "mergeSplitRationale": "Recatalogue changes classification without resetting or promoting measured completion.",
+      "formerID": "C27",
+      "sourcePath": "Batches/C27-2026-09-08-scoped-verification-claims.md",
+      "sourceSha256": "a30f1f9348f4bbd8c3bc715670ef52047d6550b2f5eb6d7e0eebf15e04f592c1",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C64",
+          "path": "Batches/C64-2026-09-08-the-blanket-claim-is-gone-from-every-document-that-carried-it.md",
+          "sha256": "1a22da821cea4f01452f5417b032d7ac856c30ce344becf6202368925748ca7a"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C28": {
+      "completionClass": "completed_scoped",
+      "contributions": [
+        {
+          "boundary": "observation",
+          "standing": "implemented",
+          "contribution": "Run bounds, inputs and trajectories recorded."
+        },
+        {
+          "boundary": "random",
+          "standing": "implemented",
+          "contribution": "Reproducible county RNG."
+        },
+        {
+          "boundary": "data",
+          "standing": "admission_boundary",
+          "contribution": "Reproduction does not automatically make observations training data."
+        }
+      ],
+      "correctionAndDDependency": "Keep diagnostic truth outside private decision inputs and causal labels.",
+      "relatedNonadjacentRecords": [
+        "C11",
+        "C34",
+        "C36",
+        "C50",
+        "C55",
+        "C65"
+      ],
+      "mergeSplitRationale": "Random state, observation and learning admission have different contracts.",
+      "formerID": "C28",
+      "sourcePath": "Batches/C28-2026-09-08-simulation-telemetry-and-reproducibility.md",
+      "sourceSha256": "3051de0fdbc89405393002ec869c43a7a032a669b20568c9ad15241f2b2530d1",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C65",
+          "path": "Batches/C65-2026-09-08-the-years-pass-leaves-a-trajectory.md",
+          "sha256": "3bc9b13c5ade5e7cdb4dfc07d3e6bf118928c88a6d4c63f2cd0ef1035ec25215"
+        },
+        {
+          "former": "C66",
+          "path": "Batches/C66-2026-09-08-the-county-carries-its-own-randomness.md",
+          "sha256": "13c375690a1703ae1eeca5e67be99c8ab49377015a5f68d1194efe3ef6091460"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C29": {
+      "completionClass": "partial_historical",
+      "contributions": [
+        {
+          "boundary": "social",
+          "standing": "implemented_partial",
+          "contribution": "Company creation/dissolution and death settlement."
+        },
+        {
+          "boundary": "identity",
+          "standing": "implemented",
+          "contribution": "Stable belief IDs, admitted names and known-person visits."
+        },
+        {
+          "boundary": "population",
+          "standing": "observation",
+          "contribution": "Dormant county continuity measured."
+        },
+        {
+          "boundary": "reconstruction",
+          "standing": "partial",
+          "contribution": "Social graph persistence required."
+        }
+      ],
+      "correctionAndDDependency": "Admission/history limitations remain; D needs actual producers and private knowledge, not counts.",
+      "relatedNonadjacentRecords": [
+        "C2",
+        "C6",
+        "C18",
+        "C31",
+        "C35",
+        "C40",
+        "C50",
+        "C55",
+        "C58"
+      ],
+      "mergeSplitRationale": "Mixed record contributes to four independent lifecycle seams.",
+      "formerID": "C29",
+      "sourcePath": "Batches/C29-2026-09-08-dormant-social-continuity-and-county-measurement.md",
+      "sourceSha256": "c83886714e1efc5ed56797f5eca03ef135a70cabcadf02644fedcd722ae4ac49",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C67",
+          "path": "Batches/C67-2026-09-08-founding-a-company-dissolved-it.md",
+          "sha256": "ddefa59f44fc08bf88332e19b1051411e17472b19dc66233970d25f64d3cd5d6"
+        },
+        {
+          "former": "C68",
+          "path": "Batches/C68-2026-09-08-a-death-leaves-the-company.md",
+          "sha256": "3d10adbebf5835f894aa90e536da896d1e8db3d44aa8c1023134458daba6a14f"
+        },
+        {
+          "former": "C69",
+          "path": "Batches/C69-2026-09-08-the-county-sweep-is-a-tool-in-the-tree.md",
+          "sha256": "83653fbc3784832fa0b8666c076dea3c67914ae5ed439bf0e07918c319ad88f8"
+        },
+        {
+          "former": "C70",
+          "path": "Batches/C70-2026-09-08-every-death-path-settles-the-house-in-one-place.md",
+          "sha256": "16830124f735f6010b0f5166d6933abfacff93071a16cc86c3f391524d5bbae3"
+        },
+        {
+          "former": "C71",
+          "path": "Batches/C71-2026-09-08-every-person-has-their-own-belief-key.md",
+          "sha256": "4eef8d14d3ed17f21aebf3366dda39a21ee89bb643916af8b04bcce8c68a7402"
+        },
+        {
+          "former": "C72",
+          "path": "Batches/C72-2026-09-08-the-dormant-day-can-go-to-a-person.md",
+          "sha256": "cce9f8a5e75f545ee285aa3f7e74d046e3f4afe2813f10f785228729fcf3b310"
+        },
+        {
+          "former": "C73",
+          "path": "Batches/C73-2026-09-08-a-person-is-named-when-they-are-made.md",
+          "sha256": "81ab562536b319176784585ddc3e9186ff7a3a2666332a241863f470dc4131c5"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C30": {
+      "completionClass": "completed_ratification",
+      "contributions": [
+        {
+          "boundary": "source_ownership",
+          "standing": "ratified",
+          "contribution": "SAO/ZAO/Speakeasy responsibility/licensing for one county."
+        }
+      ],
+      "correctionAndDDependency": "Current PROJECTS includes ZAO living-state execution; repository boundaries add no approval loop.",
+      "relatedNonadjacentRecords": [
+        "C4",
+        "C11",
+        "C32",
+        "C37",
+        "C39",
+        "C52",
+        "C57",
+        "C80"
+      ],
+      "mergeSplitRationale": "Cross-project authority spans features without merging their runtime owners.",
+      "formerID": "C30",
+      "sourcePath": "Batches/C30-2026-09-09-ownership-across-the-three-repositories.md",
+      "sourceSha256": "426c37a2510833c296e1e2baed752b74132132d528ef47495f8d1ccf67a0f0f7",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C74",
+          "path": "Batches/C74-2026-09-09-the-three-projects-and-what-each-owns.md",
+          "sha256": "60987756498876e109fdcffa1e6e32ff2bdbb5a71bc8b79e2d3767704de0ace0"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C31": {
+      "completionClass": "partial_historical",
+      "contributions": [
+        {
+          "boundary": "movement",
+          "standing": "implemented_partial",
+          "contribution": "Elapsed-time dormant walking."
+        },
+        {
+          "boundary": "place",
+          "standing": "implemented_partial",
+          "contribution": "Inhabited ground follows member return."
+        },
+        {
+          "boundary": "verification",
+          "standing": "bounded_benchmark",
+          "contribution": "Historical movement/cost measured."
+        }
+      ],
+      "correctionAndDDependency": "Not proof of loaded terrain realization or scalable whole county; D joins actual material/movement facts.",
+      "relatedNonadjacentRecords": [
+        "C18",
+        "C25",
+        "C29",
+        "C38",
+        "C41",
+        "C50",
+        "C58"
+      ],
+      "mergeSplitRationale": "Movement, inhabitation and performance have separate authority.",
+      "formerID": "C31",
+      "sourcePath": "Batches/C31-2026-09-09-dormant-movement-settlement-ground-and-cost.md",
+      "sourceSha256": "995fcec239470d37cffbd409626a80e0437f1f079fbf14a09f561844584c2a2d",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C75",
+          "path": "Batches/C75-2026-09-09-a-day-of-walking-is-a-day-of-walking.md",
+          "sha256": "166908f0f747bd254f1c1c6089f9dd379141557a69345212bf90cc690045fa2a"
+        },
+        {
+          "former": "C76",
+          "path": "Batches/C76-2026-09-09-a-house-takes-ground-where-its-people-already-go.md",
+          "sha256": "c412a32d856656e74a858bc8b8ff1c249778d418d74a70905c6bffe892b8f660"
+        },
+        {
+          "former": "C77",
+          "path": "Batches/C77-2026-09-09-what-the-walking-costs.md",
+          "sha256": "3bb7642ef1c0e2b3edf650bac8d4d314ef9f5ad8fa21cb2beb556fd889dac001"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C32": {
+      "completionClass": "partial_historical",
+      "contributions": [
+        {
+          "boundary": "health",
+          "standing": "implemented_partial",
+          "contribution": "Infection response, dormant exposure and distinct course clocks."
+        },
+        {
+          "boundary": "knowledge",
+          "standing": "implemented",
+          "contribution": "Examiner-conditioned clinical observations."
+        }
+      ],
+      "correctionAndDDependency": "C56 reconciles ZAO truth and removes proximity exposure; diagnosis remains private interpretation.",
+      "relatedNonadjacentRecords": [
+        "C4",
+        "C13",
+        "C23",
+        "C37",
+        "C49",
+        "C56"
+      ],
+      "mergeSplitRationale": "Disease truth differs from observed signs and examiner interpretation.",
+      "formerID": "C32",
+      "sourcePath": "Batches/C32-2026-09-09-infection-course-and-clinical-observation.md",
+      "sourceSha256": "0b194b12933e80e5b95770644979c950a0dcfc790044c2cea6de613421ddcc42",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C78",
+          "path": "Batches/C78-2026-09-09-the-body-fights-the-infection.md",
+          "sha256": "39ed9cade0ff2861108d33badf200c4a872088e8f7d6061db1c6ef527ae48fd8"
+        },
+        {
+          "former": "C79",
+          "path": "Batches/C79-2026-09-09-the-unwatched-county-can-catch-it.md",
+          "sha256": "3060ca92e4b3a00cd3b8307768bad22029ebc023724a149b914604996bed2a8e"
+        },
+        {
+          "former": "C80",
+          "path": "Batches/C80-2026-09-09-what-an-examiner-can-tell.md",
+          "sha256": "8fea9fd44b7a11d59fa7ae14088ef9818baa12891eb4d717a95b87ffa6cda6a1"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C33": {
+      "completionClass": "mixed_implementation_and_probe",
+      "contributions": [
+        {
+          "boundary": "custody",
+          "standing": "implemented",
+          "contribution": "External/native controller ownership tightened."
+        },
+        {
+          "boundary": "compatibility",
+          "standing": "evidence_only",
+          "contribution": "Installed driving surface verified; probe changed no mod driving code."
+        },
+        {
+          "boundary": "movement",
+          "standing": "probe_only",
+          "contribution": "Native driving seam identified, no autonomous driving implemented."
+        }
+      ],
+      "correctionAndDDependency": "C42 separately introduces driving and records approach/steering/progress defects.",
+      "relatedNonadjacentRecords": [
+        "C2",
+        "C9",
+        "C22",
+        "C42",
+        "C51",
+        "C59"
+      ],
+      "mergeSplitRationale": "Ownership repair and API probe remain separate contributions.",
+      "formerID": "C33",
+      "sourcePath": "Batches/C33-2026-09-09-controller-ownership-and-driving-surface-verification.md",
+      "sourceSha256": "797d1492ba5ddffb668c8725e5924e0548ebe8ffd174aa5c34a75f2c9714f720",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C81",
+          "path": "Batches/C81-2026-09-09-another-controller-holds-them.md",
+          "sha256": "98b973dc2cce1d454ba06cb1c202c3570b0ab4f743a0c4e3890b4c1122d2a245"
+        },
+        {
+          "former": "C82",
+          "path": "Batches/C82-2026-09-09-no-player-at-the-wheel.md",
+          "sha256": "1be8aac8cf1878524201e7d2dfa794eaf98bace9698341e47a68e18ecc59d4b6"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C34": {
+      "completionClass": "mixed_ratification_and_partial_capture",
+      "contributions": [
+        {
+          "boundary": "data",
+          "standing": "partial_defective",
+          "contribution": "Decision capture and provenance/needs preparation; mutable snapshots later found defective."
+        },
+        {
+          "boundary": "source_ownership",
+          "standing": "ratified",
+          "contribution": "Workword and data-preparation choices settled."
+        }
+      ],
+      "correctionAndDDependency": "Repair immutable conditioning without reopening choices; training needs actual causal rows/models.",
+      "relatedNonadjacentRecords": [
+        "C11",
+        "C19",
+        "C28",
+        "C37",
+        "C39",
+        "C50",
+        "C64",
+        "C65"
+      ],
+      "mergeSplitRationale": "Operator ratification survives defects in capture implementation.",
+      "formerID": "C34",
+      "sourcePath": "Batches/C34-2026-09-10-decision-capture-and-ratified-data-preparation.md",
+      "sourceSha256": "fdae5ad5b4a174a25ec8b9a5248a6f7193fd770954b0c7391073bc60cdd7b669",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C83",
+          "path": "Batches/C83-2026-09-09-a-decision-moment-dump-beside-the-county-sweep.md",
+          "sha256": "d3419ba2c392ebbe68fa65afe94f79b43043d2b490db8e417b86b6d7ea5d37a0"
+        },
+        {
+          "former": "C84",
+          "path": "Batches/C84-2026-09-09-the-sister-s-first-rows-are-in.md",
+          "sha256": "d8b1377cc067074924f71cefec2f332d64c7d10827436e46f1516ba9628cbdb4"
+        },
+        {
+          "former": "C85",
+          "path": "Batches/C85-2026-09-09-the-sister-s-rows-are-ratified.md",
+          "sha256": "3ef197dddeddc651f06b30dc0bf27068547f2487a95271a5e81894d781781b32"
+        },
+        {
+          "former": "C86",
+          "path": "Batches/C86-2026-09-10-the-engine-s-own-names-and-trades-by-mode.md",
+          "sha256": "41ad6ed9b62d6c7589a385a6f6bcced4877b1b05304fdf5a5c08e0f6549328c7"
+        },
+        {
+          "former": "C87",
+          "path": "Batches/C87-2026-09-10-what-a-belief-carries.md",
+          "sha256": "ec012a82cafb8ab0753d2ad513f5894e630f4715664dafdcaca8df314d5b0757"
+        },
+        {
+          "former": "C88",
+          "path": "Batches/C88-2026-09-10-what-decided-a-moment.md",
+          "sha256": "391fc325d1c54bf36b6c00da04b9c4c1492352b1a62e6fb1bfb61e3c61dd10ec"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C35": {
+      "completionClass": "ratified_contracts_not_producer_completion",
+      "contributions": [
+        {
+          "boundary": "social",
+          "standing": "ratified",
+          "contribution": "Whole-life organizations, deference and causal processes."
+        },
+        {
+          "boundary": "standing",
+          "standing": "ratified",
+          "contribution": "Claims distinguished from recognition."
+        },
+        {
+          "boundary": "reconstruction",
+          "standing": "ratified",
+          "contribution": "One causal graph and dependency substrate."
+        },
+        {
+          "boundary": "place",
+          "standing": "ratified",
+          "contribution": "Life/material/development dependencies."
+        }
+      ],
+      "correctionAndDDependency": "Named APIs/graph observers do not establish producers; D closes explicit input/state/result joins.",
+      "relatedNonadjacentRecords": [
+        "C16",
+        "C18",
+        "C29",
+        "C36",
+        "C38",
+        "C40",
+        "C55",
+        "C79",
+        "C92"
+      ],
+      "mergeSplitRationale": "Charter contributes many-to-many; no invented life-simulation mega-owner.",
+      "formerID": "C35",
+      "sourcePath": "Batches/C35-2026-09-10-life-simulation-and-dependency-contracts.md",
+      "sourceSha256": "3f96f92b881c6c2165c2dd0a79ad6d35f020b71b0555423f754d3159d5440d18",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C89",
+          "path": "Batches/C89-2026-09-10-what-the-county-represents.md",
+          "sha256": "7eb243add4dd2b622472a2df5d2fb7fe686d892db42d8b370d1764ef817b42b0"
+        },
+        {
+          "former": "C90",
+          "path": "Batches/C90-2026-09-10-organization-and-deference.md",
+          "sha256": "7da133642205ebe2fd460b5a4dbd3e1422db091d6a058c021ebd804541db9b23"
+        },
+        {
+          "former": "C91",
+          "path": "Batches/C91-2026-09-10-claims-and-recognition.md",
+          "sha256": "8333d4600612934eccd103bcb4e49bbaa91bb3237af629eaff67a43ba5700bed"
+        },
+        {
+          "former": "C92",
+          "path": "Batches/C92-2026-09-10-the-branching-system.md",
+          "sha256": "8696da6d6adf7e27f028ca4f3c5a6df7723d6a5433e20e8ff8b360883fdda79c"
+        },
+        {
+          "former": "C93",
+          "path": "Batches/C93-2026-09-10-the-dependency-substrate.md",
+          "sha256": "dd77e2d8048b9ad49aa116c59d6b2bf390a6687dab0006c57b04b7da8460339a"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C36": {
+      "completionClass": "completed_read_only_observation",
+      "contributions": [
+        {
+          "boundary": "observation",
+          "standing": "read_only",
+          "contribution": "Isolation/attachment/development inspection and export."
+        },
+        {
+          "boundary": "social",
+          "standing": "observer_only",
+          "contribution": "Affiliation states summarized without affiliation producer."
+        },
+        {
+          "boundary": "place",
+          "standing": "observer_only",
+          "contribution": "No project, provision or development production established."
+        }
+      ],
+      "correctionAndDDependency": "D needs real causal producers behind state summaries.",
+      "relatedNonadjacentRecords": [
+        "C3",
+        "C18",
+        "C28",
+        "C35",
+        "C38",
+        "C40",
+        "C50",
+        "C92"
+      ],
+      "mergeSplitRationale": "Common observation interface projects distinct social/place ownership.",
+      "formerID": "C36",
+      "sourcePath": "Batches/C36-2026-09-10-isolation-attachment-and-development-observations.md",
+      "sourceSha256": "3e3759e8e974fc3cb8db0d46657d7486f9ae9f9fdd518ce2752731c50a85a129",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C94",
+          "path": "Batches/C94-2026-09-10-isolation-becomes-a-live-state.md",
+          "sha256": "778838d9c64a615ad1b2caed8ad0f96e2e9c24a4ce02b9004a9fcc241327f3c4"
+        },
+        {
+          "former": "C95",
+          "path": "Batches/C95-2026-09-10-place-attachment-becomes-a-live-state.md",
+          "sha256": "1c8878f3d0195d1375ca0659eaa7cf3079516e87c95650f1b90c7e223713dd49"
+        },
+        {
+          "former": "C96",
+          "path": "Batches/C96-2026-09-10-world-development-becomes-a-live-state.md",
+          "sha256": "59f3fbda89ca35870185bcecbcd81a71d0551302f0efbe5d3f0b696089521b49"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C37": {
+      "completionClass": "mixed_integration_remaining_joins",
+      "contributions": [
+        {
+          "boundary": "health",
+          "standing": "implemented_partial",
+          "contribution": "Pathogen forms/performance and ZAO producer overlays."
+        },
+        {
+          "boundary": "data",
+          "standing": "implemented_partial",
+          "contribution": "Person/decision-hour cross-repository row joins."
+        },
+        {
+          "boundary": "knowledge",
+          "standing": "implemented_partial",
+          "contribution": "Observed forms enter Perception with recognition events."
+        },
+        {
+          "boundary": "social",
+          "standing": "partial",
+          "contribution": "Automatic recognition/persistence/producer gaps remain."
+        }
+      ],
+      "correctionAndDDependency": "Separate pathogen truth, observed signs, recognition and data; later repairs do not certify broad integration retrospectively.",
+      "relatedNonadjacentRecords": [
+        "C11",
+        "C23",
+        "C30",
+        "C32",
+        "C34",
+        "C39",
+        "C55",
+        "C56",
+        "C79"
+      ],
+      "mergeSplitRationale": "Explicit event/row joins connect owners; pathogen theme does not unify them.",
+      "formerID": "C37",
+      "sourcePath": "Batches/C37-2026-09-12-pathogen-data-and-recognition-integration.md",
+      "sourceSha256": "fc5684ccfb93f6341d730867b2ff1d50fe799556a7145799af234be59c38c5f0",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C97",
+          "path": "Batches/C97-2026-09-11-the-pathogens-forms-enter-the-branching-graph.md",
+          "sha256": "6847818b6c920713f86114090a91cb019c1f1a2820ea02e3f372c833db0ee7af"
+        },
+        {
+          "former": "C98",
+          "path": "Batches/C98-2026-09-11-the-cross-module-row-exporter.md",
+          "sha256": "ce1fcc3c92bc4140b53fc79003df5e2b9b0f7b005b029bf01d4b39deb6dd4baa"
+        },
+        {
+          "former": "C99",
+          "path": "Batches/C99-2026-09-11-the-first-cross-module-rows.md",
+          "sha256": "67ea1a2b95014d06ac7831fe6ade7b85917dcd0a0f183a6203c1ccd223665ef1"
+        },
+        {
+          "former": "C100",
+          "path": "Batches/C100-2026-09-11-the-zao-state-producer.md",
+          "sha256": "3bc1ce44570d04d75e1e3c523126a758d67c4f9b778cdaaaa824a10817d7769e"
+        },
+        {
+          "former": "C101",
+          "path": "Batches/C101-2026-09-11-the-state-surface.md",
+          "sha256": "563901dcb53c0ba3bf6ca7ec70ab4d1b94bd5e4606ff638e7e1b0c33e37b568e"
+        },
+        {
+          "former": "C102",
+          "path": "Batches/C102-2026-09-11-the-form-registry-and-the-pathogen-roll.md",
+          "sha256": "af003ac675f11f664088703ef2a2fbe3c676be15baf925498b1d5185d6eece25"
+        },
+        {
+          "former": "C103",
+          "path": "Batches/C103-2026-09-11-the-form-overlay.md",
+          "sha256": "7baf37691ac202cb87871ef7bea1098045edb56055250c49acee7a68ecb59173"
+        },
+        {
+          "former": "C104",
+          "path": "Batches/C104-2026-09-11-perception-carries-the-form.md",
+          "sha256": "eb4f5be65c335f4e84b4e30cea268cc5c59449b674c21e51145e769fbf5e4fcc"
+        },
+        {
+          "former": "C105",
+          "path": "Batches/C105-2026-09-12-the-recognition-bridge.md",
+          "sha256": "10e6397f2685856e96aea588e14e6ee7770e3012d284bf19b9abcecfd6a961a7"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C38": {
+      "completionClass": "partial_historical",
+      "contributions": [
+        {
+          "boundary": "standing",
+          "standing": "implemented",
+          "contribution": "Player organizational claims use shared recognition/response surface."
+        },
+        {
+          "boundary": "material",
+          "standing": "partial",
+          "contribution": "Dormant provisioning reads connected; grounded acquisition missing."
+        },
+        {
+          "boundary": "place",
+          "standing": "implemented_scoped",
+          "contribution": "Actual use ranks inhabited places."
+        }
+      ],
+      "correctionAndDDependency": "Physical inventory/access/outcome joins were absent; later C60-C66 close bounded seams.",
+      "relatedNonadjacentRecords": [
+        "C16",
+        "C25",
+        "C31",
+        "C35",
+        "C40",
+        "C60",
+        "C61",
+        "C62"
+      ],
+      "mergeSplitRationale": "Social claims and provisioning/ground producers have separate authority.",
+      "formerID": "C38",
+      "sourcePath": "Batches/C38-2026-09-12-player-claims-and-inhabited-ground.md",
+      "sourceSha256": "e6c7aaf58a9a4670aca01f154eec7f6bbe176709f0fdf62ba9e2acb106248c6a",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C106",
+          "path": "Batches/C106-2026-09-12-the-player-verbs-of-the-house.md",
+          "sha256": "79ff7089415fa1e012cb1db2668551d994c91204768e1f9e68660be9c18bfc9e"
+        },
+        {
+          "former": "C107",
+          "path": "Batches/C107-2026-09-12-what-a-settled-house-does-with-its-ground.md",
+          "sha256": "8a35cf2e79b388d54a4e0732864ffc1085e55372b66d9818c53f5b76ab13488b"
+        },
+        {
+          "former": "C108",
+          "path": "Batches/C108-2026-09-12-the-place-ontology.md",
+          "sha256": "da412f49053d9c32bab2b9d69b68b73b60d2adb0de488523e65dd9fb8d15e004"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C39": {
+      "completionClass": "completed_ratification_and_correction",
+      "contributions": [
+        {
+          "boundary": "source_ownership",
+          "standing": "ratified",
+          "contribution": "Retained 112 workword/78 trade-hinge choices; corrected sibling readiness."
+        },
+        {
+          "boundary": "data",
+          "standing": "ratified",
+          "contribution": "Cross-module row contract retained."
+        },
+        {
+          "boundary": "verification",
+          "standing": "correction",
+          "contribution": "Prior readiness claims explicitly limited."
+        }
+      ],
+      "correctionAndDDependency": "Do not reopen choices while repairing exporter/producers; current model status follows current records.",
+      "relatedNonadjacentRecords": [
+        "C11",
+        "C24",
+        "C27",
+        "C30",
+        "C34",
+        "C37",
+        "C50"
+      ],
+      "mergeSplitRationale": "Ratification, schema and measurements are distinct outputs.",
+      "formerID": "C39",
+      "sourcePath": "Batches/C39-2026-09-12-readiness-corrections-and-recorded-rulings.md",
+      "sourceSha256": "36689958e8f33ee1821952792889a12790d7549c7e6825402ec80927b06edb3e",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C109",
+          "path": "Batches/C109-2026-09-12-beside-this-tree-corrected.md",
+          "sha256": "ff3f7cf8cbf10e6df6c11fa6c26259ef1ef1838ce0457be5d51996e1e55a783f"
+        },
+        {
+          "former": "C110",
+          "path": "Batches/C110-2026-09-12-the-rulings-land.md",
+          "sha256": "a31fda6b196f611908f2f699e84f922efa031174f8b651b537887475abf68744"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C40": {
+      "completionClass": "partial_historical",
+      "contributions": [
+        {
+          "boundary": "choice",
+          "standing": "implemented_partial",
+          "contribution": "Need/trust influence affiliation."
+        },
+        {
+          "boundary": "social",
+          "standing": "partial",
+          "contribution": "Motives connect to company membership."
+        },
+        {
+          "boundary": "knowledge",
+          "standing": "later_correction",
+          "contribution": "Private-knowledge guards replace global social information."
+        }
+      ],
+      "correctionAndDDependency": "Later fixed-quota removal does not close every producer; D requires causal membership/reception.",
+      "relatedNonadjacentRecords": [
+        "C16",
+        "C22",
+        "C29",
+        "C35",
+        "C36",
+        "C38",
+        "C43",
+        "C79"
+      ],
+      "mergeSplitRationale": "Willingness, relationship evidence and enacted membership are separate stages.",
+      "formerID": "C40",
+      "sourcePath": "Batches/C40-2026-09-12-personal-need-in-affiliation.md",
+      "sourceSha256": "be21e5557d424f91d9bb3ee131b48c694e225788ced7083d8871b12f3de59470",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C111",
+          "path": "Batches/C111-2026-09-12-need-stands-alongside-trust.md",
+          "sha256": "5f3ab7f1a72d6e4414d2458eecaadff1e37dc580ead19612e6f7b27209c34175"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C41": {
+      "completionClass": "partial_historical_later_clock_repair",
+      "contributions": [
+        {
+          "boundary": "time",
+          "standing": "defective_then_corrected",
+          "contribution": "Elapsed ticks retained cached historical-time defects."
+        },
+        {
+          "boundary": "population",
+          "standing": "implemented_partial",
+          "contribution": "Ordinary street activity/durable workplaces."
+        },
+        {
+          "boundary": "place",
+          "standing": "consumer",
+          "contribution": "Activity contributes place use."
+        },
+        {
+          "boundary": "action",
+          "standing": "partial",
+          "contribution": "Loaded stay-in and dormant activity mismatched."
+        }
+      ],
+      "correctionAndDDependency": "C53 repairs clock; activity/equivalence still need their own evidence.",
+      "relatedNonadjacentRecords": [
+        "C15",
+        "C18",
+        "C26",
+        "C31",
+        "C38",
+        "C50",
+        "C53",
+        "C58"
+      ],
+      "mergeSplitRationale": "Clock contribution joins C53; domain activity and place state remain separate.",
+      "formerID": "C41",
+      "sourcePath": "Batches/C41-2026-09-13-county-tick-and-ordinary-activity.md",
+      "sourceSha256": "7b2658042c13c13a56b435dd3497980314cb95815158aeb4ecd62ba6d59ab411",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C112",
+          "path": "Batches/C112-2026-09-12-the-tick-is-the-countys-clock.md",
+          "sha256": "b6a35064afd3d482937ec65568ed39cb36700e2ed14df6bd261e815e2519ed4d"
+        },
+        {
+          "former": "C113",
+          "path": "Batches/C113-2026-09-13-the-street-hour-and-the-trade-s-ground.md",
+          "sha256": "6ac9bd7e43d59e014fb76bae0d5a6efb33a15639b94748b59810d92bdeec4b55"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C42": {
+      "completionClass": "partial_historical",
+      "contributions": [
+        {
+          "boundary": "movement",
+          "standing": "defective_partial",
+          "contribution": "Driving approach self-cancel, passenger wait, rearward steering and status-as-progress defects."
+        },
+        {
+          "boundary": "configuration",
+          "standing": "completed_scoped",
+          "contribution": "Three tested configuration choices retained."
+        }
+      ],
+      "correctionAndDDependency": "Valid settings proof survives; driving requires actual native approach/progress/arrival evidence.",
+      "relatedNonadjacentRecords": [
+        "C8",
+        "C22",
+        "C31",
+        "C33",
+        "C43",
+        "C59",
+        "C110"
+      ],
+      "mergeSplitRationale": "Keep configuration validity separate from driving behavior defects.",
+      "formerID": "C42",
+      "sourcePath": "Batches/C42-2026-09-13-driving-integration-and-configuration.md",
+      "sourceSha256": "d49ba78ad8548d9dddb8a7aaa9e66de0e4232243b5ce13f399f216eed8c78b5a",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C114",
+          "path": "Batches/C114-2026-09-13-a-real-person-at-the-wheel.md",
+          "sha256": "9355108c7cce2c124aad8d37853e818829fd758e1a277ea2e144a496e5ed04f7"
+        },
+        {
+          "former": "C115",
+          "path": "Batches/C115-2026-09-13-the-dials-the-rulings-named.md",
+          "sha256": "4ee18febafdfb13261b3af99946d02077cf0fe12a25a1c461e34427099096e43"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C43": {
+      "completionClass": "partial_historical_later_repairs",
+      "contributions": [
+        {
+          "boundary": "return",
+          "standing": "defective_then_corrected",
+          "contribution": "Return lacked adoption/dormant recovery."
+        },
+        {
+          "boundary": "capacity",
+          "standing": "defective_partial",
+          "contribution": "Capabilities, including driving skill, assigned prematurely."
+        },
+        {
+          "boundary": "social",
+          "standing": "partial",
+          "contribution": "Affiliation/social response remained incomplete."
+        },
+        {
+          "boundary": "movement",
+          "standing": "defective_partial",
+          "contribution": "Daily relocation teleported rather than enacted travel."
+        }
+      ],
+      "correctionAndDDependency": "C52/C56/C80 repair specific ownership/health pieces, not all travel/skill/affiliation.",
+      "relatedNonadjacentRecords": [
+        "C4",
+        "C22",
+        "C29",
+        "C32",
+        "C40",
+        "C52",
+        "C56",
+        "C80"
+      ],
+      "mergeSplitRationale": "Separate ownership transaction from subsequent human decisions/capability/motion.",
+      "formerID": "C43",
+      "sourcePath": "Batches/C43-2026-09-13-afflicted-return-and-social-behavior.md",
+      "sourceSha256": "7200dccd6fdd0acd72ec33f1326ee9cf79cf53b1638f0430d2ca5e07c9861820",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C116",
+          "path": "Batches/C116-2026-09-13-the-afflicted-come-back.md",
+          "sha256": "7b08f979c9954984d2ef30a5dde7e70d24be172bd8cb0d776f42083144eb7753"
+        },
+        {
+          "former": "C117",
+          "path": "Batches/C117-2026-09-13-the-afflicted-among-the-living.md",
+          "sha256": "d2ce872eff71381b4caff50677dbebf62ee295d02ce20b5adf10075a33c625d6"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C44": {
+      "completionClass": "partial_rework_required",
+      "contributions": [
+        {
+          "boundary": "standing",
+          "standing": "partial",
+          "contribution": "Demands and surrender need actual response authority."
+        },
+        {
+          "boundary": "action",
+          "standing": "defective_partial",
+          "contribution": "Effects preceded transfer and aggressor ignored results."
+        },
+        {
+          "boundary": "social",
+          "standing": "partial",
+          "contribution": "Negotiation/raid coordination incomplete."
+        },
+        {
+          "boundary": "movement",
+          "standing": "partial",
+          "contribution": "Raid transport depends on driving."
+        }
+      ],
+      "correctionAndDDependency": "D joins communication/refusal/assent and material results before social effects.",
+      "relatedNonadjacentRecords": [
+        "C16",
+        "C20",
+        "C23",
+        "C42",
+        "C48",
+        "C68",
+        "C69",
+        "C79"
+      ],
+      "mergeSplitRationale": "Raid label cannot own permission, native transfer, entry and travel.",
+      "formerID": "C44",
+      "sourcePath": "Batches/C44-2026-09-14-robbery-and-raiding-actions.md",
+      "sourceSha256": "b6ee6cf865f0509a7388d53d8687e56b642d4690dc30e4a86ae4473aa027ac69",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C118",
+          "path": "Batches/C118-2026-09-14-the-demand-the-break-in-and-the-haul.md",
+          "sha256": "041930b97ff88a2fea30d901f013ee35aa1a38470ed1c77d0612468e339b5029"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C45": {
+      "completionClass": "mixed_optional_feature_and_partial_care",
+      "contributions": [
+        {
+          "boundary": "configuration",
+          "standing": "completed_scoped",
+          "contribution": "Credited optional county event defaults off."
+        },
+        {
+          "boundary": "action",
+          "standing": "defective_partial",
+          "contribution": "Treatment then CPR sequence could hit native queue refusal."
+        },
+        {
+          "boundary": "health",
+          "standing": "partial",
+          "contribution": "Care effects require native results."
+        }
+      ],
+      "correctionAndDDependency": "Retain event configuration; independently repair/measure care custody and physiology.",
+      "relatedNonadjacentRecords": [
+        "C5",
+        "C14",
+        "C32",
+        "C47",
+        "C56",
+        "C70",
+        "C117"
+      ],
+      "mergeSplitRationale": "Optional event configuration and care transactions share no single owner.",
+      "formerID": "C45",
+      "sourcePath": "Batches/C45-2026-09-14-optional-county-events-and-care.md",
+      "sourceSha256": "6a5413a39d97d445dd7acf4bfc1295930bd34ed86e12fb39bbf4b95eea0647fe",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C119",
+          "path": "Batches/C119-2026-09-14-week-ones-moments-and-the-governments-answer.md",
+          "sha256": "f84b34387c4e9ffa149ea880699435fdaa9ad707b827ca63d96a863644c11fdd"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C46": {
+      "completionClass": "partial_rework_required",
+      "contributions": [
+        {
+          "boundary": "capacity",
+          "standing": "implemented_scoped",
+          "contribution": "Child activity/driving capability adapters retained."
+        },
+        {
+          "boundary": "health",
+          "standing": "defective_then_corrected",
+          "contribution": "Zero wounds treated truthily generated fear."
+        },
+        {
+          "boundary": "knowledge",
+          "standing": "defective_then_corrected",
+          "contribution": "Global partner search bypassed private perception."
+        },
+        {
+          "boundary": "action",
+          "standing": "partial",
+          "contribution": "Everyday actions depended on corrected inputs."
+        }
+      ],
+      "correctionAndDDependency": "C60 repairs loaded partner admission; capacity support does not certify decisions/dormant activity.",
+      "relatedNonadjacentRecords": [
+        "C12",
+        "C13",
+        "C21",
+        "C41",
+        "C48",
+        "C56",
+        "C60"
+      ],
+      "mergeSplitRationale": "Childhood theme spans age, health interpretation, evidence and execution.",
+      "formerID": "C46",
+      "sourcePath": "Batches/C46-2026-09-14-child-and-everyday-activity-integration.md",
+      "sourceSha256": "317d2631c71891315555be7284cb7aebf88ad9f2ffb40908f249870515e2a4f1",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C120",
+          "path": "Batches/C120-2026-09-14-a-child-at-the-wheel-a-ball-in-the-street.md",
+          "sha256": "0cd36ce5c6039c034abf4507cdd81d06f8879d8f61ad2ae9268d5784aa6357c5"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C47": {
+      "completionClass": "partial_historical_later_repairs",
+      "contributions": [
+        {
+          "boundary": "health",
+          "standing": "defective_then_corrected",
+          "contribution": "Consumption/withdrawal/smoking had frozen-time, session-cadence and cumulative-poison defects."
+        },
+        {
+          "boundary": "snapshot",
+          "standing": "defective_then_corrected",
+          "contribution": "Body modData counters exposed persistence gaps."
+        },
+        {
+          "boundary": "time",
+          "standing": "defective_then_corrected",
+          "contribution": "Drug/withdrawal needed event time."
+        }
+      ],
+      "correctionAndDDependency": "C54/C56 provide persistence and integrated physiology; preserve proof scope.",
+      "relatedNonadjacentRecords": [
+        "C6",
+        "C13",
+        "C17",
+        "C26",
+        "C49",
+        "C53",
+        "C54",
+        "C56"
+      ],
+      "mergeSplitRationale": "Course, clock and body persistence collaborate without duplicating ownership.",
+      "formerID": "C47",
+      "sourcePath": "Batches/C47-2026-09-14-drug-use-withdrawal-and-smoking.md",
+      "sourceSha256": "a8fb456845515cbf5d10ab27e75cadd8617f211fd8f35be0a68dbbb830ce98fb",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C121",
+          "path": "Batches/C121-2026-09-14-the-carry-the-ladder-and-the-smoke-break.md",
+          "sha256": "2d864651ca33cd3255d17bbf235d824ba933e671cf5b087b496993c3fe096c06"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C48": {
+      "completionClass": "partial_rework_required",
+      "contributions": [
+        {
+          "boundary": "access",
+          "standing": "defective_then_corrected",
+          "contribution": "Vehicle/container live position/reach defects."
+        },
+        {
+          "boundary": "knowledge",
+          "standing": "defective_then_corrected",
+          "contribution": "Animal-in-human-belief, prone and target truth defects."
+        },
+        {
+          "boundary": "action",
+          "standing": "partial",
+          "contribution": "Valid key/adapters retained; remote hutch/target revalidation needed repair."
+        },
+        {
+          "boundary": "material",
+          "standing": "partial",
+          "contribution": "Storage requires actual accessible native transfer."
+        }
+      ],
+      "correctionAndDDependency": "C60 closes scoped loaded defects; keys/adapters do not certify all animal/combat/storage behavior.",
+      "relatedNonadjacentRecords": [
+        "C20",
+        "C25",
+        "C33",
+        "C44",
+        "C46",
+        "C60",
+        "C61",
+        "C71"
+      ],
+      "mergeSplitRationale": "Native access, typed evidence and domain completion are separate.",
+      "formerID": "C48",
+      "sourcePath": "Batches/C48-2026-09-14-vehicle-animal-and-combat-integration.md",
+      "sourceSha256": "20552424a7bc360d693c4bac49b980411056e805aa09b3105cc80159a928fcdc",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C122",
+          "path": "Batches/C122-2026-09-14-vehicles-keys-and-containers.md",
+          "sha256": "9b0e9f8cae0292962090d965392757d8fe2e7bf0b9df6d6892ce7afbf0a082b8"
+        },
+        {
+          "former": "C123",
+          "path": "Batches/C123-2026-09-14-the-countys-animals.md",
+          "sha256": "902e8dddf93d62a3e30a46800f26be20201c619977a2e6a9f2cf8752fd3f1828"
+        },
+        {
+          "former": "C124",
+          "path": "Batches/C124-2026-09-14-combat-perception-compatibility.md",
+          "sha256": "13faa901f97a2e20c2f25d8a05d83f97daa08042d0f46d87133c3aa4f4a84974"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C49": {
+      "completionClass": "partial_replaced_by_validated_course",
+      "contributions": [
+        {
+          "boundary": "health",
+          "standing": "defective_then_corrected",
+          "contribution": "Brain scalar partition dependence, wrong pathogen owner, stale native health and cumulative poison."
+        },
+        {
+          "boundary": "choice",
+          "standing": "input_contract",
+          "contribution": "Neuro consumers require truthful integrated course inputs."
+        }
+      ],
+      "correctionAndDDependency": "C56 closes scoped R5 course; old scalar is neither full graph nor valid learning label.",
+      "relatedNonadjacentRecords": [
+        "C13",
+        "C32",
+        "C37",
+        "C47",
+        "C53",
+        "C56"
+      ],
+      "mergeSplitRationale": "Place authoritative brain burden in physiology; decision consumers retain ownership.",
+      "formerID": "C49",
+      "sourcePath": "Batches/C49-2026-09-14-brain-health-integration.md",
+      "sourceSha256": "7c24d99bba563cf8a25b94453ffda1fb7809b7d46b8734c7670a81541b026f5a",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C125",
+          "path": "Batches/C125-2026-09-14-the-neuroinflammation-knot.md",
+          "sha256": "cfe1457f30a48c2c6953a3620348f29a87f46f5ea15fdaa8729711eaaac0ee47"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C50": {
+      "completionClass": "mixed_withdrawal_and_completed_repairs",
+      "contributions": [
+        {
+          "boundary": "population",
+          "standing": "repair",
+          "contribution": "Catch-up progress/company admission corrected."
+        },
+        {
+          "boundary": "observation",
+          "standing": "repair",
+          "contribution": "Diagnostic refusal/provenance and bounded 90/365-day observations."
+        },
+        {
+          "boundary": "data",
+          "standing": "withdrawn",
+          "contribution": "Rejected fixed-formula trajectory generator removed; no learned model/complete ML bridge."
+        },
+        {
+          "boundary": "verification",
+          "standing": "bounded",
+          "contribution": "Retained repairs and unresolved time/exporter/life-producer limits."
+        }
+      ],
+      "correctionAndDDependency": "Never resurrect withdrawn formula as reusable system; reuse actual catch-up/provenance separately.",
+      "relatedNonadjacentRecords": [
+        "C18",
+        "C26",
+        "C28",
+        "C29",
+        "C34",
+        "C35",
+        "C39",
+        "C41",
+        "C53",
+        "C58"
+      ],
+      "mergeSplitRationale": "Withdrawal and surviving scheduling/evidence repairs require distinct contributions.",
+      "formerID": "C50",
+      "sourcePath": "Batches/C50-2026-09-18-historical-simulation-recovery-and-evidence.md",
+      "sourceSha256": "8a2229ac307a9d52b12a76c8c34b8812560cc6c3c9764f28f2a729a1e47cc45f",
+      "sourceStatus": "Consolidated historical record; implementation limitations remain explicit.",
+      "sourceSections": [
+        {
+          "line": 14,
+          "heading": "## Record"
+        },
+        {
+          "line": 18,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [
+        {
+          "former": "C126",
+          "path": "Batches/C126-2026-09-14-learned-trajectory-and-headless-simulation-for-post-1993-starts.md",
+          "sha256": "d376f1e6a9b8b0bf7294c958931b4ebbe50b5a83dd6e8011ea55f03c633304e5"
+        },
+        {
+          "former": "C127",
+          "path": "Batches/C127-2026-09-18-causal-simulation-and-evidence.md",
+          "sha256": "b8bf6b4c0a544a033596f60844b2717d4df968fb056db8401a13bac7ada2cb7c"
+        }
+      ],
+      "priorGeneration": "raw C1-C127 before 2026-09-19 consolidation"
+    },
+    "C51": {
+      "completionClass": "completed_measured_implementation",
+      "contributions": [
+        {
+          "boundary": "snapshot",
+          "standing": "completed_scoped",
+          "contribution": "Validated v3 inventory/Stats/BodyDamage/XP, nested identity/equipment and legacy limits."
+        },
+        {
+          "boundary": "custody",
+          "standing": "completed_scoped",
+          "contribution": "Capture/validate before release; failed teardown retains body/state; durable pending snapshot; sole restore/default-before-XP."
+        },
+        {
+          "boundary": "action",
+          "standing": "contract",
+          "contribution": "Busy patients/targets retain body; pending owners unavailable."
+        }
+      ],
+      "correctionAndDDependency": "C54 supplies then-missing nutrition/fitness/recipes/modData/appearance; not loaded gameplay acceptance.",
+      "relatedNonadjacentRecords": [
+        "C2",
+        "C6",
+        "C9",
+        "C33",
+        "C54",
+        "C57",
+        "C58"
+      ],
+      "mergeSplitRationale": "Codec and custody meet at one transaction; actions respect pending state.",
+      "formerID": "C51",
+      "sourcePath": "Batches/C51-2026-09-19-person-preservation.md",
+      "sourceSha256": "a39d916e7ef25ccef92e2ae307064a1fe7351b92b74483c2a5da16fdbd7de650",
+      "sourceStatus": "Closed.",
+      "sourceSections": [
+        {
+          "line": 11,
+          "heading": "## Behavior"
+        },
+        {
+          "line": 32,
+          "heading": "## Snapshot and compatibility"
+        },
+        {
+          "line": 53,
+          "heading": "## Evidence"
+        },
+        {
+          "line": 80,
+          "heading": "## Continuation"
+        }
+      ],
+      "priorRawSources": [],
+      "priorGeneration": "current C51-C60 after 127-to-50 consolidation; not earlier raw labels"
+    },
+    "C52": {
+      "completionClass": "completed_implementation_loaded_acceptance_pending",
+      "contributions": [
+        {
+          "boundary": "return",
+          "standing": "completed_scoped",
+          "contribution": "Durable authorization, exact ZAO source, staged viable restore, removal acknowledgement before adoption."
+        },
+        {
+          "boundary": "snapshot",
+          "standing": "consumer",
+          "contribution": "Current turned possessions plus matching predeath stats/wounds/XP."
+        },
+        {
+          "boundary": "reconstruction",
+          "standing": "partial_at_record",
+          "contribution": "OnSave checkpoints/checksummed fragments; atomicity later C55."
+        }
+      ],
+      "correctionAndDDependency": "Dormant return creates no shell; C55 supplies cross-save atomicity; C80 updates living-state execution.",
+      "relatedNonadjacentRecords": [
+        "C4",
+        "C30",
+        "C32",
+        "C43",
+        "C51",
+        "C55",
+        "C56",
+        "C80"
+      ],
+      "mergeSplitRationale": "Return reuses codec/custody while retaining distinct source-removal transaction.",
+      "formerID": "C52",
+      "sourcePath": "Batches/C52-2026-09-19-authorized-afflicted-return.md",
+      "sourceSha256": "c6129fb7b05f86d4d0ed9eb97395125d587840ffd2bc22eb6814560c9b97af76",
+      "sourceStatus": "Closed implementation batch; loaded-world receipt pending.",
+      "sourceSections": [
+        {
+          "line": 11,
+          "heading": "## Behavior"
+        },
+        {
+          "line": 34,
+          "heading": "## Persistence and refusal"
+        },
+        {
+          "line": 50,
+          "heading": "## Evidence"
+        },
+        {
+          "line": 65,
+          "heading": "## Crossed boundary"
+        }
+      ],
+      "priorRawSources": [],
+      "priorGeneration": "current C51-C60 after 127-to-50 consolidation; not earlier raw labels"
+    },
+    "C53": {
+      "completionClass": "completed_measured_implementation",
+      "contributions": [
+        {
+          "boundary": "time",
+          "standing": "completed_scoped",
+          "contribution": "9000 ticks/hour, 216000/day; refresh every historical substep and declare stamp units."
+        },
+        {
+          "boundary": "population",
+          "standing": "consumer",
+          "contribution": "History fallback only if unavailable; explicit day-zero/native callback pacing."
+        }
+      ],
+      "correctionAndDDependency": "UI wall milliseconds and corpse/native pacing stay distinct; scoped proofs are not rendered acceptance.",
+      "relatedNonadjacentRecords": [
+        "C15",
+        "C18",
+        "C26",
+        "C41",
+        "C47",
+        "C50",
+        "C56",
+        "C58"
+      ],
+      "mergeSplitRationale": "One county clock serves many consumers without conflating native/wall time.",
+      "formerID": "C53",
+      "sourcePath": "Batches/C53-2026-09-19-shared-county-time.md",
+      "sourceSha256": "aecfc7bb043c6ab831646d2670610c683fdd8c4402000393ec9b2ddcdf5b2cad",
+      "sourceStatus": "Closed implementation batch; loaded-world receipt pending.",
+      "sourceSections": [
+        {
+          "line": 11,
+          "heading": "## Behavior"
+        },
+        {
+          "line": 31,
+          "heading": "## Timestamp inventory"
+        },
+        {
+          "line": 46,
+          "heading": "## Evidence"
+        }
+      ],
+      "priorRawSources": [],
+      "priorGeneration": "current C51-C60 after 127-to-50 consolidation; not earlier raw labels"
+    },
+    "C54": {
+      "completionClass": "completed_measured_implementation",
+      "contributions": [
+        {
+          "boundary": "snapshot",
+          "standing": "completed_scoped",
+          "contribution": "v4 nutrition/fitness/recipes/reading/perk boosts/appearance/timers/strict modData/fluid definitions."
+        },
+        {
+          "boundary": "capacity",
+          "standing": "preserved_state",
+          "contribution": "Authentic acquired native capability/form survives round-trip."
+        },
+        {
+          "boundary": "custody",
+          "standing": "contract",
+          "contribution": "C51 ordering and current-source return possessions retained."
+        }
+      ],
+      "correctionAndDDependency": "Unsafe data refuses; legacy limits persist. C55 owns runtime exercise; C56 health course.",
+      "relatedNonadjacentRecords": [
+        "C6",
+        "C12",
+        "C17",
+        "C47",
+        "C51",
+        "C52",
+        "C57"
+      ],
+      "mergeSplitRationale": "Expand shared codec rather than create separate custody per native field.",
+      "formerID": "C54",
+      "sourcePath": "Batches/C54-2026-09-19-native-person-continuity.md",
+      "sourceSha256": "a51f1dfeaec43b5d442872be8cb427de8791fc499989ddc45eb88c0e0a214292",
+      "sourceStatus": "Closed implementation batch; loaded-world receipt pending.",
+      "sourceSections": [
+        {
+          "line": 11,
+          "heading": "## Behavior"
+        },
+        {
+          "line": 38,
+          "heading": "## Compatibility and ownership"
+        },
+        {
+          "line": 52,
+          "heading": "## Evidence"
+        }
+      ],
+      "priorRawSources": [],
+      "priorGeneration": "current C51-C60 after 127-to-50 consolidation; not earlier raw labels"
+    },
+    "C55": {
+      "completionClass": "completed_measured_implementation",
+      "contributions": [
+        {
+          "boundary": "reconstruction",
+          "standing": "completed_scoped",
+          "contribution": "Plain graph data; clean fresh/second-world indexes/callbacks/controllers/courses/Java maps."
+        },
+        {
+          "boundary": "return",
+          "standing": "completed_scoped",
+          "contribution": "ZAO A36 narrow generation journal forces durable write then replay before bodies."
+        },
+        {
+          "boundary": "action",
+          "standing": "completed_scoped",
+          "contribution": "Exercise runtime cancels without completion; fitness persists."
+        },
+        {
+          "boundary": "random",
+          "standing": "reset_contract",
+          "contribution": "Runtime wrappers reset apart from durable stream state."
+        }
+      ],
+      "correctionAndDDependency": "Not a full-world duplicate snapshot; D services declare reset and journal requirements.",
+      "relatedNonadjacentRecords": [
+        "C6",
+        "C14",
+        "C28",
+        "C29",
+        "C35",
+        "C51",
+        "C52",
+        "C54",
+        "C58"
+      ],
+      "mergeSplitRationale": "World reconstruction, owner-transfer journal and action cancellation remain separate.",
+      "formerID": "C55",
+      "sourcePath": "Batches/C55-2026-09-19-durable-runtime-reconstruction.md",
+      "sourceSha256": "019094f3330d82b388f980d0ec06afdc84eda0e3a4bc4ac00e4b92b3cb81776b",
+      "sourceStatus": "Closed implementation batch; loaded-world receipt pending.",
+      "sourceSections": [
+        {
+          "line": 11,
+          "heading": "## Behavior"
+        },
+        {
+          "line": 29,
+          "heading": "## Interrupted return saves"
+        },
+        {
+          "line": 48,
+          "heading": "## Evidence"
+        }
+      ],
+      "priorRawSources": [],
+      "priorGeneration": "current C51-C60 after 127-to-50 consolidation; not earlier raw labels"
+    },
+    "C56": {
+      "completionClass": "completed_scoped_R5",
+      "contributions": [
+        {
+          "boundary": "health",
+          "standing": "completed_scoped",
+          "contribution": "Event-clock drugs/withdrawal, current native burdens, integrated brain course; ZAO truth and partition controls."
+        },
+        {
+          "boundary": "material",
+          "standing": "completed_scoped",
+          "contribution": "Native partial Eat/DrinkFluid uses real nested inventory/quantity/age/safety."
+        },
+        {
+          "boundary": "action",
+          "standing": "completed_scoped",
+          "contribution": "Timed contact cancellation; only authentic receipt permits exposure."
+        },
+        {
+          "boundary": "custody",
+          "standing": "completed_scoped",
+          "contribution": "Exact-once same-human-shell transfer and SAO death funnel."
+        }
+      ],
+      "correctionAndDDependency": "No proximity exposure/unloaded food invention; native/headless/SKIP limits and current C80 ownership retained.",
+      "relatedNonadjacentRecords": [
+        "C13",
+        "C17",
+        "C32",
+        "C43",
+        "C47",
+        "C49",
+        "C51",
+        "C53",
+        "C54",
+        "C80"
+      ],
+      "mergeSplitRationale": "Health course consumes native exposure/consumption producers under distinct conservation/custody.",
+      "formerID": "C56",
+      "sourcePath": "Batches/C56-2026-09-19-health-and-dormant-physiology.md",
+      "sourceSha256": "51f16fe0157abb571956ed72daba8d8975a859444bebcd44f2e67903a354df47",
+      "sourceStatus": "Closed implementation batch; loaded-world receipt pending.",
+      "sourceSections": [
+        {
+          "line": 11,
+          "heading": "## Health time and history"
+        },
+        {
+          "line": 30,
+          "heading": "## Dormant consumption"
+        },
+        {
+          "line": 42,
+          "heading": "## Intentional exposure and ownership"
+        },
+        {
+          "line": 60,
+          "heading": "## Evidence and boundary"
+        }
+      ],
+      "priorRawSources": [],
+      "priorGeneration": "current C51-C60 after 127-to-50 consolidation; not earlier raw labels"
+    },
+    "C57": {
+      "completionClass": "completed_gate_and_scoped_deployment",
+      "contributions": [
+        {
+          "boundary": "snapshot",
+          "standing": "completed_scoped",
+          "contribution": "BodySnapshot extracts version/capture/validate/commit."
+        },
+        {
+          "boundary": "custody",
+          "standing": "completed_scoped",
+          "contribution": "Body owns lifecycle; Afflicted return retains source-removal transaction."
+        },
+        {
+          "boundary": "verification",
+          "standing": "completed_scoped",
+          "contribution": "Consolidated native-person proof retains cases/controls/assertions."
+        },
+        {
+          "boundary": "compatibility",
+          "standing": "repair",
+          "contribution": "Java helper concurrent-write and loader dependencies fixed; exact deployment/startup checks."
+        }
+      ],
+      "correctionAndDDependency": "Save readers/legacy visual limits retained; startup/deployment do not establish gameplay.",
+      "relatedNonadjacentRecords": [
+        "C1",
+        "C6",
+        "C24",
+        "C30",
+        "C33",
+        "C51",
+        "C52",
+        "C54",
+        "C59"
+      ],
+      "mergeSplitRationale": "Concrete precedent for shared boundaries: codec, custody, transfer, supporting proof.",
+      "formerID": "C57",
+      "sourcePath": "Batches/C57-2026-09-20-person-continuity-contract.md",
+      "sourceSha256": "12cbbdbf223004129e777fc092d7d835c44a04d6865cb7869d52561c850d9b5f",
+      "sourceStatus": "Closed through the enforced full commit gate.",
+      "sourceSections": [
+        {
+          "line": 11,
+          "heading": "## Responsibility and behavior"
+        },
+        {
+          "line": 32,
+          "heading": "## Verification consolidation"
+        },
+        {
+          "line": 75,
+          "heading": "## Evidence and continuation"
+        }
+      ],
+      "priorRawSources": [],
+      "priorGeneration": "current C51-C60 after 127-to-50 consolidation; not earlier raw labels"
+    },
+    "C58": {
+      "completionClass": "completed_gate_scoped_refactor",
+      "contributions": [
+        {
+          "boundary": "population",
+          "standing": "completed_scoped",
+          "contribution": "Separates cadence/fault/order/history progress from admissions/representation/physical facts/dormant activity."
+        },
+        {
+          "boundary": "reconstruction",
+          "standing": "completed_scoped",
+          "contribution": "Reload callback replacement and fresh-state cadence/fault/origin/encounter reset."
+        },
+        {
+          "boundary": "custody",
+          "standing": "consumer",
+          "contribution": "Representation invokes Body under History time."
+        },
+        {
+          "boundary": "identity",
+          "standing": "contract",
+          "contribution": "Admissions retains origins/people with stable save keys/signatures."
+        }
+      ],
+      "correctionAndDDependency": "90/365-day evidence does not close missing life producers.",
+      "relatedNonadjacentRecords": [
+        "C2",
+        "C9",
+        "C18",
+        "C29",
+        "C31",
+        "C41",
+        "C50",
+        "C53",
+        "C55"
+      ],
+      "mergeSplitRationale": "Orchestrator invokes separate admission, representation and native fact owners.",
+      "formerID": "C58",
+      "sourcePath": "Batches/C58-2026-09-20-population-reconstruction-and-scheduling.md",
+      "sourceSha256": "96bc82f950ddefd8134e5546d5b198f5269ef98f54f00cddb65af91bb383b10c",
+      "sourceStatus": "Closed through the enforced full commit gate.",
+      "sourceSections": [
+        {
+          "line": 11,
+          "heading": "## Runtime ownership"
+        },
+        {
+          "line": 33,
+          "heading": "## Verification"
+        },
+        {
+          "line": 52,
+          "heading": "## Continuation"
+        }
+      ],
+      "priorRawSources": [],
+      "priorGeneration": "current C51-C60 after 127-to-50 consolidation; not earlier raw labels"
+    },
+    "C59": {
+      "completionClass": "completed_installed_compiler_proof",
+      "contributions": [
+        {
+          "boundary": "compatibility",
+          "standing": "completed_scoped",
+          "contribution": "Kahlua debug cumulative-local limit repaired by splitting Controller/Standing functions without policy changes."
+        },
+        {
+          "boundary": "verification",
+          "standing": "completed_scoped",
+          "contribution": "All Lua debug on/off; malformed/200/201-local controls and reader fix."
+        }
+      ],
+      "correctionAndDDependency": "Installed compiler proof adds no gameplay claim; earlier startup failure is not attributed to C58.",
+      "relatedNonadjacentRecords": [
+        "C5",
+        "C24",
+        "C33",
+        "C42",
+        "C57"
+      ],
+      "mergeSplitRationale": "Reusable compile/load contract spans modules while policy ownership remains.",
+      "formerID": "C59",
+      "sourcePath": "Batches/C59-2026-09-20-debug-mode-lua-compilation.md",
+      "sourceSha256": "1a61a64651fb436e1443389625e679ef2d1cc5b7b5684e288b012ed5ec5a5cc3",
+      "sourceStatus": "Closed through the enforced full commit gate.",
+      "sourceSections": [
+        {
+          "line": 11,
+          "heading": "## Startup repair"
+        },
+        {
+          "line": 24,
+          "heading": "## Verification"
+        },
+        {
+          "line": 41,
+          "heading": "## Continuation"
+        }
+      ],
+      "priorRawSources": [],
+      "priorGeneration": "current C51-C60 after 127-to-50 consolidation; not earlier raw labels"
+    },
+    "C60": {
+      "completionClass": "mixed_completed_access_and_source_proposal",
+      "contributions": [
+        {
+          "boundary": "knowledge",
+          "standing": "completed_loaded_scope",
+          "contribution": "Exclude animals; firsthand same-floor/facing/range/occlusion partner admission and installed prone truth."
+        },
+        {
+          "boundary": "access",
+          "standing": "completed_loaded_scope",
+          "contribution": "Current vehicle part/container/floor/reach/item-square validation throughout transfer."
+        },
+        {
+          "boundary": "action",
+          "standing": "completed_loaded_scope",
+          "contribution": "Drop inactive combat targets and revalidate native transfer."
+        },
+        {
+          "boundary": "material",
+          "standing": "proposal_at_record",
+          "contribution": "R10a identities/observations/reservation/reconciliation plan; implemented next C61."
+        }
+      ],
+      "correctionAndDDependency": "Loaded R6 closes; dormant/material producers remain distinct; C61/C62 implement bounded source mechanism.",
+      "relatedNonadjacentRecords": [
+        "C10",
+        "C20",
+        "C23",
+        "C25",
+        "C32",
+        "C38",
+        "C46",
+        "C48",
+        "C61",
+        "C62"
+      ],
+      "mergeSplitRationale": "Private admission, current access and conserved source state have different owners.",
+      "formerID": "C60",
+      "sourcePath": "Batches/C60-2026-09-20-perception-and-world-access.md",
+      "sourceSha256": "1c2222331e122176602e7f020bac44dc3d0d60f1c479f96dca2a06460bb936c1",
+      "sourceStatus": "Closed through the enforced full commit gate.",
+      "sourceSections": [
+        {
+          "line": 11,
+          "heading": "## Loaded evidence and access"
+        },
+        {
+          "line": 27,
+          "heading": "## R10a substrate"
+        },
+        {
+          "line": 43,
+          "heading": "## Verification and review"
+        },
+        {
+          "line": 62,
+          "heading": "## Continuation"
+        }
+      ],
+      "priorRawSources": [],
+      "priorGeneration": "current C51-C60 after 127-to-50 consolidation; not earlier raw labels"
+    }
+  },
+  "concreteIntegrationRecommendations": [
+    {
+      "records": "C2 C6 C9 C33 C51 C52 C54 C55 C57 C58",
+      "contracts": "identity snapshot custody return reconstruction",
+      "rationale": "Native envelope, body custody, source-removal acknowledgement and runtime reset are distinct durable/lifecycle interfaces. Reuse these instead of separate person-state implementations per capability."
+    },
+    {
+      "records": "C15 C18 C26 C28 C31 C41 C47 C50 C53 C55 C58",
+      "contracts": "time population random",
+      "rationale": "One authoritative county clock supplies scheduler and domain producers; random stream/runtime reset is independent. D can share explicit intervals without repeating historical cache/cadence defects."
+    },
+    {
+      "records": "C10 C11 C16 C20 C21 C22 C23 C32 C40 C46 C48 C60",
+      "contracts": "knowledge choice standing access action",
+      "rationale": "Private facts, individual predictions, permission, current native feasibility and measured results are successive interfaces with different owners. Preserve each crossing."
+    },
+    {
+      "records": "C18 C29 C31 C35 C36 C38 C40 C41 C44 C50 C60",
+      "contracts": "social material place observation",
+      "rationale": "Whole-life charter decomposes into actual causal producers. Read-only state summaries remain observers; missing proposal/reception/work/transfer/development joins stay visible."
+    },
+    {
+      "records": "C11 C19 C21 C28 C34 C37 C39 C50",
+      "contracts": "data expression knowledge",
+      "rationale": "Retain immutable private decision rows and authentic outcome/expression interfaces. Settled 112/78 choices survive exporter repairs; rejected trajectory formula stays withdrawn."
+    },
+    {
+      "records": "C1 C5 C8 C24 C27 C30 C39 C57 C59",
+      "contracts": "catalogue_replay verification source_ownership compatibility configuration",
+      "rationale": "History, classification, replay and proof have distinct outputs. Compile/load/settings repairs can stay supporting work within the actual product boundary rather than inflate catalogue count."
+    }
+  ],
+  "measuredCompletionPreserved": {
+    "C118": "Completed merged source batch; unchanged.",
+    "C119": "Completed merged source batch; unchanged.",
+    "C120": "Focused/native measured implementation and repairs preserved; local/unmerged, revised rendered acceptance not established.",
+    "sharedReasoningContinuation": "Local implementation/focused proofs remain scoped; no new identifier or broad outcome closure assigned."
+  },
+  "validation": {
+    "coveredRecords": 60,
+    "uniqueFormerIDs": 60,
+    "priorConsolidatedRecords": 50,
+    "postConsolidationRecords": 10,
+    "priorRawSources": 127,
+    "sourceHashesPreserved": true,
+    "allRowsHaveSpecificContributions": true,
+    "allRowsHaveNonadjacentJoins": true,
+    "runtimeTestsRun": false,
+    "reason": "Read-only architecture classification; no production/test inputs changed."
+  }
+}
+

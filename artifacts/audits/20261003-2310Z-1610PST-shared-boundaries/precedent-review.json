@@ -1,0 +1,72 @@
+{
+  "schema": "sao.catalogue-precedent-review/1",
+  "timestamp": "2026-10-03T22:30:54Z",
+  "scope": "Read-only precedent audit; only requested scratch review artifacts written.",
+  "previousGenerationProof": {
+    "manifest": "Batches/C_RECATALOG.json",
+    "manifestSha256": "1dfec2e0c98e56cffb284f4b264539e77e690b35a41b4f13c68ad87e69453733",
+    "sourceCount": 127,
+    "distinctSourceIds": 127,
+    "sha256Mismatches": [],
+    "archiveRef": "archive/c-era-raw-20260919",
+    "sourceCommit": "edee13ced379e865b745140dff74c5601ca7f5ca",
+    "publishedCommit": "89e7451eea841e7d097902374d8acf293d920cc9",
+    "commonTree": "88fbee6806e6aca97e7bcd4f6b40ab94294c87e9",
+    "gitExit": 0
+  },
+  "priorRule": "CAO version units contiguous; thematic threads nonadjacent and many-to-many.",
+  "authorizedAdaptation": "Current C contract recatalogue uses explicit nonadjacent contribution membership while retaining source chronology and separately selecting delivered scope for replay.",
+  "sourceSchema": [
+    "generation",
+    "id",
+    "original_path",
+    "archive_path",
+    "sha256",
+    "implementation_status",
+    "verification_status",
+    "publication_status",
+    "primary_unit"
+  ],
+  "unitSchema": [
+    "batch",
+    "title",
+    "delivered_scope",
+    "attained_at",
+    "tier",
+    "tier_rationale",
+    "canonical_owners",
+    "interfaces",
+    "dependencies",
+    "contributions",
+    "active_extension",
+    "remaining_obligations"
+  ],
+  "contributionSchema": [
+    "source_generation",
+    "source_id",
+    "section_or_lines",
+    "scope",
+    "role",
+    "status",
+    "replay_inclusion"
+  ],
+  "pitfalls": [
+    "Never overwrite 127-to-50 generation or resolve historical C labels as current IDs.",
+    "HEAD does not capture dirty C120; snapshot file bytes.",
+    "Mixed source records can contribute to multiple contract units without duplicated tier credit.",
+    "Delivered historical scope and current extension status differ.",
+    "Compact filename dates and duplicate index IDs escape existing checks.",
+    "Historical receipts need generation-aware resolution.",
+    "Jar version constants are inlined; changing VERSION requires rebuilt jars.",
+    "build-java.sh clears java/out; coordinate existing validation owners."
+  ],
+  "selectedImplementationAssessment": {
+    "accepted": true,
+    "order": "Last delivered source contribution, stable former-index ties; explicitly regulatory reconstruction.",
+    "replayLabel": "classified delivered scope",
+    "statusBoundary": "Delivered is implemented baseline; implementation, verification, publication and rendered acceptance remain separately stated.",
+    "C120": "May contribute implemented/verified scope while explicitly local/unmerged and acceptance-open; never inferred fully closed.",
+    "sharedReasoning": "Unnumbered current extension, no new batch/tier.",
+    "D": "Broader remaining obligations do not erase historical component closure."
+  }
+}

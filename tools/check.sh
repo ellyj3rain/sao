@@ -1055,6 +1055,13 @@ if ! "$PY" tools/version_replay.py > /dev/null; then
     fail=1
 fi
 
+# Current C catalogue preservation and publication availability are detached metadata checks.
+if ! "$PY" tools/catalogue_test.py; then
+    note "BORDER FINDING - shared C catalogue or explicit publication availability differs"
+    fail=1
+fi
+
+
 # [C3] Border 81 - one person, one name (DR-014). A follower shown as
 # one name dropped an ID card for somebody else: the spawn path stamped
 # placeholders over the engine's generated name, adoption took a

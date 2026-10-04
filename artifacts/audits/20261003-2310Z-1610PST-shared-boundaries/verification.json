@@ -1,0 +1,179 @@
+{
+  "schema": "sao.shared-boundary-migration-verification/1",
+  "recordedAt": "2026-10-03T23:25:35.624835+00:00",
+  "status": "PASS_WITH_SCOPED_REUSE",
+  "scope": "Applied shared-contract recatalogue, version metadata, continuity graph and isolated Mousecat consumer; no new simulation or rendered-gameplay claim.",
+  "archive": {
+    "ref": "refs/heads/archive/c-era-before-shared-boundaries-20261003",
+    "commit": "1b01e546f782656e76c9faffc4535a942adfa40c",
+    "sourceRecords": 120,
+    "unchangedABRecords": 81,
+    "priorRawCRecords": 127
+  },
+  "catalogue": {
+    "units": 35,
+    "sourceRecords": 120,
+    "contributionEdges": 300,
+    "manifestSha256": "59553cb403288d81b0a0d2d0912482e3b2b1192ca9f3d113bd2ec74e2210ca7d",
+    "version": "2.11.1.0-pre-alpha",
+    "checksAndControls": 37,
+    "sourceStatusPreserved": true,
+    "semanticReview": "semantic-review.md",
+    "metadataOnlyReviewAddendum": "semantic-review-addendum.md"
+  },
+  "changedInputs": [
+    "C classification/index/reference tools and records",
+    "Canonical catalogue/state/roadmap/instruction text",
+    "Derived version and package metadata",
+    "New development graph producer/artifacts/viewer",
+    "Generic Mousecat registered-source graph reader, route and UI"
+  ],
+  "sufficientChecks": [
+    {
+      "check": "version_replay.py",
+      "exit": 0,
+      "toolSha256": "873dcc742faa0229efdec259259e287ed1e50f565bd74cd60a8d44aa4974e84e"
+    },
+    {
+      "check": "map_reference_test.py",
+      "exit": 0,
+      "toolSha256": "88980956448760b13db282751ce9b4cc85b91e0c8047cf58e85859cd1f482007"
+    },
+    {
+      "check": "doc_currency_test.py",
+      "exit": 0,
+      "toolSha256": "e4b33dd8e26e1377d290b38b3ce101d1b6f72eb6c4ebd0347cd54d53a03e3c98"
+    },
+    {
+      "check": "session_state_test.py",
+      "exit": 0,
+      "toolSha256": "705d506609a0c4c4d69811f309a038618d4de48aedbf58217efbff88f53250ed"
+    },
+    {
+      "check": "receipts_test.py",
+      "exit": 0,
+      "toolSha256": "b742028aaa766d498708d60e1f27a1feb12df7b0a0f3b922617f323a83e29da2"
+    },
+    {
+      "check": "version_stamp_test.py",
+      "exit": 0,
+      "toolSha256": "579e9a8af3a23e64aa9defecef58f9ad2c1b71a530e0e778f29a9081ef679d55"
+    }
+  ],
+  "reusableEvidence": {
+    "reasoningProductionPins": [
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_CognitiveModels.lua",
+        "match": true
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_Cognition.lua",
+        "match": true
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_Labor.lua",
+        "match": true
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_ProceduralPlanning.lua",
+        "match": true
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\client\\SAO_Needs.lua",
+        "match": true
+      },
+      {
+        "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\client\\SAO_Controller.lua",
+        "match": true
+      }
+    ],
+    "behavioralProof": "shared-reasoning-verification.json",
+    "jarChangedEntries": [
+      "com/sao/SAOVersion.class",
+      "com/sao/bridge/SAOBridge.class"
+    ],
+    "basis": "All six reasoning production source hashes match. The rebuilt jar changes only version constants. Existing controlled Lua/native evidence retains its stated scope; no native or rendered trial was rerun for catalogue metadata."
+  },
+  "graph": {
+    "path": "artifacts/continuity/development-graph.json",
+    "revision": "sha256:1dfe19a29e02194b44b75a794ba0fbf30a82e4940085f0cee4849f54e8a4a2f5",
+    "sha256": "4fbadfaf364bb3e250fef5be13fac53e1a5a8033e7f4ff2c35929ca524311957",
+    "nodes": 989,
+    "relations": 2702,
+    "sourceFiles": 343,
+    "verification": "artifacts/continuity/verification.json",
+    "standalone": "artifacts/continuity/index.html"
+  },
+  "mousecat": {
+    "worktree": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\mousecat-development-continuity",
+    "branch": "mallowfluff/development-continuity",
+    "readiness": {
+      "command": "npm run pr:ready",
+      "exitCode": 0,
+      "tests": 361,
+      "pass": 348,
+      "skipped": 13,
+      "failed": 0,
+      "skips": "Explicit inherited environment/opt-in coverage; not converted to passes.",
+      "log": ".mousecat/development-pr-ready.log",
+      "sha256": "689745689a7830dc95f51c06dfccfa78c3edf262007e879030c9238aa1cb2392",
+      "allCompanionStages": "PASS"
+    },
+    "actualSource": {
+      "status": "PASS",
+      "url": "http://127.0.0.1:60650/#projects?project=project%3Asao&graph=sao-continuity%3Adevelopment",
+      "revision": "sha256:1dfe19a29e02194b44b75a794ba0fbf30a82e4940085f0cee4849f54e8a4a2f5",
+      "nodes": 989,
+      "edges": 2702,
+      "sourcePins": 343,
+      "sourceSha256": "4fbadfaf364bb3e250fef5be13fac53e1a5a8033e7f4ff2c35929ca524311957",
+      "receipts": [
+        {
+          "viewport": {
+            "width": 1680,
+            "height": 1050
+          },
+          "exactFullGraphExport": true,
+          "currentCounts": true,
+          "c118c119c120StatusPreserved": true,
+          "contractView": true,
+          "keyboardSelection": true,
+          "pageAndGraphOverflow": false
+        },
+        {
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "exactFullGraphExport": true,
+          "currentCounts": true,
+          "c118c119c120StatusPreserved": true,
+          "contractView": true,
+          "keyboardSelection": true,
+          "pageAndGraphOverflow": false
+        }
+      ]
+    },
+    "sourcePinsMatch": 27,
+    "preview": {
+      "url": "http://127.0.0.1:60650/#projects?project=project%3Asao&graph=sao-continuity%3Adevelopment",
+      "baseUrl": "http://127.0.0.1:60650",
+      "pid": 46672,
+      "worktree": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\mousecat-development-continuity",
+      "graphSource": "artifacts/continuity/development-graph.json",
+      "isolated": true,
+      "liveServiceChanged": false,
+      "startedAt": "2026-10-03T23:14:35.982Z"
+    },
+    "verification": "mousecat-development-continuity-proof.json",
+    "review": "mousecat-development-consumer-review.md"
+  },
+  "standing": {
+    "sourceC118": "completed and merged",
+    "sourceC119": "completed and merged",
+    "sourceC120": "implemented and verified locally, unmerged; revised rendered acceptance and redistribution terms open",
+    "sharedReasoning": "first slice implemented and verified locally; wider purpose arbitration, acquired educational/cultural priors, comprehension/retention/transfer and consequential trained execution remain",
+    "nextBatchOrEraStarted": false,
+    "publication": "local uncommitted candidates; isolated Mousecat preview is running"
+  }
+}

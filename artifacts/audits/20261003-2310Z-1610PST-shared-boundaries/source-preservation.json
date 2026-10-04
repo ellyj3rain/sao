@@ -1,0 +1,72 @@
+{
+  "baselineCommit": "1b01e546f782656e76c9faffc4535a942adfa40c",
+  "missing": [],
+  "changedSinceArchive": [
+    "ARCHITECTURE.md",
+    "BATCH_LOG.md",
+    "BRANCHING.md",
+    "Batches/FORMER_LABELS.md",
+    "Batches/THREADS.md",
+    "CORE.md",
+    "DECISION_REGISTRY.md",
+    "ENGINE_CONTRACT.md",
+    "FINDINGS.md",
+    "GOVERNANCE.md",
+    "GROUNDED_DEAD_PROPOSAL.md",
+    "KNOX_SOCIAL_AUDIT.md",
+    "MAPS.md",
+    "MEMORY.md",
+    "NEO.md",
+    "ORGANIZATION.md",
+    "PLAYABILITY.md",
+    "PROJECTS.md",
+    "README.md",
+    "RECEIPTS.md",
+    "REPRESENTATION.md",
+    "ROADMAP.md",
+    "SESSION_STATE.md",
+    "SUBSTRATE.md",
+    "VERSION",
+    "VERSION_MAP.md",
+    "java/dist/SAOAgent.jar",
+    "mod/42.20/media/java/SAO.jar",
+    "mod/42.20/mod.info",
+    "mod/mod.info",
+    "tools/check.sh",
+    "tools/map_reference_test.py",
+    "tools/receipts_test.py",
+    "tools/version_replay.py"
+  ],
+  "runtimeChangesSinceArchive": [
+    "java/dist/SAOAgent.jar",
+    "mod/42.20/media/java/SAO.jar",
+    "mod/42.20/mod.info",
+    "mod/mod.info"
+  ],
+  "reasoningProductionPins": [
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_CognitiveModels.lua",
+      "match": true
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_Cognition.lua",
+      "match": true
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_Labor.lua",
+      "match": true
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\SAO_ProceduralPlanning.lua",
+      "match": true
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\client\\SAO_Needs.lua",
+      "match": true
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\client\\SAO_Controller.lua",
+      "match": true
+    }
+  ]
+}

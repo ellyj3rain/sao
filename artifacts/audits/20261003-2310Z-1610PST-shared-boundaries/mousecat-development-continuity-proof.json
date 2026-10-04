@@ -1,0 +1,208 @@
+{
+  "schema": "mousecat.development-continuity-proof/1",
+  "status": "PASS",
+  "createdUtc": "2026-10-03T23:23:24.780036+00:00",
+  "baseHead": "ba01d0685c4824ed9f23614eecfefe76cf7d64af",
+  "branch": "mallowfluff/development-continuity",
+  "sourcePins": [
+    {
+      "path": "ARCHITECTURE.md",
+      "sha256": "a98ca681a4dd05346699afab66ab9e43c1d81eee86ae5ce61fd887ceb9bfcdb3"
+    },
+    {
+      "path": "BATCH_LOG.md",
+      "sha256": "f23de2c9e43a3abc95046532d1f943acf1ac13b2cc22a4be01067e82b56bfd3c"
+    },
+    {
+      "path": "CORE.md",
+      "sha256": "1ba8ccc58ba07ced39aa5b6e5c4cfcb0baf70198fc78177df124e08c714d4968"
+    },
+    {
+      "path": "GOVERNANCE.md",
+      "sha256": "e55a8763e053a93dc2cddd096cb1210546c265bf229ec9c4c173e8304a822cb7"
+    },
+    {
+      "path": "MEMORY.md",
+      "sha256": "70d0d56736b3486a6d7c50852960e8b89c9fd956e3b0506dc445616762d702b6"
+    },
+    {
+      "path": "README.md",
+      "sha256": "e5416dd992cf61701e758d860c2d2770cf371f55039955bf3ff610f84fb0306a"
+    },
+    {
+      "path": "ROADMAP.md",
+      "sha256": "b02b715526c6fb24e851fa3aea66dc5d02052119c625eefdeed7d7a05637ca89"
+    },
+    {
+      "path": "SESSION_STATE.md",
+      "sha256": "e846de0328044f53a55ef7a72f5619e7340ebbcc7b039bd3d187b9f526bfca9d"
+    },
+    {
+      "path": "VERSION",
+      "sha256": "47a66537de10e5ffd99c5c141f45439017f0ce88fe56b05cd4ee3478d6531281"
+    },
+    {
+      "path": "fixtures/development-graph.mjs",
+      "sha256": "fadd5a1ad61d084803de140ce36910c2bdbad70560c3dc7d3ea48c63d45b4797"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "6b926cb44a21de4a25b7e7b29af828e0b007f153e9819a47a71129876efca979"
+    },
+    {
+      "path": "package.json",
+      "sha256": "98d971b4e402f887d188ae027ebbedb722c39716e090d798ebe7fcf37e79cfb2"
+    },
+    {
+      "path": "scripts/development-graph-browser-check.mjs",
+      "sha256": "0cc4abbd19883d80c99bbd41435f4bbdd1cf65f41c49355567ae2889698cee3d"
+    },
+    {
+      "path": "src/core/catalog.mjs",
+      "sha256": "f65370c94d9a6cf2bbc4c2085dcc7a22961e9206b2aa00db7d2cdf16749481e7"
+    },
+    {
+      "path": "src/core/development-graph.mjs",
+      "sha256": "e369d4332b2e552342df01d44a62ea76be724ea2ef43a9cd2ed71e6f9bc3528f"
+    },
+    {
+      "path": "src/core/project-surfaces.mjs",
+      "sha256": "5fcbcd1b0ce8926d37f9ac52b13c4a0a32bfba5e90870cae7bcd169373005251"
+    },
+    {
+      "path": "src/core/runtime.mjs",
+      "sha256": "24974f3899db0055d76215bb63d0d6198bd48915bd7f59dcf2bd5f7a905814c1"
+    },
+    {
+      "path": "src/operator/public/development-graph-model.js",
+      "sha256": "6cc3abd1ea9a2720080b78c3bc09ab329b7f534274648c0dd9d7fbe8db469d02"
+    },
+    {
+      "path": "src/operator/public/development-graph-view.js",
+      "sha256": "2a2a306c94fe7c3d930bc76c2debe6524a45bedcff58e0665a28e91ab0aba30b"
+    },
+    {
+      "path": "src/operator/public/development-graph.css",
+      "sha256": "5a2efcbb4aaaf54551ed6b40ebc589b5169d765f651f400f4fafc8174780e91b"
+    },
+    {
+      "path": "src/operator/public/index.html",
+      "sha256": "e9df92f177491a8b194fb988053c877e22af683bb6d632a28e54dd6baef27ef2"
+    },
+    {
+      "path": "src/operator/public/operator.js",
+      "sha256": "a58bc579494d1f0a23cfc94e9eb11afb395f5967eb580861f307e7c5a0a7e59c"
+    },
+    {
+      "path": "src/operator/public/project-model.js",
+      "sha256": "41fa77a79fab7b09b136645b8c7156f5935d8d8923e6858d931c7075d140b59f"
+    },
+    {
+      "path": "src/operator/public/project-view.js",
+      "sha256": "3070924fd1631840da3316b5dcd359cb585804f3f3546bd3f8184c42ade9b325"
+    },
+    {
+      "path": "src/operator/server.mjs",
+      "sha256": "eb53635c56d0fc4fcb544105c742a398d02b4ad8a9988239969c1022f9591906"
+    },
+    {
+      "path": "test/development-graph.test.mjs",
+      "sha256": "2837bdb55acdbdeac951b101df2201078c60cbf0905f0a2c46bd52ede5493d17"
+    },
+    {
+      "path": "test/project-navigation.test.mjs",
+      "sha256": "efb76f984c44b5c430bd2039d82bb554037636274aed84cd81363ba4c4ba5527"
+    }
+  ],
+  "readiness": {
+    "command": "npm run pr:ready",
+    "exitCode": 0,
+    "tests": 361,
+    "pass": 348,
+    "skipped": 13,
+    "failed": 0,
+    "skips": "Explicit inherited environment/opt-in coverage; not converted to passes.",
+    "log": ".mousecat/development-pr-ready.log",
+    "sha256": "689745689a7830dc95f51c06dfccfa78c3edf262007e879030c9238aa1cb2392",
+    "allCompanionStages": "PASS"
+  },
+  "focused": {
+    "graphCases": 10,
+    "existingAffectedRegressionCases": 33,
+    "additionalDirectRouteCase": 1,
+    "status": "PASS"
+  },
+  "browser": {
+    "command": "npm run test:graph-browser",
+    "viewports": 4,
+    "receipt": ".mousecat/development-graph-browser/receipt.json",
+    "sha256": "de9cf30a81bc11677289aa7891c6671e2088ce27172fb7b62f47b9edc7690dc9"
+  },
+  "actualSource": {
+    "status": "PASS",
+    "url": "http://127.0.0.1:60650/#projects?project=project%3Asao&graph=sao-continuity%3Adevelopment",
+    "revision": "sha256:1dfe19a29e02194b44b75a794ba0fbf30a82e4940085f0cee4849f54e8a4a2f5",
+    "nodes": 989,
+    "edges": 2702,
+    "sourcePins": 343,
+    "sourceSha256": "4fbadfaf364bb3e250fef5be13fac53e1a5a8033e7f4ff2c35929ca524311957",
+    "receipts": [
+      {
+        "viewport": {
+          "width": 1680,
+          "height": 1050
+        },
+        "exactFullGraphExport": true,
+        "currentCounts": true,
+        "c118c119c120StatusPreserved": true,
+        "contractView": true,
+        "keyboardSelection": true,
+        "pageAndGraphOverflow": false
+      },
+      {
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "exactFullGraphExport": true,
+        "currentCounts": true,
+        "c118c119c120StatusPreserved": true,
+        "contractView": true,
+        "keyboardSelection": true,
+        "pageAndGraphOverflow": false
+      }
+    ]
+  },
+  "preview": {
+    "url": "http://127.0.0.1:60650/#projects?project=project%3Asao&graph=sao-continuity%3Adevelopment",
+    "baseUrl": "http://127.0.0.1:60650",
+    "pid": 46672,
+    "worktree": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\mousecat-development-continuity",
+    "graphSource": "artifacts/continuity/development-graph.json",
+    "isolated": true,
+    "liveServiceChanged": false,
+    "startedAt": "2026-10-03T23:14:35.982Z"
+  },
+  "instrumentAndRepairHistory": [
+    {
+      "receipt": ".mousecat/development-pr-ready-first-failure.log",
+      "finding": "One missing graph actionPermits declaration; observer grant existed. Repaired declared boundary then full readiness rerun passed."
+    },
+    {
+      "receipt": ".mousecat/development-pr-ready-before-filter-repair.log",
+      "finding": "Independent P2: removed view/kind/relation identity persisted invisibly on source refresh. Reconciled only removed filters; valid selections retained. Added unit and four-width browser regression; full readiness passed afterward."
+    }
+  ],
+  "publication": {
+    "committed": false,
+    "published": false,
+    "liveServiceChanged": false
+  },
+  "documentationAfterReadiness": "Only status/count/P2 repair record updates; docs:pr, docs:check, hygiene:strict and diff --check passed afterward.",
+  "finalReview": {
+    "rootVisualAcceptance": "PASS: corrected C1 graph and actual mobile/desktop Mousecat source evidence reviewed.",
+    "independentReviewReceipt": ".mousecat/development-consumer-review.md",
+    "independentReviewSha256": "a95485940dd04118ef0ce6a508d2fe43b3d59002405672efe1a7ec9a3db7f243",
+    "independentReviewStatus": "PASS: original isolated 390px reproduction now shows 10/10 nodes and 9/9 edges, select and state both cleared. No other high/medium finding."
+  }
+}

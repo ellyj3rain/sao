@@ -1,11 +1,44 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.11.3.0-pre-alpha` |
+| Version | `2.11.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**Publication directive, 2026-10-04.** The current C era contains 35 compressed
+shared contracts. Its recorded transformation and pre-D compression event are
+applied. This additive publication reconciles the GitHub catalogue, version
+replay and provenance under the established consolidation procedure.
+Coherent SAO publication groups follow current
+contracts and dependencies. Mousecat is a separate repository and remains one
+PR. Historical C labels identify preserved source contributions rather than
+current work units. Local-only owner availability and source rights remain
+explicit during catalogue publication; neither metadata migration nor PR shape
+closes D1.
+
+**As of** 2026-10-04, [C35](Batches/Catalogue/C35-2026-10-03-source-ownership.md)
+is the last contract in the current 35-contract index. This is catalogue
+reconciliation, with component implementation, verification and publication
+kept separate. It supplies no new runtime completion or D1 closure.
+
+**Catalogue publication boundary, 2026-10-04 21:11 UTC / 14:11 PST.**
+
+The current C catalogue contains 35 shared contracts reconstructed from 120
+preserved source records. `Batches/C_SHARED_BOUNDARIES.json` and
+`Batches/Catalogue/` are the current owner/interface map. The frozen compression
+event precedes D1. Earlier GitHub PRs retain their historical source identifiers;
+this additive publication reconciles the catalogue and version metadata without
+replaying runtime implementation. Source C118/C119 are already merged. Source
+C120 and its local recovery owners remain unmerged, with rendered acceptance
+and redistribution conditions open. `Batches/C_PUBLICATION_AVAILABILITY.json`
+records the two C34 owners absent from this public runtime using exact preserved
+archive and source-record pins. D1 remains OPEN and its runtime is separate.
+
+The retained entries below describe the public source-generation baseline.
+Their original identifiers and scoped evidence remain historical provenance.
+
 
 Standing validation follows DR-054 and GOVERNANCE.md's testing and
 validation rule. Scope checks to changed inputs, affected contracts and
@@ -1711,8 +1744,8 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, plus C105's outcome and export-worker controls, the
-repository holds 238 `*_test.py` files. The gate invokes 238 `*_test.py` files
-and 16 other Python entry points, 254 distinct scripts, through direct calls
+repository holds 239 `*_test.py` files. The gate invokes 239 `*_test.py` files
+and 16 other Python entry points, 255 distinct scripts, through direct calls
 and its mirror loop. Native suites also invoke their own controls.
 Border labels extend through 233; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod

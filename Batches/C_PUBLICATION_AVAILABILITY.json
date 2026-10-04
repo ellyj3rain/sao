@@ -1,0 +1,37 @@
+{
+  "schema": "sao.catalogue-publication-availability/1",
+  "publicBase": "6bfcd46e72146b941db6c26086201bc79e883a40",
+  "generation": "20261003-shared-boundaries",
+  "sourceAudit": {
+    "path": "Batches/Transitions/C-20261003-publication-source-audit.json",
+    "sha256": "9e2a54a6da447b788b60e2e98496908d9e9705f805d003afcd03cae72852e120"
+  },
+  "owners": [
+    {
+      "path": "mod/42.20/media/lua/client/SAO_RecoveryPose.lua",
+      "contract": "C34",
+      "availability": "local-unpublished",
+      "archiveCommit": "1b01e546f782656e76c9faffc4535a942adfa40c",
+      "gitBlob": "ea658ae44f987e950defb5b9127118ac58ae5e25",
+      "sha256": "8c812c15598a9429d65552dc798a13c524b6edfe66f1250594c624cd7b63c481",
+      "sourceId": "C120",
+      "sourceRecord": {
+        "path": "Batches/history/c-20261003-source/Batches/C120-20261003-1917Z-1217PST-entry-and-recovery-learning.md",
+        "sha256": "1705c6a801bcf882a8f2a47242c1ff4ce1b4e0c00772e2a4a505f95f8aef8c34"
+      }
+    },
+    {
+      "path": "java/src/com/sao/engine/SAORecoveryPose.java",
+      "contract": "C34",
+      "availability": "local-unpublished",
+      "archiveCommit": "1b01e546f782656e76c9faffc4535a942adfa40c",
+      "gitBlob": "4218b5605f72b4178da70377de79aacbccae7791",
+      "sha256": "48389bbfe8a6b936157c8fec8a9f6c5fa55eb179d8f347a34555352777a8f8d0",
+      "sourceId": "C120",
+      "sourceRecord": {
+        "path": "Batches/history/c-20261003-source/Batches/C120-20261003-1917Z-1217PST-entry-and-recovery-learning.md",
+        "sha256": "1705c6a801bcf882a8f2a47242c1ff4ce1b4e0c00772e2a4a505f95f8aef8c34"
+      }
+    }
+  ]
+}

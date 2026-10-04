@@ -38,10 +38,30 @@ ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
 
 PROFANITY = ("fuck", "shit", "goddamn", "asshole", "bitch")
 ATTRIBUTION = re.compile(
-    r'[Oo]perator[^a-zA-Z\n][^\n]{0,45}"[A-Za-z]'
+    r'\b[Oo]perator\b[^a-zA-Z\n][^\n]{0,45}"[A-Za-z]'
     r'|\(operator\):\s*"'
     r'|Verbatim:\s*\n?\s*\*?"')
 SUFFIXES = (".md", ".lua", ".py", ".txt", ".json")
+
+
+def attribution_controls():
+    """Keep prose attributions distinct from identifier/hash inventory rows."""
+    samples = (
+        ("standalone mention", 'Operator said: "Synthetic control"', True),
+        ("lowercase mention", 'the operator replied "Synthetic control"', True),
+        ("possessive mention", 'Operator\'s words: "Synthetic control"', True),
+        ("parenthesized attribution", '(operator): "Synthetic control"', True),
+        ("verbatim marker", 'Verbatim:\n*"Synthetic control"', True),
+        ("filename/hash inventory", '"tools/operator_speech_test.py": '
+         '"f4b53c25b9df1c0e4b64566a8ebba7f2bcf83bfb72822237b99c63c8a583cb05",', False),
+        ("prefixed identifier", 'cooperator: "Synthetic control"', False),
+        ("unattributed dialogue", 'character: "Synthetic control"', False),
+        ("separate lines", 'Operator present\ncharacter: "Synthetic control"', False),
+    )
+    faults = [f"attribution control '{name}' differs from its required verdict"
+              for name, text, expected in samples
+              if bool(ATTRIBUTION.search(text)) != expected]
+    return len(samples), faults
 
 
 def tracked_files():
@@ -53,10 +73,11 @@ def tracked_files():
 
 
 def main():
-    faults = []
+    controls, faults = attribution_controls()
     print("=" * 74)
     print("THE OPERATOR'S SPEECH IS NOT IN THE REPOSITORY")
     print("=" * 74)
+    print(f"  attribution controls checked: {controls}")
 
     files = tracked_files()
     if not files:

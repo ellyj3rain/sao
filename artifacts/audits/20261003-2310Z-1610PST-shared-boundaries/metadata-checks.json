@@ -1,0 +1,32 @@
+[
+  {
+    "check": "version_replay.py",
+    "exit": 0,
+    "toolSha256": "873dcc742faa0229efdec259259e287ed1e50f565bd74cd60a8d44aa4974e84e"
+  },
+  {
+    "check": "map_reference_test.py",
+    "exit": 0,
+    "toolSha256": "88980956448760b13db282751ce9b4cc85b91e0c8047cf58e85859cd1f482007"
+  },
+  {
+    "check": "doc_currency_test.py",
+    "exit": 0,
+    "toolSha256": "e4b33dd8e26e1377d290b38b3ce101d1b6f72eb6c4ebd0347cd54d53a03e3c98"
+  },
+  {
+    "check": "session_state_test.py",
+    "exit": 0,
+    "toolSha256": "705d506609a0c4c4d69811f309a038618d4de48aedbf58217efbff88f53250ed"
+  },
+  {
+    "check": "receipts_test.py",
+    "exit": 0,
+    "toolSha256": "b742028aaa766d498708d60e1f27a1feb12df7b0a0f3b922617f323a83e29da2"
+  },
+  {
+    "check": "version_stamp_test.py",
+    "exit": 0,
+    "toolSha256": "579e9a8af3a23e64aa9defecef58f9ad2c1b71a530e0e778f29a9081ef679d55"
+  }
+]

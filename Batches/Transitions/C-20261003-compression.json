@@ -1,0 +1,28 @@
+{
+  "schema": "sao.catalogue-transition/1",
+  "id": "catalogue-compression:C:20261003",
+  "label": "C compression: 120 records to 35 contracts",
+  "summary": "The applied C catalogue compression preserves 120 source records in 35 shared contracts and 300 scoped contribution links. It follows the existing C work and precedes D. Component implementation, verification and publication statuses remain separate. The explicit event was recorded after the migration audit; D had not started.",
+  "recordedAt": "2026-10-04T00:57:00Z",
+  "verifiedAt": "2026-10-03T23:25:35.624835+00:00",
+  "sourceGeneration": "20260919-through-C120",
+  "resultGeneration": "20261003-shared-boundaries",
+  "sourceCount": 120,
+  "contractCount": 35,
+  "contributionCount": 300,
+  "beforeEra": "D",
+  "afterNodes": [
+    "source:c-20261003:C120",
+    "extension:shared-reasoning:20261003"
+  ],
+  "versionAfterReplay": "2.11.1.0-pre-alpha",
+  "record": "Batches/Transitions/C-20261003-compression.md",
+  "mapping": {
+    "path": "Batches/Transitions/C-20261003-compression-manifest.json",
+    "sha256": "59553cb403288d81b0a0d2d0912482e3b2b1192ca9f3d113bd2ec74e2210ca7d"
+  },
+  "verification": {
+    "path": "artifacts/audits/20261003-2310Z-1610PST-shared-boundaries/verification.json",
+    "sha256": "d9ae834bb1ebd494dab727c269c7d8621ebcd9744d5d52992b3e4d77e236b377"
+  }
+}
