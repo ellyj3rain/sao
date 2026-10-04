@@ -8,10 +8,10 @@
 # Session state
 
 **Publication directive, 2026-10-04.** The current C era contains 35 compressed
-shared contracts. Its local transformation and pre-D compression event are
-applied; GitHub still carries the earlier catalogue. The operator directs era
-reconciliation on GitHub following the earlier additive catalogue/version/
-provenance publication precedent. Coherent SAO publication groups follow current
+shared contracts. Its recorded transformation and pre-D compression event are
+applied. This additive publication reconciles the GitHub catalogue, version
+replay and provenance under the established consolidation procedure.
+Coherent SAO publication groups follow current
 contracts and dependencies. Mousecat is a separate repository and remains one
 PR. Historical C labels identify preserved source contributions rather than
 current work units. Local-only owner availability and source rights remain
@@ -23,7 +23,7 @@ is the last contract in the current 35-contract index. This is catalogue
 reconciliation, with component implementation, verification and publication
 kept separate. It supplies no new runtime completion or D1 closure.
 
-**Catalogue publication preparation, 2026-10-04 21:11 UTC / 14:11 PST.**
+**Catalogue publication boundary, 2026-10-04 21:11 UTC / 14:11 PST.**
 
 The current C catalogue contains 35 shared contracts reconstructed from 120
 preserved source records. `Batches/C_SHARED_BOUNDARIES.json` and
