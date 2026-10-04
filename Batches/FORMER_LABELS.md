@@ -1,10 +1,8 @@
 # Former batch-label crosswalk
 
-This crosswalk maps every identifier of the pre-recatalog sequence to the
-current append-only batch it belongs to. The former identifiers are historical
-provenance, not current batch names. Claude fragmented the work; the current
-catalog is the work. The matching engineering history (raw commits and records)
-is retained in local Git refs (`archive/claude-ab-era-raw`, local only) as engineering evidence.
+A/B mappings retain their established meaning. C identifiers are qualified by source generation. One primary current home supports navigation; all actual contributions remain mapped, including mixed records.
+
+## Original A/B labels
 
 | Former batch | Current batch | Boundary treatment |
 |---|---|---|
@@ -402,151 +400,261 @@ is retained in local Git refs (`archive/claude-ab-era-raw`, local only) as engin
 | `B192` | [B52](B52-2026-08-28-derived-counts-distance-naming-scout-completeness-answer-domain.md) | Joined with an immediately adjacent entry |
 | `B193` | [B52](B52-2026-08-28-derived-counts-distance-naming-scout-completeness-answer-domain.md) | Joined with an immediately adjacent entry |
 
-## Recovery numbering correction
+## Original C generation: before 2026-09-19
 
-| Former label | Canonical batch | Treatment |
+The immutable [first C manifest](C_RECATALOG.json) preserves original blobs, paths and the local archive ref. The intermediate destination below identifies the subsequent source generation.
+
+| Original label | Intermediate source | Current primary home |
 |---|---|---|
-| `C130` in SAO PR 67 and its captures | [C50](C50-2026-09-18-historical-simulation-recovery-and-evidence.md) | Corrected identity of the same repair; no new batch. Earlier proposals labelled C127-C129 did not reserve numbers. Original commit and captured evidence identifiers remain historical. |
-## C sequence consolidated on 2026-09-19
+| `C1` | source `C1` | [C1](Catalogue/C1-2026-08-28-catalogue-replay.md) |
+| `C2` | source `C1` | [C1](Catalogue/C1-2026-08-28-catalogue-replay.md) |
+| `C3` | source `C2` | [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C4` | source `C2` | [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C5` | source `C2` | [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C6` | source `C3` | [C22](Catalogue/C22-2026-10-01-observation.md) |
+| `C7` | source `C3` | [C22](Catalogue/C22-2026-10-01-observation.md) |
+| `C8` | source `C4` | [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C9` | source `C4` | [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C10` | source `C4` | [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C11` | source `C4` | [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C12` | source `C5` | [C5](Catalogue/C5-2026-09-14-configuration.md) |
+| `C13` | source `C5` | [C5](Catalogue/C5-2026-09-14-configuration.md) |
+| `C14` | source `C5` | [C5](Catalogue/C5-2026-09-14-configuration.md) |
+| `C15` | source `C6` | [C25](Catalogue/C25-2026-10-01-snapshot.md) |
+| `C16` | source `C7` | [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C17` | source `C7` | [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C18` | source `C8` | [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C19` | source `C8` | [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C20` | source `C9` | [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C21` | source `C9` | [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C22` | source `C9` | [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C23` | source `C9` | [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C24` | source `C9` | [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C25` | source `C10` | [C33](Catalogue/C33-2026-10-03-knowledge.md) |
+| `C26` | source `C10` | [C33](Catalogue/C33-2026-10-03-knowledge.md) |
+| `C27` | source `C11` | [C33](Catalogue/C33-2026-10-03-knowledge.md) |
+| `C28` | source `C11` | [C33](Catalogue/C33-2026-10-03-knowledge.md) |
+| `C29` | source `C12` | [C7](Catalogue/C7-2026-09-19-capacity.md) |
+| `C30` | source `C12` | [C7](Catalogue/C7-2026-09-19-capacity.md) |
+| `C31` | source `C12` | [C7](Catalogue/C7-2026-09-19-capacity.md) |
+| `C32` | source `C13` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C33` | source `C13` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C34` | source `C13` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C35` | source `C14` | [C31](Catalogue/C31-2026-10-03-action.md) |
+| `C36` | source `C15` | [C6](Catalogue/C6-2026-09-19-time.md) |
+| `C37` | source `C16` | [C4](Catalogue/C4-2026-09-12-standing.md) |
+| `C38` | source `C17` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C39` | source `C17` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C40` | source `C17` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C41` | source `C18` | [C10](Catalogue/C10-2026-09-20-population.md) |
+| `C42` | source `C18` | [C10](Catalogue/C10-2026-09-20-population.md) |
+| `C43` | source `C18` | [C10](Catalogue/C10-2026-09-20-population.md) |
+| `C44` | source `C18` | [C10](Catalogue/C10-2026-09-20-population.md) |
+| `C45` | source `C18` | [C10](Catalogue/C10-2026-09-20-population.md) |
+| `C46` | source `C18` | [C10](Catalogue/C10-2026-09-20-population.md) |
+| `C47` | source `C19` | [C2](Catalogue/C2-2026-09-08-expression.md) |
+| `C48` | source `C20` | [C12](Catalogue/C12-2026-09-20-access.md) |
+| `C49` | source `C20` | [C12](Catalogue/C12-2026-09-20-access.md) |
+| `C50` | source `C21` | [C2](Catalogue/C2-2026-09-08-expression.md) |
+| `C51` | source `C21` | [C2](Catalogue/C2-2026-09-08-expression.md) |
+| `C52` | source `C21` | [C2](Catalogue/C2-2026-09-08-expression.md) |
+| `C53` | source `C22` | [C32](Catalogue/C32-2026-10-03-choice.md) |
+| `C54` | source `C22` | [C32](Catalogue/C32-2026-10-03-choice.md) |
+| `C55` | source `C23` | [C33](Catalogue/C33-2026-10-03-knowledge.md) |
+| `C56` | source `C24` | [C28](Catalogue/C28-2026-10-03-verification.md) |
+| `C57` | source `C24` | [C28](Catalogue/C28-2026-10-03-verification.md) |
+| `C58` | source `C24` | [C28](Catalogue/C28-2026-10-03-verification.md) |
+| `C59` | source `C24` | [C28](Catalogue/C28-2026-10-03-verification.md) |
+| `C60` | source `C25` | [C21](Catalogue/C21-2026-09-30-material.md) |
+| `C61` | source `C26` | [C6](Catalogue/C6-2026-09-19-time.md) |
+| `C62` | source `C26` | [C6](Catalogue/C6-2026-09-19-time.md) |
+| `C63` | source `C26` | [C6](Catalogue/C6-2026-09-19-time.md) |
+| `C64` | source `C27` | [C28](Catalogue/C28-2026-10-03-verification.md) |
+| `C65` | source `C28` | [C22](Catalogue/C22-2026-10-01-observation.md) |
+| `C66` | source `C28` | [C22](Catalogue/C22-2026-10-01-observation.md) |
+| `C67` | source `C29` | [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C68` | source `C29` | [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C69` | source `C29` | [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C70` | source `C29` | [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C71` | source `C29` | [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C72` | source `C29` | [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C73` | source `C29` | [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C74` | source `C30` | [C35](Catalogue/C35-2026-10-03-source-ownership.md) |
+| `C75` | source `C31` | [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C76` | source `C31` | [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C77` | source `C31` | [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C78` | source `C32` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C79` | source `C32` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C80` | source `C32` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C81` | source `C33` | [C24](Catalogue/C24-2026-10-01-custody.md) |
+| `C82` | source `C33` | [C24](Catalogue/C24-2026-10-01-custody.md) |
+| `C83` | source `C34` | [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C84` | source `C34` | [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C85` | source `C34` | [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C86` | source `C34` | [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C87` | source `C34` | [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C88` | source `C34` | [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C89` | source `C35` | [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C90` | source `C35` | [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C91` | source `C35` | [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C92` | source `C35` | [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C93` | source `C35` | [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C94` | source `C36` | [C22](Catalogue/C22-2026-10-01-observation.md) |
+| `C95` | source `C36` | [C22](Catalogue/C22-2026-10-01-observation.md) |
+| `C96` | source `C36` | [C22](Catalogue/C22-2026-10-01-observation.md) |
+| `C97` | source `C37` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C98` | source `C37` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C99` | source `C37` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C100` | source `C37` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C101` | source `C37` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C102` | source `C37` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C103` | source `C37` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C104` | source `C37` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C105` | source `C37` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C106` | source `C38` | [C4](Catalogue/C4-2026-09-12-standing.md) |
+| `C107` | source `C38` | [C4](Catalogue/C4-2026-09-12-standing.md) |
+| `C108` | source `C38` | [C4](Catalogue/C4-2026-09-12-standing.md) |
+| `C109` | source `C39` | [C35](Catalogue/C35-2026-10-03-source-ownership.md) |
+| `C110` | source `C39` | [C35](Catalogue/C35-2026-10-03-source-ownership.md) |
+| `C111` | source `C40` | [C32](Catalogue/C32-2026-10-03-choice.md) |
+| `C112` | source `C41` | [C6](Catalogue/C6-2026-09-19-time.md) |
+| `C113` | source `C41` | [C6](Catalogue/C6-2026-09-19-time.md) |
+| `C114` | source `C42` | [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C115` | source `C42` | [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C116` | source `C43` | [C9](Catalogue/C9-2026-09-19-return.md) |
+| `C117` | source `C43` | [C9](Catalogue/C9-2026-09-19-return.md) |
+| `C118` | source `C44` | [C4](Catalogue/C4-2026-09-12-standing.md) |
+| `C119` | source `C45` | [C5](Catalogue/C5-2026-09-14-configuration.md) |
+| `C120` | source `C46` | [C7](Catalogue/C7-2026-09-19-capacity.md) |
+| `C121` | source `C47` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C122` | source `C48` | [C12](Catalogue/C12-2026-09-20-access.md) |
+| `C123` | source `C48` | [C12](Catalogue/C12-2026-09-20-access.md) |
+| `C124` | source `C48` | [C12](Catalogue/C12-2026-09-20-access.md) |
+| `C125` | source `C49` | [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C126` | source `C50` | [C10](Catalogue/C10-2026-09-20-population.md) |
+| `C127` | source `C50` | [C10](Catalogue/C10-2026-09-20-population.md) |
 
-Former identifiers in this section belong to the 127-entry sequence before
-this consolidation. They are distinct from the current C identifiers. Source
-comments, immutable captures, earlier audit reports and earlier append-only
-ledger entries retain those former identifiers. External sister records also
-retain their original SAO citations. Resolve them through this table.
+## C source generation: 2026-09-19 through source C120
 
-The raw records are preserved at local ref `archive/c-era-raw-20260919`.
-`C_RECATALOG.json` records every original path and SHA-256. The published
-source commit `89e7451eea841e7d097902374d8acf293d920cc9` has the same tree
-as the local archive, so former records can also be retrieved there. The current
-records summarize the work and preserve explicit unresolved findings.
-
-| Former batch | Current batch | Boundary treatment |
-|---|---|---|
-| `C1` | [C1](C1-2026-08-28-catalog-and-version-governance.md) | Absorbing adjacent unit |
-| `C2` | [C1](C1-2026-08-28-catalog-and-version-governance.md) | Joined with adjacent work |
-| `C3` | [C2](C2-2026-08-29-identity-and-execution-continuity.md) | Absorbing adjacent unit |
-| `C4` | [C2](C2-2026-08-29-identity-and-execution-continuity.md) | Joined with adjacent work |
-| `C5` | [C2](C2-2026-08-29-identity-and-execution-continuity.md) | Joined with adjacent work |
-| `C6` | [C3](C3-2026-08-29-inspection-and-person-state.md) | Absorbing adjacent unit |
-| `C7` | [C3](C3-2026-08-29-inspection-and-person-state.md) | Joined with adjacent work |
-| `C8` | [C4](C4-2026-08-29-death-ownership-and-infection-timing.md) | Absorbing adjacent unit |
-| `C9` | [C4](C4-2026-08-29-death-ownership-and-infection-timing.md) | Joined with adjacent work |
-| `C10` | [C4](C4-2026-08-29-death-ownership-and-infection-timing.md) | Joined with adjacent work |
-| `C11` | [C4](C4-2026-08-29-death-ownership-and-infection-timing.md) | Joined with adjacent work |
-| `C12` | [C5](C5-2026-08-29-player-surfaces-and-compatibility-review.md) | Absorbing adjacent unit |
-| `C13` | [C5](C5-2026-08-29-player-surfaces-and-compatibility-review.md) | Joined with adjacent work |
-| `C14` | [C5](C5-2026-08-29-player-surfaces-and-compatibility-review.md) | Joined with adjacent work |
-| `C15` | [C6](C6-2026-08-29-person-state-across-reload.md) | Boundary retained |
-| `C16` | [C7](C7-2026-08-29-zombie-census-and-bounded-restitution.md) | Absorbing adjacent unit |
-| `C17` | [C7](C7-2026-08-29-zombie-census-and-bounded-restitution.md) | Joined with adjacent work |
-| `C18` | [C8](C8-2026-08-29-play-evidence-and-execution-corrections.md) | Absorbing adjacent unit |
-| `C19` | [C8](C8-2026-08-29-play-evidence-and-execution-corrections.md) | Joined with adjacent work |
-| `C20` | [C9](C9-2026-08-29-adoption-and-configuration-boundaries.md) | Absorbing adjacent unit |
-| `C21` | [C9](C9-2026-08-29-adoption-and-configuration-boundaries.md) | Joined with adjacent work |
-| `C22` | [C9](C9-2026-08-29-adoption-and-configuration-boundaries.md) | Joined with adjacent work |
-| `C23` | [C9](C9-2026-08-29-adoption-and-configuration-boundaries.md) | Joined with adjacent work |
-| `C24` | [C9](C9-2026-08-29-adoption-and-configuration-boundaries.md) | Joined with adjacent work |
-| `C25` | [C10](C10-2026-08-29-known-needs-and-social-interaction.md) | Absorbing adjacent unit |
-| `C26` | [C10](C10-2026-08-29-known-needs-and-social-interaction.md) | Joined with adjacent work |
-| `C27` | [C11](C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md) | Absorbing adjacent unit |
-| `C28` | [C11](C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md) | Joined with adjacent work |
-| `C29` | [C12](C12-2026-09-06-body-scale-age-and-childhood.md) | Absorbing adjacent unit |
-| `C30` | [C12](C12-2026-09-06-body-scale-age-and-childhood.md) | Joined with adjacent work |
-| `C31` | [C12](C12-2026-09-06-body-scale-age-and-childhood.md) | Joined with adjacent work |
-| `C32` | [C13](C13-2026-09-06-conditions-habits-and-strain.md) | Absorbing adjacent unit |
-| `C33` | [C13](C13-2026-09-06-conditions-habits-and-strain.md) | Joined with adjacent work |
-| `C34` | [C13](C13-2026-09-06-conditions-habits-and-strain.md) | Joined with adjacent work |
-| `C35` | [C14](C14-2026-09-07-physical-gestures.md) | Boundary retained |
-| `C36` | [C15](C15-2026-09-07-historical-record-calendar.md) | Boundary retained |
-| `C37` | [C16](C16-2026-09-07-orders-through-standing.md) | Boundary retained |
-| `C38` | [C17](C17-2026-09-07-remembered-era-and-owned-condition-state.md) | Absorbing adjacent unit |
-| `C39` | [C17](C17-2026-09-07-remembered-era-and-owned-condition-state.md) | Joined with adjacent work |
-| `C40` | [C17](C17-2026-09-07-remembered-era-and-owned-condition-state.md) | Joined with adjacent work |
-| `C41` | [C18](C18-2026-09-07-historical-county-simulation.md) | Absorbing adjacent unit |
-| `C42` | [C18](C18-2026-09-07-historical-county-simulation.md) | Joined with adjacent work |
-| `C43` | [C18](C18-2026-09-07-historical-county-simulation.md) | Joined with adjacent work |
-| `C44` | [C18](C18-2026-09-07-historical-county-simulation.md) | Joined with adjacent work |
-| `C45` | [C18](C18-2026-09-07-historical-county-simulation.md) | Joined with adjacent work |
-| `C46` | [C18](C18-2026-09-07-historical-county-simulation.md) | Joined with adjacent work |
-| `C47` | [C19](C19-2026-09-07-constrained-factual-expression.md) | Boundary retained |
-| `C48` | [C20](C20-2026-09-07-entry-and-command-permission.md) | Absorbing adjacent unit |
-| `C49` | [C20](C20-2026-09-07-entry-and-command-permission.md) | Joined with adjacent work |
-| `C50` | [C21](C21-2026-09-08-learned-expression-and-condition-integration.md) | Absorbing adjacent unit |
-| `C51` | [C21](C21-2026-09-08-learned-expression-and-condition-integration.md) | Joined with adjacent work |
-| `C52` | [C21](C21-2026-09-08-learned-expression-and-condition-integration.md) | Joined with adjacent work |
-| `C53` | [C22](C22-2026-09-08-personal-choice-in-shared-travel.md) | Absorbing adjacent unit |
-| `C54` | [C22](C22-2026-09-08-personal-choice-in-shared-travel.md) | Joined with adjacent work |
-| `C55` | [C23](C23-2026-09-08-witnessed-violence-attribution.md) | Boundary retained |
-| `C56` | [C24](C24-2026-09-08-verification-and-publication-machinery.md) | Absorbing adjacent unit |
-| `C57` | [C24](C24-2026-09-08-verification-and-publication-machinery.md) | Joined with adjacent work |
-| `C58` | [C24](C24-2026-09-08-verification-and-publication-machinery.md) | Joined with adjacent work |
-| `C59` | [C24](C24-2026-09-08-verification-and-publication-machinery.md) | Joined with adjacent work |
-| `C60` | [C25](C25-2026-09-08-player-depletion-of-places.md) | Boundary retained |
-| `C61` | [C26](C26-2026-09-08-shared-county-time-and-day-zero.md) | Absorbing adjacent unit |
-| `C62` | [C26](C26-2026-09-08-shared-county-time-and-day-zero.md) | Joined with adjacent work |
-| `C63` | [C26](C26-2026-09-08-shared-county-time-and-day-zero.md) | Joined with adjacent work |
-| `C64` | [C27](C27-2026-09-08-scoped-verification-claims.md) | Boundary retained |
-| `C65` | [C28](C28-2026-09-08-simulation-telemetry-and-reproducibility.md) | Absorbing adjacent unit |
-| `C66` | [C28](C28-2026-09-08-simulation-telemetry-and-reproducibility.md) | Joined with adjacent work |
-| `C67` | [C29](C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | Absorbing adjacent unit |
-| `C68` | [C29](C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | Joined with adjacent work |
-| `C69` | [C29](C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | Joined with adjacent work |
-| `C70` | [C29](C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | Joined with adjacent work |
-| `C71` | [C29](C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | Joined with adjacent work |
-| `C72` | [C29](C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | Joined with adjacent work |
-| `C73` | [C29](C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | Joined with adjacent work |
-| `C74` | [C30](C30-2026-09-09-ownership-across-the-three-repositories.md) | Boundary retained |
-| `C75` | [C31](C31-2026-09-09-dormant-movement-settlement-ground-and-cost.md) | Absorbing adjacent unit |
-| `C76` | [C31](C31-2026-09-09-dormant-movement-settlement-ground-and-cost.md) | Joined with adjacent work |
-| `C77` | [C31](C31-2026-09-09-dormant-movement-settlement-ground-and-cost.md) | Joined with adjacent work |
-| `C78` | [C32](C32-2026-09-09-infection-course-and-clinical-observation.md) | Absorbing adjacent unit |
-| `C79` | [C32](C32-2026-09-09-infection-course-and-clinical-observation.md) | Joined with adjacent work |
-| `C80` | [C32](C32-2026-09-09-infection-course-and-clinical-observation.md) | Joined with adjacent work |
-| `C81` | [C33](C33-2026-09-09-controller-ownership-and-driving-surface-verification.md) | Absorbing adjacent unit |
-| `C82` | [C33](C33-2026-09-09-controller-ownership-and-driving-surface-verification.md) | Joined with adjacent work |
-| `C83` | [C34](C34-2026-09-10-decision-capture-and-ratified-data-preparation.md) | Absorbing adjacent unit |
-| `C84` | [C34](C34-2026-09-10-decision-capture-and-ratified-data-preparation.md) | Joined with adjacent work |
-| `C85` | [C34](C34-2026-09-10-decision-capture-and-ratified-data-preparation.md) | Joined with adjacent work |
-| `C86` | [C34](C34-2026-09-10-decision-capture-and-ratified-data-preparation.md) | Joined with adjacent work |
-| `C87` | [C34](C34-2026-09-10-decision-capture-and-ratified-data-preparation.md) | Joined with adjacent work |
-| `C88` | [C34](C34-2026-09-10-decision-capture-and-ratified-data-preparation.md) | Joined with adjacent work |
-| `C89` | [C35](C35-2026-09-10-life-simulation-and-dependency-contracts.md) | Absorbing adjacent unit |
-| `C90` | [C35](C35-2026-09-10-life-simulation-and-dependency-contracts.md) | Joined with adjacent work |
-| `C91` | [C35](C35-2026-09-10-life-simulation-and-dependency-contracts.md) | Joined with adjacent work |
-| `C92` | [C35](C35-2026-09-10-life-simulation-and-dependency-contracts.md) | Joined with adjacent work |
-| `C93` | [C35](C35-2026-09-10-life-simulation-and-dependency-contracts.md) | Joined with adjacent work |
-| `C94` | [C36](C36-2026-09-10-isolation-attachment-and-development-observations.md) | Absorbing adjacent unit |
-| `C95` | [C36](C36-2026-09-10-isolation-attachment-and-development-observations.md) | Joined with adjacent work |
-| `C96` | [C36](C36-2026-09-10-isolation-attachment-and-development-observations.md) | Joined with adjacent work |
-| `C97` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Absorbing adjacent unit |
-| `C98` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
-| `C99` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
-| `C100` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
-| `C101` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
-| `C102` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
-| `C103` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
-| `C104` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
-| `C105` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
-| `C106` | [C38](C38-2026-09-12-player-claims-and-inhabited-ground.md) | Absorbing adjacent unit |
-| `C107` | [C38](C38-2026-09-12-player-claims-and-inhabited-ground.md) | Joined with adjacent work |
-| `C108` | [C38](C38-2026-09-12-player-claims-and-inhabited-ground.md) | Joined with adjacent work |
-| `C109` | [C39](C39-2026-09-12-readiness-corrections-and-recorded-rulings.md) | Absorbing adjacent unit |
-| `C110` | [C39](C39-2026-09-12-readiness-corrections-and-recorded-rulings.md) | Joined with adjacent work |
-| `C111` | [C40](C40-2026-09-12-personal-need-in-affiliation.md) | Boundary retained |
-| `C112` | [C41](C41-2026-09-13-county-tick-and-ordinary-activity.md) | Absorbing adjacent unit |
-| `C113` | [C41](C41-2026-09-13-county-tick-and-ordinary-activity.md) | Joined with adjacent work |
-| `C114` | [C42](C42-2026-09-13-driving-integration-and-configuration.md) | Absorbing adjacent unit |
-| `C115` | [C42](C42-2026-09-13-driving-integration-and-configuration.md) | Joined with adjacent work |
-| `C116` | [C43](C43-2026-09-13-afflicted-return-and-social-behavior.md) | Absorbing adjacent unit |
-| `C117` | [C43](C43-2026-09-13-afflicted-return-and-social-behavior.md) | Joined with adjacent work |
-| `C118` | [C44](C44-2026-09-14-robbery-and-raiding-actions.md) | Boundary retained |
-| `C119` | [C45](C45-2026-09-14-optional-county-events-and-care.md) | Boundary retained |
-| `C120` | [C46](C46-2026-09-14-child-and-everyday-activity-integration.md) | Boundary retained |
-| `C121` | [C47](C47-2026-09-14-drug-use-withdrawal-and-smoking.md) | Boundary retained |
-| `C122` | [C48](C48-2026-09-14-vehicle-animal-and-combat-integration.md) | Absorbing adjacent unit |
-| `C123` | [C48](C48-2026-09-14-vehicle-animal-and-combat-integration.md) | Joined with adjacent work |
-| `C124` | [C48](C48-2026-09-14-vehicle-animal-and-combat-integration.md) | Joined with adjacent work |
-| `C125` | [C49](C49-2026-09-14-brain-health-integration.md) | Boundary retained |
-| `C126` | [C50](C50-2026-09-18-historical-simulation-recovery-and-evidence.md) | Absorbing adjacent unit |
-| `C127` | [C50](C50-2026-09-18-historical-simulation-recovery-and-evidence.md) | Joined with adjacent work |
+| Source label | Preserved record | Current primary home | All contributing contracts |
+|---|---|---|---|
+| `C1` | [source](history/c-20261003-source/Batches/C1-2026-08-28-catalog-and-version-governance.md) | [C1](Catalogue/C1-2026-08-28-catalogue-replay.md) | [C1](Catalogue/C1-2026-08-28-catalogue-replay.md), [C28](Catalogue/C28-2026-10-03-verification.md) |
+| `C2` | [source](history/c-20261003-source/Batches/C2-2026-08-29-identity-and-execution-continuity.md) | [C3](Catalogue/C3-2026-09-08-identity.md) | [C3](Catalogue/C3-2026-09-08-identity.md), [C24](Catalogue/C24-2026-10-01-custody.md), [C31](Catalogue/C31-2026-10-03-action.md) |
+| `C3` | [source](history/c-20261003-source/Batches/C3-2026-08-29-inspection-and-person-state.md) | [C22](Catalogue/C22-2026-10-01-observation.md) | [C22](Catalogue/C22-2026-10-01-observation.md), [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C4` | [source](history/c-20261003-source/Batches/C4-2026-08-29-death-ownership-and-infection-timing.md) | [C3](Catalogue/C3-2026-09-08-identity.md) | [C3](Catalogue/C3-2026-09-08-identity.md), [C24](Catalogue/C24-2026-10-01-custody.md), [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C5` | [source](history/c-20261003-source/Batches/C5-2026-08-29-player-surfaces-and-compatibility-review.md) | [C5](Catalogue/C5-2026-09-14-configuration.md) | [C5](Catalogue/C5-2026-09-14-configuration.md), [C11](Catalogue/C11-2026-09-20-compatibility.md) |
+| `C6` | [source](history/c-20261003-source/Batches/C6-2026-08-29-person-state-across-reload.md) | [C25](Catalogue/C25-2026-10-01-snapshot.md) | [C25](Catalogue/C25-2026-10-01-snapshot.md), [C13](Catalogue/C13-2026-09-20-reconstruction.md) |
+| `C7` | [source](history/c-20261003-source/Batches/C7-2026-08-29-zombie-census-and-bounded-restitution.md) | [C3](Catalogue/C3-2026-09-08-identity.md) | [C3](Catalogue/C3-2026-09-08-identity.md), [C10](Catalogue/C10-2026-09-20-population.md), [C5](Catalogue/C5-2026-09-14-configuration.md) |
+| `C8` | [source](history/c-20261003-source/Batches/C8-2026-08-29-play-evidence-and-execution-corrections.md) | [C29](Catalogue/C29-2026-10-03-movement.md) | [C29](Catalogue/C29-2026-10-03-movement.md), [C12](Catalogue/C12-2026-09-20-access.md), [C28](Catalogue/C28-2026-10-03-verification.md) |
+| `C9` | [source](history/c-20261003-source/Batches/C9-2026-08-29-adoption-and-configuration-boundaries.md) | [C3](Catalogue/C3-2026-09-08-identity.md) | [C3](Catalogue/C3-2026-09-08-identity.md), [C24](Catalogue/C24-2026-10-01-custody.md), [C5](Catalogue/C5-2026-09-14-configuration.md) |
+| `C10` | [source](history/c-20261003-source/Batches/C10-2026-08-29-known-needs-and-social-interaction.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md), [C4](Catalogue/C4-2026-09-12-standing.md), [C31](Catalogue/C31-2026-10-03-action.md) |
+| `C11` | [source](history/c-20261003-source/Batches/C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md), [C19](Catalogue/C19-2026-09-29-data.md), [C32](Catalogue/C32-2026-10-03-choice.md) |
+| `C12` | [source](history/c-20261003-source/Batches/C12-2026-09-06-body-scale-age-and-childhood.md) | [C7](Catalogue/C7-2026-09-19-capacity.md) | [C7](Catalogue/C7-2026-09-19-capacity.md), [C31](Catalogue/C31-2026-10-03-action.md) |
+| `C13` | [source](history/c-20261003-source/Batches/C13-2026-09-06-conditions-habits-and-strain.md) | [C17](Catalogue/C17-2026-09-27-health.md) | [C17](Catalogue/C17-2026-09-27-health.md), [C32](Catalogue/C32-2026-10-03-choice.md), [C13](Catalogue/C13-2026-09-20-reconstruction.md) |
+| `C14` | [source](history/c-20261003-source/Batches/C14-2026-09-07-physical-gestures.md) | [C31](Catalogue/C31-2026-10-03-action.md) | [C31](Catalogue/C31-2026-10-03-action.md) |
+| `C15` | [source](history/c-20261003-source/Batches/C15-2026-09-07-historical-record-calendar.md) | [C6](Catalogue/C6-2026-09-19-time.md) | [C6](Catalogue/C6-2026-09-19-time.md) |
+| `C16` | [source](history/c-20261003-source/Batches/C16-2026-09-07-orders-through-standing.md) | [C4](Catalogue/C4-2026-09-12-standing.md) | [C4](Catalogue/C4-2026-09-12-standing.md), [C31](Catalogue/C31-2026-10-03-action.md) |
+| `C17` | [source](history/c-20261003-source/Batches/C17-2026-09-07-remembered-era-and-owned-condition-state.md) | [C17](Catalogue/C17-2026-09-27-health.md) | [C17](Catalogue/C17-2026-09-27-health.md), [C33](Catalogue/C33-2026-10-03-knowledge.md) |
+| `C18` | [source](history/c-20261003-source/Batches/C18-2026-09-07-historical-county-simulation.md) | [C10](Catalogue/C10-2026-09-20-population.md) | [C10](Catalogue/C10-2026-09-20-population.md), [C6](Catalogue/C6-2026-09-19-time.md), [C18](Catalogue/C18-2026-09-29-place.md) |
+| `C19` | [source](history/c-20261003-source/Batches/C19-2026-09-07-constrained-factual-expression.md) | [C2](Catalogue/C2-2026-09-08-expression.md) | [C2](Catalogue/C2-2026-09-08-expression.md) |
+| `C20` | [source](history/c-20261003-source/Batches/C20-2026-09-07-entry-and-command-permission.md) | [C12](Catalogue/C12-2026-09-20-access.md) | [C12](Catalogue/C12-2026-09-20-access.md), [C4](Catalogue/C4-2026-09-12-standing.md) |
+| `C21` | [source](history/c-20261003-source/Batches/C21-2026-09-08-learned-expression-and-condition-integration.md) | [C2](Catalogue/C2-2026-09-08-expression.md) | [C2](Catalogue/C2-2026-09-08-expression.md), [C17](Catalogue/C17-2026-09-27-health.md), [C33](Catalogue/C33-2026-10-03-knowledge.md) |
+| `C22` | [source](history/c-20261003-source/Batches/C22-2026-09-08-personal-choice-in-shared-travel.md) | [C32](Catalogue/C32-2026-10-03-choice.md) | [C32](Catalogue/C32-2026-10-03-choice.md), [C4](Catalogue/C4-2026-09-12-standing.md), [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C23` | [source](history/c-20261003-source/Batches/C23-2026-09-08-witnessed-violence-attribution.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md), [C4](Catalogue/C4-2026-09-12-standing.md) |
+| `C24` | [source](history/c-20261003-source/Batches/C24-2026-09-08-verification-and-publication-machinery.md) | [C28](Catalogue/C28-2026-10-03-verification.md) | [C28](Catalogue/C28-2026-10-03-verification.md), [C11](Catalogue/C11-2026-09-20-compatibility.md), [C35](Catalogue/C35-2026-10-03-source-ownership.md) |
+| `C25` | [source](history/c-20261003-source/Batches/C25-2026-09-08-player-depletion-of-places.md) | [C21](Catalogue/C21-2026-09-30-material.md) | [C21](Catalogue/C21-2026-09-30-material.md), [C18](Catalogue/C18-2026-09-29-place.md) |
+| `C26` | [source](history/c-20261003-source/Batches/C26-2026-09-08-shared-county-time-and-day-zero.md) | [C6](Catalogue/C6-2026-09-19-time.md) | [C6](Catalogue/C6-2026-09-19-time.md), [C10](Catalogue/C10-2026-09-20-population.md) |
+| `C27` | [source](history/c-20261003-source/Batches/C27-2026-09-08-scoped-verification-claims.md) | [C28](Catalogue/C28-2026-10-03-verification.md) | [C28](Catalogue/C28-2026-10-03-verification.md) |
+| `C28` | [source](history/c-20261003-source/Batches/C28-2026-09-08-simulation-telemetry-and-reproducibility.md) | [C22](Catalogue/C22-2026-10-01-observation.md) | [C22](Catalogue/C22-2026-10-01-observation.md), [C8](Catalogue/C8-2026-09-19-random.md), [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C29` | [source](history/c-20261003-source/Batches/C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | [C23](Catalogue/C23-2026-10-01-social.md) | [C23](Catalogue/C23-2026-10-01-social.md), [C3](Catalogue/C3-2026-09-08-identity.md), [C10](Catalogue/C10-2026-09-20-population.md), [C13](Catalogue/C13-2026-09-20-reconstruction.md) |
+| `C30` | [source](history/c-20261003-source/Batches/C30-2026-09-09-ownership-across-the-three-repositories.md) | [C35](Catalogue/C35-2026-10-03-source-ownership.md) | [C35](Catalogue/C35-2026-10-03-source-ownership.md) |
+| `C31` | [source](history/c-20261003-source/Batches/C31-2026-09-09-dormant-movement-settlement-ground-and-cost.md) | [C29](Catalogue/C29-2026-10-03-movement.md) | [C29](Catalogue/C29-2026-10-03-movement.md), [C18](Catalogue/C18-2026-09-29-place.md), [C28](Catalogue/C28-2026-10-03-verification.md) |
+| `C32` | [source](history/c-20261003-source/Batches/C32-2026-09-09-infection-course-and-clinical-observation.md) | [C17](Catalogue/C17-2026-09-27-health.md) | [C17](Catalogue/C17-2026-09-27-health.md), [C33](Catalogue/C33-2026-10-03-knowledge.md) |
+| `C33` | [source](history/c-20261003-source/Batches/C33-2026-09-09-controller-ownership-and-driving-surface-verification.md) | [C24](Catalogue/C24-2026-10-01-custody.md) | [C24](Catalogue/C24-2026-10-01-custody.md), [C11](Catalogue/C11-2026-09-20-compatibility.md), [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C34` | [source](history/c-20261003-source/Batches/C34-2026-09-10-decision-capture-and-ratified-data-preparation.md) | [C19](Catalogue/C19-2026-09-29-data.md) | [C19](Catalogue/C19-2026-09-29-data.md), [C35](Catalogue/C35-2026-10-03-source-ownership.md) |
+| `C35` | [source](history/c-20261003-source/Batches/C35-2026-09-10-life-simulation-and-dependency-contracts.md) | [C23](Catalogue/C23-2026-10-01-social.md) | [C23](Catalogue/C23-2026-10-01-social.md), [C4](Catalogue/C4-2026-09-12-standing.md), [C13](Catalogue/C13-2026-09-20-reconstruction.md), [C18](Catalogue/C18-2026-09-29-place.md) |
+| `C36` | [source](history/c-20261003-source/Batches/C36-2026-09-10-isolation-attachment-and-development-observations.md) | [C22](Catalogue/C22-2026-10-01-observation.md) | [C22](Catalogue/C22-2026-10-01-observation.md), [C23](Catalogue/C23-2026-10-01-social.md), [C18](Catalogue/C18-2026-09-29-place.md) |
+| `C37` | [source](history/c-20261003-source/Batches/C37-2026-09-12-pathogen-data-and-recognition-integration.md) | [C17](Catalogue/C17-2026-09-27-health.md) | [C17](Catalogue/C17-2026-09-27-health.md), [C19](Catalogue/C19-2026-09-29-data.md), [C33](Catalogue/C33-2026-10-03-knowledge.md), [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C38` | [source](history/c-20261003-source/Batches/C38-2026-09-12-player-claims-and-inhabited-ground.md) | [C4](Catalogue/C4-2026-09-12-standing.md) | [C4](Catalogue/C4-2026-09-12-standing.md), [C14](Catalogue/C14-2026-09-21-provisioning.md), [C18](Catalogue/C18-2026-09-29-place.md) |
+| `C39` | [source](history/c-20261003-source/Batches/C39-2026-09-12-readiness-corrections-and-recorded-rulings.md) | [C35](Catalogue/C35-2026-10-03-source-ownership.md) | [C35](Catalogue/C35-2026-10-03-source-ownership.md), [C19](Catalogue/C19-2026-09-29-data.md), [C28](Catalogue/C28-2026-10-03-verification.md) |
+| `C40` | [source](history/c-20261003-source/Batches/C40-2026-09-12-personal-need-in-affiliation.md) | [C32](Catalogue/C32-2026-10-03-choice.md) | [C32](Catalogue/C32-2026-10-03-choice.md), [C23](Catalogue/C23-2026-10-01-social.md), [C33](Catalogue/C33-2026-10-03-knowledge.md) |
+| `C41` | [source](history/c-20261003-source/Batches/C41-2026-09-13-county-tick-and-ordinary-activity.md) | [C6](Catalogue/C6-2026-09-19-time.md) | [C6](Catalogue/C6-2026-09-19-time.md), [C10](Catalogue/C10-2026-09-20-population.md), [C18](Catalogue/C18-2026-09-29-place.md), [C31](Catalogue/C31-2026-10-03-action.md) |
+| `C42` | [source](history/c-20261003-source/Batches/C42-2026-09-13-driving-integration-and-configuration.md) | [C29](Catalogue/C29-2026-10-03-movement.md) | [C29](Catalogue/C29-2026-10-03-movement.md), [C5](Catalogue/C5-2026-09-14-configuration.md) |
+| `C43` | [source](history/c-20261003-source/Batches/C43-2026-09-13-afflicted-return-and-social-behavior.md) | [C9](Catalogue/C9-2026-09-19-return.md) | [C9](Catalogue/C9-2026-09-19-return.md), [C7](Catalogue/C7-2026-09-19-capacity.md), [C23](Catalogue/C23-2026-10-01-social.md), [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C44` | [source](history/c-20261003-source/Batches/C44-2026-09-14-robbery-and-raiding-actions.md) | [C4](Catalogue/C4-2026-09-12-standing.md) | [C4](Catalogue/C4-2026-09-12-standing.md), [C31](Catalogue/C31-2026-10-03-action.md), [C23](Catalogue/C23-2026-10-01-social.md), [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C45` | [source](history/c-20261003-source/Batches/C45-2026-09-14-optional-county-events-and-care.md) | [C5](Catalogue/C5-2026-09-14-configuration.md) | [C5](Catalogue/C5-2026-09-14-configuration.md), [C31](Catalogue/C31-2026-10-03-action.md), [C17](Catalogue/C17-2026-09-27-health.md) |
+| `C46` | [source](history/c-20261003-source/Batches/C46-2026-09-14-child-and-everyday-activity-integration.md) | [C7](Catalogue/C7-2026-09-19-capacity.md) | [C7](Catalogue/C7-2026-09-19-capacity.md), [C17](Catalogue/C17-2026-09-27-health.md), [C33](Catalogue/C33-2026-10-03-knowledge.md), [C31](Catalogue/C31-2026-10-03-action.md) |
+| `C47` | [source](history/c-20261003-source/Batches/C47-2026-09-14-drug-use-withdrawal-and-smoking.md) | [C17](Catalogue/C17-2026-09-27-health.md) | [C17](Catalogue/C17-2026-09-27-health.md), [C25](Catalogue/C25-2026-10-01-snapshot.md), [C6](Catalogue/C6-2026-09-19-time.md) |
+| `C48` | [source](history/c-20261003-source/Batches/C48-2026-09-14-vehicle-animal-and-combat-integration.md) | [C12](Catalogue/C12-2026-09-20-access.md) | [C12](Catalogue/C12-2026-09-20-access.md), [C33](Catalogue/C33-2026-10-03-knowledge.md), [C31](Catalogue/C31-2026-10-03-action.md), [C20](Catalogue/C20-2026-09-30-material-actions.md) |
+| `C49` | [source](history/c-20261003-source/Batches/C49-2026-09-14-brain-health-integration.md) | [C17](Catalogue/C17-2026-09-27-health.md) | [C17](Catalogue/C17-2026-09-27-health.md), [C32](Catalogue/C32-2026-10-03-choice.md) |
+| `C50` | [source](history/c-20261003-source/Batches/C50-2026-09-18-historical-simulation-recovery-and-evidence.md) | [C10](Catalogue/C10-2026-09-20-population.md) | [C10](Catalogue/C10-2026-09-20-population.md), [C22](Catalogue/C22-2026-10-01-observation.md), [C19](Catalogue/C19-2026-09-29-data.md), [C28](Catalogue/C28-2026-10-03-verification.md) |
+| `C51` | [source](history/c-20261003-source/Batches/C51-2026-09-19-person-preservation.md) | [C25](Catalogue/C25-2026-10-01-snapshot.md) | [C25](Catalogue/C25-2026-10-01-snapshot.md), [C24](Catalogue/C24-2026-10-01-custody.md), [C31](Catalogue/C31-2026-10-03-action.md) |
+| `C52` | [source](history/c-20261003-source/Batches/C52-2026-09-19-authorized-afflicted-return.md) | [C9](Catalogue/C9-2026-09-19-return.md) | [C9](Catalogue/C9-2026-09-19-return.md), [C25](Catalogue/C25-2026-10-01-snapshot.md), [C13](Catalogue/C13-2026-09-20-reconstruction.md) |
+| `C53` | [source](history/c-20261003-source/Batches/C53-2026-09-19-shared-county-time.md) | [C6](Catalogue/C6-2026-09-19-time.md) | [C6](Catalogue/C6-2026-09-19-time.md), [C10](Catalogue/C10-2026-09-20-population.md) |
+| `C54` | [source](history/c-20261003-source/Batches/C54-2026-09-19-native-person-continuity.md) | [C25](Catalogue/C25-2026-10-01-snapshot.md) | [C25](Catalogue/C25-2026-10-01-snapshot.md), [C7](Catalogue/C7-2026-09-19-capacity.md), [C24](Catalogue/C24-2026-10-01-custody.md) |
+| `C55` | [source](history/c-20261003-source/Batches/C55-2026-09-19-durable-runtime-reconstruction.md) | [C13](Catalogue/C13-2026-09-20-reconstruction.md) | [C13](Catalogue/C13-2026-09-20-reconstruction.md), [C9](Catalogue/C9-2026-09-19-return.md), [C31](Catalogue/C31-2026-10-03-action.md), [C8](Catalogue/C8-2026-09-19-random.md) |
+| `C56` | [source](history/c-20261003-source/Batches/C56-2026-09-19-health-and-dormant-physiology.md) | [C17](Catalogue/C17-2026-09-27-health.md) | [C17](Catalogue/C17-2026-09-27-health.md), [C20](Catalogue/C20-2026-09-30-material-actions.md), [C31](Catalogue/C31-2026-10-03-action.md), [C24](Catalogue/C24-2026-10-01-custody.md) |
+| `C57` | [source](history/c-20261003-source/Batches/C57-2026-09-20-person-continuity-contract.md) | [C25](Catalogue/C25-2026-10-01-snapshot.md) | [C25](Catalogue/C25-2026-10-01-snapshot.md), [C24](Catalogue/C24-2026-10-01-custody.md), [C28](Catalogue/C28-2026-10-03-verification.md), [C11](Catalogue/C11-2026-09-20-compatibility.md) |
+| `C58` | [source](history/c-20261003-source/Batches/C58-2026-09-20-population-reconstruction-and-scheduling.md) | [C10](Catalogue/C10-2026-09-20-population.md) | [C10](Catalogue/C10-2026-09-20-population.md), [C13](Catalogue/C13-2026-09-20-reconstruction.md), [C24](Catalogue/C24-2026-10-01-custody.md), [C3](Catalogue/C3-2026-09-08-identity.md) |
+| `C59` | [source](history/c-20261003-source/Batches/C59-2026-09-20-debug-mode-lua-compilation.md) | [C11](Catalogue/C11-2026-09-20-compatibility.md) | [C11](Catalogue/C11-2026-09-20-compatibility.md), [C28](Catalogue/C28-2026-10-03-verification.md) |
+| `C60` | [source](history/c-20261003-source/Batches/C60-2026-09-20-perception-and-world-access.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md), [C12](Catalogue/C12-2026-09-20-access.md), [C31](Catalogue/C31-2026-10-03-action.md), [C21](Catalogue/C21-2026-09-30-material.md) |
+| `C61` | [source](history/c-20261003-source/Batches/C61-2026-09-20-demand-led-native-hydration.md) | [C21](Catalogue/C21-2026-09-30-material.md) | [C21](Catalogue/C21-2026-09-30-material.md) |
+| `C62` | [source](history/c-20261003-source/Batches/C62-2026-09-20-source-access-and-native-use.md) | [C20](Catalogue/C20-2026-09-30-material-actions.md) | [C20](Catalogue/C20-2026-09-30-material-actions.md), [C21](Catalogue/C21-2026-09-30-material.md) |
+| `C63` | [source](history/c-20261003-source/Batches/C63-2026-09-20-provisioning-result-consumption.md) | [C14](Catalogue/C14-2026-09-21-provisioning.md) | [C14](Catalogue/C14-2026-09-21-provisioning.md) |
+| `C64` | [source](history/c-20261003-source/Batches/C64-2026-09-20-corrective-integrity-and-decision-evidence.md) | [C14](Catalogue/C14-2026-09-21-provisioning.md) | [C14](Catalogue/C14-2026-09-21-provisioning.md), [C19](Catalogue/C19-2026-09-29-data.md), [C13](Catalogue/C13-2026-09-20-reconstruction.md), [C24](Catalogue/C24-2026-10-01-custody.md) |
+| `C65` | [source](history/c-20261003-source/Batches/C65-2026-09-21-source-action-decisions.md) | [C21](Catalogue/C21-2026-09-30-material.md) | [C21](Catalogue/C21-2026-09-30-material.md), [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C66` | [source](history/c-20261003-source/Batches/C66-2026-09-21-performed-provisioning.md) | [C20](Catalogue/C20-2026-09-30-material-actions.md) | [C20](Catalogue/C20-2026-09-30-material-actions.md), [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C67` | [source](history/c-20261003-source/Batches/C67-2026-09-21-delivery-knowledge.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md), [C16](Catalogue/C16-2026-09-25-communication.md) |
+| `C68` | [source](history/c-20261003-source/Batches/C68-2026-09-21-personal-handovers-and-terms.md) | [C20](Catalogue/C20-2026-09-30-material-actions.md) | [C20](Catalogue/C20-2026-09-30-material-actions.md) |
+| `C69` | [source](history/c-20261003-source/Batches/C69-2026-09-21-recipient-appraisal-after-testimony.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md) |
+| `C70` | [source](history/c-20261003-source/Batches/C70-2026-09-21-treatment-completion.md) | [C31](Catalogue/C31-2026-10-03-action.md) | [C31](Catalogue/C31-2026-10-03-action.md) |
+| `C71` | [source](history/c-20261003-source/Batches/C71-2026-09-21-complete-private-inventory.md) | [C25](Catalogue/C25-2026-10-01-snapshot.md) | [C25](Catalogue/C25-2026-10-01-snapshot.md), [C33](Catalogue/C33-2026-10-03-knowledge.md), [C14](Catalogue/C14-2026-09-21-provisioning.md) |
+| `C72` | [source](history/c-20261003-source/Batches/C72-2026-09-21-dormant-spoken-access.md) | [C25](Catalogue/C25-2026-10-01-snapshot.md) | [C25](Catalogue/C25-2026-10-01-snapshot.md), [C17](Catalogue/C17-2026-09-27-health.md), [C16](Catalogue/C16-2026-09-25-communication.md) |
+| `C73` | [source](history/c-20261003-source/Batches/C73-2026-09-21-radio-reception.md) | [C16](Catalogue/C16-2026-09-25-communication.md) | [C16](Catalogue/C16-2026-09-25-communication.md), [C25](Catalogue/C25-2026-10-01-snapshot.md) |
+| `C74` | [source](history/c-20261003-source/Batches/C74-2026-09-21-personal-world-knowledge-evidence.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md), [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C75` | [source](history/c-20261003-source/Batches/C75-2026-09-21-typed-claim-catalogues.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md) |
+| `C76` | [source](history/c-20261003-source/Batches/C76-2026-09-22-conversation-capture.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md), [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C77` | [source](history/c-20261003-source/Batches/C77-2026-09-22-evidenced-world-knowledge.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md), [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C78` | [source](history/c-20261003-source/Batches/C78-2026-09-23-person-state-comparisons.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md), [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C79` | [source](history/c-20261003-source/Batches/C79-2026-09-24-enacted-social-coordination.md) | [C23](Catalogue/C23-2026-10-01-social.md) | [C23](Catalogue/C23-2026-10-01-social.md), [C16](Catalogue/C16-2026-09-25-communication.md) |
+| `C80` | [source](history/c-20261003-source/Batches/C80-20260924-2016Z-1316PST-zao-owned-living-person-handoff.md) | [C24](Catalogue/C24-2026-10-01-custody.md) | [C24](Catalogue/C24-2026-10-01-custody.md), [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C81` | [source](history/c-20261003-source/Batches/C81-20260925-0221Z-1921PST-coordination-reference-source.md) | [C19](Catalogue/C19-2026-09-29-data.md) | [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C82` | [source](history/c-20261003-source/Batches/C82-20260925-0525Z-2225PST-native-coordination-shadow.md) | [C15](Catalogue/C15-2026-09-25-inference.md) | [C15](Catalogue/C15-2026-09-25-inference.md) |
+| `C83` | [source](history/c-20261003-source/Batches/C83-20260925-0855Z-0155PST-external-life-coordination.md) | [C23](Catalogue/C23-2026-10-01-social.md) | [C23](Catalogue/C23-2026-10-01-social.md), [C20](Catalogue/C20-2026-09-30-material-actions.md) |
+| `C84` | [source](history/c-20261003-source/Batches/C84-20260925-1201Z-0501PST-causal-episode-runtime.md) | [C19](Catalogue/C19-2026-09-29-data.md) | [C19](Catalogue/C19-2026-09-29-data.md), [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C85` | [source](history/c-20261003-source/Batches/C85-20260925-2145Z-1445PST-private-situation-contact-and-enacted-work.md) | [C23](Catalogue/C23-2026-10-01-social.md) | [C23](Catalogue/C23-2026-10-01-social.md), [C16](Catalogue/C16-2026-09-25-communication.md) |
+| `C86` | [source](history/c-20261003-source/Batches/C86-20260926-0526Z-2226PST-native-study-worlds.md) | [C26](Catalogue/C26-2026-10-03-study.md) | [C26](Catalogue/C26-2026-10-03-study.md), [C27](Catalogue/C27-2026-10-03-native-view.md), [C33](Catalogue/C33-2026-10-03-knowledge.md), [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C87` | [source](history/c-20261003-source/Batches/C87-20260926-2218Z-1518PST-survival-observation-and-continuity.md) | [C26](Catalogue/C26-2026-10-03-study.md) | [C26](Catalogue/C26-2026-10-03-study.md), [C24](Catalogue/C24-2026-10-01-custody.md), [C21](Catalogue/C21-2026-09-30-material.md), [C30](Catalogue/C30-2026-10-03-planning.md), [C22](Catalogue/C22-2026-10-01-observation.md) |
+| `C88` | [source](history/c-20261003-source/Batches/C88-20260927-0208Z-1908PST-competing-cognition.md) | [C32](Catalogue/C32-2026-10-03-choice.md) | [C32](Catalogue/C32-2026-10-03-choice.md), [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C89` | [source](history/c-20261003-source/Batches/C89-20260927-0516Z-2216PST-native-perception-and-capabilities.md) | [C31](Catalogue/C31-2026-10-03-action.md) | [C31](Catalogue/C31-2026-10-03-action.md), [C17](Catalogue/C17-2026-09-27-health.md), [C25](Catalogue/C25-2026-10-01-snapshot.md), [C23](Catalogue/C23-2026-10-01-social.md), [C20](Catalogue/C20-2026-09-30-material-actions.md) |
+| `C90` | [source](history/c-20261003-source/Batches/C90-20260927-2033Z-1333PST-cooperative-procedures.md) | [C23](Catalogue/C23-2026-10-01-social.md) | [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C91` | [source](history/c-20261003-source/Batches/C91-20260928-0058Z-1758PST-autonomous-cooperative-action.md) | [C23](Catalogue/C23-2026-10-01-social.md) | [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C92` | [source](history/c-20261003-source/Batches/C92-20260928-0433Z-2133PST-natural-cooperative-formation.md) | [C23](Catalogue/C23-2026-10-01-social.md) | [C23](Catalogue/C23-2026-10-01-social.md), [C31](Catalogue/C31-2026-10-03-action.md) |
+| `C93` | [source](history/c-20261003-source/Batches/C93-20260928-0657Z-2357PST-durable-study-sessions.md) | [C26](Catalogue/C26-2026-10-03-study.md) | [C26](Catalogue/C26-2026-10-03-study.md) |
+| `C94` | [source](history/c-20261003-source/Batches/C94-20260928-0910Z-0210PDT-study-situation-pressure.md) | [C26](Catalogue/C26-2026-10-03-study.md) | [C26](Catalogue/C26-2026-10-03-study.md) |
+| `C95` | [source](history/c-20261003-source/Batches/C95-20260928-1021Z-0321PDT-person-private-procedural-planning.md) | [C30](Catalogue/C30-2026-10-03-planning.md) | [C30](Catalogue/C30-2026-10-03-planning.md), [C32](Catalogue/C32-2026-10-03-choice.md) |
+| `C96` | [source](history/c-20261003-source/Batches/C96-20260928-2010Z-1310PDT-current-engine-study-activation.md) | [C26](Catalogue/C26-2026-10-03-study.md) | [C26](Catalogue/C26-2026-10-03-study.md) |
+| `C97` | [source](history/c-20261003-source/Batches/C97-20260928-2053Z-1353PDT-source-integration-lineage.md) | [C35](Catalogue/C35-2026-10-03-source-ownership.md) | [C35](Catalogue/C35-2026-10-03-source-ownership.md) |
+| `C98` | [source](history/c-20261003-source/Batches/C98-20260928-2130Z-1430PDT-owned-horse-life-and-mobility.md) | [C35](Catalogue/C35-2026-10-03-source-ownership.md) | [C35](Catalogue/C35-2026-10-03-source-ownership.md), [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C99` | [source](history/c-20261003-source/Batches/C99-20260929-0312Z-2012PDT-mobile-household-continuity.md) | [C18](Catalogue/C18-2026-09-29-place.md) | [C18](Catalogue/C18-2026-09-29-place.md) |
+| `C100` | [source](history/c-20261003-source/Batches/C100-20260929-0901Z-0201PDT-mobile-household-loaded-acceptance.md) | [C18](Catalogue/C18-2026-09-29-place.md) | [C18](Catalogue/C18-2026-09-29-place.md), [C26](Catalogue/C26-2026-10-03-study.md) |
+| `C101` | [source](history/c-20261003-source/Batches/C101-20260929-1941Z-1241PDT-study-terminal-and-human-review-handoff.md) | [C26](Catalogue/C26-2026-10-03-study.md) | [C26](Catalogue/C26-2026-10-03-study.md), [C19](Catalogue/C19-2026-09-29-data.md) |
+| `C102` | [source](history/c-20261003-source/Batches/C102-20260929-2320Z-1620PST-native-skill-book-study.md) | [C31](Catalogue/C31-2026-10-03-action.md) | [C31](Catalogue/C31-2026-10-03-action.md), [C30](Catalogue/C30-2026-10-03-planning.md) |
+| `C103` | [source](history/c-20261003-source/Batches/C103-20260930-0306Z-2006PST-retained-acquisition-and-productive-work.md) | [C20](Catalogue/C20-2026-09-30-material-actions.md) | [C20](Catalogue/C20-2026-09-30-material-actions.md), [C30](Catalogue/C30-2026-10-03-planning.md), [C31](Catalogue/C31-2026-10-03-action.md) |
+| `C104` | [source](history/c-20261003-source/Batches/C104-20260930-0455Z-2155PST-sustained-resource-planning.md) | [C30](Catalogue/C30-2026-10-03-planning.md) | [C30](Catalogue/C30-2026-10-03-planning.md), [C31](Catalogue/C31-2026-10-03-action.md), [C23](Catalogue/C23-2026-10-01-social.md), [C22](Catalogue/C22-2026-10-01-observation.md), [C20](Catalogue/C20-2026-09-30-material-actions.md) |
+| `C105` | [source](history/c-20261003-source/Batches/C105-20260930-1100Z-0400PST-resource-outcome-trials-and-asynchronous-observation.md) | [C26](Catalogue/C26-2026-10-03-study.md) | [C26](Catalogue/C26-2026-10-03-study.md), [C22](Catalogue/C22-2026-10-01-observation.md), [C20](Catalogue/C20-2026-09-30-material-actions.md) |
+| `C106` | [source](history/c-20261003-source/Batches/C106-20260930-1320Z-0620PST-regional-study-conditions-hydration-and-timing.md) | [C26](Catalogue/C26-2026-10-03-study.md) | [C26](Catalogue/C26-2026-10-03-study.md), [C21](Catalogue/C21-2026-09-30-material.md), [C22](Catalogue/C22-2026-10-01-observation.md), [C31](Catalogue/C31-2026-10-03-action.md) |
+| `C107` | [source](history/c-20261003-source/Batches/C107-20260930-1745Z-1045PST-resource-approaches-and-native-threat-conditions.md) | [C29](Catalogue/C29-2026-10-03-movement.md) | [C29](Catalogue/C29-2026-10-03-movement.md), [C26](Catalogue/C26-2026-10-03-study.md), [C27](Catalogue/C27-2026-10-03-native-view.md) |
+| `C108` | [source](history/c-20261003-source/Batches/C108-20260930-2000Z-1300PST-private-survival-planning-and-residence.md) | [C30](Catalogue/C30-2026-10-03-planning.md) | [C30](Catalogue/C30-2026-10-03-planning.md), [C21](Catalogue/C21-2026-09-30-material.md), [C34](Catalogue/C34-2026-10-03-recovery.md), [C33](Catalogue/C33-2026-10-03-knowledge.md), [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C109` | [source](history/c-20261003-source/Batches/C109-20261001-0459Z-2159PST-observer-capture-and-session-completion.md) | [C22](Catalogue/C22-2026-10-01-observation.md) | [C22](Catalogue/C22-2026-10-01-observation.md), [C26](Catalogue/C26-2026-10-03-study.md) |
+| `C110` | [source](history/c-20261003-source/Batches/C110-20261001-0730Z-0030PST-route-progress-and-tactical-continuity.md) | [C29](Catalogue/C29-2026-10-03-movement.md) | [C29](Catalogue/C29-2026-10-03-movement.md), [C23](Catalogue/C23-2026-10-01-social.md) |
+| `C111` | [source](history/c-20261003-source/Batches/C111-20261001-2355Z-1655PST-native-feeding-and-carried-coolers.md) | [C31](Catalogue/C31-2026-10-03-action.md) | [C31](Catalogue/C31-2026-10-03-action.md), [C25](Catalogue/C25-2026-10-01-snapshot.md), [C24](Catalogue/C24-2026-10-01-custody.md), [C35](Catalogue/C35-2026-10-03-source-ownership.md) |
+| `C112` | [source](history/c-20261003-source/Batches/C112-20261002-0328Z-2028PST-native-window-repair.md) | [C31](Catalogue/C31-2026-10-03-action.md) | [C31](Catalogue/C31-2026-10-03-action.md), [C35](Catalogue/C35-2026-10-03-source-ownership.md) |
+| `C113` | [source](history/c-20261003-source/Batches/C113-20261002-0924Z-0224PST-independent-native-observation-layouts.md) | [C27](Catalogue/C27-2026-10-03-native-view.md) | [C27](Catalogue/C27-2026-10-03-native-view.md) |
+| `C114` | [source](history/c-20261003-source/Batches/C114-20261002-2244Z-1544PST-uncapped-native-observation.md) | [C27](Catalogue/C27-2026-10-03-native-view.md) | [C27](Catalogue/C27-2026-10-03-native-view.md) |
+| `C115` | [source](history/c-20261003-source/Batches/C115-20261003-0308Z-2008PST-persistent-subject-observation.md) | [C27](Catalogue/C27-2026-10-03-native-view.md) | [C27](Catalogue/C27-2026-10-03-native-view.md), [C26](Catalogue/C26-2026-10-03-study.md) |
+| `C116` | [source](history/c-20261003-source/Batches/C116-20261003-0433Z-2133PST-continuous-native-observation.md) | [C27](Catalogue/C27-2026-10-03-native-view.md) | [C27](Catalogue/C27-2026-10-03-native-view.md), [C28](Catalogue/C28-2026-10-03-verification.md) |
+| `C117` | [source](history/c-20261003-source/Batches/C117-20261003-0930Z-0230PST-shared-furniture-movement.md) | [C31](Catalogue/C31-2026-10-03-action.md) | [C31](Catalogue/C31-2026-10-03-action.md), [C35](Catalogue/C35-2026-10-03-source-ownership.md), [C28](Catalogue/C28-2026-10-03-verification.md) |
+| `C118` | [source](history/c-20261003-source/Batches/C118-20261003-1832Z-1132PST-private-entry-decisions.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md) | [C33](Catalogue/C33-2026-10-03-knowledge.md), [C30](Catalogue/C30-2026-10-03-planning.md), [C29](Catalogue/C29-2026-10-03-movement.md) |
+| `C119` | [source](history/c-20261003-source/Batches/C119-20261003-1855Z-1155PST-recovery-decisions.md) | [C30](Catalogue/C30-2026-10-03-planning.md) | [C30](Catalogue/C30-2026-10-03-planning.md), [C34](Catalogue/C34-2026-10-03-recovery.md) |
+| `C120` | [source](history/c-20261003-source/Batches/C120-20261003-1917Z-1217PST-entry-and-recovery-learning.md) | [C32](Catalogue/C32-2026-10-03-choice.md) | [C32](Catalogue/C32-2026-10-03-choice.md), [C33](Catalogue/C33-2026-10-03-knowledge.md), [C34](Catalogue/C34-2026-10-03-recovery.md), [C31](Catalogue/C31-2026-10-03-action.md), [C35](Catalogue/C35-2026-10-03-source-ownership.md) |

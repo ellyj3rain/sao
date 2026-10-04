@@ -5,8 +5,8 @@ The former version was hand-declared: 0.6.0.0 was picked at [B12] by a
 policy sentence ("nineteen batches of shipped surface") and the old
 VERSION_MAP walked to it in six flat minors so the number looked
 earned. The operator's instruction (DR-013): the coordinate is not
-picked, it is computed - classify each closed batch by what the work
-is, run the replay under CAO's caps, and the output is the version.
+picked, it is computed - classify evidenced delivered scope, run the
+replay under CAO's caps, and the output is the version.
 
 THE MODEL (CAO's, adopted)
 --------------------------
@@ -25,9 +25,11 @@ capability boundary.
 
 WHAT IS DERIVED AND WHAT IS INPUT
 ---------------------------------
-The only input is the tier table below: one row per closed batch, with
-the classification argument. Names, dates, and threads come from
-BATCH_LOG.md - the index owns them, this file never respells them. The
+A/B retain the tier table below. Current C tiers and delivered scopes
+come from Batches/C_SHARED_BOUNDARIES.json. Its generation-qualified
+sources retain separate implementation, verification and publication
+status; a version tier does not close every remaining D obligation.
+Names, dates and threads come from BATCH_LOG.md. The
 replay derives the coordinate; --write stamps VERSION and renders
 VERSION_MAP.md; the border refuses a tree whose VERSION, VERSION_MAP.md
 or mod.info disagree with the machine.
@@ -42,21 +44,24 @@ import pathlib
 import re
 import sys
 
+from catalogue import (CatalogueError, MANIFEST, index_rows, load_catalogue,
+                       validate_catalogue)
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 BATCH_LOG = ROOT / "BATCH_LOG.md"
 VERSION_FILE = ROOT / "VERSION"
 VERSION_MAP = ROOT / "VERSION_MAP.md"
 MOD_INFOS = (ROOT / "mod" / "mod.info", ROOT / "mod" / "42.20" / "mod.info")
 
-SCHEMA = "sao.version-model/1"
+SCHEMA = "sao.version-model/2"
 MINOR_CAP = 12
 KOHAI_CAP = 16
 PATCH_CAP = 24
 MATURITY_LADDER = ("pre-alpha", "alpha", "beta", "rc")
 REPLAY_START = "0.1.0.0-pre-alpha"
 
-# (batch, tier, classification rationale). Chronological, one row per
-# closed batch, covering BATCH_LOG.md exactly.
+# Retained A/B (batch, tier, rationale) rows. C is read from the current
+# shared-boundary manifest; historical C generations remain unchanged.
 UNITS = [
     ('A1', 'initial', 'The governed repository itself: doc-pack, instruction surface, ratified pillar composition; no framework code.'),
     ('A2', 'kohai', 'The verified engine substrate (F-001..F-007) before anything built on it; preparation, not a shipped capability.'),
@@ -139,125 +144,7 @@ UNITS = [
     ('B50', 'patch', 'Engine behavior facts re-asked of the machine each run; the bridge throw contract graphed.'),
     ('B51', 'patch', 'The dead stop growing quietly: death-time cleanup, budgeted walks, derived art, the save protocol border.'),
     ('B52', 'patch', "The era's integrity closed: derived counts, aligned names, the scout read whole, the answer domain sealed."),
-    ('C1', 'kohai', 'Corrected catalog links, chronology, runtime maps and the gate environment. Replaced hand-selected version coordinates with an executable replay of classified development units under the inherited CAO caps. The catalog owns names and dates; the replay owns the coordinate.'),
-    ('C2', 'patch', 'Unified person naming across the neighbour path and repaired continuity through crossings, seats and spoken interactions. The changes connected existing engine and controller paths and made swallowed execution failures visible; they did not introduce a second owner for a body.'),
-    ('C3', 'kohai', 'Added the inspection harness and integrated the person state visible through it. Existing menus carry the inspection and command surfaces through shared ownership prediction, with a fallback where those menus are unavailable. The harness exposes simulation state and diagnostic controls; observation alone does not establish completed behavior.'),
-    ('C4', 'kohai', 'Connected durable death, risen-body ownership, crowd identity and infection timing to the engine. Distinguished persistent people from the fungible crowd and tied promises and lethal infection to their actual bodies and clocks. The later afflicted-return defects remain separate unresolved ownership failures.'),
-    ('C5', 'patch', 'Revised the front end and configuration copy into player-facing language and swept the integration surfaces. These corrections cover the inspected interfaces and compatibility conditions; they are not blanket acceptance of every installed mod.'),
-    ('C6', 'kohai', 'Extended persistence so the person retains the state required to resume decisions across reload. The durable record is authoritative while engine bodies are temporary representations. Later optional drug counters and graph registrations still require their own persistence review.'),
-    ('C7', 'minor', 'Added the dead census, durable crowd ledger and optional debt-bounded zombie restitution. With RestoreTakenZombies enabled, the engine addVirtualZombie surface repays prior pool takes beyond the hibernation radius, at most six per daily pulse; the setting defaults off. Measurement and this limited mutation do not establish demographic calibration or complete population dynamics.'),
-    ('C8', 'patch', 'Recorded first play observations, repaired route restarting and room-item parsing, and established that partial receipts remain useful evidence. Acceptance attaches to the observed surface and conditions. These fixes and observations do not certify the whole project or prevent independent mechanical work.'),
-    ('C9', 'kohai', 'Consolidated identity adoption, complete failure handling and the configuration field boundaries. Removed unavailable or unsupported interface surfaces rather than leaving declarations detached from their implementation. The work preserves the one-person and one-body ownership rules.'),
-    ('C10', 'patch', 'Connected need-directed movement to remembered opportunities and repaired the interaction path from player input through Standing. Added outcome-verified dressing and claim-aware wake placement. Knowledge, permission and execution remain separate responsibilities; a reachable interface does not itself supply an action consequence.'),
-    ('C11', 'minor', 'Introduced a common view of what a person knows and an arithmetic instrument for in-process inference cost. The standalone measurement supplies a ceiling under its measured conditions. It does not select the final model size or establish performance under a loaded game.'),
-    ('C12', 'minor', 'Added engine body scaling, an age system on durable people, and childhood capacity and activity distinctions. Age changes human capability and expression. Later child activity integration contains a reproduced zero-wound truthiness defect and does not inherit acceptance from this record.'),
-    ('C13', 'minor', 'Added durable conditions, habits and moment-specific strain as person state. These inputs are intended to condition behavior and expression rather than assign successful outcomes. Later drug and brain-health integrations expose unresolved ownership and update-cadence defects.'),
-    ('C14', 'minor', 'Introduced physical gestures through the engine action surface. Gestures render a chosen interaction and remain subject to action-queue ownership, interruption and completion. Later care composition demonstrates why successful queueing is insufficient evidence of a completed interaction.'),
-    ('C15', 'patch', 'Placed the historical record on the county calendar so claims and events use the intended temporal context. This corrects the record surface; shared elapsed time and historical stepping were subsequently repaired in their own units.'),
-    ('C16', 'kohai', 'Added the command check for whose instruction a person accepts, within what matter and with what grounds for refusal. Standing determines authority before execution. This contract is wider than obedience to a fixed leader label.'),
-    ('C17', 'kohai', 'Connected remembered era and condition information to SAO-owned person state and removed accidental dependence on external mods for the county to stand on its own. Optional integrations supply inputs while the project retains responsibility for the person record.'),
-    ('C18', 'minor', 'Added the pre-spawn county, ordinary pre-collapse activity, start-date alignment, construction choices and elapsed-year simulation. Ground observations were connected to historical processing. The original clock and cadence defects were later repaired; loaded geometry, complete dormant producers and scalable late starts remain subject to the substrate assessment.'),
-    ('C19', 'minor', 'Introduced constrained decoding over the facts the person may express. The constraint prevents unsupported fact selection from the supplied vocabulary. Training still has to learn appropriate cognition and expression; passing the fact constraint alone does not measure either.'),
-    ('C20', 'patch', 'Connected physical entry difficulty to the available ground and routed survivor orders through the shared command check. Entry execution follows a permitted and perceived opportunity; authority is not substituted for physical access.'),
-    ('C21', 'kohai', 'Conditioned speech on what a person has actually learned, extended habit state to the player, and grounded condition figures for psychosis and insomnia. The work links existing person state to its consumers rather than declaring experience from a role or elapsed date.'),
-    ('C22', 'patch', "Made participation depend on the person asking and made vehicle selection respect the prospective traveller's objection. A group plan is composed from individual willingness and available equipment; a refusal should not silently discard other acceptable options."),
-    ('C23', 'patch', 'Distinguished observing a death from witnessing who caused it. Attribution must follow perceived evidence. The remaining witness-rule limitation is retained as open rather than converting proximity to the victim into knowledge of the killing.'),
-    ('C24', 'patch', 'Made engine-dependent verification report unavailable ground explicitly, distinguished valid skips from vacuous success, aligned the CI action pair, and established protected-main publication through merged pull requests. These are repository mechanics, not new simulation capability.'),
-    ('C25', 'patch', "Connected player looting to the depletion state used by the county. Resource availability must reflect world changes produced outside the NPC controller as well as the survivor's own actions."),
-    ('C26', 'patch', 'Unified elapsed county hours across historical and live processing, advanced the years pass on that clock and made day-zero starts owe no prior years. The subsequent quantized-tick and catch-up repairs extend this foundation; cached controller time and day-versus-tick consumers remain under correction.'),
-    ('C27', 'patch', 'Removed blanket completion claims and made documentation and its checks express the actual evidence boundary. Code-level checks, runtime observations and player acceptance have distinct scope. The later readiness audit found this discipline had drifted again.'),
-    ('C28', 'minor', 'Added run boundaries, input conditions, county trajectory measurements and a county-owned random stream. These enable accountable observations of a simulation. A reproducible outcome can still come from a defective producer and is not automatically suitable training data.'),
-    ('C29', 'kohai', 'Repaired company founding and dissolution, centralized death settlement, introduced the county sweep, gave people stable belief keys, enabled dormant visits to known people and assigned names when identities are created. These adjacent changes make dormant social activity and its measurement possible. Current admission and historical-state limitations remain documented in the later audit.'),
-    ('C30', 'patch', 'Recorded SAO as the living simulation, ZAO as pathogen and turned execution, and Speakeasy as cognition data and models. The separation is a licensing and ownership boundary within one project. It does not create an additional approval negotiation between its own components.'),
-    ('C31', 'kohai', 'Aligned dormant walking with elapsed time, derived occupied ground from where members actually return, and measured the cost of historical movement. A place relationship follows use. Measurement of this representation does not demonstrate loaded terrain execution or sustainable population scale.'),
-    ('C32', 'minor', "Added the person's infection response, dormant infection exposure and examiner-dependent clinical observation. The course and its observations carry their own clocks and evidence. Later brain-health integration requires reconciliation with this existing mechanism and ZAO's authoritative pathogen state."),
-    ('C33', 'patch', 'Recognized externally controlled bodies and verified the installed engine surfaces through which an NPC could drive. Former C82 was an evidence record with no mod-code change. This unit did not introduce autonomous driving; later C42 integrated it and the implementation audit found route ownership, steering and progress defects. Control ownership must remain exclusive through approach, boarding, travel and release.'),
-    ('C34', 'minor', 'Added decision-moment capture beside the county sweep, recorded the first ratified work-word rows, exposed engine names and occupations to the harness, enriched belief provenance and retained the needs that conditioned a work decision. The later audit reproduced mutable snapshot leakage in this exporter. Approved choices remain ratified while their source conditioning requires review.'),
-    ('C35', 'kohai', 'Defined the full life-simulation representation, organization and deference, claims distinguished from recognition, one causal branching graph and the dependency substrate. These are ratified contracts. They do not establish that the corresponding runtime producers exist or that a graph observer completes the simulation.'),
-    ('C36', 'kohai', 'Added read-only summaries of isolation, place attachment and world development from existing person and place facts, with inspection and export surfaces. These observations expose inputs for decisions. They do not themselves produce affiliation, projects, provisioning or development.'),
-    ('C37', 'kohai', "Integrated the pathogen-owned forms and performance contract, keyed cross-module rows by person and decision hour, recorded ZAO's state producers and overlays, admitted observed forms into SAO perception, and connected recognition records to county events. Sister implementation remains owned and verified there. Automatic recognition, persistence and the missing general decision producers remain subjects of the substrate assessment."),
-    ('C38', 'kohai', 'Exposed organizational player claims through the shared claim surface, added dormant provisioning reads and generalized inhabited places to a ranked set derived from use. A player claim is recorded with its recognition and response. Inventory, physical access and sustained action consequences still require grounded producers in both representations.'),
-    ('C39', 'patch', 'Corrected stale sibling-readiness statements and recorded settled dataset, integration and configuration rulings. The 112 work-word and 78 trade-hinge choices and the cross-module row contract were ratified. The remaining implementation work must follow those decisions without asking for them again.'),
-    ('C40', 'kohai', 'Added personal need alongside trust in affiliation. Individual circumstances and experienced relationships condition company formation. The later repair removes fixed membership quotas and guards private knowledge, while broader affiliation producers and their evidence remain incomplete.'),
-    ('C41', 'kohai', 'Defined the county tick from elapsed hours and added ordinary street activity with durable work locations. Rework remains required: controller time can stay cached during historical substeps, and the same stay-in decision has different loaded and dormant consequences.'),
-    ('C42', 'kohai', 'Extended ordinary driving and wired the three associated configuration choices. The option wiring is retained. Driving requires substantial repair: its approach can cancel itself, unchanged status text cancels moving vehicles, promised passengers are not waited for, and rearward destinations can produce forward travel.'),
-    ('C43', 'kohai', 'Connected afflicted return, retained capabilities and social responses to formed people. The audit reproduced bodies returned without controller adoption, absent dormant recovery, premature driving-competence stamps and automatic daily relocation without movement. Preserve the intended behaviors and reconstruct those mechanisms.'),
-    ('C44', 'kohai', 'Added demands, surrender transfers, forced entry and raiding transport using existing execution primitives. The audit found that demand and response lack a completed transaction, surrender consequences precede transfer completion, and subsequent aggressor behavior does not consume the result. Rework is required.'),
-    ('C45', 'kohai', 'Integrated credited event and gesture inputs and the optional randomized nuke with its default off. A reproduced care composition defect queues treatment before CPR, causing CPR to refuse the busy body. Retain the optional scope and repair the actual event-to-action chains.'),
-    ('C46', 'kohai', 'Extended age-sensitive driving and everyday activities. The audit reproduced healthy children receiving wound fear because zero is truthy in Lua, and found activity participant discovery bypassing individual perception. Capacity and activity primitives remain useful while these decisions require repair.'),
-    ('C47', 'kohai', 'Connected drug and ordinary consumption adapters, withdrawal, habits and optional real smoking. The audit reproduced a frozen-use clock that still removes dependency and daily processing that depends on the session-start minute. Optional body-owned counters and cumulative poison also need persistence and state-semantics correction.'),
-    ('C48', 'kohai', 'Added held-key vehicle access, vehicle storage, animal care and combat-perception compatibility. Verified key and action adapters remain useful. Rework is required for compartment access and moving positions, animal admission into human beliefs, remote hutch extraction, installed prone-state keys and active-target revalidation.'),
-    ('C49', 'kohai', 'Attempted the requested event-driven brain-health integration and visualization. The off switch is repaired, but the model remains disputed: update partition changes the outcome, authoritative pathogen state is read from the wrong owner, loaded health inputs are stale, and lifetime poison is reapplied as current damage. The scalar display and incomplete consumers do not fulfill the requested graph.'),
-    ('C50', 'patch', 'Removed the rejected fixed-formula trajectory generator and repaired catch-up progress, company admission and diagnostic evidence refusal and provenance. Preserve the verified repairs and independent 90/365-day observations within their stated limits. No learned model or completed ML bridge resulted. The audit also identifies unresolved time consumers, population refill assumptions, the older decision exporter and missing life-simulation producers.'),
-    ('C51', 'patch', 'Repaired person capture, teardown and restoration ownership; native supported-state snapshots preserve inventory, wounds, statistics and experience with controlled failure and legacy compatibility.'),
-    ('C52', 'patch', 'Repaired Afflicted return as one authorized, durable transfer: ZAO retains the exact turned source until SAO restores supported living state, reaches critical viability with injuries preserved, and adopts the one returning person. This closes the existing return capability without crediting the still-unreachable and incomplete Crossed action system.'),
-    ('C53', 'patch', 'Closed shared county time as one explicit contract: decision reads observe the current historical substep, day producers convert at the tick boundary, and native pacing remains separate. The timestamp inventory records legacy exceptions without claiming later physiology or action work complete.'),
-    ('C54', 'patch', 'Completed native person continuity within the existing handoff: the v4 envelope preserves nutrition, fitness, learning, appearance, declared durable metadata and exact fluid components, while older readers retain their original limits and migration provenance.'),
-    ('C55', 'patch', 'Reconstructed runtime-only callbacks, caches, indexes, controllers and Java maps from their durable owners across reload and same-process world changes; completed the existing Afflicted-return seam with generation-aware interrupted-save reconciliation and explicit pending-work disposition.'),
-    ('C56', 'patch', 'Repaired the existing health and dormant-physiology capabilities: durable drug and abstinence clocks, owner-correct interval-integrated brain history with behavioral consumers, native partial dormant consumption, and intentional Crossed blood exposure with exact-once SAO-to-ZAO body transfer. The broader Crossed action vocabulary remains R7-R9 work.'),
-    ('C57', 'patch', 'Separated durable body snapshot capture, validation and commit from body ownership; validated pending transfer envelopes and retained opaque legacy visual payloads. Consolidated native person verification with a complete historical control crosswalk and isolated mutation runs. This is the first unit of the ratified runtime restructuring.'),
-    ('C58', 'kohai', 'Structural maturation of population runtime ownership: separate admissions, representation, physical observations and dormant advancement under one scheduler and History clock. Preserve continuation interfaces and repair callback replacement and explicit world reinitialization, with migrated controls.'),
-    ('C59', 'patch', 'Repair installed debug-mode compilation by splitting existing Controller and Standing phases; verify both compiler modes and the cumulative-local failure control.'),
-    ('C60', 'patch', 'Repair loaded perception and world access in place: classify animals before person output, require private and current activity partners, consume installed prone/deactivation state, and retain loaded, same-floor, permissioned source access through timed execution. Inventory and specify the still-open R10a native-source ledger and reconciliation substrate without promoting room vocabulary to stock.'),
-    ('C61', 'patch', 'Establish demand-led native chunk hydration, persistent source identity, exact bounded observations and loaded reconciliation while removing room-derived stock and refusing unproven dormant access or use. This grounds an existing planned substrate without completing actor-specific action execution.'),
-    ('C62', 'kohai', 'Integrate private revisioned source observations with one durable actor-owned action lifecycle: current route and permission proof, exact native transfer, carried engine use, interruption, reload reconstruction and exact-once result. This matures the grounded source capability without claiming the remaining R7 action families or R9 provisioning producers.'),
-    ('C63', 'kohai', 'Consume completed native-use results through one bounded reconciliation boundary: project the exact current source into house material state, derive standing claims from that state, update only an already-grounded settlement and acknowledge last. This matures the source-action capability without treating queue acceptance, dormant need projection or standing setters as provisioning, and without completing the remaining R9 producer families.'),
-    ('C64', 'kohai', 'Correct integrity defects found across C54-C63: returned bodies retain their own appearance timing, failed runtime-extension replacement restores the accepted graph, and selected native sources remain partial projections that refresh or retire after ambient change without inventing house totals. Establish a fail-closed immutable decision-evidence envelope and the fully namespaced atomic Speakeasy join while preserving approved intent separately from ineligible conditioning. R9 producers and executable-option/choice capture remain open.'),
-    ('C65', 'kohai', 'Expose the existing native-source action as explicit private options, exact revalidated selection and immutable decision/choice/result evidence. Preserve the current policy and loaded execution semantics, distinguish requested quantity from observed use, and refuse outcome-reader faults. This matures the R11 source-choice slice while broader action producers, ratified choices, reconstructed knowledge and later consequences remain open.'),
-    ('C66', 'kohai', 'Extend the existing exact-source action owner to performed food/water acquisition and storage, current transfer-time authority, conserved native holders, durable recovery and completion-only credit. Reuse the explicit choice/result capture and advance Speakeasy decision-time views and unratified proposal authoring; complete inventory, recipient recognition and eligible training remain open.'),
-    ('C67', 'kohai', 'Connect performed native transfers to private actor/witness memory, admitted testimony, heard requests and a personal reciprocity preference without automatic trade debt. Preserve native observation despite later material conflict and keep source curation acquisition-unknown; broader action producers, complete inventory, dormant sleep/wake and eligible training remain open.'),
-    ('C68', 'kohai', 'Extend loaded personal gifts, settlement and barter with one durable native-completion owner, bilateral term acceptance and completion-derived partial debt. This matures the existing personal exchange capability while open-wound treatment, dormant exchange, complete inventory and private recipient appraisal remain open.'),
-    ('C69', 'kohai', 'Let a non-witness form an independent private response to reported household assistance only from their own active request, current membership, explicit ground claim and accepted testimony. Freeze relationship and acquisition provenance, preserve disagreement, strip appraisals from retelling and write no automatic trust or debt; complete inventory, treatment, dormant hearing and other life producers remain open.'),
-    ('C70', 'kohai', 'Give loaded open-wound bandaging one patient-bound native result across self, NPC and player care. Classify interruption, native refusal and ineffective dressing before consuming patient response, care experience, voice or critical-care choreography, with per-channel reload receipts; dormant treatment, other medical verbs and broader life producers remain open.'),
-    ('C71', 'kohai', 'Give each loaded person one fresh recursive view over carried, static-container, vehicle-part, placed-item and corpse inventory, with exact holder identity and v4 dormant-carriage agreement. Refuse bounded observations as house totals, retire inferred standing claims and keep native inventory and action owners authoritative; dormant world access and the remaining material actions remain open.'),
-    ('C72', 'kohai', 'Extend the existing person and communication substrate with record-owned fatigue, rest, sleep and wake transitions while no body exists. Native measurements and explicit generated provenance cross the handoff, older unmeasured state remains unknown, and the transition runs before dormant conversation; actual radio reception remains open.'),
-    ('C73', 'kohai', 'Extend the existing County Wire and player-radio capability with exact loaded and dormant endpoints, elapsed battery use and recipient-private reception evidence before any claim effect. Preserve request origin through aired testimony, refuse possession-only legacy state and remove automatic household propagation; complete-house shortage production and the selected R12 example remain open.'),
-    ('C74', 'kohai', 'Extend the existing person, knowledge and calendar substrate with explicit dated county-presence intervals, hash-bound personal claim acquisition and retention observations, plus a deterministic same-person decision evidence port. Preserve protected prose and all extraction review, adjudication and ratification in Speakeasy; the selected example remains conditioning-ineligible until those steps close.'),
-    ('C75', 'kohai', 'Compile the existing person-private knowledge surface into deterministic snapshot-local claim references and restrict the factual fence to an exact selected subset. Preserve current speech, training and runtime behavior while complete protected-world coverage, retriever targets, task datasets and asynchronous snapshot ownership remain open.'),
-    ('C76', 'kohai', 'Capture authored conversation inputs from production knowledge owners with explicit reader coverage, immutable owner-state checks and content-addressed references. Reject unavailable or unsupported sources before reads, preserve personal radio provenance and keep authored captures separate from trained behavior.'),
-    ('C77', 'patch', 'Correct unsupported county-presence acquisition using exact native reading completion and person-bound report receipts; withhold legacy grants, preserve their history and regenerate the controlled capture with evidenced acquisition.'),
-    ('C78', 'kohai', 'Extend conversation capture with existing person-state contributions, explicit availability and controlled contextual comparisons; preserve source ownership and version-one compatibility.'),
-    ('C79', 'minor', 'Introduce enacted social coordination as a player-visible and authoring contract: acquired versioned proposals, recipient-private responses, scoped concurrent commitments and exact-once native acquisition/carry/delivery results across loaded, dormant and external execution owners. Retire automatic roster authority and fracture shortcuts without claiming wider institutional procedures or remaining life producers complete.'),
-    ('C80', 'kohai', 'Generalize the external living-person handoff so authorized Afflicted return and later Crossed conversion retain one ZAO driver across loaded and dormant representation, while SAO remains the county and native-service owner. Replace automatic Afflicted relocation with destination evidence and completion-backed travel. This structurally matures the existing ownership seam without adding a new state or action family, so kohai.'),
-    ('C81', 'kohai', 'Extend enacted coordination evidence with twenty pre-partitioned production-path response observations across survivor and shared ZAO execution, preserving condition-private inputs, decision/outcome horizons and source attribution. Repair the dormant combined loader inventory and add discriminating response, registration and executor controls. This matures the existing R11 authoring seam without claiming gameplay sampling, label approval or learned runtime behavior, so kohai.'),
-    ('C82', 'kohai', 'Integrate Speakeasy Record 67 as an exact content-hashed FP32 artifact in the packaged Java consumer and a bounded asynchronous shadow after authoritative recipient appraisal. Revalidate response, process, feasible options and registered execution-owner state, cancel transient requests on world change and retain source-owned Afflicted and Crossed distinctions. This matures the R13-R14 interchange and runtime seam while behavior authority and loaded gameplay acceptance remain open, so kohai.'),
-    ('C83', 'kohai', 'Generalize enacted coordination beyond its original survivor food fixture: registered external owners now appraise acquired matters from their current private state, provisioning admits food or stored portable water, and rendezvous commitments complete only on exact native arrival. Revision-bound work, interruption, reload reconstruction and exact-once terminal receipts remain in Organization and the existing native service owners. This matures the C79 capability without creating another planner, so kohai.'),
-    ('C84', 'kohai', 'Unify loaded and dormant recipient appraisal behind one shared coordination policy owner, register one representation-neutral ZAO execution adapter for both Afflicted and Crossed state dispatch, and carry production decision capture through a single-prefix county episode with isolated exact replay and exclusive export. Preserve empty natural episodes for downstream intake instead of manufacturing proposals or labels. This structurally matures the existing coordination, evidence and acceleration seams, so kohai.'),
-    ('C85', 'minor', "Turn a person's private retained situation into an addressed, revisable shared matter through actual contact attempts, independent acquisition and response, then carry accepted work through the existing SourceUse, Locomotion and Handover owners with exact-once terminal results. Loaded, dormant and registered external people share the process without inferred hearing, assent or success. This is the first production capability that originates and enacts the C79 coordination contract rather than requiring an authored fixture, so minor."),
-    ('C86', 'minor', 'Introduce configurable native study worlds, isolated engine runs and an autonomous detached observer with sealed observations, native image capture, bounded camera/time controls and verified continuation. This is a new simulation evaluation capability; scenario ratification remains operator-owned.'),
-    ('C87', 'kohai', 'Mature native study observation with authored places, finite process ownership, bounded person inspection and engine zoom; join exact resource approaches, native crossing completion, lived-place knowledge, accepted-work reconsideration and home/rest continuation. These extend and repair existing simulation owners without introducing a new capability boundary.'),
-    ('C88', 'minor', 'Introduce independent competing cognitive models with separate durable beliefs, pre-outcome predictions and balanced execution opportunities inside the native simulation. Bind authentic actor-private experience, semantic hypotheses, Mousecat acceleration and downstream aggregate trajectory evidence without model hierarchy or automatic knowledge grants. This is the first runtime cognitive-competition contract, so minor.'),
-    ('C89', 'minor', 'Introduce owned native perceptual orientation, item physiology and appliance preparation with authenticated private result acquisition. These are new executable simulation contracts; existing lifecycle joins and failed-route repairs support them.'),
-    ('C90', 'minor', 'Introduce durable cooperative procedure graphs with dependency-bound enacted truth and separate participant-private projections. Exact native acquisition, movement and handover receipts update only their actors and direct witnesses, while private reasoning and disagreement can revise an intended next step without rewriting material outcomes. This is a new long-form planning and authoring contract, so minor.'),
-    ('C91', 'minor', 'Introduce capability-bounded role claims, strategic movement and action steps, distinct-actor synchronization thresholds, exact Locomotion and Cooking joins, and failure-driven cooperative revision. This is a new multi-person planning and execution contract rather than a single added verb, so minor.'),
-    ('C92', 'minor', 'Introduce natural private-pressure formation of collect-prepare-deliver and threat-response procedures plus an exact native body/head posture owner. These are new autonomous and player-visible execution contracts rather than authored scenario outcomes, so minor.'),
-    ('C93', 'minor', 'Introduce durable configurable native study sessions over verified save and resume attempts, with bounded lifecycle requests, Mousecat continuation controls and automatic successor feed handoff. This is a new simulation operation contract; observations remain unreviewed and cannot ratify dataset rules, so minor.'),
-    ('C94', 'kohai', 'Extend native study definitions with bounded deterministic one-time hunger, thirst and fatigue situations, preserve their application across ordinary action and reload, and retain them as unreviewed provenance. This matures the existing study-world evaluation contract without adding a new gameplay action or dataset authority, so kohai.'),
-    ('C95', 'minor', 'Introduce a durable person-private procedural planner over maintained purposes, decaying spatial knowledge, numeric game skills, progressive study, fortification, tactical fallback and spatial social activity. Both existing cognitive models independently interpret the shared candidates, while only exact native-owner results advance practice. This is a new general planning runtime contract, so minor.'),
-    ('C96', 'patch', 'Repair isolated native study activation against the replaced 42.21 engine jar: select and persist the sealed mod cohort before Lua boot, use the current focus-loss option, admit the current metadata ceiling and verify both installed far-streaming call shapes. This restores the existing study contract without adding a capability boundary, so patch.'),
-    ('C97', 'patch', 'Reconcile the retained Claude source-integration execution and completion claim against canonical decisions, C40-era credits and later audits; separate the external study loadout from source ownership and retain exact open obligations. This repairs provenance and the evidence gate without adding a runtime capability, so patch.'),
-    ('C98', 'minor', 'Source-integrate the complete Horse team physical implementation and assets, then join native route waypoints, autonomous mounted input, person-private planning, durable rider-animal identity and Mousecat observation. This creates owned horse life and mounted mobility as a new player-visible simulation capability, so minor.'),
-    ('C99', 'minor', 'Introduce native-backed mobile households: persistent moving-place identity, occupants and stores, towing and exterior-anchor continuity, physical RV-room entry and exit, private spatial planning, overnight use and Mousecat observation across camper, trailer and motorhome assets. This is a new player-visible life and mobility contract, so minor.'),
-    ('C100', 'patch', 'Repair current-engine mobile-household execution against the actual vehicle Set and part APIs, preserve distinct exterior and remote-interior positions across representation changes, and close the existing physical-room obligation with a retained Build 42.21 receipt. This corrects and verifies the C99 capability without moving its boundary, so patch.'),
-    ('C101', 'kohai', 'Mature the durable study contract with exact supervisor terminal identity, narrow revalidation of the legacy receipt, saved-state recovery, terminal Mousecat projection and immediate human disposition of verified competing-cognition outcomes. This connects existing study, evidence and review owners without adding gameplay or dataset authority, so kohai.'),
-    ('C102', 'kohai', 'Connect maintained private study to installed timed reading, exact native completion and resumed page state; admit useful privately carried manuals without a work designation and expose progress without practical credit. This matures the existing C95 planner and learning execution contract, so kohai.'),
-    ('C103', 'kohai', 'Connect retained private prerequisites to exact native acquisition and productive Cooking work; preserve purpose identity through study, interruption and terminal receipt replay. This matures the existing C95 planner and SourceUse/Cooking authority contracts, so kohai.'),
-    ('C104', 'kohai', 'Extend existing private purposes into shortage-driven native resource chains, grounded labor assessment and independently answered help; close accepted-work reading preemption. Existing planning, action and social owners retain authority, so kohai.'),
-    ('C105', 'minor', 'Introduce typed desired-stock study requests with exact actor and experimental authority, separate native work and goal satisfaction, and a bounded immutable observation export worker with exact publication acknowledgement and paused stop draining. These establish new study authoring and runtime contracts, so minor.'),
-    ('C106', 'minor', 'Add source-bound authored initial population coverage to the regional study contract, integrate privately inspected native hydration into existing thirst planning, and measure inclusive observation and callback costs. The new initial-cohort authoring contract is minor.'),
-    ('C107', 'minor', 'Add declared one-time native threat conditions with saved attempt receipts, correct remembered resource approach selection and terminal water-route feedback, preserve resolved outcome projection, and skip empty instruction breakpoint lookup in isolated observers. The authored threat contract is new, so minor.'),
-    ('C108', 'kohai', 'Mature existing private survival planning with destination danger, home-return cost, acquired requests, exact inspection lifecycle, native recovery, visible exterior acquisition and individual residence reconsideration. Existing movement, physiological and action owners enact these choices; there is no new verb or authoring boundary, so kohai.'),
-    ('C109', 'patch', 'Repair existing observer projection cost and freshness: demand-only rich inspection and exhausted-budget square guards preserve current basic state, archive evidence and existing consumer schemas; distinguish initiating stop, observer drain and native save return. No capability boundary changes, so patch.'),
-    ('C110', 'patch', 'Repair false route stalls during physical/native node progress and moving-fallback tactical revision churn while preserving genuine stalls and meaningful private revisions. Existing capability contracts remain, so patch.'),
-    ('C111', 'kohai', 'Connect existing native animal care to exact completion and private experience, integrate installed carried-cooler physics with the existing Body capture contract, and preserve complete source discovery. Existing action, inventory and cognition owners retain authority, so kohai.'),
-    ('C112', 'kohai', 'Connect installed native window repair to the existing fortification purpose, exact actor/material/queue ownership, durable completion and independent private experience. Existing planning, physical action and cognition owners retain authority, so kohai.'),
-    ('C113', 'patch', 'Repair native study viewing by separating sealed observation areas from saved world identity. Existing camera, renderer, save and gameplay owners remain in place, so patch.'),
-    ('C114', 'patch', 'Remove artificial capture pacing and enable native uncapped rendering after startup in isolated observers. Existing publication, save, image and gameplay contracts remain, so patch.'),
-    ('C115', 'patch', 'Repair observer identity persistence with optional sealed subject assignments. Existing native slots, save, gameplay and publication owners remain, so patch.'),
-    ('C116', 'minor', 'Introduce optional source-bound native H264 capture with independent crop receipts, exact frame clocks and bounded fragment publication. This is a new observation runtime contract, so minor.'),
-    ('C117', 'kohai', 'Integrate existing single-player furniture relocation with exact delayed identity, measured contents and optional fixture ownership. This extends shared physical mechanics without adding autonomous NPC furniture decisions.'),
-    ('C118', 'kohai', 'Extend existing private residence deliberation through observed windows, exact native encountered-edge evidence and revisable per-entrance retry. Existing perception, planning, persistence and movement owners retain authority.'),
-    ('C119', 'kohai', 'Integrate existing bodily recovery into ongoing private search and travel decisions, preserving exact movement ownership, admitted destinations and measured native recovery.'),
+
 ]
 
 TIER_MEANINGS = [
@@ -328,43 +215,75 @@ def bump(v, tier):
     return [major, minor, kohai, patch, maturity]
 
 
-ROW = re.compile(
-    r"^\| \[([A-Z]\d+)\]\((Batches/[^)]+)\) \| (\d{4}-\d{2}-\d{2}) \| (.*?) \| (.*?) \|$",
-    re.M)
-
-
 def log_rows():
     """Batch id -> (date, name, threads-cell), in log order. The index owns
-    the names and dates; this tool never respells them."""
-    rows = {}
-    for m in ROW.finditer(BATCH_LOG.read_text(encoding="utf-8")):
-        rows[m.group(1)] = (m.group(3), m.group(4), m.group(5))
-    return rows
+    names and dates. Malformed and duplicate indexed rows are faults."""
+    return {batch: (row["date"], row["name"], row["threads"])
+            for batch, row in index_rows(BATCH_LOG.read_text(encoding="utf-8")).items()}
 
 
-def replay():
+def classified_units(manifest=None):
+    if manifest is None:
+        manifest = load_catalogue(ROOT)
+        faults = validate_catalogue(ROOT, manifest)
+        if faults:
+            raise CatalogueError("; ".join(faults))
+    return UNITS + [(unit["id"], unit["tier"], unit["rationale"])
+                    for unit in manifest["units"]]
+
+
+def catalogue_inputs():
+    """Validate source preservation and index agreement before any stamp write."""
+    manifest = load_catalogue(ROOT)
+    faults = validate_catalogue(ROOT, manifest)
+    if faults:
+        raise CatalogueError("; ".join(faults))
+    indexed = index_rows(BATCH_LOG.read_text(encoding="utf-8"))
+    units = classified_units(manifest)
+    ids = [unit[0] for unit in units]
+    if ids != list(indexed):
+        faults.append("tier table and BATCH_LOG disagree about classified delivered scope coverage/order")
+    for unit in manifest["units"]:
+        row = indexed.get(unit["id"])
+        if row and any(row[key] != unit[field] for key, field in
+                       (("path", "path"), ("date", "date"), ("name", "name"))):
+            faults.append(f"{unit['id']} BATCH_LOG path/date/name differs from the current manifest")
+    if faults:
+        raise CatalogueError("; ".join(faults))
+    rows = {batch: (row["date"], row["name"], row["threads"])
+            for batch, row in indexed.items()}
+    return manifest, units, rows
+
+
+def replay(units=None):
     v = parse_version(REPLAY_START)
     trace = []
-    for batch, tier, rationale in UNITS:
+    for batch, tier, rationale in (classified_units() if units is None else units):
         v = bump(v, tier)
         trace.append((batch, tier, rationale, fmt(v)))
     return trace
 
 
-def render():
-    rows = log_rows()
-    trace = replay()
+def render(inputs=None):
+    manifest, units, rows = inputs if inputs is not None else catalogue_inputs()
+    trace = replay(units)
     current = trace[-1][3]
-    tip = UNITS[-1][0]
+    tip = units[-1][0]
     nxt = f"{tip[0]}{int(tip[1:]) + 1}"
     lines = [
         "# Version map",
         "",
-        "The regulatory version replay: the closed batch chronology classified",
-        "one unit per batch, the coordinate computed under CAO's caps. The",
+        "The regulatory version replay classifies evidenced delivered scope",
+        "once per current contract under CAO's unchanged caps. A/B retain",
+        "their original replay. Current C contracts combine explicit source",
+        "contributions in last-delivered-contribution order; original event",
+        "chronology remains in the archived generation. Delivered means",
+        "implemented: publication, rendered acceptance and remaining D work",
+        "retain their separate component states. The",
         "version is a machine (DR-013): nobody picks the number - to disagree",
-        "with the coordinate, disagree with a tier in",
-        "[`tools/version_replay.py`](tools/version_replay.py) and run",
+        "with the coordinate, disagree with the applicable A/B tier in",
+        "[`tools/version_replay.py`](tools/version_replay.py) or C tier in",
+        f"[the current manifest]({MANIFEST}), state its scope and rationale, and run",
         "`python tools/version_replay.py --write`; the map and `VERSION`",
         "follow. Border 80 refuses a tree whose stated versions disagree with",
         "the machine. Names, dates, and threads below come from",
@@ -372,12 +291,13 @@ def render():
         "",
         "| Field | Current state |",
         "|---|---|",
-        f"| Schema | `{SCHEMA}` (CAO's `cao.version-model/1`, adopted) |",
+        f"| Schema | `{SCHEMA}` (CAO arithmetic with explicit C catalogue adaptation) |",
         "| Form | `major.minor.kohai.patch-maturity` |",
         f"| Hard caps | minor {MINOR_CAP}; kohai {KOHAI_CAP}; patch {PATCH_CAP} |",
         f"| Replay start | `{REPLAY_START}` |",
         f"| Current version | `{current}` |",
-        f"| Closed chronology | `A1-{tip}` |",
+        f"| Classified delivered scope | `A1-{tip}` |",
+        f"| Current C generation | `{manifest['generation']}` |",
         f"| Next batch | `{nxt}` |",
         "| Executable source | [`tools/version_replay.py`](tools/version_replay.py) |",
         "",
@@ -390,7 +310,7 @@ def render():
         lines.append(f"| {tier} | {meaning} |")
     lines += [
         "",
-        "## Chronological replay",
+        "## Delivered-scope replay",
         "",
         "| Batch | Date | Tier | Resulting version | Name | Classification |",
         "|---|---|---|---|---|---|",
@@ -398,6 +318,23 @@ def render():
     for batch, tier, rationale, version in trace:
         date, name, _threads = rows[batch]
         lines.append(f"| `{batch}` | {date} | {tier} | `{version}` | {name} | {rationale} |")
+    lines += [
+        "", "## Current C scope and source status", "",
+        "Each C tier credits the stated implemented baseline once. Multiple",
+        "contribution edges preserve mixed source records without assigning",
+        "version credit per edge. Source labels below belong to the archived",
+        "120-record generation; they are not current C identifiers.", "",
+        "| Current contract | Delivered scope | Version-bearing source contributions |",
+        "|---|---|---|",
+    ]
+    for unit in manifest["units"]:
+        scopes = "; ".join(unit["delivered_scope"]).replace("|", "\\|")
+        credited = []
+        for source in unit["version_sources"]:
+            status = manifest["sources"][source]
+            credited.append(f"`{source}` ({status['implementation']}; "
+                            f"{status['verification']}; {status['publication']})".replace("|", "\\|"))
+        lines.append(f"| [{unit['id']}]({unit['path']}) | {scopes} | {'; '.join(credited)} |")
     lines += [
         "",
         "## The former number",
@@ -419,8 +356,9 @@ def render():
         "",
         "## Next movement",
         "",
-        f"`{nxt}` is the next batch. Its content determines its tier after it",
-        "exists:",
+        f"`{nxt}` is the next unused catalogue identifier. Current open extensions",
+        "remain with their owners; this projection does not close them or start",
+        "another batch. Subsequent delivered work determines its own tier:",
         "",
         f"| If {nxt} is | Result |",
         "|---|---|",
@@ -433,23 +371,19 @@ def render():
     return "\n".join(lines)
 
 
-def validate():
+def validate(inputs=None):
     faults = []
-    rows = log_rows()
-    unit_ids = [u[0] for u in UNITS]
-    if unit_ids != list(rows.keys()):
-        missing = [b for b in rows if b not in unit_ids]
-        extra = [b for b in unit_ids if b not in rows]
-        faults.append(
-            "the tier table and BATCH_LOG.md disagree about the closed "
-            f"chronology (unclassified: {missing or 'none'}; not in the log: "
-            f"{extra or 'none'}; or the order differs)")
-    trace = replay()
+    try:
+        inputs = inputs if inputs is not None else catalogue_inputs()
+    except (CatalogueError, OSError) as exc:
+        return [str(exc)], None
+    _manifest, units, _rows = inputs
+    trace = replay(units)
     current = trace[-1][3]
     stated = VERSION_FILE.read_text(encoding="utf-8").strip()
     if stated != current:
         faults.append(f"VERSION states {stated}; the replay derives {current}")
-    if not VERSION_MAP.exists() or VERSION_MAP.read_text(encoding="utf-8") != render():
+    if not VERSION_MAP.exists() or VERSION_MAP.read_text(encoding="utf-8") != render(inputs):
         faults.append("VERSION_MAP.md is not the machine's rendering - run "
                       "python tools/version_replay.py --write")
     for info in MOD_INFOS:
@@ -463,18 +397,22 @@ def validate():
 
 def main():
     write = "--write" in sys.argv[1:]
-    if write:
-        VERSION_FILE.write_text(replay()[-1][3] + "\n", encoding="utf-8")
-        VERSION_MAP.write_text(render(), encoding="utf-8")
-    faults, current = validate()
     print("=" * 74)
     print("THE VERSION IS A MACHINE")
     print("=" * 74)
+    try:
+        inputs = catalogue_inputs()
+        if write:
+            VERSION_FILE.write_text(replay(inputs[1])[-1][3] + "\n", encoding="utf-8")
+            VERSION_MAP.write_text(render(inputs), encoding="utf-8")
+        faults, current = validate(inputs)
+    except (CatalogueError, OSError) as exc:
+        faults, current = [str(exc)], None
     if faults:
         for f in faults:
             print(f"  FAULT: {f}")
         return 1
-    print(f"  80) version replay: {len(UNITS)} closed units classified; the machine")
+    print(f"  80) version replay: {len(inputs[1])} delivered units classified; the machine")
     print(f"      derives {current}, and VERSION, the map, and mod.info all state it")
     return 0
 

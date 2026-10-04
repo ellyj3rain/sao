@@ -1,11 +1,25 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.11.3.0-pre-alpha` |
+| Version | `2.11.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
 
 # Roadmap
+
+## Current C publication
+
+The current C catalogue contains 35 shared contracts reconstructed from 120
+preserved source records. `Batches/C_SHARED_BOUNDARIES.json` and
+`Batches/Catalogue/` are the current owner/interface map. The frozen compression
+event precedes D1. Earlier GitHub PRs retain their historical source identifiers;
+this additive publication reconciles the catalogue and version metadata without
+replaying runtime implementation. Source C118/C119 are already merged. Source
+C120 and its local recovery owners remain unmerged, with rendered acceptance
+and redistribution conditions open. `Batches/C_PUBLICATION_AVAILABILITY.json`
+records the two C34 owners absent from this public runtime using exact preserved
+archive and source-record pins. D1 remains OPEN and its runtime is separate.
+
 
 The intended progression is mechanical readiness across the simulation,
 Speakeasy training and runtime integration, then tuning toward first play.

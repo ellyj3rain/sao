@@ -1,0 +1,10 @@
+==========================================================================
+WHERE THE WORK SAYS IT STANDS
+==========================================================================
+  BATCH_LOG tip:   C35
+  SESSION_STATE:   C35
+  versions in body: 2.11.1.0-pre-alpha
+
+VERDICT:
+  44) session state: the file that says where the work stands names the current
+      batch and the shipped version

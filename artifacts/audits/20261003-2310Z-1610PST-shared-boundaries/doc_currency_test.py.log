@@ -1,0 +1,10 @@
+==========================================================================
+WHAT THE DOC-PACK SAYS ABOUT ITSELF
+==========================================================================
+  VERSION: 2.11.1.0-pre-alpha
+  root documents with a Version cell: 20
+  root files: 33   unclassified: 0
+
+VERDICT:
+  43) doc currency: every header states VERSION and nothing else, the tip lives
+      in one file, and the index classifies the whole root

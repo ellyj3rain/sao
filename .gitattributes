@@ -21,3 +21,8 @@ artifacts/audits/** -text -whitespace
 tools/fixtures/coordination-r67/*.tsv -text -whitespace
 # This sealed legacy producer artifact includes its original CRLF bytes.
 tools/capability_experience_checks/legacy_archive.lua -text -whitespace
+# Catalogue seals refer to captured bytes, including their original line endings.
+Batches/*.json -text -whitespace
+Batches/Transitions/*.json -text -whitespace
+Batches/Transitions/C-20261003-compression* -text -whitespace
+Batches/history/c-20261003-source/** -text -whitespace

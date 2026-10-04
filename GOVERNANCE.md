@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Governance |
 |---|---|
-| Version | `3.11.3.0-pre-alpha` |
+| Version | `2.11.1.0-pre-alpha` |
 | Design authority | ellyj3rain |
 | Repository | `GOVERNANCE.md` |
 | Status | ACTIVE - operating discipline for this repository. |
@@ -182,6 +182,32 @@ size of the project does not automatically become the workload of every change.
 Evaluate each proposed check or review by the uncertainty it resolves and its
 relevance to the larger objective. Verification builds on previous work so that
 increasing complexity remains manageable.
+
+Improve the established process through its use. Prior recatalogues provide
+methods, provenance and justified conclusions that later passes can extend and
+correct. A revision states which new evidence or development need warrants the
+change and carries forward applicable decisions and verification. The current
+operator-directed recatalogue concerns C and the development sequence toward D;
+A and B supply precedent and inherited structure. Reopening their catalogues
+requires its own scoped reason and direction. Their present scope does not imply
+that their methods or results are permanently finished.
+
+The 2026-10-03 direction resolves current C boundaries by authoritative owner,
+admitted inputs, produced outputs and durable state. A source record may
+contribute to several contracts; the manifest records each scoped contribution
+and one primary navigation home. Current contracts live in `Batches/Catalogue/`
+and their source bytes, generation and component status are preserved in
+`Batches/C_SHARED_BOUNDARIES.json`. C118/C119's completed and merged status and
+C120's implemented, verified, local-unmerged status remain distinct. Rendered
+acceptance and redistribution retain their actual outstanding conditions.
+
+Regulatory order follows the last delivered source contribution per contract.
+The version machine credits the delivered scope once per contract; neither
+contribution edges nor unmet extensions earn extra rows. The former 71-unit
+adjacency review is historical. Shared boundaries and explicit D dependencies
+determine this catalogue. A separately generated continuity graph presents
+chronology, concepts, dependencies and corrections with provenance, across
+letters and numbering generations, and can be rebuilt from their records.
 
 ### Existing hook and required CI
 

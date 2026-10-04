@@ -29,6 +29,8 @@ WHAT THIS HOLDS
 """
 import pathlib, re, sys
 
+from catalogue import CatalogueError, index_rows
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 MAPS = ROOT / "MAPS.md"
 INDEXES = ("BATCH_LOG.md", "VERSION_MAP.md",
@@ -91,12 +93,10 @@ def main():
                 faults.append(f"{rel} links a file not in the tree: {target}")
 
     log = (ROOT / "BATCH_LOG.md").read_text(encoding="utf-8")
-    for m in re.finditer(
-            r"\| \[([ABC]\d+)\]\(Batches/[ABC]\d+-(\d{4}-\d{2}-\d{2})-[^)]+\) "
-            r"\| (\d{4}-\d{2}-\d{2}) \|", log):
-        if m.group(2) != m.group(3):
-            faults.append(f"BATCH_LOG.md dates {m.group(1)} {m.group(3)}; "
-                          f"the record carries {m.group(2)}")
+    try:
+        index_rows(log)
+    except CatalogueError as exc:
+        faults.append(str(exc))
 
     print("=" * 74)
     print("THE MAPS AND THE INDEXES POINT AT REAL THINGS")

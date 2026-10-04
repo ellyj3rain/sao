@@ -18,18 +18,21 @@ ratified shape, `GOVERNANCE.md` for operating discipline, and
 
 ## What this repository is
 
-A Project Zomboid Build 42 NPC framework. Survivors act on what they have
-actually perceived, are durable inhabitants of the world rather than effects
-around the player, and remain inside the human behavioral envelope regardless
-of skill.
+A Project Zomboid Build 42 NPC framework. Survivors act on personal observations,
+acquired knowledge, ordinary-life priors and defeasible inference. DR-056 ratifies
+conceptual associations as a basis for anticipating possibilities and deciding
+what to investigate. Inference retains its provenance and uncertainty; particular
+local facts require acquisition. Survivors are durable inhabitants of the world
+and remain inside the human behavioral envelope regardless of skill.
 
 ## Operating conventions
 
 - **One alphanumeric batch sequence.** Work lands in numbered batches with a
   record under `Batches/`. Letter changes mark development eras; they do not
   create separate history systems. The A era closed at `[A29]`, the B era
-  closed at `[B52]`, and the chronology continues in the C era; the tip is
-  `BATCH_LOG.md`'s last row.
+  closed at `[B52]`. C's 120 preserved source records now map to 35 shared
+  contracts. The recorded compression event precedes D; D1 is open.
+  `BATCH_LOG.md` indexes delivered scope and names the active batch separately.
 - **Batch shape.** A batch is a coherent development unit, closed when the
   work is done, not when a message ends. Closing a batch means the record, the
   `BATCH_LOG.md` row, and the `SESSION_STATE.md` advance, in that order, plus
@@ -43,19 +46,42 @@ of skill.
   establish the promised behavior. Supporting repairs stay with the outcome they
   serve. Preserve existing batch history; a catalogue reorganization needs its
   own explicit operator direction.
-- **Commit shape.** `[C#] source: ...` for implementation, `[C#] reference: ...`
-  for records and documents, `[C#] governance: ...` for closings and process,
+- **Commit shape.** `[D#] source: ...` for implementation, `[D#] reference: ...`
+  for records and documents, `[D#] governance: ...` for closings and process,
   `[REPO] ...` for repository mechanics. One batch is one logical unit and
   lands in few commits, not a stream of them. Assistance is not authorship:
   no co-author trailers or tool attribution anywhere in the forge history.
 - **Append-only ledgers.** `DECISION_REGISTRY.md`, `FINDINGS.md`, and closed
   batch records are extended, never rewritten.
   The operator-authorized C consolidation of 2026-09-19 follows the A/B
-  precedent: the current catalog has C1-C50; every former C1-C127 record is
+  precedent: that pass produced C1-C50; every former C1-C127 record is
   preserved at local ref `archive/c-era-raw-20260919` and mapped in
   `Batches/FORMER_LABELS.md` and `Batches/C_RECATALOG.json`. Historical ledger
   entries, source comments, immutable evidence and sister citations retain
   their former identifiers. This convention does not authorize rewriting them.
+- **Current C catalogue.** The operator-directed 2026-10-03 recatalogue groups
+  nonadjacent contributions by shared owner, interface and state boundaries
+  needed for D. `Batches/C_SHARED_BOUNDARIES.json` is the executable mapping;
+  current records live in `Batches/Catalogue/`. The original C1-C120 files and
+  `Batches/history/c-20261003-source/` preserve source chronology and measured
+  component status. Historical C labels retain their source generation.
+  Current C order follows the last delivered contribution to each contract;
+  version replay credits each delivered contract once. This is the authorized
+  adaptation of CAO's chronological-unit and nonadjacent-thread precedent.
+  The continuity graph reads these records and may be rebuilt after migration.
+- **Continuation and consolidation.** Reconcile the current catalogue and the
+  complete operator directive before choosing work units or publication scope.
+  After a scope correction, record the settled instruction, owning repository
+  and required outcome in `SESSION_STATE.md` before delegating again. On
+  resumption, compare dated handoffs and proposals with that current directive;
+  a later clarification governs an earlier question or proposal.
+  State the owning repository and requested action at consequential junctions.
+  Historical identifiers provide generation-qualified provenance; the current
+  shared contracts organize ongoing work. An era consolidation records local
+  application and public reconciliation separately. GitHub receives the current
+  catalogue, version replay and provenance through the established additive
+  publication procedure; retained local-only implementation stays explicit.
+  A question's wording does not replace a clarified operator instruction.
 - **Verified APIs only.** Ground truth is the installed game
   (`projectzomboid.jar`, the shipped `media/lua` and `media/scripts` trees).
   Never assert engine behavior from memory; an unsupported statement is a
@@ -83,9 +109,9 @@ of skill.
 
   | Part | Shape |
   |---|---|
-  | branch | `neo/c<n>-<short-slug>`, off the batch's own name |
+  | branch | `neo/d<n>-<short-slug>`, off the batch's own name |
   | commit | ONE, squashed, carrying the tree at the batch's close |
-  | title | `[C<n>] <the batch's name from BATCH_LOG.md>` |
+  | title | `[D<n>] <the batch's name from BATCH_LOG.md>` |
   | body | `.github/pull_request_template.md`, filled in - not a rationale pasted in its place |
   | merge | squash, delete the branch, by you and not left for the operator |
 
@@ -98,6 +124,14 @@ of skill.
   Obvious defaults are taken and stated.
 - **Say what is not known.** An honest gap is worth more than a confident
   guess, and a guess presented as a finding is a defect.
+- **Visible simulation delivery.** An authorized live observation includes
+  propagating the candidate to the operator's open Mousecat. The session launcher
+  selects its exact live source once through the installed desktop and records
+  the outcome. Verify the current candidate, source binding and advancing frames
+  before reporting it visible. App changes include installed activation and
+  `installed:check`; repository edits and previews alone do not establish delivery.
+  Preserve an explicit headless or source-only request. A missing client or failed
+  handoff is reported as unavailable and does not become a visibility success.
 - **Write plainly (DR-018, widened 2026-08-30 and 2026-09-06).** State
   what a thing is or does in ordinary words and stop. This covers every
   word the operator reads: batch names, section headings, ruling names,
@@ -118,10 +152,16 @@ is unchanged. They had been written in the register the writing rule
 above bans - two of them as mirrored turns - and a law that breaks the
 rule it sits beside teaches every session to break it too.
 
-1. A survivor acts on what they have actually perceived. Knowing what
-   they could not have seen is a defect, and so is failing to react to
-   what they did see. Both are faults in the decision model rather
-   than in the numbers.
+DR-056 clarifies the first law's knowledge basis: personal acquisition and
+defeasible conceptual inference retain distinct authority.
+
+1. A survivor acts on person-private observations, acquired knowledge,
+   ordinary-life priors and defeasible conceptual inference (DR-056).
+   General associations support expectations and inquiry; they do not
+   fabricate observed local rooms, coordinates, contents or permission.
+   New evidence can refine or contradict an expectation. Ignoring relevant
+   acquired evidence or treating an inference as an observed fact is a
+   decision-model defect.
 2. Low skill changes how well somebody does a thing, never whether
    they do something no person would do. Skill moves latency,
    precision and breadth inside the human envelope and does not widen

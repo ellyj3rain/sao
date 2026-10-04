@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `3.11.3.0-pre-alpha` |
+| Version | `2.11.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1896,3 +1896,56 @@ search. C120 connects authentic personal experience to subsequent choices.
 The next general simulation pass observes these changed behaviors against
 specific questions. NEO.md and GOVERNANCE.md carry the standing scope rule;
 DR-054 continues to govern proportionate verification and evidence reuse.
+
+## DR-056 | 2026-10-04 02:54 UTC / 19:54 PST | Conceptual understanding and inference
+
+**Status.** RATIFIED by the operator's D1 reasoning corrections.
+
+**Decision.** A person's deliberation represents concepts, relationships,
+purposes, possible consequences and uncertain circumstances. Prior life and
+learned associations let a person connect a recognized situation to things they
+expect to find and actions that may help. Personal experience revises this
+understanding. Engineering completion records and simulation scores do not
+constitute the person's conceptual basis for deciding how to act.
+
+A recognized house can support an expectation of bedrooms; bedrooms can evoke
+beds and suitable places to sleep. That expectation motivates investigation
+while the actual rooms, their locations, contents and present suitability remain
+unconfirmed. Observations may support, refine or contradict the expectation.
+The same mechanism composes associations across places, objects, activities,
+purposes and consequences, with person-specific provenance and uncertainty.
+
+**Application.** D1 builds the shared conceptual representation and its live
+decision and inquiry consumers. Perception owns particular acquired facts;
+personal knowledge owns general and learned associations; disposition and
+accepted purposes shape what matters; Standing and native owners retain their
+existing authority. Numeric physiology, model calibration and engineering
+telemetry remain internal support. Describing a score-selected action in prose
+does not establish conceptual deliberation. The present numeric chooser and
+verified native recovery are implementation baselines, each with its measured
+scope; D1's conceptual outcome remains open until it changes actual choices.
+
+**Execution clarification, 2026-10-04.** The operator requires decentralized
+observe-orient-decide-act loops bounded by physical bodies, local surroundings
+and their constituents. Each activity owner observes its prerequisites, admits an
+attempt, samples actual execution and feeds the result back into personal
+understanding. Intention, preparation, active execution and measured consequence
+have distinct records. A selected routine does not establish an enacted action,
+posture, sound, learning or social effect. Descriptions of reading against a wall,
+for example, require actual reading and the claimed spatial condition. Missing
+material or an obstructed place returns an unmet prerequisite to deliberation.
+The operator requests the next visible observation in native Rosewood with a
+low infected population, so this behavior is evaluated in ordinary surroundings.
+
+## C catalogue public reconciliation | 2026-10-04 21:11 UTC / 14:11 PST
+
+The current C catalogue contains 35 shared contracts reconstructed from 120
+preserved source records. `Batches/C_SHARED_BOUNDARIES.json` and
+`Batches/Catalogue/` are the current owner/interface map. The frozen compression
+event precedes D1. Earlier GitHub PRs retain their historical source identifiers;
+this additive publication reconciles the catalogue and version metadata without
+replaying runtime implementation. Source C118/C119 are already merged. Source
+C120 and its local recovery owners remain unmerged, with rendered acceptance
+and redistribution conditions open. `Batches/C_PUBLICATION_AVAILABILITY.json`
+records the two C34 owners absent from this public runtime using exact preserved
+archive and source-record pins. D1 remains OPEN and its runtime is separate.

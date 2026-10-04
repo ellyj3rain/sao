@@ -1,0 +1,1536 @@
+{
+  "schema": "sao.c-recatalog/1",
+  "date": "2026-09-19",
+  "source_ref": "archive/c-era-raw-20260919",
+  "source_commit": "edee13ced379e865b745140dff74c5601ca7f5ca",
+  "old_count": 127,
+  "new_count": 50,
+  "audit": "artifacts/audits/20260919-0356Z-2056PST-c112-c126-implementation-audit.md",
+  "units": [
+    {
+      "batch": "C1",
+      "start": 1,
+      "end": 2,
+      "date": "2026-08-28",
+      "first_date": "2026-08-28",
+      "title": "Catalog and version governance",
+      "tier": "kohai",
+      "summary": "Corrected catalog links, chronology, runtime maps and the gate environment. Replaced hand-selected version coordinates with an executable replay of classified development units under the inherited CAO caps. The catalog owns names and dates; the replay owns the coordinate.",
+      "threads": [
+        "T-030"
+      ],
+      "path": "Batches/C1-2026-08-28-catalog-and-version-governance.md",
+      "sources": [
+        {
+          "former": "C1",
+          "path": "Batches/C1-2026-08-28-catalog-consistency-and-the-three-maps.md",
+          "sha256": "57e7dfd59e54bd781ce21129c7ce3877bd1eb5a9385627b10f144c81b4d8e808"
+        },
+        {
+          "former": "C2",
+          "path": "Batches/C2-2026-08-28-the-version-machine.md",
+          "sha256": "c776e3b871eb0f45e405e7c845624664c4f558bd8a33304978523373f29f3f3d"
+        }
+      ]
+    },
+    {
+      "batch": "C2",
+      "start": 3,
+      "end": 5,
+      "date": "2026-08-29",
+      "first_date": "2026-08-28",
+      "title": "Identity and execution continuity",
+      "tier": "patch",
+      "summary": "Unified person naming across the neighbour path and repaired continuity through crossings, seats and spoken interactions. The changes connected existing engine and controller paths and made swallowed execution failures visible; they did not introduce a second owner for a body.",
+      "threads": [
+        "T-001",
+        "T-005",
+        "T-006"
+      ],
+      "path": "Batches/C2-2026-08-29-identity-and-execution-continuity.md",
+      "sources": [
+        {
+          "former": "C3",
+          "path": "Batches/C3-2026-08-28-one-person-one-name-the-neighbour-folded.md",
+          "sha256": "1ddd9787d8c3a17cd4d022a5fe127d397aed1bcdfe994053197cee17c3f46059"
+        },
+        {
+          "former": "C4",
+          "path": "Batches/C4-2026-08-28-follow-through-the-crossing-the-wheels-fold-in.md",
+          "sha256": "2c0e0037622834304c73ae93718544cc927bf1427af392a4ea9d03286858673d"
+        },
+        {
+          "former": "C5",
+          "path": "Batches/C5-2026-08-29-the-spoken-word-and-the-swallowed-functions.md",
+          "sha256": "4c793d8176b884fe5368504a95c9399706fa744a375c710312a79831226bda34"
+        }
+      ]
+    },
+    {
+      "batch": "C3",
+      "start": 6,
+      "end": 7,
+      "date": "2026-08-29",
+      "first_date": "2026-08-29",
+      "title": "Inspection and person state",
+      "tier": "kohai",
+      "summary": "Added the inspection harness and integrated the person state visible through it. Existing menus carry the inspection and command surfaces through shared ownership prediction, with a fallback where those menus are unavailable. The harness exposes simulation state and diagnostic controls; observation alone does not establish completed behavior.",
+      "threads": [
+        "T-006",
+        "T-009"
+      ],
+      "path": "Batches/C3-2026-08-29-inspection-and-person-state.md",
+      "sources": [
+        {
+          "former": "C6",
+          "path": "Batches/C6-2026-08-29-the-inspect-harness.md",
+          "sha256": "2250a84908627641ebe6b1cfc98584ffd14ef3478d28827ed8d3aaa9894233ff"
+        },
+        {
+          "former": "C7",
+          "path": "Batches/C7-2026-08-29-superimposed-not-beside.md",
+          "sha256": "ec97de8849a92ff948ca03ac10674344f2d7713e1e31a82dcdec8de1b37b93fd"
+        }
+      ]
+    },
+    {
+      "batch": "C4",
+      "start": 8,
+      "end": 11,
+      "date": "2026-08-29",
+      "first_date": "2026-08-29",
+      "title": "Death ownership and infection timing",
+      "tier": "kohai",
+      "summary": "Connected durable death, risen-body ownership, crowd identity and infection timing to the engine. Distinguished persistent people from the fungible crowd and tied promises and lethal infection to their actual bodies and clocks. The later afflicted-return defects remain separate unresolved ownership failures.",
+      "threads": [
+        "T-002",
+        "T-006",
+        "T-007",
+        "T-008"
+      ],
+      "path": "Batches/C4-2026-08-29-death-ownership-and-infection-timing.md",
+      "sources": [
+        {
+          "former": "C8",
+          "path": "Batches/C8-2026-08-29-the-turn-is-real.md",
+          "sha256": "f257fe0ec0334826baf515ada8a842a1f85e4d963f8eb924f8752332705373d5"
+        },
+        {
+          "former": "C9",
+          "path": "Batches/C9-2026-08-29-the-pool-is-only-the-fungible-crowd.md",
+          "sha256": "9dee960c4b64203abc49f03fea1da61d1a68bce627dd5f0be68c5b700cf73825"
+        },
+        {
+          "former": "C10",
+          "path": "Batches/C10-2026-08-29-the-promise-swings-at-the-body.md",
+          "sha256": "33a7645daad36b364835ce1e448ec70d9d48d3eecba99df2ab2bbec5a9b7da3d"
+        },
+        {
+          "former": "C11",
+          "path": "Batches/C11-2026-08-29-the-bite-kills-on-the-engines-clock.md",
+          "sha256": "659d5d46abcfb857c7fedb09d09ce4091e5b0c7d287bd7b34741fce30e612a4d"
+        }
+      ]
+    },
+    {
+      "batch": "C5",
+      "start": 12,
+      "end": 14,
+      "date": "2026-08-29",
+      "first_date": "2026-08-29",
+      "title": "Player surfaces and compatibility review",
+      "tier": "patch",
+      "summary": "Revised the front end and configuration copy into player-facing language and swept the integration surfaces. These corrections cover the inspected interfaces and compatibility conditions; they are not blanket acceptance of every installed mod.",
+      "threads": [
+        "T-008",
+        "T-030"
+      ],
+      "path": "Batches/C5-2026-08-29-player-surfaces-and-compatibility-review.md",
+      "sources": [
+        {
+          "former": "C12",
+          "path": "Batches/C12-2026-08-29-the-front-end-speaks-player.md",
+          "sha256": "5a955906b56f61954da827daf8e896700a96bcef255b487694ccbf217496b721"
+        },
+        {
+          "former": "C13",
+          "path": "Batches/C13-2026-08-29-no-claudeisms-in-the-copy.md",
+          "sha256": "e906d7e08dc516ad7b44795f204ac380ec7067cef8e36658d511ca0d58e2abd9"
+        },
+        {
+          "former": "C14",
+          "path": "Batches/C14-2026-08-29-the-sweep-round-one.md",
+          "sha256": "fe9f77cc95fcf5cc9421b5da5d2b2178d300bf925b1433cfbdc8fb5948f8c3ca"
+        }
+      ]
+    },
+    {
+      "batch": "C6",
+      "start": 15,
+      "end": 15,
+      "date": "2026-08-29",
+      "first_date": "2026-08-29",
+      "title": "Person state across reload",
+      "tier": "kohai",
+      "summary": "Extended persistence so the person retains the state required to resume decisions across reload. The durable record is authoritative while engine bodies are temporary representations. Later optional drug counters and graph registrations still require their own persistence review.",
+      "threads": [
+        "T-006"
+      ],
+      "path": "Batches/C6-2026-08-29-person-state-across-reload.md",
+      "sources": [
+        {
+          "former": "C15",
+          "path": "Batches/C15-2026-08-29-whole-minds-survive-the-reload.md",
+          "sha256": "d3e2b23a8f19e94a2aaf09aff9d1994d67d6fd9836e3d8d258925f6c4c63e368"
+        }
+      ]
+    },
+    {
+      "batch": "C7",
+      "start": 16,
+      "end": 17,
+      "date": "2026-08-29",
+      "first_date": "2026-08-29",
+      "title": "Zombie census and bounded restitution",
+      "tier": "minor",
+      "summary": "Added the dead census, durable crowd ledger and optional debt-bounded zombie restitution. With RestoreTakenZombies enabled, the engine addVirtualZombie surface repays prior pool takes beyond the hibernation radius, at most six per daily pulse; the setting defaults off. Measurement and this limited mutation do not establish demographic calibration or complete population dynamics.",
+      "threads": [
+        "T-007",
+        "T-009"
+      ],
+      "path": "Batches/C7-2026-08-29-zombie-census-and-bounded-restitution.md",
+      "sources": [
+        {
+          "former": "C16",
+          "path": "Batches/C16-2026-08-29-the-dead-census.md",
+          "sha256": "497a4dba5830df9be19e2388ee77efa47d9bb4025020f12a4d3f958bd2034930"
+        },
+        {
+          "former": "C17",
+          "path": "Batches/C17-2026-08-29-the-crowd-ledger.md",
+          "sha256": "37f534be5ff26602a6630e00c11b99a480a1dc7a34e2cd7e929277f45c7348a1"
+        }
+      ]
+    },
+    {
+      "batch": "C8",
+      "start": 18,
+      "end": 19,
+      "date": "2026-08-29",
+      "first_date": "2026-08-29",
+      "title": "Play evidence and execution corrections",
+      "tier": "patch",
+      "summary": "Recorded first play observations, repaired route restarting and room-item parsing, and established that partial receipts remain useful evidence. Acceptance attaches to the observed surface and conditions. These fixes and observations do not certify the whole project or prevent independent mechanical work.",
+      "threads": [
+        "T-001",
+        "T-008",
+        "T-030"
+      ],
+      "path": "Batches/C8-2026-08-29-play-evidence-and-execution-corrections.md",
+      "sources": [
+        {
+          "former": "C18",
+          "path": "Batches/C18-2026-08-29-the-first-play-receipts.md",
+          "sha256": "bb475e2ffc5c0e33cf23bbe06a8b15b3f3487cb3404e43022834f8ddac427d8e"
+        },
+        {
+          "former": "C19",
+          "path": "Batches/C19-2026-08-29-partial-receipts-are-receipts.md",
+          "sha256": "3ab1a070d5d7d5bd24beb46edf95636390a905d77d8e7f3c67f9fe2c5917652c"
+        }
+      ]
+    },
+    {
+      "batch": "C9",
+      "start": 20,
+      "end": 24,
+      "date": "2026-08-29",
+      "first_date": "2026-08-29",
+      "title": "Adoption and configuration boundaries",
+      "tier": "kohai",
+      "summary": "Consolidated identity adoption, complete failure handling and the configuration field boundaries. Removed unavailable or unsupported interface surfaces rather than leaving declarations detached from their implementation. The work preserves the one-person and one-body ownership rules.",
+      "threads": [
+        "T-006",
+        "T-007",
+        "T-030"
+      ],
+      "path": "Batches/C9-2026-08-29-adoption-and-configuration-boundaries.md",
+      "sources": [
+        {
+          "former": "C20",
+          "path": "Batches/C20-2026-08-29-the-county-takes-them-whole.md",
+          "sha256": "09b8fb54dae5b861b18d13bec38ea7e85d0ce009e2b566b8b5753fc6db88d3f4"
+        },
+        {
+          "former": "C21",
+          "path": "Batches/C21-2026-08-29-fail-completely-never-his-way.md",
+          "sha256": "46a47bb02dd432c8c6abae182175a200dc9c5ea8deb1533082f481f7a9b9aa00"
+        },
+        {
+          "former": "C22",
+          "path": "Batches/C22-2026-08-29-the-switch-gates-the-field.md",
+          "sha256": "3c500ac09b3e0372e884fa923be8784548abcbf73441a4aaee3b0c057861d0bb"
+        },
+        {
+          "former": "C23",
+          "path": "Batches/C23-2026-08-29-deleted-not-greyed.md",
+          "sha256": "d8fa72c47fc3dfbb668ccbee2bf57ee33d5029a01a33eecf1373857a514a862e"
+        },
+        {
+          "former": "C24",
+          "path": "Batches/C24-2026-08-29-the-anchor-was-never-there.md",
+          "sha256": "032850139acd5925c659521b1aab129d8faad365e27c7bcd739289d8f166e72c"
+        }
+      ]
+    },
+    {
+      "batch": "C10",
+      "start": 25,
+      "end": 26,
+      "date": "2026-08-29",
+      "first_date": "2026-08-29",
+      "title": "Known needs and social interaction",
+      "tier": "patch",
+      "summary": "Connected need-directed movement to remembered opportunities and repaired the interaction path from player input through Standing. Added outcome-verified dressing and claim-aware wake placement. Knowledge, permission and execution remain separate responsibilities; a reachable interface does not itself supply an action consequence.",
+      "threads": [
+        "T-001",
+        "T-003",
+        "T-004",
+        "T-006"
+      ],
+      "path": "Batches/C10-2026-08-29-known-needs-and-social-interaction.md",
+      "sources": [
+        {
+          "former": "C25",
+          "path": "Batches/C25-2026-08-29-need-reaches-for-what-they-know.md",
+          "sha256": "66285fc7935222d45f00538143af4514900eb714db9887cb40a802ec0a264b08"
+        },
+        {
+          "former": "C26",
+          "path": "Batches/C26-2026-08-29-the-click-lands-and-the-line-holds.md",
+          "sha256": "2bc067dc2c42ca07db9defd3b7adb1689b703c3ff28fa6dec8f0453a5d937d7d"
+        }
+      ]
+    },
+    {
+      "batch": "C11",
+      "start": 27,
+      "end": 28,
+      "date": "2026-08-30",
+      "first_date": "2026-08-30",
+      "title": "Knowledge conditioning and inference measurement",
+      "tier": "minor",
+      "summary": "Introduced a common view of what a person knows and an arithmetic instrument for in-process inference cost. The standalone measurement supplies a ceiling under its measured conditions. It does not select the final model size or establish performance under a loaded game.",
+      "threads": [
+        "T-005",
+        "T-006",
+        "T-008"
+      ],
+      "path": "Batches/C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md",
+      "sources": [
+        {
+          "former": "C27",
+          "path": "Batches/C27-2026-08-30-what-one-person-knows-as-one-surface.md",
+          "sha256": "352b9fe1df34128b6049df6c9fdf2c03983c0212c3c39de70f9ef350fae3f724"
+        },
+        {
+          "former": "C28",
+          "path": "Batches/C28-2026-08-30-the-inference-budget-instrument.md",
+          "sha256": "3be29bdeade3cf47f763ead82e50412f6cae49f45b9b123d2b9db39d693618f4"
+        }
+      ]
+    },
+    {
+      "batch": "C12",
+      "start": 29,
+      "end": 31,
+      "date": "2026-09-06",
+      "first_date": "2026-09-06",
+      "title": "Body scale age and childhood",
+      "tier": "minor",
+      "summary": "Added engine body scaling, an age system on durable people, and childhood capacity and activity distinctions. Age changes human capability and expression. Later child activity integration contains a reproduced zero-wound truthiness defect and does not inherit acceptance from this record.",
+      "threads": [
+        "T-002",
+        "T-006",
+        "T-007",
+        "T-008"
+      ],
+      "path": "Batches/C12-2026-09-06-body-scale-age-and-childhood.md",
+      "sources": [
+        {
+          "former": "C29",
+          "path": "Batches/C29-2026-09-06-the-body-is-scaled-from-inside-the-animation-player.md",
+          "sha256": "281f1d1df64457688f27f5aab1dedd931ecdfc8149832d6b6f4a8825c445fc9b"
+        },
+        {
+          "former": "C30",
+          "path": "Batches/C30-2026-09-06-age-is-a-system-on-the-countys-people.md",
+          "sha256": "c7ba18370706c3f81539ace1f419b18865584231effdc6dddb993496500bd3e5"
+        },
+        {
+          "former": "C31",
+          "path": "Batches/C31-2026-09-06-the-childs-day.md",
+          "sha256": "02cb69ecc995b87ca5511a767a94eec1c2547bd20b8abec8cea48040333739ed"
+        }
+      ]
+    },
+    {
+      "batch": "C13",
+      "start": 32,
+      "end": 34,
+      "date": "2026-09-06",
+      "first_date": "2026-09-06",
+      "title": "Conditions habits and strain",
+      "tier": "minor",
+      "summary": "Added durable conditions, habits and moment-specific strain as person state. These inputs are intended to condition behavior and expression rather than assign successful outcomes. Later drug and brain-health integrations expose unresolved ownership and update-cadence defects.",
+      "threads": [
+        "T-002",
+        "T-006",
+        "T-007"
+      ],
+      "path": "Batches/C13-2026-09-06-conditions-habits-and-strain.md",
+      "sources": [
+        {
+          "former": "C32",
+          "path": "Batches/C32-2026-09-06-conditions-are-facts-about-a-person.md",
+          "sha256": "2c04fd0d89c5670d423c0e3c5ee5f40aaa34494ec65b415a1162b19814f62a82"
+        },
+        {
+          "former": "C33",
+          "path": "Batches/C33-2026-09-06-habits-are-facts-about-a-person.md",
+          "sha256": "41d0c321be6ef9f54d0b963ce078fe3e3801b8e3872c5f009883c726f3f72970"
+        },
+        {
+          "former": "C34",
+          "path": "Batches/C34-2026-09-06-the-moment-carries-the-strain.md",
+          "sha256": "892d06918b38fb88dc11ecea50bcdef91dce4050a6e6616b4195319052bc1cdb"
+        }
+      ]
+    },
+    {
+      "batch": "C14",
+      "start": 35,
+      "end": 35,
+      "date": "2026-09-07",
+      "first_date": "2026-09-07",
+      "title": "Physical gestures",
+      "tier": "minor",
+      "summary": "Introduced physical gestures through the engine action surface. Gestures render a chosen interaction and remain subject to action-queue ownership, interruption and completion. Later care composition demonstrates why successful queueing is insufficient evidence of a completed interaction.",
+      "threads": [
+        "T-002",
+        "T-007"
+      ],
+      "path": "Batches/C14-2026-09-07-physical-gestures.md",
+      "sources": [
+        {
+          "former": "C35",
+          "path": "Batches/C35-2026-09-07-the-countys-gestures.md",
+          "sha256": "7f372842d6e65faa1e50c98a608a91f44dff2c38c77de26571abe80dc8b7d3e6"
+        }
+      ]
+    },
+    {
+      "batch": "C15",
+      "start": 36,
+      "end": 36,
+      "date": "2026-09-07",
+      "first_date": "2026-09-07",
+      "title": "Historical record calendar",
+      "tier": "patch",
+      "summary": "Placed the historical record on the county calendar so claims and events use the intended temporal context. This corrects the record surface; shared elapsed time and historical stepping were subsequently repaired in their own units.",
+      "threads": [
+        "T-002",
+        "T-006"
+      ],
+      "path": "Batches/C15-2026-09-07-historical-record-calendar.md",
+      "sources": [
+        {
+          "former": "C36",
+          "path": "Batches/C36-2026-09-07-the-record-on-the-countys-calendar.md",
+          "sha256": "6756182a8313f1d73c7ee312f5627af77b1f6a8fa2e4743bcdcabcf8446d8a4e"
+        }
+      ]
+    },
+    {
+      "batch": "C16",
+      "start": 37,
+      "end": 37,
+      "date": "2026-09-07",
+      "first_date": "2026-09-07",
+      "title": "Orders through Standing",
+      "tier": "kohai",
+      "summary": "Added the command check for whose instruction a person accepts, within what matter and with what grounds for refusal. Standing determines authority before execution. This contract is wider than obedience to a fixed leader label.",
+      "threads": [
+        "T-004",
+        "T-006"
+      ],
+      "path": "Batches/C16-2026-09-07-orders-through-standing.md",
+      "sources": [
+        {
+          "former": "C37",
+          "path": "Batches/C37-2026-09-07-an-order-lands-through-standing.md",
+          "sha256": "c3039d84fffa65bbd2b0bab9a45b46f1a381f14b324e08ef55ebf32aede9b329"
+        }
+      ]
+    },
+    {
+      "batch": "C17",
+      "start": 38,
+      "end": 40,
+      "date": "2026-09-07",
+      "first_date": "2026-09-07",
+      "title": "Remembered era and owned condition state",
+      "tier": "kohai",
+      "summary": "Connected remembered era and condition information to SAO-owned person state and removed accidental dependence on external mods for the county to stand on its own. Optional integrations supply inputs while the project retains responsibility for the person record.",
+      "threads": [
+        "T-002",
+        "T-006",
+        "T-007",
+        "T-030"
+      ],
+      "path": "Batches/C17-2026-09-07-remembered-era-and-owned-condition-state.md",
+      "sources": [
+        {
+          "former": "C38",
+          "path": "Batches/C38-2026-09-07-the-era-remembered.md",
+          "sha256": "f2303c6285668507c6f11163addfe93d1031d951dbc074d89d74f88746e1bf7a"
+        },
+        {
+          "former": "C39",
+          "path": "Batches/C39-2026-09-07-the-conditions-are-saos-own.md",
+          "sha256": "e2762f4c543fe438c7a6cd1f42afa2f1e71b6ca0ff3567cadb55173ec05c95fb"
+        },
+        {
+          "former": "C40",
+          "path": "Batches/C40-2026-09-07-the-county-stands-on-its-own.md",
+          "sha256": "a1a3acf87b7910747538cdc3e216b54f884d5ba53c2fa1e826a158166c88816e"
+        }
+      ]
+    },
+    {
+      "batch": "C18",
+      "start": 41,
+      "end": 46,
+      "date": "2026-09-07",
+      "first_date": "2026-09-07",
+      "title": "Historical county simulation",
+      "tier": "minor",
+      "summary": "Added the pre-spawn county, ordinary pre-collapse activity, start-date alignment, construction choices and elapsed-year simulation. Ground observations were connected to historical processing. The original clock and cadence defects were later repaired; loaded geometry, complete dormant producers and scalable late starts remain subject to the substrate assessment.",
+      "threads": [
+        "T-002",
+        "T-003",
+        "T-004",
+        "T-005",
+        "T-007"
+      ],
+      "path": "Batches/C18-2026-09-07-historical-county-simulation.md",
+      "sources": [
+        {
+          "former": "C41",
+          "path": "Batches/C41-2026-09-07-the-world-before-the-spawn.md",
+          "sha256": "3377679d303fe5f4fc1f8dd060439dc5860541a82e0e378b15e011b8146f4198"
+        },
+        {
+          "former": "C42",
+          "path": "Batches/C42-2026-09-07-before-the-fall-an-ordinary-life.md",
+          "sha256": "ed66e4ff47d66390a437b32333fa045c16f0d0e2c1942023b0affd9cf4a9dc57"
+        },
+        {
+          "former": "C43",
+          "path": "Batches/C43-2026-09-07-the-records-timeline-shifts-to-the-game.md",
+          "sha256": "b4ab020278f10a3ef7af77aa74d09e92e5ddd15c27a6648abe64f949c478d1cf"
+        },
+        {
+          "former": "C44",
+          "path": "Batches/C44-2026-09-07-they-either-build-or-they-do-not.md",
+          "sha256": "6a469e1ff9e021f98aeff31e4d51c6932336925994e107baa34038c9a4e88cd5"
+        },
+        {
+          "former": "C45",
+          "path": "Batches/C45-2026-09-07-the-years-between.md",
+          "sha256": "ffab929c9d4c69d24bd089e2b6216c6e4eb28fcc41e257cd1050e061a3c4d1f3"
+        },
+        {
+          "former": "C46",
+          "path": "Batches/C46-2026-09-07-the-ground-is-read-during-the-years.md",
+          "sha256": "b40bbebcf283758c6ac108c03c1849929ceeba82200bf9d781e2bb1e6e0e83d9"
+        }
+      ]
+    },
+    {
+      "batch": "C19",
+      "start": 47,
+      "end": 47,
+      "date": "2026-09-07",
+      "first_date": "2026-09-07",
+      "title": "Constrained factual expression",
+      "tier": "minor",
+      "summary": "Introduced constrained decoding over the facts the person may express. The constraint prevents unsupported fact selection from the supplied vocabulary. Training still has to learn appropriate cognition and expression; passing the fact constraint alone does not measure either.",
+      "threads": [
+        "T-002",
+        "T-006"
+      ],
+      "path": "Batches/C19-2026-09-07-constrained-factual-expression.md",
+      "sources": [
+        {
+          "former": "C47",
+          "path": "Batches/C47-2026-09-07-the-fence.md",
+          "sha256": "dc5d1d479385fbd4ccd30387966795dc8ef31a052c253f2452379799091bf489"
+        }
+      ]
+    },
+    {
+      "batch": "C20",
+      "start": 48,
+      "end": 49,
+      "date": "2026-09-07",
+      "first_date": "2026-09-07",
+      "title": "Entry and command permission",
+      "tier": "patch",
+      "summary": "Connected physical entry difficulty to the available ground and routed survivor orders through the shared command check. Entry execution follows a permitted and perceived opportunity; authority is not substituted for physical access.",
+      "threads": [
+        "T-003",
+        "T-004",
+        "T-006"
+      ],
+      "path": "Batches/C20-2026-09-07-entry-and-command-permission.md",
+      "sources": [
+        {
+          "former": "C48",
+          "path": "Batches/C48-2026-09-07-how-hard-a-place-is-to-get-into.md",
+          "sha256": "b5fb13b86a7bfb5a088a70aea610495b7e8477e9dfab5e74ab0093cb68ba6b8d"
+        },
+        {
+          "former": "C49",
+          "path": "Batches/C49-2026-09-07-survivor-orders-use-the-command-check.md",
+          "sha256": "25db7ac99e3b88a0728ac7ad4eee07cc151ec530c35c4c7d802f02df8220f1cf"
+        }
+      ]
+    },
+    {
+      "batch": "C21",
+      "start": 50,
+      "end": 52,
+      "date": "2026-09-08",
+      "first_date": "2026-09-07",
+      "title": "Learned expression and condition integration",
+      "tier": "kohai",
+      "summary": "Conditioned speech on what a person has actually learned, extended habit state to the player, and grounded condition figures for psychosis and insomnia. The work links existing person state to its consumers rather than declaring experience from a role or elapsed date.",
+      "threads": [
+        "T-002",
+        "T-007"
+      ],
+      "path": "Batches/C21-2026-09-08-learned-expression-and-condition-integration.md",
+      "sources": [
+        {
+          "former": "C50",
+          "path": "Batches/C50-2026-09-07-what-a-survivor-says-follows-what-they-have-learned.md",
+          "sha256": "163a7a02374b135b1ccba328afdc3aa444d14e44228bffc40853f2e6c7a02c12"
+        },
+        {
+          "former": "C51",
+          "path": "Batches/C51-2026-09-07-the-habits-are-the-players-too.md",
+          "sha256": "034dc6dd695e634e4802212a7586d6c97757341135d50aa50509cc09063515b2"
+        },
+        {
+          "former": "C52",
+          "path": "Batches/C52-2026-09-08-psychosis-and-insomnia-get-their-figures.md",
+          "sha256": "f37da67402e1bf13315f551865df305ffc3ade5ed2fd69561c50fca462d8716f"
+        }
+      ]
+    },
+    {
+      "batch": "C22",
+      "start": 53,
+      "end": 54,
+      "date": "2026-09-08",
+      "first_date": "2026-09-08",
+      "title": "Personal choice in shared travel",
+      "tier": "patch",
+      "summary": "Made participation depend on the person asking and made vehicle selection respect the prospective traveller's objection. A group plan is composed from individual willingness and available equipment; a refusal should not silently discard other acceptable options.",
+      "threads": [
+        "T-002",
+        "T-003",
+        "T-004"
+      ],
+      "path": "Batches/C22-2026-09-08-personal-choice-in-shared-travel.md",
+      "sources": [
+        {
+          "former": "C53",
+          "path": "Batches/C53-2026-09-08-who-goes-along-weighs-who-is-asking.md",
+          "sha256": "a61ec5d8c3b60671ab0c11982f17a22c990556d2d4c1f9511b2be1978dbcf9c9"
+        },
+        {
+          "former": "C54",
+          "path": "Batches/C54-2026-09-08-the-objection-picks-the-car.md",
+          "sha256": "acdc8752616a49b8a66d92b3464a4a632a44a70cdcc760ae581e235797854601"
+        }
+      ]
+    },
+    {
+      "batch": "C23",
+      "start": 55,
+      "end": 55,
+      "date": "2026-09-08",
+      "first_date": "2026-09-08",
+      "title": "Witnessed violence attribution",
+      "tier": "patch",
+      "summary": "Distinguished observing a death from witnessing who caused it. Attribution must follow perceived evidence. The remaining witness-rule limitation is retained as open rather than converting proximity to the victim into knowledge of the killing.",
+      "threads": [
+        "T-001",
+        "T-007"
+      ],
+      "path": "Batches/C23-2026-09-08-witnessed-violence-attribution.md",
+      "sources": [
+        {
+          "former": "C55",
+          "path": "Batches/C55-2026-09-08-seeing-a-death-is-not-seeing-who-did-it.md",
+          "sha256": "e820e7a8bf20cffab593c1115b1299314be73a286d30a96c9f74598372d54ba6"
+        }
+      ]
+    },
+    {
+      "batch": "C24",
+      "start": 56,
+      "end": 59,
+      "date": "2026-09-08",
+      "first_date": "2026-09-08",
+      "title": "Verification and publication machinery",
+      "tier": "patch",
+      "summary": "Made engine-dependent verification report unavailable ground explicitly, distinguished valid skips from vacuous success, aligned the CI action pair, and established protected-main publication through merged pull requests. These are repository mechanics, not new simulation capability.",
+      "threads": [
+        "T-030"
+      ],
+      "path": "Batches/C24-2026-09-08-verification-and-publication-machinery.md",
+      "sources": [
+        {
+          "former": "C56",
+          "path": "Batches/C56-2026-09-08-borders-skip-when-the-game-is-absent.md",
+          "sha256": "425637d60d64d6137ed01a3e30bcfa3239f35ac0883a193fbdfcb1d73caa5c35"
+        },
+        {
+          "former": "C57",
+          "path": "Batches/C57-2026-09-08-a-skip-is-not-a-vacuous-pass.md",
+          "sha256": "46f5a8cee20833adc97c4f09bd4b3303ea9cb4d2b73e9ff479eb4e8e97e64196"
+        },
+        {
+          "former": "C58",
+          "path": "Batches/C58-2026-09-08-the-codeql-action-halves-travel-together.md",
+          "sha256": "537aff5fa17386bd7d8c25a2e1f904d9e3439debbb903686509ab878c6bfaa02"
+        },
+        {
+          "former": "C59",
+          "path": "Batches/C59-2026-09-08-main-is-protected-and-batches-arrive-by-pull-request.md",
+          "sha256": "38fd2593c70d5ea1ed03c17d125695c111d42c6b07a54ff625a942fcdff5a05a"
+        }
+      ]
+    },
+    {
+      "batch": "C25",
+      "start": 60,
+      "end": 60,
+      "date": "2026-09-08",
+      "first_date": "2026-09-08",
+      "title": "Player depletion of places",
+      "tier": "patch",
+      "summary": "Connected player looting to the depletion state used by the county. Resource availability must reflect world changes produced outside the NPC controller as well as the survivor's own actions.",
+      "threads": [
+        "T-003"
+      ],
+      "path": "Batches/C25-2026-09-08-player-depletion-of-places.md",
+      "sources": [
+        {
+          "former": "C60",
+          "path": "Batches/C60-2026-09-08-the-players-looting-spends-a-place.md",
+          "sha256": "9bc38874130c69580a4c8d34e771b154f29d2500101a2923d03062645f952c3c"
+        }
+      ]
+    },
+    {
+      "batch": "C26",
+      "start": 61,
+      "end": 63,
+      "date": "2026-09-08",
+      "first_date": "2026-09-08",
+      "title": "Shared county time and day zero",
+      "tier": "patch",
+      "summary": "Unified elapsed county hours across historical and live processing, advanced the years pass on that clock and made day-zero starts owe no prior years. The subsequent quantized-tick and catch-up repairs extend this foundation; cached controller time and day-versus-tick consumers remain under correction.",
+      "threads": [
+        "T-002",
+        "T-005",
+        "T-007"
+      ],
+      "path": "Batches/C26-2026-09-08-shared-county-time-and-day-zero.md",
+      "sources": [
+        {
+          "former": "C61",
+          "path": "Batches/C61-2026-09-08-one-clock-for-how-long-this-has-been-going-on.md",
+          "sha256": "01e251909bf1a7375200458a82d9bb84e460ee1658126734472f525dbb92aa88"
+        },
+        {
+          "former": "C62",
+          "path": "Batches/C62-2026-09-08-one-clock-for-the-county-and-the-years-pass-moves-it.md",
+          "sha256": "ed5acab3149231e7b1860cb8d274c4c231438007a309f7fc14508fbd02d5dadc"
+        },
+        {
+          "former": "C63",
+          "path": "Batches/C63-2026-09-08-a-day-zero-start-owes-no-years.md",
+          "sha256": "15655c533c2fed9eea73eb8dfed6f3461407dcfd3afaa8fa53cb8b2a92527484"
+        }
+      ]
+    },
+    {
+      "batch": "C27",
+      "start": 64,
+      "end": 64,
+      "date": "2026-09-08",
+      "first_date": "2026-09-08",
+      "title": "Scoped verification claims",
+      "tier": "patch",
+      "summary": "Removed blanket completion claims and made documentation and its checks express the actual evidence boundary. Code-level checks, runtime observations and player acceptance have distinct scope. The later readiness audit found this discipline had drifted again.",
+      "threads": [
+        "T-030"
+      ],
+      "path": "Batches/C27-2026-09-08-scoped-verification-claims.md",
+      "sources": [
+        {
+          "former": "C64",
+          "path": "Batches/C64-2026-09-08-the-blanket-claim-is-gone-from-every-document-that-carried-it.md",
+          "sha256": "1a22da821cea4f01452f5417b032d7ac856c30ce344becf6202368925748ca7a"
+        }
+      ]
+    },
+    {
+      "batch": "C28",
+      "start": 65,
+      "end": 66,
+      "date": "2026-09-08",
+      "first_date": "2026-09-08",
+      "title": "Simulation telemetry and reproducibility",
+      "tier": "minor",
+      "summary": "Added run boundaries, input conditions, county trajectory measurements and a county-owned random stream. These enable accountable observations of a simulation. A reproducible outcome can still come from a defective producer and is not automatically suitable training data.",
+      "threads": [
+        "T-007",
+        "T-009"
+      ],
+      "path": "Batches/C28-2026-09-08-simulation-telemetry-and-reproducibility.md",
+      "sources": [
+        {
+          "former": "C65",
+          "path": "Batches/C65-2026-09-08-the-years-pass-leaves-a-trajectory.md",
+          "sha256": "3bc9b13c5ade5e7cdb4dfc07d3e6bf118928c88a6d4c63f2cd0ef1035ec25215"
+        },
+        {
+          "former": "C66",
+          "path": "Batches/C66-2026-09-08-the-county-carries-its-own-randomness.md",
+          "sha256": "13c375690a1703ae1eeca5e67be99c8ab49377015a5f68d1194efe3ef6091460"
+        }
+      ]
+    },
+    {
+      "batch": "C29",
+      "start": 67,
+      "end": 73,
+      "date": "2026-09-08",
+      "first_date": "2026-09-08",
+      "title": "Dormant social continuity and county measurement",
+      "tier": "kohai",
+      "summary": "Repaired company founding and dissolution, centralized death settlement, introduced the county sweep, gave people stable belief keys, enabled dormant visits to known people and assigned names when identities are created. These adjacent changes make dormant social activity and its measurement possible. Current admission and historical-state limitations remain documented in the later audit.",
+      "threads": [
+        "T-004",
+        "T-006",
+        "T-007",
+        "T-008",
+        "T-009"
+      ],
+      "path": "Batches/C29-2026-09-08-dormant-social-continuity-and-county-measurement.md",
+      "sources": [
+        {
+          "former": "C67",
+          "path": "Batches/C67-2026-09-08-founding-a-company-dissolved-it.md",
+          "sha256": "ddefa59f44fc08bf88332e19b1051411e17472b19dc66233970d25f64d3cd5d6"
+        },
+        {
+          "former": "C68",
+          "path": "Batches/C68-2026-09-08-a-death-leaves-the-company.md",
+          "sha256": "3d10adbebf5835f894aa90e536da896d1e8db3d44aa8c1023134458daba6a14f"
+        },
+        {
+          "former": "C69",
+          "path": "Batches/C69-2026-09-08-the-county-sweep-is-a-tool-in-the-tree.md",
+          "sha256": "83653fbc3784832fa0b8666c076dea3c67914ae5ed439bf0e07918c319ad88f8"
+        },
+        {
+          "former": "C70",
+          "path": "Batches/C70-2026-09-08-every-death-path-settles-the-house-in-one-place.md",
+          "sha256": "16830124f735f6010b0f5166d6933abfacff93071a16cc86c3f391524d5bbae3"
+        },
+        {
+          "former": "C71",
+          "path": "Batches/C71-2026-09-08-every-person-has-their-own-belief-key.md",
+          "sha256": "4eef8d14d3ed17f21aebf3366dda39a21ee89bb643916af8b04bcce8c68a7402"
+        },
+        {
+          "former": "C72",
+          "path": "Batches/C72-2026-09-08-the-dormant-day-can-go-to-a-person.md",
+          "sha256": "cce9f8a5e75f545ee285aa3f7e74d046e3f4afe2813f10f785228729fcf3b310"
+        },
+        {
+          "former": "C73",
+          "path": "Batches/C73-2026-09-08-a-person-is-named-when-they-are-made.md",
+          "sha256": "81ab562536b319176784585ddc3e9186ff7a3a2666332a241863f470dc4131c5"
+        }
+      ]
+    },
+    {
+      "batch": "C30",
+      "start": 74,
+      "end": 74,
+      "date": "2026-09-09",
+      "first_date": "2026-09-09",
+      "title": "Ownership across the three repositories",
+      "tier": "patch",
+      "summary": "Recorded SAO as the living simulation, ZAO as pathogen and turned execution, and Speakeasy as cognition data and models. The separation is a licensing and ownership boundary within one project. It does not create an additional approval negotiation between its own components.",
+      "threads": [
+        "T-030"
+      ],
+      "path": "Batches/C30-2026-09-09-ownership-across-the-three-repositories.md",
+      "sources": [
+        {
+          "former": "C74",
+          "path": "Batches/C74-2026-09-09-the-three-projects-and-what-each-owns.md",
+          "sha256": "60987756498876e109fdcffa1e6e32ff2bdbb5a71bc8b79e2d3767704de0ace0"
+        }
+      ]
+    },
+    {
+      "batch": "C31",
+      "start": 75,
+      "end": 77,
+      "date": "2026-09-09",
+      "first_date": "2026-09-09",
+      "title": "Dormant movement settlement ground and cost",
+      "tier": "kohai",
+      "summary": "Aligned dormant walking with elapsed time, derived occupied ground from where members actually return, and measured the cost of historical movement. A place relationship follows use. Measurement of this representation does not demonstrate loaded terrain execution or sustainable population scale.",
+      "threads": [
+        "T-003",
+        "T-004",
+        "T-007",
+        "T-008",
+        "T-009"
+      ],
+      "path": "Batches/C31-2026-09-09-dormant-movement-settlement-ground-and-cost.md",
+      "sources": [
+        {
+          "former": "C75",
+          "path": "Batches/C75-2026-09-09-a-day-of-walking-is-a-day-of-walking.md",
+          "sha256": "166908f0f747bd254f1c1c6089f9dd379141557a69345212bf90cc690045fa2a"
+        },
+        {
+          "former": "C76",
+          "path": "Batches/C76-2026-09-09-a-house-takes-ground-where-its-people-already-go.md",
+          "sha256": "c412a32d856656e74a858bc8b8ff1c249778d418d74a70905c6bffe892b8f660"
+        },
+        {
+          "former": "C77",
+          "path": "Batches/C77-2026-09-09-what-the-walking-costs.md",
+          "sha256": "3bb7642ef1c0e2b3edf650bac8d4d314ef9f5ad8fa21cb2beb556fd889dac001"
+        }
+      ]
+    },
+    {
+      "batch": "C32",
+      "start": 78,
+      "end": 80,
+      "date": "2026-09-09",
+      "first_date": "2026-09-09",
+      "title": "Infection course and clinical observation",
+      "tier": "minor",
+      "summary": "Added the person's infection response, dormant infection exposure and examiner-dependent clinical observation. The course and its observations carry their own clocks and evidence. Later brain-health integration requires reconciliation with this existing mechanism and ZAO's authoritative pathogen state.",
+      "threads": [
+        "T-002",
+        "T-003",
+        "T-007"
+      ],
+      "path": "Batches/C32-2026-09-09-infection-course-and-clinical-observation.md",
+      "sources": [
+        {
+          "former": "C78",
+          "path": "Batches/C78-2026-09-09-the-body-fights-the-infection.md",
+          "sha256": "39ed9cade0ff2861108d33badf200c4a872088e8f7d6061db1c6ef527ae48fd8"
+        },
+        {
+          "former": "C79",
+          "path": "Batches/C79-2026-09-09-the-unwatched-county-can-catch-it.md",
+          "sha256": "3060ca92e4b3a00cd3b8307768bad22029ebc023724a149b914604996bed2a8e"
+        },
+        {
+          "former": "C80",
+          "path": "Batches/C80-2026-09-09-what-an-examiner-can-tell.md",
+          "sha256": "8fea9fd44b7a11d59fa7ae14088ef9818baa12891eb4d717a95b87ffa6cda6a1"
+        }
+      ]
+    },
+    {
+      "batch": "C33",
+      "start": 81,
+      "end": 82,
+      "date": "2026-09-09",
+      "first_date": "2026-09-09",
+      "title": "Controller ownership and driving surface verification",
+      "tier": "patch",
+      "summary": "Recognized externally controlled bodies and verified the installed engine surfaces through which an NPC could drive. Former C82 was an evidence record with no mod-code change. This unit did not introduce autonomous driving; later C42 integrated it and the implementation audit found route ownership, steering and progress defects. Control ownership must remain exclusive through approach, boarding, travel and release.",
+      "threads": [
+        "T-001",
+        "T-002",
+        "T-008"
+      ],
+      "path": "Batches/C33-2026-09-09-controller-ownership-and-driving-surface-verification.md",
+      "sources": [
+        {
+          "former": "C81",
+          "path": "Batches/C81-2026-09-09-another-controller-holds-them.md",
+          "sha256": "98b973dc2cce1d454ba06cb1c202c3570b0ab4f743a0c4e3890b4c1122d2a245"
+        },
+        {
+          "former": "C82",
+          "path": "Batches/C82-2026-09-09-no-player-at-the-wheel.md",
+          "sha256": "1be8aac8cf1878524201e7d2dfa794eaf98bace9698341e47a68e18ecc59d4b6"
+        }
+      ]
+    },
+    {
+      "batch": "C34",
+      "start": 83,
+      "end": 88,
+      "date": "2026-09-10",
+      "first_date": "2026-09-09",
+      "title": "Decision capture and ratified data preparation",
+      "tier": "minor",
+      "summary": "Added decision-moment capture beside the county sweep, recorded the first ratified work-word rows, exposed engine names and occupations to the harness, enriched belief provenance and retained the needs that conditioned a work decision. The later audit reproduced mutable snapshot leakage in this exporter. Approved choices remain ratified while their source conditioning requires review.",
+      "threads": [
+        "T-004",
+        "T-006",
+        "T-008",
+        "T-030"
+      ],
+      "path": "Batches/C34-2026-09-10-decision-capture-and-ratified-data-preparation.md",
+      "sources": [
+        {
+          "former": "C83",
+          "path": "Batches/C83-2026-09-09-a-decision-moment-dump-beside-the-county-sweep.md",
+          "sha256": "d3419ba2c392ebbe68fa65afe94f79b43043d2b490db8e417b86b6d7ea5d37a0"
+        },
+        {
+          "former": "C84",
+          "path": "Batches/C84-2026-09-09-the-sister-s-first-rows-are-in.md",
+          "sha256": "d8b1377cc067074924f71cefec2f332d64c7d10827436e46f1516ba9628cbdb4"
+        },
+        {
+          "former": "C85",
+          "path": "Batches/C85-2026-09-09-the-sister-s-rows-are-ratified.md",
+          "sha256": "3ef197dddeddc651f06b30dc0bf27068547f2487a95271a5e81894d781781b32"
+        },
+        {
+          "former": "C86",
+          "path": "Batches/C86-2026-09-10-the-engine-s-own-names-and-trades-by-mode.md",
+          "sha256": "41ad6ed9b62d6c7589a385a6f6bcced4877b1b05304fdf5a5c08e0f6549328c7"
+        },
+        {
+          "former": "C87",
+          "path": "Batches/C87-2026-09-10-what-a-belief-carries.md",
+          "sha256": "ec012a82cafb8ab0753d2ad513f5894e630f4715664dafdcaca8df314d5b0757"
+        },
+        {
+          "former": "C88",
+          "path": "Batches/C88-2026-09-10-what-decided-a-moment.md",
+          "sha256": "391fc325d1c54bf36b6c00da04b9c4c1492352b1a62e6fb1bfb61e3c61dd10ec"
+        }
+      ]
+    },
+    {
+      "batch": "C35",
+      "start": 89,
+      "end": 93,
+      "date": "2026-09-10",
+      "first_date": "2026-09-10",
+      "title": "Life simulation and dependency contracts",
+      "tier": "kohai",
+      "summary": "Defined the full life-simulation representation, organization and deference, claims distinguished from recognition, one causal branching graph and the dependency substrate. These are ratified contracts. They do not establish that the corresponding runtime producers exist or that a graph observer completes the simulation.",
+      "threads": [
+        "T-004",
+        "T-006",
+        "T-008",
+        "T-030"
+      ],
+      "path": "Batches/C35-2026-09-10-life-simulation-and-dependency-contracts.md",
+      "sources": [
+        {
+          "former": "C89",
+          "path": "Batches/C89-2026-09-10-what-the-county-represents.md",
+          "sha256": "7eb243add4dd2b622472a2df5d2fb7fe686d892db42d8b370d1764ef817b42b0"
+        },
+        {
+          "former": "C90",
+          "path": "Batches/C90-2026-09-10-organization-and-deference.md",
+          "sha256": "7da133642205ebe2fd460b5a4dbd3e1422db091d6a058c021ebd804541db9b23"
+        },
+        {
+          "former": "C91",
+          "path": "Batches/C91-2026-09-10-claims-and-recognition.md",
+          "sha256": "8333d4600612934eccd103bcb4e49bbaa91bb3237af629eaff67a43ba5700bed"
+        },
+        {
+          "former": "C92",
+          "path": "Batches/C92-2026-09-10-the-branching-system.md",
+          "sha256": "8696da6d6adf7e27f028ca4f3c5a6df7723d6a5433e20e8ff8b360883fdda79c"
+        },
+        {
+          "former": "C93",
+          "path": "Batches/C93-2026-09-10-the-dependency-substrate.md",
+          "sha256": "dd77e2d8048b9ad49aa116c59d6b2bf390a6687dab0006c57b04b7da8460339a"
+        }
+      ]
+    },
+    {
+      "batch": "C36",
+      "start": 94,
+      "end": 96,
+      "date": "2026-09-10",
+      "first_date": "2026-09-10",
+      "title": "Isolation attachment and development observations",
+      "tier": "kohai",
+      "summary": "Added read-only summaries of isolation, place attachment and world development from existing person and place facts, with inspection and export surfaces. These observations expose inputs for decisions. They do not themselves produce affiliation, projects, provisioning or development.",
+      "threads": [
+        "T-006",
+        "T-008"
+      ],
+      "path": "Batches/C36-2026-09-10-isolation-attachment-and-development-observations.md",
+      "sources": [
+        {
+          "former": "C94",
+          "path": "Batches/C94-2026-09-10-isolation-becomes-a-live-state.md",
+          "sha256": "778838d9c64a615ad1b2caed8ad0f96e2e9c24a4ce02b9004a9fcc241327f3c4"
+        },
+        {
+          "former": "C95",
+          "path": "Batches/C95-2026-09-10-place-attachment-becomes-a-live-state.md",
+          "sha256": "1c8878f3d0195d1375ca0659eaa7cf3079516e87c95650f1b90c7e223713dd49"
+        },
+        {
+          "former": "C96",
+          "path": "Batches/C96-2026-09-10-world-development-becomes-a-live-state.md",
+          "sha256": "59f3fbda89ca35870185bcecbcd81a71d0551302f0efbe5d3f0b696089521b49"
+        }
+      ]
+    },
+    {
+      "batch": "C37",
+      "start": 97,
+      "end": 105,
+      "date": "2026-09-12",
+      "first_date": "2026-09-11",
+      "title": "Pathogen data and recognition integration",
+      "tier": "kohai",
+      "summary": "Integrated the pathogen-owned forms and performance contract, keyed cross-module rows by person and decision hour, recorded ZAO's state producers and overlays, admitted observed forms into SAO perception, and connected recognition records to county events. Sister implementation remains owned and verified there. Automatic recognition, persistence and the missing general decision producers remain subjects of the substrate assessment.",
+      "threads": [
+        "T-008",
+        "T-030"
+      ],
+      "path": "Batches/C37-2026-09-12-pathogen-data-and-recognition-integration.md",
+      "sources": [
+        {
+          "former": "C97",
+          "path": "Batches/C97-2026-09-11-the-pathogens-forms-enter-the-branching-graph.md",
+          "sha256": "6847818b6c920713f86114090a91cb019c1f1a2820ea02e3f372c833db0ee7af"
+        },
+        {
+          "former": "C98",
+          "path": "Batches/C98-2026-09-11-the-cross-module-row-exporter.md",
+          "sha256": "ce1fcc3c92bc4140b53fc79003df5e2b9b0f7b005b029bf01d4b39deb6dd4baa"
+        },
+        {
+          "former": "C99",
+          "path": "Batches/C99-2026-09-11-the-first-cross-module-rows.md",
+          "sha256": "67ea1a2b95014d06ac7831fe6ade7b85917dcd0a0f183a6203c1ccd223665ef1"
+        },
+        {
+          "former": "C100",
+          "path": "Batches/C100-2026-09-11-the-zao-state-producer.md",
+          "sha256": "3bc1ce44570d04d75e1e3c523126a758d67c4f9b778cdaaaa824a10817d7769e"
+        },
+        {
+          "former": "C101",
+          "path": "Batches/C101-2026-09-11-the-state-surface.md",
+          "sha256": "563901dcb53c0ba3bf6ca7ec70ab4d1b94bd5e4606ff638e7e1b0c33e37b568e"
+        },
+        {
+          "former": "C102",
+          "path": "Batches/C102-2026-09-11-the-form-registry-and-the-pathogen-roll.md",
+          "sha256": "af003ac675f11f664088703ef2a2fbe3c676be15baf925498b1d5185d6eece25"
+        },
+        {
+          "former": "C103",
+          "path": "Batches/C103-2026-09-11-the-form-overlay.md",
+          "sha256": "7baf37691ac202cb87871ef7bea1098045edb56055250c49acee7a68ecb59173"
+        },
+        {
+          "former": "C104",
+          "path": "Batches/C104-2026-09-11-perception-carries-the-form.md",
+          "sha256": "eb4f5be65c335f4e84b4e30cea268cc5c59449b674c21e51145e769fbf5e4fcc"
+        },
+        {
+          "former": "C105",
+          "path": "Batches/C105-2026-09-12-the-recognition-bridge.md",
+          "sha256": "10e6397f2685856e96aea588e14e6ee7770e3012d284bf19b9abcecfd6a961a7"
+        }
+      ]
+    },
+    {
+      "batch": "C38",
+      "start": 106,
+      "end": 108,
+      "date": "2026-09-12",
+      "first_date": "2026-09-12",
+      "title": "Player claims and inhabited ground",
+      "tier": "kohai",
+      "summary": "Exposed organizational player claims through the shared claim surface, added dormant provisioning reads and generalized inhabited places to a ranked set derived from use. A player claim is recorded with its recognition and response. Inventory, physical access and sustained action consequences still require grounded producers in both representations.",
+      "threads": [
+        "T-003",
+        "T-004",
+        "T-008"
+      ],
+      "path": "Batches/C38-2026-09-12-player-claims-and-inhabited-ground.md",
+      "sources": [
+        {
+          "former": "C106",
+          "path": "Batches/C106-2026-09-12-the-player-verbs-of-the-house.md",
+          "sha256": "79ff7089415fa1e012cb1db2668551d994c91204768e1f9e68660be9c18bfc9e"
+        },
+        {
+          "former": "C107",
+          "path": "Batches/C107-2026-09-12-what-a-settled-house-does-with-its-ground.md",
+          "sha256": "8a35cf2e79b388d54a4e0732864ffc1085e55372b66d9818c53f5b76ab13488b"
+        },
+        {
+          "former": "C108",
+          "path": "Batches/C108-2026-09-12-the-place-ontology.md",
+          "sha256": "da412f49053d9c32bab2b9d69b68b73b60d2adb0de488523e65dd9fb8d15e004"
+        }
+      ]
+    },
+    {
+      "batch": "C39",
+      "start": 109,
+      "end": 110,
+      "date": "2026-09-12",
+      "first_date": "2026-09-12",
+      "title": "Readiness corrections and recorded rulings",
+      "tier": "patch",
+      "summary": "Corrected stale sibling-readiness statements and recorded settled dataset, integration and configuration rulings. The 112 work-word and 78 trade-hinge choices and the cross-module row contract were ratified. The remaining implementation work must follow those decisions without asking for them again.",
+      "threads": [
+        "T-030"
+      ],
+      "path": "Batches/C39-2026-09-12-readiness-corrections-and-recorded-rulings.md",
+      "sources": [
+        {
+          "former": "C109",
+          "path": "Batches/C109-2026-09-12-beside-this-tree-corrected.md",
+          "sha256": "ff3f7cf8cbf10e6df6c11fa6c26259ef1ef1838ce0457be5d51996e1e55a783f"
+        },
+        {
+          "former": "C110",
+          "path": "Batches/C110-2026-09-12-the-rulings-land.md",
+          "sha256": "a31fda6b196f611908f2f699e84f922efa031174f8b651b537887475abf68744"
+        }
+      ]
+    },
+    {
+      "batch": "C40",
+      "start": 111,
+      "end": 111,
+      "date": "2026-09-12",
+      "first_date": "2026-09-12",
+      "title": "Personal need in affiliation",
+      "tier": "kohai",
+      "summary": "Added personal need alongside trust in affiliation. Individual circumstances and experienced relationships condition company formation. The later repair removes fixed membership quotas and guards private knowledge, while broader affiliation producers and their evidence remain incomplete.",
+      "threads": [
+        "T-004",
+        "T-006"
+      ],
+      "path": "Batches/C40-2026-09-12-personal-need-in-affiliation.md",
+      "sources": [
+        {
+          "former": "C111",
+          "path": "Batches/C111-2026-09-12-need-stands-alongside-trust.md",
+          "sha256": "5f3ab7f1a72d6e4414d2458eecaadff1e37dc580ead19612e6f7b27209c34175"
+        }
+      ]
+    },
+    {
+      "batch": "C41",
+      "start": 112,
+      "end": 113,
+      "date": "2026-09-13",
+      "first_date": "2026-09-12",
+      "title": "County tick and ordinary activity",
+      "tier": "kohai",
+      "summary": "Defined the county tick from elapsed hours and added ordinary street activity with durable work locations. Rework remains required: controller time can stay cached during historical substeps, and the same stay-in decision has different loaded and dormant consequences.",
+      "threads": [
+        "T-002",
+        "T-007"
+      ],
+      "path": "Batches/C41-2026-09-13-county-tick-and-ordinary-activity.md",
+      "sources": [
+        {
+          "former": "C112",
+          "path": "Batches/C112-2026-09-12-the-tick-is-the-countys-clock.md",
+          "sha256": "b6a35064afd3d482937ec65568ed39cb36700e2ed14df6bd261e815e2519ed4d"
+        },
+        {
+          "former": "C113",
+          "path": "Batches/C113-2026-09-13-the-street-hour-and-the-trade-s-ground.md",
+          "sha256": "6ac9bd7e43d59e014fb76bae0d5a6efb33a15639b94748b59810d92bdeec4b55"
+        }
+      ]
+    },
+    {
+      "batch": "C42",
+      "start": 114,
+      "end": 115,
+      "date": "2026-09-13",
+      "first_date": "2026-09-13",
+      "title": "Driving integration and configuration",
+      "tier": "kohai",
+      "summary": "Extended ordinary driving and wired the three associated configuration choices. The option wiring is retained. Driving requires substantial repair: its approach can cancel itself, unchanged status text cancels moving vehicles, promised passengers are not waited for, and rearward destinations can produce forward travel.",
+      "threads": [
+        "T-001",
+        "T-002",
+        "T-004"
+      ],
+      "path": "Batches/C42-2026-09-13-driving-integration-and-configuration.md",
+      "sources": [
+        {
+          "former": "C114",
+          "path": "Batches/C114-2026-09-13-a-real-person-at-the-wheel.md",
+          "sha256": "9355108c7cce2c124aad8d37853e818829fd758e1a277ea2e144a496e5ed04f7"
+        },
+        {
+          "former": "C115",
+          "path": "Batches/C115-2026-09-13-the-dials-the-rulings-named.md",
+          "sha256": "4ee18febafdfb13261b3af99946d02077cf0fe12a25a1c461e34427099096e43"
+        }
+      ]
+    },
+    {
+      "batch": "C43",
+      "start": 116,
+      "end": 117,
+      "date": "2026-09-13",
+      "first_date": "2026-09-13",
+      "title": "Afflicted return and social behavior",
+      "tier": "kohai",
+      "summary": "Connected afflicted return, retained capabilities and social responses to formed people. The audit reproduced bodies returned without controller adoption, absent dormant recovery, premature driving-competence stamps and automatic daily relocation without movement. Preserve the intended behaviors and reconstruct those mechanisms.",
+      "threads": [
+        "T-001",
+        "T-002",
+        "T-004",
+        "T-006",
+        "T-008"
+      ],
+      "path": "Batches/C43-2026-09-13-afflicted-return-and-social-behavior.md",
+      "sources": [
+        {
+          "former": "C116",
+          "path": "Batches/C116-2026-09-13-the-afflicted-come-back.md",
+          "sha256": "7b08f979c9954984d2ef30a5dde7e70d24be172bd8cb0d776f42083144eb7753"
+        },
+        {
+          "former": "C117",
+          "path": "Batches/C117-2026-09-13-the-afflicted-among-the-living.md",
+          "sha256": "d2ce872eff71381b4caff50677dbebf62ee295d02ce20b5adf10075a33c625d6"
+        }
+      ]
+    },
+    {
+      "batch": "C44",
+      "start": 118,
+      "end": 118,
+      "date": "2026-09-14",
+      "first_date": "2026-09-14",
+      "title": "Robbery and raiding actions",
+      "tier": "kohai",
+      "summary": "Added demands, surrender transfers, forced entry and raiding transport using existing execution primitives. The audit found that demand and response lack a completed transaction, surrender consequences precede transfer completion, and subsequent aggressor behavior does not consume the result. Rework is required.",
+      "threads": [
+        "T-002",
+        "T-004",
+        "T-008"
+      ],
+      "path": "Batches/C44-2026-09-14-robbery-and-raiding-actions.md",
+      "sources": [
+        {
+          "former": "C118",
+          "path": "Batches/C118-2026-09-14-the-demand-the-break-in-and-the-haul.md",
+          "sha256": "041930b97ff88a2fea30d901f013ee35aa1a38470ed1c77d0612468e339b5029"
+        }
+      ]
+    },
+    {
+      "batch": "C45",
+      "start": 119,
+      "end": 119,
+      "date": "2026-09-14",
+      "first_date": "2026-09-14",
+      "title": "Optional county events and care",
+      "tier": "kohai",
+      "summary": "Integrated credited event and gesture inputs and the optional randomized nuke with its default off. A reproduced care composition defect queues treatment before CPR, causing CPR to refuse the busy body. Retain the optional scope and repair the actual event-to-action chains.",
+      "threads": [
+        "T-002",
+        "T-004",
+        "T-007"
+      ],
+      "path": "Batches/C45-2026-09-14-optional-county-events-and-care.md",
+      "sources": [
+        {
+          "former": "C119",
+          "path": "Batches/C119-2026-09-14-week-ones-moments-and-the-governments-answer.md",
+          "sha256": "f84b34387c4e9ffa149ea880699435fdaa9ad707b827ca63d96a863644c11fdd"
+        }
+      ]
+    },
+    {
+      "batch": "C46",
+      "start": 120,
+      "end": 120,
+      "date": "2026-09-14",
+      "first_date": "2026-09-14",
+      "title": "Child and everyday activity integration",
+      "tier": "kohai",
+      "summary": "Extended age-sensitive driving and everyday activities. The audit reproduced healthy children receiving wound fear because zero is truthy in Lua, and found activity participant discovery bypassing individual perception. Capacity and activity primitives remain useful while these decisions require repair.",
+      "threads": [
+        "T-001",
+        "T-002"
+      ],
+      "path": "Batches/C46-2026-09-14-child-and-everyday-activity-integration.md",
+      "sources": [
+        {
+          "former": "C120",
+          "path": "Batches/C120-2026-09-14-a-child-at-the-wheel-a-ball-in-the-street.md",
+          "sha256": "0cd36ce5c6039c034abf4507cdd81d06f8879d8f61ad2ae9268d5784aa6357c5"
+        }
+      ]
+    },
+    {
+      "batch": "C47",
+      "start": 121,
+      "end": 121,
+      "date": "2026-09-14",
+      "first_date": "2026-09-14",
+      "title": "Drug use withdrawal and smoking",
+      "tier": "kohai",
+      "summary": "Connected drug and ordinary consumption adapters, withdrawal, habits and optional real smoking. The audit reproduced a frozen-use clock that still removes dependency and daily processing that depends on the session-start minute. Optional body-owned counters and cumulative poison also need persistence and state-semantics correction.",
+      "threads": [
+        "T-002",
+        "T-008"
+      ],
+      "path": "Batches/C47-2026-09-14-drug-use-withdrawal-and-smoking.md",
+      "sources": [
+        {
+          "former": "C121",
+          "path": "Batches/C121-2026-09-14-the-carry-the-ladder-and-the-smoke-break.md",
+          "sha256": "2d864651ca33cd3255d17bbf235d824ba933e671cf5b087b496993c3fe096c06"
+        }
+      ]
+    },
+    {
+      "batch": "C48",
+      "start": 122,
+      "end": 124,
+      "date": "2026-09-14",
+      "first_date": "2026-09-14",
+      "title": "Vehicle animal and combat integration",
+      "tier": "kohai",
+      "summary": "Added held-key vehicle access, vehicle storage, animal care and combat-perception compatibility. Verified key and action adapters remain useful. Rework is required for compartment access and moving positions, animal admission into human beliefs, remote hutch extraction, installed prone-state keys and active-target revalidation.",
+      "threads": [
+        "T-001",
+        "T-003",
+        "T-006",
+        "T-007",
+        "T-008"
+      ],
+      "path": "Batches/C48-2026-09-14-vehicle-animal-and-combat-integration.md",
+      "sources": [
+        {
+          "former": "C122",
+          "path": "Batches/C122-2026-09-14-vehicles-keys-and-containers.md",
+          "sha256": "9b0e9f8cae0292962090d965392757d8fe2e7bf0b9df6d6892ce7afbf0a082b8"
+        },
+        {
+          "former": "C123",
+          "path": "Batches/C123-2026-09-14-the-countys-animals.md",
+          "sha256": "902e8dddf93d62a3e30a46800f26be20201c619977a2e6a9f2cf8752fd3f1828"
+        },
+        {
+          "former": "C124",
+          "path": "Batches/C124-2026-09-14-combat-perception-compatibility.md",
+          "sha256": "13faa901f97a2e20c2f25d8a05d83f97daa08042d0f46d87133c3aa4f4a84974"
+        }
+      ]
+    },
+    {
+      "batch": "C49",
+      "start": 125,
+      "end": 125,
+      "date": "2026-09-14",
+      "first_date": "2026-09-14",
+      "title": "Brain health integration",
+      "tier": "kohai",
+      "summary": "Attempted the requested event-driven brain-health integration and visualization. The off switch is repaired, but the model remains disputed: update partition changes the outcome, authoritative pathogen state is read from the wrong owner, loaded health inputs are stale, and lifetime poison is reapplied as current damage. The scalar display and incomplete consumers do not fulfill the requested graph.",
+      "threads": [
+        "T-002",
+        "T-006",
+        "T-008"
+      ],
+      "path": "Batches/C49-2026-09-14-brain-health-integration.md",
+      "sources": [
+        {
+          "former": "C125",
+          "path": "Batches/C125-2026-09-14-the-neuroinflammation-knot.md",
+          "sha256": "cfe1457f30a48c2c6953a3620348f29a87f46f5ea15fdaa8729711eaaac0ee47"
+        }
+      ]
+    },
+    {
+      "batch": "C50",
+      "start": 126,
+      "end": 127,
+      "date": "2026-09-18",
+      "first_date": "2026-09-14",
+      "title": "Historical simulation recovery and evidence",
+      "tier": "patch",
+      "summary": "Removed the rejected fixed-formula trajectory generator and repaired catch-up progress, company admission and diagnostic evidence refusal and provenance. Preserve the verified repairs and independent 90/365-day observations within their stated limits. No learned model or completed ML bridge resulted. The audit also identifies unresolved time consumers, population refill assumptions, the older decision exporter and missing life-simulation producers.",
+      "threads": [
+        "T-007",
+        "T-008",
+        "T-009"
+      ],
+      "path": "Batches/C50-2026-09-18-historical-simulation-recovery-and-evidence.md",
+      "sources": [
+        {
+          "former": "C126",
+          "path": "Batches/C126-2026-09-14-learned-trajectory-and-headless-simulation-for-post-1993-starts.md",
+          "sha256": "d376f1e6a9b8b0bf7294c958931b4ebbe50b5a83dd6e8011ea55f03c633304e5"
+        },
+        {
+          "former": "C127",
+          "path": "Batches/C127-2026-09-18-causal-simulation-and-evidence.md",
+          "sha256": "b8bf6b4c0a544a033596f60844b2717d4df968fb056db8401a13bac7ada2cb7c"
+        }
+      ]
+    }
+  ],
+  "hash_basis": "SHA-256 of original Git blob bytes at source_commit; working-tree line-ending conversion is excluded.",
+  "published_source_commit": "89e7451eea841e7d097902374d8acf293d920cc9",
+  "source_tree": "88fbee6806e6aca97e7bcd4f6b40ab94294c87e9",
+  "provenance_note": "The local archive and published source commit have the same tree. The published commit allows retrieval of former records without publishing local forge history."
+}

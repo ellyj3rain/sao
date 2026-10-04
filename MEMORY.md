@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `3.11.3.0-pre-alpha` |
+| Version | `2.11.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -35,8 +35,8 @@ current. Nothing at the root is unclassified.
 | `DECISION_REGISTRY.md` | CANONICAL, APPEND-ONLY | Ratified decisions from DR-001. |
 | `FINDINGS.md` | CANONICAL, APPEND-ONLY | Verified engine findings from F-001. |
 | `RECEIPTS.md` | CANONICAL, APPEND-ONLY | What play has actually settled, from R-001 (DR-025). |
-| `BATCH_LOG.md` | REGULATORY | Chronological index for the batch sequence. |
-| `VERSION_MAP.md` | REGULATORY | Version units replayed over the closed chronology indexed by `BATCH_LOG.md`. |
+| `BATCH_LOG.md` | REGULATORY | Authoritative current index; C shared contracts retain generation-qualified source chronology. |
+| `VERSION_MAP.md` | REGULATORY | Delivered contract scopes replayed once, with preserved A/B classifications and current C component status. |
 | `ROADMAP.md` | CANONICAL | Thread map, backlog, live gates. |
 | `SESSION_STATE.md` | CANONICAL | Where the work actually stands. |
 | `MAPS.md` | CANONICAL | The three pictures a human reads first: runtime, knowledge, catalog. |
@@ -64,8 +64,12 @@ current. Nothing at the root is unclassified.
 
 | Path | Role |
 |---|---|
-| `Batches/` | One alphanumeric batch sequence; one record per closed batch. |
-| `Batches/C_RECATALOG.json` | Regulatory crosswalk for all 127 former C records: current unit, original path and Git-blob SHA-256. |
+| `Batches/` | A/B records, preserved C1-C120 source generation and active D records; current C contracts live under Catalogue/. |
+| `Batches/C_RECATALOG.json` | Immutable prior 127-to-50 C crosswalk with original paths and Git-blob hashes; intermediate units are source-generation identifiers. |
+| `artifacts/audits/20261003-2057Z-1357PST-c-development-recatalogue/` | Historical adjacency review and superseded projection; preserved unchanged for provenance. |
+| `Batches/Catalogue/` | Canonical shared C contracts: owner, inputs, outputs, state, delivered scope, dependencies and remaining D work. |
+| `Batches/C_SHARED_BOUNDARIES.json` | Regulatory source/contract manifest and current version classification; exact source/archive hashes and measured component states. |
+| `Batches/SHARED_BOUNDARIES.md` | Canonical human navigation of shared contracts and D dependencies. |
 | `Batches/history/` | Historical detailed scope preserved during consolidation; current status belongs to SESSION_STATE and ROADMAP. |
 | `artifacts/audits/` | Dated audit reports and immutable reproducibility evidence, including C82's source-bound native coordination shadow family; former batch labels stay historical. |
 | `mod/` | The shippable mod tree (root + version-dir `mod.info`, Lua under `42.20/media/lua/`). |

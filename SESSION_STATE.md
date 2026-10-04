@@ -1,11 +1,44 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.11.3.0-pre-alpha` |
+| Version | `2.11.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**Publication directive, 2026-10-04.** The current C era contains 35 compressed
+shared contracts. Its local transformation and pre-D compression event are
+applied; GitHub still carries the earlier catalogue. The operator directs era
+reconciliation on GitHub following the earlier additive catalogue/version/
+provenance publication precedent. Coherent SAO publication groups follow current
+contracts and dependencies. Mousecat is a separate repository and remains one
+PR. Historical C labels identify preserved source contributions rather than
+current work units. Local-only owner availability and source rights remain
+explicit during catalogue publication; neither metadata migration nor PR shape
+closes D1.
+
+**As of** 2026-10-04, [C35](Batches/Catalogue/C35-2026-10-03-source-ownership.md)
+is the last contract in the current 35-contract index. This is catalogue
+reconciliation, with component implementation, verification and publication
+kept separate. It supplies no new runtime completion or D1 closure.
+
+**Catalogue publication preparation, 2026-10-04 21:11 UTC / 14:11 PST.**
+
+The current C catalogue contains 35 shared contracts reconstructed from 120
+preserved source records. `Batches/C_SHARED_BOUNDARIES.json` and
+`Batches/Catalogue/` are the current owner/interface map. The frozen compression
+event precedes D1. Earlier GitHub PRs retain their historical source identifiers;
+this additive publication reconciles the catalogue and version metadata without
+replaying runtime implementation. Source C118/C119 are already merged. Source
+C120 and its local recovery owners remain unmerged, with rendered acceptance
+and redistribution conditions open. `Batches/C_PUBLICATION_AVAILABILITY.json`
+records the two C34 owners absent from this public runtime using exact preserved
+archive and source-record pins. D1 remains OPEN and its runtime is separate.
+
+The retained entries below describe the public source-generation baseline.
+Their original identifiers and scoped evidence remain historical provenance.
+
 
 Standing validation follows DR-054 and GOVERNANCE.md's testing and
 validation rule. Scope checks to changed inputs, affected contracts and
