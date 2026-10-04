@@ -63,3 +63,21 @@ the command-scoped `--no-verify` option to avoid repeating unaffected native
 borders after these sufficient checks. This is evidence reuse, not a full-gate
 pass. Protected remote `ci-verify` and `codeql-python` checks must complete
 before merge and retain their own environment and observation limits.
+
+## First remote CI finding and detector repair
+
+PR137's first `ci-verify` run failed at the operator-speech border. The frozen
+recatalogue verification inventory names `tools/operator_speech_test.py` and
+its source SHA on line 1846. The former detector treated the identifier's
+`operator` substring and the following hash as attributed quoted prose. The
+captured inventory is preserved without alteration.
+
+The detector now requires the standalone word `operator`; it continues to reject
+prose attribution, parenthesized attribution and verbatim markers. Nine inline
+controls include those actual attribution forms and identifier/hash
+non-attribution. The literal frozen row reproduces the old match and remains
+unattributed under the corrected detector. The complete tracked-text sweep
+passes. An isolated restoration of the old regex fails both the filename/hash
+control and the same frozen line for their stated reasons. This repair adds no
+archive exemption. No runtime or whole local gate was rerun; the next protected
+remote checks remain required.
