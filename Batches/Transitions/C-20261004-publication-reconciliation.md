@@ -81,3 +81,24 @@ passes. An isolated restoration of the old regex fails both the filename/hash
 control and the same frozen line for their stated reasons. This repair adds no
 archive exemption. No runtime or whole local gate was rerun; the next protected
 remote checks remain required.
+
+## Catalogue-dependent registry and gate counts
+
+The next remote run exposed two outdated non-Lua declarations. `receipts_test.py`
+and `version_replay.py` now validate the current catalogue's owner paths, so
+removing Lua owners changes their verdict. Their entries were removed from
+`vacuous_pass_test.py`'s `NOT_ABOUT_LUA` registry. The actual scoped instrument
+refuses both readers against a blinded tree and passes with the correct
+declarations. Restoring the exact old entries recreates both remote registry
+faults. The private harness selects these two changed subjects and its temporary
+destination; production blind-copy and verdict logic remain intact. This is
+bounded evidence for those declarations, not a repeat of all mirror checks.
+
+The canonical count instrument measures 239 gated test files, 16 other Python
+entry points and 255 distinct scripts. `SESSION_STATE.md` now states those
+figures; its current publication boundary is retained. All six count claims
+pass, along with the existing three mutation controls. The receipts, version,
+session-state, document-currency, map-reference, gate-reach and operator-speech
+consumers also pass against the corrected metadata. Catalogue source, frozen
+captures and runtime/package inputs remain unchanged. The failed remote log is
+retained and protected checks must complete on the follow-up head.

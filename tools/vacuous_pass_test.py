@@ -105,10 +105,6 @@ NOT_ABOUT_LUA = {
     "session_state_test.py":
         "reads SESSION_STATE.md against BATCH_LOG.md; the Lua has no "
         "opinion about which batch is current",
-    "version_replay.py":
-        "[C2] the version machine reads BATCH_LOG.md, VERSION, "
-        "VERSION_MAP.md and mod.info; the mod's Lua is classified by the "
-        "tier table and never read",
     "gate_reach_test.py":
         "reads tools/ and check.sh. It is the border about borders, and "
         "the mod's Lua is not its subject",
@@ -125,11 +121,6 @@ NOT_ABOUT_LUA = {
         "chooses combat targets, so blinding it correctly moves this "
         "border not at all; its own empty-set refusal is the census "
         "finding zero removeFromWorld sites",
-    "receipts_test.py":
-        "[C19] reads RECEIPTS.md, FINDINGS.md, BATCH_LOG.md and the two "
-        "canonical state documents - play evidence and its claims. The "
-        "mod's Lua is not its subject; blinding it correctly moves this "
-        "border not at all",
     "engine_facts_test.py":
         "[B50] reads the ENGINE - Kahlua's behaviour, the jar's "
         "bytecode, the install root's stdlib.lua. Its whole subject is "

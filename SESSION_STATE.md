@@ -1744,8 +1744,8 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, plus C105's outcome and export-worker controls, the
-repository holds 238 `*_test.py` files. The gate invokes 238 `*_test.py` files
-and 16 other Python entry points, 254 distinct scripts, through direct calls
+repository holds 239 `*_test.py` files. The gate invokes 239 `*_test.py` files
+and 16 other Python entry points, 255 distinct scripts, through direct calls
 and its mirror loop. Native suites also invoke their own controls.
 Border labels extend through 233; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
