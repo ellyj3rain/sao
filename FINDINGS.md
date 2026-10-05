@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.11.1.0-pre-alpha` |
+| Version | `3.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -3055,3 +3055,222 @@ C120 and its local recovery owners remain unmerged, with rendered acceptance
 and redistribution conditions open. `Batches/C_PUBLICATION_AVAILABILITY.json`
 records the two C34 owners absent from this public runtime using exact preserved
 archive and source-record pins. D1 remains OPEN and its runtime is separate.
+
+## F-133 | 2026-10-04 19:08 UTC / 12:08 PST | Optional leisure intentions block physical response
+
+Independent D2 review reproduced twelve authentic completed native instrument
+attempts leaving twelve unfinished optional sharing steps in the live purpose
+store. The reviewed Planning source has SHA256
+`8aa9dc5d380f71f5a53cf4c8fac8fb9554b7fffe36207faa5b893b2a06e9b8a3`.
+Its capacity guard protects those purposes; subsequent material admission returns
+`purpose-capacity` and conflict planning returns `conflict-purpose-capacity`.
+The latter leaves ConflictResponse in ALERT without admitting defense or withdrawal.
+
+The reproduction executes the installed native items and queue with Gesture,
+Needs and Planning. Its conflict appraisal is controlled to isolate admission.
+Removing the protection admits the later purposes while discarding unfinished
+sharing; that causal control demonstrates the defect and does not establish an
+acceptable repair. Authentic physical results and unresolved participation retain
+their evidence while active planning must remain available.
+
+The immutable counterexample receipt has SHA256
+`0686443d831ad1daee4dbb53e436adc6de0d149a92846912c9b3202dc581222e`;
+the changed-requested review has SHA256
+`1381f0d63f38392f3a807b917fea093d6ed866029db0ed58464d60c602de1757`.
+Both live under `_scratch/d2-meaningful-leisure/integration-review-01/`.
+The finding is controlled integration evidence, without a rendered gameplay claim.
+
+## F-134 | 2026-10-04 19:08 UTC / 12:08 PST | Native sound end precedes timed-action completion
+
+The same reviewed Planning source requires sound end and terminal completion
+to have identical dates. Installed `BaseAction.forceComplete` sets a flag;
+native perform can run in a later frame. The executing owner reproduction observes
+sound end at county hour 2 and terminal completion at 2.001. Gesture publishes a
+completed result while Planning refuses it and retains an available performance
+step. A private ordered-clock comparator accepts that exact result.
+
+The receipt has SHA256
+`f84b39c16c8d9d20c362061f9c3cae6919e41dea785ecec8e3e1eb1e1d652a51`
+at `_scratch/d2-meaningful-leisure/integration-review-01/clock-counterexample-01/`.
+Admission, start, sound end, terminal completion and current observation are
+distinct ordered clocks. Reversed and future dates remain invalid.
+
+## F-135 | 2026-10-04 19:25 UTC / 12:25 PST | Outstanding material obligations block urgent planning
+
+The capacity fault extends beyond completed leisure. Twelve supported operator
+resource requests fill the active purpose store while retaining their required
+work. A validated conflict appraisal then receives `conflict-purpose-capacity`;
+ConflictResponse remains in ALERT without physical admission. The inspected
+Planning copy has SHA256
+`fd1c28172bf88469211b7d03cd985a0d0571f6561492a6e295480ae12377d55d`.
+
+The reproduction uses the installed native shell/identity fixture and production
+Planning. The threat appraisal is controlled to isolate purpose admission, so it
+establishes no loaded hostile encounter. The immutable receipt has SHA256
+`d86940523dd2b9233ea1a6d0d25d51b176b91033deca601e50bce7ab95973eed`
+at `_scratch/d2-meaningful-leisure/integration-review-01/required-capacity-counterexample-01/`.
+Accepted obligations require retained identity, progress and result authority
+while a competing urgent response is planned. The optional-leisure repair alone
+cannot establish this broader boundary.
+
+## F-136 | 2026-10-04 20:49 UTC / 13:49 PST | Retired note reading mutates transferred item progress
+
+A native ItemContainer transfer reproduced a written-note cleanup defect:
+the former reader reset the item's job progress after another body acquired it.
+The reproduced Study preimage has SHA256
+`4001b781610383df9a0035ad5253bae31eb4c6ff4d34552476ac530c8a4abb7a`;
+the counterexample receipt has SHA256
+`e3a9d0433ea4a4f4a611e832b2d73c52229df4a497954cc328b767365c301ff4`.
+
+Cleanup now checks current exact item custody, work, body and queue ownership.
+Retired stop/perform callbacks preserve a later action and foreign item progress;
+explicit interruption clears only the owning reading presentation. The final
+131-case native/Kahlua baseline and 31 distinct restored-defect controls retain
+their precise applicability in content-sharing-seams-01/verification-summary.json
+(SHA256 `eafb4a920f40dc7cedd8b47f276aac8e0298e678ad7a2bd105c9e9ddc3a05e55`).
+This establishes controlled ownership and cleanup, without rendered reading or
+comprehension acceptance.
+
+## F-137 | 2026-10-04 21:48 UTC / 14:48 PST | Shared participation dispatch, selection and handback
+
+Actual full-Controller dispatch reproduced a missing item-type argument:
+`carriedInstrument` returns a capability without `itemType`, so the new
+performer branch refused an otherwise admitted instrument. Dispatch now passes
+the exact revalidated offer item type. Restoring the missing argument reproduces
+the four failed dispatch cases retained under
+`_scratch/d2-meaningful-leisure/participation-controller-01/diagnostic-02/`.
+
+Independent review then reproduced two broader integration defects on Controller
+SHA256 `b2b0cb53708e52a83dbeb6d76c5e5074c1790b869540ba8fb7db3cccd8011e1d`.
+The actual ordinary chooser omitted accepted music because readiness fell through
+to food acquisition. Completed or interrupted native participation also retained
+an execution commitment flag after Gesture had released the work. The stale flag
+added 0.25 to recovery continuation tolerance and excluded ordinary resource
+competition. Directly preselected dispatch cases did not cover these paths.
+
+The independent three-witness counterexample receipt is
+`_scratch/d2-meaningful-leisure/participation-controller-review-01/counterexample-03/receipt.json`
+(SHA256 `b8f32173314b877b9d9cda88255d6b3c0f28518fc844f839bd7ffa07baf28fbd`).
+It uses actual installed native bodies, items, queues, sound, hearing and production
+owners with controlled private context. Later fallback dispatch could still
+perform music; the finding concerns ordinary comparison and handback.
+
+The repair uses canonical participation readiness, exact current carried material
+or native work, and listener-private hearing. Waiting listeners remain unavailable
+for preemption. Reconciliation clears only this actor's leisure execution flag
+when the exact native owner has retired; other commitments retain their ownership.
+Current verification and its applicability are recorded beside the original
+dispatch proof. The repaired Controller has 29 combined native-owner cases,
+including 14 selection/lifecycle cases and six new restored-defect controls;
+eight prior dispatch controls retain authenticated applicability. The adjacent
+23-choice and 26-resumption baselines pass. The final aggregate is
+`participation-controller-01/verification-summary-02.json` (SHA256
+`d7c94f36c67b2f3ffa2874fa1db47fcbcd95fcc3fe30dcbad8edc063d98c286c`),
+with independent source approval under `participation-controller-review-01/review-02/`.
+These source changes have no inherited rendered acceptance.
+
+## F-138 | 2026-10-05 00:01 UTC / 17:01 PST | Acquisition purpose loses continuity at carried activity
+
+Independent review of the loose-item join found that its acquisition placeholder
+and carried activity used different targets. The actual ordinary comparison
+therefore gave confirmed acquisition no continuity, and could select a different
+activity despite the retained purpose. Planning now reads the actor's exact
+confirmed native transfer receipt without mutating it. The selected book, note
+or instrument receiver continues that purpose after current custody revalidation.
+Competing reading/instrument cases pass; controls removing continuity or forking
+the purpose reproduce the defect. The final 24-case joined proof and 16 cumulative
+controls are bound in
+`_scratch/d2-meaningful-leisure/floor-asset-verb-01/verification-summary.json`
+(SHA256 `6430fe4474ba681c12144e1b3a3149f9848758b2d21494fc9db07121516d42fc`).
+These are controlled native-owner results, rather than rendered acceptance.
+
+## F-139 | 2026-10-05 00:01 UTC / 17:01 PST | Passive floor-item sight reveals hidden fluid properties
+
+The first loose-item observation reused the exact-inspection item projection.
+It exposed fluid identity, poison, taint, quantity and hydration to private beliefs
+through sight alone. The reviewed repair separates visible identity, type,
+geometry and supported leisure affordances from exact transfer signatures.
+Private hydration queries cannot refill hidden facts from the physical ledger;
+existing active resource inspection retains its authority. Visually identical
+native Water and TaintedWater counterfactuals exercise the boundary, and restored
+projection/refill controls fail. Exact opaque revisions still authenticate native
+pickup without certifying chemical knowledge. The F-138 aggregate preserves the
+executed source revisions and controls. Independent coherence review approves
+the final source under `rosewood-bar-preparation-01/coherence-review-01/receipt.json`
+(SHA256 `ea597c3b20888df4076543af21de02e5b6cac9f2c89aaefed55987f4bf61d157`).
+
+## F-140 | 2026-10-05 01:02 UTC / 18:02 PST | Interrupted instrument sound receives successful credit
+
+The first upstairs Rosewood floor-asset trial retained three canonical Harmonica
+attempts with emitted native and world sound, no natural sound end, and interrupted
+terminal status. Their corresponding cognitive experiences all recorded
+`succeeded=true`. The exact native session is
+`61b17a90-180d-49ac-ba13-f7ae56742379`; terminal independent review has SHA256
+`c137272d24ee3fc3b1616def038627eb268561345e1864c3a0238f67872ad344` under
+`_scratch/d2-meaningful-leisure/rosewood-bar-preparation-01/live-binding-review-01/`.
+Sound emission alone was the false success predicate in SAO_Cognition.
+
+The repair derives success from canonical completed status after existing
+physical qualification. Experience status completed still means acquisition of
+terminal evidence, including an interrupted attempt; it does not certify physical
+success. Both independent private models consume the negative success value.
+The original saved credits remain unchanged. Replaying their old identities does
+not rewrite historical evidence. The corrected source has SHA256
+`c26ddd508cfe12916748902cf3402596cab4188002d4dd3e125691a7e3563ac6`.
+
+Focused verification passes 355 cases, 18 restored defect controls and three reload
+checks. Restoring the original sound-emission predicate fails specifically at
+`partial_sound_not_success`. The independent repair review has SHA256
+`8b3da82a218ffd06d6a1dc0215c5c7359daa0b16fa95313aaf07e8c65183d05c`.
+An affected floor check initially failed because it required one particular
+material to win a valid competition. Its correction authenticates whichever
+alternative was actually selected to the exact item, reservation and same purpose;
+the 24-case production baseline then passes. Both verdicts remain retained.
+The operator-authorized fresh native trial remains a separate acceptance step.
+
+
+### Corrected native repeat for F-140 — 2026-10-05
+
+Fresh session `bb190b07-dc12-4fed-8b9e-a0552a682fc2` uses the source-stable
+canonical completion repair, 27 exact recovered dependency roots and the explicit
+current RollingRefuge transition. All nine retained snapshots establish four
+distinct emitted instrument attempts: Sang `instrument:sao-1:1` and Burl
+`instrument:sao-2:1`, `:2`, `:3`. Each native outcome is interrupted with
+`soundEnded=false`, `cleanupPending=false`; each exact cognitive join has
+`succeeded=false`. Independent all-frame comparison found zero discrepancies
+and zero missing joins and rejected four altered actor/item/success/completion
+controls. This verifies the interrupted negative-credit boundary; completed
+instrument performance was not observed. Original contradictory trial evidence
+and source-repair controls remain preserved. Reproduce from candidate03's sealed
+raw snapshots and `live-binding-review-01/independent-terminal-method.py`; review
+receipt SHA256 is
+`cc6b18358b053c83b85c27fa06c17d1ba302df53cf8c204e001fd106eb4aec15`.
+Body generation, acoustic timing, rendered contact, mastery and D1 closure remain
+unestablished.
+
+
+## F-141 | 2026-10-05 04:50 UTC / 21:50 PST | Sparse native stream loses detail under nominal-rate bitrate allocation
+
+Candidate03's 2560x720 saved video retains 1,921 decoded frames over 203.091
+seconds (9.459 frames/second) and about 0.917 Mb/s video bitrate. Production
+StudyVideoCapture configured NVENC bitrate control at a nominal120 capture
+ceiling with preset p1. Controlling only nominal input rate on the same native
+PNG at 10 actual FPS changes SSIM from 0.900462 at nominal120 to 0.984470 at
+nominal10. This reproduces rate-dependent compression loss independently of
+Mousecat's panel display scaling.
+
+The source repair uses preset p4 and fixed quantization18. The actual compiled
+Java producer/NVENC/fragment decode gives native-image SSIM 0.992244 at both
+nominal120 and nominal30. A separately compiled restored old command gives
+0.900383 and fails the permanent detail threshold. The default generated fixture
+similarly gives 0.998159 versus restored-old 0.743059. Methods, exact source
+image/producer/test/encoder hashes, logs and receipts live under
+`_scratch/stream-quality-01/`; `README.md` states reproduction and scope.
+
+The native-image check and seven affected video checks pass with exit0. Native
+resolution and timestamp, fragment, frame accounting and explicit failure
+contracts remain verified. The initial static native-image clip grows from
+589,962 to 5,098,252 bytes; motion bitrate and cadence gains remain unmeasured.
+This is a current-source producer repair, verified without a fresh game launch.
+Future candidates must seal/build that source; historical compressed media and
+peer evidence retain their original bytes. D1 remains OPEN.

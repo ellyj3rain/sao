@@ -1,25 +1,11 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.11.1.0-pre-alpha` |
+| Version | `3.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
 
 # Roadmap
-
-## Current C publication
-
-The current C catalogue contains 35 shared contracts reconstructed from 120
-preserved source records. `Batches/C_SHARED_BOUNDARIES.json` and
-`Batches/Catalogue/` are the current owner/interface map. The frozen compression
-event precedes D1. Earlier GitHub PRs retain their historical source identifiers;
-this additive publication reconciles the catalogue and version metadata without
-replaying runtime implementation. Source C118/C119 are already merged. Source
-C120 and its local recovery owners remain unmerged, with rendered acceptance
-and redistribution conditions open. `Batches/C_PUBLICATION_AVAILABILITY.json`
-records the two C34 owners absent from this public runtime using exact preserved
-archive and source-record pins. D1 remains OPEN and its runtime is separate.
-
 
 The intended progression is mechanical readiness across the simulation,
 Speakeasy training and runtime integration, then tuning toward first play.
@@ -27,7 +13,122 @@ This follows Speakeasy RECORD entry 45. Batch closure and a green gate do not
 establish readiness where causal mechanisms are missing or contradicted by
 evidence. SESSION_STATE.md states the current assessment.
 
+## C development history and ownership catalogue
+
+The current product catalogue consolidates all 120 source contributions into
+82 coherent chronological development outcomes using the A/B precedent. The
+[product manifest](Batches/C_PRODUCT_CATALOGUE.json) and
+[crosswalk](Batches/C_PRODUCT_CROSSWALK.json) retain exact source custody.
+The 35-contract [ownership map](Batches/C_SHARED_BOUNDARIES.json) remains useful
+for interfaces and D dependencies; PR137 published that different operation as
+the requested consolidation. The [corrective event](Batches/Transitions/C-20261005-product-consolidation.md)
+records the error and its correction. Current product records live under
+`Batches/Products/`; shared-contract definitions remain under `Batches/Catalogue/`.
+A/B classification and all historical sources and evidence remain preserved.
+Retained sections below refer to their original source C generation through C120.
+The former71-unit review and79â€“83 forecast remain historical. Product count follows
+coherent outcomes rather than a quota. D readiness follows delivered behavior.
+
+The post-recatalogue work retains shared person-specific reasoning; literal
+educational/cultural corpora and continuing learning; grounded physical
+competence; personal life and care; collective work and institutions;
+human/ZAO state continuity; consequential learned decisions and conversation;
+continuous county behavior and the ratified private unified assembly.
+These outcomes extend the named shared contracts; they do not reserve numbers.
+
+D1 acceptance after the preserved C compression event is
+CLOSED with controlled person-specific reasoning and bounded native recovery. Its record remains
+[Shared person-specific reasoning](Batches/D1-20261004-0124Z-1824PST-shared-reasoning.md).
+Personal knowledge and source-bound priors feed ordinary purpose arbitration,
+conditional predictions, resource/entry inquiry and bodily recovery through the
+existing owners. Producer/consumer controls and bounded rendered native evidence
+establish their stated behavior; Original failed08 continuation09e96a7d-a49f-460d-8117-6ea264f3efe5 completed and saved normally, exit0/errors[]/unforced, county2.2487840652 to4.5107564926. sao-2 reached its retained approach, reacquired the currently visible bed and entered owned native sleep. Nine current intent/key acknowledgments persist; fatigue0.7782769799 to0.3887803555 over1.75 sampled countyhours establishes ongoing physiological recovery. The later native image shows a horizontal body partly hidden by the right-bedroom wall. Full sleep completion, a completed recovery experience, and rendered ground sleep are unobserved..
+Literal corpus assessment, retained comprehension and wider transfer keep their
+applicable obligations, including the acquired-learning outcome at D6.
+D's integrated-county capability boundary remains proposed; broader gameplay
+evaluation, calibration, scale and training refinement retain their own evidence.
+
+The operator's personhood extension also requires date-bound autobiography,
+psychological state and epistemic changes grounded in a person's sources and
+life. The shared path joins SAO, ZAO, Speakeasy's latent / post-latent work
+and the sibling Post-Latent component. Neo is a separate project whose existing
+tools and data may be reused when available; its project backlog is separately owned. Movie nights with loved ones and
+first jobs are examples within general personal history. Salience, recall,
+distortion and bodily effects require explicit source and calibration evidence.
+This extends the active D1 reasoning and existing downstream life/learning
+outcomes without changing FIFO or claiming comprehensive completion.
+
+SAO carries its source, person-model and sibling integration through implementation
+and verification. Speakeasy owns the relevant latent/post-latent and salience work
+through its existing interfaces; Post-Latent retains its own participating ownership. D1 now
+has executable ordinary situation inquiry, current calendar-age bounds, a pure
+person-state export, genuine pre-proposal state capture and source-bound
+Speakeasy model-task execution. A bounded fresh native observation corroborates
+ordinary inquiry and retained uncertainty; native05 verifies the frozen decision
+seam and strict native source intake. Its original watcher failure remains
+recorded despite the passing targeted repair/private archive replay. The actual
+question exceeds the current fitted model context and is refused whole.
+Task-specific
+learning, useful response assessment, native result consumption and clinical
+calibration retain their applicable behavior/evidence obligations. Post-Latent
+is one canonical participating repository; its asset acceptance remains tied to
+actual compatible subject and body evidence.
+
+The [continuity graph](artifacts/continuity/index.html) reads preserved chronology,
+generation crosswalks, conceptual membership and producer/consumer dependencies.
+It presents that history to machines and interactive human views, including
+Mousecat, and can be regenerated after catalogue changes.
+
 ## Entry, recovery and personal experience
+
+### Authorized seven-outcome run
+
+The operator directs a bounded successive run on 2026-10-04: define coherent
+success batches, maximize substantive completion through the run, and inform Pico
+through Slack when logging off. The endpoint is the acquired-learning outcome
+below. Supporting repairs remain inside their product outcome. Future rows are
+planned scope; a row becomes a numbered active batch when its predecessor closes.
+Bounded implementation preparation can proceed while a predecessor's external
+acceptance remains open; it receives neither closure nor version credit.
+Existing D1 and inherited C completion boundaries retain their evidence.
+
+These labels name coherent product outcomes. Scope is refined against the whole
+installed native/modded domain and its adjacent dependencies as implementation
+exposes the actual work. Each outcome has an appropriate substantive size; a
+named example, individual adapter, elapsed session or agent assignment does not
+define its boundary. Supporting repairs, persistence, integration and evidence
+remain inside the outcome they serve. Existing shared-contract catalogue counts
+organize ownership and preserve provenance; they do not erase prior era work or
+turn every contract into a future batch.
+
+The successive groups are reasoning and working memory (D1 and Mousecat A28),
+ordinary activities and their physical continuity (D2 through D5), and acquired
+learning (D6 with Speakeasy). D6 is the stated endpoint for this run. The operator
+returned awake and directed continued work on 2026-10-04; no logoff is scheduled.
+Pico receives a logoff notice when work actually stops, with current standing.
+
+| Order | Project and batch | Success boundary |
+|---|---|---|
+| 1 | SAO D1: shared person-specific reasoning | Ordinary purposes consume personal knowledge and authentic physical feedback; exact failed means permit alternative inquiry, retreat uses retained private threats, relevant priors differ by person, and interruption/reload preserve purposes. Scoped producer/consumer controls and rendered native observation establish the changed behavior. |
+| 2 | Mousecat A28: project/repository bulletin | Hosts capture source-linked propositions during work. Revisioned records persist across restart, retain project ownership and correction history, and support disposition and pruning. A spatial graphical workspace meets the continuity graph's visual standard and works in the installed app. |
+| 3 | SAO D2: leisure | Assess the installed native and modded repertoire of recreation, hobbies, music, games, art, exploration and social participation. Personally understood opportunities, interests, accessible objects, places, companions and current pressures produce planned or impromptu choices and authentic native participation. Physical and social consequences feed private experience and persistence; interruption, failure and resumption retain exact custody and source provenance. An instrument is one example within this outcome. |
+| 4 | SAO D3: construction and repair | Assess the installed building, crafting, maintenance, repair and utility mechanics as a coherent material-work outcome. Person-known needs, damaged objects and useful improvements produce permitted work through the existing procedure owners, with actual tools, materials, skill, access, labor and current structural conditions. Native effects, material conservation, interruption, failure, unfinished work and reload feed individual or coordinated replanning and persistence. Window and furniture joins are examples within the larger installed repertoire. |
+| 5 | SAO D4: food | Comprehensively assess the installed native and modded food repertoire: finding and acquiring food and water, cultivation and harvest where available, preparation and cooking, preservation including dry aging, storage and refrigeration/coolers, spoilage, nutrition and consumption. Person-private knowledge, preferences, health, skill, permission, actual equipment/materials and available utilities govern feasible work and choices. Loaded and dormant item clocks, temperature/power conditions, inventory authority, quantity and nutritional conservation, interruption, partial failure and reload retain authentic consequences. Cooler integration is one existing dependency within the food outcome. |
+| 6 | SAO D5: animal care | First assess every available native and modded animal and its actual supported needs, affordances and actions. Care covers feasible feeding and watering, shelter and handling, health and treatment, companionship, training or breeding where supported, and livestock work such as milk, wool and eggs. Species-specific conditions, relationships, permission, actual animal/item identity, authentic materials and native completion govern effects; distress, interruption, failure, ownership and loaded/dormant continuity persist. The operator intends to add dogs; admit their actual installed source and capabilities when available rather than assuming they are already present. |
+| 7 | SAO D6 with Speakeasy: education and learning | Build the coherent acquisition, understanding and continuing-learning outcome around the literal kindergarten-through-college educational and cultural corpus, with edition, rights, chronology and exposure provenance. Individual background, interests, aptitude, accessible sources, reading, study, practice and teaching produce assessed comprehension, retained knowledge and skills, correction, forgetting and later transfer into feasible decisions and action. Source ingestion, a score and mastery remain distinct; authentic producer/consumer effects and persistence establish usable learning. Corpus coverage, unobserved comprehension and model limitations remain explicit. |
+
+The source-integration lineage and `tools/source_integration_contracts.json`
+ground D2-D5. D6 carries the handoff's corpus/assessment obligation. Relevant
+existing evidence is reused; failed or skipped checks retain their verdict.
+Pico manages Post-Latent and Sesame's physical representation; SAO owns reasoning
+and execution and consumes the returned physical constraints. The shared private
+intake supports their current scope and does not assign SAO's backlog to them.
+
+Clinical integration, chronological growth and native proportions, weapon
+normalization, broader institutions and whole-collection completion remain
+recorded beyond this run. They are not credited by the seven rows. The bulletin
+captures those continuations; FIFO guides assistant execution and does not force
+the operator's navigation or automatically assign an idea.
 
 The operator authorized C118-C120 as coherent behavior outcomes under DR-055.
 Supporting implementation, checks and records belong within the behavior they
@@ -39,9 +140,32 @@ serve. The next general simulation observes the changed decision paths.
 | C119 | Make bodily recovery compete with ongoing search, reach a privately known permitted recovery place and resume unfinished work. | Closed source: 137 residence cases/47 controls and measured native recovery proof; current transition ownership is protected. |
 | C120 | Retain authentic entry and recovery experience that changes later individual choices. | Producer and consumer effects, durable identity, contradiction, decay and controls against false or duplicate experience. |
 
-Pico retains the identity-preserving appearance pipeline. The educational and
-cultural corpus, model evaluation and broader shared-mechanics integration
-remain authorized work beyond this behavior arc.
+The native kitchen observation exposed a broader reasoning obligation. The
+operator explicitly rejected limiting qualitative reasoning to recovery or bed
+selection. Knowledge of purposes, relationships, circumstances, alternatives and
+anticipated consequences must inform choices across domains. Individual prior
+knowledge, education, culture and experience supply that understanding; private
+observations establish the particular current situation. General knowledge can
+support a hypothesis or search without certifying unseen local facts.
+
+Shared reasoning joins candidate-specific acquisition, preparation, inspection,
+entry and recovery consequences with ordinary personally valued alternatives and
+accepted commitments. Authentic contrary outcomes, source identity, conditions
+and confidence aging affect the existing decision owners. Exact failed means can
+permit alternative inquiry while physical feasibility, private danger and
+Standing continue to govern admission. Current scoped acceptance is
+CLOSED with controlled person-specific reasoning and bounded native recovery.
+
+Source-bound educational, cultural and dated life-history priors retain exposure,
+comprehension and mastery as distinct claims. Literal educational/cultural corpus
+assessment and retained transfer continue through the existing Speakeasy/SAO
+learning responsibility and D6. Wider cross-domain competence and person-model
+calibration receive their actual implementation and evidence; supporting repairs
+remain inside the product outcome they serve.
+
+Pico retains the identity-preserving appearance pipeline. The literal educational
+and cultural corpus, automatic evaluation and retained learning remain part of
+the shared reasoning work. Broader shared-mechanics integration remains authorized.
 
 ## Shared mechanics and source integration
 

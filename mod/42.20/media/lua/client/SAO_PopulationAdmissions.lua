@@ -14,6 +14,9 @@ local regionPoints = nil
 local regionPointsByProfession = nil
 local lastHighwayLogAt = -9
 local initialCohort = nil
+local awarenessProviderBound = false
+local memoryProviderBound = false
+local memorySourcePins = nil
 local function integer(v, low, high)
     return type(v) == "number" and v == v and v >= low and v <= high and v % 1 == 0
 end
@@ -136,13 +139,275 @@ function A.initialPeopleSnapshot()
     end
     return result
 end
+local function educationWorld(definitionSha256, saveName)
+    if not initialCohort or initialCohort.definitionSha256 ~= definitionSha256
+        or initialCohort.saveName ~= saveName then return nil, "education-world-definition-unavailable" end
+    return ModData.getOrCreate("SurvivorAwareness_Standing")
+end
+
+-- The authored source package supplies independent current-world and source pins.
+function A.stageEducationRegistry(raw, rawSha, definitionSha256, saveName, bankSha, archiveSha)
+    local store, why = educationWorld(definitionSha256, saveName)
+    if not store then return false, why end
+    if not SAO.EducationRegistry or type(SAO.EducationRegistry.load) ~= "function"
+        or not SAO.History or type(SAO.History.ticks) ~= "function" then return false, "education-owner-unavailable" end
+    for _ in pairs(SAO.Identity.all()) do return false, "education-registry-staged-after-genesis" end
+    return SAO.EducationRegistry.load(store, raw, rawSha, definitionSha256, bankSha, archiveSha, SAO.History.ticks())
+end
+
+function A.attachEducationRecord(rec)
+    local registry = SAO.EducationRegistry
+    if type(rec) ~= "table" then return false, "education-person-unavailable" end
+    local bound, bindings = pcall(function()
+        return registry and type(registry.currentBindings) == "function" and registry.currentBindings(rec.id)
+    end)
+    if not bound or not bindings then
+        local reason = bound and "education-source-unavailable" or "education-reader-failed"
+        rec.educationAdmission = { status = "unavailable", reason = reason }
+        return false, reason
+    end
+    local ok, attached, why = pcall(function()
+        return registry.attach(rec, SAO.History.ticks(), SAO.History.birthYearOf(rec.id))
+    end)
+    rec.educationAdmission = { status = ok and attached and "attached" or "unavailable",
+        reason = ok and tostring(why or "education-import-unavailable") or "education-reader-failed" }
+    return ok and attached == true, rec.educationAdmission.reason
+end
+
+function A.bindEducationRegistry(rawSha, definitionSha256, saveName, bankSha, archiveSha)
+    local store, why = educationWorld(definitionSha256, saveName)
+    if not store then return false, why end
+    if not SAO.EducationRegistry or type(SAO.EducationRegistry.bind) ~= "function"
+        or not SAO.History or type(SAO.History.ticks) ~= "function" then return false, "education-owner-unavailable" end
+    local ok, reason = SAO.EducationRegistry.bind(store, rawSha, definitionSha256, bankSha, archiveSha, SAO.History.ticks())
+    if not ok then return false, reason end
+    for _, rec in pairs(SAO.Identity.all()) do A.attachEducationRecord(rec) end
+    return true, reason
+end
+local function awarenessCopy(value)
+    if type(value) ~= "table" then return value end
+    local out = {}; for key, item in pairs(value) do out[key] = awarenessCopy(item) end
+    return out
+end
+local function awarenessEqual(a, b)
+    if type(a) ~= type(b) then return false end
+    if type(a) ~= "table" then return a == b end
+    for key, value in pairs(a) do if not awarenessEqual(value, b[key]) then return false end end
+    for key in pairs(b) do if a[key] == nil then return false end end
+    return true
+end
+local function awarenessFields(value, names)
+    if type(value) ~= "table" then return false end
+    local allowed = {}; for _, name in ipairs(names) do allowed[name] = true; if value[name] == nil then return false end end
+    for key in pairs(value) do if not allowed[key] then return false end end
+    return true
+end
+local function awarenessArray(value, maximum)
+    if type(value) ~= "table" then return false end
+    local count = 0
+    for key in pairs(value) do if not integer(key, 1, maximum) then return false end; count = count + 1 end
+    return count == #value and count <= maximum
+end
+local function awarenessText(value)
+    return type(value) == "string" and #value > 0 and #value <= 128 and not value:find("[%c]")
+end
+local function awarenessTime(value)
+    return type(value) == "number" and value == value and value >= 0 and value < math.huge
+end
+local function awarenessRowsValid(rows, now)
+    if not initialCohort or not awarenessArray(rows, 128) or #rows < 1 then return false end
+    local seen = {}
+    for _, row in ipairs(rows) do
+        if not awarenessFields(row, {"siteId", "actorOrdinal", "entries"})
+            or type(row.siteId) ~= "string" or not initialCohort.requested[row.siteId]
+            or not integer(row.actorOrdinal, 1, initialCohort.requested[row.siteId])
+            or not awarenessArray(row.entries, 8) then return false end
+        local key = row.siteId .. ":" .. row.actorOrdinal
+        if seen[key] then return false end; seen[key] = true
+        local ids = {}
+        for _, entry in ipairs(row.entries) do
+            if not awarenessFields(entry, {"id", "kind", "affirmed", "sourceId", "sourceAtHours", "receivedAtHours", "certainty"})
+                or not awarenessText(entry.id) or ids[entry.id] or not awarenessText(entry.sourceId)
+                or (entry.kind ~= "outbreak" and entry.kind ~= "turned") or type(entry.affirmed) ~= "boolean"
+                or (entry.certainty ~= "reported" and entry.certainty ~= "witnessed")
+                or not awarenessTime(entry.sourceAtHours) or not awarenessTime(entry.receivedAtHours)
+                or entry.sourceAtHours > entry.receivedAtHours or entry.receivedAtHours > now then return false end
+            ids[entry.id] = true
+        end
+    end
+    return true
+end
+local function initialAwarenessFor(rec)
+    if SAO.Identity.all()[rec.id] ~= rec then return {} end
+    local origin = rec.initialStudyOrigin
+    local store = ModData.get("SurvivorAwareness_Standing")
+    local staged = store and store.initialStudyAwareness
+    if not staged then return rec.personalAwareness ~= nil and {} or nil end
+    if not initialCohort then return (rec.personalAwareness ~= nil or origin ~= nil) and {} or nil end
+    local ordinal, targetSite, targetRow
+    for siteId, ids in pairs(initialCohort.actualIds) do
+        for index, id in ipairs(ids) do if id == rec.id then ordinal, targetSite = index, siteId end end
+    end
+    if origin and (not ordinal or not cohortCounts(initialCohort)) then return {} end
+    for _, row in ipairs(staged.rows or {}) do
+        if row.siteId == targetSite and row.actorOrdinal == ordinal then targetRow = row end
+    end
+    if not targetRow then return rec.personalAwareness ~= nil and {} or nil end
+    if not origin or staged.definitionSha256 ~= initialCohort.definitionSha256
+        or staged.saveName ~= initialCohort.saveName or origin.definitionSha256 ~= staged.definitionSha256
+        or origin.saveName ~= staged.saveName or origin.siteId ~= targetSite
+        or not awarenessTime(origin.admittedAtHours) or not awarenessTime(staged.stagedAtHours)
+        or origin.admittedAtHours < staged.stagedAtHours
+        or not awarenessRowsValid(staged.rows, staged.stagedAtHours)
+        or not cohortCounts(initialCohort) then return {} end
+    return {schema="sao-personal-awareness-initial/1", personId=rec.id,
+        issuerId="initial-cohort:" .. staged.definitionSha256,
+        sourceId="study-definition:" .. staged.definitionSha256,
+        admissionKey=staged.definitionSha256 .. ":" .. rec.id .. ":" .. ordinal,
+        admittedAtHours=origin.admittedAtHours, entries=awarenessCopy(targetRow.entries)}
+end
+function A.stageInitialAwareness(definitionSha256, saveName, rows)
+    local store, why = educationWorld(definitionSha256, saveName)
+    if not store then return false, why end
+    local now = hoursNow()
+    if not awarenessTime(now) or not awarenessRowsValid(rows, now) then return false, "invalid-initial-awareness" end
+    local prior = store.initialStudyAwareness
+    if prior then
+        if prior.definitionSha256 ~= definitionSha256 or prior.saveName ~= saveName
+            or not awarenessTime(prior.stagedAtHours) or prior.stagedAtHours > now
+            or not awarenessRowsValid(prior.rows, prior.stagedAtHours)
+            or not awarenessEqual(prior.rows, rows) then return false, "initial-awareness-binding-differs" end
+    else
+        for _ in pairs(SAO.Identity.all()) do return false, "initial-awareness-staged-after-genesis" end
+        store.initialStudyAwareness = {definitionSha256=definitionSha256, saveName=saveName,
+            stagedAtHours=now, rows=awarenessCopy(rows)}
+    end
+    local owner = SAO.PersonalAwareness
+    if not owner or type(owner.bindInitialProvider) ~= "function" or type(owner.attachInitial) ~= "function" then
+        return false, "personal-awareness-owner-unavailable"
+    end
+    if not awarenessProviderBound then
+        if not owner.bindInitialProvider(A, initialAwarenessFor) then return false, "personal-awareness-provider-refused" end
+        awarenessProviderBound = true
+    end
+    for _, rec in pairs(SAO.Identity.all()) do
+        local ok, reason = owner.attachInitial(rec); if not ok then return false, reason end
+    end
+    return true
+end
+local function memoryReceipt(row, id, definitionSha256, saveName, admittedAtHours)
+    local episodes = awarenessCopy(row.episodes)
+    for _, episode in ipairs(episodes) do episode.ownerId = id end
+    return {schema="sao-personal-memory-initial/1", personId=id,
+        issuerId="initial-cohort:"..definitionSha256, sourceId="study-definition:"..definitionSha256,
+        sourceSha256=definitionSha256, definitionSha256=definitionSha256, worldId=definitionSha256,
+        saveId=saveName, admissionKey=definitionSha256..":"..id..":"..row.actorOrdinal,
+        admittedAtHours=admittedAtHours, startDate=row.startDate, cutoffDate=row.startDate,
+        birthYear=row.birthYear, episodes=episodes}
+end
+local function memoryRowsValid(rows, definitionSha256, saveName, startDate, now)
+    local owner = SAO.PersonalMemory
+    if not initialCohort or not owner or type(owner.validateInitial)~="function"
+        or not awarenessArray(rows,128) or #rows<1 then return false end
+    local seen = {}
+    for _, row in ipairs(rows) do
+        if not awarenessFields(row,{"siteId","actorOrdinal","startDate","birthYear","episodes"})
+            or not initialCohort.requested[row.siteId]
+            or not integer(row.actorOrdinal,1,initialCohort.requested[row.siteId])
+            or row.startDate~=startDate or not awarenessArray(row.episodes,64) then return false end
+        local key=row.siteId..":"..row.actorOrdinal
+        if seen[key] then return false end; seen[key]=true
+        for _,episode in ipairs(row.episodes) do
+            if type(episode)~="table" or episode.ownerId~=nil then return false end
+        end
+        local id="initial-memory-validation"
+        if not owner.validateInitial(memoryReceipt(row,id,definitionSha256,saveName,now),{id=id},now) then return false end
+    end
+    return true
+end
+local function initialMemoryFor(rec)
+    if SAO.Identity.all()[rec.id]~=rec then return {} end
+    local store=ModData.get("SurvivorAwareness_Standing")
+    local staged=store and store.initialStudyLifeHistory
+    local origin=rec.initialStudyOrigin
+    local now=hoursNow()
+    if not staged then return (rec.personalMemory~=nil or (origin and memorySourcePins)) and {} or nil end
+    if not memorySourcePins or not initialCohort then return (origin or rec.personalMemory~=nil) and {} or nil end
+    if staged.definitionSha256~=memorySourcePins.definitionSha256 or staged.saveName~=memorySourcePins.saveName
+        or staged.startDate~=memorySourcePins.startDate
+        or not awarenessEqual(staged.rows,memorySourcePins.rows)
+        or initialCohort.definitionSha256~=staged.definitionSha256 or initialCohort.saveName~=staged.saveName
+        or not awarenessTime(staged.stagedAtHours) or not awarenessTime(now)
+        or not memoryRowsValid(staged.rows,staged.definitionSha256,staged.saveName,staged.startDate,now)
+        or not cohortCounts(initialCohort) then return {} end
+    local ordinal,siteId
+    for site,ids in pairs(initialCohort.actualIds) do
+        for index,id in ipairs(ids) do if id==rec.id then ordinal,siteId=index,site end end
+    end
+    if origin and not ordinal then return {} end
+    local target
+    for _,row in ipairs(staged.rows) do
+        if row.siteId==siteId and row.actorOrdinal==ordinal then target=row end
+    end
+    if not target then return rec.personalMemory~=nil and {} or nil end
+    if not origin or origin.definitionSha256~=staged.definitionSha256 or origin.saveName~=staged.saveName
+        or origin.siteId~=siteId or not awarenessTime(origin.admittedAtHours)
+        or origin.admittedAtHours>now then return {} end
+    local ok,birth=pcall(function() return SAO.History.birthYearOf(rec.id) end)
+    if not ok or birth~=target.birthYear then return {} end
+    if SAO.EducationRegistry and type(SAO.EducationRegistry.profile)=="function" then
+        local available,profile=pcall(SAO.EducationRegistry.profile,rec.id)
+        if not available or (profile and profile.birthYear~=birth) then return {} end
+    end
+    return memoryReceipt(target,rec.id,staged.definitionSha256,staged.saveName,origin.admittedAtHours)
+end
+function A.stageInitialLifeHistory(definitionSha256,saveName,rows,actualStartDate)
+    local store,why=educationWorld(definitionSha256,saveName)
+    if not store then return false,why end
+    local owner,now=SAO.PersonalMemory,hoursNow()
+    if not owner or type(owner.bindInitialProvider)~="function" or type(owner.attachInitial)~="function"
+        or type(owner.validateInitial)~="function" then return false,"personal-memory-owner-unavailable" end
+    if not awarenessTime(now) or not memoryRowsValid(rows,definitionSha256,saveName,actualStartDate,now) then
+        return false,"invalid-initial-life-history"
+    end
+    local prior=store.initialStudyLifeHistory
+    if prior then
+        if prior.definitionSha256~=definitionSha256 or prior.saveName~=saveName or prior.startDate~=actualStartDate
+            or not awarenessTime(prior.stagedAtHours)
+            or not memoryRowsValid(prior.rows,definitionSha256,saveName,actualStartDate,now)
+            or not awarenessEqual(prior.rows,rows) then return false,"initial-life-history-binding-differs" end
+    else
+        for _ in pairs(SAO.Identity.all()) do return false,"initial-life-history-staged-after-genesis" end
+    end
+    if not memoryProviderBound then
+        if not owner.bindInitialProvider(A,initialMemoryFor) then return false,"personal-memory-provider-refused" end
+        memoryProviderBound=true
+    end
+    -- This configuration-phase stamp precedes the population replay rebase.
+    -- The empty-identity staging check and source pins establish custody.
+    if not prior then store.initialStudyLifeHistory={definitionSha256=definitionSha256,saveName=saveName,
+        startDate=actualStartDate,stagedAtHours=now,rows=awarenessCopy(rows)} end
+    memorySourcePins={definitionSha256=definitionSha256,saveName=saveName,startDate=actualStartDate,rows=awarenessCopy(rows)}
+    for _,rec in pairs(SAO.Identity.all()) do
+        local ok,reason=owner.attachInitial(rec); if not ok then return false,reason end
+    end
+    return true
+end
 local function registerInitialPerson(rec, siteId, origin)
     if not siteId then return end
     rec.initialStudyOrigin = { definitionSha256 = initialCohort.definitionSha256,
         saveName = initialCohort.saveName, siteId = siteId,
-        x = origin.x, y = origin.y, z = origin.z }
+        x = origin.x, y = origin.y, z = origin.z, admittedAtHours = hoursNow() }
     local ids = initialCohort.actualIds[siteId]
     ids[#ids + 1] = rec.id
+    if memoryProviderBound then
+        local ok,reason=SAO.PersonalMemory.attachInitial(rec)
+        rec.personalMemoryAdmission={status=ok and (rec.personalMemory and "attached" or "unconfigured") or "unavailable",reason=reason}
+    end
+    if awarenessProviderBound then
+        local ok, reason = SAO.PersonalAwareness.attachInitial(rec)
+        assert(ok, reason)
+    end
 end
 local function loadRegionPoints()
     if regionPoints then return regionPoints end
@@ -669,6 +934,7 @@ local function ensurePopulation(conf, tickCounter)
             return
         end
         pcall(function() SAO.History.generate(rec.id, rec) end)
+        A.attachEducationRecord(rec)
         -- Where the life was lived ([A18]): the id decided the trade
         -- (inside generate); if the county filed spawn points under
         -- that trade's own engine path, this survivor started THERE -
@@ -768,6 +1034,7 @@ local function ensurePopulation(conf, tickCounter)
             if not mate then break end
             bornThisPass = bornThisPass + 1
             pcall(function() SAO.History.generate(mate.id, mate) end)
+            A.attachEducationRecord(mate)
             if arriving then
                 mate.newcomer = true
                 mate.arrivedAtHours = hoursNow()
@@ -854,8 +1121,12 @@ local function ensurePopulation(conf, tickCounter)
 end
 
 function A.rebindWorld()
+    if SAO.EducationRegistry and type(SAO.EducationRegistry.clear)=="function" then
+        pcall(SAO.EducationRegistry.clear)
+    end
     regionPoints, regionPointsByProfession, derivedTarget = nil, nil, nil
     initialCohort = nil
+    memorySourcePins = nil
     lastHighwayLogAt = -9
 end
 

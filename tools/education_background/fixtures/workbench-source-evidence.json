@@ -1,0 +1,22 @@
+{
+  "schema": "sao-authored-exposure-fixture-provenance/1",
+  "standing": "same explicit diagnostic personal history; additional literal bench projection",
+  "predecessorReceipt": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d1-shared-reasoning\\background-exposures\\source-1\\receipt.json",
+  "predecessorReceiptSha256": "04f4da572a74dbd1b9bf6938d97726c5e19d06b862f5758b3b11c57aee45edc3",
+  "derivationReceipt": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d1-shared-reasoning\\background-exposures\\workbench-source-2\\receipt.json",
+  "derivationReceiptSha256": "a8b4a136b0aced5295f81d88311b06e2e90534e8adfb838e1a83e5008e4c1604",
+  "sourceInputs": {
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d1-shared-reasoning\\background-exposures\\workbench-source-2\\derive.py": "7dacd4f43f8f654b3a966e74efa02202cff47a487c23f1ce52a09ba2bc5d6381",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\education_background\\compiler.py": "125c4f3c5a466af554687993a525ad4e2c91fc2ed5890096da65046c60227f30",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\education_backgrounds.py": "4db8784c23c8a4fb344d1d050e05a538607abd52e1e812d81a6a22b5bf30aa5b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\decision_authoring.py": "3b7bfed0c39327fae6c8a95ccbc69fea35fa40cb56d8ab33ba096f1ba0a7b166",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d1-shared-reasoning\\background-exposures\\source-1\\registry.json": "2c8cc82b6a7de17255b4b7629f3d01e9af373dd9c1e4b355bc81cef8e8e859c3",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d1-shared-reasoning\\background-exposures\\source-1\\receipt.json": "04f4da572a74dbd1b9bf6938d97726c5e19d06b862f5758b3b11c57aee45edc3",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r83-publisher-rights\\runs\\r84-rights-clean-foundation\\source-archive-v1\\acquisition.json": "fa38d24ad254fb099559635b33a6df7f9a0896aceabc41525e7a06c2219fb1ee",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r83-publisher-rights\\runs\\r84-rights-clean-foundation\\source-archive-v1\\practical-mechanics\\source.txt": "8995b5677258ef8a2f1ebb53b310d982c0f981b4fec4ff5ea1187dfa9edad885",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\education_background\\workshop-tools-v1.json": "8686589304f2b946d39a76a9de008520d3ef94e587938b1e74dfaf3a3f015072",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\education_background\\civic-mutual-assistance-v1.json": "706b1a4818b49cc223e1c397396859e803d8d6a109a45af07f0cb4ba4b233f14",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\education_background\\workbench-tools-v1.json": "9eb6dc4a76288a60ecc2ad24b2468c5726894ce30ee5d8614a627e372351a412"
+  },
+  "registrySha256": "408a9ff8b2d761711803e5eabc8d31c34ff0c0261ced0298f244b1d551cca490"
+}

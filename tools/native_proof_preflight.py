@@ -29,6 +29,22 @@ def presence(owned, installed, required, label):
     return None
 
 
+def installed_presence(inputs, game, jdk, label):
+    """Classify a native driver's exact input inventory before hashing it.
+
+    Game/JDK descendants are installed dependencies. Repository inputs remain
+    mandatory even when the engine is absent. This function never exits during
+    import, so importing a native fixture cannot suppress portable checks.
+    """
+    game, jdk = Path(game).resolve(), Path(jdk).resolve()
+    owned, installed = [Path(__file__)], [game / 'projectzomboid.jar',
+                                        jdk / 'java.exe', jdk / 'javac.exe']
+    for value in inputs:
+        path = Path(value).resolve()
+        (installed if path.is_relative_to(game) or path.is_relative_to(jdk) else owned).append(path)
+    return presence(owned, installed, False, label)
+
+
 def causal_controls(root, runner, owned, child_args=(), env_updates=None, missing_owned=None):
     """Run actual default/required classification and an owned-guard omission.
 

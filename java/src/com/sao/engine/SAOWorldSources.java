@@ -98,6 +98,39 @@ public final class SAOWorldSources {
             ignored -> zombie.Lua.LuaManager.platform.newTable());
     }
 
+    /** Personally visible loose material, through the existing exact source protocol. */
+    public static synchronized ArrayList<String> visibleGroundSources(IsoPlayer shell, int radius) {
+        ArrayList<String> out = new ArrayList<>();
+        if (transactionActive || !inspectionActor(shell) || radius < 1 || radius > INSPECTION_RANGE) return out;
+        try {
+            IsoCell cell = shell.getCell();
+            int x = (int) Math.floor(shell.getX()), y = (int) Math.floor(shell.getY());
+            int z = (int) Math.floor(shell.getZ());
+            ArrayList<Source> seen = new ArrayList<>();
+            for (int dy = -radius; dy <= radius; dy++) for (int dx = -radius; dx <= radius; dx++) {
+                IsoGridSquare square = cell.getGridSquare(x + dx, y + dy, z);
+                if (!SAOPerceptionScanner.canSeeWorldSquareNow(shell, square, radius)) continue;
+                for (IsoWorldInventoryObject world : new ArrayList<>(square.getWorldObjects())) {
+                    InventoryItem item = world == null ? null : world.getItem();
+                    if (item == null || world.getSquare() != square || item.getWorldItem() != world) continue;
+                    Snapshot snapshot = new Snapshot(Math.floorDiv(square.getX(), CHUNK_SIZE), Math.floorDiv(square.getY(), CHUNK_SIZE));
+                    Source source = groundSource(snapshot, square, world);
+                    int at = Collections.binarySearch(seen, source, Comparator.comparingDouble((Source row) ->
+                        Math.pow(row.x + 0.5 - shell.getX(), 2) + Math.pow(row.y + 0.5 - shell.getY(), 2))
+                        .thenComparing(row -> row.id));
+                    if (at < 0) at = -at - 1;
+                    if (at < 32) { seen.add(at, source); if (seen.size() > 32) seen.remove(32); }
+                }
+            }
+            for (Source source : seen) {
+                Snapshot snapshot = new Snapshot(Math.floorDiv(source.x, CHUNK_SIZE), Math.floorDiv(source.y, CHUNK_SIZE));
+                snapshot.mode = "visible-ground";
+                snapshot.add(source); snapshot.finish(); out.add(encode(snapshot));
+            }
+        } catch (Throwable unavailable) { out.clear(); }
+        return out;
+    }
+
     /** Visible holder geometry only: listing never reads or generates contents. */
     public static synchronized String inspectionCandidates(IsoPlayer shell, int radius) {
         if (transactionActive || !inspectionActor(shell) || radius < 1

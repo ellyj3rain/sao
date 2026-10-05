@@ -1,0 +1,48 @@
+{
+  "schema": "sao-background-meaning/2",
+  "id": "workshop-tools-1",
+  "courseId": "grade-9-practical-arts",
+  "unit": {
+    "activities": [
+      {
+        "kind": "instruction",
+        "literalEvidence": "CHAPTER I"
+      }
+    ],
+    "editionEvidence": {
+      "basis": "printed-source",
+      "literal": "COPYRIGHT, 1914, BY"
+    },
+    "editionYear": 1914,
+    "id": "practical-mechanics-24761-36722-grade-9-practical-arts",
+    "selector": {
+      "endCharacter": 36722,
+      "excerptSha256": "9beaa8e523783dbdb248a05db28d3ff2380e450b43b5d6afce3d5528be79ccf4",
+      "extractionSha256": "1d1d9f59cef884efe0b7af077c22f6dad755daec94460f2fa32478ef52b4f4b5",
+      "format": "plain-text",
+      "sourcePath": "practical-mechanics/source.txt",
+      "sourceSha256": "8995b5677258ef8a2f1ebb53b310d982c0f981b4fec4ff5ea1187dfa9edad885",
+      "startCharacter": 24761
+    },
+    "sourceId": "practical-mechanics",
+    "sourceVersion": "8995b5677258ef8a2f1ebb53b310d982c0f981b4fec4ff5ea1187dfa9edad885",
+    "temporalStanding": "source-period-review-required",
+    "title": "CHAPTER I  ON TOOLS GENERALLY  "
+  },
+  "statementText": "The foregoing show what a wonderful variety of articles are found in a well-equipped shop, all of which can be conveniently used; but to the boy who has only a small amount of money, a workable set is indicated as follows: A small lathe, with an 8-inch swing, can be obtained at a low cost, provided with a countershaft complete. CHUCKS.--With this should go a small chuck, and a face-plate for large work, unless a large chuck can also be acquired. This, with a dozen tools of various sizes, and also small bits for drilling purposes. The lathe will answer all purposes for drilling, but small drilling machines are now furnished at very low figures, and such a machine will take off a great deal of duty from the lathe. [Illustration: _Fig. 8. Pocket Screw and Wire Gage._] As the lathe is of prime importance, never use it for drilling, if you have a driller, as it always has enough work to do for tuning up work. BENCH TOOLS.--Of bench tools, a 3-inch vise, various files, center punch, two hammers, round and A-shaped peons, hack saw, compasses, inside and outside calipers, screw driver, cold chisels, metal square, level, straight edge, bevel square, reamers, small emery wheel and an oil stone, make a fairly good outfit to start with, and these can be added to from time to time.",
+  "statementSha256": "86e76733f2073faaae6093e45e9be5da547c30b04ff36da6852558256e770f73",
+  "relations": [
+    {
+      "from": "workshop",
+      "relation": "may-contain",
+      "into": "tools"
+    }
+  ],
+  "conditions": [
+    "personally-observed-place",
+    "contents-unconfirmed",
+    "permission"
+  ],
+  "contentRole": "descriptive-possibility",
+  "standing": "authored-semantic-projection-of-cited-text; exposure-not-assessed-retention-or-assent"
+}

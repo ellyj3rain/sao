@@ -125,6 +125,11 @@ function RunStudyChecks(Study)
     -- executes that real owner, identities and native origin ingestion.
     local startingSites, startingSituation = Config.observation.sites, Config.situation
     local staged, bindingMatches, beforeActivation = 0, true, true
+    local registered, rebound, educationMatches = 0, 0, true
+    local education = {raw='source-registry',rawSha256=string.rep('b',64),
+        definitionSha256=Config.definitionSha256,sourceBankSha256=string.rep('c',64),
+        sourceArchiveSha256=string.rep('d',64)}
+    SAO_StudyEducationSource=education
     Config.observation.sites = {{id='fixture',x=128,y=128,z=0}}
     Config.situation = {initialPeopleBySite={fixture=Config.sandbox['SurvivorAwareness.Population']}}
     SAO.PopulationAdmissions = {stageInitialPeople=function(definition,save,requested,sites,target)
@@ -133,12 +138,36 @@ function RunStudyChecks(Study)
             and requested==Config.situation.initialPeopleBySite and sites==Config.observation.sites
             and target==Config.sandbox['SurvivorAwareness.Population']
         staged=staged+1 return true
+    end,stageEducationRegistry=function(raw,rawSha,definition,save,bank,archive)
+        educationMatches=educationMatches and staged==1 and not Study.active
+            and raw==education.raw and rawSha==education.rawSha256
+            and definition==Config.definitionSha256 and save==currentSave
+            and bank==education.sourceBankSha256 and archive==education.sourceArchiveSha256
+        registered=registered+1 return true
+    end,bindEducationRegistry=function(rawSha,definition,save,bank,archive)
+        educationMatches=educationMatches and rawSha==education.rawSha256
+            and definition==Config.definitionSha256 and save==currentSave
+            and bank==education.sourceBankSha256 and archive==education.sourceArchiveSha256
+        rebound=rebound+1 return true
     end}
     Events.OnGameStart.fire()
     assert(Study.active, Study.error or "native lifecycle did not arm")
     assert(staged==1, 'initial population owner was not staged before native ticks')
     assert(bindingMatches, 'initial population binding changed')
     assert(beforeActivation, 'initial population staged after observation began')
+    assert(registered==1 and educationMatches,'education source was not staged before genesis')
+    Events.OnInitGlobalModData.fire(false)
+    assert(Study.start(),'saved education source did not resume')
+    assert(registered==1 and rebound==1 and educationMatches,'education registry restaged on saved resume')
+    SAO_StudyEducationSource={raw=education.raw,rawSha256=education.rawSha256,
+        definitionSha256=string.rep('e',64),sourceBankSha256=education.sourceBankSha256,
+        sourceArchiveSha256=education.sourceArchiveSha256}
+    assert(not pcall(Study.start),'foreign education study admitted')
+    SAO_StudyEducationSource=education
+    SAO.PopulationAdmissions.bindEducationRegistry=function() return false,'controlled-registry-refusal' end
+    assert(not pcall(Study.start),'native education binding refusal was ignored')
+    SAO_StudyEducationSource=nil
+    Events.OnInitGlobalModData.fire(true)
     Config.observation.sites,Config.situation=startingSites,startingSituation
     SAO.PopulationAdmissions=nil
     assert(values.maxX == Config.extent.minCellX + Config.extent.cellsX - 1,

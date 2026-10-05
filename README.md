@@ -1,28 +1,123 @@
 # Survivor Awareness Overhaul
 
-## Current C publication
-
-The current C catalogue contains 35 shared contracts reconstructed from 120
-preserved source records. `Batches/C_SHARED_BOUNDARIES.json` and
-`Batches/Catalogue/` are the current owner/interface map. The frozen compression
-event precedes D1. Earlier GitHub PRs retain their historical source identifiers;
-this additive publication reconciles the catalogue and version metadata without
-replaying runtime implementation. Source C118/C119 are already merged. Source
-C120 and its local recovery owners remain unmerged, with rendered acceptance
-and redistribution conditions open. `Batches/C_PUBLICATION_AVAILABILITY.json`
-records the two C34 owners absent from this public runtime using exact preserved
-archive and source-record pins. D1 remains OPEN and its runtime is separate.
-
-
 A Project Zomboid Build 42 NPC framework.
 
-C114 removes artificial native capture delays and enables the installed
-renderer's uncapped mode after startup. Isolated observer loading begins at
-120 FPS; one pending capture still bounds publication work. Actual throughput
-has separate native measurements and the existing feed still publishes PNGs.
+The current implementation connects private observations, conceptual associations,
+individual expectations and native outcomes. Ordinary-life priors and personally
+acquired associations can now motivate an actual inquiry through a visible doorway.
+Resource, entry and recovery choices share an interpretation interface; broader
+learned competence and rendered acceptance retain their measured limits.
 
-Survivors decide on what they have actually perceived - what they saw, heard,
-and were told. Map truth they could not know is unavailable to them. They are
+Dated autobiography now supplies private premises to the same conceptual
+reasoner and inquiry dispatcher. Source-bound episodes retain participants,
+occurrence/acquisition dates and real or synthetic attribution. Existing health
+traits, age and Neuro state affect recall; the county calendar withholds episodes
+that have not yet been acquired during historical replay. Installed-engine checks
+cover admission, recall, source custody, actual controller inquiry and typed
+observation. Calibrated forgetting, broader psychological/epistemic models and
+latent/post-latent training remain active shared work.
+
+Ordinary arbitration now offers person-specific investigation of attributed
+reports and unidentified sounds without waiting for deprivation or a study task.
+Observed, untried frontiers provide executable approaches; exact route outcomes
+retain revisions without confirming an unknown cause. Native visibility spans
+floors through loaded-square, facing and three-dimensional line-of-sight checks.
+The causal conflict account retains the observed floor and distinguishes it from
+immediate contact.
+
+The pure person-state export joins current county-calendar age bounds, effective
+disposition, accessible autobiography, native temper and recorded brain-state
+projections. Missing health observations remain unavailable. Speakeasy's new
+source-bound, separately versioned person-context task consumes the export and
+has executed the existing fitted 1,024-context shared base. The bounded execution
+retains complete input and source custody; its output was withheld after reaching
+the output-token limit and was repetitive. Useful person-task behavior and
+calibration remain unestablished. Cognition now retains an optional versioned
+person state at the actual decision boundary; Speakeasy's strict consumer uses
+that frozen view and keeps later outcomes separate. Native04 corroborates actual
+inquiry and retained uncertainty; native05 verifies immutable decision-time views
+and explicit missing-state reasons. Its original study failed on a transient
+watcher read; the targeted repair and separate private archive replay pass. An
+actual native report question exceeds the fitted model's fixed context, so its
+inference is refused without truncation. Useful learned behavior remains open.
+Neo owns this integration across the participating repositories.
+
+[D1 — Shared person-specific reasoning](Batches/D1-20261004-0124Z-1824PST-shared-reasoning.md)
+has acceptance status CLOSED with controlled person-specific reasoning and bounded native recovery. It joins ordinary choices
+among bodily needs, accepted commitments and personally valued activity; personal
+associations and authentic feedback guide alternatives and inquiry.
+Original failed08 continuation09e96a7d-a49f-460d-8117-6ea264f3efe5 completed and saved normally, exit0/errors[]/unforced, county2.2487840652 to4.5107564926. sao-2 reached its retained approach, reacquired the currently visible bed and entered owned native sleep. Nine current intent/key acknowledgments persist; fatigue0.7782769799 to0.3887803555 over1.75 sampled countyhours establishes ongoing physiological recovery. The later native image shows a horizontal body partly hidden by the right-bedroom wall. Full sleep completion, a completed recovery experience, and rendered ground sleep are unobserved.
+
+The January 1 native specimen admits the adult's first job and movie with a loved
+one, and the child's movie with a loved one, as explicitly authored synthetic
+history. Owned birth years, dates, source and save custody gate recall. Its
+completed saved continuation preserves both whole histories and all ten initial
+purpose identities, advances the native world and saves without runtime errors.
+This supplies source-bound autobiographical and reload evidence; it does not
+establish that autobiography caused a particular native choice. Existing causal
+producer/consumer controls retain their separately stated scope.
+
+Neo owns the continuing person-source and model integration across Neo, Speakeasy,
+SAO, ZAO and Post-Latent. Speakeasy carries latent/post-latent work and relevant
+salience; Post-Latent is one canonical participating repository. Broader literal
+corpus assessment, useful learned behavior, clinical calibration and life-history
+grounding retain their recorded obligations through D6 and wider continuation.
+
+### Historical bounded leisure trials
+
+The following trial findings retain their original verdicts and scope. Their
+D1-open statements describe the standing at those observations.
+
+Bounded D2 preparation now connects exact native reading and instrument outcomes
+to personal leisure choice. Focused installed-engine proofs show acquired sound
+experience changing the actual reading/instrument dispatcher. Urgent planning
+can preserve unadmitted obligations in a durable queue, then restore them for
+ordinary comparison after the physical and private-threat checks permit it.
+Mousecat's person details separate selection, admission, deferred intentions and
+completed use. The fresh Rosewood trial saved normally with both people alive
+and exact physical notebook-reading receipts. Notebook content remains
+unestablished. A distinct written-note owner now validates existing carried text
+through native completion, preserving exposure separately from understanding.
+Exact instrument pulses also have independently verified listener-private hearing
+ownership. Accepted shared participation joins actual invitation, private assent,
+fresh performance, listener hearing and returned acknowledgement. The actual
+ordinary chooser now admits that activity through its canonical role readiness;
+native completion or interruption releases its execution commitment. These source extensions
+have their own focused proofs and no inherited acceptance from that saved trial.
+The installed Mousecat selected this exact session and its retained frames
+advanced. This bounded trial does not close D1 or establish broader competence.
+
+A subsequent trial ran the reviewed current source on the same mild-infection
+Rosewood inputs. Nathaniel Kline and Chauncey Lacy both completed actual
+written-note exposure, with two existing text pages per notebook and exact
+actor, item, work, admission and result joins. Both survived; the game saved
+normally without runner-reported runtime errors or positive-frame ERROR rows.
+The retained footage shows their native reading presentation. Understanding
+remains unassessed, and this run did not observe instrument performance or
+shared participation. Mousecat followed the exact new session and retains its
+saved view with automatic continuation disabled. D1 remains open.
+
+The supported floor-asset loop now joins personal native visibility, ordinary
+choice, exact acquisition and the held book, written-note or Harmonica action.
+The same purpose survives native pickup and reaches the physical result owner.
+Hidden fluid properties stay outside passive observations. Independent source
+review and 24 joined cases with 16 defect controls pass. A separate physical
+fixture places actual floor items with durable exact placement receipts. The
+fresh upstairs urban Rosewood trial created all 32 items, completed 11 exact
+floor acquisitions and retained 238 enabled native zombies. Both people survived
+upstairs. Three emitted Harmonica attempts ended interrupted; native completion
+of floor reading or instrument use remains unobserved. The trial exposed false
+cognitive success credit, now repaired against the canonical terminal outcome
+with independent source review. The original save and counterexamples remain.
+
+### Framework behavior
+
+Survivors decide through personal observations, acquired knowledge, ordinary-life
+priors and defeasible inference. The operator-ratified DR-056 requires concepts
+and relationships to support expectations and investigation. A recognized house
+can suggest a bedroom and a bed while their actual presence, location and
+suitability remain unknown. Inference never fabricates observed local facts or
+permission, and later evidence can revise it. Survivors are
 durable inhabitants of the county, holding their own positions and intentions
 whether or not a player is nearby. Skill governs how well they execute; it
 never licenses behavior no person would produce.
@@ -33,11 +128,26 @@ contains useful engine adapters and durable state, but also fixed decision
 rules, incomplete producers and reproduced continuity defects. Those gaps
 remain implementation work; the intended behavior is not a completion claim.
 
-The 2026-09-19 consolidation groups 127 former C records into 50 coherent
-units, following the A/B precedent. [SESSION_STATE.md](SESSION_STATE.md)
-states the current assessment. [SUBSTRATE.md](SUBSTRATE.md) traces the engine,
-records, actions and observations needed before Speakeasy training can rely
-on the simulation.
+The current C catalogue consolidates all 120 retained source contributions into
+**82 historical development products** using the A/B method. The
+[product manifest](Batches/C_PRODUCT_CATALOGUE.json),
+[crosswalk](Batches/C_PRODUCT_CROSSWALK.json) and
+[corrective event](Batches/Transitions/C-20261005-product-consolidation.md)
+preserve source chronology, exact bytes and measured component status. The
+separate **35 shared contracts** in the [boundary map](Batches/SHARED_BOUNDARIES.md)
+retain owners, interfaces and D dependencies. [PR137](https://github.com/ellyj3rain/sao/pull/137)
+published the ownership projection as though it completed the requested era
+consolidation; its passing checks established that projectionâ€™s consistency.
+The current product correction reconciles the index and version replay while
+preserving that published history. [SESSION_STATE.md](SESSION_STATE.md) states
+actual implementation and acceptance.
+Protected branch/PR publication is prepared from the reviewed final public main as one logical commit. Required ci-verify and codeql-python results and the actual protected merge are recorded in the separate publication receipt; this candidate text grants no unperformed check or merge credit.
+Historical copied recovery candidates retain their private source-reuse boundary.
+The publishable recovery adapter independently owns exact-body queue/custody and
+requires external installed LeanAndLie 1.27 and TchernoLib 1.16 animation mechanics.
+It distributes no copied source actions or animation XML.
+
+Historical source identifiers stay in the crosswalk rather than organizing current work.
 
 ## Where to read first
 
@@ -52,14 +162,86 @@ on the simulation.
 | `PROJECTS.md` | The architecture across the three repositories: SAO, ZAO and Speakeasy. |
 | `SUBSTRATE.md` | Existing and planned dependencies, and what each area of concern needs. |
 | `CREDITS.md` | Attribution and integration status per source. |
+| [Shared C boundaries](Batches/SHARED_BOUNDARIES.md) | Current contracts, preserved source contributions and D dependencies. |
+| [Development continuity graph](artifacts/continuity/index.html) | Interactive development, conceptual, ownership and dependency connections across eras and source generations. |
 
 `MEMORY.md` indexes every root document and its standing.
 
+The graph's [machine-readable source](artifacts/continuity/development-graph.json)
+uses `development.continuity-graph/1`, the same representation consumed by
+Mousecat. Its source vector states exact input revisions. Regenerate after
+source changes with `python tools/development_graph.py --write` and check
+currency with `python tools/development_graph.py --check`.
+
 ## Status
 
-`2.11.1.0-pre-alpha` - the coordinate is computed by the version machine
+`3.8.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+The version coordinate follows the coherent product-batch replay. The ownership map retains dependency boundaries without duplicate credit. Historical C labels keep their preserved
+generation and original source verdicts. Current D1 acceptance is
+CLOSED with controlled person-specific reasoning and bounded native recovery; publication standing is recorded above.
+The installed recovery adapter's final native admission evidence is
+Original failed08 continuation09e96a7d-a49f-460d-8117-6ea264f3efe5 completed and saved normally, exit0/errors[]/unforced, county2.2487840652 to4.5107564926. sao-2 reached its retained approach, reacquired the currently visible bed and entered owned native sleep. Nine current intent/key acknowledgments persist; fatigue0.7782769799 to0.3887803555 over1.75 sampled countyhours establishes ongoing physiological recovery. The later native image shows a horizontal body partly hidden by the right-bedroom wall. Full sleep completion, a completed recovery experience, and rendered ground sleep are unobserved..
+
+### Historical reasoning and source trials
+
+These retained observations report the implementation and acceptance standing at
+their original trial. Their failures, incomplete verdicts and prior D1-open
+statements are preserved verbatim.
+
+The corrected D1 inquiry trial saved normally after 305.109 seconds with nine
+snapshots and no reported runtime errors. Porter Vallejo and Elias Hidalgo each
+retained two locomotion-owner-confirmed doorway arrivals and an unfinished
+residence-to-bedroom-to-bed-to-sleep-to-relief inquiry. Neither found a bed in the
+retained observations; both entered sleep recovery without a completed recovery
+receipt. The D1 record preserves that earlier result and its limits.
+
+The later source-background trial and its saved continuation completed in
+Rosewood. The continuation retains five snapshots, both people alive, 337 fully
+decoded video fragments and an automatic observer export. Missing acknowledged
+camera poses and wall occlusion remain recorded visibility limits. Retained
+concept identities survived reload; fresh indoor co-observation was absent.
+
+D1 now implements dated work/training and community/literary priors from held
+literal passages, optional person-specific initial outbreak reports, and exact
+visible-workbench inquiries through the existing native holder owner. Exposure
+grants neither assessed mastery nor social assent. Focused admission, source,
+consumer and restored-defect proofs pass. The fresh combined native trial
+returned from saving after 303.413 seconds. Vernon Moulton retains four dated
+meanings and one reported outbreak claim; Jack Lynch retains none. Both remain
+alive in the latest physical inspection. The original Python receipt remains
+INCOMPLETE because an empty Lua awareness collection exported as `{}`. A bound
+decoder repair validates all ten retained snapshots without changing them.
+All 685 video fragments verify and fully decode; missing camera poses remain
+marked unknown. A separate canonical correction verifies the authentic save and
+retains the original incomplete reports. The actual observer export retains
+fifteen unreviewed episodes and eighteen person snapshots, with no observed
+targets or training rows. The trial also exposes repeated optional conversational
+gestures delaying urgent movement. Exact optional-action handback and admission
+now pass native controls and independent review. The saved continuation supplies
+ten snapshots and 665 fully decoded fragments, with no fresh gesture-related
+blocking refusal. A native zombie LungeState error leaves that run INCOMPLETE;
+exact gesture yield callbacks are not exported. Mousecat automatically followed
+the same new session and now retains its stopped state.
+D1 remains open. Bounded D2 reading and native instrument preparation is underway,
+without delivered batch or version credit. Later work includes
+the ordinary item-verb, material, nutrition, animal-care and assessed-learning
+outcomes recorded in ROADMAP.md.
+
+### Delivered source mechanisms
+
+C120 connects authentic entry and measured recovery outcomes to each person's
+existing durable cognition and later decisions. Entry success requires the
+actual crossed door or window and its pre-attempt condition. Recovery retains
+observed native measurements before clearing its owner. Individual expectations
+change close choices, revise with contrary experience and lose confidence over
+time. Current danger, emergency needs, permission and physical feasibility
+remain decisive. Focused producer, persistence and decision proofs pass; the
+integrated native observation is recorded with the batch. These mechanisms
+provide experience for subsequent model work; they establish no trained general
+competence.
 
 C119 lets bodily recovery compete with ongoing search and optional resource
 travel. A survivor can pause a speculative search, return to a personally known
@@ -476,16 +658,20 @@ R7-R9.
 
 ## Requirements
 
-Project Zomboid Build 42.20.
+Project Zomboid Build 42.20–42.21, matching the published mod metadata.
 
-**ZombieBuddy** is required - the Java component (`media/java/SAO.jar`)
-loads through it. Without ZombieBuddy the Lua degrades to a functional
-but far thinner mod, because every engine read the Java side provides
-is absent.
+**ZombieBuddy** is required to load the Java component (`media/java/SAO.jar`).
+Without it, the Java engine reads are unavailable and Lua functionality degrades.
 
-No other mod is required. Other NPC mods are recognised where present
-and never depended on: another mod's people are handled by property,
-so no mod is named anywhere in this codebase's logic.
+Ground recovery requires externally installed **Lean & Lie 1.27**, Workshop
+`3652012357`, native mod ID `LeanAndLie`, and its transitive **TchernoLib 1.16**
+dependency, Workshop `3389605231`, native mod ID `TchernoLib`. SAO's independent
+adapter invokes installed animation mechanics and distributes no copied source
+actions or animation XML. Revision and input pins are recorded in
+`tools/recovery_source_manifest.json`; attribution is in `CREDITS.md`.
+
+Other NPC mods are recognised where present and never depended on; another mod's
+people are handled through their actual properties and ownership.
 
 ## Licence
 

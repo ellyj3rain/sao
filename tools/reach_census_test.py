@@ -60,7 +60,13 @@ CENSUS = {
     # standing where the shot I heard came from") was a bare 4.0 and is
     # now SHOT_ORIGIN_REACH, named apart from the route retarget slack
     # that shares its value.
-    "SAO_Controller.lua": 13,
+    # [D1] 13 -> 9: removed the old flee-vector singularity comparison,
+    # both unsolicited shared-rest gathering bounds, and nearest-person
+    # gift attribution. ConflictResponse owns selected native conflict work;
+    # ordinary personal purposes no longer order idle companions to gather;
+    # Handover proves a transfer's holders rather than guessing its giver.
+    # These four sites were removed/replaced, not four newly named radii.
+    "SAO_Controller.lua": 9,
     "SAO_Harness.lua": 2,
     # C58 moves the unchanged comparison with dormant advancement.
     "SAO_DormantPopulation.lua": 1,
@@ -96,9 +102,9 @@ def main():
         elif now < was:
             faults.append(
                 f"{name} is down to {now} bare from {was} - that is a group "
-                "named, and the census has to come down with it or the "
+                "named or removed, and the census has to come down with it or the "
                 "backlog stops being a real number. Update CENSUS in this "
-                "file and say which rule got its name in the batch record")
+                "file and record which sites were named, removed or replaced")
 
     total = sum(found.values())
     print(f"  total bare: {total}  (26 by the old reader at [B43]; the "

@@ -1,7 +1,7 @@
--- SAO_Perception — the Perception pillar (ARCHITECTURE §Perception).
+-- SAO_Perception â€” the Perception pillar (ARCHITECTURE Â§Perception).
 -- ---------------------------------------------------------------------------
 -- A survivor decides on a private belief set, never on map truth. This module
--- owns that belief set: acquisition (via the bridge scanner — one compact
+-- owns that belief set: acquisition (via the bridge scanner â€” one compact
 -- string, no engine objects), provenance, memory decay, and the query API the
 -- controller consumes. Nothing outside this file may hand the controller a
 -- world fact.
@@ -37,6 +37,15 @@
 SAO = SAO or {}
 SAO.Perception = SAO.Perception or {}
 local P = SAO.Perception
+local awarenessReceiver=nil
+function P.bindAwarenessReceiver(owner, receiver)
+    if awarenessReceiver or not owner or owner~=SAO.PersonalAwareness or type(receiver)~="function" then return false end
+    awarenessReceiver=receiver;return true
+end
+local function contactRecognition(id)
+    local owner=SAO.Knowledge
+    if owner and owner.contactRecognition then return owner.contactRecognition(id) end
+end
 
 -- id -> { zombies = { [key]=belief }, people = { [name]=belief },
 --         lastScanAt, scanCount }
@@ -141,6 +150,81 @@ end
 function P.forgetSoundCues(id, body)
     local row = soundPulses[id]
     if row and (body == nil or row.body == body) then soundPulses[id] = nil end
+end
+
+local function hearingCopy(row)
+    local out = {}; for key, value in pairs(row) do
+        if type(value) == "string" or type(value) == "number" or type(value) == "boolean" then out[key] = value end
+    end
+    return out
+end
+
+-- This establishes hearing of a personally visible emitter, never assent or pleasure.
+function P.acquireInstrumentHearing(id, body, performerId, workId)
+    local needs, gesture = SAO.Needs, SAO.Gesture
+    local rec = SAO.Identity and SAO.Identity.get(id)
+    local performer = SAO.Body and SAO.Body.get(performerId)
+    if not rec or id == performerId or not needs or not needs.ownsRecoveryBody
+        or not needs.ownsRecoveryBody(id, body) or not needs.ownsRecoveryBody(performerId, performer)
+        or not gesture or not gesture.instrumentOccurrence then return nil end
+    local occurrence = gesture.instrumentOccurrence(performerId, workId)
+    if type(occurrence) ~= "table" or occurrence.actorId ~= performerId or occurrence.workId ~= workId
+        or type(occurrence.pulseId) ~= "string" then return nil end
+    local now = SAO.History and SAO.History.countyHours()
+    if not finiteSoundNumber(now) or now < 0 then return nil end
+    local clockOk, nativeNow = pcall(function() return GameTime.getInstance():getWorldAgeHours() end)
+    if not clockOk or not finiteSoundNumber(nativeNow) or nativeNow < 0 then return nil end
+    local ok, row = pcall(function()
+        return SAOJavaBridge:claimInstrumentHearing(body, performer, workId, occurrence.pulseId)
+    end)
+    if not ok or type(row) ~= "table" or row.schema ~= "sao.instrument-hearing/1"
+        or row.observerId ~= id or row.actorId ~= performerId or row.workId ~= workId
+        or row.pulseId ~= occurrence.pulseId or row.epoch ~= occurrence.epoch or row.sequence ~= occurrence.sequence
+        or row.emittedAtHours ~= occurrence.emittedAtHours
+        or row.clock ~= "native-world-age-hours" or occurrence.clock ~= row.clock
+        or not finiteSoundNumber(row.emittedAtHours) or row.emittedAtHours < 0
+        or not finiteSoundNumber(row.heardAtHours) or row.heardAtHours < row.emittedAtHours
+        or not finiteSoundNumber(row.witnessedAtHours) or row.witnessedAtHours < row.heardAtHours
+        or not finiteSoundNumber(row.atHours) or row.atHours < row.witnessedAtHours or row.atHours > nativeNow
+        or row.basis ~= "native-scanner-acquired-occurrence"
+        or not needs.ownsRecoveryBody(id, body) or not needs.ownsRecoveryBody(performerId, performer) then return nil end
+    local rows = type(rec.instrumentHearings) == "table" and rec.instrumentHearings or {}
+    for _, old in ipairs(rows) do
+        if type(old) == "table" and old.pulseId == row.pulseId then return nil end
+    end
+    row.acquiredAtCountyHours = now
+    rows[#rows + 1] = hearingCopy(row)
+    while #rows > 16 do
+        table.remove(rows, 1)
+        rec.instrumentHearingsOmitted = (tonumber(rec.instrumentHearingsOmitted) or 0) + 1
+    end
+    rec.instrumentHearings = rows
+    return hearingCopy(row)
+end
+
+function P.instrumentHearing(id, performerId, workId)
+    local rec = SAO.Identity and SAO.Identity.get(id)
+    local rows = rec and rec.instrumentHearings
+    local now = SAO.History and SAO.History.countyHours()
+    local clockOk, nativeNow = pcall(function() return GameTime.getInstance():getWorldAgeHours() end)
+    if type(rows) ~= "table" or not finiteSoundNumber(now) or not clockOk or not finiteSoundNumber(nativeNow) then return nil end
+    for index = #rows, 1, -1 do
+        local row = rows[index]
+        if type(row) == "table" and row.schema == "sao.instrument-hearing/1" and row.observerId == id
+            and row.actorId == performerId and row.workId == workId
+            and row.clock == "native-world-age-hours" and row.basis == "native-scanner-acquired-occurrence"
+            and validSoundToken(row.pulseId) and type(row.epoch) == "string"
+            and finiteSoundNumber(row.sequence) and row.sequence > 0 and row.sequence == math.floor(row.sequence)
+            and row.pulseId == row.epoch .. "-" .. tostring(row.sequence)
+            and finiteSoundNumber(row.emittedAtHours) and row.emittedAtHours >= 0
+            and finiteSoundNumber(row.heardAtHours) and row.heardAtHours >= row.emittedAtHours
+            and finiteSoundNumber(row.witnessedAtHours) and row.witnessedAtHours >= row.heardAtHours
+            and finiteSoundNumber(row.atHours) and row.atHours >= row.witnessedAtHours and row.atHours <= nativeNow
+            and finiteSoundNumber(row.acquiredAtCountyHours) and row.acquiredAtCountyHours >= 0 and row.acquiredAtCountyHours <= now then
+            return hearingCopy(row)
+        end
+    end
+    return nil
 end
 -- [B20] How long a recognised cry keeps its tile from being read
 -- as a threat. ONE definition: the guard in the S-row path and
@@ -1139,6 +1223,9 @@ local function sortSightEvidence(values, less)
     end
 end
 
+-- Shared fixed-depth ordering; callers retain their own comparator and bounds.
+P.sortEvidence = sortSightEvidence
+
 local function zombieReports(zombies, accept)
     local ordered, reports, counts = {}, {}, {}
     for key, belief in pairs(zombies or {}) do
@@ -1250,6 +1337,73 @@ end
 
 -- Native route ownership authenticates the observation. A failed route's goal
 -- never substitutes for the edge the body actually encountered.
+local function retainEntryExperience(id,rec,lead,key,at,condition,succeeded)
+    local prior=rec.entryExperienceSequence or 0
+    if not finiteSoundNumber(prior) or prior<0 then return false end
+    local sequence=prior+1
+    if not finiteSoundNumber(sequence) or sequence>9007199254740991 or sequence~=math.floor(sequence) then return false end
+    rec.entryExperienceSequence=sequence
+    local receipt={actorId=id,kind="entry-outcome",sequence=sequence,atHours=at,
+        sourceId="exterior:"..key,actionKind=lead.kind,apertureState=condition or "unknown",succeeded=succeeded==true}
+    rec.entryExperiences=rec.entryExperiences or {}
+    rec.entryExperiences[#rec.entryExperiences+1]=receipt
+    if #rec.entryExperiences>32 then table.remove(rec.entryExperiences,1) end
+    if SAO.Cognition and SAO.Cognition.behaviorOutcome then SAO.Cognition.behaviorOutcome(id,receipt) end
+    return true
+end
+function P.behaviorOutcome(id,sequence)
+    local rec=SAO.Identity and SAO.Identity.get(id)
+    for _,receipt in ipairs(rec and rec.entryExperiences or {}) do
+        if receipt.sequence==sequence then local out={} for k,v in pairs(receipt) do out[k]=v end return out end
+    end
+end
+-- Native movement retains the actual directed aperture crossing and its
+-- pre-attempt condition. Arrival at the proposed interior tile is insufficient.
+function P.noteEntrySuccess(id,body,job)
+    local rec=SAO.Identity and SAO.Identity.get(id)
+    local purpose=SAO.ProceduralPlanning and SAO.ProceduralPlanning.residencePurpose(id)
+    local destination=purpose and purpose.destination
+    local agent=SAO.Controller and SAO.Controller.agents[id]
+    local binding=agent and agent.residenceRoute
+    if type(job)~="table" or not rec or rec.dead or not purpose or purpose.cursor~=2
+        or not destination or not destination.exterior or not purpose.admission
+        or not binding or binding.job~=job or binding.routeId~=purpose.admission.correlationId
+        or SAO.Body.get(id)~=body or SAO.Locomotion.jobs[id]~=job or job.body~=body
+        or not job.done or job.result~="arrived" or job.entryOutcomeRecorded
+        or not finiteSoundNumber(job.nativeRouteGeneration) or job.nativeRouteGeneration<1 then return false end
+    local step=purpose.steps[2]
+    if not step or not job.goal or step.x~=job.goal.x or step.y~=job.goal.y or step.z~=job.goal.z then return false end
+    local key=destination.approachId
+    local b=P.beliefs[id]
+    local lead=b and b.buildingLeads and b.buildingLeads[key]
+    if not lead or lead.personId~=id or P.exteriorLeadKey(lead)~=key
+        or lead.kind~="door" and lead.kind~="window" then return false end
+    local known=P.knownPlaces(id)
+    if not known[lead.buildingId] and not known[tonumber(lead.buildingId)] then return false end
+    local ok,owned=pcall(function()
+        return not body:isDead() and not body:isAsleep() and tostring(body:getModData().SAOPersonId)==id
+            and not body:getModData().SAO_ObserverAnchor
+    end)
+    if not ok or not owned then return false end
+    for index,crossing in ipairs(job.crossings or {}) do
+        if index>16 then break end
+        if type(crossing)=="table" and crossing.source=="native-route-crossing"
+            and crossing.route==job.nativeRouteGeneration and crossing.kind==lead.kind
+            and finiteSoundNumber(crossing.sequence) and crossing.sequence>=1
+            and finiteSoundNumber(crossing.x) and finiteSoundNumber(crossing.y)
+            and finiteSoundNumber(crossing.tx) and finiteSoundNumber(crossing.ty)
+            and crossing.z==lead.z and APERTURE_STATES[crossing.apertureState]
+            and math.abs(crossing.x-crossing.tx)+math.abs(crossing.y-crossing.ty)==1
+            and lead.cx==crossing.x+0.5 and lead.cy==crossing.y+0.5
+            and lead.surfaceX==(crossing.x+crossing.tx+1)/2
+            and lead.surfaceY==(crossing.y+crossing.ty+1)/2 then
+            job.entryOutcomeRecorded=true
+            lead.entryFailure=nil
+            return retainEntryExperience(id,rec,lead,key,SAO.History.countyHours(),crossing.apertureState,true)
+        end
+    end
+    return false
+end
 function P.noteEntryOutcome(id, body, job)
     local rec = SAO.Identity and SAO.Identity.get(id)
     local own = SAO.Body and SAO.Body.get and SAO.Body.get(id)
@@ -1293,6 +1447,7 @@ function P.noteEntryOutcome(id, body, job)
                 at = tick, atHours = at, attempts = math.min(4, math.max(0, attempts) + 1),
                 source = "native-route-interaction" }
             job.entryOutcomeRecorded = true
+            retainEntryExperience(id,rec,lead,key,at,edge.apertureState)
             P.beliefVersion = P.beliefVersion + 1
             return true
         end
@@ -1321,6 +1476,8 @@ function P.observe(id, body, tick, asleep)
     end)
     if not asleep then
         pcall(function() observeOccupiedBuilding(id, body, tick) end)
+        pcall(function() P.observeConcepts(id, body, tick) end)
+        pcall(function() P.observeLooseItems(id, body, tick) end)
     end
 
     if not SAOJavaBridge then return end
@@ -1357,7 +1514,8 @@ function P.observe(id, body, tick, asleep)
             if f[1] == "Z" and #f >= 4 then
                 local x, y, d = tonumber(f[2]), tonumber(f[3]), tonumber(f[4])
                 if x and y then
-                    local belief = { x = x, y = y, dist = d, at = tick, source = "observed" }
+                    local belief = { x = x, y = y, dist = d, at = tick, source = "observed",
+                        nativeReferent = "zombie" }
                     if f[6] == "zao" and f[7] and f[8] then
                         belief.form = f[7]
                         belief.formPerformance = tonumber(f[8]) or 0
@@ -1410,6 +1568,13 @@ function P.observe(id, body, tick, asleep)
                             SAO.Identity.resolveBodyTag(ztag)
                         if zrec and zrec.dead and zname then
                             local pb = b.people[zname]
+                            -- A familiar person now visibly changed is a narrow
+                            -- personal association. An unfamiliar Z row supplies
+                            -- physical contact authority, not outbreak knowledge.
+                            if not asleep and awarenessReceiver and pb and pb.source=="observed"
+                                and finiteSoundNumber(pb.at) and pb.at<=tick and not pb.turnedSeen then
+                                pcall(awarenessReceiver,id,body,zid,tick)
+                            end
                             if not pb then
                                 pb = { x = x, y = y, dist = d, at = tick,
                                     source = "observed", dead = true }
@@ -1536,7 +1701,14 @@ function P.observe(id, body, tick, asleep)
                         end)
                     end
                     local prone = (f[6] and string.find(f[6], "+p", 1, true) ~= nil) or false
-                    b.people[name] = { x = x, y = y, dist = d, at = tick,
+                    local observedFloor
+                    for index=7,#f-1 do
+                        if f[index]=="floor" then
+                            local floor=tonumber(f[index+1])
+                            if finiteSoundNumber(floor) and floor==math.floor(floor) then observedFloor=floor end
+                        end
+                    end
+                    b.people[name] = { x = x, y = y, z = observedFloor, dist = d, at = tick,
                         atHours = okRH and rh or nil,
                         source = "observed", condition = f[6] or "ok",
                         seenInFaction = prev and prev.seenInFaction or nil,
@@ -1709,12 +1881,57 @@ function P.nearestBelievedZombie(id, tick, fromX, fromY)
     end
     if best then
         return { x = best.x, y = best.y, z = best.z, dist = bestDist, at = best.at,
-                 source = best.source, teller = best.teller,
+                 source = best.source, teller = best.teller, track = best.track,
                  form = best.form, formPerformance = best.formPerformance,
                  attributeMutations = best.attributeMutations,
-                 prone = best.prone and true or false }
+                 prone = best.prone and true or false,
+                 nativeReferent = "zombie", recognition = contactRecognition(id) }
     end
     return nil
+end
+
+-- Detached locations for a person's route-consequence appraisal. These are
+-- beliefs, not a census or reacquired native targets: separate sight records
+-- can describe the same body. Consumers must not add their multiplicity to
+-- threat counts or refresh their original acquisition time.
+function P.believedZombieContacts(id, tick, fromX, fromY, fromZ)
+    local out, b = {}, P.beliefs[id]
+    if not b or not finiteSoundNumber(tick) or not finiteSoundNumber(fromX)
+        or not finiteSoundNumber(fromY) or not finiteSoundNumber(fromZ) then return out end
+    local horizon = horizonFor(id, "zombies")
+    local candidates, latest = {}, {}
+    for key, belief in pairs(b.zombies or {}) do
+        if type(belief) == "table" and finiteSoundNumber(belief.at)
+            and tick >= belief.at and tick - belief.at <= horizon
+            and finiteSoundNumber(belief.x) and finiteSoundNumber(belief.y)
+            and (belief.z == nil or finiteSoundNumber(belief.z) and belief.z == math.floor(belief.z))
+            and (belief.source == "observed" or belief.source == "told"
+                or belief.source == "heard" and belief.phantom == true) then
+            candidates[#candidates + 1] = { beliefKey = tostring(key), x = belief.x, y = belief.y, z = belief.z,
+                dist = distanceFor(belief, fromX, fromY), at = belief.at,
+                source = belief.source, teller = belief.teller, track = belief.track,
+                phantom = belief.phantom == true, nativeReferent = "zombie",
+                recognition = contactRecognition(id) }
+            if belief.source == "observed" and type(belief.track) == "string" and belief.track ~= "" then
+                latest[belief.track] = math.max(latest[belief.track] or belief.at, belief.at)
+            end
+        end
+    end
+    -- A failed scan can advance lastScanAt without replacing the prior sight
+    -- row. Only the same native continuous track supplies identity authority
+    -- to supersede its older position. Reacquisition tracks and reports remain
+    -- separate hypotheses; equal-time contradictory locations remain uncertain.
+    -- Apply precedence before floor filtering, so a newer other-floor sight
+    -- does not leave the person's older same-floor location in this projection.
+    for _, belief in ipairs(candidates) do
+        local newer = belief.source == "observed" and latest[belief.track]
+            and latest[belief.track] > belief.at
+        if not newer and (belief.z == nil or belief.z == fromZ) then
+            out[#out + 1] = belief
+        end
+    end
+    table.sort(out, function(a, b) return a.beliefKey < b.beliefKey end)
+    return out
 end
 
 -- [C116] The nearest LIVING person this survivor believes carries a
@@ -1739,7 +1956,7 @@ function P.nearestFormedPerson(id, tick, fromX, fromY)
         end
     end
     if best then
-        return { x = best.x, y = best.y, dist = bestDist, at = best.at,
+        return { x = best.x, y = best.y, z = best.z, dist = bestDist, at = best.at,
                  source = best.source, name = bestName,
                  form = best.form, formPerformance = best.formPerformance,
                  attributeMutations = best.attributeMutations,
@@ -2997,7 +3214,8 @@ end
 -- engine chunk never become this person's knowledge through this operation.
 function P.learnInspectedSource(id, place, sourceId, tick, source)
     if not place or place.id == nil or not sourceId then return false end
-    local fact = SAO.WorldSources and SAO.WorldSources.beliefFact(sourceId)
+    local fact = SAO.WorldSources and SAO.WorldSources.beliefFact(sourceId,
+        source == "native-visible-ground" and "visible-ground" or nil)
     if not fact then return false end
     local belongs = tostring(fact.buildingId) == tostring(place.id)
         or tostring(place.sourceId or "") == tostring(sourceId)
@@ -3015,6 +3233,9 @@ function P.learnInspectedSource(id, place, sourceId, tick, source)
     belief.maxX, belief.maxY = place.maxX, place.maxY
     belief.sourceId = place.sourceId
     belief.sourceFacts = belief.sourceFacts or {}
+    local priorFact = belief.sourceFacts[tostring(sourceId)]
+    if source == "native-visible-ground" and priorFact and priorFact.knowledgeKind ~= "visible-ground"
+        and priorFact.revision == fact.revision and priorFact.fingerprint == fact.fingerprint then fact = priorFact end
     belief.sourceFacts[tostring(sourceId)] = fact
     rebuildKnownSources(belief)
     belief.at = tick or b.lastScanAt
@@ -3022,6 +3243,31 @@ function P.learnInspectedSource(id, place, sourceId, tick, source)
     b.known[key] = belief
     P.beliefVersion = P.beliefVersion + 1
     return true
+end
+
+function P.observeLooseItems(id, body, tick)
+    local world = SAO.WorldSources
+    if not world or not world.observeVisibleGround then return false end
+    local current = SAO.History and SAO.History.ticks and SAO.History.ticks()
+    if not finiteSoundNumber(current) or tick ~= nil and tick ~= current then return false end
+    tick = current
+    local rows = world.observeVisibleGround(id, body)
+    for _, anchor in ipairs(rows) do
+        local b = store(tostring(id))
+        local known = b.known or {}
+        if not known[anchor.id] then
+            local count, oldest, at = 0, nil, nil
+            for key, belief in pairs(known) do
+                if belief.source == "native-visible-ground" then
+                    count = count + 1
+                    if not at or (belief.at or 0) < at then oldest, at = key, belief.at or 0 end
+                end
+            end
+            if count >= 64 then known[oldest] = nil end
+        end
+        P.learnInspectedSource(id, anchor, anchor.sourceId, tick, "native-visible-ground")
+    end
+    return #rows > 0
 end
 
 -- Visibility acquires an exact holder's geometry, never its inventory. The
@@ -3080,6 +3326,148 @@ function P.knownPlaces(id, includeSourceAnchors)
         if not belief.sourceId then places[key] = belief end
     end
     return places
+end
+
+-- Native observer-specific visibility owns these anchors. Room identities are
+-- geometric; a room's authored map label never becomes the person's knowledge.
+-- A fresh native query projects this person's learned recognition. No query
+-- writes a belief, recipe, acquisition time or outcome. Dormant knowledge stays
+-- with native snapshot custody until its actual body is reconstructed.
+function P.personalFoodKnowledge(id,body)
+    if not SAO.Needs or not SAO.Needs.ownsRecoveryBody or not SAO.Needs.ownsRecoveryBody(id,body) then return nil end
+    local at=SAO.History and SAO.History.countyHours()
+    if not finiteSoundNumber(at) then return nil end
+    local ok,view=pcall(function() return SAOJavaBridge:personalFoodKnowledge(body) end)
+    if not ok or type(view)~="table" or view.schema~="sao.personal-food-knowledge/1"
+        or view.actorId~=id or view.status~="available" or type(view.foods)~="table"
+        or #view.foods>64 or not finiteSoundNumber(view.omitted) or view.omitted<0 then return nil end
+    local out={actorId=id,atHours=at,foods={},omitted=view.omitted,
+        acquisitionTime="unrecorded-native-acquisition",sourceOwner="IsoGameCharacter.isKnownPoison"}
+    local seen={}
+    local bases={["unrecognized"]=true,["visible-warning"]=true,["known-recipe:Herbalist"]=true,
+        ["native-perk:Cooking"]=true,["own-poison-addition"]=true}
+    for _,row in ipairs(view.foods) do
+        if type(row)~="table" or not finiteSoundNumber(row.itemId) or row.itemId~=math.floor(row.itemId)
+            or seen[row.itemId] or type(row.itemType)~="string" or #row.itemType==0 or #row.itemType>160
+            or not finiteSoundNumber(row.relief) or row.relief<=0 or row.relief>16
+            or type(row.recognizedPoison)~="boolean" or not bases[row.basis]
+            or row.recognizedPoison~=(row.basis~="unrecognized") then return nil end
+        seen[row.itemId]=true
+        out.foods[#out.foods+1]={itemId=row.itemId,itemType=row.itemType,relief=row.relief,
+            recognizedPoison=row.recognizedPoison,basis=row.basis}
+    end
+    return out
+end
+local function conceptCopy(row)
+    local out={} for key,value in pairs(row) do if type(value)~="table" then out[key]=value end end return out
+end
+function P.observeConcepts(id,body,tick)
+    if not SAO.Needs or not SAO.Needs.ownsRecoveryBody or not SAO.Needs.ownsRecoveryBody(id,body)
+        or not finiteSoundNumber(tick) then return false,"concept-observer-unavailable" end
+    local ok,view=pcall(function() return SAOJavaBridge:conceptObservations(body,8) end)
+    if not ok or type(view)~="table" or view.schema~="sao.concept-observation/1" or view.actorId~=id
+        or type(view.observations)~="table" or type(view.frontiers)~="table" then
+        local prior=P.beliefs[id] and P.beliefs[id].concepts
+        if prior then prior.readerStatus="native-concept-observation-unavailable" end
+        return false,"native-concept-observation-unavailable"
+    end
+    local b=store(id)
+    local concepts=b.concepts or {observations={},order={},frontiers={},frontierOrder={}}
+    b.concepts=concepts
+    concepts.at,concepts.status,concepts.readerStatus=tick,"observed","available"
+    concepts.currentRoomId,concepts.currentBuildingId=nil,nil
+    local function accept(row,frontier)
+        if type(row)~="table" or type(row.key)~="string" or #row.key>160
+            or not finiteSoundNumber(row.x) or not finiteSoundNumber(row.y) or not finiteSoundNumber(row.z)
+            or row.buildingId==nil or row.roomId==nil then return end
+        if frontier then
+            if row.kind~="doorway" or not finiteSoundNumber(row.entryX)
+                or not finiteSoundNumber(row.entryY) or row.entryZ~=row.z
+                or math.abs(row.entryX-row.x)+math.abs(row.entryY-row.y)>2 then return end
+        elseif (row.kind~="room" and row.kind~="object") or type(row.concept)~="string"
+            or #row.concept>96 or not row.concept:match("^[%w_:%-%.]+$") then return end
+        local copy=conceptCopy(row)
+        copy.recoverySourceId=type(row.recoverySourceId)=="string" and #row.recoverySourceId<=256
+            and row.recoverySourceId:sub(1,4)=="bed:" and row.recoverySourceId or nil
+        copy.actorId,copy.at,copy.source=id,tick,"native-personal-visibility"
+        copy.buildingId,copy.roomId=tostring(row.buildingId),tostring(row.roomId)
+        local rows,order=frontier and concepts.frontiers or concepts.observations,
+            frontier and concepts.frontierOrder or concepts.order
+        if not rows[row.key] then
+            if #order>=96 then rows[table.remove(order,1)]=nil end
+            order[#order+1]=row.key
+        end
+        rows[row.key]=copy
+        if not frontier and row.kind=="room" then
+            concepts.currentRoomId,concepts.currentBuildingId=copy.roomId,copy.buildingId
+        end
+    end
+    for index,row in ipairs(view.observations) do if index>64 then break end;accept(row,false) end
+    for index,row in ipairs(view.frontiers) do if index>32 then break end;accept(row,true) end
+    if SAO.ConceptKnowledge then
+        for _,roomKey in ipairs(concepts.order) do
+            local room=concepts.observations[roomKey]
+            if room.kind=="room" and room.at==tick then
+                for _,objectKey in ipairs(concepts.order) do
+                    local object=concepts.observations[objectKey]
+                    if object.kind=="object" and object.at==tick and object.roomId==room.roomId then
+                        SAO.ConceptKnowledge.observeRelation(id,roomKey,objectKey)
+                    end
+                end
+            end
+        end
+    end
+    P.beliefVersion=P.beliefVersion+1
+    return true
+end
+function P.conceptObservation(id,key)
+    local concepts=P.beliefs[id] and P.beliefs[id].concepts
+    local row=concepts and concepts.observations[key]
+    return row and row.actorId==id and conceptCopy(row) or nil
+end
+function P.conceptMemories(id,tick)
+    local concepts=P.beliefs[id] and P.beliefs[id].concepts
+    local out={}
+    if not concepts or not finiteSoundNumber(tick) then return out end
+    for _,key in ipairs(concepts.order or {}) do
+        local row=concepts.observations[key]
+        if row and row.actorId==id and row.source=="native-personal-visibility"
+            and finiteSoundNumber(row.at) and row.at<=tick and finiteSoundNumber(row.x)
+            and finiteSoundNumber(row.y) and finiteSoundNumber(row.z) then
+            out[#out+1]=conceptCopy(row)
+        end
+    end
+    return out
+end
+function P.conceptContext(id,tick)
+    local concepts=P.beliefs[id] and P.beliefs[id].concepts
+    if not concepts or concepts.readerStatus~="available" or not finiteSoundNumber(tick)
+        or tick<concepts.at or tick-concepts.at>120 then
+        return {status="observation-unavailable",observations={},frontiers={}}
+    end
+    local out={status="observed",at=concepts.at,roomId=concepts.currentRoomId,
+        buildingId=concepts.currentBuildingId,observations={},frontiers={}}
+    local rec=SAO.Identity and SAO.Identity.get(id)
+    local known=P.knownPlaces(id)
+    local home=out.buildingId and (known[out.buildingId] or known[tonumber(out.buildingId)])
+    if rec and home and finiteSoundNumber(rec.homeX) and finiteSoundNumber(rec.homeY)
+        and finiteSoundNumber(home.minX) and finiteSoundNumber(home.maxX)
+        and finiteSoundNumber(home.minY) and finiteSoundNumber(home.maxY)
+        and rec.homeX>=home.minX and rec.homeX<home.maxX and rec.homeY>=home.minY and rec.homeY<home.maxY then
+        out.observations[#out.observations+1]={key="residence:"..out.buildingId,concept="residence",kind="place",
+            actorId=id,buildingId=out.buildingId,roomId=out.roomId,at=concepts.at,
+            source="personally-remembered-home",x=rec.homeX,y=rec.homeY,z=rec.homeZ or 0}
+    end
+    for _,key in ipairs(concepts.order) do
+        local row=concepts.observations[key]
+        if row.actorId==id and row.at==concepts.at then out.observations[#out.observations+1]=conceptCopy(row) end
+    end
+    for _,key in ipairs(concepts.frontierOrder) do
+        local row=concepts.frontiers[key]
+        if row.actorId==id and row.at==concepts.at and row.roomId==out.roomId
+            and row.buildingId==out.buildingId then out.frontiers[#out.frontiers+1]=conceptCopy(row) end
+    end
+    return out
 end
 
 -- Exterior leads are separate from visits. The remembered destination is the

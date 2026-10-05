@@ -201,9 +201,6 @@ local EVENTS = {
     notThem = { "No. Not them. I knew them.",
                 "I'm not going through their pockets. Find another way.",
                 "God. I knew them." },
-    studies = { "There's a way to do this properly.",
-                "Should've read this a month ago.",
-                "Says here I've been doing it wrong." },
     passItOn = { "Here. I'm done with it.",
                  "Read that. It's better than sitting.",
                  "Give it back when you're through." },
@@ -302,7 +299,6 @@ local EVENTS = {
     grudgeTold= { "Watch yourself around them.", "They can't be trusted." },
     company   = { "Stick together?", "Better with two of us." },
     witnessed = { "What are you doing?!", "Hey! HEY!" },
-    confront  = { "You! I remember you.", "This is for what you did." },
     demand    = { "Hand it over. Now.", "The pack. Off your back.",
                   "What you're carrying. Don't make me ask twice." },
     yielded   = { "Take it. Take it and let me walk.",
@@ -319,7 +315,6 @@ local EVENTS = {
                   "Thought you were dead. Glad I was wrong." },
     movein    = { "Plenty of room at mine.", "We hold the place together now." },
     share     = { "Here. Eat.", "You need it more than I do.", "Take it. Don't argue." },
-    thanks    = { "For me? Thank you.", "I won't forget this.", "You didn't have to. Thank you." },
     -- [C120] A child's grief is a child's, and reads differently from
     -- a grown mourner's; the grown lines are the flat list as it was,
     -- now the taught register.
@@ -562,7 +557,7 @@ local function raise(id, event, tick, answering)
     if not body then return end
     tick = nowTick(tick)
     speak(id, body, pick(list, tick), tick,
-        event == "witnessed" or event == "confront", answering)
+        event == "witnessed", answering)
 end
 
 function V.onEvent(id, event, tick)

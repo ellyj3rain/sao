@@ -1151,8 +1151,18 @@ local function dormantLife(conf, tickCounter)
                     -- is not walking. Idle time is spent, not saved.
                     local nowH = hoursNow()
                     local sinceH = 0
-                    if rec.lastWalkHours then
-                        sinceH = math.max(0, nowH - rec.lastWalkHours)
+                    local walkAt = finite(rec.lastWalkHours) and rec.lastWalkHours >= 0
+                        and rec.lastWalkHours or nil
+                    -- A physical checkpoint owns the interval already enacted
+                    -- by that body. Reload and ordinary release may retain an
+                    -- older dormant walk clock; those hours cannot be walked
+                    -- again. Legacy records without a checkpoint keep their
+                    -- existing clock. A future boundary admits no elapsed travel.
+                    if finite(rec.releasedAtHours) and rec.releasedAtHours >= 0 then
+                        walkAt = math.max(walkAt or rec.releasedAtHours, rec.releasedAtHours)
+                    end
+                    if walkAt then
+                        sinceH = math.max(0, nowH - walkAt)
                     end
                     rec.lastWalkHours = nowH
                     local dx, dy = tx - rec.x, ty - rec.y
@@ -1787,6 +1797,13 @@ local function dormantEncounters(tickCounter)
                     -- carry this knowledge purely through conversation.
                     local taughtAB = SAO.Lessons.tellOne(idA, idB)
                     if not taughtAB then SAO.Lessons.tellOne(idB, idA) end
+                    if SAO.Communication and SAO.Communication.deliverConceptAssociation then
+                        local association=SAO.Communication.deliverConceptAssociation(
+                            idA,idB,"dormant-encounter")
+                        if not association then
+                            SAO.Communication.deliverConceptAssociation(idB,idA,"dormant-encounter")
+                        end
+                    end
                     if SAO.Adaptation and SAO.Adaptation.tell then
                         pcall(function()
                             SAO.Adaptation.tell(idA, idB, day)

@@ -1,0 +1,52 @@
+{
+  "schema": "sao-background-meaning/1",
+  "id": "household-stove-cooking-1",
+  "courseId": "grade-8-practical-arts",
+  "unit": {
+    "activities": [
+      {
+        "kind": "instruction",
+        "literalEvidence": "LESSON I: DISCUSSION OF FOODS AND COOKING"
+      }
+    ],
+    "editionEvidence": {
+      "basis": "printed-source",
+      "literal": "Copyright. Canada. 1918. by"
+    },
+    "editionYear": 1918,
+    "id": "household-science-90255-95959-grade-8-practical-arts",
+    "selector": {
+      "endCharacter": 95959,
+      "excerptSha256": "133674f9302cf1d783ff89f5106d0e0d5d22d5ecf6df3e14fab0ddda589a9940",
+      "extractionSha256": "8ec52c2ca01db3ab41efe5880e09f1cf9fa413044395d11291564fb8a7661ace",
+      "format": "plain-text",
+      "sourcePath": "household-science/source.txt",
+      "sourceSha256": "33e8491494dcac35876eb50d5a7d88afeac456d75b2681e897914a7c81389017",
+      "startCharacter": 90255
+    },
+    "sourceId": "household-science",
+    "sourceVersion": "33e8491494dcac35876eb50d5a7d88afeac456d75b2681e897914a7c81389017",
+    "temporalStanding": "source-period-review-required",
+    "title": "LESSON I: DISCUSSION OF FOODS AND COOKING  _Management of the kitchen stove. Cooking by dry heat. Baked vegetable or fruit._ "
+  },
+  "statementText": "_Cooking._--While some foods can be used as they occur in nature, most of them are made more acceptable by the application of heat. Heat softens the structure of vegetables and fruits, makes tender the tissues of meat, prepares starch for digestion, develops the flavour in many foods, and destroys the parasites and germs that may be present. The five food-stuffs are differently affected by heat--some require slow cooking, others require intense heat. Hence, it is necessary to study cooking, in order that each food may be properly prepared. _The stove._--A knowledge of the construction of the stove and the methods whereby heat is obtained is imperative if one is to be a successful cook. For all stoves three things are necessary--fuel, a supply of oxygen, and a certain degree of heat, known as the kindling point, whereby the fire is started. The supply of oxygen is regulated by dampers and checks so arranged as to admit or cut off the draught of air.",
+  "statementSha256": "06cc5b650dd18f29bbcb0672e0650adfc8aac5ed1fc1d0a70666685f2ab6dd3e",
+  "relations": [
+    {
+      "from": "stove",
+      "relation": "affords",
+      "into": "cooking"
+    },
+    {
+      "from": "cooking",
+      "relation": "supports",
+      "into": "eating"
+    }
+  ],
+  "conditions": [
+    "suitable-food",
+    "usable-heating-means",
+    "permission"
+  ],
+  "standing": "authored-semantic-projection-of-cited-text; exposure-not-assessed-retention"
+}

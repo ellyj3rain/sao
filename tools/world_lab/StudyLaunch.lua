@@ -1,5 +1,8 @@
 -- RunConfig is supplied only by the isolated native runner.
 -- This uses the game's debug scenario entry, then ordinary game ticks and exit.
+-- The sealed source is available before OnGameStart stages initial people.
+-- The population owner supplies the actual native save identity at admission.
+SAO_StudyEducationSource = RunConfig.education
 require "DebugUIs/DebugScenarios"
 local function configureStudy()
 debugScenarios = debugScenarios or {}

@@ -11,7 +11,8 @@ chosen ones through the same functions, and requires nothing.
 
 WHAT THIS HOLDS
 ---------------
-  1. Neither manifest requires another mod, and no module names one.
+  1. Neither manifest requires an external trait framework; ground recovery
+     retains its separately owned installed animation dependency.
   2. Every condition SAO models is accounted for: registered by SAO,
      or claimed as vanilla's.
   3. No cost is picked. Each condition names the vanilla trait whose
@@ -31,6 +32,7 @@ An optional argv[1] points the checker at another tree root, which is
 how its control runs: the pre-batch tree faults at every seam.
 """
 import pathlib
+import json
 import re
 import shutil
 import subprocess
@@ -132,6 +134,13 @@ ASSERT = (
     "return table.concat(out, ' ') end)()")
 
 
+def requirement_faults(text):
+    line = re.search(r"^require=(.*)$", text, re.M)
+    names = set(line.group(1).strip().split(";")) if line else set()
+    return ["trait framework requires unsupported external condition provider: " + name
+            for name in sorted(names - {"LeanAndLie"})]
+
+
 def main():
     faults = []
     skipped = []
@@ -145,18 +154,22 @@ def main():
         return 1
     traits, cond = read(TRAITS), read(COND)
 
-    # 1. Nothing is required, and nothing names a required mod.
+    # Trait registration has no third-party trait-framework dependency.
+    # The separately owned native ground-recovery animation requires LeanAndLie.
+    recovery = json.loads((ROOT / "tools/recovery_source_manifest.json").read_text(encoding="utf-8"))
+    if recovery.get("runtimeDependencies") != ["LeanAndLie", "TchernoLib"]:
+        faults.append("recovery dependency authority differs from the owned adapter")
     for manifest in MANIFESTS:
         text = read(manifest)
         if not text:
             faults.append(str(manifest.name) + " does not exist")
             continue
-        line = re.search(r"^require=(.*)$", text, re.M)
-        if line:
-            faults.append("%s still requires %s - a requirement on every user "
-                          "for a surface SAO can hold itself"
-                          % (manifest.parent.name + "/" + manifest.name,
-                             line.group(1).strip()))
+        faults.extend(requirement_faults(text))
+    for sample in ("require=twbInfirmities", "require=EvenMoreTraits4220", "require=unknown", "require=LeanAndLie;twbInfirmities"):
+        if not requirement_faults(sample):
+            faults.append("CONTROL trait-framework requirement passed")
+    if requirement_faults("require=LeanAndLie") or requirement_faults("name=trait control"):
+        faults.append("CONTROL native animation dependency or independent traits refused")
     tree = "".join(read(p) for p in LUA.rglob("*.lua"))
     for named in ("twbInfirmities", "EvenMoreTraits4220"):
         if named in tree:
@@ -297,7 +310,7 @@ def main():
             print("  FAULT: " + f)
         return 1
     print("  113) the conditions are SAO's own: %d traits registered and %d left "
-          "to vanilla, every cost its anchor's, nothing required"
+          "to vanilla, every cost its anchor's, no external trait framework"
           % (len(ours), len(vanillas)))
     return 0
 

@@ -12,6 +12,18 @@ local exportStopping = false
 local originalRoads = nil
 local arrayMeta = { studyArray = true }
 local function array() return setmetatable({}, arrayMeta) end
+-- Mark schema-owned lists only on detached person-state exports.
+local function personStateLists(value,key)
+    if type(value)~="table" then return end
+    if key=="episodes" or key=="participants" or key=="relations"
+        or key=="questions" or key=="anticipated" or key=="paths"
+        or key=="evidence" or key=="revisions" or key=="observations"
+        or key=="contradictions" or key=="missing" or key=="parentIds"
+        or key=="evidenceIds" or key=="roots" then
+        setmetatable(value,arrayMeta)
+    end
+    for child,item in pairs(value) do personStateLists(item,child) end
+end
 local function finite(v)
     return type(v) == "number" and v == v and v ~= math.huge and v ~= -math.huge
 end
@@ -248,6 +260,45 @@ function Study.start()
             initialPeople, Config.observation.sites, Config.sandbox["SurvivorAwareness.Population"])
         assert(ok, reason)
     end
+    local awareness = Config.situation and Config.situation.initialAwareness
+    if awareness ~= nil then
+        assert(initialPeople, "personal awareness requires staged initial people")
+        local ok, reason = SAO.PopulationAdmissions.stageInitialAwareness(
+            Config.definitionSha256, getWorld():getWorld(), awareness)
+        assert(ok, reason)
+    end
+    local education = SAO_StudyEducationSource
+    if education ~= nil then
+        assert(type(education) == "table" and initialPeople,
+            "education source requires staged initial people")
+        assert(education.definitionSha256 == Config.definitionSha256,
+            "education source belongs to another study")
+        local owner = assert(SAO.PopulationAdmissions, "education admission owner unavailable")
+        local ok, reason
+        if newGame then
+            ok, reason = owner.stageEducationRegistry(education.raw, education.rawSha256,
+                Config.definitionSha256, getWorld():getWorld(),
+                education.sourceBankSha256, education.sourceArchiveSha256)
+        else
+            ok, reason = owner.bindEducationRegistry(education.rawSha256,
+                Config.definitionSha256, getWorld():getWorld(),
+                education.sourceBankSha256, education.sourceArchiveSha256)
+        end
+        assert(ok, reason)
+        print("[StudyWorld] education source bound=" .. education.rawSha256
+            .. " save=" .. getWorld():getWorld())
+    end
+    local lifeHistory = Config.situation and Config.situation.initialLifeHistory
+    if lifeHistory ~= nil then
+        assert(initialPeople, "personal life history requires staged initial people")
+        local gt = getGameTime()
+        local year, month, day = gt:getStartYear(), gt:getStartMonth(), gt:getStartDay()
+        assert(finite(year) and finite(month) and finite(day), "native life-history calendar unavailable")
+        local startDate = string.format("%04d-%02d-%02d", year, month + 1, day + 1)
+        local ok, reason = SAO.PopulationAdmissions.stageInitialLifeHistory(
+            Config.definitionSha256, getWorld():getWorld(), lifeHistory, startDate)
+        assert(ok, reason)
+    end
     session = tostring(getTimestampMs())
     beginExport()
     -- A saved study resumes its model budget; first launch enables equal participation.
@@ -288,6 +339,97 @@ local function applyInitialThreats()
             setmetatable(receipt.actors, arrayMeta)
             print("[StudyWorld] initial threat=" .. placement.id .. " status=" .. tostring(receipt.status)
                 .. " created=" .. tostring(receipt.created) .. " requested=" .. placement.count)
+        end
+    end
+end
+local function applyInitialLooseItems()
+    local placements = Config.situation and Config.situation.initialLooseItems
+    if not placements then return end
+    local configuration = json(placements)
+    local save = getWorld():getWorld()
+    local ledger = state.situationReceipt and state.situationReceipt.initialLooseItems
+    if ledger then
+        assert(ledger.schema == 1 and ledger.definitionSha256 == Config.definitionSha256
+            and ledger.save == save and ledger.configuration == configuration
+            and type(ledger.placements) == "table", "initial loose item receipt custody differs")
+    end
+    local usedIds = {}
+    for _, prior in pairs(ledger and ledger.placements or {}) do
+        for _, item in pairs(prior.items or {}) do
+            if item.itemId then
+                assert(not usedIds[item.itemId], "initial loose item receipt duplicates an item ID")
+                usedIds[item.itemId] = true
+            end
+        end
+    end
+    for _, placement in ipairs(placements) do
+        local prior = ledger and ledger.placements[placement.id]
+        if prior then
+            assert(prior.id == placement.id and prior.siteId == placement.siteId
+                and prior.fullType == placement.fullType and prior.requested == placement.count
+                and prior.x == placement.x and prior.y == placement.y and prior.z == placement.z,
+                "initial loose item receipt placement differs")
+        end
+        local square = getCell():getGridSquare(placement.x, placement.y, placement.z)
+        if square and (not prior or prior.status == "attempted") then
+            if prior then
+                -- A saved interrupted call cannot establish whether the native
+                -- mutation happened. Retain its progress and never repeat it.
+                prior.status, prior.reason = "ambiguous", "interrupted-native-attempt"
+            else
+                if not ledger then
+                    ledger = {schema = 1, definitionSha256 = Config.definitionSha256,
+                        save = save, configuration = configuration, placements = {}}
+                    state.situationReceipt = state.situationReceipt or {}
+                    state.situationReceipt.initialLooseItems = ledger
+                end
+                local receipt = {id = placement.id, siteId = placement.siteId,
+                    fullType = placement.fullType, requested = placement.count,
+                    x = placement.x, y = placement.y, z = placement.z,
+                    hours = getGameTime():getWorldAgeHours(), status = "attempted", created = 0, items = {}}
+                ledger.placements[placement.id] = receipt
+                local ok, failure = pcall(function()
+                    assert(square:getFloor() and square:TreatAsSolidFloor()
+                        and not square:isSolid() and not square:isSolidTrans(), "unsupported-ground")
+                    for ordinal = 1, placement.count do
+                        -- This journal entry precedes even native item allocation.
+                        local itemReceipt = {ordinal = ordinal, status = "attempted"}
+                        receipt.items[tostring(ordinal)] = itemReceipt
+                        local item = assert(instanceItem(placement.fullType), "native-item-unavailable")
+                        assert(item:getFullType() == placement.fullType, "native-item-type-differs")
+                        local id = item:getID()
+                        assert(finite(id) and id == math.floor(id) and id >= 0, "native-item-id-unavailable")
+                        assert(not usedIds[tostring(id)], "native-item-id-reused")
+                        itemReceipt.itemId, itemReceipt.fullType = tostring(id), item:getFullType()
+                        usedIds[itemReceipt.itemId] = true
+                        -- These native drop paths create entities instead of loose
+                        -- world-inventory objects; they are outside this fixture.
+                        assert(not item:isHumanCorpse() and not item:isAnimalCorpse()
+                            and not instanceof(item, "AnimalInventoryItem")
+                            and not placement.fullType:find(".Generator", 1, true)
+                            and not item:hasTag(ItemTag.GENERATOR), "not-a-loose-inventory-item")
+                        assert(not item:getContainer() and not item:getWorldItem(), "native-item-already-owned")
+                        local result = square:AddWorldInventoryItem(item, 0.5, 0.5, 0, false)
+                        local worldItem = item:getWorldItem()
+                        assert(result == item and item:getFullType() == placement.fullType
+                            and item:getID() == id and worldItem and worldItem:getItem() == item
+                            and worldItem:getSquare() == square
+                            and square:getWorldObjects():contains(worldItem), "native-placement-unconfirmed")
+                        itemReceipt.status = "placed"
+                        itemReceipt.x, itemReceipt.y, itemReceipt.z = placement.x, placement.y, placement.z
+                        receipt.created = receipt.created + 1
+                    end
+                end)
+                if ok then receipt.status = "completed"
+                else
+                    -- Refusal or exceptions may follow a native side effect. Keep
+                    -- the exact attempted prefix; later ticks cannot recreate it.
+                    receipt.status, receipt.reason = "ambiguous", tostring(failure):sub(1, 240)
+                    if not receipt.items["1"] then receipt.status = "refused" end
+                end
+                print("[StudyWorld] initial loose items=" .. placement.id .. " status=" .. receipt.status
+                    .. " created=" .. receipt.created .. " requested=" .. placement.count)
+            end
         end
     end
 end
@@ -877,6 +1019,29 @@ local function windowCoordinates(window)
         end
     end
 end
+local function situationView()
+    -- Authored JSON arrays lose their empty-array identity when compiled to
+    -- Lua tables. Restore that identity only in a detached observation copy;
+    -- admission retains the original configuration and its own custody.
+    local function detached(value)
+        if type(value) ~= "table" then return value end
+        local result = {}
+        for key, item in pairs(value) do result[key] = detached(item) end
+        return result
+    end
+    local result = detached(Config.situation or {})
+    for _, person in ipairs(result.initialAwareness or {}) do
+        setmetatable(person.entries, arrayMeta)
+    end
+    for _, person in ipairs(result.initialLifeHistory or {}) do
+        setmetatable(person.episodes, arrayMeta)
+        for _, episode in ipairs(person.episodes) do
+            setmetatable(episode.participants, arrayMeta)
+            if episode.relations then setmetatable(episode.relations, arrayMeta) end
+        end
+    end
+    return result
+end
 function Study.observe()
     assert(Study.active and state, "study is not active")
     assert(selected() and boundsMatch(), "native world changed after study startup")
@@ -894,7 +1059,7 @@ function Study.observe()
         map = getWorld():getMap(), save = getWorld():getWorld(), sequence = state.sequence + 1,
         hours = hours, countyHours = SAO.History.countyHours(),
         session = session, datasetAdmission = "unreviewed", extent = Config.extent,
-        sandbox = Config.sandbox, generation = Config.generation, situation = Config.situation or {},
+        sandbox = Config.sandbox, generation = Config.generation, situation = situationView(),
         situationReceipt = copy(state.situationReceipt or {}, "situationReceipt",
             budget, {}, 0) or {},
         source = "loaded-native-world", mods = array(), windows = array(), people = array(),
@@ -1033,6 +1198,10 @@ function Study.observe()
             if remaining > 32 then
                 local ok, cognition = pcall(SAO.Cognition.snapshot, person.id, true)
                 if ok and type(cognition) == "table" then
+                    for _,episode in ipairs(cognition.episodes or {}) do
+                        local frozen=episode.decisionPersonState
+                        if type(frozen)=="table" then personStateLists(frozen.personState) end
+                    end
                     local trial = { left = math.min(512 * 1024, remaining, budget.bytes) - 16 }
                     local start = trial.left
                     if jsonFits(cognition, trial) then
@@ -1051,6 +1220,32 @@ function Study.observe()
             end
         end
         frame.coverage.omittedFieldCount = budget.omittedCount
+    end
+    if SAO.PersonState and type(SAO.PersonState.query)=="function" then
+        for _,person in ipairs(frame.people) do
+            local ok,state=pcall(function()
+                local body=SAO.Body and SAO.Body.get and SAO.Body.get(person.id)
+                return SAO.PersonState.query(person.id,body,SAO.History.ticks())
+            end)
+            if ok and type(state)=="table" then
+                -- Declare source-owned lists in this detached export, including
+                -- empty arrays. The original private owners are never marked.
+                personStateLists(state)
+                local trial={left=math.min(512*1024,budget.bytes)-32}
+                local start=trial.left
+                if jsonFits(state,trial) then
+                    person.context.personState=state
+                    budget.bytes=budget.bytes-(start-trial.left+32)
+                else
+                    budget.omittedCount=budget.omittedCount+1
+                    if #budget.omitted<256 then budget.omitted[#budget.omitted+1]="people."..person.id..".personState" end
+                end
+            else
+                budget.omittedCount=budget.omittedCount+1
+                if #budget.omitted<256 then budget.omitted[#budget.omitted+1]="people."..person.id..".personState" end
+            end
+        end
+        frame.coverage.omittedFieldCount=budget.omittedCount
     end
     return frame
 end
@@ -1203,6 +1398,7 @@ function Study.tick()
     if not Study.active or exportStopping then return end
     applyInitialNeeds()
     applyInitialThreats()
+    applyInitialLooseItems()
     applyResourceObjectives()
     applyHorseTravel()
     applyMobileHousehold()

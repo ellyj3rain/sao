@@ -393,6 +393,27 @@ carried in `SAO_History.stageOf` and `SAO_Age` ([C12]) at SAO's own
 cadence. Its death chance is not taken (the life table stands in) and
 its stumble is not (this build's Stats has no such method).
 
+## Lean & Lie (Tchernobill)
+
+The recovery integration requires externally installed Lean & Lie 1.27,
+Workshop `3652012357`, and its TchernoLib 1.16 dependency, Workshop `3389605231`
+(native mod IDs `LeanAndLie` and `TchernoLib`). The source credits iBrRus for the
+B41 concept. Source revisions and installed-input hashes belong in
+`tools/recovery_source_manifest.json` and the retained adapter evidence.
+
+SAO's independent adapter owns exact body/person/token custody, native queue
+admission, measured recovery and cleanup while invoking installed animation
+nodes and `TchAL.stateVariableOnGround`. External source actions and animation XML
+are not bundled; animation clips remain the game's installed assets.
+Final native admission and bounded pending-intent evidence is
+Original failed08 continuation09e96a7d-a49f-460d-8117-6ea264f3efe5 completed and saved normally, exit0/errors[]/unforced, county2.2487840652 to4.5107564926. sao-2 reached its retained approach, reacquired the currently visible bed and entered owned native sleep. Nine current intent/key acknowledgments persist; fatigue0.7782769799 to0.3887803555 over1.75 sampled countyhours establishes ongoing physiological recovery. The later native image shows a horizontal body partly hidden by the right-bedroom wall. Full sleep completion, a completed recovery experience, and rendered ground sleep are unobserved..
+
+C120's historical local candidate carried selected ground-rest/sleep action and
+animation-node source. Its original selected-source provenance and verdict remain
+private historical evidence. Redistribution terms for those copied source bytes
+remain unestablished; dependency invocation does not claim a source reuse grant.
+No TchernoLib source is copied or distributed by the adapter.
+
 ## PZ_Optimization (xD3I)
 
 [Source and benchmark reference](https://github.com/xD3I/PZ_Optimization),

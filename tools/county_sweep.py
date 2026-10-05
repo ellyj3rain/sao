@@ -168,6 +168,11 @@ MODULES = [
     "shared/SAO_Participants.lua",
     "shared/SAO_Log.lua", "shared/SAO_Hash.lua", "shared/SAO_Rand.lua",
     "shared/SAO_Census.lua", "shared/SAO_History.lua",
+    # Durable personal source/state owners also exist without native bodies.
+    # Load appraisal before the planner binds it; body reads remain unavailable.
+    "shared/SAO_Education.lua", "shared/SAO_EducationRegistry.lua",
+    "shared/SAO_PersonalMemory.lua", "shared/SAO_ConceptKnowledge.lua",
+    "shared/SAO_PersonState.lua", "shared/SAO_SituationAppraisal.lua",
     # Personal model state survives loaded/dormant transitions. Native action
     # proposals still require the loaded Controller and its real executors.
     "shared/SAO_CognitiveModels.lua", "shared/SAO_Cognition.lua",
@@ -190,7 +195,9 @@ MODULES = [
     "shared/SAO_Lessons.lua", "shared/SAO_WorldKnowledge.lua", "shared/SAO_Knowledge.lua",
     "shared/SAO_PathogenEvents.lua", "shared/SAO_WorldGenesis.lua",
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
-    "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
+    "shared/SAO_Perception.lua",
+    # Personal awareness registers its observed-evidence receiver on Perception.
+    "shared/SAO_PersonalAwareness.lua", "shared/SAO_Places.lua",
     "shared/SAO_WorldSources.lua", "shared/SAO_Provisioning.lua",
     "client/SAO_CrossedTransfer.lua", "client/SAO_AfflictedReturn.lua",
     "client/SAO_Nuke.lua",
@@ -209,6 +216,7 @@ MODULES = [
 NOT_DORMANT = {
     "Appearance": "renders how a body looks; nobody is materialised",
     "Controller": "drives materialised agents; the dormant half has none",
+    "ConflictResponse": "dispatches conflict choices through a bound loaded Controller/body and native contact, retreat or pose executors; the bodyless county has no such action owner",
     "Locomotion": "queues a move onto a body",
     "Needs": "acts on a body's needs through the engine",
     "Orienting": "turns the head and body in response to loaded sound cues; dormant people have no native pose",
@@ -452,6 +460,15 @@ def require_modules(lua, joint=False):
     missing, _ = modules_referenced(lua)
     if absent or missing:
         raise EvidenceError('missing simulation modules: ' + ', '.join(absent + missing))
+    # These owners bind once at module load, before a dormant callback runs.
+    # Admitting all files in the wrong order still leaves a missing receiver.
+    order = {relative: index for index, relative in enumerate(MODULES)}
+    for producer, consumer in (('SituationAppraisal', 'Cognition'),
+                               ('SituationAppraisal', 'ProceduralPlanning'),
+                               ('Perception', 'PersonalAwareness'),
+                               ('Education', 'EducationRegistry')):
+        if order['shared/SAO_' + producer + '.lua'] >= order['shared/SAO_' + consumer + '.lua']:
+            raise EvidenceError('invalid simulation binding order: ' + producer + '/' + consumer)
     if joint:
         loaded = {path.stem.removeprefix('ZAO_') for path in paths if path.name.startswith('ZAO_')}
         named = set()

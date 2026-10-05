@@ -45,6 +45,7 @@ def main(argv=None, *, default_root=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-root", type=Path, default=default_root or HERE.parents[1])
     parser.add_argument("--output", type=Path, help="Optional evidence directory outside the source tree")
+    parser.add_argument("--extended-only", action="store_true", help="Run extended compatibility cases; inherited model/ledger checks remain outside this result")
     args = parser.parse_args(argv)
     root = args.source_root.resolve()
     game = Path(os.environ.get("PZ_DIR", DEFAULT_GAME)).resolve()
@@ -54,7 +55,7 @@ def main(argv=None, *, default_root=None):
         raise ValueError("Evidence output must be outside --source-root")
     output.mkdir(parents=True, exist_ok=True)
     receipt = {"schema": "sao-capability-experience-proof/1", "status": "RUNNING", "checks": [],
-        "sourceRoot": str(root), "timestamp": datetime.now(timezone.utc).isoformat(),
+        "extendedOnly": args.extended_only, "sourceRoot": str(root), "timestamp": datetime.now(timezone.utc).isoformat(),
         "boundary": "Installed Kahlua executes production models and ledger with producer-shaped receipts. "
                     "Native dose, measured Stats and thermal-preparation authenticity remain separately owned producer proofs; "
                     "no rendered world, recipe realization or training admission."}
@@ -88,11 +89,11 @@ def main(argv=None, *, default_root=None):
         cognition = cognition_path.read_text(encoding="utf-8")
         original_cases = (root / "tools/luacheck/CognitiveModelChecks.lua").read_text(encoding="utf-8")
         old = 'p.version==(id=="ordinary" and "sao-ordinary/1" or "sao-associative/1")'
-        new = 'p.version==(id=="ordinary" and "sao-ordinary/2" or "sao-associative/2")'
+        new = 'p.version==(id=="ordinary" and "sao-ordinary/3" or "sao-associative/3")'
         assert original_cases.count(old) + original_cases.count(new) == 1, "model fixture version seam changed"
         model_controls = inherited_controls(root / "tools/cognitive_models_test.py")
         ledger_controls = inherited_controls(root / "tools/cognition_checks/run_checks.py")
-        assert len(model_controls) == 36 and len(ledger_controls) == 14 and len(NEW_CONTROLS) == 36, "control coverage changed"
+        assert len(model_controls) == 52 and len(ledger_controls) == 14 and len(NEW_CONTROLS) == 36, "control coverage changed"
         with tempfile.TemporaryDirectory(prefix="sao-capability-build-") as temporary:
             work = Path(temporary)
             shutil.copyfile(game / "stdlib.lua", work / "stdlib.lua")
@@ -113,14 +114,14 @@ def main(argv=None, *, default_root=None):
                 cognition_file = work / "cognition.lua"
                 cognition_file.write_text(c, encoding="utf-8")
                 if mode == "model":
-                    chunks, expression, expected = [model_file, derived_cases], "cognitiveModelCases()", "VALUE PASS 29 cases"
+                    chunks, expression, expected = [model_file, derived_cases], "cognitiveModelCases()", "VALUE PASS 43 cases"
                 else:
                     chunks = [root / "tools/cognition_checks/prelude.lua", root / REL / "SAO_Hash.lua", root / REL / "SAO_Labor.lua"]
                     if mode == "extended":
                         chunks += [HERE / "legacy_archive.lua", HERE / "restore_legacy.lua"]
                     chunks += [model_file, cognition_file, HERE / "experience.lua" if mode == "extended" else root / "tools/cognition_checks/runtime.lua"]
                     expression = "RESULT"
-                    expected = "VALUE PASS extended cognition 1025" if mode == "extended" else "VALUE PASS cognition runtime 49"
+                    expected = "VALUE PASS extended cognition 1026" if mode == "extended" else "VALUE PASS cognition runtime 49"
                 started = time.monotonic()
                 result = subprocess.run([str(executables["java"]), "-cp", str(engine) + os.pathsep + str(work),
                     "LuaRun", *map(str, chunks), "--", expression], cwd=work, capture_output=True,
@@ -135,18 +136,19 @@ def main(argv=None, *, default_root=None):
                 print(label + ": " + ("PASS" if good else "FAIL") + " " + receipt["checks"][-1]["result"], flush=True)
                 assert good, label + "\n" + text[-6500:]
 
-            run("existing-model-baseline", "model")
-            run("existing-ledger-baseline", "ledger")
             run("extended-baseline", "extended")
-            for index, (name, changes, expected) in enumerate(model_controls, 1):
-                changed = model
-                for before, after in changes:
-                    assert changed.count(before) == 1, ("model mutation seam", name, before)
-                    changed = changed.replace(before, after, 1)
-                run("existing-model-control-" + str(index), "model", m=changed, marker=expected)
-            for index, (name, before, after, marker) in enumerate(ledger_controls, 1):
-                assert cognition.count(before) == 1, ("ledger mutation seam", name, before)
-                run("existing-ledger-control-" + str(index), "ledger", c=cognition.replace(before, after, 1), marker="COGNITION:" + marker)
+            if not args.extended_only:
+                run("existing-model-baseline", "model")
+                run("existing-ledger-baseline", "ledger")
+                for index, (name, changes, expected) in enumerate(model_controls, 1):
+                    changed = model
+                    for before, after in changes:
+                        assert changed.count(before) == 1, ("model mutation seam", name, before)
+                        changed = changed.replace(before, after, 1)
+                    run("existing-model-control-" + str(index), "model", m=changed, marker=expected)
+                for index, (name, before, after, marker) in enumerate(ledger_controls, 1):
+                    assert cognition.count(before) == 1, ("ledger mutation seam", name, before)
+                    run("existing-ledger-control-" + str(index), "ledger", c=cognition.replace(before, after, 1), marker="COGNITION:" + marker)
             for name, changes, marker in NEW_CONTROLS:
                 values = {"model": model, "cog": cognition}
                 for which, before, after in changes:

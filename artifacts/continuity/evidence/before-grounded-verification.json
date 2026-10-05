@@ -1,0 +1,74 @@
+{
+  "schema": "sao.continuity-graph-verification/1",
+  "recordedAt": "2026-10-04T01:21:00.616383+00:00",
+  "status": "PASS_WITH_SCOPED_REUSE",
+  "scope": "Preserved C compression event in chronology and graph, with frozen 120-to-35 mapping; no simulation behavior or D-era implementation change.",
+  "graphRevision": "sha256:8119d90b86cf62875f7053d4fb216fe740e05c2ba61d5c3ff64bdf3da03a83a0",
+  "graphCounts": {
+    "nodes": 990,
+    "edges": 2860,
+    "sourceVector": 347
+  },
+  "checks": [
+    {
+      "command": "python tools/development_graph_test.py",
+      "exitCode": 0,
+      "log": "_scratch/transition-event/checks.json"
+    },
+    {
+      "command": "python tools/catalogue_test.py",
+      "exitCode": 0,
+      "log": "_scratch/transition-event/checks.json"
+    },
+    {
+      "command": "python tools/version_replay.py",
+      "exitCode": 0,
+      "log": "_scratch/transition-event/checks.json"
+    },
+    {
+      "command": "python tools/map_reference_test.py",
+      "exitCode": 0,
+      "log": "_scratch/transition-event/checks.json"
+    }
+  ],
+  "browser": {
+    "status": "PASS",
+    "recordedAt": "2026-10-04T01:20:28.434Z",
+    "url": "http://127.0.0.1:4317/#graphs",
+    "graphRevision": "sha256:8119d90b86cf62875f7053d4fb216fe740e05c2ba61d5c3ff64bdf3da03a83a0",
+    "installedSelector": true,
+    "exactGraphSource": true,
+    "compressionEventSelection": true,
+    "retained": {
+      "projectSurfaces": 9,
+      "nativeViews": 14,
+      "decisionItems": 28
+    },
+    "browserErrors": []
+  },
+  "installedNativeSelector": {
+    "desktopPid": 25344,
+    "canvasOpened": true,
+    "returnedToSelector": true,
+    "graphCard": "SAO Development continuity 990 nodes \u00b7 2,860 connections",
+    "graphsEntry": true,
+    "recordedAt": "2026-10-04T01:19:50.8345486Z",
+    "status": "PASS"
+  },
+  "previousEvidence": {
+    "path": "artifacts/continuity/evidence/before-compression-event-verification.json",
+    "sha256": "11d6e7b3c2a790e9c624074fbcf6ac405921dc058317342a2dc3f27be283f6b2",
+    "reuse": "Existing source statuses, simulation proofs and unchanged standalone viewer interactions retain their stated scope. New event projection and installed selector/source entry have fresh checks."
+  },
+  "inputHashes": {
+    "tools/development_graph.py": "99c86ebf8d07b33b5b20fb9d0afc9bb9283e38ba94abb313ec6621555cf70b07",
+    "tools/development_graph_test.py": "b038d73b6433a60ae0853fc3ade456dd6f5b2df3929ca9ab93988fa96cf62338",
+    "Batches/Transitions/C-20261003-compression.md": "797b448840612b551dce8f5d247adb5e9e09f79c6b280e5ca0e27dc695ac8c13",
+    "Batches/Transitions/C-20261003-compression.json": "bc801bb7327cab3e4716cf63c303f334c767a066df6c456abf6212540d8cd026",
+    "Batches/Transitions/C-20261003-compression-manifest.json": "59553cb403288d81b0a0d2d0912482e3b2b1192ca9f3d113bd2ec74e2210ca7d",
+    "BATCH_LOG.md": "f02766fb500152eab952ba4c8f56928fb122e3fde2546080005e6be85a50da8a",
+    "SESSION_STATE.md": "1828a0c12510c644b4ed9e846c36b38eadeddaeb19c3fc034967fcd9144a9cc9",
+    "artifacts/continuity/development-graph.json": "1fa7829774bc68721a944025460df7442bcbbf3df9487213bf682f4d675494fe",
+    "artifacts/continuity/index.html": "f7ef30c270a4361437b58bdcedb80011e56c011f78e95a125cb8325a62961117"
+  }
+}

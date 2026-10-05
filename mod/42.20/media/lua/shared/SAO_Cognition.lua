@@ -2,6 +2,7 @@
 SAO = SAO or {}
 SAO.Cognition = SAO.Cognition or {}
 local C = SAO.Cognition
+if not SAO.SituationAppraisal and type(require)=="function" then pcall(require,"SAO_SituationAppraisal") end
 local STORE = "SurvivorAwareness_Cognition"
 local MODEL_IDS = { "ordinary", "associative" }
 local ACTIONS = { food = true, water = true, inspect = true, continue = true }
@@ -180,6 +181,77 @@ function C.isDue(id)
     local s = state(id)
     return s ~= nil and not s.pendingEpisode and now >= (s.nextAt or 0)
 end
+-- Preserve the actual decision-time owner view separately from bounded model detail.
+local function personStateCopy(value, depth, budget, seen)
+    depth,budget,seen=depth or 0,budget or {left=65536},seen or {}
+    local kind=type(value)
+    if kind=="nil" or kind=="boolean" then return value end
+    if kind=="number" then assert(value==value and math.abs(value)<math.huge,"nonfinite person state");return value end
+    if kind=="string" then assert(#value<=4096,"long person scalar");return value end
+    assert(kind=="table" and depth<32 and not seen[value],"non-data person state")
+    seen[value]=true
+    local out={}
+    for key,item in pairs(value) do
+        budget.left=budget.left-1
+        assert(budget.left>=0 and (type(key)=="string" or type(key)=="number"),"person state bound")
+        out[key]=personStateCopy(item,depth+1,budget,seen)
+    end
+    seen[value]=nil
+    return out
+end
+local function detachedPersonState(value)
+    local ok,result=pcall(personStateCopy,value)
+    return ok and result or nil
+end
+local function decisionPersonState(id,frame,now)
+    local ok,tick=pcall(function() return SAO.History.ticks() end)
+    -- Older/partial runtimes cannot supply this optional field without an owned tick.
+    if not ok or type(tick)~="number" or tick~=tick or tick<0 or tick>=math.huge or tick%1~=0 then return nil end
+    local out={schema="sao-person-decision-state/1",actorId=id,decisionId=frame.id,
+        atHours=frame.worldHours,atTick=tick,status="unavailable"}
+    if frame.worldHours~=now then out.reason="decision-clock-mismatch";return out end
+    if not SAO.PersonState or type(SAO.PersonState.query)~="function" then
+        out.reason="person-state-owner-unavailable";return out
+    end
+    local bodyOk,body=pcall(function() return SAO.Body.get(id) end)
+    if not bodyOk or body==nil then out.reason="decision-body-unavailable";return out end
+    local queryOk,value=pcall(SAO.PersonState.query,id,body,tick)
+    if not queryOk or type(value)~="table" then out.reason="person-state-query-unavailable";return out end
+    local current=clock()
+    local tickOk,currentTick=pcall(function() return SAO.History.ticks() end)
+    if current~=now or not tickOk or currentTick~=tick then out.reason="decision-clock-changed";return out end
+    if value.schema~="sao-person-state/1" or value.actorId~=id or value.atTick~=tick
+        or value.atHours~=nil and value.atHours~=frame.worldHours
+        or value.status~="available" and value.status~="unavailable" then
+        out.reason="person-state-binding-unavailable";return out
+    end
+    if value.status=="available" then
+        local model=value.modelView
+        if value.atHours~=frame.worldHours or type(value.currentInstant)~="string"
+            or type(model)~="table" or model.actorId~=id or model.atTick~=tick
+            or model.atHours~=frame.worldHours or model.currentInstant~=value.currentInstant then
+            out.reason="person-state-binding-unavailable";return out
+        end
+    elseif not text(value.reason,512) then
+        out.reason="person-state-unavailable-without-reason";return out
+    end
+    local frozen=detachedPersonState(value)
+    if not frozen then out.reason="person-state-copy-unavailable";return out end
+    out.personState=frozen;out.status=value.status
+    if value.status=="unavailable" then out.reason=value.reason end
+    return out
+end
+local function episodeCopy(value)
+    local base={}
+    for key,item in pairs(value) do if key~="decisionPersonState" then base[key]=item end end
+    local out=detached(base)
+    if not out then return nil end
+    if value.decisionPersonState~=nil then
+        out.decisionPersonState=detachedPersonState(value.decisionPersonState)
+        if not out.decisionPersonState then return nil end
+    end
+    return out
+end
 function C.choose(id, supplied)
     local settings, now = C.settings(), clock()
     if not settings.enabled or not now or not SAO.CognitiveModels then return nil end
@@ -188,6 +260,7 @@ function C.choose(id, supplied)
     if not s or s.pendingEpisode or (frame.id ~= nil and frame.id == s.lastFrameId)
         or frame.worldHours < (s.nextAt or 0) then return nil end
     frame.id = frame.id or ("frame/" .. tostring(s.sequence + 1))
+    local frozenPersonState = decisionPersonState(id,frame,now)
     local proposals = {}
     for _, name in ipairs(MODEL_IDS) do
         local own = detached(s.models[name])
@@ -207,6 +280,7 @@ function C.choose(id, supplied)
     s.sequence = s.sequence + 1
     local episode = { id = "episode/" .. tostring(s.sequence),
         worldHours = frame.worldHours, status = "proposed", frame = frame, proposals = proposals,
+        decisionPersonState = frozenPersonState,
         selectedModelId = MODEL_IDS[index], selectedActionId = proposals[index].actionId,
         selectionWeight = index == 2 and settings.opponentShare or 1 - settings.opponentShare,
         selectionPolicy = "deterministic-balanced",
@@ -267,7 +341,7 @@ function C.attempted(id, token)
 end
 local KINDS = { inspection = true, acquire = true, store = true, consume = true }
 local EXTENDED = { ["medication-use"] = true, ["physical-change"] = true, preparation = true,
-    ["animal-care"] = true, ["window-repair"] = true }
+    ["animal-care"] = true, ["window-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true }
 local STATUSES = { completed = true, ["no-effect"] = true, interrupted = true, unavailable = true }
 local EXPERIENCE_KEYS = { id = true, actorId = true, observerId = true, worldHours = true,
     kind = true, category = true, perspective = true, status = true, sourceId = true,
@@ -338,7 +412,10 @@ local function sameData(a, b)
     for k in pairs(b) do if a[k] == nil then return false end end
     return true
 end
-function C.experience(id, supplied)
+local BEHAVIOR_RESULT = {}
+function C.experience(id, supplied, authority)
+    if type(supplied)=="table" and (supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use")
+        and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
     local now = clock()
     if not C.settings().enabled or not now then return false, "disabled" end
     local x, s = experienceCopy(id, supplied, now), state(id, true)
@@ -441,7 +518,7 @@ local function nativeExperience(id, producer, position, x)
         -- They are read from Labor, never inferred from the native receipt.
         x.capabilities = C.capabilities(id)
     end
-    local ok, reason = C.experience(id, x)
+    local ok, reason = C.experience(id, x, BEHAVIOR_RESULT)
     if ok then
         s = state(id, false)
         s.nativeExperienceCursors = s.nativeExperienceCursors or {}
@@ -454,6 +531,113 @@ local function privateFact(id, kind, category, eventId, acquired, occurred)
         occurredAtHours = occurred, kind = kind, category = category,
         perspective = "performed", status = "completed" }
 end
+-- The physical producer owns the durable receipt; callers cannot manufacture
+-- a lesson by submitting plausible fields to the public ledger.
+function C.behaviorOutcome(id, receipt)
+    local now,rec=clock(),record(id)
+    if not now or not rec or type(receipt)~="table" or receipt.actorId~=id
+        or not finite(receipt.sequence,1,9007199254740991) or receipt.sequence~=math.floor(receipt.sequence)
+        or not finite(receipt.atHours,0,now) then return false,"unqualified-behavior" end
+    local entry=receipt.kind=="entry-outcome"
+    if not entry and receipt.kind~="recovery-outcome" then return false,"unqualified-behavior" end
+    local owner=entry and SAO.Perception or SAO.Needs
+    local canonical=owner and owner.behaviorOutcome and owner.behaviorOutcome(id,receipt.sequence)
+    if not canonical or not sameData(canonical,receipt) then return false,"behavior-owner-unavailable" end
+    local producer=entry and "entry" or "recovery"
+    local x=privateFact(id,receipt.kind,"body",producer.."/"..id.."/"..tostring(receipt.sequence),now,receipt.atHours)
+    x.sourceId,x.actionKind,x.apertureState=receipt.sourceId,receipt.actionKind,receipt.apertureState
+    x.succeeded=receipt.succeeded
+    x.beforeValue,x.afterValue,x.durationHours=receipt.beforeValue,receipt.afterValue,receipt.durationHours
+    return nativeExperience(id,producer,receipt.sequence,x)
+end
+function C.behaviorExpectation(id, kind, sourceId, condition, hours)
+    local s=state(id,false)
+    if not C.settings().enabled or not s or not finite(hours,0,clock() or -1)
+        or not SAO.CognitiveModels or not SAO.CognitiveModels.behaviorExpectation then return nil end
+    local own=s.models.ordinary
+    if own.actorId~=id then return nil end
+    return SAO.CognitiveModels.behaviorExpectation("ordinary",own,kind,sourceId,condition,hours)
+end
+
+-- Reading pages is an acquired execution fact. Neither this receipt nor its
+-- prediction claims understanding, assessed knowledge, skill or practice XP.
+function C.studyOutcome(id,receipt)
+    local now=clock()
+    if not now or type(receipt)~="table" or receipt.actorId~=id or receipt.status~="completed"
+        or receipt.nativeOwner~="ISReadABook.complete" or receipt.token~="reading:progressed"
+        or not finite(receipt.sequence,1,9007199254740991) or receipt.sequence~=math.floor(receipt.sequence)
+        or receipt.workId~="study/"..tostring(receipt.sequence)
+        or not text(receipt.bookSkill,96) or not finite(receipt.atHours,0,now)
+        or not finite(receipt.beganAt,0,receipt.atHours)
+        or not finite(receipt.totalPages,1,1000000000)
+        or not finite(receipt.pagesBefore,0,receipt.totalPages)
+        or not finite(receipt.pagesAfter,receipt.totalPages,1000000000)
+        or receipt.pagesAfter<=receipt.pagesBefore then return false,"unqualified-study" end
+    local canonical=SAO.Study and SAO.Study.outcome and SAO.Study.outcome(id,receipt.sequence)
+    if not canonical or not sameData(canonical,receipt) then return false,"study-owner-unavailable" end
+    local x=privateFact(id,"study-outcome","learning","study/"..id.."/"..tostring(receipt.sequence),now,receipt.atHours)
+    x.sourceId,x.itemId,x.itemType="manual:"..receipt.bookSkill,receipt.itemId,receipt.itemType
+    x.beforeValue,x.afterValue=receipt.pagesBefore,receipt.pagesAfter
+    return nativeExperience(id,"study",receipt.sequence,x)
+end
+-- The terminal native owner supplies the measured sound attempt. Hearing a
+-- blow establishes neither repertoire nor another person's participation.
+function C.instrumentOutcome(id,sequence)
+    local now=clock()
+    if not now or not finite(sequence,1,9007199254740991) or sequence~=math.floor(sequence) then
+        return false,"unqualified-instrument"
+    end
+    local owner=SAO.Gesture
+    local receipt=owner and owner.instrumentOutcome and owner.instrumentOutcome(id,sequence)
+    if type(receipt)~="table" or receipt.actorId~=id or receipt.sequence~=sequence
+        or receipt.workId~="instrument:"..id..":"..tostring(sequence)
+        or type(receipt.bodyGenerationKnown)~="boolean"
+        or receipt.bodyGenerationKnown and not text(receipt.bodyToken,160)
+        or not receipt.bodyGenerationKnown and receipt.bodyToken~=nil
+        or receipt.verb~="blow-harmonica" or not text(receipt.itemType,160)
+        or not text(receipt.itemId,32)
+        or (receipt.status~="completed" and receipt.status~="interrupted")
+        or not finite(receipt.atHours,0,now)
+        or not finite(receipt.admittedAtHours,0,receipt.atHours)
+        or type(receipt.cleanupPending)~="boolean" or type(receipt.soundEnded)~="boolean"
+        or type(receipt.soundEmitted)~="boolean" or type(receipt.worldSoundEmitted)~="boolean" then
+        return false,"instrument-owner-unavailable"
+    end
+    if receipt.soundEmitted and (not finite(receipt.soundHandle,1,9007199254740991)
+        or not finite(receipt.startedAtHours,receipt.admittedAtHours,receipt.atHours)) then
+        return false,"invalid-instrument-sound"
+    end
+    if receipt.status=="completed" and (not receipt.soundEmitted or not receipt.worldSoundEmitted
+        or not receipt.soundEnded or receipt.cleanupPending
+        or not finite(receipt.endedAtHours,receipt.startedAtHours,receipt.atHours)) then
+        return false,"unmeasured-instrument"
+    end
+    local itemId=tonumber(receipt.itemId)
+    if not finite(itemId,-2147483648,2147483647) or itemId~=math.floor(itemId) then
+        return false,"invalid-instrument-item"
+    end
+    local x=privateFact(id,"instrument-use","leisure","instrument/"..id.."/"..tostring(sequence),now,receipt.atHours)
+    x.sourceId,x.itemId,x.itemType="native:sound:BlowHarmonica",itemId,receipt.itemType
+    -- Acquiring the terminal experience is complete even when the physical
+    -- attempt was interrupted. Emitting a partial sound is not performance.
+    x.actionKind,x.succeeded=receipt.verb,receipt.status=="completed"
+    return nativeExperience(id,"instrument",sequence,x)
+end
+function C.commitmentOutcome(id,receipt)
+    local now=clock()
+    if not now or type(receipt)~="table" or receipt.actorId~=id or receipt.status~="completed"
+        or (receipt.workKind~="prepare" and receipt.workKind~="deliver")
+        or not text(receipt.commitmentId,160) or not text(receipt.nativeReceiptId,160)
+        or not finite(receipt.sequence,1,9007199254740991) or receipt.sequence~=math.floor(receipt.sequence)
+        or not finite(receipt.atHours,0,now) or not finite(receipt.acceptedAt,0,receipt.atHours) then return false,"unqualified-commitment-work" end
+    local canonical=SAO.Organization and SAO.Organization.fulfilledWorkOutcome
+        and SAO.Organization.fulfilledWorkOutcome(id,receipt.sequence)
+    if not canonical or not sameData(canonical,receipt) then return false,"commitment-owner-unavailable" end
+    local x=privateFact(id,"commitment-outcome","social","commitment/"..id.."/"..tostring(receipt.sequence),now,receipt.atHours)
+    x.sourceId,x.actionKind,x.succeeded=receipt.commitmentId,receipt.workKind,true
+    return nativeExperience(id,"commitment",receipt.sequence,x)
+end
+
 function C.medicationUse(id, receipt)
     local now = clock()
     if not now or type(receipt) ~= "table" or receipt.actorId ~= id
@@ -541,6 +725,8 @@ function C.preparationOutcome(id, receipt)
         or not finite(receipt.atHours, 0, now) or not finite(receipt.startedAt, 0, receipt.atHours) then
         return false, "unqualified-preparation"
     end
+    local canonical=SAO.Cooking and SAO.Cooking.outcome and SAO.Cooking.outcome(id,receipt.sequence)
+    if not canonical or not sameData(canonical,receipt) then return false,"preparation-owner-unavailable" end
     local x = privateFact(id, "preparation", "food", receipt.id, now, receipt.atHours)
     x.itemId, x.itemType, x.sourceId = receipt.itemId, receipt.itemType, receipt.sourceId
     x.beforeCookingTime, x.afterCookingTime, x.heatObserved = receipt.beforeCookingTime, receipt.afterCookingTime, true
@@ -634,7 +820,11 @@ function C.snapshot(id, full)
     if not s then return out end
     local first = full == true and 1 or math.max(1, #s.episodes - 7)
     out.omittedEpisodes = out.omittedEpisodes + first - 1
-    for i = first, #s.episodes do out.episodes[#out.episodes + 1] = detached(s.episodes[i]) end
+    for i = first, #s.episodes do
+        local episode=episodeCopy(s.episodes[i])
+        if not episode then return nil end
+        out.episodes[#out.episodes + 1]=episode
+    end
     for _, name in ipairs(MODEL_IDS) do
         local ok, view = pcall(SAO.CognitiveModels.summary, name, copy(s.models[name]), clock() or 0)
         if ok and type(view) == "table" and text(s.models[name].version, 128) then
@@ -674,7 +864,7 @@ function C.snapshot(id, full)
                         table.remove(model.beliefs); model.omittedBeliefs = model.omittedBeliefs + 1; removed = true
                     end
                 end
-                if not removed then break end
+                if not removed then return nil end
             end
         end
     end
@@ -684,20 +874,205 @@ end
 -- Plan interpretation is read-only. Both contestants receive detached copies
 -- of the same person's candidates and their own model state; neither sees the
 -- other's answer and selection here does not create an execution episode.
+local function planFrame(id, context)
+    local now = clock()
+    if not record(id) or not now or type(context) ~= "table"
+        or context.actorId ~= nil and context.actorId ~= id then return nil end
+    local frame = detached(context)
+    if not frame then return nil end
+    frame.actorId = id
+    frame.atHours = frame.atHours or now
+    frame.pressure = frame.pressure or 0
+    -- Capabilities are read from the current person. They cannot supply a
+    -- prior for an earlier frame after that person's competence has changed.
+    if not finite(frame.atHours, 0, now) or frame.atHours ~= now then return nil end
+    if frame.domain ~= nil and not text(frame.domain, 80) then return nil end
+    frame.capabilities = C.capabilities(id)
+    return frame
+end
+local function planModel(id, frame)
+    local settings = C.settings()
+    if not settings.enabled then return "ordinary" end
+    if not finite(settings.opportunitiesPerHour, 1, 60)
+        or not finite(settings.opponentShare, 0, 1) then return "ordinary" end
+    -- Stable for this private decision interval. Re-reading a plan does not
+    -- spend an opportunity, revise evidence or switch its selected contestant.
+    local interval = math.floor(frame.atHours * settings.opportunitiesPerHour)
+    local draw = SAO.Hash and SAO.Hash.unit(id,
+        "plan-selection:" .. tostring(frame.domain or "activity") .. ":" .. tostring(interval)) or 0.5
+    return draw < settings.opponentShare and "associative" or "ordinary"
+end
+function C.scorePlan(id, candidate, context)
+    local frame = planFrame(id, context)
+    if not frame or not SAO.CognitiveModels then return nil end
+    local name, s = planModel(id, frame), state(id, false)
+    if record(id).cognition ~= nil and not s then return nil end
+    if not C.settings().enabled then s = nil end
+    local own = s and detached(s.models[name]) or SAO.CognitiveModels.newState(name)
+    local offered = detached(candidate)
+    if not own or not offered then return nil end
+    local ok, result = pcall(SAO.CognitiveModels.interpretPlans, name, own, { offered }, frame)
+    return ok and type(result) == "table" and result.score or nil
+end
 function C.interpretPlans(id, candidates, context)
-    local s = state(id, true)
-    if not s or not SAO.CognitiveModels
+    local frame = planFrame(id, context or {})
+    if not frame or not SAO.CognitiveModels
         or type(SAO.CognitiveModels.interpretPlans) ~= "function" then return nil end
-    local out = { models = {} }
+    local s, offered = state(id, false), detached(candidates)
+    if not offered then return nil end
+    if record(id).cognition ~= nil and not s then return nil end
+    if not C.settings().enabled then s = nil end
+    local out = { models = {}, selectedModelId = planModel(id, frame),
+        selectionPolicy = "deterministic-private-interval", atHours = frame.atHours,
+        purposes = frame.purposes }
     for _, name in ipairs(MODEL_IDS) do
+        local own = s and detached(s.models[name]) or SAO.CognitiveModels.newState(name)
+        if not own then return nil end
         local ok, view = pcall(SAO.CognitiveModels.interpretPlans, name,
-            copy(s.models[name]), copy(candidates), copy(context or {}))
+            own, copy(offered), detached(frame))
         if not ok or type(view) ~= "table" then return nil end
         out.models[#out.models + 1] = view
+        if name == out.selectedModelId then out.selected = view.selected end
     end
     out.disagreement = out.models[1].selected ~= out.models[2].selected
     return out
 end
+-- Ordinary inquiry and contact appraisal share acquired person evidence.
+-- This query neither spends an opportunity nor admits an investigation.
+function C.appraiseSituation(id,body,tick)
+    if not SAO.SituationAppraisal or not SAO.SituationAppraisal.query then return nil end
+    return SAO.SituationAppraisal.query(id,body,tick)
+end
+-- Shared conflict appraisal is a pure private query. Only the person's own
+-- disposition and acquired concept owner supply values and associations.
+function C.appraiseConflict(id, supplied, candidates)
+    local person,now=record(id),clock()
+    if not person or not now or type(supplied)~="table" or supplied.actorId~=id
+        or not finite(supplied.atHours,0,now) or type(supplied.threat)~="table"
+        or type(candidates)~="table" or #candidates<1 or #candidates>16
+        or not SAO.CognitiveModels or not SAO.Disposition then return nil,"invalid-private-conflict" end
+    local own=SAO.Disposition.conflictValues and SAO.Disposition.conflictValues(id)
+    if not own or type(supplied.values)~="table" or supplied.values.actorId~=id then return nil,"foreign-conflict-values" end
+    for _,key in ipairs({"selfPreservation","aggression","nerve","discipline","compassion"}) do
+        if not finite(own[key],0,1) or own[key]~=supplied.values[key] then return nil,"changed-conflict-values" end
+    end
+    local threat=supplied.threat
+    if threat.distance~=nil and not finite(threat.distance,0,100000)
+        or threat.count~=nil and not finite(threat.count,0,100000)
+        or threat.at~=nil and not finite(threat.at,0,1000000000000)
+        or not finite(supplied.fear,0,1)
+        or type(supplied.overwhelmed)~="boolean" or type(supplied.escapeBlocked)~="boolean" then return nil,"invalid-conflict-pressure" end
+    local frame={actorId=id,atHours=supplied.atHours,values=detached(own),fear=supplied.fear,
+        overwhelmed=supplied.overwhelmed,escapeBlocked=supplied.escapeBlocked,relations={},
+        threat={distance=threat.distance,count=threat.count or 0,at=threat.at}}
+    local geometry=SAO.CognitiveModels.contactGeometry(threat)
+    if not geometry then return nil,"invalid-conflict-geometry" end
+    if threat.observerZ~=nil then
+        local observerOk,currentZ=pcall(function()return math.floor(SAO.Body.get(id):getZ())end)
+        if not observerOk or currentZ~=threat.observerZ then return nil,"changed-conflict-observer-floor" end
+    end
+    frame.threat.z,frame.threat.observerZ=threat.z,threat.observerZ
+    frame.threat.floorKnown,frame.threat.sameFloor=geometry.floorKnown,geometry.sameFloor
+    frame.threat.reachability=geometry.reachability
+    for _,key in ipairs({"kind","key","source"}) do
+        if threat[key]~=nil and not text(threat[key],128) then return nil,"invalid-conflict-threat" end
+        frame.threat[key]=threat[key] or "unknown"
+    end
+    if supplied.risk~=nil or threat.risk~=nil then return nil,"caller-conflict-risk-refused" end
+    if threat.form~=nil and threat.form~="none" then
+        if not text(threat.form,96) or not finite(threat.formPerformance or 0,0,1)
+            or (threat.source~="observed" and threat.source~="told")
+            or not SAO.PathogenPressure or not SAO.PathogenPressure.appraise then return nil,"invalid-recognized-conflict-form" end
+        frame.threat.form=threat.form;frame.threat.formPerformance=threat.formPerformance or 0
+        frame.threat.attributeMutations={}
+        if threat.attributeMutations~=nil then
+            if type(threat.attributeMutations)~="table" then return nil,"invalid-recognized-conflict-attributes" end
+            local count=0
+            for key,value in pairs(threat.attributeMutations) do
+                count=count+1
+                if count>32 or not text(key,96) or not finite(value,0,1) then return nil,"invalid-recognized-conflict-attributes" end
+                frame.threat.attributeMutations[key]=value
+            end
+        end
+        frame.risk=SAO.PathogenPressure.appraise(id,frame.threat)
+        if not frame.risk or frame.risk.actorId~=id or frame.risk.contactKey~=frame.threat.key
+            or frame.risk.source~=frame.threat.source then return nil,"foreign-conflict-risk" end
+    end
+    if supplied.commitment~=nil then
+        local c=supplied.commitment
+        if type(c)~="table" or c.key~=nil and not text(c.key,128)
+            or c.kind~=nil and not text(c.kind,64) then return nil,"invalid-conflict-commitment" end
+        frame.commitment={key=c.key,kind=c.kind,accepted=c.accepted==true,protectOther=c.protectOther==true}
+    end
+    local offered=detached(candidates)
+    if not offered then return nil,"invalid-conflict-offers" end
+    -- Whitelist the executor's scalar offer. No body, another person's state,
+    -- or hidden world object can cross the shared interpretation boundary.
+    local allowed={id=true,kind=true,available=true,reason=true,effects=true,objections=true,
+        nativeMode=true,targetKey=true,routeKey=true,continuing=true}
+    for _,offer in ipairs(offered) do
+        if type(offer)~="table" then return nil,"invalid-conflict-offer" end
+        for key in pairs(offer) do if not allowed[key] then return nil,"foreign-conflict-field" end end
+        for _,key in ipairs({"nativeMode","targetKey","routeKey"}) do
+            if offer[key]~=nil and not text(offer[key],128) then return nil,"invalid-conflict-target" end
+        end
+        if offer.kind=="engage" or offer.kind=="defend" then
+            if offer.available and (not offer.nativeMode or not offer.targetKey) then return nil,"native-conflict-target-required" end
+        end
+        if offer.kind=="withdraw" and offer.available then frame.escapeBlocked=false end
+    end
+    local associations={ ["bodily-harm"]="assault",["break-contact"]="separation",
+        ["blocks-movement"]="obstruction",["create-space"]="defense",["stop-threat"]="force",
+        ["possible-agreement"]="communication",["mutual-support"]="cooperation",
+        ["imposed-compliance"]="coercion",["concession:possible-agreement"]="concession",
+        ["concession:create-space"]="concession" }
+    local contextKey=frame.threat.key:match("^[%w_:%-%.]+$") and #frame.threat.key<=96 and frame.threat.key or nil
+    for effect,from in pairs(associations) do
+        local ok,inference=pcall(function()
+            return SAO.ConceptKnowledge and SAO.ConceptKnowledge.infer(id,from,
+                effect:gsub("^concession:",""),contextKey)
+        end)
+        local path=ok and type(inference)=="table" and type(inference.paths)=="table" and inference.paths[1]
+        frame.relations[effect]={supported=path~=nil,basis=path and "personal-relational-expectation"
+            or ok and inference and inference.status=="challenged" and "personally-challenged" or "unresolved",
+            from=from,into=effect:gsub("^concession:",""),evidenceIds=path and detached(path.evidenceIds) or {},
+            links=path and detached(path.roots) or {},
+            contradictions=ok and inference and detached(inference.contradictions) or {}}
+    end
+    -- Changes of clock or exact distance within the same tactical envelope do
+    -- not abandon an executing choice. Changed premises or feasibility do.
+    local material=detached(frame)
+    material.atHours=nil;material.threat.at=nil
+    material.threat.distance=threat.distance==nil and "unknown" or geometry.close and "close"
+        or threat.distance<=8 and "near" or "distant"
+    material.offers=detached(offered)
+    table.sort(material.offers,function(a,b)return tostring(a.id)<tostring(b.id)end)
+    for _,offer in ipairs(material.offers) do offer.continuing=nil;offer.reason=nil end
+    local function serial(value)
+        if type(value)~="table" then local s=tostring(value);return type(value)..":"..#s..":"..s end
+        local keys={} for key in pairs(value) do keys[#keys+1]=key end
+        SAO.Perception.sortEvidence(keys,function(a,b)return tostring(a)<tostring(b)end)
+        local parts={"{"} for _,key in ipairs(keys) do parts[#parts+1]=serial(key)..serial(value[key]) end
+        parts[#parts+1]="}";return table.concat(parts)
+    end
+    local encoded=serial(material)
+    local first,second=0,0
+    for i=1,#encoded do
+        local byte=string.byte(encoded,i)
+        first=(first*31+byte)%2147483647;second=(second*37+byte)%2147483629
+    end
+    frame.evidenceKey=tostring(#encoded)..":"..tostring(first)..":"..tostring(second)
+    local prior=supplied.priorAction
+    if type(prior)=="table" and text(prior.id,128) then
+        frame.priorAction={id=prior.id,kind=prior.kind}
+        frame.preserveContinuity=prior.evidenceKey==frame.evidenceKey
+    end
+    frame.frameId=id.."/conflict/"..tostring(frame.atHours).."/"..frame.evidenceKey
+    local ok,result=pcall(SAO.CognitiveModels.interpretConflict,frame,offered)
+    if not ok then return nil,"conflict-interpreter-refused" end
+    return detached(result)
+end
+
 function C.rebindWorld()
     for id, rec in pairs(SAO.Identity and SAO.Identity.all() or {}) do
         if rec.cognition then C.interrupt(id, "world-reloaded") end

@@ -52,6 +52,27 @@ end
 local function probability(id,state,goal)
     return M.propose(id,state,frame()).predictions[goal].probability
 end
+local function plan(id, kind, category, source, item)
+    return {id=id,evidence=0.5,continuity=0.2,novelty=0.1,informationGain=0.2,blockers=0,
+        utility=0,consequences={{kind=kind or "acquire",category=category or "food",
+            sourceId=source,itemType=item,value=1}}}
+end
+local function context(hours)
+    return {actorId="p1",atHours=hours or 10,pressure=0.6,
+        capabilities={cook=false,forage=false,treat=false},needs={hunger=0.6,fatigue=0.2,endurance=0.7}}
+end
+local function preparation(sequence, source, item)
+    return {id="cooking/p1/"..sequence,actorId="p1",observerId="p1",worldHours=10,
+        occurredAtHours=10,kind="preparation",category="food",sourceId=source or "stove:1",
+        itemType=item or "Base.Food",itemId=100+sequence,perspective="performed",
+        status="completed",heatObserved=true,beforeCookingTime=1,afterCookingTime=2}
+end
+local function entry(sequence, source, success, condition)
+    return {id="entry/p1/"..sequence,actorId="p1",observerId="p1",worldHours=10,
+        occurredAtHours=10,kind="entry-outcome",category="body",sourceId=source,
+        perspective="performed",status="completed",actionKind="door",
+        apertureState=condition or "closed",succeeded=success}
+end
 
 function cognitiveModelCases()
 case("ordinary thresholds",function()
@@ -112,7 +133,7 @@ end)
 case("pre-outcome predictions",function()
     for _,id in ipairs({"ordinary","associative"}) do
         local s=M.newState(id) local p=M.propose(id,s,frame()) local n=0
-        check(p.version==(id=="ordinary" and "sao-ordinary/2" or "sao-associative/2")
+        check(p.version==(id=="ordinary" and "sao-ordinary/3" or "sao-associative/3")
             and p.modelId==id,"version or model identity absent")
         for _,goal in ipairs({"food","water","inspect","continue"}) do
             local prediction=p.predictions[goal]
@@ -407,6 +428,224 @@ case("bounded refutation history",function()
         "refutation history exceeded its bound or lost identity")
     check(#s.hypotheses<=32 and #s.beliefOrder+#s.hypotheses<=64,
         "retained branches exceeded model capacity")
+end)
+case("plan exact acquisition changes relative order",function()
+    for _,id in ipairs({"ordinary","associative"}) do
+        local s=M.newState(id)
+        local a,b=plan("a",nil,nil,"holder:1","Base.Food"),plan("b",nil,nil,"holder:2","Base.Food")
+        b.utility=0.05
+        check(M.interpretPlans(id,s,{a,b},context()).selected=="b","plan baseline utility changed")
+        learn(id,s,transfer("plan:own:1"))
+        local result=M.interpretPlans(id,s,{a,b},context())
+        check(result.selected=="a" and result.ranked[1].predictions[1].probability>0.5,
+            "exact acquisition did not change relative plan order")
+        check(result.ranked[2].predictions[1].probability==0.5,
+            "exact acquisition leaked to another source")
+        check(result.ranked[1].predictions[1].evidenceIds[1]=="plan:own:1"
+            and result.ranked[1].predictions[1].basis=="exact-experience"
+            and result.ranked[1].interpretation~=result.ranked[2].interpretation,
+            "candidate prediction omitted specific basis")
+    end
+end)
+case("plan unrelated evidence isolation",function()
+    for _,id in ipairs({"ordinary","associative"}) do
+        local s=M.newState(id)
+        local c=plan("untouched",nil,nil,"holder:unknown","Base.Other")
+        local before=M.planScore(id,c,0.6,s,context())
+        for i=1,4 do learn(id,s,transfer("plan:unrelated:"..i,"holder:elsewhere")) end
+        check(M.planScore(id,c,0.6,s,context())==before
+            and M.planPrediction(id,c,s,context()).predictions[1].probability==0.5,
+            "unrelated strongest belief changed plan value")
+        local specific=plan("wrong-type",nil,nil,"holder:elsewhere","Base.Other")
+        check(M.planPrediction(id,specific,s,context()).predictions[1].probability==0.5,
+            "another item type became exact acquisition evidence")
+    end
+end)
+case("plan contradiction reverses prior choice",function()
+    for _,id in ipairs({"ordinary","associative"}) do
+        local s=M.newState(id) local a,b=plan("a",nil,nil,"holder:1"),plan("b",nil,nil,"holder:2")
+        b.utility=0.02
+        learn(id,s,transfer("plan:positive"))
+        check(M.interpretPlans(id,s,{a,b},context()).selected=="a","plan contradiction fixture lacks support")
+        for i=1,3 do local e=transfer("plan:negative:"..i) e.status="no-effect" learn(id,s,e) end
+        local result=M.interpretPlans(id,s,{a,b},context())
+        check(result.selected=="b" and result.ranked[2].predictions[1].probability<0.5,
+            "plan counterevidence did not reverse choice")
+    end
+end)
+case("plan decay changes relative choice without learning",function()
+    for _,id in ipairs({"ordinary","associative"}) do
+        local s=M.newState(id) local a,b=plan("a",nil,nil,"holder:1"),plan("b",nil,nil,"holder:2") b.utility=0.02
+        learn(id,s,transfer("plan:old-success"))
+        local snapshot=copy(s)
+        check(M.interpretPlans(id,s,{a,b},context()).selected=="a","plan decay fixture lacks support")
+        check(M.interpretPlans(id,s,{a,b},context(250)).selected=="b",
+            "plan evidence did not age at query clock")
+        check(equal(s,snapshot),"plan query trained or aged stored facts")
+    end
+end)
+case("plan actor and time boundaries",function()
+    for _,id in ipairs({"ordinary","associative"}) do
+        local s=M.newState(id) learn(id,s,transfer("plan:private")) local c=plan("a",nil,nil,"holder:1")
+        local ctx=context() ctx.actorId="p2"
+        check(M.interpretPlans(id,s,{c},ctx)==nil and M.planPrediction(id,c,s,ctx)==nil
+            and M.planScore(id,c,0.6,s,ctx)==nil,"foreign actor plan prediction admitted")
+        ctx=context(9)
+        check(M.interpretPlans(id,s,{c},ctx)==nil and M.planPrediction(id,c,s,ctx)==nil,
+            "future state entered plan prediction")
+        local unrelated=plan("unrelated",nil,nil,"holder:unknown")
+        check(M.planPrediction(id,unrelated,s,ctx)==nil,"future state entered plan prediction")
+        local corrupt=copy(s) corrupt.actorId=nil
+        check(M.planPrediction(id,c,corrupt,context())==nil,"unbound learned state entered plan prediction")
+        corrupt=copy(s)
+        for _,belief in pairs(corrupt.beliefs) do
+            if belief.planKind=="acquire" then belief.samples[1].hours=11 end
+        end
+        check(M.planPrediction(id,c,corrupt,context())==nil,"future receipt entered plan prediction")
+    end
+end)
+case("plan strict frame and consequence contract",function()
+    local s=M.newState("ordinary") local c=plan("a",nil,nil,"holder:1")
+    local ctx=context() ctx.atHours=nil
+    check(M.interpretPlans("ordinary",s,{c},ctx)==nil,"plan missing clock admitted")
+    local bad=copy(c) bad.consequences[1].hiddenStock=9
+    check(M.planPrediction("ordinary",bad,s,context())==nil,"private plan admitted hidden consequence field")
+    for _,field in ipairs({"value","sourceId","itemType","kind","category","condition"}) do
+        bad=copy(c)
+        bad.consequences[1][field]=field=="value" and 3 or field=="sourceId" and string.rep("x",161)
+            or field=="itemType" and string.rep("x",161) or "invalid"
+        check(M.planPrediction("ordinary",bad,s,context())==nil,"invalid consequence admitted: "..field)
+    end
+    bad=copy(c) bad.consequences[3]=copy(bad.consequences[1])
+    check(M.planPrediction("ordinary",bad,s,context())==nil,"sparse consequence list admitted")
+    bad=copy(c) for i=2,5 do bad.consequences[i]=copy(bad.consequences[1]) end
+    check(M.planPrediction("ordinary",bad,s,context())==nil,"unbounded consequence list admitted")
+    bad=copy(c) bad.evidence="0.5"
+    check(M.interpretPlans("ordinary",s,{bad},context())==nil,"string plan scalar admitted")
+    ctx=context() ctx.capabilities.cook=1
+    check(M.interpretPlans("ordinary",s,{c},ctx)==nil,"invalid plan capability admitted")
+    ctx=context() ctx.needs.fatigue=2
+    check(M.interpretPlans("ordinary",s,{c},ctx)==nil,"invalid plan need admitted")
+    check(M.interpretPlans("ordinary",s,{c,copy(c)},context())==nil,"duplicate plan identity admitted")
+    check(M.interpretPlans("ordinary",s,{[1]=c,[3]=copy(c)},context())==nil,"sparse plan candidate list admitted")
+end)
+case("plan current capability prior and zero skill",function()
+    for _,id in ipairs({"ordinary","associative"}) do
+        local s=M.newState(id) local c=plan("prepare","prepare","food","stove:1","Base.Food")
+        local ctx=context() local low=M.planPrediction(id,c,s,ctx).predictions[1]
+        check(low.probability>0 and low.probability==0.5 and low.basis=="unknown",
+            "zero cooking capability became impossibility")
+        ctx.capabilities.cook=true
+        local experienced=M.planPrediction(id,c,s,ctx).predictions[1]
+        check(experienced.probability>low.probability and experienced.probability<0.75
+            and #experienced.evidenceIds==0 and #s.beliefOrder==0,
+            "current capability prior invented experience or certainty")
+        ctx=context() ctx.capabilities.forage=true ctx.capabilities.treat=true
+        check(M.planPrediction(id,c,s,ctx).predictions[1].probability==low.probability,
+            "unrelated capability supplied preparation evidence")
+    end
+end)
+case("plan preparation exact type and weaker transfer",function()
+    local results={}
+    for _,id in ipairs({"ordinary","associative"}) do
+        local s=M.newState(id) learn(id,s,preparation(1))
+        local exact=M.planPrediction(id,plan("exact","prepare","food","stove:1","Base.Food"),s,context()).predictions[1]
+        local related=M.planPrediction(id,plan("related","prepare","food","stove:2","Base.Food"),s,context()).predictions[1]
+        local other=M.planPrediction(id,plan("other","prepare","food","stove:2","Base.Other"),s,context()).predictions[1]
+        local typeOnly=M.planPrediction(id,plan("type","prepare","food",nil,"Base.Food"),s,context()).predictions[1]
+        check(exact.probability>0.5 and typeOnly.probability>0.5 and other.probability==0.5,
+            "preparation evidence lost exact item conditioning")
+        if id=="ordinary" then check(related.probability==0.5,"ordinary plan used unperformed preparation source")
+        else check(related.probability>0.5 and related.probability<exact.probability
+            and related.basis=="related-experience" and related.evidenceIds[1]=="cooking/p1/1",
+            "related preparation failed to transfer with lower confidence") end
+        results[id]={state=s,exact=exact,related=related}
+    end
+end)
+case("plan inspection predicts actual contents",function()
+    for _,id in ipairs({"ordinary","associative"}) do
+        local s=M.newState(id) learn(id,s,inspection("plan:empty",false,true))
+        local food=M.planPrediction(id,plan("food","inspect","food","holder:1"),s,context()).predictions[1]
+        local water=M.planPrediction(id,plan("water","inspect","water","holder:1"),s,context()).predictions[1]
+        local contents=M.planPrediction(id,plan("contents","inspect","container","holder:1"),s,context()).predictions[1]
+        check(food.probability<0.5 and water.probability>0.5 and contents.probability>0.5,
+            "empty inspection became successful food discovery")
+        local other=M.planPrediction(id,plan("other","inspect","water","holder:2"),s,context()).predictions[1]
+        if id=="associative" then check(other.probability>0.5 and other.probability<water.probability,
+            "related inspection failed to transfer with lower confidence")
+        else check(other.probability==0.5,"ordinary inspection invented contents at another source") end
+    end
+end)
+case("plan entry and recovery use same evidence owner",function()
+    for _,id in ipairs({"ordinary","associative"}) do
+        local s=M.newState(id) learn(id,s,entry(1,"door:1",false))
+        local a,b=plan("door1","entry","body","door:1"),plan("door2","entry","body","door:2")
+        a.consequences[1].condition="closed" b.consequences[1].condition="closed"
+        check(M.interpretPlans(id,s,{a,b},context()).selected=="door2","entry failure did not change shared plan choice")
+        a.consequences[1].condition="open"
+        check(M.planPrediction(id,a,s,context()).predictions[1].probability==0.5,
+            "entry experience ignored changed aperture condition")
+        learn(id,s,{id="recovery/p1/1",actorId="p1",observerId="p1",worldHours=10,occurredAtHours=10,
+            kind="recovery-outcome",category="body",perspective="performed",status="completed",actionKind="sleep",
+            succeeded=true,beforeValue=0.8,afterValue=0.5,durationHours=1})
+        local sleep=M.planPrediction(id,plan("sleep","sleep","body"),s,context()).predictions[1]
+        local rest=M.planPrediction(id,plan("rest","rest","body"),s,context()).predictions[1]
+        check(sleep.probability>0.5 and rest.probability==0.5,"sleep result credited awake rest")
+    end
+end)
+case("plan detached bounded predictions",function()
+    local s=M.newState("associative") learn("associative",s,transfer("plan:detach"))
+    local c=plan("a",nil,nil,"holder:1") local before=copy(s) local original=copy(c)
+    local predicted=M.planPrediction("associative",c,s,context())
+    predicted.predictions[1].evidenceIds[1]="mutated" predicted.predictions[1].beliefIds[1]="mutated"
+    local view=M.interpretPlans("associative",s,{c},context())
+    view.ranked[1].predictions[1].evidenceIds[1]="again"
+    check(equal(s,before) and equal(c,original),"plan prediction aliases or mutates source state")
+    local p=M.planPrediction("associative",c,s,context())
+    check(#p.predictions==1 and #p.predictions[1].evidenceIds<=8 and #p.predictions[1].beliefIds<=8
+        and p.expectedValue>=0 and p.expectedValue<=8 and p.predictions[1].uncertainty>=0
+        and p.predictions[1].uncertainty<=1,"plan prediction escaped its bounds")
+end)
+case("plan structural fallback and utility preservation",function()
+    for _,id in ipairs({"ordinary","associative"}) do
+        local c=plan("a",nil,nil,"holder:1") c.utility=1.25
+        check(M.planScore(id,c,0.6)==1.25,"cold plan fallback changed situational utility")
+        c.consequences={}
+        check(M.planScore(id,c,0.6)==1.25,"empty consequences changed situational utility")
+        c.utility=nil c.consequences=nil
+        local expected=id=="ordinary" and (0.5*0.55+0.2*0.30+0.6*0.15)
+            or (0.5*0.25+0.2*0.15+0.1*0.20+0.2*0.30+0.6*0.10)
+        check(math.abs(M.planScore(id,c,0.6)-expected)<0.000001,"legacy plan structural baseline changed")
+        c.id=string.rep("x",129)
+        c.consequences={{kind="acquire",category="food",sourceId="holder:1",
+            itemType=string.rep("y",161),value=0.8}}
+        local fallback=M.planScore(id,c,0.6)
+        check(fallback~=nil and math.abs(fallback-expected)<0.000001,
+            "long native identity lost neutral structural fallback")
+        check(M.planPrediction(id,c,M.newState(id),context())==nil,
+            "long native identity entered bounded prediction")
+        c.utility=0/0
+        check(M.planScore(id,c,0.6)==nil,"nonfinite situational utility admitted")
+    end
+end)
+case("plan owner bounds influence without changing evidence",function()
+    local s=M.newState("ordinary")
+    for i=1,8 do learn("ordinary",s,transfer("plan:cap:"..i)) end
+    local c=plan("a",nil,nil,"holder:1") c.utility=1 c.maxAdjustment=0.15
+    local p=M.planPrediction("ordinary",c,s,context()).predictions[1]
+    check(p.probability>0.8 and math.abs(M.planScore("ordinary",c,0.6,s,context())-1.15)<0.000001,
+        "plan adjustment cap changed belief or exceeded owner bound")
+    c.maxAdjustment=-1
+    check(M.planScore("ordinary",c,0.6,s,context())==nil,"invalid plan influence bound admitted")
+end)
+case("plan legacy exact evidence read remains inert",function()
+    for _,id in ipairs({"ordinary","associative"}) do
+        local s=M.newState(id) learn(id,s,entry(1,"door:1",true))
+        s.version="sao-"..id.."/2" local before=copy(s)
+        local c=plan("entry","entry","body","door:1") c.consequences[1].condition="closed"
+        check(M.planPrediction(id,c,s,context()).predictions[1].probability>0.5 and equal(s,before),
+            "legacy plan evidence was discarded or migrated on read")
+    end
 end)
 return "PASS "..tostring(cases).." cases"
 end

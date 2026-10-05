@@ -1,0 +1,48 @@
+{
+  "schema": "sao-background-meaning/2",
+  "id": "workbench-tools-1",
+  "courseId": "grade-9-practical-arts",
+  "unit": {
+    "activities": [
+      {
+        "kind": "instruction",
+        "literalEvidence": "CHAPTER I"
+      }
+    ],
+    "editionEvidence": {
+      "basis": "printed-source",
+      "literal": "COPYRIGHT, 1914, BY"
+    },
+    "editionYear": 1914,
+    "id": "practical-mechanics-24761-36722-grade-9-practical-arts",
+    "selector": {
+      "endCharacter": 36722,
+      "excerptSha256": "9beaa8e523783dbdb248a05db28d3ff2380e450b43b5d6afce3d5528be79ccf4",
+      "extractionSha256": "1d1d9f59cef884efe0b7af077c22f6dad755daec94460f2fa32478ef52b4f4b5",
+      "format": "plain-text",
+      "sourcePath": "practical-mechanics/source.txt",
+      "sourceSha256": "8995b5677258ef8a2f1ebb53b310d982c0f981b4fec4ff5ea1187dfa9edad885",
+      "startCharacter": 24761
+    },
+    "sourceId": "practical-mechanics",
+    "sourceVersion": "8995b5677258ef8a2f1ebb53b310d982c0f981b4fec4ff5ea1187dfa9edad885",
+    "temporalStanding": "source-period-review-required",
+    "title": "CHAPTER I  ON TOOLS GENERALLY  "
+  },
+  "statementText": "VISES.--One small, good vise is infinitely preferable to two bad ones. For ordinary work a 3-inch jaw is preferable, and it should be firmly mounted on the bench. So many kinds are now made that it would be a costly thing to purchase one for each special use, therefore the boy will find it profitable to make some attachments for the ordinary vise.",
+  "statementSha256": "6909c35bec2e2f5ebc978da0a2d78fc3abc6331ab1be204af98faed9cf95e1b6",
+  "relations": [
+    {
+      "from": "workbench",
+      "relation": "may-contain",
+      "into": "tools"
+    }
+  ],
+  "conditions": [
+    "observed-purpose-specific-workbench",
+    "contents-unconfirmed",
+    "permission"
+  ],
+  "contentRole": "descriptive-possibility",
+  "standing": "authored-semantic-projection-of-cited-text; exposure-not-assessed-retention-or-assent"
+}

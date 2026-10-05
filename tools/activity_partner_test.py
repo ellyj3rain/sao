@@ -3,7 +3,8 @@ r"""Border 176 - private, current activity participants.
 
 A nearby body is not automatically a participant. The actor must first hold a
 fresh firsthand person belief, then the use path rechecks the current bodies
-against the scanner's same-floor, facing, range and occlusion law. Controls
+against the physical helper's shared floor and the scanner's current facing,
+range and native 3D occlusion law. Visual knowledge may cross floors. Controls
 remove provenance, use-time visibility, floor and occlusion in turn. C67 runs
 the production transfer-witness and directed-conversation methods against
 controlled engine ports; jar compilation checks the installed API boundary.
@@ -83,6 +84,15 @@ def source_faults(perception, controller, scanner, bridge):
         ("freshObservedPerson(id, key, tick)", "the activity ignores private acquisition"),
         ("SAOJavaBridge:canSeePersonNow", "the activity skips use-time visibility"),
         ("actionRange", "activity-specific physical reach is not preserved"),
+        ("SAO.Body.get(id) ~= body", "activity actor body is stale"),
+        ("SAO.Body.get(otherId) ~= otherBody", "activity participant body is stale"),
+        ("player ~= otherBody", "activity player body is stale"),
+        ("for index = 1, 6 do", "activity coordinate validation can miss a nil slot"),
+        ('type(value) ~= "number"', "activity accepts unavailable coordinates"),
+        ("value ~= value", "activity accepts NaN coordinates"),
+        ("value == math.huge or value == -math.huge", "activity accepts infinite coordinates"),
+        ("math.abs(bz - oz) < 0.5", "physical activity ignores floors"),
+        ("if not placed or not sameFloor then return false end", "activity ignores its body/floor verdict"),
     ):
         if seam not in at_hand:
             faults.append(message)
@@ -93,7 +103,8 @@ def source_faults(perception, controller, scanner, bridge):
         faults.append("raw nearby coordinates still authorize an activity partner")
 
     for seam, message in (
-        ("Math.abs(other.getZ() - sz) >= 0.5f", "current visibility ignores floors"),
+        ("float oz = other.getZ()", "current visibility loses the target floor"),
+        ("!Float.isFinite(oz)", "current visibility accepts an unavailable target floor"),
         ("dist > maxRange", "current visibility ignores action range"),
         ("alignment < CONE_COS", "current visibility ignores the observer's facing"),
         ("clearPath(eye, target, true)", "current visibility ignores occlusion"),
@@ -104,6 +115,21 @@ def source_faults(perception, controller, scanner, bridge):
         faults.append("current participant visibility bypasses scanner classification")
     if "SAOPerceptionScanner.canSeePersonNow" not in port:
         faults.append("the bridge does not expose the scanner's use-time verdict")
+    # Every physical participant use retains the shared gate. A missing single
+    # caller cannot hide behind the other cashier/playmate or follow readers.
+    calls = {re.sub(r"\s+", "", match.group(0)) for match in re.finditer(
+        r"activityParticipantAtHand\([^)]*\)", controller)}
+    for arguments in (
+        "id,body,agent.escortId,ebody,tick,math.huge",
+        "id,body,leaderId,lbody,tick,math.huge",
+        "id,body,fid,fbody,tick,math.huge",
+        "id,body,nil,me4,tickCount,COUNTER_REACH",
+        "id,body,oid,otherB,tickCount,COUNTER_REACH",
+        "id,body,nil,meB,tickCount,PLAY_REACH",
+        "id,body,oid,otherB,tickCount,PLAY_REACH",
+    ):
+        if "activityParticipantAtHand(" + arguments + ")" not in calls:
+            faults.append("unguarded physical participant caller: " + arguments)
     return faults
 
 
@@ -322,6 +348,14 @@ public final class ActivityAdmissionProbe {
         LosUtil.paths.put("0:0:0",LosUtil.TestResults.ClearThroughOpenDoor);
         f.actor.square.blocked.add(f.observer.square);
         check(f.converse(),"open-door speech refused");
+        f=new Fixture(); at(f.actor,f.cell,3.5f,0.5f,1);
+        check(canSeePersonNow(f.observer,f.actor,6),"cross-floor native clear sight refused");
+        LosUtil.paths.put("3:0:1",LosUtil.TestResults.Blocked);
+        check(!canSeePersonNow(f.observer,f.actor,6),"cross-floor native wall ignored");
+        LosUtil.paths.put("3:0:1",LosUtil.TestResults.ClearThroughWindow);
+        check(canSeePersonNow(f.observer,f.actor,6),"cross-floor native window refused");
+        f.actor.z=Float.NaN;
+        check(!canSeePersonNow(f.observer,f.actor,6),"unavailable target floor admitted");
         f=new Fixture(); f.container.parent.containers.clear();
         check(!f.witness(),"detached static container admitted");
         f=new Fixture(); f.container.parent.square.objects.clear();
@@ -572,6 +606,9 @@ def admission_behavior(scanner):
         return subprocess.run([java, "-cp", str(work), "ActivityAdmissionProbe"],
             capture_output=True, text=True, timeout=60)
     mutations = (
+        ("|| Math.abs(az - bz) >= 0.5f", "|| false", "other-floor actor admitted"),
+        ("to.getX(), to.getY(), to.getZ(), false", "to.getX(), to.getY(), from.getZ(), false",
+         "cross-floor native wall ignored"),
         ("return SAOSenses.awakeHuman(person);",
          "return person != null && !person.isDead();", "sleeping witness admitted"),
         ("|| listener.hasTrait(CharacterTrait.DEAF)) return false;\n"
@@ -608,7 +645,7 @@ def admission_behavior(scanner):
                 if broken.returncode == 0 or expected not in broken.stdout + broken.stderr:
                     faults.append("CONTROL did not detect " + expected + ": " + broken.stdout + broken.stderr)
             if not faults:
-                print("PASS nine admission defects fail their named production cases")
+                print("PASS eleven admission defects fail their named production cases")
     except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as exc:
         faults.append(str(exc))
     return faults
@@ -634,21 +671,32 @@ def main():
 
     perception, controller, scanner, bridge = sources
     mutations = (
-        (perception.replace('belief.source ~= "observed"', "false", 1),
-         controller, scanner, bridge, "firsthand provenance"),
-        (perception, controller.replace(
-            "return SAOJavaBridge:canSeePersonNow(body, otherBody, actionRange)",
-            "return true", 1), scanner, bridge, "use-time visibility"),
-        (perception, controller, scanner.replace(
-            "Math.abs(other.getZ() - sz) >= 0.5f", "false", 1), bridge,
-         "same-floor check"),
-        (perception, controller, scanner.replace(
-            "return target != null && clearPath(eye, target, true);",
-            "return target != null;", 1), bridge, "occlusion check"),
+        (0, 'belief.source ~= "observed"', "false", "firsthand provenance"),
+        (1, "return SAOJavaBridge:canSeePersonNow(body, otherBody, actionRange)",
+         "return true", "use-time visibility"),
+        (1, "math.abs(bz - oz) < 0.5", "true", "physical same-floor check"),
+        (1, "for index = 1, 6 do", "for index = 1, 5 do", "last coordinate check"),
+        (1, "SAO.Body.get(id) ~= body", "false", "current actor body"),
+        (1, "SAO.Body.get(otherId) ~= otherBody", "false", "current participant body"),
+        (1, "player ~= otherBody", "false", "current player body"),
+        (2, "return clearPath(eye, target, true);", "return true;", "native occlusion check"),
+        (2, "float oz = other.getZ();", "float oz = 0;", "native target floor"),
     )
-    for p, c, s, b, label in mutations:
-        if not source_faults(p, c, s, b):
+    for index, old, new, label in mutations:
+        changed = list(sources)
+        if old not in changed[index]:
+            faults.append("CONTROL mutation did not land: " + label)
+            continue
+        changed[index] = changed[index].replace(old, new, 1)
+        if not source_faults(*changed):
             faults.append("CONTROL removed %s but the border passed" % label)
+    for match in re.finditer(r"activityParticipantAtHand\([^)]*\)", controller):
+        if match.start() <= controller.index("function Ctl.provisioningCompleted"):
+            continue
+        changed = controller[:match.start()] + match.group(0).replace(
+            "activityParticipantAtHand(", "unguardedActivityParticipant(", 1) + controller[match.end():]
+        if not source_faults(perception, changed, scanner, bridge):
+            faults.append("CONTROL unguarded caller passed: " + match.group(0))
 
     if "--source-only" not in sys.argv:
         faults.extend(admission_behavior(scanner))

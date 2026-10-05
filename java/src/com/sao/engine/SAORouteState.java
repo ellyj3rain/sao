@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.lang.ref.WeakReference;
+import zombie.iso.IsoCell;
+import zombie.iso.IsoGridSquare;
+import zombie.iso.IsoObject;
 
 /** Per-body route-following state, mirroring the reference's KnoxNpc movement fields. */
 public final class SAORouteState {
@@ -16,6 +20,10 @@ public final class SAORouteState {
     public boolean mayForceEntry;
     public String interactionStage = "NONE";
     public String barrierResult;
+    public long routeGeneration;
+    long crossingSequence;
+    String crossingResult;
+    ApertureCrossing apertureCrossing;
     String pendingCrossingEvent;
     boolean crossingObserved;
     boolean realignAfterCrossing;
@@ -23,6 +31,7 @@ public final class SAORouteState {
     public float targetY;
     public int targetZ;
     public void setRoute(List<float[]> nodes) {
+        apertureCrossing = null;
         route.clear();
         route.addAll(nodes);
         routeIndex = 0;
@@ -55,13 +64,47 @@ public final class SAORouteState {
     }
 
     public void clearRoute() {
+        routeGeneration++;
         route.clear();
         routeIndex = 0;
         interactionStage = "NONE";
         barrierResult = null;
+        crossingResult = null;
+        apertureCrossing = null;
         pendingCrossingEvent = null;
         crossingObserved = false;
         realignAfterCrossing = false;
+    }
+
+    /** A single observed aperture belongs to this route and exact native body.
+     * Weak body ownership keeps the bridge's weak route map collectible. */
+    static final class ApertureCrossing {
+        final WeakReference<SAOIsoPlayerShell> body;
+        final IsoCell cell;
+        final IsoGridSquare from, to;
+        final IsoObject aperture;
+        final long generation;
+        final String kind, before;
+        boolean reached;
+        boolean admitted;
+
+        ApertureCrossing(SAOIsoPlayerShell shell, SAORouteState route,
+                IsoGridSquare from, IsoGridSquare to, IsoObject aperture, String kind, String before) {
+            body = new WeakReference<>(shell);
+            cell = shell.getCell();
+            this.from = from;
+            this.to = to;
+            this.aperture = aperture;
+            this.kind = kind;
+            this.before = before;
+            generation = route.routeGeneration;
+        }
+    }
+
+    public String consumeCrossing() {
+        String result = crossingResult;
+        crossingResult = null;
+        return result == null ? "MOVE_CROSSING_UNAVAILABLE" : result;
     }
 
     public boolean edgeCooling(String key) {

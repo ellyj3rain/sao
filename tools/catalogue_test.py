@@ -1,4 +1,4 @@
-"""Controls for the shared C catalogue migration; no repository writes.
+"""Controls for C product chronology and the retained shared map; no repository writes.
 
 Run only after the manifest and current catalogue have been rendered. Mutations
 operate on detached manifest objects and temporary index/JSON inputs. The actual
@@ -28,12 +28,13 @@ def main():
     parser.add_argument('--receipt', type=Path, help='Write the complete source-pinned control receipt.')
     args = parser.parse_args()
     manifest = c.load_catalogue(ROOT)
+    products = c.load_product_catalogue(ROOT)
     files = [ROOT / name for name in (c.MANIFEST, "BATCH_LOG.md", "tools/catalogue.py",
              "tools/version_replay.py", "tools/map_reference_test.py", "tools/receipts_test.py",
              "Batches/C_RECATALOG.json", "Batches/history/c-20261003-source/tools/version_replay.py")]
     files.append(Path(__file__).resolve())
-    if manifest.get("publicationAvailability") is not None:
-        files.extend(ROOT / name for name in (c.PUBLICATION_AVAILABILITY, c.PUBLICATION_SOURCE_AUDIT))
+    files.append(ROOT / c.PRODUCT_MANIFEST)
+    files.extend(ROOT / unit["recordPath"] for unit in products["units"])
     for source in manifest["sources"].values():
         files.extend(ROOT / source[field] for field in ("archive_path", "original_path"))
 
@@ -52,6 +53,11 @@ def main():
     if faults:
         print(json.dumps({"status": "FAIL", "checks": results}, indent=2))
         return 1
+    product_faults = c.validate_product_catalogue(ROOT, products, manifest)
+    check("production product partition and index", not product_faults, product_faults)
+    if product_faults:
+        print(json.dumps({"status": "FAIL", "checks": results}, indent=2))
+        return 1
     _data, units, rows = v.catalogue_inputs()
     check("production replay and index coverage", [unit[0] for unit in units] == list(rows))
     previous = ast.parse(
@@ -64,6 +70,50 @@ def main():
     check("source generation coverage", set(generations[manifest["source_generation"]]) == c.SOURCE_IDS
           and len(set().union(*generations.values())) == 127)
     check("maturity remains pre-alpha", all(row[3].endswith("-pre-alpha") for row in v.replay(units)))
+    check("product tiers replace contract credit once", units == v.UNITS +
+          [(u["id"], u["tier"], u["rationale"]) for u in products["units"]] + v.POST_C_UNITS)
+    check("all raw sources version-owned once", [edge["sourceId"] for u in products["units"]
+          for edge in u["sourceContributions"]] == [f"C{i}" for i in range(1, 121)])
+    check("CAO replay caps unchanged", v.fmt(v.bump(v.parse_version("1.12.0.0-pre-alpha"), "minor")) == "2.0.0.0-pre-alpha"
+          and v.fmt(v.bump(v.parse_version("1.1.16.0-pre-alpha"), "kohai")) == "1.2.0.0-pre-alpha"
+          and v.fmt(v.bump(v.parse_version("1.1.1.24-pre-alpha"), "patch")) == "1.1.2.0-pre-alpha")
+    with tempfile.TemporaryDirectory(prefix="sao-version-product-control-") as directory:
+        from unittest.mock import patch
+        wrong = Path(directory) / "VERSION"
+        wrong.write_bytes(b"0.0.0.0-pre-alpha\n")
+        with patch.object(v, "VERSION_FILE", wrong):
+            findings, _ = v.validate()
+        check("stale version coordinate refuses product replay", any("VERSION states" in f for f in findings), findings)
+
+    def product_mutation(name, change, expected):
+        candidate = deepcopy(products)
+        change(candidate)
+        findings = c.validate_product_catalogue(ROOT, candidate, manifest)
+        changed = json.dumps(candidate, sort_keys=True) != json.dumps(products, sort_keys=True)
+        check(name, changed and any(expected in finding for finding in findings), findings)
+
+    product_mutation("product missing unit", lambda d: d["units"].pop(), "product")
+    product_mutation("product duplicate unit", lambda d: d["units"].append(deepcopy(d["units"][0])), "unique C1..Cn")
+    product_mutation("product overlap", lambda d: d["units"][-1].update(first=1), "partition")
+    product_mutation("product source order", lambda d: d["units"][0]["sourceContributions"][0].update(sourceId="C120"), "chronological range")
+    product_mutation("product missing source", lambda d: d["units"][0]["sourceContributions"].pop(), "product")
+    product_mutation("product raw source pin", lambda d: d["units"][0]["sourceContributions"][0].update(sha256="0" * 64), "source pin")
+    product_mutation("product shared map pin", lambda d: d["sourceManifest"].update(sha256="0" * 64), "source manifest pin")
+    product_mutation("product generation collision", lambda d: d.update(generation=manifest["generation"]), "collides")
+    forged_findings = c.validate_product_catalogue(ROOT, deepcopy(manifest), manifest)
+    check("shared contract map refuses product authority", any("product schema" in f for f in forged_findings)
+          and any("partition" in f for f in forged_findings), forged_findings)
+    product_mutation("product source generation collision", lambda d: d.update(generation=manifest["source_generation"]), "collides")
+    product_mutation("product unknown tier", lambda d: d["units"][0].update(tier="invented"), "tier")
+    product_mutation("product index name mismatch", lambda d: d["units"][0].update(name="Known bad name"), "index path/date/name")
+    product_mutation("product record path escape", lambda d: d["units"][0].update(recordPath="../outside.md"), "outside Batches/Products")
+    product_mutation("product reordered range", lambda d: d["units"][0].update(first=120, last=1), "partition")
+    product_mutation("product pre-source date", lambda d: d["units"][0].update(date="1900-01-01"), "precedes")
+    product_mutation("product malformed identifier", lambda d: d["units"][0].update(id={"foreign": "C1"}), "unique C1..Cn")
+    product_mutation("product malformed source identifier", lambda d: d["units"][0]["sourceContributions"][0].update(sourceId={"foreign": "C1"}), "source pin")
+    product_mutation("product boolean range", lambda d: d["units"][0].update(first=True), "partition")
+    product_mutation("product forged source count", lambda d: d.update(sourceCount=119), "declared sourceCount")
+    product_mutation("product forged product count", lambda d: d.update(productCount=999), "declared productCount")
 
     def mutation(name, change, expected):
         candidate = deepcopy(manifest)
@@ -75,45 +125,6 @@ def main():
     mutation("missing source", lambda d: d["sources"].pop("C1"), "source coverage")
     mutation("duplicate unit", lambda d: d["units"].append(deepcopy(d["units"][0])), "unique C1..Cn")
     mutation("missing owner", lambda d: d["units"][0].update(owners=["absent-catalogue-control.lua"]), "owner does not exist")
-    if manifest.get("publicationAvailability") is not None:
-        mutation("missing availability binding", lambda d: d.pop("publicationAvailability"), "owner does not exist")
-        mutation("wrong availability hash", lambda d: d["publicationAvailability"].update(sha256="0"*64), "availability binding")
-        mutation("other contract cannot use local recovery exception", lambda d: d["units"][0].update(owners=list(c.LOCAL_RECOVERY_OWNERS)), "owner does not exist")
-        with tempfile.TemporaryDirectory(prefix="sao-publication-control-") as directory:
-            detached = Path(directory)
-            reference = manifest["sources"]["C120"]["archive_path"]
-            record = detached / reference
-            record.parent.mkdir(parents=True)
-            record.write_bytes((ROOT / reference).read_bytes())
-            original = c.read_json(ROOT / c.PUBLICATION_AVAILABILITY)
-            original_audit = c.read_json(ROOT / c.PUBLICATION_SOURCE_AUDIT)
-
-            def availability_case(name, change, expected):
-                document, audit, candidate = deepcopy(original), deepcopy(original_audit), deepcopy(manifest)
-                change(document, audit, candidate)
-                audit["owners"] = deepcopy(document["owners"])
-                audit_path = detached / c.PUBLICATION_SOURCE_AUDIT
-                audit_path.parent.mkdir(parents=True, exist_ok=True)
-                audit_path.write_text(json.dumps(audit)+'\n', encoding='utf-8')
-                document["sourceAudit"]["sha256"] = hashlib.sha256(audit_path.read_bytes()).hexdigest()
-                path = detached / c.PUBLICATION_AVAILABILITY
-                path.write_text(json.dumps(document)+'\n', encoding='utf-8')
-                candidate["publicationAvailability"]["sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
-                allowed, findings = c.publication_availability(detached, candidate)
-                check(name, not allowed and any(expected in item for item in findings), findings)
-
-            availability_case("resealed wrong owner blob hash", lambda d, a, m: d["owners"][0].update(sha256="0"*64), "owner provenance")
-            availability_case("resealed wrong Git object", lambda d, a, m: d["owners"][0].update(gitBlob="0"*40), "owner provenance")
-            availability_case("resealed foreign owner", lambda d, a, m: d["owners"][0].update(path="absent-foreign-owner.lua"), "owner provenance")
-            availability_case("resealed public owner status", lambda d, a, m: d["owners"][0].update(availability="published"), "owner provenance")
-            availability_case("resealed wrong owner contract", lambda d, a, m: d["owners"][0].update(contract="C32"), "owner provenance")
-            availability_case("resealed wrong source record", lambda d, a, m: d["owners"][0]["sourceRecord"].update(sha256="0"*64), "owner provenance")
-            availability_case("resealed duplicate owner", lambda d, a, m: d["owners"].__setitem__(1, deepcopy(d["owners"][0])), "owner availability")
-            availability_case("resealed unknown audit field", lambda d, a, m: a.update(sourceRedistributionGranted=True), "audit provenance")
-            availability_case("resealed wrong public base", lambda d, a, m: d.update(publicBase="0"*40), "availability identity")
-            availability_case("resealed false local publication", lambda d, a, m: m["sources"]["C120"].update(publication="merged"), "local source status")
-            availability_case("resealed wrong source archive", lambda d, a, m: a.update(archiveCommit="0"*40), "audit provenance")
-            availability_case("resealed extra owner", lambda d, a, m: d["owners"].append(deepcopy(d["owners"][0])), "audit provenance")
     mutation("missing delivered scope", lambda d: d["units"][0].update(delivered_scope=[]), "delivered_scope")
     mutation("invalid dependency", lambda d: d["units"][0].update(depends_on=["C999"]), "invalid dependency")
     mutation("missing interface reason", lambda d: next(u for u in d["units"] if u["depends_on"]).update(dependency_reasons={}), "interface reasons")

@@ -135,6 +135,14 @@ class ObserverLayoutTests(unittest.TestCase):
             root=Path(name); layout_path=root/'layout.json'
             layout_path.write_bytes(Lab.canonical(self.layout))
             saved=root/'saved-input';saved.write_bytes(b'prior-world-bytes')
+            (root/'run').mkdir()
+            prior_paths = ['run.json', 'StudyLoadingAgent.jar', 'cache/options.ini', 'cache/mods/default.txt',
+                           'cache/mods/fixture-map/42.20/media/lua/client/ZZStudyLaunch.lua']
+            for relative in prior_paths:
+                path = root/'run'/relative;path.parent.mkdir(parents=True,exist_ok=True)
+                path.write_bytes(Lab.canonical({'mapName':'fixture-map','launchNumber':1})
+                                 if relative=='run.json' else b'unchanged predecessor fixture')
+            prior_bytes = {relative:(root/'run'/relative).read_bytes() for relative in prior_paths}
             args=SimpleNamespace(package=root/'package',out=root/'run',game=root/'game',host='observer',
                                  resume=True,observer_layout=layout_path,mod=[],profile=None,
                                  enable_mod=[],disable_mod=[],refresh_observer_adapter=True)
@@ -147,7 +155,8 @@ class ObserverLayoutTests(unittest.TestCase):
                 binding.assert_not_called()
                 refresh.assert_not_called()
             self.assertEqual(saved.read_bytes(),b'prior-world-bytes')
-            self.assertFalse((root/'run').exists())
+            self.assertEqual({relative:(root/'run'/relative).read_bytes() for relative in prior_paths},prior_bytes)
+            self.assertFalse((root/'run/attempts').exists())
 
     def test_adapter_refresh_preserves_prior_and_rejects_tampered_provenance(self):
         with tempfile.TemporaryDirectory() as name:

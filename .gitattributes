@@ -26,3 +26,7 @@ Batches/*.json -text -whitespace
 Batches/Transitions/*.json -text -whitespace
 Batches/Transitions/C-20261003-compression* -text -whitespace
 Batches/history/c-20261003-source/** -text -whitespace
+Batches/history/d1-pre-closure/** -text -whitespace
+
+# Preserve exact current-index/version bytes captured before the product correction.
+Batches/history/c-20261005-before-product/** -text -whitespace

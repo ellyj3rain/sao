@@ -6,6 +6,7 @@ fixtures. Production observation, voice, locomotion and native-panel Lua run in
 the installed VM. This is not a loaded-game rendering or inventory proof.
 """
 from pathlib import Path
+import argparse
 import json
 import os
 import shutil
@@ -79,12 +80,32 @@ __tick();__paused();check("disabled-inert",__reads==0)
 O.enable();check("unknown-selection",not O.select("missing") and __records.missing==nil)
 O.select("a")
 local privatePlan={objective='retain usable food',status='blocked',resourceCategory='food',
+ inquiry={desiredConcept='bedroom',goal='relief-from-tiredness',path={modal=true,
+  roots={{from='residence',relation='typically-contains',into='bedroom'}},
+  missing={'presence','location','permission'}}},
  demand={pressure=.35,ownedReady=0,ownedRaw=0,ownedWater=0},
  sequence={{verb='inspect',owner='SAONeeds',status='available'}},
  rationale='inspect remembered ground',uncertainty='access and helper assent remain unknown',
  capacity={fatigue=.25,skills={Cooking=0},commitments={{id='accepted'}}},contacts={'b'},
  labor={slack={status='unknown'},groupValues={status='unknown'}}}
-SAO.ProceduralPlanning={snapshot=function()return {purposes={privatePlan},spatialFacts=0,practiceDomains=0} end}
+local privateReading={kind='leisure',fullType='Base.Book',status='reading',phase='preparing',pages=-1,totalPages=-1,progress=0}
+local privateDeferred={id='purpose/old',objective='retain accepted material obligation',
+ status='suspended',reason='current self-preservation response'}
+local privateOptional={id='purpose/solo',activity='blow-harmonica',status='suspended',
+ reason='physical performance completed; sharing unresolved'}
+SAO.ProceduralPlanning={snapshot=function()return {purposes={privatePlan},spatialFacts=0,practiceDomains=0,study=privateReading,
+ queuedPurposes={privateDeferred},suspendedLeisure={omitted=3,purposes={privateOptional}}} end}
+__records.a.leisureDecision={atHours=2.2,status='refused',selected='instrument:42',
+ alternatives={{kind='instrument',itemType='Base.Harmonica',itemKey='42'},
+  {kind='reading',itemType='Base.Book',itemKey='43'},
+  {kind='reading',itemType='private-third-item',itemKey='44'}},
+ interpretations={models={{modelId='ordinary',selected='reading:43'},
+  {modelId='associative',selected='instrument:42'}}}}
+__records.a.recoveryPlacement={status='unresolved',reason='no personally observed admissible recovery place'}
+__records.a.recoveryPlaceObservation={status='available',atHours=2.25,offeredCount=2,acceptedCount=0,
+ diagnostics={visibleBedParts=4,admissibleBeds=0,admissibleGround=0,groundRejectedVisibility=3,
+ groundRejectedClearance=7,bedRejections={{key='known-bed',sprite='furniture_bedding_01_40',
+ reason='personally-visible-head-side-approach-unavailable'}}}}
 __records.a.worldSourceReservation="missing-source"
 __sources.resultByActor.a="r1";__sources.results.r1={actorId="a",reservationId="r1",status="failed",detail="source unavailable"}
 SAO.Organization.processOrder={"p"}
@@ -109,7 +130,39 @@ check("resource-unknowns-visible",find(first.people.a.sections,"Uncertainty")==p
  and string.find(find(first.people.a.sections,"Labor assessment"),'slack: unknown',1,true)~=nil)
 check("planning-projection-read-only",privatePlan.status=='blocked' and privatePlan.demand.pressure==.35
  and privatePlan.sequence[1].status=='available')
+check("leisure-decision-visible",find(first.people.a.sections,"Leisure selection status")=='refused'
+ and find(first.people.a.sections,"Selected leisure action")=='instrument:42'
+ and find(first.people.a.sections,"Leisure alternative 1")=='instrument / Base.Harmonica [42]'
+ and find(first.people.a.sections,"Leisure alternative 2")=='reading / Base.Book [43]'
+ and find(first.people.a.sections,"Leisure alternative 3")==nil
+ and find(first.people.a.sections,"Leisure model 1")=='ordinary selects reading:43'
+ and find(first.people.a.sections,"Leisure model 2")=='associative selects instrument:42'
+ and find(first.people.a.sections,"Leisure evidence boundary")==
+  'Decision and admission are separate from completed use or shared participation'
+ and __records.a.leisureDecision.status=='refused'
+ and #__records.a.leisureDecision.alternatives==3)
+check("deferred-purpose-visible",find(first.people.a.sections,"Deferred purpose 1")==
+ 'purpose/old / retain accepted material obligation / suspended / current self-preservation response'
+ and find(first.people.a.sections,"Deferred leisure 1")==
+ 'purpose/solo / blow-harmonica / suspended / physical performance completed; sharing unresolved'
+ and find(first.people.a.sections,"Older leisure records omitted")=='3'
+ and privateDeferred.status=='suspended' and privateOptional.status=='suspended')
+__records.a.leisureDecision=nil
+check("inquiry-expectation-visible",find(first.people.a.sections,"Looking for")=="bedroom for relief-from-tiredness"
+ and find(first.people.a.sections,"Expected connection")=="residence typically contains bedroom"
+ and find(first.people.a.sections,"Knowledge status")=="Personal expectation; local availability still requires observation and checking"
+ and find(first.people.a.sections,"Still unknown")=="presence, location, permission"
+ and privatePlan.inquiry.path.modal==true and privatePlan.inquiry.path.location==nil)
+check("recovery-place-diagnostics-visible",find(first.people.a.sections,"Last recovery check")=="available at game hour 2.25"
+ and find(first.people.a.sections,"Place candidates")=="0 usable from 2 local offers"
+ and find(first.people.a.sections,"Observed bed check")=="4 visible parts / 0 usable beds"
+ and find(first.people.a.sections,"Ground check")=="0 clear places / 3 visibility refusals / 7 clearance refusals"
+ and find(first.people.a.sections,"Bed check 1")=="furniture_bedding_01_40 / personally visible head side approach unavailable"
+ and __records.a.recoveryPlaceObservation.diagnostics.bedRejections[1].reason=='personally-visible-head-side-approach-unavailable')
 check("autonomous-not-assigned",find(first.people.a.sections,"Goal source")==nil)
+check("reading-preparation-visible",find(first.people.a.sections,"Reading")=="Base.Book / preparing"
+ and find(first.people.a.sections,"Reading progress")=="No native action progress observed"
+ and privateReading.status=='reading' and privateReading.phase=='preparing')
 check("read-only-source-join",__records.a.worldSourceReservation=="missing-source"
  and find(first.people.a.sections,"Source action")=="Recorded pointer has no matching actor reservation")
 check("source-terminal-receipt",find(first.people.a.sections,"Latest result.status")=="failed")
@@ -255,6 +308,24 @@ check('retired-selection',feeds.status=='available' and feeds.selectedPersonId==
  and feeds.people['extra-17']==nil and feeds.capturedAtUnixMs==__ms)
 local richPeople=0;for id,person in pairs(feeds.people) do if person.cognition then richPeople=richPeople+1 end end
 check('retired-selection-not-retargeted',richPeople==0)
+local privateNote={kind='leisure',contentKind='written-note',contentPages=2,
+ phase='completed',exposureCompleted=true,progress=1,pages=999,totalPages=999,
+ privateText='unread-private-note-text',understood=true}
+SAO.ProceduralPlanning.snapshot=function() return {purposes={},study=privateNote} end
+O.select('a');__ms=__ms+1000;__tick();local noteView=O.snapshot()
+check('note-exposure-visible',find(noteView.people.a.sections,'Reading')=='Written notes / completed'
+ and find(noteView.people.a.sections,'Reading progress')==nil
+ and privateNote.pages==999 and privateNote.totalPages==999)
+local privateLeak=false
+for _,s in ipairs(noteView.people.a.sections) do
+ for _,r in ipairs(s.rows) do if string.find(tostring(r.value),privateNote.privateText,1,true) then privateLeak=true end end
+end
+check('note-understanding-unknown',find(noteView.people.a.sections,'Text exposure')=='Read; understanding unknown'
+ and not privateLeak and privateNote.understood==true)
+privateNote.phase,privateNote.exposureCompleted,privateNote.progress='preparing',false,0
+__ms=__ms+1000;__tick();noteView=O.snapshot()
+check('note-unread-not-completed',find(noteView.people.a.sections,'Text exposure')=='No reading progress observed'
+ and find(noteView.people.a.sections,'Reading')=='Written notes / preparing')
 return "OBSERVATION_PASS " .. checks .. " checks"
 end)()'''
 
@@ -300,12 +371,25 @@ return 'DEFAULT_OBSERVATION_PASS 4 checks'
 end)()'''
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--baseline-only', action='store_true')
+    parser.add_argument('--control', action='append', default=[])
+    parser.add_argument('--lua-only', action='store_true', help='Inspect Lua projections without rebuilding unchanged native health coverage')
+    args = parser.parse_args()
     if not (JDK / "javac.exe").is_file() or not (GAME / "projectzomboid.jar").is_file():
         print("SKIPPED: installed engine or JDK unavailable")
         return 0
     names = ["SAO_Observation.lua", "SAO_Locomotion.lua", "SAO_Voice.lua", "SAO_Inspect.lua"]
     sources = {name: (LUA / name).read_text(encoding="utf-8") for name in names}
     controls = [
+        ("leisure-decision-visible", "SAO_Observation.lua", 'if type(leisure) == "table" then', 'if false then'),
+        ("deferred-purpose-visible", "SAO_Observation.lua", 'local queued = view.queuedPurposes or {}', 'local queued = {}'),
+        ("note-exposure-visible", "SAO_Observation.lua", 'if reading.contentKind == "written-note" then', 'if false then'),
+        ("note-understanding-unknown", "SAO_Observation.lua", '"Read; understanding unknown"', '"Understood and learned"'),
+        ("note-unread-not-completed", "SAO_Observation.lua", 'reading.exposureCompleted == true', 'true'),
+        ("inquiry-expectation-visible", "SAO_Observation.lua", "if purpose.inquiry then", "if false then"),
+        ("recovery-place-diagnostics-visible", "SAO_Observation.lua", "if placeCheck then", "if false then"),
+        ("reading-preparation-visible", "SAO_Observation.lua", 'reading.phase or "unconfirmed"', 'reading.status or "unconfirmed"'),
         ("rich-demand", "SAO_Observation.lua", "represented[id], id == sampleSelected)", "represented[id], true)"),
         ("retired-selection", "SAO_Observation.lua", "selectedPersonId = sampleSelected", "selectedPersonId = selected"),
         ("basic-needs-all", "SAO_Observation.lua", "needs(body), attention(rec, body)", 'rich and needs(body) or section("needs", "Needs", "Native body", "Not sampled", "unavailable"), attention(rec, body)'),
@@ -335,16 +419,23 @@ def main():
         ("dormant-unavailable", "SAO_Observation.lua", 'if not body then s.status = "unavailable"; s.message = "No loaded body; native needs were not sampled"; return s end', 'if not body then return s end'),
         ("procedure-perspectives", "SAO_Observation.lua", 'row(s, "Personal next step", plan.intendedStepId or "No next step")', 'row(s, "Personal next step", "No next step")'),
     ]
+    known_controls = {control[0] for control in controls} | {'default-rich-demand'}
+    if set(args.control) - known_controls:
+        parser.error('unknown control: ' + ', '.join(sorted(set(args.control) - known_controls)))
+    selected_controls = [] if args.baseline_only else [control for control in controls
+        if not args.control or control[0] in args.control]
     with tempfile.TemporaryDirectory(prefix="sao-observation-") as folder:
         temp = Path(folder)
         version = temp / "SAOVersion.java"
         version.write_text("package com.sao; public final class SAOVersion { public static final String VALUE = "
             + json.dumps((ROOT / "VERSION").read_text(encoding="utf-8-sig").strip()) + "; }\n", encoding="utf-8")
         classpath = os.pathsep.join(map(str, (GAME / "projectzomboid.jar", GAME / "ZombieBuddy.jar")))
+        java_sources = [ROOT / "tools/luacheck/LuaRun.java"] if args.lua_only else [
+            *sorted((ROOT / "java/src").rglob("*.java")), version,
+            *[ROOT / "tools/luacheck" / name for name in
+              ("LuaRun.java", "MovementCrossingProbe.java", "ObservationHealthProbe.java")]]
         built = subprocess.run([str(JDK / "javac.exe"), "-encoding", "UTF-8", "-cp", classpath, "-d", str(temp),
-            *map(str, sorted((ROOT / "java/src").rglob("*.java"))), str(version),
-            *[str(ROOT / "tools/luacheck" / name) for name in
-              ("LuaRun.java", "MovementCrossingProbe.java", "ObservationHealthProbe.java")]],
+            *map(str, java_sources)],
             capture_output=True, text=True, timeout=120)
         if built.returncode:
             raise RuntimeError(built.stdout + built.stderr)
@@ -360,7 +451,7 @@ def main():
         print(output.strip())
         if code or "OBSERVATION_PASS" not in output:
             return 1
-        for expected, name, old, new in controls:
+        for expected, name, old, new in selected_controls:
             if sources[name].count(old) != 1:
                 raise AssertionError("control seam changed: " + expected)
             mutated = dict(sources); mutated[name] = sources[name].replace(old, new)
@@ -372,12 +463,15 @@ def main():
         if code or "DEFAULT_OBSERVATION_PASS" not in output:
             raise AssertionError(output)
         print(output.strip())
-        mutated = dict(sources)
-        mutated["SAO_Observation.lua"] = sources["SAO_Observation.lua"].replace(
-            "represented[id], id == sampleSelected)", "represented[id], true)")
-        code, output = run(mutated, DEFAULT_PROBE)
-        assert code != 0 and "OBSERVATION_CHECK:default-rich-demand" in output, output
-        print("CONTROL_PASS default-rich-demand")
+        if not args.baseline_only and (not args.control or 'default-rich-demand' in args.control):
+            mutated = dict(sources)
+            mutated["SAO_Observation.lua"] = sources["SAO_Observation.lua"].replace(
+                "represented[id], id == sampleSelected)", "represented[id], true)")
+            code, output = run(mutated, DEFAULT_PROBE)
+            assert code != 0 and "OBSERVATION_CHECK:default-rich-demand" in output, output
+            print("CONTROL_PASS default-rich-demand")
+        if args.lua_only:
+            return 0
         shutil.copy2(GAME / "stdlib.lua", temp / "stdlib.lua")
         (temp / "native-health.lua").write_text(NATIVE_PROBE, encoding="utf-8")
         observation = sources["SAO_Observation.lua"]

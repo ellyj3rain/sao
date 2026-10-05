@@ -34,6 +34,9 @@ SAO = { History = { ticks = function() return 100 end },
 _G.__stores, _G.__logs, _G.__voice = {}, 0, 0
 _G.__trust, _G.__debt, _G.__settled = {}, {}, {}
 _G.__queue = {}
+local canonicalPeople, canonicalBodies = {}, {}
+SAO.Identity = { get = function(id) return canonicalPeople[id] end }
+SAO.Body = { get = function(id) return canonicalBodies[id] end }
 ModData = { getOrCreate = function(key)
     __stores[key] = __stores[key] or {}; return __stores[key]
 end }
@@ -102,6 +105,7 @@ local function body(id, x, y, z)
     function value:getX() return self.x end
     function value:getY() return self.y end
     function value:getZ() return self.z end
+    canonicalPeople[id], canonicalBodies[id] = { id = id }, value
     return value
 end
 local function item(id, fullType, container)
@@ -355,11 +359,12 @@ def static_contract():
     if ("SAO.Handover.proposeTerms" not in exchange
             or "SAO.Handover.acceptTerms" not in exchange):
         return False, "exchange has no bilateral terms"
-    yield_start = controller.find("-- [C118] The robbed hand")
-    yield_end = controller.find("if threat.dist <= fleeAt", yield_start)
+    response = (CONTROLLER.parent / "SAO_ConflictResponse.lua").read_text(encoding="utf-8")
+    yield_start = response.find("elseif action.recipient then")
+    yield_end = response.find("elseif action.commitment then", yield_start)
     if yield_start < 0 or yield_end < 0:
         return False, "yield seam absent"
-    yield_body = controller[yield_start:yield_end]
+    yield_body = response[yield_start:yield_end]
     if "SAO.Handover.begin" not in yield_body:
         return False, "yield bypasses Handover"
     if "ISInventoryTransferAction:new" in yield_body:

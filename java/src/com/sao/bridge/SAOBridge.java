@@ -83,6 +83,129 @@ public final class SAOBridge {
         }
     }
 
+    /** Validate one source-reconstructed personal prior before Lua publishes it. */
+    public String educationValidate(String rawJson, String rawSha256,
+            String personId, String profileSha256, String bankSha256,
+            String backgroundsSha256, String personEducationSha256,
+            String exposuresSha256, String archiveSha256, double countyTick) {
+        try {
+            if (rawJson == null || rawJson.length() > 2 * 1024 * 1024) {
+                return "SAO_EDUCATION_REFUSED_2\tinput-bound";
+            }
+            var expected = new com.sao.engine.SAOEducationPrior.Bindings(personId,
+                profileSha256, bankSha256, backgroundsSha256,
+                personEducationSha256, exposuresSha256, archiveSha256);
+            var prior = com.sao.engine.SAOEducationPrior.load(
+                rawJson.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                rawSha256, expected, countyTick);
+            return prior.snapshotWire(countyTick);
+        } catch (Throwable throwable) {
+            SAOAgent.log("educationValidate refused: " + throwable);
+            return "SAO_EDUCATION_REFUSED_2\tinvalid-source-prior";
+        }
+    }
+
+    /** A detached conceptual projection; no native skill, claim or learning write. */
+    public String educationQuery(String rawJson, String rawSha256,
+            String personId, String profileSha256, String bankSha256,
+            String backgroundsSha256, String personEducationSha256,
+            String exposuresSha256, String archiveSha256, double countyTick) {
+        return educationValidate(rawJson, rawSha256, personId, profileSha256,
+            bankSha256, backgroundsSha256, personEducationSha256,
+            exposuresSha256, archiveSha256, countyTick);
+    }
+
+    /** Decode the prior's bounded ASCII wire field through strict UTF-8. */
+    public String educationDecode(String escaped) {
+        try {
+            return com.sao.engine.SAOEducationPrior.decodeWireField(escaped);
+        } catch (Throwable throwable) {
+            return null;
+        }
+    }
+
+    public boolean educationCheckConcept(String conceptRefJson, String courseUnitsJson,
+            String conceptId, String sourceId, String sourceVersion, String sourcePath,
+            String sourceSha256, String exerciseId) {
+        try {
+            return com.sao.engine.SAOEducationPrior.checkConceptView(conceptRefJson,
+                courseUnitsJson, conceptId, sourceId, sourceVersion, sourcePath,
+                sourceSha256, exerciseId);
+        } catch (Throwable error) { return false; }
+    }
+
+    /** Preserve verified source bytes through native Kahlua string serialization. */
+    public Object educationPack(String rawJson) {
+        try {
+            if (rawJson == null || rawJson.length() > 2 * 1024 * 1024
+                    || rawJson.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 2 * 1024 * 1024) {
+                return null;
+            }
+            return SAODurableText.pack(rawJson);
+        } catch (Throwable throwable) {
+            SAOAgent.log("educationPack refused: " + throwable);
+            return null;
+        }
+    }
+
+    /** Unpack source bytes without admitting a prior or changing a person. */
+    public String educationUnpack(Object packed) {
+        try {
+            if (packed instanceof se.krka.kahlua.vm.KahluaTable table) {
+                Object declared = table.rawget("bytes");
+                if (!(declared instanceof Double length) || !Double.isFinite(length)
+                        || length < 1 || length > 2 * 1024 * 1024) return null;
+            } else if (!(packed instanceof String text) || text.length() > 2 * 1024 * 1024) {
+                return null;
+            }
+            String text = SAODurableText.unpack(packed);
+            return text.getBytes(java.nio.charset.StandardCharsets.UTF_8).length <= 2 * 1024 * 1024
+                ? text : null;
+        } catch (Throwable throwable) {
+            SAOAgent.log("educationUnpack refused: " + throwable);
+            return null;
+        }
+    }
+
+    /** Validate a complete source-produced registry before Lua stages any row. */
+    public String educationCheckedRegistry(String rawJson, String rawSha256,
+            String worldSha256, String bankSha256, String archiveSha256, double countyTick) {
+        try {
+            if (rawJson == null || rawJson.length() > com.sao.engine.SAOEducationPrior.MAX_REGISTRY_BYTES)
+                return null;
+            return com.sao.engine.SAOEducationPrior.checkedRegistry(
+                rawJson.getBytes(java.nio.charset.StandardCharsets.UTF_8), rawSha256,
+                worldSha256, bankSha256, archiveSha256, countyTick);
+        } catch (Throwable error) { return null; }
+    }
+
+    public String educationRegistryDecode(String encoded) {
+        try { return com.sao.engine.SAOEducationPrior.decodeRegistryField(encoded); }
+        catch (Throwable error) { return null; }
+    }
+
+    public Object educationRegistryPack(String rawJson) {
+        try {
+            int maximum = com.sao.engine.SAOEducationPrior.MAX_REGISTRY_BYTES;
+            if (rawJson == null || rawJson.length() > maximum
+                    || rawJson.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > maximum) return null;
+            return SAODurableText.pack(rawJson);
+        } catch (Throwable error) { return null; }
+    }
+
+    public String educationRegistryUnpack(Object packed) {
+        try {
+            int maximum = com.sao.engine.SAOEducationPrior.MAX_REGISTRY_BYTES;
+            if (packed instanceof se.krka.kahlua.vm.KahluaTable table) {
+                Object declared = table.rawget("bytes");
+                if (!(declared instanceof Double length) || !Double.isFinite(length)
+                        || length < 1 || length > maximum) return null;
+            } else if (!(packed instanceof String text) || text.length() > maximum) return null;
+            String text = SAODurableText.unpack(packed);
+            return text.getBytes(java.nio.charset.StandardCharsets.UTF_8).length <= maximum ? text : null;
+        } catch (Throwable error) { return null; }
+    }
+
     /** Queue an immutable, non-authoritative recipient-decision snapshot. */
     public String submitCoordinationShadow(String requestId, String canonicalJson,
             String typedFeaturesCsv, String feasibleOptionsCsv) {
@@ -423,6 +546,16 @@ public final class SAOBridge {
             if (!chr.isDead()) {
                 return "ALIVE";
             }
+            if (chr instanceof SAOIsoPlayerShell shell) {
+                if (com.sao.engine.SAONativeDeath.hasCorpse(shell)) {
+                    return com.sao.engine.SAONativeDeath.isDetached(shell) ? "ALREADY_CORPSE" : "DIE_PENDING";
+                }
+                // An unloaded square, a failed native die(), or a network
+                // handoff alone cannot acknowledge this shell's corpse.
+                if (shell.getCurrentSquare() == null) return "DIE_PENDING";
+                shell.die();
+                return com.sao.engine.SAONativeDeath.isDetached(shell) ? "DIED" : "DIE_PENDING";
+            }
             if (chr.getCurrentSquare() == null) {
                 // The corpse constructor removes the character from the
                 // world (ctor offsets 1159-1163), so a dead character with
@@ -488,6 +621,51 @@ public final class SAOBridge {
         }
     }
 
+    /** Bounded combat: exact actor-admitted sight key, no nearest replacement. */
+    public String combatOpportunity(Object object, String kind, String key) {
+        try {
+            return object instanceof SAOIsoPlayerShell shell
+                ? com.sao.engine.SAOCombat.opportunity(shell, kind, key) : "REFUSED\tbody-unavailable";
+        } catch (Throwable error) {
+            SAOAgent.log("combatOpportunity threw: " + error);
+            return "REFUSED\tnative-unavailable";
+        }
+    }
+
+    public String localCombatMoves(Object object) {
+        try {
+            return object instanceof SAOIsoPlayerShell shell
+                ? com.sao.engine.SAOCombat.localMoves(shell) : "REFUSED\tbody-unavailable";
+        } catch (Throwable error) {
+            SAOAgent.log("localCombatMoves threw: " + error);
+            return "REFUSED\tnative-unavailable";
+        }
+    }
+
+    public String beginCombatObserved(Object object, String kind, String key, String mode) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) return "COMBAT_FAILED BODY_UNAVAILABLE";
+            var combat = combats.computeIfAbsent(shell, ignored -> new com.sao.engine.SAOCombat());
+            return combat.beginObserved(shell, kind, key, mode);
+        } catch (Throwable error) {
+            SAOAgent.log("beginCombatObserved threw: " + error);
+            return "COMBAT_FAILED NATIVE_UNAVAILABLE";
+        }
+    }
+
+    public String cancelCombatObserved(Object object) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) return "COMBAT_FAILED BODY_UNAVAILABLE";
+            var combat = combats.get(shell);
+            if (combat == null) return "COMBAT_CANCELLED";
+            if (!combat.isBounded()) return combat.hasCommitment() ? "COMBAT_HELD" : "COMBAT_CANCELLED";
+            return combat.cancelObserved();
+        } catch (Throwable error) {
+            SAOAgent.log("cancelCombatObserved threw: " + error);
+            return "COMBAT_HELD";
+        }
+    }
+
     public String tickCombat(Object object) {
         try {
             if (!(object instanceof SAOIsoPlayerShell shell)) {
@@ -504,9 +682,12 @@ public final class SAOBridge {
     public String resetCombat(Object object) {
         try {
             if (object instanceof SAOIsoPlayerShell shell) {
-                var combat = combats.remove(shell);
+                var combat = combats.get(shell);
                 if (combat != null) {
+                    if (combat.isBounded() && "COMBAT_HELD".equals(combat.cancelObserved()))
+                        return "COMBAT_HELD";
                     combat.reset();
+                    combats.remove(shell, combat);
                 }
             }
             return "COMBAT_RESET";
@@ -2098,6 +2279,52 @@ public final class SAOBridge {
         }
     }
 
+    public se.krka.kahlua.vm.KahluaTable recoveryPlaces(Object object, int radius) {
+        try {
+            var result=object instanceof SAOIsoPlayerShell body
+                ? com.sao.engine.SAORecoveryPlace.observe(body,radius) : null;
+            if(result==null)result=recoveryPlaceUnavailable("unavailable","native-body-or-range-unavailable");
+            if(object instanceof SAOIsoPlayerShell body){
+                var report=(se.krka.kahlua.vm.KahluaTable)result.rawget("diagnostics");
+                report.rawset("nativeAsleep",body.isAsleep());report.rawset("nativeOnBed",body.isOnBed());
+            }
+            return result;
+        } catch (Throwable error) {
+            SAOAgent.log("recovery places unavailable: " + error);
+            return recoveryPlaceUnavailable("error","native-query-error");
+        }
+    }
+
+    private static se.krka.kahlua.vm.KahluaTable recoveryPlaceUnavailable(String status,String reason) {
+        var result=zombie.Lua.LuaManager.platform.newTable();var report=zombie.Lua.LuaManager.platform.newTable();
+        result.rawset("status",status);result.rawset("diagnostics",report);
+        report.rawset("schema","sao.recovery-place-diagnostics/1");report.rawset("bodyAdmission","unavailable");
+        report.rawset("reason",reason);return result;
+    }
+
+    public boolean recoveryGroundClear(Object object, double x, double y, double z) {
+        try { return object instanceof SAOIsoPlayerShell body
+            && com.sao.engine.SAORecoveryPlace.groundClear(body,x,y,z);
+        } catch (Throwable error) { return false; }
+    }
+
+    public zombie.iso.IsoObject recoveryBed(Object object, String key) {
+        try { return object instanceof SAOIsoPlayerShell body
+            ? com.sao.engine.SAORecoveryPlace.resolveBed(body,key) : null;
+        } catch (Throwable error) { return null; }
+    }
+
+    /** Actual active recovery pose on this body; inspection never requests a pose. */
+    public boolean isRecoveryPose(Object object, String kind) {
+        try {
+            return object instanceof SAOIsoPlayerShell shell
+                && com.sao.engine.SAORecoveryPose.isRecoveryPose(shell, kind);
+        } catch (Throwable error) {
+            SAOAgent.log("recovery pose unavailable: " + error);
+            return false;
+        }
+    }
+
     /** Sleep flag on a shell (F-016: safe, inert, cosmetic + gating). */
     public void setShellAsleep(Object object, boolean asleep) {
         if (object instanceof SAOIsoPlayerShell shell) {
@@ -2317,6 +2544,40 @@ public final class SAOBridge {
             SAOAgent.log("perceive threw: " + throwable);
             return "";
         }
+    }
+
+    /** Exact native emission, called by Gesture's currently owned instrument action. */
+    public se.krka.kahlua.vm.KahluaTable bindInstrumentOccurrence(Object body, Object sound, String workId) {
+        try { return com.sao.engine.SAOWorldSoundPulses.bindInstrument(body, sound, workId); }
+        catch (Throwable error) { return null; }
+    }
+
+    /** Hearing and visible-emitter acquisition; never lists other people's listeners. */
+    public se.krka.kahlua.vm.KahluaTable claimInstrumentHearing(Object observer, Object performer,
+            String workId, String pulseId) {
+        try { return com.sao.engine.SAOWorldSoundPulses.claimInstrument(observer, performer, workId, pulseId); }
+        catch (Throwable error) { return null; }
+    }
+
+    /** Own carried food and native recognition; no hidden world items are consulted. */
+    public se.krka.kahlua.vm.KahluaTable personalFoodKnowledge(Object object) {
+        try { return object instanceof SAOIsoPlayerShell body
+            ? com.sao.engine.SAOConceptObservation.foodKnowledge(body) : null;
+        } catch (Throwable error) { return null; }
+    }
+    public Object personalFoodChoice(Object object, double itemId, String itemType,
+            boolean recognizedPoison, String basis) {
+        try { return object instanceof SAOIsoPlayerShell body
+            ? com.sao.engine.SAOConceptObservation.foodChoice(body, itemId, itemType, recognizedPoison, basis) : null;
+        } catch (Throwable error) { return null; }
+    }
+
+    /** Actor-visible concept anchors and doorway hypotheses; no native objects leave this read. */
+    public se.krka.kahlua.vm.KahluaTable conceptObservations(Object object, int radius) {
+        try {
+            return object instanceof SAOIsoPlayerShell body
+                ? com.sao.engine.SAOConceptObservation.observe(body, radius) : null;
+        } catch (Throwable error) { SAOAgent.log("concept observations unavailable: " + error); return null; }
     }
 
     /** [C60] Recheck a perceived action participant at the point of use. */
@@ -2861,6 +3122,17 @@ public final class SAOBridge {
                 ? "MOVE_BARRIER_UNAVAILABLE" : state.barrierResult;
         } catch (Throwable unavailable) {
             return "MOVE_BARRIER_UNAVAILABLE";
+        }
+    }
+
+    /** Consume one actual crossed aperture from this exact body's current route. */
+    public String consumeMoveCrossing(Object object) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) return "NOT_A_SHELL";
+            SAORouteState state = routes.get(shell);
+            return state == null ? "MOVE_CROSSING_UNAVAILABLE" : state.consumeCrossing();
+        } catch (Throwable unavailable) {
+            return "MOVE_CROSSING_UNAVAILABLE";
         }
     }
 
@@ -3421,6 +3693,18 @@ public final class SAOBridge {
         } catch (Throwable throwable) {
             SAOAgent.log("observeWorldChunk threw: " + throwable);
             return "";
+        }
+    }
+
+    /** Exact loose items visible to this native body; no container contents. */
+    public Object visibleGroundSources(Object object, double radius) {
+        try {
+            if (!(object instanceof com.sao.engine.SAOIsoPlayerShell shell)
+                    || !Double.isFinite(radius) || radius != Math.rint(radius)) return null;
+            return com.sao.engine.SAOWorldSources.visibleGroundSources(shell, (int) radius);
+        } catch (Throwable throwable) {
+            SAOAgent.log("visibleGroundSources threw: " + throwable);
+            return null;
         }
     }
 

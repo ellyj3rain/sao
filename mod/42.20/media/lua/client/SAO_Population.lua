@@ -723,7 +723,6 @@ local function populationTick()
     for _, rec in pairs(SAO.Identity.all()) do
         SAO.Body.recover(rec)
     end
-    if not pending then dormantCountyPass(conf) end
     local px, py = residencyPos()
     if px then
         bandSkips = 0
@@ -738,6 +737,11 @@ local function populationTick()
                 .. " will be built until that changes")
         end
     end
+
+    -- Native representation gets first admission at the saved position.
+    -- A resumed nearby person must not take a coarse dormant step before the
+    -- body owner can restore them. Historical catch-up keeps its own pass.
+    if not pending then dormantCountyPass(conf) end
 
     -- [B47] Last, not first. The digest describes the county, and
     -- until the subsystems above have run on a new world there is no

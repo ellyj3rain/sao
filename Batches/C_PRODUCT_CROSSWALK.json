@@ -1,0 +1,1087 @@
+{
+  "schema": "sao.c-product-crosswalk/1",
+  "generation": "20261005-product-consolidation",
+  "sourceGeneration": "20260919-through-C120",
+  "rows": [
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C1",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C1-2026-08-28-catalog-and-version-governance.md",
+      "sourceSha256": "ef483a80b6522058a191dca1d13c72c5fb9cb640acfe77f9a5f74b75ab77ff48",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C1",
+      "recordPath": "Batches/Products/C1-2026-08-28-catalog-and-version-governance.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C2",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C2-2026-08-29-identity-and-execution-continuity.md",
+      "sourceSha256": "364d1bab41a5b0d90061c1db4440d8729852f82a27bb18fc5a6c525e868bc54f",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C2",
+      "recordPath": "Batches/Products/C2-2026-08-29-identity-and-execution-continuity.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C3",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C3-2026-08-29-inspection-and-person-state.md",
+      "sourceSha256": "21e88ace423f109a31e12b92e42133210c80cde274b43fb0f57aa8e2db20c191",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C3",
+      "recordPath": "Batches/Products/C3-2026-08-29-inspection-and-person-state.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C4",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C4-2026-08-29-death-ownership-and-infection-timing.md",
+      "sourceSha256": "70e85e4e71e0b5b687ac7272fca4ab5090e34d9af7fbdb38e91bb03beb33bc4d",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C4",
+      "recordPath": "Batches/Products/C4-2026-08-29-death-ownership-and-infection-timing.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C5",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C5-2026-08-29-player-surfaces-and-compatibility-review.md",
+      "sourceSha256": "86f923b37757624435ea5eea689c72589106c9d64da8da3698dc367d6cfdb6ce",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C5",
+      "recordPath": "Batches/Products/C5-2026-08-29-player-surfaces-and-compatibility-review.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C6",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C6-2026-08-29-person-state-across-reload.md",
+      "sourceSha256": "f5f6fed8809e22e59b2a4c0fcf1ee24ebf91ccd3e50683b0c17a28b32bc83406",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C6",
+      "recordPath": "Batches/Products/C6-2026-08-29-person-state-across-reload.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C7",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C7-2026-08-29-zombie-census-and-bounded-restitution.md",
+      "sourceSha256": "2de9d2f46d511ddb900c974a24b43e18ff781e04b383307c63b5d71ce440eeb4",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C7",
+      "recordPath": "Batches/Products/C7-2026-08-29-zombie-census-and-bounded-restitution.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C8",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C8-2026-08-29-play-evidence-and-execution-corrections.md",
+      "sourceSha256": "f06caed4fde9eef82dc9b9cb143fb008f5a3ad22b21732285ce95279c5b5735c",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C8",
+      "recordPath": "Batches/Products/C8-2026-08-29-play-evidence-and-execution-corrections.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C9",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C9-2026-08-29-adoption-and-configuration-boundaries.md",
+      "sourceSha256": "010cdc9496df011a7faf3b3d3d6811424d3b86ee9d02ed7512bc96bac1a6506c",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C9",
+      "recordPath": "Batches/Products/C9-2026-08-29-adoption-and-configuration-boundaries.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C10",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C10-2026-08-29-known-needs-and-social-interaction.md",
+      "sourceSha256": "03343eed00a35a21fb5a1546505f76d34bb9416ab4961a7bc8dd984ced10e882",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C10",
+      "recordPath": "Batches/Products/C10-2026-08-29-known-needs-and-social-interaction.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C11",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md",
+      "sourceSha256": "21139c3884f68232174faa0ec0b357d0c95e5526c3cb560d5dd79676d6761e7c",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C11",
+      "recordPath": "Batches/Products/C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C12",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C12-2026-09-06-body-scale-age-and-childhood.md",
+      "sourceSha256": "b81d6e7ad1b894e25ab6b5057ccfb1bae7817cffaf96e39928a023d459773462",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C12",
+      "recordPath": "Batches/Products/C12-2026-09-06-body-scale-age-and-childhood.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C13",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C13-2026-09-06-conditions-habits-and-strain.md",
+      "sourceSha256": "4bfadba8b1d3ba3cfc66597d271e87a392e447b380ec0d024b01906a6323f656",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C13",
+      "recordPath": "Batches/Products/C13-2026-09-06-conditions-habits-and-strain.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C14",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C14-2026-09-07-physical-gestures.md",
+      "sourceSha256": "93776be00ac5a69f38109c0f9e440beaad9d623fe02006b385cfd9a65fddd59c",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C14",
+      "recordPath": "Batches/Products/C14-2026-09-07-physical-gestures.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C15",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C15-2026-09-07-historical-record-calendar.md",
+      "sourceSha256": "aaf3cf1a870058152c6934d96e3ec61c0a0cf71db4f3836801b5d7d1ed49a383",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C15",
+      "recordPath": "Batches/Products/C15-2026-09-07-historical-record-calendar.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C16",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C16-2026-09-07-orders-through-standing.md",
+      "sourceSha256": "4dc412ed3143ecd91608c6a08b2a5039b20cfdeadd1ce69c46fc5e18f5c76eea",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C16",
+      "recordPath": "Batches/Products/C16-2026-09-07-orders-through-standing.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C17",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C17-2026-09-07-remembered-era-and-owned-condition-state.md",
+      "sourceSha256": "dea3b51f51b9fa0c92a2141d1cb9aed6b88ded7a9c4947c18e46b2e16cbe8193",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C17",
+      "recordPath": "Batches/Products/C17-2026-09-07-remembered-era-and-owned-condition-state.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C18",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C18-2026-09-07-historical-county-simulation.md",
+      "sourceSha256": "2a1ae46fd778484734bd1c131352423d6a473f031720ad4e3e5a1034f529d9e0",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C18",
+      "recordPath": "Batches/Products/C18-2026-09-07-historical-county-simulation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C19",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C19-2026-09-07-constrained-factual-expression.md",
+      "sourceSha256": "a814077bcec95b3bfbb5c875e3150ffa4f4ac4cf5dd14880629fec297ab71e77",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C19",
+      "recordPath": "Batches/Products/C19-2026-09-07-constrained-factual-expression.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C20",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C20-2026-09-07-entry-and-command-permission.md",
+      "sourceSha256": "9cde8308584d138a31f1979f4c76ea8b83e80e7ba0c7cabb9b1d97ce4c5740de",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C20",
+      "recordPath": "Batches/Products/C20-2026-09-07-entry-and-command-permission.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C21",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C21-2026-09-08-learned-expression-and-condition-integration.md",
+      "sourceSha256": "323eb222712592be46c6a5ca87f370a2a6fc09ba24a59d2a364f834d476328f2",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C21",
+      "recordPath": "Batches/Products/C21-2026-09-08-learned-expression-and-condition-integration.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C22",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C22-2026-09-08-personal-choice-in-shared-travel.md",
+      "sourceSha256": "5d70ee82fa2d3fd6d9466412ebd16d833e24f96c57542b257e0cdbcb4134a7b4",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C22",
+      "recordPath": "Batches/Products/C22-2026-09-08-personal-choice-in-shared-travel.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C23",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C23-2026-09-08-witnessed-violence-attribution.md",
+      "sourceSha256": "1ca5b968740c66760ec8b2a57faa0f2763575e8b40690b1c36f7afb066e73090",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C23",
+      "recordPath": "Batches/Products/C23-2026-09-08-witnessed-violence-attribution.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C24",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C24-2026-09-08-verification-and-publication-machinery.md",
+      "sourceSha256": "e36b80010ea24999d6f97bc8e42c2f91e13378b9bcfd2177cad091c6c263e8f7",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C24",
+      "recordPath": "Batches/Products/C24-2026-09-08-verification-and-publication-machinery.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C25",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C25-2026-09-08-player-depletion-of-places.md",
+      "sourceSha256": "5367a66687cca2a6120a31dfb6775ddd7790708cb3a63e1492e5146a4456fabf",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C25",
+      "recordPath": "Batches/Products/C25-2026-09-08-player-depletion-of-places.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C26",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C26-2026-09-08-shared-county-time-and-day-zero.md",
+      "sourceSha256": "4122199798bd8320c1e5c2e256dfbfcc095c15795ff361ba160764149ffb3350",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C26",
+      "recordPath": "Batches/Products/C26-2026-09-08-source-clocked-county-simulation-and-observation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C27",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C27-2026-09-08-scoped-verification-claims.md",
+      "sourceSha256": "a30f1f9348f4bbd8c3bc715670ef52047d6550b2f5eb6d7e0eebf15e04f592c1",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C26",
+      "recordPath": "Batches/Products/C26-2026-09-08-source-clocked-county-simulation-and-observation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C28",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C28-2026-09-08-simulation-telemetry-and-reproducibility.md",
+      "sourceSha256": "3051de0fdbc89405393002ec869c43a7a032a669b20568c9ad15241f2b2530d1",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C26",
+      "recordPath": "Batches/Products/C26-2026-09-08-source-clocked-county-simulation-and-observation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C29",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C29-2026-09-08-dormant-social-continuity-and-county-measurement.md",
+      "sourceSha256": "c83886714e1efc5ed56797f5eca03ef135a70cabcadf02644fedcd722ae4ac49",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C27",
+      "recordPath": "Batches/Products/C27-2026-09-08-dormant-social-continuity-and-county-measurement.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C30",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C30-2026-09-09-ownership-across-the-three-repositories.md",
+      "sourceSha256": "426c37a2510833c296e1e2baed752b74132132d528ef47495f8d1ccf67a0f0f7",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C28",
+      "recordPath": "Batches/Products/C28-2026-09-09-ownership-across-the-three-repositories.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C31",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C31-2026-09-09-dormant-movement-settlement-ground-and-cost.md",
+      "sourceSha256": "995fcec239470d37cffbd409626a80e0437f1f079fbf14a09f561844584c2a2d",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C29",
+      "recordPath": "Batches/Products/C29-2026-09-09-dormant-movement-settlement-ground-and-cost.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C32",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C32-2026-09-09-infection-course-and-clinical-observation.md",
+      "sourceSha256": "0b194b12933e80e5b95770644979c950a0dcfc790044c2cea6de613421ddcc42",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C30",
+      "recordPath": "Batches/Products/C30-2026-09-09-infection-course-and-clinical-observation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C33",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C33-2026-09-09-controller-ownership-and-driving-surface-verification.md",
+      "sourceSha256": "797d1492ba5ddffb668c8725e5924e0548ebe8ffd174aa5c34a75f2c9714f720",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C31",
+      "recordPath": "Batches/Products/C31-2026-09-09-controller-ownership-and-driving-surface-verification.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C34",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C34-2026-09-10-decision-capture-and-ratified-data-preparation.md",
+      "sourceSha256": "fdae5ad5b4a174a25ec8b9a5248a6f7193fd770954b0c7391073bc60cdd7b669",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C32",
+      "recordPath": "Batches/Products/C32-2026-09-10-decision-capture-and-ratified-data-preparation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C35",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C35-2026-09-10-life-simulation-and-dependency-contracts.md",
+      "sourceSha256": "3f96f92b881c6c2165c2dd0a79ad6d35f020b71b0555423f754d3159d5440d18",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C33",
+      "recordPath": "Batches/Products/C33-2026-09-10-life-simulation-and-dependency-contracts.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C36",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C36-2026-09-10-isolation-attachment-and-development-observations.md",
+      "sourceSha256": "3e3759e8e974fc3cb8db0d46657d7486f9ae9f9fdd518ce2752731c50a85a129",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C34",
+      "recordPath": "Batches/Products/C34-2026-09-10-isolation-attachment-and-development-observations.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C37",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C37-2026-09-12-pathogen-data-and-recognition-integration.md",
+      "sourceSha256": "fc5684ccfb93f6341d730867b2ff1d50fe799556a7145799af234be59c38c5f0",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C35",
+      "recordPath": "Batches/Products/C35-2026-09-12-pathogen-data-and-recognition-integration.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C38",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C38-2026-09-12-player-claims-and-inhabited-ground.md",
+      "sourceSha256": "e6c7aaf58a9a4670aca01f154eec7f6bbe176709f0fdf62ba9e2acb106248c6a",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C36",
+      "recordPath": "Batches/Products/C36-2026-09-12-player-claims-and-inhabited-ground.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C39",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C39-2026-09-12-readiness-corrections-and-recorded-rulings.md",
+      "sourceSha256": "36689958e8f33ee1821952792889a12790d7549c7e6825402ec80927b06edb3e",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C37",
+      "recordPath": "Batches/Products/C37-2026-09-12-readiness-corrections-and-recorded-rulings.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C40",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C40-2026-09-12-personal-need-in-affiliation.md",
+      "sourceSha256": "be21e5557d424f91d9bb3ee131b48c694e225788ced7083d8871b12f3de59470",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C38",
+      "recordPath": "Batches/Products/C38-2026-09-12-personal-need-in-affiliation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C41",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C41-2026-09-13-county-tick-and-ordinary-activity.md",
+      "sourceSha256": "7b2658042c13c13a56b435dd3497980314cb95815158aeb4ecd62ba6d59ab411",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C39",
+      "recordPath": "Batches/Products/C39-2026-09-13-county-tick-and-ordinary-activity.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C42",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C42-2026-09-13-driving-integration-and-configuration.md",
+      "sourceSha256": "d49ba78ad8548d9dddb8a7aaa9e66de0e4232243b5ce13f399f216eed8c78b5a",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C40",
+      "recordPath": "Batches/Products/C40-2026-09-13-driving-integration-and-configuration.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C43",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C43-2026-09-13-afflicted-return-and-social-behavior.md",
+      "sourceSha256": "7200dccd6fdd0acd72ec33f1326ee9cf79cf53b1638f0430d2ca5e07c9861820",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C41",
+      "recordPath": "Batches/Products/C41-2026-09-13-afflicted-return-and-social-behavior.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C44",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C44-2026-09-14-robbery-and-raiding-actions.md",
+      "sourceSha256": "b6ee6cf865f0509a7388d53d8687e56b642d4690dc30e4a86ae4473aa027ac69",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C42",
+      "recordPath": "Batches/Products/C42-2026-09-14-robbery-and-raiding-actions.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C45",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C45-2026-09-14-optional-county-events-and-care.md",
+      "sourceSha256": "6a5413a39d97d445dd7acf4bfc1295930bd34ed86e12fb39bbf4b95eea0647fe",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C43",
+      "recordPath": "Batches/Products/C43-2026-09-14-optional-county-events-and-care.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C46",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C46-2026-09-14-child-and-everyday-activity-integration.md",
+      "sourceSha256": "317d2631c71891315555be7284cb7aebf88ad9f2ffb40908f249870515e2a4f1",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C44",
+      "recordPath": "Batches/Products/C44-2026-09-14-child-and-everyday-activity-integration.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C47",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C47-2026-09-14-drug-use-withdrawal-and-smoking.md",
+      "sourceSha256": "a8fb456845515cbf5d10ab27e75cadd8617f211fd8f35be0a68dbbb830ce98fb",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C45",
+      "recordPath": "Batches/Products/C45-2026-09-14-drug-use-withdrawal-and-smoking.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C48",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C48-2026-09-14-vehicle-animal-and-combat-integration.md",
+      "sourceSha256": "20552424a7bc360d693c4bac49b980411056e805aa09b3105cc80159a928fcdc",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C46",
+      "recordPath": "Batches/Products/C46-2026-09-14-vehicle-animal-and-combat-integration.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C49",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C49-2026-09-14-brain-health-integration.md",
+      "sourceSha256": "7c24d99bba563cf8a25b94453ffda1fb7809b7d46b8734c7670a81541b026f5a",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C47",
+      "recordPath": "Batches/Products/C47-2026-09-14-brain-health-integration.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C50",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C50-2026-09-18-historical-simulation-recovery-and-evidence.md",
+      "sourceSha256": "8a2229ac307a9d52b12a76c8c34b8812560cc6c3c9764f28f2a729a1e47cc45f",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C48",
+      "recordPath": "Batches/Products/C48-2026-09-18-historical-simulation-recovery-and-evidence.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C51",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C51-2026-09-19-person-preservation.md",
+      "sourceSha256": "a39d916e7ef25ccef92e2ae307064a1fe7351b92b74483c2a5da16fdbd7de650",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C49",
+      "recordPath": "Batches/Products/C49-2026-09-19-native-person-preservation-and-authorized-reconstruction.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C52",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C52-2026-09-19-authorized-afflicted-return.md",
+      "sourceSha256": "c6129fb7b05f86d4d0ed9eb97395125d587840ffd2bc22eb6814560c9b97af76",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C49",
+      "recordPath": "Batches/Products/C49-2026-09-19-native-person-preservation-and-authorized-reconstruction.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C53",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C53-2026-09-19-shared-county-time.md",
+      "sourceSha256": "aecfc7bb043c6ab831646d2670610c683fdd8c4402000393ec9b2ddcdf5b2cad",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C49",
+      "recordPath": "Batches/Products/C49-2026-09-19-native-person-preservation-and-authorized-reconstruction.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C54",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C54-2026-09-19-native-person-continuity.md",
+      "sourceSha256": "a51f1dfeaec43b5d442872be8cb427de8791fc499989ddc45eb88c0e0a214292",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C49",
+      "recordPath": "Batches/Products/C49-2026-09-19-native-person-preservation-and-authorized-reconstruction.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C55",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C55-2026-09-19-durable-runtime-reconstruction.md",
+      "sourceSha256": "019094f3330d82b388f980d0ec06afdc84eda0e3a4bc4ac00e4b92b3cb81776b",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C49",
+      "recordPath": "Batches/Products/C49-2026-09-19-native-person-preservation-and-authorized-reconstruction.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C56",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C56-2026-09-19-health-and-dormant-physiology.md",
+      "sourceSha256": "51f16fe0157abb571956ed72daba8d8975a859444bebcd44f2e67903a354df47",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C50",
+      "recordPath": "Batches/Products/C50-2026-09-19-health-and-dormant-physiology.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C57",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C57-2026-09-20-person-continuity-contract.md",
+      "sourceSha256": "12cbbdbf223004129e777fc092d7d835c44a04d6865cb7869d52561c850d9b5f",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C51",
+      "recordPath": "Batches/Products/C51-2026-09-20-durable-population-reconstruction-and-scheduling.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C58",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C58-2026-09-20-population-reconstruction-and-scheduling.md",
+      "sourceSha256": "96bc82f950ddefd8134e5546d5b198f5269ef98f54f00cddb65af91bb383b10c",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C51",
+      "recordPath": "Batches/Products/C51-2026-09-20-durable-population-reconstruction-and-scheduling.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C59",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C59-2026-09-20-debug-mode-lua-compilation.md",
+      "sourceSha256": "1a61a64651fb436e1443389625e679ef2d1cc5b7b5684e288b012ed5ec5a5cc3",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C51",
+      "recordPath": "Batches/Products/C51-2026-09-20-durable-population-reconstruction-and-scheduling.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C60",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C60-2026-09-20-perception-and-world-access.md",
+      "sourceSha256": "1c2222331e122176602e7f020bac44dc3d0d60f1c479f96dca2a06460bb936c1",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C52",
+      "recordPath": "Batches/Products/C52-2026-09-20-private-native-perception-and-physical-access.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C61",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C61-2026-09-20-demand-led-native-hydration.md",
+      "sourceSha256": "49424e1a525b770f17c09fc035c4fa7d1c00bd0410d5f628da92a9e8b6d8cec8",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C53",
+      "recordPath": "Batches/Products/C53-2026-09-21-performed-source-provisioning-and-exact-material-outcomes.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C62",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C62-2026-09-20-source-access-and-native-use.md",
+      "sourceSha256": "68cf19f6013887db51931f32ca1df14e79625dda528f7d6725a86e302ca5b7a3",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C53",
+      "recordPath": "Batches/Products/C53-2026-09-21-performed-source-provisioning-and-exact-material-outcomes.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C63",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C63-2026-09-20-provisioning-result-consumption.md",
+      "sourceSha256": "72ab0c9f3606707599ebc10e4c88302c6564ff664a8dacbcbecc89f3c7df2173",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C53",
+      "recordPath": "Batches/Products/C53-2026-09-21-performed-source-provisioning-and-exact-material-outcomes.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C64",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C64-2026-09-20-corrective-integrity-and-decision-evidence.md",
+      "sourceSha256": "ef151d2ba0ce9af04f78518cca7e58e73064cac4cbcfa6838fe581d15f6e4ca9",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C53",
+      "recordPath": "Batches/Products/C53-2026-09-21-performed-source-provisioning-and-exact-material-outcomes.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C65",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C65-2026-09-21-source-action-decisions.md",
+      "sourceSha256": "b76c5eff2569707c9fc0b2bd9dc484110f1dd3107e30634ce7ba152197925dce",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C53",
+      "recordPath": "Batches/Products/C53-2026-09-21-performed-source-provisioning-and-exact-material-outcomes.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C66",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C66-2026-09-21-performed-provisioning.md",
+      "sourceSha256": "f067bdaa25c7ece0836abe5a3fbe52fcf0e1f11cd6852efe2d83263c45931d48",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C53",
+      "recordPath": "Batches/Products/C53-2026-09-21-performed-source-provisioning-and-exact-material-outcomes.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C67",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C67-2026-09-21-delivery-knowledge.md",
+      "sourceSha256": "36d9846ed9e426d592a73511c550aeaf83535e4008e83229e04a09e1e1d06e3b",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C54",
+      "recordPath": "Batches/Products/C54-2026-09-21-completed-personal-exchange-and-private-social-appraisal.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C68",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C68-2026-09-21-personal-handovers-and-terms.md",
+      "sourceSha256": "4382b4a56fac96b6c8c976fa3f5720ac2a23282c219ddd6e91f53b4991d9adb6",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C54",
+      "recordPath": "Batches/Products/C54-2026-09-21-completed-personal-exchange-and-private-social-appraisal.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C69",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C69-2026-09-21-recipient-appraisal-after-testimony.md",
+      "sourceSha256": "9174710dae2f33f4dfd19463e595da555cf610e70c2144d0abe3732b51d11d57",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C54",
+      "recordPath": "Batches/Products/C54-2026-09-21-completed-personal-exchange-and-private-social-appraisal.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C70",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C70-2026-09-21-treatment-completion.md",
+      "sourceSha256": "c1e190de102f38eb00b349f5c604f3e0e1415aaff97dac136c80cacda615e9b8",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C55",
+      "recordPath": "Batches/Products/C55-2026-09-21-measured-treatment-completion.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C71",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C71-2026-09-21-complete-private-inventory.md",
+      "sourceSha256": "52213d3771be729101a99a6d49f92fcb9172e1ffe737adf2cf92556bc03530d9",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C56",
+      "recordPath": "Batches/Products/C56-2026-09-21-complete-private-inventory.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C72",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C72-2026-09-21-dormant-spoken-access.md",
+      "sourceSha256": "e76f12a8e7ab7784b931c57545183e7d1d6e62e16c9957ac888dc320a74cf40a",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C57",
+      "recordPath": "Batches/Products/C57-2026-09-21-personally-heard-spoken-and-radio-communication.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C73",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C73-2026-09-21-radio-reception.md",
+      "sourceSha256": "04c0b4c9f14919276231cdcce56dff3c2beed57f955cbd59c1994aaa3b0c3a6a",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C57",
+      "recordPath": "Batches/Products/C57-2026-09-21-personally-heard-spoken-and-radio-communication.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C74",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C74-2026-09-21-personal-world-knowledge-evidence.md",
+      "sourceSha256": "3290e590e0ff3b0ed0370ce91e71f2f66c91fb64977784d74b74d48e84ae091f",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C58",
+      "recordPath": "Batches/Products/C58-2026-09-23-source-bound-conversation-knowledge-and-person-state-evidence.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C75",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C75-2026-09-21-typed-claim-catalogues.md",
+      "sourceSha256": "91d391e362532055e9e39bda1340c5f45ccd6dcfb999514098b87eeb9fef4476",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C58",
+      "recordPath": "Batches/Products/C58-2026-09-23-source-bound-conversation-knowledge-and-person-state-evidence.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C76",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C76-2026-09-22-conversation-capture.md",
+      "sourceSha256": "94a80a7962dbbe6201849e1b5b6c2f5b6d556a2cba8a286c69563cdd4a6df3d3",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C58",
+      "recordPath": "Batches/Products/C58-2026-09-23-source-bound-conversation-knowledge-and-person-state-evidence.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C77",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C77-2026-09-22-evidenced-world-knowledge.md",
+      "sourceSha256": "b9611bfbce21a16308f2c6726819e6eb4630401c56aa626ca2359bd559ca968b",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C58",
+      "recordPath": "Batches/Products/C58-2026-09-23-source-bound-conversation-knowledge-and-person-state-evidence.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C78",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C78-2026-09-23-person-state-comparisons.md",
+      "sourceSha256": "2f3ea21b99c3b35e50ed9045437071ac6c981354322fb83a0f56db7a9be73f36",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C58",
+      "recordPath": "Batches/Products/C58-2026-09-23-source-bound-conversation-knowledge-and-person-state-evidence.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C79",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C79-2026-09-24-enacted-social-coordination.md",
+      "sourceSha256": "9857927e2fb423366a973e53d06627e0e7f32409153ac9911512616a13424705",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C59",
+      "recordPath": "Batches/Products/C59-2026-09-24-enacted-voluntary-social-coordination.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C80",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C80-20260924-2016Z-1316PST-zao-owned-living-person-handoff.md",
+      "sourceSha256": "5475cea87d824ce8167da5815bfe6a7c555334178e7b39bb603bed544b3177fc",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C60",
+      "recordPath": "Batches/Products/C60-2026-09-24-zao-owned-living-person-handoff.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C81",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C81-20260925-0221Z-1921PST-coordination-reference-source.md",
+      "sourceSha256": "1ce68adc98492a08cdfd23f9ff692fa3ea543f7550f088eac9b2ddb0d01f78c9",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C61",
+      "recordPath": "Batches/Products/C61-2026-09-25-source-bound-native-coordination-shadow.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C82",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C82-20260925-0525Z-2225PST-native-coordination-shadow.md",
+      "sourceSha256": "c2c5e505ffb27ee6ab2bd726a4dd066b2e40cf8b3d019284095e68af5af5e7e6",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C61",
+      "recordPath": "Batches/Products/C61-2026-09-25-source-bound-native-coordination-shadow.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C83",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C83-20260925-0855Z-0155PST-external-life-coordination.md",
+      "sourceSha256": "85fba1cc49db3a6ef2179fd9089d255b4279eb883ab8c542df45bf253ca14570",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C62",
+      "recordPath": "Batches/Products/C62-2026-09-25-personally-initiated-and-externally-enacted-cooperative-work.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C84",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C84-20260925-1201Z-0501PST-causal-episode-runtime.md",
+      "sourceSha256": "526b6206566642965deda7a50eb421b162c7361fda32d1084a5ba76c158306b0",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C62",
+      "recordPath": "Batches/Products/C62-2026-09-25-personally-initiated-and-externally-enacted-cooperative-work.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C85",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C85-20260925-2145Z-1445PST-private-situation-contact-and-enacted-work.md",
+      "sourceSha256": "4effe52554e5af82333a7cb4d4a56a8b69206c73354d417c38b6b975e760b1a8",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C62",
+      "recordPath": "Batches/Products/C62-2026-09-25-personally-initiated-and-externally-enacted-cooperative-work.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C86",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C86-20260926-0526Z-2226PST-native-study-worlds.md",
+      "sourceSha256": "d6dcf1ffb9d32b6a7c375b8cfcaffc8b9c1e5624939a78762db91bc5ecb1e904",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C63",
+      "recordPath": "Batches/Products/C63-2026-09-26-isolated-native-study-worlds-and-survival-observation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C87",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C87-20260926-2218Z-1518PST-survival-observation-and-continuity.md",
+      "sourceSha256": "301093b2cdff76be8c9e08d60380db7385361dfdea67c63c1a78c6afe124f166",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C63",
+      "recordPath": "Batches/Products/C63-2026-09-26-isolated-native-study-worlds-and-survival-observation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C88",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C88-20260927-0208Z-1908PST-competing-cognition.md",
+      "sourceSha256": "8e7607de96dab3e0ef652c6dad142ec6a16da4e778cdf1773df3812522ac7775",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C64",
+      "recordPath": "Batches/Products/C64-2026-09-27-independent-native-cognition-and-physical-capability-evidence.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C89",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C89-20260927-0516Z-2216PST-native-perception-and-capabilities.md",
+      "sourceSha256": "45891fa2db8ecbece5558691551789684aeeffdec3d4d913e0661f9eed706905",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C64",
+      "recordPath": "Batches/Products/C64-2026-09-27-independent-native-cognition-and-physical-capability-evidence.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C90",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C90-20260927-2033Z-1333PST-cooperative-procedures.md",
+      "sourceSha256": "3d54341158dc9057fb03a7acdf0e23c357b2e2325e01058c634529dc0244eafd",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C65",
+      "recordPath": "Batches/Products/C65-2026-09-28-autonomous-cooperative-procedures-and-exact-joint-action.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C91",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C91-20260928-0058Z-1758PST-autonomous-cooperative-action.md",
+      "sourceSha256": "4ebf7dc1d3f5c863564ff1e0defda79c446c02b59d58d76511ccf1368c707724",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C65",
+      "recordPath": "Batches/Products/C65-2026-09-28-autonomous-cooperative-procedures-and-exact-joint-action.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C92",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C92-20260928-0433Z-2133PST-natural-cooperative-formation.md",
+      "sourceSha256": "4d8090b26e945117b2a1806f19a1cb3f0db8da9f9e0dcf3ce1bb165250cfad5f",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C65",
+      "recordPath": "Batches/Products/C65-2026-09-28-autonomous-cooperative-procedures-and-exact-joint-action.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C93",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C93-20260928-0657Z-2357PST-durable-study-sessions.md",
+      "sourceSha256": "e5bb408b7af5fe17b60da1114faf3ffae26d929be52032a2f6170a5545201dc5",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C66",
+      "recordPath": "Batches/Products/C66-2026-09-28-saved-configurable-study-sessions-and-authored-pressure.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C94",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C94-20260928-0910Z-0210PDT-study-situation-pressure.md",
+      "sourceSha256": "4254defd81a8ea0dd8a5c775cd0c402c03af453a4ae83f04b60999dc6916fa7a",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C66",
+      "recordPath": "Batches/Products/C66-2026-09-28-saved-configurable-study-sessions-and-authored-pressure.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C95",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C95-20260928-1021Z-0321PDT-person-private-procedural-planning.md",
+      "sourceSha256": "c733883a3a0b2d705908eb267034ae3feb538959a8828824c29debc425acf4b6",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C67",
+      "recordPath": "Batches/Products/C67-2026-09-28-person-private-purpose-planning-and-native-activation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C96",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C96-20260928-2010Z-1310PDT-current-engine-study-activation.md",
+      "sourceSha256": "1a729f7cebbdb2319a6b3a2bd12d79a3318561fcd3c4e0ece9fdc0557b0655c2",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C67",
+      "recordPath": "Batches/Products/C67-2026-09-28-person-private-purpose-planning-and-native-activation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C97",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C97-20260928-2053Z-1353PDT-source-integration-lineage.md",
+      "sourceSha256": "0f5a16b05d104847316945f339ad6bb5c93c45bef94e73f76535d7deadb56ec9",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C68",
+      "recordPath": "Batches/Products/C68-2026-09-28-source-integration-lineage.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C98",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C98-20260928-2130Z-1430PDT-owned-horse-life-and-mobility.md",
+      "sourceSha256": "9fe0b8e1e5995a109cbe7831bf27123ebe9301191ca48df3d49c2abdf9bc77dc",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C69",
+      "recordPath": "Batches/Products/C69-2026-09-28-owned-horse-life-and-mounted-mobility.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C99",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C99-20260929-0312Z-2012PDT-mobile-household-continuity.md",
+      "sourceSha256": "cd688a7fdb3703aba306a95bf2c4918ff0ffcf3c1202459daedad3220f89d265",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C70",
+      "recordPath": "Batches/Products/C70-2026-09-29-mobile-household-continuity-and-loaded-use.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C100",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C100-20260929-0901Z-0201PDT-mobile-household-loaded-acceptance.md",
+      "sourceSha256": "cf460131c9cc7dcf723ed1c8809b8c9426c800033a1a4ac50be895202ded0072",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C70",
+      "recordPath": "Batches/Products/C70-2026-09-29-mobile-household-continuity-and-loaded-use.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C101",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C101-20260929-1941Z-1241PDT-study-terminal-and-human-review-handoff.md",
+      "sourceSha256": "312bb0b78cb72f7a1f91bdf4def3e1f1e1b1c46762621004d0657dab3e62488a",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C71",
+      "recordPath": "Batches/Products/C71-2026-09-29-study-terminal-and-human-review-handoff.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C102",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C102-20260929-2320Z-1620PST-native-skill-book-study.md",
+      "sourceSha256": "ca99b4e430d7c38d51d111e05fb310d459b357694fdc922724eecca5244bb3ee",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C72",
+      "recordPath": "Batches/Products/C72-2026-09-30-native-manual-study-and-retained-learning-acquisition.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C103",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C103-20260930-0306Z-2006PST-retained-acquisition-and-productive-work.md",
+      "sourceSha256": "0a60608494d25f769add676776e2921e76acfd54caff6d9973e581a94a2778a1",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C72",
+      "recordPath": "Batches/Products/C72-2026-09-30-native-manual-study-and-retained-learning-acquisition.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C104",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C104-20260930-0455Z-2155PST-sustained-resource-planning.md",
+      "sourceSha256": "0c999ead96f9e084be5b278f8a9529d434194ca4eb8e200482f8edf3f6257c2b",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C73",
+      "recordPath": "Batches/Products/C73-2026-09-30-sustained-private-resource-planning.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C105",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C105-20260930-1100Z-0400PST-resource-outcome-trials-and-asynchronous-observation.md",
+      "sourceSha256": "8a93f096077f1901b06cd45b044fc375d894da2fa80e1beef2d1dd8c69f87c68",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C74",
+      "recordPath": "Batches/Products/C74-2026-09-30-source-bound-resource-trials-and-native-conditions.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C106",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C106-20260930-1320Z-0620PST-regional-study-conditions-hydration-and-timing.md",
+      "sourceSha256": "2bda3287d7502f3fa66e578f3c95dad30a01383405e870dd266793f7442d9b64",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C74",
+      "recordPath": "Batches/Products/C74-2026-09-30-source-bound-resource-trials-and-native-conditions.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C107",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C107-20260930-1745Z-1045PST-resource-approaches-and-native-threat-conditions.md",
+      "sourceSha256": "eb5b29702d00dbcd34f37f7a2c873ff4a66e0392b628616ec7a20d6a6d489bf0",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C74",
+      "recordPath": "Batches/Products/C74-2026-09-30-source-bound-resource-trials-and-native-conditions.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C108",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C108-20260930-2000Z-1300PST-private-survival-planning-and-residence.md",
+      "sourceSha256": "b58c43e4b323edf3f0739f3bdf17110eb2772a3e6dc5ea7513588dc3f2c55b14",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C75",
+      "recordPath": "Batches/Products/C75-2026-09-30-private-survival-planning-and-residence.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C109",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C109-20261001-0459Z-2159PST-observer-capture-and-session-completion.md",
+      "sourceSha256": "ec4b06bf46a057701878fbad9c9f6b10b7b8e205605182ad47431757e88c6167",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C76",
+      "recordPath": "Batches/Products/C76-2026-10-01-observer-freshness-and-native-session-completion.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C110",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C110-20261001-0730Z-0030PST-route-progress-and-tactical-continuity.md",
+      "sourceSha256": "f480913136d6747ad68a76a5d082b53fa4bf55b87f7ff9678469929ef8835dbe",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C77",
+      "recordPath": "Batches/Products/C77-2026-10-01-native-route-progress-and-tactical-continuity.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C111",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C111-20261001-2355Z-1655PST-native-feeding-and-carried-coolers.md",
+      "sourceSha256": "e93aec57db5c414e1b0ba24738b25823459d6ddffdf4ac730b6a5fbd2f9c03db",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C78",
+      "recordPath": "Batches/Products/C78-2026-10-01-native-feeding-and-carried-cooler-continuity.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C112",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C112-20261002-0328Z-2028PST-native-window-repair.md",
+      "sourceSha256": "f0c2e4d8ef6e698aa4123a4bf993db697617e8c5424c9acfdf29e9ca6999e3ba",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C79",
+      "recordPath": "Batches/Products/C79-2026-10-02-native-window-repair-and-private-physical-experience.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C113",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C113-20261002-0924Z-0224PST-independent-native-observation-layouts.md",
+      "sourceSha256": "81e6d67c62ddef352634f5dee87db759ef5d1a4932a658f54f281e71840b4628",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C80",
+      "recordPath": "Batches/Products/C80-2026-10-03-continuous-independent-person-observation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C114",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C114-20261002-2244Z-1544PST-uncapped-native-observation.md",
+      "sourceSha256": "273e121527809a3746cb4d2dab84c53d2caf3f6b00c0ac3b95f9574e9041e695",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C80",
+      "recordPath": "Batches/Products/C80-2026-10-03-continuous-independent-person-observation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C115",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C115-20261003-0308Z-2008PST-persistent-subject-observation.md",
+      "sourceSha256": "b19b955128f7c523f75253a361a114c794e4601d7d758d18e3036a005bd3716e",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C80",
+      "recordPath": "Batches/Products/C80-2026-10-03-continuous-independent-person-observation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C116",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C116-20261003-0433Z-2133PST-continuous-native-observation.md",
+      "sourceSha256": "fb4768bfa1f0badd1e27ced2d4462b12113fbc496e96f35bc854a12d615d1053",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C80",
+      "recordPath": "Batches/Products/C80-2026-10-03-continuous-independent-person-observation.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C117",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C117-20261003-0930Z-0230PST-shared-furniture-movement.md",
+      "sourceSha256": "1a998b809f6ac94e18daa32fc1b62efbac02ba123949d65ae925ddc9e5153f76",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C81",
+      "recordPath": "Batches/Products/C81-2026-10-03-shared-native-furniture-movement.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C118",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C118-20261003-1832Z-1132PST-private-entry-decisions.md",
+      "sourceSha256": "c16103026415ee8ca804c49633f7a4c53eae1f89da01f344210dc01d3f3e4244",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C82",
+      "recordPath": "Batches/Products/C82-2026-10-03-private-entry-and-recovery-experience.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C119",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C119-20261003-1855Z-1155PST-recovery-decisions.md",
+      "sourceSha256": "333e1f7b7d086ab797d956e6636aa6a17d1bf07c32b390834ddea0c9bcc50891",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C82",
+      "recordPath": "Batches/Products/C82-2026-10-03-private-entry-and-recovery-experience.md"
+    },
+    {
+      "sourceGeneration": "20260919-through-C120",
+      "sourceId": "C120",
+      "sourcePath": "Batches/history/c-20261003-source/Batches/C120-20261003-1917Z-1217PST-entry-and-recovery-learning.md",
+      "sourceSha256": "1705c6a801bcf882a8f2a47242c1ff4ce1b4e0c00772e2a4a505f95f8aef8c34",
+      "productGeneration": "20261005-product-consolidation",
+      "productId": "C82",
+      "recordPath": "Batches/Products/C82-2026-10-03-private-entry-and-recovery-experience.md"
+    }
+  ]
+}

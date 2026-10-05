@@ -114,6 +114,18 @@ python tools/world_lab_session.py <package-directory> `
   --registry <Mousecat-native-view-registry>
 ```
 
+On Windows, session launch selects its first live feed once in an already-open
+Mousecat desktop. The helper waits for the exact view ID, native session and feed
+binding, opens Simulation if needed, and selects the registered label. Later
+operator navigation is left alone, including during automatic continuation.
+It runs hidden and independently of the simulation supervisor. Selection evidence
+is saved as `mousecat-selection.json` and diagnostic output as
+`mousecat-selection.log` in the session directory. An absent desktop, ambiguous
+label, unavailable feed or UI failure is recorded explicitly. The helper never
+launches another app. Use `--no-open-mousecat` for headless or source-only runs.
+The receipt distinguishes a visible selected heading and live source frames from
+verification of the rendered video itself.
+
 Mousecat exposes **Save session** while an attempt is active and **Continue
 session** after its normal save returns. Attempt duration and automatic
 continuation are inside **Session settings**. Automatic continuation is off by

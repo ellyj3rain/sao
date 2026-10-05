@@ -8,6 +8,7 @@ a judgment, or a training example.
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import importlib.util
 import json
@@ -17,7 +18,7 @@ import re
 import shutil
 import sys
 import tempfile
-from world_lab_definition import validate_resource_objectives, validate_initial_people, validate_initial_threats
+from world_lab_definition import validate_resource_objectives, validate_initial_people, validate_initial_threats, validate_initial_awareness, validate_initial_loose_items, validate_initial_life_history
 
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE = ROOT / "tools/world_lab/StudyWorld.lua"
@@ -167,8 +168,8 @@ def validate(value):
             require(len(val) <= 512, "sandbox string too long")
     if "situation" in value:
         situation = value["situation"]
-        require(isinstance(situation, dict) and 1 <= len(situation) <= 7
-                and set(situation) <= {"initialNeeds", "initialNeedsBySite", "horseTravel", "mobileHousehold", "resourceObjectives", "initialPeopleBySite", "initialThreats"},
+        require(isinstance(situation, dict) and 1 <= len(situation) <= 10
+                and set(situation) <= {"initialNeeds", "initialNeedsBySite", "horseTravel", "mobileHousehold", "resourceObjectives", "initialPeopleBySite", "initialThreats", "initialAwareness", "initialLooseItems", "initialLifeHistory"},
                 "situation must define supported pressures")
         if "resourceObjectives" in situation:
             validate_resource_objectives(situation["resourceObjectives"], value["observation"])
@@ -278,8 +279,14 @@ def validate(value):
     require(count <= 65536, "observation windows exceed 65536-square capture budget")
     if "initialPeopleBySite" in value.get("situation", {}):
         validate_initial_people(value["situation"]["initialPeopleBySite"], obs, options, origins)
+    if "initialAwareness" in value.get("situation", {}):
+        validate_initial_awareness(value["situation"]["initialAwareness"], value["situation"].get("initialPeopleBySite"))
+    if "initialLifeHistory" in value.get("situation", {}):
+        validate_initial_life_history(value["situation"]["initialLifeHistory"], value["situation"].get("initialPeopleBySite"), options)
     if "initialThreats" in value.get("situation", {}):
         validate_initial_threats(value["situation"]["initialThreats"], obs, extent)
+    if "initialLooseItems" in value.get("situation", {}):
+        validate_initial_loose_items(value["situation"]["initialLooseItems"], obs, extent)
     return value
 
 
@@ -644,8 +651,25 @@ def validate_frame(frame, definition_origins=None):
                 "invalid captured person")
         context = person["context"]
         require(isinstance(context, dict), "person context must be an object")
-        fields({key: value for key, value in context.items() if key not in {"inspection", "cognition"}},
+        fields({key: value for key, value in context.items() if key not in {"inspection", "cognition", "personState"}},
                {"controllerAvailable", "perceptionAvailable", "controller", "beliefs"}, "person context")
+        if "personState" in context:
+            state = context["personState"]
+            require(isinstance(state, dict) and state.get("schema") == "sao-person-state/1"
+                    and state.get("actorId") == person["id"] and state.get("status") in ("available", "unavailable")
+                    and set(state) <= {"schema", "actorId", "atTick", "atHours", "currentInstant", "status", "reason", "modelView", "audit"},
+                    "invalid person-state projection identity")
+            integer(state.get("atTick"), 0, 2**53-1, "person-state current tick")
+            if "atHours" in state:
+                number(state["atHours"], 0, county_hours + 1e-6, "person-state current hours")
+            if "modelView" in state:
+                view = state["modelView"]
+                require(isinstance(view, dict) and view.get("actorId") == person["id"]
+                        and view.get("atTick") == state["atTick"] and view.get("atHours") == state.get("atHours"),
+                        "person-state model view differs")
+            require(state["status"] != "available" or "modelView" in state,
+                    "available person state lacks model view")
+            require("audit" not in state or isinstance(state["audit"], dict), "invalid person-state audit")
         if "inspection" in context:
             detail = context["inspection"]
             require(isinstance(detail, dict) and detail.get("status") in ("available", "unavailable", "failed")
@@ -672,6 +696,38 @@ def validate_frame(frame, definition_origins=None):
                 require(isinstance(episode, dict) and isinstance(episode.get("frame"), dict)
                         and episode["frame"].get("actorId") == person["id"], "cognitive frame actor differs")
                 number(episode.get("worldHours"), 0, county_hours + 1e-6, "cognitive decision clock")
+                if "decisionPersonState" in episode:
+                    frozen = episode["decisionPersonState"]
+                    required = {"schema", "actorId", "decisionId", "atHours", "atTick", "status"}
+                    require(isinstance(frozen, dict) and required <= set(frozen)
+                            and set(frozen) <= required | {"reason", "personState"}
+                            and frozen["schema"] == "sao-person-decision-state/1"
+                            and frozen["actorId"] == person["id"]
+                            and frozen["decisionId"] == episode["frame"].get("id")
+                            and frozen["atHours"] == episode["worldHours"]
+                            and frozen["status"] in {"available", "unavailable"},
+                            "invalid frozen person-state decision binding")
+                    integer(frozen["atTick"], 0, 2**53 - 1, "frozen person-state tick")
+                    if frozen["status"] == "unavailable":
+                        require(isinstance(frozen.get("reason"), str) and bool(frozen["reason"]),
+                                "unavailable frozen person-state lacks reason")
+                    else:
+                        require("personState" in frozen, "available frozen person-state lacks actual query")
+                    if "personState" in frozen:
+                        held = frozen["personState"]
+                        require(isinstance(held, dict) and held.get("schema") == "sao-person-state/1"
+                                and held.get("actorId") == person["id"]
+                                and held.get("atTick") == frozen["atTick"]
+                                and held.get("status") == frozen["status"]
+                                and ("atHours" not in held or held["atHours"] == frozen["atHours"]),
+                                "invalid frozen actual person-state ownership")
+                        if frozen["status"] == "available":
+                            view = held.get("modelView")
+                            require(isinstance(view, dict) and view.get("actorId") == person["id"]
+                                    and view.get("atTick") == frozen["atTick"]
+                                    and view.get("atHours") == frozen["atHours"]
+                                    and held.get("atHours") == frozen["atHours"],
+                                    "invalid frozen model-view clock")
                 if episode.get("outcome"):
                     number(episode["outcome"].get("worldHours"), episode["worldHours"], county_hours + 1e-6,
                            "cognitive outcome clock")
@@ -711,6 +767,46 @@ def validate_frame(frame, definition_origins=None):
     return frame
 
 
+def _observation_arrays(frame, package):
+    """Decode one historical Lua empty-table ambiguity under package custody.
+
+    The authored-definition validator remains strict. This projection is used
+    only after verify_package; every projected frame must still validate and
+    bind in full. Unbound observations retain their original representation.
+    """
+    if package is None or not isinstance(frame, dict):
+        return frame, []
+    situation = frame.get("situation")
+    rows = situation.get("initialAwareness") if isinstance(situation, dict) else None
+    if not isinstance(rows, list):
+        return frame, []
+    manifest, definition = package
+    expected = {(row["siteId"], row["actorOrdinal"]): row
+                for row in definition.get("situation", {}).get("initialAwareness", [])}
+    corrections = []
+    result = frame
+    for index, row in enumerate(rows):
+        if not isinstance(row, dict) or type(row.get("entries")) is not dict or row["entries"]:
+            continue
+        require(frame.get("definitionSha256") == manifest["definitionSha256"]
+                and frame.get("observerSha256") == manifest["observerSha256"]
+                and frame.get("packageEngineJarSha256") == manifest["engine"]["jar"]["sha256"]
+                and frame.get("map") == manifest["mapName"], "empty-array observation source differs")
+        fields(row, {"siteId", "actorOrdinal", "entries"}, "empty-array awareness row")
+        require(isinstance(row["siteId"], str) and type(row["actorOrdinal"]) is int,
+                "empty-array awareness identity malformed")
+        authored = expected.get((row["siteId"], row["actorOrdinal"]))
+        require(authored is not None and authored["entries"] == [],
+                "empty-array awareness lacks exact empty authored binding")
+        if result is frame:
+            result = copy.deepcopy(frame)
+        result["situation"]["initialAwareness"][index]["entries"] = []
+        corrections.append({"path": f"/situation/initialAwareness/{index}/entries",
+                            "encoding": "empty-lua-table-to-authored-array",
+                            "siteId": row["siteId"], "actorOrdinal": row["actorOrdinal"]})
+    return result, corrections
+
+
 def inspect_frames(path, package_path=None):
     """Stream one collection session with bounded memory and explicit coverage."""
     path = Path(path)
@@ -720,11 +816,19 @@ def inspect_frames(path, package_path=None):
     first_hours = None
     previous = None
     run = None
+    normalizations = []
     for source in paths:
         require(source.stat().st_size <= 64 * 1024 * 1024, "oversized observation")
-        frame = validate_frame(load(source), package[1]["origins"] if package is not None else None)
+        raw = source.read_bytes()
+        require(len(raw) <= 64 * 1024 * 1024, "oversized observation")
+        frame, corrections = _observation_arrays(decode(raw.decode("utf-8-sig")), package)
+        frame = validate_frame(frame, package[1]["origins"] if package is not None else None)
         if package is not None:
             bind_frame(frame, package)
+        if corrections:
+            normalizations.append({"source": source.name,
+                                   "sourceSha256": hashlib.sha256(raw).hexdigest(),
+                                   "decodedSha256": seal(frame), "corrections": corrections})
         identity = (frame["definitionSha256"], frame["save"], frame["map"], frame["session"],
                     seal({key: frame[key] for key in ("extent", "sandbox", "generation", "mods", "engineVersion",
                           "packageEngineJarSha256", "observerSha256")}))
@@ -738,12 +842,16 @@ def inspect_frames(path, package_path=None):
         count += 1
         previous = frame
     require(count, "no runtime observations")
-    return {"schema": "sao-study-inspection/1", "frames": count,
+    result = {"schema": "sao-study-inspection/1", "frames": count,
             "definitionSha256": run[0], "save": run[1], "map": run[2],
             "session": run[3], "firstHours": first_hours, "lastHours": previous["hours"],
             "coverage": previous["coverage"], "population": previous["population"],
             "packageSha256": seal(package[0]) if package is not None else None,
             "datasetAdmission": "unreviewed", "behavioralVerdict": None}
+    # Preserve receipt equality for observations that needed no decoding.
+    if normalizations:
+        result["observationNormalizations"] = normalizations
+    return result
 
 
 def main():

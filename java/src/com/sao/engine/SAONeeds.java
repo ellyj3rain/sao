@@ -111,6 +111,12 @@ public final class SAONeeds {
         return food.getHungChange() < 0.0f;
     }
 
+    /** Person-facing recognition is distinct from the material ledger's classifier. */
+    private static boolean apparentlyEdible(IsoPlayer shell, InventoryItem item) {
+        return shell != null && item instanceof Food food && !food.isRotten()
+            && food.getHungChange() < 0.0f && !shell.isKnownPoison(item);
+    }
+
     /** Shared engine-truth classifier for the dormant source ledger. */
     public static boolean isEdibleMaterial(InventoryItem item) {
         return edible(item);
@@ -149,7 +155,7 @@ public final class SAONeeds {
             java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
-                if (edible(item)) {
+                if (apparentlyEdible(shell, item)) {
                     float fill = -((Food) item).getHungChange();
                     if (fill > bestFill) {
                         bestFill = fill;
@@ -223,7 +229,7 @@ public final class SAONeeds {
     public static String findFoodSourceNear(IsoPlayer shell, int radius) {
         try {
             FoodSource best = nearestPrivateSource(shell, radius,
-                item -> edible(item));
+                item -> apparentlyEdible(shell, item));
             if (best == null) {
                 SOURCES.remove(shell);
                 return "";
@@ -1130,7 +1136,11 @@ public final class SAONeeds {
                         zombie.scripting.objects.ItemTag.SMOKABLE)
                     || "Base.Matches".equals(item.getFullType());
             case "instrument":
-                return "InstrumentWeapon".equals(item.getDisplayCategory());
+                return "InstrumentWeapon".equals(item.getDisplayCategory())
+                    || ("Instrument".equals(item.getDisplayCategory())
+                        && item.hasTag(zombie.scripting.objects.ItemTag.HARMONICA)
+                        && "BlowHarmonica".equals(item.getShoutType())
+                        && Float.isFinite(item.getShoutMultiplier()) && item.getShoutMultiplier() > 0.0f);
             case "memento":
                 // [B22] The engine already has a word for a thing you
                 // keep for what it means rather than what it does.
@@ -2054,7 +2064,7 @@ public static InventoryItem weaponSourceItem(IsoPlayer shell) {
             java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
-                if (!edible(item)) {
+                if (!apparentlyEdible(shell, item)) {
                     continue;
                 }
                 float fill = -((Food) item).getHungChange();
@@ -2301,7 +2311,7 @@ public static InventoryItem ammoSourceItem(IsoPlayer shell) {
                         || holder.worldObject() == null
                         || holder.items().isEmpty()) continue;
                 InventoryItem item = holder.items().get(0).item();
-                boolean useful = item != null && (edible(item)
+                boolean useful = item != null && (apparentlyEdible(shell, item)
                     || item.isCanBandage()
                     || SAOEquipment.meleeScore(item) > 0);
                 if (useful) {

@@ -41,8 +41,8 @@ STATE = ROOT / "SESSION_STATE.md"
 BATCH_LOG = ROOT / "BATCH_LOG.md"
 VERSION_FILE = ROOT / "VERSION"
 
-AS_OF = re.compile(r"\*\*As of\*\*[^\n]*?`?\[([ABC]\d+)\]`?")  # eras run A, B, C
-ROW = re.compile(r"^\|\s*\[?`?\[?([ABC]\d+)\]?`?\]?\(", re.M)  # eras run A, B, C
+AS_OF = re.compile(r"\*\*As of\*\*[^\n]*?`?\[([A-Z]\d+)\]`?")  # one alphanumeric batch sequence
+ROW = re.compile(r"^\|\s*\[?`?\[?([A-Z]\d+)\]?`?\]?\(", re.M)  # one alphanumeric batch sequence
 # A version string anywhere in the prose. The pre-release suffix
 # contains its own hyphen - `0.6.0.0-pre-alpha` - so the class has to
 # admit one, or this reads the shipped version as `0.6.0.0-pre` and

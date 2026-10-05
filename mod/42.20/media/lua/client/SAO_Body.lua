@@ -67,45 +67,100 @@ end
 -- being out at all.
 local WAKE_MARGIN = 2
 
-local function wakeSquareFor(rec)
-    local x, y = math.floor(rec.x or 0), math.floor(rec.y or 0)
-    local moved = nil
-    pcall(function()
-        local mine = SAO.Standing.groupOf(rec.id)
-        for who, c in pairs(SAO.Standing.allGroupClaims()) do
-            if who ~= mine
-                and x >= c.minX and x <= c.maxX
-                and y >= c.minY and y <= c.maxY then
-                local nx = ((x - c.minX) <= (c.maxX - x))
-                    and (c.minX - WAKE_MARGIN) or (c.maxX + WAKE_MARGIN)
-                local ny = ((y - c.minY) <= (c.maxY - y))
-                    and (c.minY - WAKE_MARGIN) or (c.maxY + WAKE_MARGIN)
-                -- one axis through the nearer wall is enough
-                if math.abs(nx - x) <= math.abs(ny - y) then
-                    x = nx
-                else
-                    y = ny
-                end
-                moved = who
-                break
+local function wakeClaims(rec)
+    local ok, mine, claims = pcall(function()
+        return SAO.Standing.groupOf(rec.id), SAO.Standing.allGroupClaims()
+    end)
+    if not ok or type(claims) ~= "table" then return nil end
+    for _, c in pairs(claims) do
+        if type(c) ~= "table" or not finite(c.minX) or not finite(c.maxX)
+            or not finite(c.minY) or not finite(c.maxY)
+            or c.minX > c.maxX or c.minY > c.maxY then return nil end
+    end
+    return claims, mine
+end
+
+local function wakePermitted(claims, mine, x, y)
+    for who, c in pairs(claims) do
+        if who ~= mine and x >= c.minX and x <= c.maxX
+            and y >= c.minY and y <= c.maxY then return false end
+    end
+    return true
+end
+
+local function wakeSquareValid(rec, x, y, z, ignoreBody)
+    local claims, mine = wakeClaims(rec)
+    if not claims or not wakePermitted(claims, mine, x, y) then return nil end
+    local ok, square = pcall(function()
+        local cell = getCell()
+        local found = cell and cell:getGridSquare(x, y, z)
+        if not found or found:getX() ~= x or found:getY() ~= y or found:getZ() ~= z
+            or found:TreatAsSolidFloor() ~= true
+            or found:isFree(ignoreBody == nil) ~= true
+            or found:isSolid() ~= false or found:isWaterSquare() ~= false then return nil end
+        -- isFree(true) includes all native moving objects. After construction
+        -- only the exact newly made body may occupy the admitted square.
+        if ignoreBody then
+            local moving = found:getMovingObjects()
+            for i = 0, moving:size() - 1 do
+                if moving:get(i) ~= ignoreBody then return nil end
             end
         end
+        for _, owners in ipairs({ Body.active, Body.foreign or {},
+                                  Body.unloaded, Body.returning }) do
+            for _, held in pairs(owners) do
+                if held ~= ignoreBody and math.floor(held:getX()) == x
+                    and math.floor(held:getY()) == y and math.floor(held:getZ()) == z then
+                    return nil
+                end
+            end
+        end
+        return found
     end)
-    local taken = {}
-    for _, b in pairs(Body.active) do
-        pcall(function()
-            taken[math.floor(b:getX()) .. ":" .. math.floor(b:getY())] = true
-        end)
+    return ok and square or nil
+end
+
+local function wakeSquareFor(rec, physicalPosition)
+    local point = physicalPosition ~= nil and physicalPosition or rec
+    if type(point) ~= "table" or not finite(point.x) or not finite(point.y)
+        or not finite(point.z) or math.abs(point.x) > 2147483641
+        or math.abs(point.y) > 2147483641 or point.z < -32 or point.z >= 32 then
+        return nil, nil, nil, nil, "invalid-wake-position"
     end
-    local ox, oy = x, y
-    for _, o in ipairs({ {0,0},{1,0},{-1,0},{0,1},{0,-1},
-                         {1,1},{-1,-1},{2,0},{0,2} }) do
-        if not taken[(ox + o[1]) .. ":" .. (oy + o[2])] then
-            x, y = ox + o[1], oy + o[2]
+    local x, y, z = math.floor(point.x), math.floor(point.y), math.floor(point.z)
+    local claims, mine = wakeClaims(rec)
+    if not claims then return nil, nil, nil, nil, "wake-permission-unavailable" end
+    if physicalPosition ~= nil then
+        local square = wakeSquareValid(rec, x, y, z)
+        if square then return x, y, z, nil, nil, square end
+        return nil, nil, nil, nil, "wake-square-unavailable"
+    end
+    local moved
+    for who, c in pairs(claims) do
+        if who ~= mine and x >= c.minX and x <= c.maxX
+            and y >= c.minY and y <= c.maxY then
+            local nx = ((x - c.minX) <= (c.maxX - x))
+                and (c.minX - WAKE_MARGIN) or (c.maxX + WAKE_MARGIN)
+            local ny = ((y - c.minY) <= (c.maxY - y))
+                and (c.minY - WAKE_MARGIN) or (c.maxY + WAKE_MARGIN)
+            if math.abs(nx - x) <= math.abs(ny - y) then x = nx else y = ny end
+            x, y, moved = math.floor(x), math.floor(y), who
             break
         end
     end
-    return x, y, moved
+    -- Match the native bridge's bounded same-floor reach, but admit the exact
+    -- square here under current Standing and physical occupancy authority.
+    for ring = 0, 6 do
+        for dy = -ring, ring do
+            for dx = -ring, ring do
+                if math.max(math.abs(dx), math.abs(dy)) == ring then
+                    local square = wakeSquareValid(rec, x + dx, y + dy, z)
+                    if square then return x + dx, y + dy, z, moved, nil, square end
+                end
+            end
+        end
+    end
+    return nil, nil, nil, nil, "wake-square-unavailable"
 end
 
 function Body.materialize(rec, externalOwner, externalToken, physicalPosition)
@@ -171,14 +226,8 @@ function Body.materialize(rec, externalOwner, externalToken, physicalPosition)
             externalReplayOwner = owner
         end
     end
-    local wx, wy, movedBy = wakeSquareFor(rec)
-    local wz = math.floor(rec.z)
-    if type(physicalPosition) == "table" and finite(physicalPosition.x)
-        and finite(physicalPosition.y) and finite(physicalPosition.z) then
-        wx, wy, wz = math.floor(physicalPosition.x), math.floor(physicalPosition.y),
-            math.floor(physicalPosition.z)
-        movedBy = nil
-    end
+    local wx, wy, wz, movedBy, placementReason, wakeSquare = wakeSquareFor(rec, physicalPosition)
+    if not wakeSquare then return nil, placementReason end
     local slotBefore = localSlotUser()
 
     -- Construction. The Java agent owns shell creation when available: a bare
@@ -224,6 +273,18 @@ function Body.materialize(rec, externalOwner, externalToken, physicalPosition)
             return nil
         end
         body, how = bare, "lua-bare"
+    end
+
+    local positioned, exact = pcall(function()
+        return body:getCurrentSquare() == wakeSquare
+            and math.floor(body:getX()) == wx and math.floor(body:getY()) == wy
+            and math.floor(body:getZ()) == wz
+            and wakeSquareValid(rec, wx, wy, wz, body) == wakeSquare
+    end)
+    if not positioned or exact ~= true then
+        Body.active[rec.id], Body.failedRestore[rec.id] = body, true
+        Body.recover(rec)
+        return nil, "native-wake-placement-refused"
     end
 
     -- The trade rides the descriptor ([A18]): where the census life has
@@ -525,7 +586,7 @@ function Body.materialize(rec, externalOwner, externalToken, physicalPosition)
         end)
     end
     pcall(function()
-        SAO.Identity.updatePosition(rec, wx, wy, math.floor(rec.z or 0))
+        SAO.Identity.updatePosition(rec, wx, wy, wz)
     end)
 
     log("materialized " .. rec.id .. " via " .. tostring(how)

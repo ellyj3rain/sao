@@ -13,8 +13,8 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "tools" / "world_lab"
 
 
-def _execute(command, prefix, *, expected=None):
-    result = subprocess.run([str(arg) for arg in command], cwd=ROOT, capture_output=True,
+def _execute(command, prefix, *, expected=None, cwd=None):
+    result = subprocess.run([str(arg) for arg in command], cwd=cwd or ROOT, capture_output=True,
                             text=True, encoding="utf-8", errors="replace", timeout=90)
     prefix.with_suffix(".stdout.log").write_text(result.stdout, encoding="utf-8")
     prefix.with_suffix(".stderr.log").write_text(result.stderr, encoding="utf-8")
@@ -27,7 +27,7 @@ def _execute(command, prefix, *, expected=None):
     return output
 
 
-def run(tmp, GAME, JDK):
+def run(tmp, GAME, JDK, *, baseline_only=False):
     """Compile the actual host/probe and require each stated defect to be caught."""
     game, jdk = Path(GAME), Path(JDK)
     work = Path(tmp).resolve() / "observer-native"
@@ -61,7 +61,7 @@ def run(tmp, GAME, JDK):
         return _execute([java, f"-Duser.home={user}", f"-Dnet.bytebuddy.dump={dump}", "-Dstudy.observer=true",
                          *([f"-javaagent:{preload}"] if preloaded else []),
                          f"-javaagent:{agent}=isolated-study", "--enable-native-access=ALL-UNNAMED",
-                         "-cp", classpath, "NativeObserverProbe"], directory / "probe", expected=expected)
+                         "-cp", classpath, "NativeObserverProbe"], directory / "probe", expected=expected, cwd=game)
 
     output = probe(work / "baseline")
     def binding(directory):
@@ -99,6 +99,9 @@ def run(tmp, GAME, JDK):
     if "[StudyObserver] FAILED native Lua debugger requested at intentional-probe.lua:7" not in output:
         raise AssertionError("observer native debugger failure was not visible")
 
+    if baseline_only:
+        print("PASS native observer lifecycle and preloaded-class baselines; existing unrelated controls reused")
+        return {"controls": [], "renderedWorld": False, "baselineOnly": True}
     controls = (
         ("cognition_budget", "StudyObserver.java", "opportunitiesPerHour < 1 || opportunitiesPerHour > 60", "false", 1,
          "invalid inspection command acknowledged"),
@@ -353,7 +356,7 @@ public final class NativeStudyStartupProbe implements Instrumentation {
     return {"controls": list(controls), "renderedWorld": False}
 
 
-def run_visibility(tmp, GAME, JDK):
+def run_visibility(tmp, GAME, JDK, *, baseline_only=False):
     """Exercise native God-view rendering and unchanged native lighting output."""
     game, jdk = Path(GAME), Path(JDK)
     work = Path(tmp).resolve() / "observer-visibility-native"
@@ -380,7 +383,7 @@ def run_visibility(tmp, GAME, JDK):
             f"-javaagent:{work / 'capture.jar'}", f"-javaagent:{work / 'preload.jar'}",
             f"-javaagent:{work / 'observer.jar'}=isolated-study", "--enable-native-access=ALL-UNNAMED",
             "-cp", classpath, "NativeObserverLightingProbe", game / "Lighting64.dll", kind, str(wall).lower()],
-            directory / "probe", expected=expected)
+            directory / "probe", expected=expected, cwd=game)
         if expected is None and ("PASS production observer lighting:" not in output
                 or "[StudyProbe] IsoChunkMap loaded before observer premain" not in output):
             raise AssertionError("native observer visibility probe omitted its receipts")
@@ -388,6 +391,9 @@ def run_visibility(tmp, GAME, JDK):
     for kind in ("observer", "foreign", "extra-slot"):
         for wall in (False, True):
             probe(work / f"{kind}-wall-{int(wall)}", kind, wall)
+    if baseline_only:
+        print("PASS native visibility: six native render/DLL/canopy cases; existing unchanged controls reused")
+        return {"cases": 6, "controls": [], "nativeLighting": True, "renderedWorld": False, "baselineOnly": True}
     controls = (
         ("capped-renderer", "StudyObserver.java", "Core.getInstance().setFramerate(1);",
          "Core.getInstance().setFramerate(10);", "observer",

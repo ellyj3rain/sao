@@ -78,6 +78,10 @@ SUBJECT_FIELDS = {
 
 # Fields nothing in the Lua reads on purpose, with where they go.
 READ_ELSEWHERE = {
+    "personalMemoryAdmission": "SAO_Identity global ModData persists the attachment "
+                               "audit; StudyWorld copies it into the private person record",
+    "recoveryPoseExit": "SAO_Identity global ModData persists the exact-body exit "
+                        "audit; StudyWorld copies it into the private person record",
     "greyApplied": "SAO_Appearance guards its own one-shot with it",
     "knowsTradeGround": "recorded for telemetry and the record; the "
                         "county does not act on it yet",
@@ -87,6 +91,52 @@ READ_ELSEWHERE = {
                         "living health when a completed human-origin meal "
                         "derives donor-conditioned Afflicted protection",
 }
+
+
+# These two entries are observation/save audit stamps, not decision inputs.
+# Verify the actual owner projection instead of exempting a dead field by name.
+AUDIT_FIELDS = {"personalMemoryAdmission", "recoveryPoseExit"}
+
+
+def audit_projection_present(observer, identity):
+    from menu_reach import strip_lua
+    observer = strip_lua(observer, strings=False)
+    identity = strip_lua(identity, strings=False)
+    copier = re.search(
+        r"local\s+function\s+copy\(value,\s*path,\s*budget,\s*seen,\s*depth\)"
+        r"(?P<body>.*?)\nend", observer, re.S)
+    if not copier or not all(re.search(pattern, copier.group("body")) for pattern in (
+        r"for\s+_,\s*key\s+in\s+ipairs\(keys\(value\)\)\s+do",
+        r"local\s+field\s*=\s*copy\(value\[key\],",
+        r"if\s+field\s*~=\s*nil\s+then\s+result\[key\],\s*members\s*=\s*field,",
+        r"return\s+result",
+    )):
+        return False
+    return all(re.search(pattern, observer) for pattern in (
+        r"local\s+records\s*=\s*SAO\.Identity\.all\(\)\s*"
+        r"local\s+recordIds\s*=\s*keys\(records\)",
+        r"for\s+_,\s*id\s+in\s+ipairs\(recordIds\)\s+do\s*"
+        r"local\s+rec\s*=\s*records\[id\]",
+        r'local\s+recordView\s*=\s*\{\}\s*'
+        r'for\s+key,\s*value\s+in\s+pairs\(rec\)\s+do\s+'
+        r'if\s+key\s*~=\s*"cognition"\s+then\s+'
+        r'recordView\[key\]\s*=\s*value\s+end\s+end',
+        r'record\s*=\s*copy\(recordView,\s*"people\."\s*\.\.\s*tostring\(id\)',
+        r"local\s+function\s+copy\(value,\s*path,\s*budget,\s*seen,\s*depth\)",
+    )) and all(re.search(pattern, identity) for pattern in (
+        r"ModData\.getOrCreate\(STORE_KEY\)",
+        r"function\s+Identity\.all\(\)\s*local\s+s\s*=\s*store\(\)\s*"
+        r"return\s+s\s+and\s+s\.records\s+or\s*\{\}\s*end",
+    ))
+
+
+def audit_projection_owned():
+    try:
+        observer = (ROOT / "tools/world_lab/StudyWorld.lua").read_text(encoding="utf-8")
+        identity = (LUA / "shared/SAO_Identity.lua").read_text(encoding="utf-8")
+    except OSError:
+        return False
+    return audit_projection_present(observer, identity)
 
 
 def files():
@@ -138,6 +188,10 @@ def main():
           f"{', '.join(sorted(dyn)) or 'none'}")
 
     dead = []
+    audit_owned = audit_projection_owned()
+    for field in sorted(AUDIT_FIELDS):
+        if field not in READ_ELSEWHERE or not audit_owned:
+            dead.append((field, "AUDIT_CONSUMER", 0))
     for field, where in sorted(written.items()):
         # A read is any mention not immediately followed by `=`.
         reads = len(re.findall(rf"\.{field}\b(?!\s*=(?!=))", tree))
@@ -186,6 +240,9 @@ def main():
             elif where == "SUBJECT_FIELDS":
                 print(f"  FAULT: {field} is declared a subject field and is "
                       "written nowhere - the declaration outlived it")
+            elif where == "AUDIT_CONSUMER":
+                print(f"  FAULT: {field} is an external audit stamp but its "
+                      "owned save/private observer projection is missing")
             elif where == "READ_ELSEWHERE":
                 print(f"  FAULT: {field} is named in READ_ELSEWHERE and "
                       "no longer written anywhere - the exemption "

@@ -1193,6 +1193,17 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
             raise AssertionError("duplicate frame keys accepted")
         print("PASS observation inspection: captured fixture, streaming session, 7 malformed controls")
         mutants = [
+            ("education genesis owner", 'ok, reason = owner.stageEducationRegistry(education.raw, education.rawSha256,',
+             'ok, reason = (function() return true end)(education.raw, education.rawSha256,',
+             "education source was not staged before genesis"),
+            ("education saved binding", 'if newGame then\n            ok, reason = owner.stageEducationRegistry',
+             'if true then\n            ok, reason = owner.stageEducationRegistry',
+             "education registry restaged on saved resume"),
+            ("education world identity", 'assert(education.definitionSha256 == Config.definitionSha256,',
+             'assert(true,', "foreign education study admitted"),
+            ("education native refusal", 'assert(ok, reason)\n        print("[StudyWorld] education source bound="',
+             'assert(true, reason)\n        print("[StudyWorld] education source bound="',
+             "native education binding refusal was ignored"),
             ("initial people owner handoff", 'local initialPeople = Config.situation and Config.situation.initialPeopleBySite',
              'local initialPeople = nil', 'initial population owner was not staged before native ticks'),
             ("initial people source binding", 'owner.stageInitialPeople(Config.definitionSha256, getWorld():getWorld(),',

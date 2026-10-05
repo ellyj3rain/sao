@@ -1,0 +1,64 @@
+{
+  "schema": "sao-study-world/1",
+  "id": "rosewood-light-infection",
+  "seed": "d1-rosewood-life-20261004",
+  "extent": {
+    "minCellX": 0,
+    "minCellY": 0,
+    "cellsX": 78,
+    "cellsY": 63
+  },
+  "generation": {
+    "roads": {}
+  },
+  "origins": [
+    {
+      "x": 7995,
+      "y": 11414,
+      "z": 0,
+      "profession": "unemployed"
+    }
+  ],
+  "sandbox": {
+    "SurvivorAwareness.PopulationGoverned": true,
+    "SurvivorAwareness.Population": 2,
+    "SurvivorAwareness.NewcomersGoverned": true,
+    "SurvivorAwareness.Newcomers": 2,
+    "Zombies": 5,
+    "ZombieConfig.PopulationMultiplier": 0.15,
+    "ZombieConfig.PopulationStartMultiplier": 1.0,
+    "ZombieConfig.PopulationPeakMultiplier": 1.0,
+    "DayLength": 3,
+    "StartTime": 2
+  },
+  "situation": {
+    "initialPeopleBySite": {
+      "rosewood-residence": 2
+    }
+  },
+  "observation": {
+    "everyHours": 0.125,
+    "maxPeople": 128,
+    "maxProcesses": 256,
+    "sites": [
+      {
+        "id": "rosewood-residence",
+        "label": "Rosewood residence",
+        "x": 7995,
+        "y": 11414,
+        "z": 0
+      }
+    ],
+    "windows": [
+      {
+        "id": "rosewood-neighborhood",
+        "x": 7947,
+        "y": 11366,
+        "z": 0,
+        "width": 96,
+        "height": 96
+      }
+    ]
+  },
+  "lots": "Muldraugh, KY"
+}

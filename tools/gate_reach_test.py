@@ -33,6 +33,7 @@ WHAT THIS REQUIRES
 3. Every one-off declaration names a file that exists. An exemption
    that outlives its subject is how a list stops describing anything.
 """
+import ast
 import pathlib
 import re
 import sys
@@ -49,6 +50,66 @@ ONE_OFF = {}
 FAILS = re.compile(r"return 1\b|sys\.exit\(1\)|else 1\b|raise SystemExit")
 
 
+def assertion_failure_path(src):
+    """Recognize assertions reached from module execution or unittest.main.
+
+    Defining an unused assertion helper does not execute it. Follow local
+    calls from the entry point, and let the unittest owner discover actual
+    TestCase test methods only when its main runner is called.
+    """
+    try:
+        tree = ast.parse(src)
+    except SyntaxError:
+        return False
+    functions = {node.name: node for node in tree.body
+                 if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))}
+    modules = {alias.asname or alias.name for node in tree.body
+               if isinstance(node, ast.Import) for alias in node.names
+               if alias.name == "unittest"}
+    imported = {alias.asname or alias.name: alias.name for node in tree.body
+                if isinstance(node, ast.ImportFrom) and node.module == "unittest"
+                for alias in node.names}
+    visited = set()
+
+    def owner(node, name):
+        return (isinstance(node, ast.Attribute) and node.attr == name
+                and isinstance(node.value, ast.Name) and node.value.id in modules
+                or isinstance(node, ast.Name) and imported.get(node.id) == name)
+
+    def walk(node, test_method=False):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            return False
+        if isinstance(node, ast.Assert):
+            return not (isinstance(node.test, ast.Constant) and bool(node.test.value))
+        if isinstance(node, ast.If) and isinstance(node.test, ast.Constant):
+            return any(walk(child, test_method) for child in
+                       (node.body if node.test.value else node.orelse))
+        if isinstance(node, ast.Call):
+            if test_method and isinstance(node.func, ast.Attribute):
+                import unittest
+                if node.func.attr.startswith("assert") and hasattr(unittest.TestCase, node.func.attr):
+                    return True
+            if isinstance(node.func, ast.Name) and node.func.id in functions and node.func.id not in visited:
+                visited.add(node.func.id)
+                if any(walk(child) for child in functions[node.func.id].body):
+                    return True
+            if owner(node.func, "main"):
+                for cls in tree.body:
+                    if isinstance(cls, ast.ClassDef) and any(owner(base, "TestCase") for base in cls.bases):
+                        for method in cls.body:
+                            if isinstance(method, ast.FunctionDef) and method.name.startswith("test"):
+                                if any(walk(child, True) for child in method.body):
+                                    return True
+        return any(walk(child, test_method) for child in ast.iter_child_nodes(node))
+
+    return any(walk(node) for node in tree.body)
+
+
+def can_fail(src):
+    """Keep explicit verdict paths and recognize real Python check owners."""
+    return bool(FAILS.search(src)) or assertion_failure_path(src)
+
+
 def invoked():
     """Every mirror check.sh actually runs, both spellings.
 
@@ -59,6 +120,8 @@ def invoked():
     """
     src = CHECK.read_text(encoding="utf-8", errors="ignore")
     named = set(re.findall(r"tools/([a-z_0-9]+)\.py", src))
+    # unittest discovery invokes the exact filename through its -p pattern.
+    named |= set(re.findall(r"(?<!\S)-p\s+([a-z_0-9]+_test)\.py\b", src))
     loop = re.search(r"for mirror in \\?\n(.*?)\ndo", src, re.S)
     if loop:
         named |= set(re.findall(r"([a-z_0-9]+_test)", loop.group(1)))
@@ -77,8 +140,8 @@ def main():
     for name in mirrors:
         stem = name[:-3]
         src = (TOOLS / name).read_text(encoding="utf-8", errors="ignore")
-        can_fail = bool(FAILS.search(src))
-        if not can_fail:
+        failure_path = can_fail(src)
+        if not failure_path:
             reports.append(name)
             faults.append(
                 f"{name} has no path that can fail - it is a report, and "

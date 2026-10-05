@@ -30,8 +30,12 @@ and remain inside the human behavioral envelope regardless of skill.
 - **One alphanumeric batch sequence.** Work lands in numbered batches with a
   record under `Batches/`. Letter changes mark development eras; they do not
   create separate history systems. The A era closed at `[A29]`, the B era
-  closed at `[B52]`. C's 120 preserved source records now map to 35 shared
-  contracts. The recorded compression event precedes D; D1 is open.
+  closed at `[B52]`. Current C comprises 82 historical development products,
+  with all 120 source contributions preserved. The separate 35-contract map
+  retains shared ownership and D dependencies. D1 acceptance is CLOSED with
+  controlled person-specific reasoning and bounded native recovery; actual
+  protected publication has its own receipt. D2 leisure is next, after the
+  established separately owned Mousecat A28 sequence.
   `BATCH_LOG.md` indexes delivered scope and names the active batch separately.
 - **Batch shape.** A batch is a coherent development unit, closed when the
   work is done, not when a message ends. Closing a batch means the record, the
@@ -46,6 +50,13 @@ and remain inside the human behavioral envelope regardless of skill.
   establish the promised behavior. Supporting repairs stay with the outcome they
   serve. Preserve existing batch history; a catalogue reorganization needs its
   own explicit operator direction.
+- **Scope refinement.** Product outcomes cover their whole relevant installed
+  native/modded domain and adjacent dependencies. Examples guide discovery;
+  substantive scope becomes clearer through implementation. Shared-contract
+  catalogue consolidation preserves prior era records and does not prescribe
+  future batch size. Keep the active batch on the main line while bounded
+  peer assistance is delegated. Neo is a separate project whose available
+  tools may be reused; its development backlog is separately owned.
 - **Commit shape.** `[D#] source: ...` for implementation, `[D#] reference: ...`
   for records and documents, `[D#] governance: ...` for closings and process,
   `[REPO] ...` for repository mechanics. One batch is one logical unit and
@@ -59,16 +70,18 @@ and remain inside the human behavioral envelope regardless of skill.
   `Batches/FORMER_LABELS.md` and `Batches/C_RECATALOG.json`. Historical ledger
   entries, source comments, immutable evidence and sister citations retain
   their former identifiers. This convention does not authorize rewriting them.
-- **Current C catalogue.** The operator-directed 2026-10-03 recatalogue groups
-  nonadjacent contributions by shared owner, interface and state boundaries
-  needed for D. `Batches/C_SHARED_BOUNDARIES.json` is the executable mapping;
-  current records live in `Batches/Catalogue/`. The original C1-C120 files and
-  `Batches/history/c-20261003-source/` preserve source chronology and measured
-  component status. Historical C labels retain their source generation.
-  Current C order follows the last delivered contribution to each contract;
-  version replay credits each delivered contract once. This is the authorized
-  adaptation of CAO's chronological-unit and nonadjacent-thread precedent.
-  The continuity graph reads these records and may be rebuilt after migration.
+- **C product catalogue and ownership map.** `Batches/C_PRODUCT_CATALOGUE.json`
+  partitions the 120 preserved source contributions into 82 coherent historical
+  development outcomes under the A/B method. Current records live in
+  `Batches/Products/`; current C index and version credit read that generation.
+  `Batches/C_SHARED_BOUNDARIES.json` and `Batches/Catalogue/` retain the separate
+  35-contract ownership/interface projection for dependencies. The 2026-10-03
+  map and PR137 incorrectly characterized that projection as the requested
+  product consolidation. The dated corrective event preserves this history.
+  Each source retains its exact bytes and its measured implementation,
+  verification, publication and remaining work. Historical C labels keep their
+  source generation. Product chronology, records, version replay and graph are
+  reconciled together; a tier does not close unresolved component obligations.
 - **Continuation and consolidation.** Reconcile the current catalogue and the
   complete operator directive before choosing work units or publication scope.
   After a scope correction, record the settled instruction, owning repository
@@ -76,8 +89,8 @@ and remain inside the human behavioral envelope regardless of skill.
   resumption, compare dated handoffs and proposals with that current directive;
   a later clarification governs an earlier question or proposal.
   State the owning repository and requested action at consequential junctions.
-  Historical identifiers provide generation-qualified provenance; the current
-  shared contracts organize ongoing work. An era consolidation records local
+  Historical identifiers provide generation-qualified provenance; current
+  products organize development while shared contracts organize dependencies. An era consolidation records local
   application and public reconciliation separately. GitHub receives the current
   catalogue, version replay and provenance through the established additive
   publication procedure; retained local-only implementation stays explicit.

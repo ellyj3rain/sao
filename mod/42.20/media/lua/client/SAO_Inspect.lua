@@ -276,6 +276,17 @@ function SAOInspectWindow:build()
         jsonl.state = "dormant"
     end
 
+    local recoveryBody = SAO.Body.get(id)
+    local recovery = recoveryBody and SAO.Needs.recoveryStatus
+        and SAO.Needs.recoveryStatus(id,recoveryBody)
+    if recovery then
+        row("recovery " .. recovery.kind .. ": " .. recovery.phase
+            .. "; native pose " .. tostring(recovery.nativePose)
+            .. "; physiological state " .. tostring(recovery.nativePhysiology))
+        jsonl.recoveryKind, jsonl.recoveryPhase = recovery.kind, recovery.phase
+        jsonl.recoveryNativePose, jsonl.recoveryNativePhysiology = recovery.nativePose, recovery.nativePhysiology
+    end
+
     -- Needs, read off the body the way Needs reads them.
     local body = SAO.Body.get(id)
     if body then

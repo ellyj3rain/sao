@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Border 199: real Controller + Locomotion retain valid executing routes.
+"""Border 199: shared conflict appraisal and native route continuity.
 
 Only the native movement receiver and external belief/needs inputs are
 fixtures. The full production modules update movement before follow decisions,
@@ -8,18 +8,27 @@ This is not a rendered-world test.
 """
 from __future__ import annotations
 
+import argparse
+from datetime import datetime, timezone
+import hashlib
+import json
 import os
 from pathlib import Path
 import shutil
 import subprocess
-import tempfile
 
 ROOT = Path(__file__).resolve().parent.parent
 CONTROLLER = ROOT / "mod/42.20/media/lua/client/SAO_Controller.lua"
 LOCOMOTION = ROOT / "mod/42.20/media/lua/client/SAO_Locomotion.lua"
-GAME = Path(r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
-JDK = Path(r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin")
+GAME = Path(os.environ.get("PZ_DIR", r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid"))
+JDK = Path(os.environ.get("JDK_BIN", r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin"))
 RUNNER = ROOT / "tools/luacheck/LuaRun.java"
+CONFLICT_FILES = {name: ROOT / ("mod/42.20/media/lua/" + scope + "/SAO_" + module + ".lua")
+    for name, scope, module in [("perception", "shared", "Perception"), ("models", "shared", "CognitiveModels"),
+        ("cognition", "shared", "Cognition"), ("concepts", "shared", "ConceptKnowledge"),
+        ("planning", "shared", "ProceduralPlanning"), ("pathogen", "shared", "PathogenPressure"),
+        ("response", "client", "ConflictResponse")]}
+FLIGHT_CASES = ROOT / "tools/flee_conflict_cases.lua"
 
 PRELUDE = r'''
 SAO={Log={line=function() end},Controller={agents={}},
@@ -126,18 +135,6 @@ local function body(x,y,z)
  function b:Callout() __shouts=__shouts+1 end
  return b
 end
-local function decide(a,b,roused)
- __tick=__tick+1;SAO.Controller.__fleeProbeTick(__tick)
- if roused then
-  a.nextDecisionAt=__tick+999
-  SAO.Controller.__fleeProbeRouse('fellow',__bodies.fellow)
-  check('rousing_reopens_decision',a.nextDecisionAt==0)
- end
- if __tick >= a.nextDecisionAt then
-  a.nextDecisionAt=__tick+100
-  SAO.Controller.__fleeProbeDecide('runner',a,b)
- end
-end
 local function fresh()
  __starts=0;__cancels=0;__tells=0;__tick=0
  __injury=0;__player=nil;__shouts=0;__trust={};__group=nil
@@ -149,74 +146,17 @@ local function fresh()
  SAO.Locomotion.jobs={}
  local a={state='IDLE',nextDecisionAt=0,rec={id='runner'}}
  SAO.Controller.agents={runner=a,fellow={state='IDLE',nextDecisionAt=999,rec={id='fellow'}}}
- decide(a,b,false)
- check('initial_escape_owned',__starts==1 and a.state=='FLEE' and SAO.Locomotion.jobs.runner.goal.x==10)
+ -- Follow, equipment and inspection cases need an unrelated executing route.
+ -- Flight choice itself is exercised through shared production modules in
+ -- flee_conflict_cases.lua; do not seed it through the retired flee policy.
+ a.state='FLEE'
+ SAO.Locomotion.order('runner',b,10,0,0,true)
+ check('fixture_route_owned',__starts==1 and SAO.Locomotion.jobs.runner.goal.x==10)
  SAO.Locomotion.tick('runner')
  return a,b,SAO.Locomotion.jobs.runner
 end
 
-local a,b,job=fresh()
-__fellows={'fellow'}
-for _,x in ipairs({1.5,2.5,4.5,6.5}) do
- b.x=x;__bodies.fellow.x=30+x;__bodies.fellow.y=3+x
- decide(a,b,true)
- check('roused_safe_route_not_restarted',__starts==1 and __cancels==0
-  and SAO.Locomotion.jobs.runner==job and a.fleeTargetX==job.goal.x)
-end
-check('repeated_rousing_executed',__tells>=4)
-b.x=8.5;decide(a,b,true)
-check('near_arrival_route_not_replaced',__starts==1 and SAO.Locomotion.jobs.runner==job)
-b.x=10.05;decide(a,b,true)
-check('native_center_route_not_replaced',__starts==1 and SAO.Locomotion.jobs.runner==job)
-
--- Becoming hurt is independent of replacing the current escape. The native
--- cry owner records actual hearers, then the retained route must keep both
--- player-arrival sampling and expiry accounting alive.
-a,b,job=fresh();__injury=4;__player=body(20.5,.5,0)
-decide(a,b,true)
-check('mid_route_injury_still_calls',__shouts==1 and a.criedAt==__tick
- and #a.criedHeard==2 and __starts==1 and SAO.Locomotion.jobs.runner==job)
-local criedAt=a.criedAt
-__player.x=.5;decide(a,b,true)
-check('held_route_records_player_arrival',a.playerCame==true and __shouts==1)
-__player.x=30.5;__injury=0;__tick=criedAt+1800;decide(a,b,true)
-check('held_route_closes_cry_window',a.criedAt==nil and a.criedHeard==nil
- and __trust.fellow==-.1 and __trust['player:test']==nil
- and __starts==1 and SAO.Locomotion.jobs.runner==job)
-
-for _,verdict in ipairs({'FailedObstacle:FAILED_BLOCKED_DIAGONAL',
- 'FailedObstacle:FAILED_UNLOADED_NEXT_SQUARE','Succeeded','IDLE','TICK_FAILED fixture'}) do
- a,b,job=fresh();__verdict=verdict;SAO.Locomotion.tick('runner')
- check('terminal_verdict_consumed',job.done==true)
- decide(a,b,true)
- check('terminal_route_reconsidered',__starts==2 and SAO.Locomotion.jobs.runner~=job)
-end
-
-a,b,job=fresh();__threat={x=5,y=.5,dist=4.5,source='observed'}
-decide(a,b,true)
-check('new_threat_changes_escape',__starts==2
- and SAO.Locomotion.jobs.runner.goal.x<0)
-
-a,b,job=fresh();__forbidden['10,0']=true;__fellows={'fellow'}
-__bodies.fellow.x=11.5;decide(a,b,true)
-check('forbidden_nearby_route_retired',__starts==2 and __cancels==1
- and SAO.Locomotion.jobs.runner~=job and SAO.Locomotion.jobs.runner.goal.x==11)
-
-a,b,job=fresh();b.z=1;decide(a,b,true)
-check('changed_floor_reconsidered',__starts==2 and __cancels==1
- and SAO.Locomotion.jobs.runner.goal.z==1)
-
-a,b,job=fresh();local replacement=body(.5,.5,0)
-__bodies.runner=replacement;decide(a,replacement,true)
-check('replacement_body_gets_own_route',__starts==2 and SAO.Locomotion.jobs.runner.body==replacement)
-
-a,b,job=fresh();__threat=nil;decide(a,b,true)
-check('clear_belief_releases_flee',a.state=='IDLE' and __starts==1
- and __cancels==1 and SAO.Locomotion.jobs.runner==nil)
-
-a,b,job=fresh();__blockAll=true;decide(a,b,true)
-check('forbidden_escape_holds',a.state=='ALERT' and __starts==1
- and __cancels==1 and SAO.Locomotion.jobs.runner==nil)
+local a,b,job
 
 local function followDecide(a,b,player,roused)
  __tick=__tick+1;SAO.Controller.__fleeProbeTick(__tick)
@@ -307,13 +247,29 @@ for _,player in ipairs({false,true}) do
 
  a,b,job,anchor=freshFollow(player);anchor.z=1
  followDecide(a,b,player,false)
- check('follow_anchor_floor_reconsidered',__starts==2 and __cancels==1
-  and SAO.Locomotion.jobs.runner.goal.z==1)
+ if player then
+  check('follow_anchor_floor_reconsidered',__starts==2 and __cancels==1
+   and SAO.Locomotion.jobs.runner.goal.z==1)
+ else
+  check('companion_other_floor_anchor_releases_route',__starts==1 and __cancels==1
+   and SAO.Locomotion.jobs.runner==nil and a.state=='IDLE' and a.followOffset==nil)
+  anchor.z=0;followDecide(a,b,false,false)
+  check('companion_same_floor_anchor_reacquired',__starts==2 and __cancels==1
+   and SAO.Locomotion.jobs.runner~=job and a.state=='FOLLOW')
+ end
 
  a,b,job,anchor=freshFollow(player);b.z=1
  followDecide(a,b,player,false)
- check('follow_body_floor_reconsidered',__starts==2 and __cancels==1
-  and SAO.Locomotion.jobs.runner~=job)
+ if player then
+  check('follow_body_floor_reconsidered',__starts==2 and __cancels==1
+   and SAO.Locomotion.jobs.runner~=job)
+ else
+  check('companion_other_floor_body_releases_route',__starts==1 and __cancels==1
+   and SAO.Locomotion.jobs.runner==nil and a.state=='IDLE')
+  b.z=0;followDecide(a,b,false,false)
+  check('companion_same_floor_body_reacquired',__starts==2 and __cancels==1
+   and SAO.Locomotion.jobs.runner.goal.z==0 and a.state=='FOLLOW')
+ end
 
  a,b,job,anchor=freshFollow(player)
  __forbidden[tostring(job.goal.x)..','..tostring(job.goal.y)]=true
@@ -360,21 +316,50 @@ for _,player in ipairs({false,true}) do
  check('denied_roam_follow_has_honest_state',__starts==1 and __cancels==1
   and a.state=='IDLE' and SAO.Locomotion.jobs.runner==nil)
 
- -- Equal x/y on another level is not "beside" the anchor. Keep a real
- -- route to their floor, then stop only after reaching that same floor.
+ -- PLAYERFOLLOW owns explicit player traversal. Physical companion anchors
+ -- require compatible current native heights; visual knowledge may cross floors.
  a,b,job,anchor=freshFollow(player)
  anchor.x=b.x;anchor.y=b.y;anchor.z=1
  followDecide(a,b,player,false)
- local upstairs=SAO.Locomotion.jobs.runner
- check(player and 'player_close_other_floor_keeps_route' or 'companion_close_other_floor_keeps_route',
-  __starts==2 and __cancels==1 and upstairs and upstairs~=job
-  and upstairs.goal.z==1 and a.state==(player and 'PLAYERFOLLOW' or 'FOLLOW'))
- followDecide(a,b,player,false)
- check('close_other_floor_route_not_restarted',__starts==2 and SAO.Locomotion.jobs.runner==upstairs)
- b.z=1;followDecide(a,b,player,false)
- check('same_floor_close_gap_stops',__starts==2 and __cancels==2
-  and SAO.Locomotion.jobs.runner==nil and a.state=='IDLE' and not upstairs.done)
+ if player then
+  local upstairs=SAO.Locomotion.jobs.runner
+  check('player_close_other_floor_keeps_route',__starts==2 and __cancels==1
+   and upstairs and upstairs~=job and upstairs.goal.z==1 and a.state=='PLAYERFOLLOW')
+  followDecide(a,b,true,false)
+  check('close_other_floor_route_not_restarted',__starts==2 and SAO.Locomotion.jobs.runner==upstairs)
+  b.z=1;followDecide(a,b,true,false)
+  check('same_floor_close_gap_stops',__starts==2 and __cancels==2
+   and SAO.Locomotion.jobs.runner==nil and a.state=='IDLE' and not upstairs.done)
+ else
+  check('companion_close_other_floor_releases_route',__starts==1 and __cancels==1
+   and SAO.Locomotion.jobs.runner==nil and a.state=='IDLE')
+  followDecide(a,b,false,false)
+  check('companion_absent_floor_does_not_restart',__starts==1 and __cancels==1
+   and SAO.Locomotion.jobs.runner==nil)
+  b.z=1;followDecide(a,b,false,false)
+  check('companion_reacquired_close_gap_stays_idle',__starts==1 and __cancels==1
+   and SAO.Locomotion.jobs.runner==nil and a.state=='IDLE')
+ end
 end
+
+-- Physical admission uses <0.5; quantized floors separately own route goals.
+local anchor
+a,b,job,anchor=freshFollow(false);anchor.z=0.49
+followDecide(a,b,false,false)
+check('companion_below_floor_threshold_keeps_route',__starts==1 and __cancels==0
+ and SAO.Locomotion.jobs.runner==job and a.state=='FOLLOW')
+anchor.z=0.5;followDecide(a,b,false,false)
+check('companion_exact_floor_threshold_releases_route',__starts==1 and __cancels==1
+ and SAO.Locomotion.jobs.runner==nil and a.state=='IDLE')
+
+-- A fractional-height contact near a step can satisfy physical admission
+-- while its destination crosses a quantized floor boundary. The route uses z.
+a,b,job,anchor=freshFollow(false);b.z=0.8;anchor.z=1.0
+anchor.x=b.x;anchor.y=b.y
+followDecide(a,b,false,false)
+check('companion_quantized_other_floor_keeps_route',__starts==2 and __cancels==1
+ and SAO.Locomotion.jobs.runner and SAO.Locomotion.jobs.runner.goal.z==1
+ and a.state=='FOLLOW')
 
 a,b,job=freshFollow(false);__bodies.fellow=nil
 followDecide(a,b,false,false)
@@ -514,66 +499,10 @@ followDecide(a,b,true,false)
 check('player_trust_loss_releases_route',__starts==1 and __cancels==1
  and SAO.Locomotion.jobs.runner==nil and a.state=='IDLE' and not a.companioning)
 
--- Native04 reached home/water routes, then a distant observed threat cancelled
--- them for the rest of the day. Exercise the full decision caller up to its
--- real needs read; the sentinel stops only the unrelated appetite fixture.
-local priorRead=SAO.Needs.read
-local priorFlee=SAO.Disposition.fleeDistance
-local priorOverwhelm=SAO.Disposition.overwhelmThreshold
-local function reachesNeeds(agent,native)
- local reached=false
- SAO.Needs.read=function() reached=true;error('NEEDS_BOUNDARY_REACHED') end
- local ok,why=pcall(function()
-  SAO.Controller.__fleeProbeDecide('runner',agent,native)
- end)
- SAO.Needs.read=priorRead
- check('decision_reaches_only_expected_boundary',ok or reached
-  and tostring(why):find('NEEDS_BOUNDARY_REACHED',1,true)~=nil)
- return reached
-end
-for _,state in ipairs({'HOMEWARD','WATERWARD','FOLLOW','WORKWARD'}) do
- a,b,job=fresh();a.state=state
- SAO.Disposition.fleeDistance=function() return 8 end
- __threat={x=-13.5,y=.5,dist=14,source='observed'}
- for turn=1,4 do
-  check('distant_'..state..'_reaches_needs',reachesNeeds(a,b))
-  check('distant_'..state..'_retains_route',SAO.Locomotion.jobs.runner==job
-   and __starts==1 and __cancels==0 and a.state==state)
- end
- SAO.Disposition.fleeDistance=priorFlee
-end
-a,b,job=fresh();SAO.Locomotion.cancel('runner');a.state='ALERT'
-SAO.Disposition.fleeDistance=function() return 8 end
-__threat={x=-13.5,y=.5,dist=14,source='told',teller='fellow'}
-check('old_alert_reaches_needs_same_turn',reachesNeeds(a,b) and a.state=='IDLE')
-check('distant_belief_is_not_clear',a.pressure.detail:find('believed threat',1,true)~=nil
- and not a.pressure.detail:find('clear',1,true))
-a.state='ALERT';SAO.SourceUse={beforeStateChange=function() return false end}
-check('reconciliation_keeps_ownership',not reachesNeeds(a,b) and a.state=='ALERT')
-SAO.SourceUse=nil;SAO.Disposition.fleeDistance=priorFlee
-
-a,b,job=fresh();SAO.Disposition.fleeDistance=function() return 8 end
-__threat={x=-13.5,y=.5,dist=14,source='observed'}
-check('beyond_trigger_retreat_keeps_route',not reachesNeeds(a,b)
- and SAO.Locomotion.jobs.runner==job and a.state=='FLEE' and __cancels==0 and __starts==1)
-__forbidden[tostring(job.goal.x)..','..tostring(job.goal.y)]=true
-check('beyond_trigger_permission_releases_route',reachesNeeds(a,b)
- and SAO.Locomotion.jobs.runner==nil and __cancels==1)
-SAO.Disposition.fleeDistance=priorFlee
-
-for _,kind in ipairs({'close','crowd','pathogen'}) do
- a,b,job=fresh();a.state='HOMEWARD'
- SAO.Disposition.fleeDistance=function() return 8 end
- __threat={x=-13.5,y=.5,dist=14,source='observed'}
- local count=1
- if kind=='close' then __threat.dist=7;__threat.x=-6.5
- elseif kind=='crowd' then count=3;SAO.Disposition.overwhelmThreshold=function() return 2 end
- else SAO.PathogenPressure={fleeDistance=function() return 16 end} end
- check(kind..'_still_owns_threat_turn',SAO.Controller.__threatProbeDecide('runner',a,b,__tick,
-  __threat,count,nil,nil)==true and a.state=='FLEE')
- SAO.PathogenPressure=nil;SAO.Disposition.fleeDistance=priorFlee
- SAO.Disposition.overwhelmThreshold=priorOverwhelm
-end
+-- Distant-threat and retained-flight checks now exercise ConflictResponse in
+-- flee_conflict_cases.lua, including player-arrival and cry-expiry accounting.
+-- Additional native owner lifecycle coverage belongs to conflict_response_test.py;
+-- see COVERAGE_TRANSFER below.
 -- Native03 retained equipment routes beyond their already assigned deadline.
 -- Exercise real movement/state cancellation, leaving native crossings and
 -- terminal arrival results under their existing owners.
@@ -749,31 +678,12 @@ CONTROLS = (
     ("inspection_terminal_reconciliation_ignored", '"IDLE", "container inspection route ended") == false then return true end', '"IDLE", "container inspection route ended") == false then end', 'inspection_terminal_reconciliation_preserves_intent'),
     ("inspection_deadline_missing", 'if agent.state == "FORAGE" and agent.forageInspection\n            and agent.taskDeadline', 'if false\n            and agent.taskDeadline', 'inspection_deadline_reopens_decision'),
     ("inspection_crossing_cut", 'if not crossing then\n                if not setState(agent, id, "IDLE", "container inspection route expired")', 'if true then\n                if not setState(agent, id, "IDLE", "container inspection route expired")', 'inspection_owned_crossing_finishes'),
-    ("missing_hold", "if continueFleeRoute(id, agent, body, bx, by, dx, dy, len) then",
-     "if false then", "roused_safe_route_not_restarted"),
-    ("held_consequences", "if continueFleeRoute(id, agent, body, bx, by, dx, dy, len) then\n                advanceFleeConsequences(id, agent, body, tick)",
-     "if continueFleeRoute(id, agent, body, bx, by, dx, dy, len) then", "mid_route_injury_still_calls"),
-    ("distant_starvation", "        return false\n    end\n\nend\n\n-- Threat reception", "        return true\n    end\n\nend\n\n-- Threat reception", "distant_HOMEWARD_reaches_needs"),
-    ("distant_route_cancellation", "        -- A retreat already underway", "        setState(agent, id, \"ALERT\", \"distant threat hold\")\n        -- A retreat already underway", "distant_HOMEWARD_retains_route"),
-    ("distant_false_clear", 'and string.format("continues with believed threat at %.1f tiles", threat.dist)', 'and "believes clear"', "distant_belief_is_not_clear"),
-    ("distant_delayed_needs", 'if not threat then return end', 'return', "old_alert_reaches_needs_same_turn"),
-    ("distant_reconciliation_bypass", 'if not setState(agent, id, "IDLE", reason) then return end', 'setState(agent, id, "IDLE", reason)', "reconciliation_keeps_ownership"),
-    ("distant_retreat_discarded", 'if continueFleeRoute(id, agent, body, bx, by, dx, dy,\n                math.sqrt(dx * dx + dy * dy)) then', 'if false then', "beyond_trigger_retreat_keeps_route"),
-    ("held_player_arrival", "            agent.playerCame = true\n",
-     "            agent.playerCame = false\n", "held_route_records_player_arrival"),
-    ("held_cry_expiry", "if agent.criedAt and tick > agent.criedAt + 1800 then",
-     "if false then", "held_route_closes_cry_window"),
-    ("unconditional_hold", "goal.z == math.floor(body:getZ()) and away",
-     "goal.z == math.floor(body:getZ())", "new_threat_changes_escape"),
-    ("finished_hold", 'or not job or job.done', 'or not job', "terminal_route_reconsidered"),
-    ("wrong_floor", "goal.z == math.floor(body:getZ()) and away", "away", "changed_floor_reconsidered"),
-    ("wrong_body", "or job.body ~= body or not job.goal", "or not job.goal", "replacement_body_gets_own_route"),
-    ("permission", "and mayEnterBelieved(id, goal.x, goal.y)", "", "forbidden_nearby_route_retired"),
-    ("invalid_route_reused", "SAO.Locomotion.cancel(id)\n    return false\nend\n\nlocal function advanceFleeConsequences",
-     "return false\nend\n\nlocal function advanceFleeConsequences", "forbidden_nearby_route_retired"),
-    ("arrival_slack", "local away = remaining ~= 0 and", "local away = remaining >= ARRIVAL_REACH and",
-     "near_arrival_route_not_replaced"),
-    ("tile_corner", "math.floor(goal.x)) + 0.5", "math.floor(goal.x))", "native_center_route_not_replaced"),
+    ("physical_companion_floor_omitted", "return math.abs(bz - oz) < 0.5", "return true",
+     "companion_other_floor_anchor_releases_route"),
+    ("physical_companion_floor_inclusive", "return math.abs(bz - oz) < 0.5", "return math.abs(bz - oz) <= 0.5",
+     "companion_exact_floor_threshold_releases_route"),
+    ("physical_companion_floor_too_strict", "return math.abs(bz - oz) < 0.5", "return math.abs(bz - oz) < 0.5 and math.floor(bz) == math.floor(oz)",
+     "companion_quantized_other_floor_keeps_route"),
     ("follow_redraw", "if not sameFollow then", "if true then", "stationary_companion_not_restarted"),
     ("player_follow_redraw", 'if orderBesideFollow(id, agent, body, myKey, me, "PLAYERFOLLOW",',
      'agent.followOffset = nil\n                    if orderBesideFollow(id, agent, body, myKey, me, "PLAYERFOLLOW",',
@@ -802,7 +712,7 @@ CONTROLS = (
     ("follow_stale_entry", "if job then SAO.Locomotion.cancel(id) end",
      "if agent.state == state and job then SAO.Locomotion.cancel(id) end", "follow_entry_retires_forbidden_roam"),
     ("follow_planar_gap", "if anchorDist > gap or not onAnchorFloor then", "if anchorDist > gap then",
-     "companion_close_other_floor_keeps_route"),
+     "companion_quantized_other_floor_keeps_route"),
     ("player_follow_planar_gap", "if (pdist > companionGap or not onPlayerFloor) and pdist <= 30.0 then",
      "if pdist > companionGap and pdist <= 30.0 then", "player_close_other_floor_keeps_route"),
     ("crossing_goal_permission", "and mayEnterBelieved(id, followJob.goal.x, followJob.goal.y)", "",
@@ -843,48 +753,202 @@ def execute(command: list[str], cwd: Path) -> tuple[int, str]:
     return result.returncode, (result.stdout or "") + (result.stderr or "")
 
 
-def main() -> int:
+# Every retired control below targeted the removed ordered flee branch.
+# Follow/inspection/equipment controls retain their owners; physical floor
+# controls distinguish current admission from independent player traversal.
+COVERAGE_TRANSFER = {
+    "retiredPolicy": "Controller.continueFleeRoute and ordered decideThreat were replaced by shared ConflictResponse appraisal",
+    "changedAssumptions": {
+        "physicalCompanionFloor": "Current companion anchors require finite current bodies within the native <0.5 height boundary; loss releases FOLLOW and compatible reacquisition can restart it. PLAYERFOLLOW retains its separate traversal owner. Visual knowledge may cross floors.",
+        "fellowDestination": "A fellow's private flee target or current body location does not grant the actor a route; private_fellow_destination_is_not_an_offer checks native offers instead.",
+        "failedExit": "Native failure informs the next feasible response; unconditional retry of the same failed exit is superseded.",
+        "distantRevokedRoute": "An owned conflict purpose reappraises lawful responses instead of silently becoming an ordinary-needs turn.",
+        "crowd": "Crowd pressure triggers appraisal; its selected action remains person-specific.",
+        "distantAwareness": "A distant believed threat now receives shared appraisal. Selecting watch preserves genuine ordinary native work and permits the ordinary needs caller; absence of appraisal is no longer sufficient evidence of continuity.",
+        "crossingAwareness": "An in-flight native crossing retains physical custody while the person updates conflict appraisal. A selected response does not establish another executor admission.",
+        "recognizedRisk": "The previous threshold-only pathogen fixture now loads the actual private risk producer. At fixed distance, route and values, personally recognized danger changes the argument and native response; appraisal grants no encounter experience.",
+    },
+    "controls": {
+        "missing_hold": "shared_hold / roused_shared_route_not_restarted",
+        "held_consequences": "conflict_response_test.py: held_conflict_route_keeps_cry_consequences; flee_conflict_cases.lua: retained_route_injury_records_hearers",
+        "held_player_arrival": "held_player_arrival / held_route_records_player_arrival",
+        "held_cry_expiry": "held_cry_expiry / held_route_closes_cry_window",
+        "distant_starvation": "distant_HOMEWARD_reaches_needs and other ordinary-route states",
+        "distant_route_cancellation": "distant_HOMEWARD_preserves_unrelated_route and other ordinary-route states",
+        "distant_false_clear": "distant_false_clear / distant_belief_is_not_clear",
+        "distant_delayed_needs": "distant_delayed_needs / old_alert_reaches_needs_same_turn",
+        "distant_reconciliation_bypass": "distant_reconciliation_bypass / reconciliation_keeps_ownership",
+        "distant_retreat_discarded": "beyond_trigger_keeps_current_shared_route and beyond_trigger_reappraises_revoked_route",
+        "unconditional_hold": "new_threat_rejects_route_through_contact",
+        "finished_hold": "native_finish_lost / native_terminal_attempt_consumed",
+        "wrong_floor": "changed_floor_reappraises_shared_route",
+        "wrong_body": "conflict_response_test.py: foreign_body_token_cannot_dispatch, drop_settles_admitted_conflict, readoption_keeps_unique_attempt_identity",
+        "permission": "shared_route_permission / revoked_route_retires_exact_owner",
+        "invalid_route_reused": "revoked_route_retires_exact_owner and private_fellow_destination_is_not_an_offer",
+        "arrival_slack": "near_native_center_keeps_shared_route",
+        "tile_corner": "near_native_center_keeps_shared_route",
+    },
+    "preservedCases": "Companion/player follow, anchor/body ownership, crossing, equipment deadline, source reconciliation, inspection and forage-refusal coverage remains in PROBE. Companion cross-floor expectations now assert physical release/reacquisition; player floor routing remains distinct. Quantized route-floor and exact physical-threshold controls execute independently.",
+    "nativeBoundary": "Native admission, local observation and verdict receivers are controlled; no rendered-world acceptance.",
+}
+
+FLIGHT_CONTROLS = (
+    ("older_same_track_retained", "perception", "if not newer and (belief.z == nil or belief.z == fromZ) then",
+     "if (belief.z == nil or belief.z == fromZ) then", "latest_continuous_track_supersedes_older_location"),
+    ("same_track_filtered_before_precedence", "perception",
+     'if belief.source == "observed" and type(belief.track) == "string" and belief.track ~= "" then',
+     'if belief.source == "observed" and type(belief.track) == "string" and belief.track ~= "" and (belief.z == nil or belief.z == fromZ) then',
+     "same_track_precedence_precedes_floor_filter"),
+    ("other_believed_threat_omitted", "response", "for _,contact in ipairs(contacts) do",
+     "for _,contact in ipairs({}) do", "new_private_contact_revises_actual_route"),
+    ("other_threat_consequence_omitted", "response",
+     'or approachesBelievedThreat and {"exposure","bodily-harm","approaches-another-believed-threat"}',
+     'or approachesBelievedThreat and {"exposure"}', "new_private_contact_revises_actual_route"),
+    ("contact_freshness_omitted", "perception", "and tick >= belief.at and tick - belief.at <= horizon",
+     "and true", "expired_contact_does_not_change_escape"),
+    ("contact_floor_omitted", "perception", "if not newer and (belief.z == nil or belief.z == fromZ) then",
+     "if not newer then", "other_floor_contact_does_not_change_escape"),
+    ("contact_sound_promoted", "perception", 'or belief.source == "heard" and belief.phantom == true) then',
+     'or belief.source == "heard") then', "unidentified_sound_contact_does_not_change_escape"),
+    ("contact_person_replaced", "response", "SAO.Perception.believedZombieContacts(id,tick,bx,by,bz)",
+     'SAO.Perception.believedZombieContacts("fellow",tick,bx,by,bz)', "new_private_contact_revises_actual_route"),
+    ("shared_hold", "response", "if action.job then", "if false then", "roused_shared_route_not_restarted"),
+    ("native_finish_lost", "response", "if not job.done then return false end", "if true then return false end", "native_terminal_attempt_consumed"),
+    ("shared_route_permission", "response", "available=not blocked and allowed", "available=not blocked", "revoked_route_retires_exact_owner"),
+    ("distant_false_clear", "controller", 'and string.format("continues with believed threat at %.1f tiles", threat.dist)', 'and "believes clear"', "distant_belief_is_not_clear"),
+    ("distant_delayed_needs", "controller", 'if not threat then return end', 'return', "old_alert_reaches_needs_same_turn"),
+    ("distant_reconciliation_bypass", "controller", 'if not setState(agent, id, "IDLE", reason) then return end', 'setState(agent, id, "IDLE", reason)', "reconciliation_keeps_ownership"),
+    ("held_player_arrival", "controller", "            agent.playerCame = true\n", "            agent.playerCame = false\n", "held_route_records_player_arrival"),
+    ("held_cry_expiry", "controller", "if agent.criedAt and tick > agent.criedAt + 1800 then", "if false then", "held_route_closes_cry_window"),
+    ("distant_appraisal_gate", "response",
+     '    if SAO.Controller.appraiseCoordination then SAO.Controller.appraiseCoordination(id,body,agent.state) end',
+     '    if threat.dist>fleeAt and count<SAO.Disposition.overwhelmThreshold(id) and not agent.conflictRoute then return false end\n'
+     '    if SAO.Controller.appraiseCoordination then SAO.Controller.appraiseCoordination(id,body,agent.state) end',
+     "distant_HOMEWARD_retains_private_appraisal"),
+    ("watch_destroys_ordinary_work", "response",
+     'if decision.kind=="watch" and not agent.conflictRoute and not agent.conflictCoordination',
+     'if false and decision.kind=="watch" and not agent.conflictRoute and not agent.conflictCoordination',
+     "distant_HOMEWARD_reaches_needs"),
+    ("crossing_appraisal_gate", "response",
+     '    local decision=SAO.ProceduralPlanning.planConflict(id,frame,offers)',
+     '    if nativeCrossing(SAO.Locomotion.jobs[id],body) then return true end\n'
+     '    local decision=SAO.ProceduralPlanning.planConflict(id,frame,offers)',
+     "crossing_retains_private_appraisal"),
+    ("recognized_risk_intake_lost", "response",
+     'form=threat.form,formPerformance=threat.formPerformance,attributeMutations=threat.attributeMutations',
+     'form=nil,formPerformance=nil,attributeMutations=nil',
+     "recognized_risk_changes_actual_response"),
+)
+
+# Recovery now uses the same native state names. These controls still mutate
+# only their original follow owner, not an unrelated recovery boundary.
+CONTROL_SCOPES = {name: ("local function continueOwnedFollowCrossing(", "local function orderBesideFollow(")
+                  for name in ("crossing_legacy_flag_only", "crossing_window_state_missing", "crossing_state_substring")}
+
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--production-only", action="store_true")
+    parser.add_argument("--suite", choices=("all", "preserved", "conflict"), default="all")
+    parser.add_argument("--control", action="append", default=[],
+                        help="Run only the named control(s), retaining the selected production baseline(s).")
+    parser.add_argument("--output-dir", type=Path)
+    args = parser.parse_args(argv)
+    known_controls = {row[0] for row in CONTROLS} | {row[0] for row in FLIGHT_CONTROLS}
+    if set(args.control) - known_controls:
+        parser.error("unknown control: " + ", ".join(sorted(set(args.control) - known_controls)))
+    if args.control and args.production_only:
+        parser.error("--control requires defect controls")
     jar = GAME / "projectzomboid.jar"
     required = [jar, GAME / "stdlib.lua", JDK / "java.exe", JDK / "javac.exe"]
     if not all(path.is_file() for path in required):
         print("Flee continuity SKIPPED: installed engine VM or JDK absent")
         return 0
-    source = CONTROLLER.read_text(encoding="utf-8-sig")
-    locomotion = LOCOMOTION.read_text(encoding="utf-8-sig")
-    with tempfile.TemporaryDirectory(prefix="sao-flee-continuity-") as temporary:
-        work = Path(temporary)
-        code, output = execute([str(JDK / "javac.exe"), "-cp", str(jar), "-d", str(work), str(RUNNER)], work)
-        if code:
-            print("FAIL compiling Kahlua instrument\n" + output)
-            return 1
-        shutil.copy2(GAME / "stdlib.lua", work / "stdlib.lua")
-        (work / "prelude.lua").write_text(PRELUDE, encoding="utf-8")
-        (work / "locomotion.lua").write_text(locomotion, encoding="utf-8")
-        (work / "probe.lua").write_text(PROBE, encoding="utf-8")
-
-        def probe(text: str) -> tuple[int, str]:
-            if text.count("return Ctl\n") != 1:
-                raise AssertionError("controller probe exposure seam differs")
-            (work / "controller.lua").write_text(text.replace("return Ctl\n", EXPOSE), encoding="utf-8")
-            return execute([str(JDK / "java.exe"), "-cp", os.pathsep.join([str(jar), str(work)]), "LuaRun",
-                "prelude.lua", "locomotion.lua", "controller.lua", "probe.lua", "--", "__result"], work)
-
-        code, output = probe(source)
-        if code or "VALUE PASS " not in output:
-            print("FAIL production flee/follow continuity\n" + output)
-            return 1
-        print("PASS real Kahlua Controller + Locomotion: movement-update/decision lifecycle, FLEE, companion/player FOLLOW, ROAM entry, rousing, changing owners/targets/floors/permission, terminal verdicts, player crossing, injury, and cry response", flush=True)
-        for name, old, new, reason in CONTROLS:
-            if source.count(old) != 1:
-                print(f"FAIL production control seam differs: {name} ({source.count(old)})")
-                return 1
-            code, output = probe(source.replace(old, new))
-            if not code or "FLEE_CHECK:" + reason not in output:
-                print(f"FAIL production control {name} did not fail for {reason}\n{output}")
-                return 1
-            print(f"PASS rejected {name}: {reason}")
-    print(f"Border 199 PASS: flee/follow continuity; {len(CONTROLS)} production-source controls; native world execution remains separate")
-    return 0
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S-%fZ")
+    out = args.output_dir or ROOT / "_scratch/d1-shared-reasoning/conflict/flee-migration" / stamp
+    out.mkdir(parents=True, exist_ok=True)
+    files = {"controller": CONTROLLER, "locomotion": LOCOMOTION, **CONFLICT_FILES, "flight": FLIGHT_CASES}
+    paths = [*files.values(), Path(__file__), RUNNER, jar, GAME / "stdlib.lua"]
+    pins = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
+    source = {key: path.read_text(encoding="utf-8-sig") for key, path in files.items()}
+    receipt = {"schema": "sao-flee-conflict-migration-proof/1", "at": stamp, "status": "INCOMPLETE",
+               "suite": args.suite, "productionOnly": args.production_only, "inputs": pins,
+               "coverageTransfer": COVERAGE_TRANSFER, "selectedControls": args.control, "variants": []}
+    def save():
+        (out / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
+    def invoke(command, name):
+        code, output = execute(list(map(str, command)), out)
+        (out / (name + ".log")).write_bytes(output.encode("utf-8"))
+        return code, output, {"command": list(map(str, command)), "exit": code,
+            "logSha256": hashlib.sha256(output.encode()).hexdigest()}
+    save()
+    try:
+        code, output, row = invoke([JDK / "javac.exe", "-cp", jar, "-d", out, RUNNER], "compile")
+        receipt["compile"] = row
+        if code: raise RuntimeError("compiling Kahlua instrument\n" + output)
+        shutil.copy2(GAME / "stdlib.lua", out / "stdlib.lua")
+        # Imports retain PRELUDE and EXPOSE; require is local to this isolated VM.
+        (out / "prelude.lua").write_text(PRELUDE + "\nrequire=function() end\n"
+            "__fixturePerception={}\nfor key,value in pairs(SAO.Perception) do __fixturePerception[key]=value end\n",
+            encoding="utf-8")
+        (out / "probe.lua").write_text(PROBE, encoding="utf-8")
+        variants = []
+        if args.suite in ("all", "preserved"):
+            variants.append(("preserved-production", "preserved", None, None, None, None))
+            if not args.production_only:
+                variants += [(name, "preserved", "controller", old, new, reason) for name, old, new, reason in CONTROLS]
+        if args.suite in ("all", "conflict"):
+            variants.append(("conflict-production", "conflict", None, None, None, None))
+            if not args.production_only:
+                variants += [(name, "conflict", key, old, new, reason) for name, key, old, new, reason in FLIGHT_CONTROLS]
+        if args.control:
+            available = {variant[0] for variant in variants if variant[2]}
+            if set(args.control) - available:
+                raise RuntimeError("requested control is outside the selected suite")
+            variants = [variant for variant in variants if not variant[2] or variant[0] in args.control]
+        for name, suite, key, before, after, target in variants:
+            texts = dict(source)
+            if key:
+                begin, end = 0, len(texts[key])
+                if name in CONTROL_SCOPES:
+                    first, last = CONTROL_SCOPES[name]
+                    begin = texts[key].index(first)
+                    end = texts[key].index(last, begin)
+                owned = texts[key][begin:end]
+                if owned.count(before) != 1:
+                    raise RuntimeError(f"production control seam differs: {name} ({owned.count(before)})")
+                texts[key] = texts[key][:begin] + owned.replace(before, after, 1) + texts[key][end:]
+            if texts["controller"].count("return Ctl\n") != 1:
+                raise RuntimeError("controller probe exposure seam differs")
+            texts["controller"] = texts["controller"].replace("return Ctl\n", EXPOSE)
+            for filename, text in texts.items():
+                (out / (filename + ".lua")).write_text(text, encoding="utf-8")
+            modules = (["locomotion", "controller", "probe"] if suite == "preserved" else
+                       [*CONFLICT_FILES, "locomotion", "controller", "flight"])
+            command = [JDK / "java.exe", "-cp", os.pathsep.join([str(jar), str(out)]), "LuaRun",
+                       "prelude.lua", *[module + ".lua" for module in modules], "--", "__result"]
+            code, output, row = invoke(command, name)
+            row.update(name=name, suite=suite, target=target)
+            receipt["variants"].append(row);save()
+            if key:
+                if code == 0 or "FLEE_CHECK:" + target not in output:
+                    raise RuntimeError(f"control {name} did not fail for {target}\n{output[-5000:]}")
+            elif code or "VALUE PASS " not in output:
+                raise RuntimeError(f"production {suite}\n{output[-6000:]}")
+            else:
+                cases = output.split("VALUE PASS ", 1)[1].strip().split(",")
+                row["checks"] = len(cases);row["checkNames"] = sorted(set(cases));save()
+            print(f"PASS {name}" + (f": {row['checks']} checks" if "checks" in row else f": rejected {target}"), flush=True)
+        receipt["inputsAfter"] = {p: hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in pins}
+        receipt["changedInputs"] = [p for p in pins if pins[p] != receipt["inputsAfter"][p]]
+        if receipt["changedInputs"]: raise RuntimeError("inputs changed during proof")
+        receipt["status"] = "PASS";save()
+        print(f"Border 199 PASS: {len(variants)} selected variants; receipt {out / 'receipt.json'}")
+        return 0
+    except Exception as error:
+        receipt["status"] = "FAIL";receipt["error"] = str(error);save()
+        print("FAIL flee continuity:", error, flush=True)
+        return 1
 
 
 if __name__ == "__main__":

@@ -262,8 +262,10 @@ local function materializeBand(px, py, conf)
                         -- derives from what the place actually
                         -- yielded, engine display category as the
                         -- truth.
-                        local carried = SAOJavaBridge:carriedDisplayCategory(
-                            body, "InstrumentWeapon")
+                        local carried = SAOJavaBridge:carriedDisplayCategory(body, "Instrument")
+                        if carried == nil or carried == "" then
+                            carried = SAOJavaBridge:carriedDisplayCategory(body, "InstrumentWeapon")
+                        end
                         rec.instrument = (carried ~= nil and carried ~= "")
                             and tostring(carried) or nil
                         -- [B22] What they carry FORWARD. The same law

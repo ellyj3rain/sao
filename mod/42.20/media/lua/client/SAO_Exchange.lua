@@ -611,6 +611,9 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
         -- moves along the same roads, at told weight - a
         -- lesson heard is weaker than a lesson lived.
         local lessonTold = SAO.Lessons.tellOne(id, otherId)
+        if SAO.Communication and SAO.Communication.deliverConceptAssociation then
+            SAO.Communication.deliverConceptAssociation(id,otherId,"spoken")
+        end
         if lessonTold then
             pcall(function()
                 SAO.Voice.onEvent(id, "lessonTold", tickCount)

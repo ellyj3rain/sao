@@ -25,9 +25,22 @@ import world_lab as Lab
 import world_lab_supervision as Supervision
 import world_lab_profiles as Profiles
 import world_lab_observer_layout as ObserverLayout
+import world_lab_delivery as Delivery
+import world_lab_education as EducationSource
 
 OBSERVER_SOURCES = ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java",
                     "StudyExport.java", "StudyVideoCapture.java")
+OBSERVATION_RECONCILIATION = "run-observation-reconciliation.json"
+OBSERVATION_ARRAY_ERROR = "initial awareness permits0..8 reports"
+RECONCILIATION_SOURCES = ("world_lab_run.py", "world_lab.py", "world_lab_definition.py",
+                          "world_lab/authored_map.py", "world_lab_delivery.py",
+                          "world_lab_education.py", "world_lab_observer_layout.py")
+RECONCILIATION_DECODER = "observation-decoder"
+
+
+def native_agent_arguments(sao_jar, observer_jar):
+    """Install gameplay callbacks before observer advice loads engine classes."""
+    return [f"-javaagent:{sao_jar}=sao", f"-javaagent:{observer_jar}=isolated-study"]
 
 
 def video_options(args):
@@ -645,26 +658,60 @@ def repair_terminal_run(destination, package):
     return verify_run(destination, package)
 
 
-def verify_run(destination, package):
+def callback_disposition(value):
+    """Identify the strict disposition returned by the callback incident owner."""
+    return (isinstance(value, dict)
+            and value.get("schema") == "sao.study-callback-error-disposition/1"
+            and value.get("disposition") == "saved-continuation-with-reviewed-callback-failure")
+
+
+def verified_review_disposition(destination, receipt, manifest_path):
+    attempt = Path(destination) / "attempts" / f"{receipt['launchNumber']:04d}"
+    logs = {name: (attempt / name).read_text(encoding="utf-8", errors="replace")
+            for name in ("stdout.log", "stderr.log")}
+    return Delivery.reviewed_errors(destination, receipt, manifest_path, logs,
+                                   runtime_errors(logs["stdout.log"], logs["stderr.log"]))
+
+
+def _verify_run_receipt(destination, package, receipt, reviewed_errors=None, *, archived_receipt=None):
+    """Verify a candidate with the ordinary physical/source checks before publication.
+
+    A reconciliation supplies its unchanged archived parent for the one report
+    equality check. Its derived fields are reconstructed by the caller; every
+    other check is the same as normal run verification.
+    """
     destination = Path(destination).resolve()
     manifest, definition = Lab.verify_package(package)
-    receipt = Lab.load(destination / "run.json")
     layout = ObserverLayout.from_receipt(receipt, definition)
-    Lab.require(receipt["schema"] == "sao-study-run/1" and receipt["status"] == "completed"
-                and receipt["datasetAdmission"] == "unreviewed" and receipt["exitCode"] == 0 and not receipt["runtimeErrors"]
+    callback = None
+    if (reviewed_errors is not None
+            and Lab.load(reviewed_errors).get("schema") == "sao.study-reviewed-callback-save/1"):
+        callback = verified_review_disposition(destination, receipt, reviewed_errors)
+        Lab.require(callback_disposition(callback), "callback review disposition differs")
+    if receipt.get("educationSource") is not None:
+        EducationSource.validate(receipt["educationSource"], manifest["definitionSha256"])
+    Lab.require(receipt["schema"] == "sao-study-run/1" and (receipt["status"] == "completed" or reviewed_errors is not None and receipt["status"] == "incomplete")
+                and receipt["datasetAdmission"] == "unreviewed" and receipt["exitCode"] == 0
+                and (reviewed_errors is not None or not receipt["runtimeErrors"])
                 and receipt["packageSha256"] == Lab.seal(manifest), "completed package-bound run required")
     cache = destination / "cache"
     verify_inputs(cache, destination / "StudyLoadingAgent.jar", receipt)
     verify_observer_adapter(destination, receipt)
+    Delivery.verify_history(destination, receipt)
     expected_map = native_lots_evidence(cache / "mods", definition)
     Lab.require(expected_map == receipt.get("mapDependency"),
                 "native lots dependency evidence differs")
     verify_native_images(cache, receipt)
     if receipt.get("host") == "observer":
-        Lab.require(observer_evidence(destination, receipt) == receipt.get("observerEvidence"),
-                    "sealed observer evidence differs")
-        if layout is not None:
-            ObserverLayout.verify_evidence(layout, receipt["observerEvidence"])
+        if callback is not None:
+            # Failed observation is authenticated as failed; it is never promoted
+            # to the healthy detached-observer evidence of a completed run.
+            Delivery.verify_callback_observer(destination, receipt, callback)
+        else:
+            Lab.require(observer_evidence(destination, receipt) == receipt.get("observerEvidence"),
+                        "sealed observer evidence differs")
+            if layout is not None:
+                ObserverLayout.verify_evidence(layout, receipt["observerEvidence"])
     for section, boundary in (("saveFiles", cache / "Saves"), ("observations", cache / "Lua/StudyWorld")):
         Lab.require(receipt[section], "empty run inventory")
         for relative, expected in receipt[section].items():
@@ -675,7 +722,8 @@ def verify_run(destination, package):
                 == set(receipt["saveFiles"]), "save inventory differs")
     Lab.require(saved_state(cache, receipt, definition) == receipt["player"], "player state report differs")
     attempt = destination / "attempts" / f"{receipt['launchNumber']:04d}"
-    Lab.require(Lab.load(attempt / "report.json") == receipt, "closed run report differs")
+    Lab.require(Lab.load(attempt / "report.json") ==
+                (receipt if archived_receipt is None else archived_receipt), "closed run report differs")
     Lab.require(set(receipt["logs"]) == {"stdout.log", "stderr.log"}, "log inventory differs")
     for name, expected in receipt["logs"].items():
         Lab.require(name in ("stdout.log", "stderr.log") and digest(attempt / name) == expected, "run log differs")
@@ -683,14 +731,28 @@ def verify_run(destination, package):
                        receipt["launchNumber"], receipt["save"], receipt["hours"],
                        receipt.get("watch", False), receipt["lastHours"])
     Lab.require(checked == receipt["terminal"], "terminal report differs")
-    Lab.require(not runtime_errors(*( (attempt / name).read_text(encoding="utf-8", errors="replace")
-                                     for name in ("stdout.log", "stderr.log"))), "runtime error in closed logs")
+    logs = {name: (attempt / name).read_text(encoding="utf-8", errors="replace")
+            for name in ("stdout.log", "stderr.log")}
+    if receipt.get("educationSource") is not None:
+        EducationSource.verify_binding(receipt["educationSource"], receipt["save"], logs["stdout.log"])
+    detected = runtime_errors(logs["stdout.log"], logs["stderr.log"])
+    if reviewed_errors is None:
+        Lab.require(not detected, "runtime error in closed logs")
+        Lab.require(not Delivery.error_rows(logs, positive_only=True),
+                    "positive-frame errors require an explicit reviewed-error disposition")
+    else:
+        Delivery.reviewed_errors(destination, receipt, reviewed_errors, logs, detected)
     observations = sorted(cache / p for p in receipt["observations"])
     Lab.require(len({p.parent for p in observations}) == 1, "multiple observation sessions")
     Lab.require(set(observations[0].parent.glob("*.json")) == set(observations), "observation inventory differs")
     inspection = Lab.inspect_frames(observations[0].parent, package)
     Lab.require(inspection == receipt["inspection"], "run inspection differs")
     last = Lab.load(observations[-1])
+    if reviewed_errors is not None and callback is None:
+        first = Lab.load(observations[0])
+        Lab.require(len(observations) >= 2 and last["sequence"] > first["sequence"]
+                    and last["hours"] > first["hours"] and checked["endHours"] > checked["startHours"],
+                    "reviewed continuation requires advancing completed observations")
     Lab.require(receipt["observationFiles"] == len(observations) and receipt["lastSequence"] == last["sequence"]
                 and receipt["lastHours"] == last["hours"] and receipt["save"] == last["save"],
                 "observation report differs")
@@ -703,23 +765,220 @@ def verify_run(destination, package):
     return receipt
 
 
+def _reconciliation_sources():
+    tools = Path(__file__).resolve().parent
+    return {name: digest(tools / name) for name in RECONCILIATION_SOURCES}
+
+
+def _observation_array_candidate(destination, package, original_path=None):
+    """Reconstruct immutable observation/log meaning; physical admission follows."""
+    destination = Path(destination).resolve()
+    original_path = Path(original_path) if original_path is not None else destination / "run.json"
+    Lab.require(not original_path.is_symlink(), "unsafe original run receipt")
+    original_bytes = original_path.read_bytes()
+    original = Lab.decode(original_bytes.decode("utf-8-sig"))
+    manifest, definition = Lab.verify_package(package)
+    Lab.require(original.get("schema") == "sao-study-run/1"
+                and original.get("status") == "incomplete"
+                and original.get("datasetAdmission") == "unreviewed"
+                and original.get("exitCode") == 0 and original.get("watch") is True
+                and original.get("host") == "observer"
+                and original.get("packageSha256") == Lab.seal(manifest)
+                and original.get("runtimeErrors") == [OBSERVATION_ARRAY_ERROR],
+                "run is not the recoverable observation-array case")
+    supervision = original.get("supervision", {})
+    Lab.require(supervision.get("forced") is False and supervision.get("failure") is None,
+                "failed or forced run cannot be reconciled")
+    Lab.integer(original.get("launchNumber"), 1, 9999, "reconciliation attempt")
+    attempt = destination / "attempts" / f"{original['launchNumber']:04d}"
+    archived_path = attempt / "report.json"
+    Lab.require(not archived_path.is_symlink() and archived_path.resolve().is_relative_to(destination),
+                "unsafe archived run receipt")
+    archived_bytes = archived_path.read_bytes()
+    Lab.require(Lab.decode(archived_bytes.decode("utf-8-sig")) == original,
+                "original and archived run reports differ")
+    sources = _reconciliation_sources()
+    cache = destination / "cache"
+    inventory = original.get("observations")
+    Lab.require(isinstance(inventory, dict) and inventory, "empty observation inventory")
+    observations = []
+    for relative, expected in inventory.items():
+        path = cache / relative
+        Lab.require(not path.is_symlink() and path.resolve().is_relative_to(cache / "Lua/StudyWorld")
+                    and path.is_file() and digest(path) == expected,
+                    "run artifact differs: " + relative)
+        observations.append(path)
+    observations.sort()
+    Lab.require(len({path.parent for path in observations}) == 1
+                and set(observations[0].parent.glob("*.json")) == set(observations),
+                "observation inventory differs")
+    inspection = Lab.inspect_frames(observations[0].parent, package)
+    normalizations = inspection.get("observationNormalizations")
+    Lab.require(isinstance(normalizations, list) and normalizations
+                and all(row.get("corrections") for row in normalizations),
+                "observation reconciliation requires actual bound array corrections")
+    last = Lab.load(observations[-1])
+    candidate = dict(original)
+    candidate.update(inspection=inspection, save=last["save"], lastSequence=last["sequence"],
+                     lastHours=last["hours"], status="completed", runtimeErrors=[])
+    Lab.require(set(original.get("logs", {})) == {"stdout.log", "stderr.log"}, "log inventory differs")
+    logs = {}
+    for name, expected in original["logs"].items():
+        Lab.require(digest(attempt / name) == expected, "run log differs")
+        logs[name] = (attempt / name).read_text(encoding="utf-8", errors="replace")
+    Lab.require(not runtime_errors(logs["stdout.log"], logs["stderr.log"]), "runtime error in array reconciliation logs")
+    Lab.require(not Delivery.error_rows(logs, positive_only=True), "native errors cannot be reconciled as array encoding")
+    candidate["terminal"] = terminal(logs["stdout.log"],
+        original["launchNumber"], candidate["save"], original["hours"], True, candidate["lastHours"])
+    # This is the required observer-store result. The full physical verifier
+    # must establish it through saved_state before this candidate is published.
+    candidate["player"] = {"count": 0, "observerPersisted": False}
+    identity = {"runSha256": hashlib.sha256(original_bytes).hexdigest(),
+                "reportSha256": hashlib.sha256(archived_bytes).hexdigest(),
+                "launchNumber": original["launchNumber"], "sessionId": original["sessionId"]}
+    Lab.require(digest(original_path) == identity["runSha256"]
+                and digest(archived_path) == identity["reportSha256"]
+                and _reconciliation_sources() == sources,
+                "reconciliation source changed during verification")
+    return {"schema": "sao-run-observation-reconciliation/1", "datasetAdmission": "unreviewed",
+            "original": identity, "packagePath": str(Path(package).resolve()),
+            "packageSha256": Lab.seal(manifest), "sourceSha256": sources,
+            "event": {"kind": "observation-array-decoding", "originalError": OBSERVATION_ARRAY_ERROR,
+                      "normalizations": normalizations}, "receipt": candidate}
+
+
+def observation_array_reconciliation(destination, package):
+    """Construct and fully verify one side receipt without changing run evidence."""
+    destination = Path(destination).resolve()
+    candidate = _observation_array_candidate(destination, package)
+    original = Lab.load(destination / "run.json")
+    _verify_run_receipt(destination, package, candidate["receipt"], archived_receipt=original)
+    archive = destination / "attempts" / f"{original['launchNumber']:04d}" / "report.json"
+    Lab.require(digest(destination / "run.json") == candidate["original"]["runSha256"]
+                and digest(archive) == candidate["original"]["reportSha256"]
+                and _reconciliation_sources() == candidate["sourceSha256"],
+                "reconciliation source changed during physical verification")
+    return candidate
+
+
+def _retained_reconciliation_sources(side_path):
+    """Authenticate the fixed source archive as data; never load archived code."""
+    side_path = Delivery.file_path(side_path)
+    root = side_path.parent / RECONCILIATION_DECODER
+    Lab.require(root.is_dir() and root.resolve() == root,
+                "unsafe retained observation decoder directory")
+    sources = {}
+    expected = set(RECONCILIATION_SOURCES)
+    for name in RECONCILIATION_SOURCES:
+        path = Delivery.file_path(root / name)
+        Lab.require(path.is_relative_to(root) and path.stat().st_size <= 64 * 1024 * 1024,
+                    "unsafe retained observation decoder source")
+        sources[name] = digest(path)
+        expected.update(p.as_posix() for p in Path(name).parents if p != Path("."))
+    Lab.require({p.relative_to(root).as_posix() for p in root.rglob("*")} == expected,
+                "retained observation decoder inventory differs")
+    return sources
+
+
+def verify_observation_reconciliation_parent(destination, original_path, side_path):
+    """Authenticate retained correction history without rereading successor saves/mods.
+
+    Delivery pins the side after full physical verification and before changing
+    source bytes. History reconstructs its immutable parent, package, observations
+    and logs under current code. Archived source hashes are historical provenance;
+    every other side field must still reproduce exactly. Archived code is data.
+    """
+    side_path = Path(side_path)
+    Lab.require(not side_path.is_symlink() and side_path.stat().st_size <= 64 * 1024 * 1024,
+                "unsafe retained observation reconciliation")
+    side_hash = digest(side_path)
+    side = Lab.load(side_path)
+    Lab.require(isinstance(side, dict) and isinstance(side.get("packagePath"), str),
+                "retained observation reconciliation package missing")
+    sources = _retained_reconciliation_sources(side_path)
+    Lab.require(sources == side.get("sourceSha256"), "retained observation decoder source differs")
+    expected = _observation_array_candidate(destination, side["packagePath"], original_path)
+    expected["sourceSha256"] = sources
+    Lab.require(side == expected, "retained observation reconciliation source or derivation differs")
+    Lab.require(digest(side_path) == side_hash and _retained_reconciliation_sources(side_path) == sources,
+                "retained observation reconciliation changed during verification")
+    return expected["receipt"]
+
+
+def reconcile_observation_arrays(destination, package):
+    """Publish only the named side receipt after full canonical verification."""
+    destination = Path(destination).resolve()
+    candidate = observation_array_reconciliation(destination, package)
+    target = destination / OBSERVATION_RECONCILIATION
+    Lab.require(not target.is_symlink(), "unsafe observation reconciliation receipt")
+    if target.exists():
+        Lab.require(Lab.load(target) == candidate, "existing observation reconciliation differs")
+    else:
+        publish(target, candidate)
+    return candidate
+
+
+def verify_run(destination, package, reviewed_errors=None):
+    destination = Path(destination).resolve()
+    receipt = Lab.load(destination / "run.json")
+    side = destination / OBSERVATION_RECONCILIATION
+    # A retained correction belongs to its original attempt. Completed and
+    # unrelated successor receipts keep their ordinary verification semantics.
+    if receipt.get("status") == "incomplete" and receipt.get("runtimeErrors") == [OBSERVATION_ARRAY_ERROR] and side.exists():
+        Lab.require(reviewed_errors is None, "array reconciliation cannot combine error dispositions")
+        Lab.require(not side.is_symlink() and side.stat().st_size <= 64 * 1024 * 1024,
+                    "unsafe observation reconciliation receipt")
+        corrected = Lab.load(side)
+        Lab.require(isinstance(corrected, dict) and isinstance(corrected.get("original"), dict)
+                    and corrected["original"].get("runSha256") == digest(destination / "run.json"),
+                    "observation reconciliation parent differs")
+        expected = observation_array_reconciliation(destination, package)
+        Lab.require(corrected == expected, "observation reconciliation source or derivation differs")
+        return expected["receipt"]
+    return _verify_run_receipt(destination, package, receipt, reviewed_errors)
+
+
 def run(args):
+    if args.resume:
+        with Delivery.resume_guard(Path(args.out).resolve(), bool(getattr(args, "gameplay_lua_update", None))) as custody:
+            return _run(args, custody)
+    return _run(args)
+
+
+def _run(args, custody=None):
     destination, game = Path(args.out).resolve(), Path(args.game).resolve()
     video = video_options(args)
     refresh_adapter = getattr(args, "refresh_observer_adapter", False)
     Lab.require(not refresh_adapter or (args.resume and args.host == "observer"),
                 "observer adapter refresh requires an observer continuation")
-    _, layout_definition = Lab.verify_package(args.package)
+    layout_manifest, layout_definition = Lab.verify_package(args.package)
+    if not args.resume:
+        # Refuse malformed or independently mismatched inputs before cache creation.
+        EducationSource.select(args, layout_manifest["definitionSha256"])
     requested_layout = getattr(args, "observer_layout", None)
     Lab.require(requested_layout is None or args.host == "observer", "observer layout requires observer host")
     # Validate before preparing a cache or advancing a saved attempt.
     layout = ObserverLayout.select(requested_layout, None, layout_definition)
     previous = None
+    update_path = getattr(args, "gameplay_lua_update", None)
+    reviewed_path = getattr(args, "reviewed_errors", None)
+    Lab.require(args.resume or not (update_path or reviewed_path), "delivery manifests require continuation")
+    disposition = None
+    callback_observer = None
     if args.resume:
         Lab.require(not args.mod and args.profile is None and not args.enable_mod and not args.disable_mod,
                     "resume uses the original copied mods and simulation profile")
         manifest, definition = Lab.verify_package(args.package)
-        previous = verify_run(destination, args.package)
+        previous = verify_run(destination, args.package, reviewed_path)
+        if reviewed_path:
+            disposition = verified_review_disposition(destination, previous, reviewed_path)
+        if callback_disposition(disposition):
+            Lab.require(update_path is not None, "callback continuation requires the exact Pose repair")
+            callback_observer = Delivery.verify_callback_observer(destination, previous, disposition)
+        if update_path or reviewed_path:
+            Delivery.saved_boundary(previous, disposition=disposition)
+        if update_path:
+            Delivery.validate_update(destination, previous, update_path, disposition=disposition)
         if video and not refresh_adapter:
             sources = previous.get("observerAdapterReplacement", {}).get("sources", {})
             Lab.require("StudyVideoCapture.java" in sources,
@@ -734,7 +993,7 @@ def run(args):
             Lab.require(previous["player"]["alive"] or args.replace_dead_player,
                         "saved player is dead; use --replace-dead-player for native character creation")
             Lab.require(not (previous["player"]["alive"] and args.replace_dead_player), "living player cannot be replaced")
-        Lab.require(previous["schema"] == "sao-study-run/1" and previous["status"] == "completed"
+        Lab.require(previous["schema"] == "sao-study-run/1" and (previous["status"] == "completed" or disposition is not None)
                     and previous["packageSha256"] == Lab.seal(manifest), "resume requires this completed study")
         Lab.require(digest(game / "projectzomboid.jar") == previous["engineJarSha256"], "resume engine changed")
         cache, user, agent = destination / "cache", destination / "home", destination / "StudyLoadingAgent.jar"
@@ -774,12 +1033,19 @@ def run(args):
         receipt = Lab.load(destination / "run.json")
         receipt["launchNumber"] = 1
     with observer_resume_transaction(destination, previous):
+        education = EducationSource.select(args, manifest["definitionSha256"], previous)
+        if education is not None:
+            receipt["educationSource"] = education
         ObserverLayout.bind(receipt, layout)
         selected_sites = ObserverLayout.sites(receipt, definition)
         if args.host == "observer":
             prepare_renderer(cache, dimensions=renderer_dimensions(selected_sites))
         attempt = destination / "attempts" / f"{receipt['launchNumber']:04d}"
         attempt.mkdir(parents=True, exist_ok=False)
+        if reviewed_path:
+            Delivery.retain_review(destination, attempt, previous, receipt, reviewed_path, disposition)
+        if update_path:
+            Delivery.apply_update(destination, attempt, previous, receipt, update_path, disposition=disposition)
         if refresh_adapter:
             refresh_attempt_adapter(destination, attempt, game, args.jdk, previous, receipt)
         receipt["replacedPlayer"] = None
@@ -796,6 +1062,8 @@ def run(args):
                   "wallDeadlineUnixMs": int(time.time() * 1000) + args.timeout * 1000,
                   "stopFile": f"StudyRunnerStop{receipt['launchNumber']:04d}.txt",
                   "captureName": f"study-attempt-{receipt['launchNumber']:04d}.png"}
+        if education is not None:
+            config["education"] = education
         if previous is not None:
             config["resumeSave"] = previous["save"]
             config["replaceDeadPlayer"] = args.replace_dead_player
@@ -810,8 +1078,8 @@ def run(args):
         command = [str(game / "jre64/bin/java.exe"),
                    f"-Duser.home={user}", f"-Dstudy.attempt={receipt['launchNumber']}",
                    "-Dstudy.activeMods=" + ",".join(receipt["mods"]),
-                   "-Dstudy.showWindow=" + str(args.window == "visible").lower(), f"-javaagent:{agent}=isolated-study",
-                   f"-javaagent:{sao_jars[0]}=sao", "-agentlib:zbNative", "-Djava.awt.headless=true",
+                   "-Dstudy.showWindow=" + str(args.window == "visible").lower(),
+                   *native_agent_arguments(sao_jars[0], agent), "-agentlib:zbNative", "-Djava.awt.headless=true",
                    "--enable-native-access=ALL-UNNAMED", "--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED",
                    "-Xmx3072m", "-Dzomboid.steam=0", "-Dzomboid.znetlog=1", "-Djava.library.path=win64/;.",
                    "-XX:-CreateCoredumpOnCrash", "-XX:-OmitStackTraceInFastThrow", "-XX:+UseZGC",
@@ -829,7 +1097,9 @@ def run(args):
             }
             if previous:
                 # Observer coordinates belong to the host receipt, never players.db.
-                old = previous["observerEvidence"]["state"]
+                old = (callback_observer["state"]
+                       if callback_observer is not None
+                       else previous["observerEvidence"]["state"])
                 observer.update(originX=old["residencyX"], originY=old["residencyY"], originZ=old["residencyZ"])
             sites = selected_sites
             if sites:
@@ -849,13 +1119,15 @@ def run(args):
                        sessionId=str(uuid.uuid4()), observerDirectory=attempt.relative_to(destination).as_posix())
         publish(destination / "run.json", receipt)
     startup = None
-    if args.window == "hidden":
+    if args.window == "hidden" and hasattr(subprocess, "STARTUPINFO"):
         startup = subprocess.STARTUPINFO()
         startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startup.wShowWindow = 0
     before_observations = set((cache / "Lua/StudyWorld").rglob("*.json"))
     with (attempt / "stdout.log").open("wb") as output, (attempt / "stderr.log").open("wb") as errors, \
             Supervision.owned_child(command, cwd=game, stdout=output, stderr=errors, startupinfo=startup) as process:
+        if custody is not None:
+            custody["nativeStarted"] = True
         receipt.update(pid=process.pid, status="running")
         publish(destination / "run.json", receipt)
         print(json.dumps({"pid": process.pid, "run": str(destination), "status": "running"}), flush=True)
@@ -929,9 +1201,12 @@ def main():
     parser.add_argument("--verify", action="store_true", help="verify a completed run without launching")
     parser.add_argument("--repair-terminal", action="store_true",
                         help="recover the one verified legacy supervisor-stop receipt shape")
+    parser.add_argument("--reconcile-observation-arrays", action="store_true",
+                        help="retain a verified side receipt for the exact legacy empty-awareness array error")
     parser.add_argument("--game", type=Path)
     parser.add_argument("--jdk", type=Path)
     parser.add_argument("--mod", action="append", default=[], type=Path)
+    EducationSource.add_arguments(parser)
     parser.add_argument("--profile", type=Path,
                         help="validated external capability study profile")
     parser.add_argument("--catalog", type=Path, default=Profiles.DEFAULT_CATALOG,
@@ -944,6 +1219,10 @@ def main():
     parser.add_argument("--resume", action="store_true", help="reopen this tool's completed isolated run")
     parser.add_argument("--observer-layout", type=Path,
                         help="bounded native camera areas; saved continuations retain their last sealed layout")
+    parser.add_argument("--gameplay-update", "--gameplay-lua-update", dest="gameplay_lua_update", type=Path,
+                        help="explicit saved-boundary named gameplay source update manifest")
+    parser.add_argument("--reviewed-errors", type=Path,
+                        help="predecessor-bound groundcover disposition, optionally with one exact reviewed lunge or animation incident; preserves the original verdict")
     parser.add_argument("--refresh-observer-adapter", action="store_true",
                         help="rebuild isolated observer infrastructure after verifying the saved predecessor")
     parser.add_argument("--trace-native", action="store_true", help="retain transformed native classes in this attempt for diagnosis")
@@ -961,12 +1240,23 @@ def main():
     parser.add_argument("--timeout", type=int, default=3600,
                         help="wall-time limit in seconds for every run, including --watch (default: 3600)")
     args = parser.parse_args()
-    Lab.require(not (args.verify and args.repair_terminal), "select one verification action")
+    Lab.require(sum((args.verify, args.repair_terminal, args.reconcile_observation_arrays)) <= 1,
+                "select one verification action")
+    if args.reconcile_observation_arrays:
+        Lab.require(not args.resume and args.reviewed_errors is None and args.gameplay_lua_update is None,
+                    "observation reconciliation is a separate verification action")
+        print(json.dumps(reconcile_observation_arrays(args.out, args.package), allow_nan=False))
+        return 0
     if args.repair_terminal:
         print(json.dumps(repair_terminal_run(args.out, args.package), allow_nan=False))
         return 0
     if args.verify:
-        print(json.dumps(verify_run(args.out, args.package), allow_nan=False))
+        receipt = verify_run(args.out, args.package, args.reviewed_errors)
+        if args.gameplay_lua_update:
+            Delivery.validate_update(args.out, receipt, args.gameplay_lua_update)
+        print(json.dumps({"disposition": Delivery.DISPOSITION if args.reviewed_errors else "verified",
+                          "gameplayUpdate": "validated-not-applied" if args.gameplay_lua_update else None,
+                          "receipt": receipt}, allow_nan=False))
         return 0
     Lab.require(args.game is not None and args.jdk is not None, "launch requires --game and --jdk")
     Lab.number(args.hours, 1 / 3600, 24 * 365, "run hours")

@@ -36,19 +36,31 @@ end)
 check("external_owner_rejects_unsolicited_gesture", function()
     local rec = fresh(); rec.bodyOwner = "ZAO"
     return not SAO.Gesture.play("cook", __cook, "Converse_Listening02", 60)
-        and __cook:getCharacterActions():isEmpty()
+        and __cook:getCharacterActions():isEmpty() and rec.bodyOwner == "ZAO"
+        and (not ISTimedActionQueue.queues[__cook] or #ISTimedActionQueue.queues[__cook].queue == 0)
 end)
 check("external_native_mark_rejects_gesture", function()
     fresh(); __cook:getModData().SAOExternalOwner = "ZAO"
     return not SAO.Gesture.play("cook", __cook, "Converse_Listening02", 60)
+        and __cook:getCharacterActions():isEmpty()
+        and __cook:getModData().SAOExternalOwner == "ZAO"
+end)
+check("external_native_owned_flag_rejects_gesture", function()
+    fresh(); __cook:getModData().ZAOOwned = true
+    return not SAO.Gesture.play("cook", __cook, "Converse_Listening02", 60)
+        and __cook:getCharacterActions():isEmpty() and __cook:getModData().ZAOOwned == true
 end)
 check("pending_handoff_rejects_gesture", function()
     local rec = fresh(); rec.zaoTransferPending = {}
+    local pending = rec.zaoTransferPending
     return not SAO.Gesture.play("cook", __cook, "Converse_Listening02", 60)
+        and __cook:getCharacterActions():isEmpty() and rec.zaoTransferPending == pending
 end)
 check("pending_crossed_handoff_rejects_gesture", function()
     local rec = fresh(); rec.crossedTransferPending = {}
+    local pending = rec.crossedTransferPending
     return not SAO.Gesture.play("cook", __cook, "Converse_Listening02", 60)
+        and __cook:getCharacterActions():isEmpty() and rec.crossedTransferPending == pending
 end)
 check("lua_queued_action_gap_rejects_gesture", function()
     fresh(); local queue = ISTimedActionQueue.getTimedActionQueue(__cook)
@@ -76,7 +88,7 @@ check("legitimate_cpr_keeps_three_native_queue_members", function()
 end)
 check("instrument_rest_gesture_still_admitted", function()
     fresh(); SAO.Controller.agents.cook.state = "REST"
-    return SAO.Gesture.playInstrument("cook", __cook, "guitar", nil) and SAO.Needs.busy(__cook)
+    return SAO.Gesture.play("cook", __cook, "PlayGuitarDefault", 60) and SAO.Needs.busy(__cook)
 end)
 check("owned_work_blocks_native_emote", function()
     local rec = fresh(); rec.cookingWork = { id = "held" }

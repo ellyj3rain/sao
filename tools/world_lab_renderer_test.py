@@ -18,7 +18,11 @@ def sites(count):
 def resume_wiring(source):
     """Inspect executable call order; a later legacy resize would undo sizing."""
     tree = ast.parse(source)
-    run = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "run")
+    wrapper = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "run")
+    if not any(isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == "_run"
+               for n in ast.walk(wrapper)):
+        return False
+    run = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "_run")
     calls = [n for n in ast.walk(run) if isinstance(n, ast.Call)]
     renderer = [n for n in calls if isinstance(n.func, ast.Name) and n.func.id == "prepare_renderer"]
     selections = [n for n in calls if isinstance(n.func, ast.Attribute) and isinstance(n.func.value, ast.Name)

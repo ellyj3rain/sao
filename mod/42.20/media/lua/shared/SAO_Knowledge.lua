@@ -23,6 +23,24 @@ SAO = SAO or {}
 SAO.Knowledge = SAO.Knowledge or {}
 local K = SAO.Knowledge
 
+-- Physical target admission stays with the native executor. These are the
+-- person's possible explanations, never confirmation of a currently seen body.
+function K.outbreakAwareness(id)
+    local owner=SAO.PersonalAwareness
+    if not owner or type(owner.query)~="function" then return nil,"awareness-owner-unavailable" end
+    local ok,value=pcall(owner.query,id)
+    if not ok or type(value)~="table" or value.actorId~=id then return nil,"awareness-reader-unavailable" end
+    return value
+end
+function K.contactRecognition(id)
+    local value,why=K.outbreakAwareness(id)
+    if not value then return nil,why end
+    return {actorId=id,configured=value.configured,possible=value.possible==true,
+        kind=value.configured and (value.possible and "possible-outbreak-contact" or "unidentified-contact")
+            or "legacy-recognized-contact",status=value.status,
+        propositions=value.propositions,evidence=value.evidence}
+end
+
 -- A capture needs to distinguish an empty answer from a failed reader. Normal
 -- inspection keeps its partial-answer behavior; evidence collection records
 -- every invoked boundary and refuses completeness after any failure.

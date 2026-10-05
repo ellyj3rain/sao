@@ -1,0 +1,109 @@
+{
+  "schema": "sao.continuity-graph-verification/1",
+  "recordedAt": "2026-10-04T10:53:18.992522+00:00",
+  "status": "PASS",
+  "scope": "Current D1 shared reasoning and reviewed same-save Rosewood continuation. Preserves pre-D compression and C118-C120 measured status; no tactical efficacy claim.",
+  "graphRevision": "sha256:87ed790959426d7bf0d9e1629578a8488f28067e62bbb37598d914fff15a60c6",
+  "graphCounts": {
+    "nodes": 993,
+    "edges": 2868,
+    "sourceVector": 348
+  },
+  "checks": [
+    {
+      "command": "python tools/development_graph.py --check",
+      "exitCode": 0
+    },
+    {
+      "command": "python tools/development_graph_test.py",
+      "exitCode": 0,
+      "tests": 23
+    },
+    {
+      "command": "python tools/map_reference_test.py",
+      "exitCode": 0,
+      "reusedEvidence": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d1-shared-reasoning\\conflict\\awareness-static-checks.json"
+    },
+    {
+      "command": "python tools/doc_currency_test.py",
+      "exitCode": 0,
+      "reusedEvidence": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d1-shared-reasoning\\conflict\\awareness-static-checks.json"
+    },
+    {
+      "command": "python tools/gate_reach_test.py",
+      "exitCode": 0,
+      "reusedEvidence": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d1-shared-reasoning\\conflict\\awareness-static-checks.json",
+      "tests": 254
+    }
+  ],
+  "browser": {
+    "status": "PASS",
+    "recordedAt": "2026-10-04T10:52:19.833Z",
+    "graphRevision": "sha256:87ed790959426d7bf0d9e1629578a8488f28067e62bbb37598d914fff15a60c6",
+    "exactInstalledSource": true,
+    "checks": [
+      {
+        "surface": "installed-service-browser",
+        "viewport": {
+          "width": 1488,
+          "height": 950
+        },
+        "d1Selected": true,
+        "compressionToD1": true,
+        "historicalStatus": true,
+        "overflow": false
+      },
+      {
+        "surface": "standalone",
+        "viewport": {
+          "width": 1488,
+          "height": 950
+        },
+        "d1Selected": true,
+        "contracts": 35,
+        "overflow": false
+      },
+      {
+        "surface": "installed-service-browser",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "d1Selected": true,
+        "compressionToD1": true,
+        "historicalStatus": true,
+        "overflow": false
+      },
+      {
+        "surface": "standalone",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "d1Selected": true,
+        "contracts": 35,
+        "overflow": false
+      }
+    ]
+  },
+  "installedAssets": {
+    "command": "npm run installed:check",
+    "exitCode": 0,
+    "matches": 21
+  },
+  "priorEvidence": {
+    "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d1-shared-reasoning\\conflict\\prior-graph-verification.json",
+    "sha256": "430c5a796e7195e47f8c866757c27bb8fa66c808d653b23029a4d6b1862df0f9"
+  },
+  "version": "2.11.1.0-pre-alpha",
+  "versionBoundary": "No delivered scope or version change; prior replay remains applicable.",
+  "currentEvidence": {
+    "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d1-shared-reasoning\\conflict\\verification.json",
+    "sha256": "fdfec9b7a0fc5705cdd55ded9487d67a144394c6afdeb97634b51c52cd995f95"
+  },
+  "supersededProjection": {
+    "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d1-shared-reasoning\\conflict\\graph-verification-before-attempt3.json",
+    "sha256": "b168f00d80fac48d05fb75480578633c56dc9c9d7dd8264da2f0edc5865a5e36"
+  },
+  "staticReuseBoundary": "Subsequent prose changes preserve indexed paths, root document headers, version and gate registrations."
+}

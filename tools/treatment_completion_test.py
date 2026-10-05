@@ -526,6 +526,27 @@ PROBE = r'''
     and __nativeXP == oldNative and trust("b", "a") == oldTrust)
   __bodies.a = bodyA
 
+  -- The real Needs admission now delegates self-care credit to this owner.
+  local beforeSelfXP=__customXP
+  reset(partA)
+  local selfDressing=item(91,false,bodyA.inventory)
+  SAOJavaBridge.bleedingBodyPart=function() return partA end
+  SAOJavaBridge.findBandage=function() return selfDressing end
+  local ownedSelf=SAO.Needs.bandageSelf("a",bodyA)
+  check("self_admission_withholds_doctor_credit",ownedSelf and ownedSelf.status=="pending" and __customXP==beforeSelfXP)
+  SAO.Treatment._runtime[ownedSelf.id].action:stop()
+  check("cancelled_self_dressing_grants_no_doctor_credit",ownedSelf.status=="interrupted" and __customXP==beforeSelfXP)
+  reset(partA);selfDressing=item(92,false,bodyA.inventory)
+  ownedSelf=SAO.Needs.bandageSelf("a",bodyA)
+  SAO.Treatment._runtime[ownedSelf.id].action.nativeRefuse=true
+  SAO.Treatment._runtime[ownedSelf.id].action:complete()
+  check("failed_self_dressing_grants_no_doctor_credit",ownedSelf.status~="completed" and __customXP==beforeSelfXP)
+  reset(partA);selfDressing=item(93,false,bodyA.inventory)
+  ownedSelf=SAO.Needs.bandageSelf("a",bodyA)
+  SAO.Treatment._runtime[ownedSelf.id].action:complete()
+  SAO.Treatment.reconcile(true);SAO.Treatment.reconcile(true)
+  check("effective_self_dressing_grants_owned_credit_once",ownedSelf.status=="completed" and __customXP==beforeSelfXP+1)
+
   ModData.getOrCreate("SurvivorAwareness_Treatments").schema = 2
   SAO.Treatment.rebindWorld()
   reset(partB)
@@ -539,6 +560,8 @@ end)()
 
 
 EXPECTED = {
+    "self_admission_withholds_doctor_credit", "cancelled_self_dressing_grants_no_doctor_credit",
+    "failed_self_dressing_grants_no_doctor_credit", "effective_self_dressing_grants_owned_credit_once",
     "queued_without_effect", "patient_and_part_are_durable",
     "effective_completion_publishes_once", "completed_result_is_idempotent",
     "interruption_withholds_consequences",
@@ -561,7 +584,7 @@ EXPECTED = {
 }
 
 
-def run_probe(treatment_path=TREATMENT):
+def run_probe(treatment_path=TREATMENT, needs_path=NEEDS):
     OUT.mkdir(parents=True, exist_ok=True)
     compiled = subprocess.run(
         [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(OUT), str(RUNNER)],
@@ -575,11 +598,16 @@ def run_probe(treatment_path=TREATMENT):
             shutil.copy2(cls, work / cls.name)
         prelude = work / "prelude.lua"
         probe = work / "probe.lua"
+        needs=work/"needs.lua"
+        source=needs_path.read_text(encoding="utf-8")
+        start=source.index("function N.bandageSelf(")
+        end=source.index("\nend",start)+4
+        needs.write_text("local N=SAO.Needs\n"+source[start:end],encoding="utf-8")
         prelude.write_text(PRELUDE, encoding="utf-8")
         probe.write_text("__result = " + PROBE, encoding="utf-8")
         done = subprocess.run(
             [str(JDK / "java.exe"), "-cp", f"{PZ};.", "LuaRun",
-             str(prelude), str(treatment_path), str(probe), "--", "__result"],
+             str(prelude), str(treatment_path), str(needs), str(probe), "--", "__result"],
             cwd=work, capture_output=True, text=True, timeout=300)
     output = (done.stdout or "") + (done.stderr or "")
     lines = (done.stdout or "").strip().splitlines()
@@ -619,7 +647,17 @@ def mutation_control():
         verdicts = dict(re.findall(r"([a-z0-9_]+)=(true|false)", value or ""))
         if verdicts.get(expected) != "false":
             return False, label + " mutation was not named: " + detail[-500:]
-    return True, "six controls reject premature credit, missing cancellation and unproved restored-action absence"
+    needs = NEEDS.read_text(encoding="utf-8")
+    needle = 'effect = { aid = { actor = id, patient = id, xp = 1.0 },'
+    if needs.count(needle) != 1:
+        return False, "self dressing credit mutation anchor absent"
+    with tempfile.TemporaryDirectory() as tmp:
+        broken = pathlib.Path(tmp) / "SAO_Needs_broken.lua"
+        broken.write_text(needs.replace(needle, 'effect = { aid = { actor = id, patient = id },', 1), encoding="utf-8")
+        value, detail = run_probe(needs_path=broken)
+    if 'effective_self_dressing_grants_owned_credit_once=false' not in (value or ''):
+        return False, "self dressing credit mutation survived: " + detail[-500:]
+    return True, "seven controls reject premature credit, missing cancellation, unproved restored-action absence and lost self-care credit"
 
 
 def static_contract():

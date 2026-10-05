@@ -1,0 +1,21 @@
+{
+  "schema": "sao-d1-session-history-transition/1",
+  "closedAt": "2026-10-05 15:34 UTC / 08:34 PST",
+  "priorSessionPath": "Batches/history/d1-pre-closure/SESSION_STATE.md",
+  "priorSessionSha256": "4a4ef3316af68191f9b8bf83f1424eb768ae3227c2964a8c97397c9a3246bf5e",
+  "compactSessionSha256": "9a9f377794f6b3a86f8821ba384f0df12a7e22ba3acb72a1bceb70924392abe4",
+  "actualAcceptanceReceipt": {
+    "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d1-finish\\actual-close-01\\actual-root-acceptance-01\\receipt.json",
+    "sha256": "4ba7a0e4cf03053e010e2c535647904d6c4543f83bb6411182a794c62fa4f59a",
+    "requiredValues": {
+      "status": "PASS",
+      "sessionId": "09e96a7d-a49f-460d-8117-6ea264f3efe5",
+      "nativeSummary.status": "completed",
+      "nativeSummary.exitCode": 0,
+      "nativeSummary.terminal.nativeSaveReturned": true,
+      "nativeSummary.supervision.forced": false
+    }
+  },
+  "historicalBodyPreserved": true,
+  "rootRequestSha256": "6a855eb2d03c39bfc1503b622e8950ef9c2aade34134d07d0aa8aeca4fac10ab"
+}

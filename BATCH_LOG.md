@@ -1,31 +1,23 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.11.1.0-pre-alpha` |
+| Version | `3.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
 
 # Batch log
 
-A and B retain their established chronology. The current C catalogue groups shared contracts across the preserved source history. Its regulatory order follows each contract's last contributing source; it does not assert that those contributions were adjacent.
+A and B retain their established chronology. Current C contains 82 coherent historical development products partitioning all 120 source contributions once in chronological order. Each product retains its sources, measured component status and tier rationale.
 
-Each C record defines its owner, inputs, outputs, state, dependencies, evidenced delivered scope and remaining D work. Component completion, verification, publication and rendered acceptance remain separate. The original 120 C records, their event chronology and the earlier 127-to-50 consolidation retain generation-qualified provenance.
+[Product catalogue](Batches/C_PRODUCT_CATALOGUE.json) Â· [Source crosswalk](Batches/C_PRODUCT_CROSSWALK.json) Â· [Shared ownership boundaries](Batches/C_SHARED_BOUNDARIES.json) Â· [Original chronology](Batches/history/c-20261003-source/BATCH_LOG.md)
 
-[Shared-boundary map](Batches/SHARED_BOUNDARIES.md) · [Complete source manifest](Batches/C_SHARED_BOUNDARIES.json) · [Former labels](Batches/FORMER_LABELS.md) · [Original chronology](Batches/history/c-20261003-source/BATCH_LOG.md)
+## C consolidation and the transition to D
 
-## C compression and the transition to D
-
-On 2026-10-03, the preserved 120-record C generation was compressed into the
-35 contracts below. The [compression event](Batches/Transitions/C-20261003-compression.md)
-preserves the exact mapping, original verification, component statuses and its
-chronological position after the existing C work and before D. It adds no C36
-or version credit. D had not started when the event was explicitly recorded.
+The 2026-10-03 map grouped the retained source history into 35 shared ownership contracts. PR137 published that map and described it as the requested era consolidation. The [corrective event](Batches/Transitions/C-20261005-product-consolidation.md) records the distinction and the product consolidation using the A/B development-batch method. The 35-contract map remains a separate dependency projection; version replay credits products once. The [prior index and version projection](Batches/history/c-20261005-before-product/BATCH_LOG.md) remain exact historical evidence. Public reconciliation follows the protected PR procedure and receives credit only from its actual merge receipt.
 
 ## Development catalogue
 
-Active: [D1 — Shared person-specific reasoning](Batches/D1-20261004-0124Z-1824PST-shared-reasoning.md),
-opened after the recorded C compression. D1 is in progress and receives no
-delivered-scope row or version credit until closure.
+D1 is delivered. D2 is the next development batch after its recorded closure.
 
 | Batch | Date | Name | Threads |
 |---|---|---|---|
@@ -110,38 +102,86 @@ delivered-scope row or version credit until closure.
 | [B50](Batches/B50-2026-08-28-engine-behavior-facts-bridge-throw-graph.md) | 2026-08-28 | Engine behavior facts; bridge throw graph | [`T-008`](Batches/THREADS.md#t-008) |
 | [B51](Batches/B51-2026-08-28-death-time-cleanup-derived-art-dead-relation-rows-save-protocol.md) | 2026-08-28 | Death-time cleanup; derived art; dead-relation rows; save-protocol border | [`T-030`](Batches/THREADS.md#t-030) |
 | [B52](Batches/B52-2026-08-28-derived-counts-distance-naming-scout-completeness-answer-domain.md) | 2026-08-28 | Derived counts; distance naming; scout completeness; answer-domain closure | [`T-030`](Batches/THREADS.md#t-030) |
-| [C1](Batches/Catalogue/C1-2026-08-28-catalogue-replay.md) | 2026-08-28 | History, contract catalogue and version replay | [`T-030`](Batches/THREADS.md#t-030) |
-| [C2](Batches/Catalogue/C2-2026-09-08-expression.md) | 2026-09-08 | Expression constrained to acquired facts | [`T-005`](Batches/THREADS.md#t-005) |
-| [C3](Batches/Catalogue/C3-2026-09-08-identity.md) | 2026-09-08 | Durable person identity and admission | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007) |
-| [C4](Batches/Catalogue/C4-2026-09-12-standing.md) | 2026-09-12 | Relations, claims, recognition and command acceptance | [`T-004`](Batches/THREADS.md#t-004) |
-| [C5](Batches/Catalogue/C5-2026-09-14-configuration.md) | 2026-09-14 | Truthful settings and interaction surfaces | [`T-030`](Batches/THREADS.md#t-030) |
-| [C6](Batches/Catalogue/C6-2026-09-19-time.md) | 2026-09-19 | Authoritative county time and explicit units | [`T-002`](Batches/THREADS.md#t-002) |
-| [C7](Batches/Catalogue/C7-2026-09-19-capacity.md) | 2026-09-19 | Embodied age, form and authentic acquired capabilities | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007) |
-| [C8](Batches/Catalogue/C8-2026-09-19-random.md) | 2026-09-19 | Deterministic county draw state | [`T-008`](Batches/THREADS.md#t-008) |
-| [C9](Batches/Catalogue/C9-2026-09-19-return.md) | 2026-09-19 | Authorized cross-owner return | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
-| [C10](Batches/Catalogue/C10-2026-09-20-population.md) | 2026-09-20 | County scheduling and loaded/dormant orchestration | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
-| [C11](Batches/Catalogue/C11-2026-09-20-compatibility.md) | 2026-09-20 | Installed compilation, loading and native adapters | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C12](Batches/Catalogue/C12-2026-09-20-access.md) | 2026-09-20 | Current physical reach, entry and source feasibility | [`T-003`](Batches/THREADS.md#t-003) |
-| [C13](Batches/Catalogue/C13-2026-09-20-reconstruction.md) | 2026-09-20 | Durable data and runtime reconstruction | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007) |
-| [C14](Batches/Catalogue/C14-2026-09-21-provisioning.md) | 2026-09-21 | Receipt-derived stores and material entitlement | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004) |
-| [C15](Batches/Catalogue/C15-2026-09-25-inference.md) | 2026-09-25 | Bounded in-process model inference | [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009) |
-| [C16](Batches/Catalogue/C16-2026-09-25-communication.md) | 2026-09-25 | Actual communication access, delivery and reception | [`T-005`](Batches/THREADS.md#t-005) |
-| [C17](Batches/Catalogue/C17-2026-09-27-health.md) | 2026-09-27 | Owned health courses and integrated physiology | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003) |
-| [C18](Batches/Catalogue/C18-2026-09-29-place.md) | 2026-09-29 | Inhabited ground and causal place development | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004) |
-| [C19](Batches/Catalogue/C19-2026-09-29-data.md) | 2026-09-29 | Immutable decision-time evidence and model/data joins | [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009) |
-| [C20](Batches/Catalogue/C20-2026-09-30-material-actions.md) | 2026-09-30 | Performed material acquisition, use and delivery | [`T-003`](Batches/THREADS.md#t-003) |
-| [C21](Batches/Catalogue/C21-2026-09-30-material.md) | 2026-09-30 | Conserved native source observations and reservations | [`T-003`](Batches/THREADS.md#t-003) |
-| [C22](Batches/Catalogue/C22-2026-10-01-observation.md) | 2026-10-01 | Read-only person/world observation | [`T-009`](Batches/THREADS.md#t-009) |
-| [C23](Batches/Catalogue/C23-2026-10-01-social.md) | 2026-10-01 | Enacted organization and coordination lifecycle | [`T-004`](Batches/THREADS.md#t-004) |
-| [C24](Batches/Catalogue/C24-2026-10-01-custody.md) | 2026-10-01 | One native body owner and representation | [`T-007`](Batches/THREADS.md#t-007) |
-| [C25](Batches/Catalogue/C25-2026-10-01-snapshot.md) | 2026-10-01 | Validated native person envelope | [`T-006`](Batches/THREADS.md#t-006) |
-| [C26](Batches/Catalogue/C26-2026-10-03-study.md) | 2026-10-03 | Native study admission and session lifecycle | [`T-008`](Batches/THREADS.md#t-008) |
-| [C27](Batches/Catalogue/C27-2026-10-03-native-view.md) | 2026-10-03 | Native observation views and frame transport | [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009) |
-| [C28](Batches/Catalogue/C28-2026-10-03-verification.md) | 2026-10-03 | Scoped evidence and instrument validity | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C29](Batches/Catalogue/C29-2026-10-03-movement.md) | 2026-10-03 | Physical progress, route continuity and transport | [`T-001`](Batches/THREADS.md#t-001) |
-| [C30](Batches/Catalogue/C30-2026-10-03-planning.md) | 2026-10-03 | Acquired purposes and private procedural planning | [`T-003`](Batches/THREADS.md#t-003), [`T-006`](Batches/THREADS.md#t-006) |
-| [C31](Batches/Catalogue/C31-2026-10-03-action.md) | 2026-10-03 | Native queue custody and measured action completion | [`T-003`](Batches/THREADS.md#t-003) |
-| [C32](Batches/Catalogue/C32-2026-10-03-choice.md) | 2026-10-03 | Individual dispositions, experience and conditional predictions | [`T-006`](Batches/THREADS.md#t-006) |
-| [C33](Batches/Catalogue/C33-2026-10-03-knowledge.md) | 2026-10-03 | Typed private evidence and attribution | [`T-006`](Batches/THREADS.md#t-006), [`T-009`](Batches/THREADS.md#t-009) |
-| [C34](Batches/Catalogue/C34-2026-10-03-recovery.md) | 2026-10-03 | Native bodily recovery and measured consequences | [`T-003`](Batches/THREADS.md#t-003) |
-| [C35](Batches/Catalogue/C35-2026-10-03-source-ownership.md) | 2026-10-03 | Cross-project authority and assembly | [`T-030`](Batches/THREADS.md#t-030) |
+| [C1](Batches/Products/C1-2026-08-28-catalog-and-version-governance.md) | 2026-08-28 | Catalog and version governance | T-030 |
+| [C2](Batches/Products/C2-2026-08-29-identity-and-execution-continuity.md) | 2026-08-29 | Identity and execution continuity | T-001, T-005, T-006 |
+| [C3](Batches/Products/C3-2026-08-29-inspection-and-person-state.md) | 2026-08-29 | Inspection and person state | T-006, T-009 |
+| [C4](Batches/Products/C4-2026-08-29-death-ownership-and-infection-timing.md) | 2026-08-29 | Death ownership and infection timing | T-002, T-006, T-007, T-008 |
+| [C5](Batches/Products/C5-2026-08-29-player-surfaces-and-compatibility-review.md) | 2026-08-29 | Player surfaces and compatibility review | T-008, T-030 |
+| [C6](Batches/Products/C6-2026-08-29-person-state-across-reload.md) | 2026-08-29 | Person state across reload | T-006 |
+| [C7](Batches/Products/C7-2026-08-29-zombie-census-and-bounded-restitution.md) | 2026-08-29 | Zombie census and bounded restitution | T-007, T-009 |
+| [C8](Batches/Products/C8-2026-08-29-play-evidence-and-execution-corrections.md) | 2026-08-29 | Play evidence and execution corrections | T-001, T-008, T-030 |
+| [C9](Batches/Products/C9-2026-08-29-adoption-and-configuration-boundaries.md) | 2026-08-29 | Adoption and configuration boundaries | T-006, T-007, T-030 |
+| [C10](Batches/Products/C10-2026-08-29-known-needs-and-social-interaction.md) | 2026-08-29 | Known needs and social interaction | T-001, T-003, T-004, T-006 |
+| [C11](Batches/Products/C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md) | 2026-08-30 | Knowledge conditioning and inference measurement | T-005, T-006, T-008 |
+| [C12](Batches/Products/C12-2026-09-06-body-scale-age-and-childhood.md) | 2026-09-06 | Body scale age and childhood | T-002, T-006, T-007, T-008 |
+| [C13](Batches/Products/C13-2026-09-06-conditions-habits-and-strain.md) | 2026-09-06 | Conditions habits and strain | T-002, T-006, T-007 |
+| [C14](Batches/Products/C14-2026-09-07-physical-gestures.md) | 2026-09-07 | Physical gestures | T-002, T-007 |
+| [C15](Batches/Products/C15-2026-09-07-historical-record-calendar.md) | 2026-09-07 | Historical record calendar | T-002, T-006 |
+| [C16](Batches/Products/C16-2026-09-07-orders-through-standing.md) | 2026-09-07 | Orders through Standing | T-004, T-006 |
+| [C17](Batches/Products/C17-2026-09-07-remembered-era-and-owned-condition-state.md) | 2026-09-07 | Remembered era and owned condition state | T-002, T-006, T-007, T-030 |
+| [C18](Batches/Products/C18-2026-09-07-historical-county-simulation.md) | 2026-09-07 | Historical county simulation | T-002, T-003, T-004, T-005, T-007 |
+| [C19](Batches/Products/C19-2026-09-07-constrained-factual-expression.md) | 2026-09-07 | Constrained factual expression | T-002, T-006 |
+| [C20](Batches/Products/C20-2026-09-07-entry-and-command-permission.md) | 2026-09-07 | Entry and command permission | T-003, T-004, T-006 |
+| [C21](Batches/Products/C21-2026-09-08-learned-expression-and-condition-integration.md) | 2026-09-08 | Learned expression and condition integration | T-002, T-007 |
+| [C22](Batches/Products/C22-2026-09-08-personal-choice-in-shared-travel.md) | 2026-09-08 | Personal choice in shared travel | T-002, T-003, T-004 |
+| [C23](Batches/Products/C23-2026-09-08-witnessed-violence-attribution.md) | 2026-09-08 | Witnessed violence attribution | T-001, T-007 |
+| [C24](Batches/Products/C24-2026-09-08-verification-and-publication-machinery.md) | 2026-09-08 | Verification and publication machinery | T-030 |
+| [C25](Batches/Products/C25-2026-09-08-player-depletion-of-places.md) | 2026-09-08 | Player depletion of places | T-003 |
+| [C26](Batches/Products/C26-2026-09-08-source-clocked-county-simulation-and-observation.md) | 2026-09-08 | Source-clocked county simulation and observation | T-002, T-005, T-007, T-009, T-030 |
+| [C27](Batches/Products/C27-2026-09-08-dormant-social-continuity-and-county-measurement.md) | 2026-09-08 | Dormant social continuity and county measurement | T-004, T-006, T-007, T-008, T-009 |
+| [C28](Batches/Products/C28-2026-09-09-ownership-across-the-three-repositories.md) | 2026-09-09 | Ownership across the three repositories | T-030 |
+| [C29](Batches/Products/C29-2026-09-09-dormant-movement-settlement-ground-and-cost.md) | 2026-09-09 | Dormant movement settlement ground and cost | T-003, T-004, T-007, T-008, T-009 |
+| [C30](Batches/Products/C30-2026-09-09-infection-course-and-clinical-observation.md) | 2026-09-09 | Infection course and clinical observation | T-002, T-003, T-007 |
+| [C31](Batches/Products/C31-2026-09-09-controller-ownership-and-driving-surface-verification.md) | 2026-09-09 | Controller ownership and driving surface verification | T-001, T-002, T-008 |
+| [C32](Batches/Products/C32-2026-09-10-decision-capture-and-ratified-data-preparation.md) | 2026-09-10 | Decision capture and ratified data preparation | T-004, T-006, T-008, T-030 |
+| [C33](Batches/Products/C33-2026-09-10-life-simulation-and-dependency-contracts.md) | 2026-09-10 | Life simulation and dependency contracts | T-004, T-006, T-008, T-030 |
+| [C34](Batches/Products/C34-2026-09-10-isolation-attachment-and-development-observations.md) | 2026-09-10 | Isolation attachment and development observations | T-006, T-008 |
+| [C35](Batches/Products/C35-2026-09-12-pathogen-data-and-recognition-integration.md) | 2026-09-12 | Pathogen data and recognition integration | T-008, T-030 |
+| [C36](Batches/Products/C36-2026-09-12-player-claims-and-inhabited-ground.md) | 2026-09-12 | Player claims and inhabited ground | T-003, T-004, T-008 |
+| [C37](Batches/Products/C37-2026-09-12-readiness-corrections-and-recorded-rulings.md) | 2026-09-12 | Readiness corrections and recorded rulings | T-030 |
+| [C38](Batches/Products/C38-2026-09-12-personal-need-in-affiliation.md) | 2026-09-12 | Personal need in affiliation | T-004, T-006 |
+| [C39](Batches/Products/C39-2026-09-13-county-tick-and-ordinary-activity.md) | 2026-09-13 | County tick and ordinary activity | T-002, T-007 |
+| [C40](Batches/Products/C40-2026-09-13-driving-integration-and-configuration.md) | 2026-09-13 | Driving integration and configuration | T-001, T-002, T-004 |
+| [C41](Batches/Products/C41-2026-09-13-afflicted-return-and-social-behavior.md) | 2026-09-13 | Afflicted return and social behavior | T-001, T-002, T-004, T-006, T-008 |
+| [C42](Batches/Products/C42-2026-09-14-robbery-and-raiding-actions.md) | 2026-09-14 | Robbery and raiding actions | T-002, T-004, T-008 |
+| [C43](Batches/Products/C43-2026-09-14-optional-county-events-and-care.md) | 2026-09-14 | Optional county events and care | T-002, T-004, T-007 |
+| [C44](Batches/Products/C44-2026-09-14-child-and-everyday-activity-integration.md) | 2026-09-14 | Child and everyday activity integration | T-001, T-002 |
+| [C45](Batches/Products/C45-2026-09-14-drug-use-withdrawal-and-smoking.md) | 2026-09-14 | Drug use withdrawal and smoking | T-002, T-008 |
+| [C46](Batches/Products/C46-2026-09-14-vehicle-animal-and-combat-integration.md) | 2026-09-14 | Vehicle animal and combat integration | T-001, T-003, T-006, T-007, T-008 |
+| [C47](Batches/Products/C47-2026-09-14-brain-health-integration.md) | 2026-09-14 | Brain health integration | T-002, T-006, T-008 |
+| [C48](Batches/Products/C48-2026-09-18-historical-simulation-recovery-and-evidence.md) | 2026-09-18 | Historical simulation recovery and evidence | T-007, T-008, T-009 |
+| [C49](Batches/Products/C49-2026-09-19-native-person-preservation-and-authorized-reconstruction.md) | 2026-09-19 | Native person preservation and authorized reconstruction | T-001, T-002, T-006, T-007, T-008 |
+| [C50](Batches/Products/C50-2026-09-19-health-and-dormant-physiology.md) | 2026-09-19 | Health and dormant physiology | T-002, T-006, T-007, T-008 |
+| [C51](Batches/Products/C51-2026-09-20-durable-population-reconstruction-and-scheduling.md) | 2026-09-20 | Durable population reconstruction and scheduling | T-006, T-007, T-008 |
+| [C52](Batches/Products/C52-2026-09-20-private-native-perception-and-physical-access.md) | 2026-09-20 | Private native perception and physical access | T-002, T-003, T-006, T-008, T-030 |
+| [C53](Batches/Products/C53-2026-09-21-performed-source-provisioning-and-exact-material-outcomes.md) | 2026-09-21 | Performed source provisioning and exact material outcomes | T-002, T-003, T-004, T-006, T-007, T-008, T-009, T-030 |
+| [C54](Batches/Products/C54-2026-09-21-completed-personal-exchange-and-private-social-appraisal.md) | 2026-09-21 | Completed personal exchange and private social appraisal | T-003, T-004, T-008, T-009, T-030 |
+| [C55](Batches/Products/C55-2026-09-21-measured-treatment-completion.md) | 2026-09-21 | Measured treatment completion | T-002, T-004, T-006, T-008, T-030 |
+| [C56](Batches/Products/C56-2026-09-21-complete-private-inventory.md) | 2026-09-21 | Complete private inventory | T-002, T-003, T-004, T-006, T-008, T-030 |
+| [C57](Batches/Products/C57-2026-09-21-personally-heard-spoken-and-radio-communication.md) | 2026-09-21 | Personally heard spoken and radio communication | T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-030 |
+| [C58](Batches/Products/C58-2026-09-23-source-bound-conversation-knowledge-and-person-state-evidence.md) | 2026-09-23 | Source-bound conversation knowledge and person-state evidence | T-002, T-006, T-007, T-008, T-009, T-030 |
+| [C59](Batches/Products/C59-2026-09-24-enacted-voluntary-social-coordination.md) | 2026-09-24 | Enacted voluntary social coordination | T-003, T-004, T-006, T-007, T-008, T-009, T-030 |
+| [C60](Batches/Products/C60-2026-09-24-zao-owned-living-person-handoff.md) | 2026-09-24 | ZAO-owned living person handoff | T-002, T-006, T-007, T-008, T-030 |
+| [C61](Batches/Products/C61-2026-09-25-source-bound-native-coordination-shadow.md) | 2026-09-25 | Source-bound native coordination shadow | T-004, T-006, T-008, T-009, T-030 |
+| [C62](Batches/Products/C62-2026-09-25-personally-initiated-and-externally-enacted-cooperative-work.md) | 2026-09-25 | Personally initiated and externally enacted cooperative work | T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-009, T-030 |
+| [C63](Batches/Products/C63-2026-09-26-isolated-native-study-worlds-and-survival-observation.md) | 2026-09-26 | Isolated native study worlds and survival observation | T-002, T-003, T-004, T-006, T-007, T-008, T-009, T-030 |
+| [C64](Batches/Products/C64-2026-09-27-independent-native-cognition-and-physical-capability-evidence.md) | 2026-09-27 | Independent native cognition and physical capability evidence | — |
+| [C65](Batches/Products/C65-2026-09-28-autonomous-cooperative-procedures-and-exact-joint-action.md) | 2026-09-28 | Autonomous cooperative procedures and exact joint action | — |
+| [C66](Batches/Products/C66-2026-09-28-saved-configurable-study-sessions-and-authored-pressure.md) | 2026-09-28 | Saved configurable study sessions and authored pressure | T-002, T-004, T-006, T-008, T-009, T-030 |
+| [C67](Batches/Products/C67-2026-09-28-person-private-purpose-planning-and-native-activation.md) | 2026-09-28 | Person-private purpose planning and native activation | T-002, T-003, T-004, T-006, T-008, T-009, T-030 |
+| [C68](Batches/Products/C68-2026-09-28-source-integration-lineage.md) | 2026-09-28 | Source integration lineage | T-002, T-003, T-004, T-006, T-008, T-030 |
+| [C69](Batches/Products/C69-2026-09-28-owned-horse-life-and-mounted-mobility.md) | 2026-09-28 | Owned horse life and mounted mobility | T-002, T-003, T-004, T-006, T-008, T-030 |
+| [C70](Batches/Products/C70-2026-09-29-mobile-household-continuity-and-loaded-use.md) | 2026-09-29 | Mobile household continuity and loaded use | T-002, T-003, T-004, T-006, T-008, T-030 |
+| [C71](Batches/Products/C71-2026-09-29-study-terminal-and-human-review-handoff.md) | 2026-09-29 | Study terminal and human review handoff | T-006, T-008, T-009, T-030 |
+| [C72](Batches/Products/C72-2026-09-30-native-manual-study-and-retained-learning-acquisition.md) | 2026-09-30 | Native manual study and retained learning acquisition | T-002, T-003, T-004, T-006, T-008, T-030 |
+| [C73](Batches/Products/C73-2026-09-30-sustained-private-resource-planning.md) | 2026-09-30 | Sustained private resource planning | T-002, T-003, T-004, T-006, T-008, T-030 |
+| [C74](Batches/Products/C74-2026-09-30-source-bound-resource-trials-and-native-conditions.md) | 2026-09-30 | Source-bound resource trials and native conditions | T-002, T-003, T-006, T-008, T-009, T-030 |
+| [C75](Batches/Products/C75-2026-09-30-private-survival-planning-and-residence.md) | 2026-09-30 | Private survival planning and residence | — |
+| [C76](Batches/Products/C76-2026-10-01-observer-freshness-and-native-session-completion.md) | 2026-10-01 | Observer freshness and native session completion | — |
+| [C77](Batches/Products/C77-2026-10-01-native-route-progress-and-tactical-continuity.md) | 2026-10-01 | Native route progress and tactical continuity | — |
+| [C78](Batches/Products/C78-2026-10-01-native-feeding-and-carried-cooler-continuity.md) | 2026-10-01 | Native feeding and carried cooler continuity | — |
+| [C79](Batches/Products/C79-2026-10-02-native-window-repair-and-private-physical-experience.md) | 2026-10-02 | Native window repair and private physical experience | T-002, T-003, T-006, T-008, T-030 |
+| [C80](Batches/Products/C80-2026-10-03-continuous-independent-person-observation.md) | 2026-10-03 | Continuous independent person observation | T-030 |
+| [C81](Batches/Products/C81-2026-10-03-shared-native-furniture-movement.md) | 2026-10-03 | Shared native furniture movement | T-030 |
+| [C82](Batches/Products/C82-2026-10-03-private-entry-and-recovery-experience.md) | 2026-10-03 | Private entry and recovery experience | T-030 |
+| [D1](Batches/D1-20261004-0124Z-1824PST-shared-reasoning.md) | 2026-10-04 | Shared person-specific reasoning | [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-003`](Batches/THREADS.md#t-003) |

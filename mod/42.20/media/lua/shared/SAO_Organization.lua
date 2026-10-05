@@ -8,6 +8,11 @@
 SAO = SAO or {}
 SAO.Organization = SAO.Organization or {}
 local Org = SAO.Organization
+local PARTICIPATION = {}
+local function participationTransport(processId, fromId, toId, kind)
+    return SAO.Communication and SAO.Communication.participationTransport
+        and SAO.Communication.participationTransport(processId, fromId, toId, kind) == true
+end
 
 Org.organizations = Org.organizations or {}
 Org.offices = Org.offices or {}
@@ -1143,6 +1148,8 @@ end
 
 function Org.raiseMatter(originatorId, kind, organizationId, proposal,
                          addressedIds, privateEvidence)
+    if kind == "leisure-participation" and not (SAO.Coordination and SAO.Coordination.participationAuthority
+        and SAO.Coordination.participationAuthority("proposal", originatorId, nil, proposal)) then return nil end
     originatorId, kind = identity(originatorId), identity(kind)
     if not originatorId or not kind or type(proposal) ~= "table"
         or not trimProcesses() then return nil end
@@ -1443,6 +1450,8 @@ end
 
 function Org.reviseMatter(processId, originatorId, proposal, privateEvidence)
     local process = processOf(processId)
+    -- A new participation occurrence needs a new personal offer and assent.
+    if process and process.kind == "leisure-participation" then return nil, "fresh-participation-proposal-required" end
     if not process or process.originatorId ~= originatorId
         or type(proposal) ~= "table" or process.status ~= "open" then
         return nil
@@ -1534,6 +1543,8 @@ end
 function Org.recordReception(processId, personId, revision, channel,
                              fromId, evidence)
     local process = processOf(processId)
+    if process and process.kind == "leisure-participation"
+        and not participationTransport(processId, fromId, personId, "proposal") then return false end
     personId = identity(personId)
     revision = math.floor(tonumber(revision) or 0)
     local addressed = process and process.participants
@@ -1667,6 +1678,9 @@ end
 -- are frozen together; later outcomes remain a separate horizon.
 function Org.appraiseMatter(processId, personId, context)
     local process = processOf(processId)
+    if process and process.kind == "leisure-participation" and not (SAO.Coordination
+        and SAO.Coordination.participationAuthority
+        and SAO.Coordination.participationAuthority("appraisal", personId, processId, context)) then return nil end
     personId = identity(personId)
     context = type(context) == "table" and context or {}
     if not process or not personId or personId == process.originatorId then
@@ -1812,6 +1826,9 @@ end
 
 function Org.respond(processId, personId, response, terms, privateEvidence)
     local process = processOf(processId)
+    if process and process.kind == "leisure-participation" and not (SAO.Coordination
+        and SAO.Coordination.participationAuthority
+        and SAO.Coordination.participationAuthority("appraisal", personId, processId)) then return nil end
     personId, response = identity(personId), identity(response)
     if not process or TERMINAL_PROCESS[process.status]
         or not personId or not RESPONSE[response]
@@ -1846,6 +1863,8 @@ end
 -- originator over an admitted return channel. Replaying delivery is safe.
 function Org.deliverResponse(processId, personId, toId, channel, evidence)
     local process = processOf(processId)
+    if process and process.kind == "leisure-participation"
+        and not participationTransport(processId, personId, toId, "response") then return false end
     personId, toId = identity(personId), identity(toId)
     if not process or TERMINAL_PROCESS[process.status]
         or not personId or toId ~= process.originatorId then
@@ -2251,8 +2270,9 @@ function Org.resumeWork(commitmentId, owner, activity, evidence)
     return true
 end
 
-function Org.noteWorkAdmission(commitmentId, ownerKind, receiptId, detail)
+function Org.noteWorkAdmission(commitmentId, ownerKind, receiptId, detail, authority)
     local commitment, process = Org.commitment(commitmentId)
+    if process and process.kind == "leisure-participation" and authority ~= PARTICIPATION then return false end
     receiptId = identity(receiptId)
     if not commitment or TERMINAL_WORK[commitment.status] or not receiptId
         or (commitment.work.pendingReceiptId
@@ -2288,12 +2308,56 @@ function Org.noteWorkAdmission(commitmentId, ownerKind, receiptId, detail)
     return true
 end
 
+-- A person's accepted work can teach only its native measured contribution.
+-- Travel, assent and the shared procedure's aggregate status are not outcomes.
+local function rememberFulfilledWork(commitment,kind,receiptId,native)
+    local at=nowHours()
+    if not native or native.actorId~=commitment.actorId or native.commitmentId~=commitment.id
+        or native.status~="completed" or not finite(commitment.acceptedAt)
+        or commitment.acceptedAt<0 or commitment.acceptedAt>at then return false end
+    if kind=="prepare" and (native.id~=receiptId or native.detail~="native-food-cooked-and-retrieved"
+        or native.nativeCredit~=receiptId or native.retrieved~=true or native.heatObserved~=true) then return false end
+    if kind=="deliver" and native.operation and (native.operation~="store"
+        or native.measurement~="native-item-transfer" or not finite(native.observedQuantity) or native.observedQuantity<=0) then return false end
+    local person=SAO.Identity and SAO.Identity.get(commitment.actorId)
+    if not person then return false end
+    local occurred=native.atHours or native.at
+    if native.completedAt~=nil then
+        if SAO.History and SAO.History.ticks then
+            local rate=SAO.History.TICKS_PER_HOUR
+            if not finite(rate) or rate<=0 or not finite(native.completedAt)
+                or native.completedAt<math.floor(commitment.acceptedAt*rate)
+                or native.completedAt>SAO.History.ticks() then return false end
+            -- Handover stores whole county ticks; assent stores hours. Their
+            -- shared tick may contain assent before the measured completion.
+            occurred=math.max(commitment.acceptedAt,native.completedAt/rate)
+        else occurred=native.completedAt end
+    end
+    if not finite(occurred) or occurred<commitment.acceptedAt or occurred>at then return false end
+    person.fulfilledWorkSequence=(person.fulfilledWorkSequence or 0)+1
+    local row={actorId=commitment.actorId,sequence=person.fulfilledWorkSequence,
+        commitmentId=commitment.id,workKind=kind,nativeReceiptId=receiptId,
+        acceptedAt=commitment.acceptedAt,atHours=occurred,status="completed"}
+    person.fulfilledWorkOutcomes=person.fulfilledWorkOutcomes or {}
+    person.fulfilledWorkOutcomes[#person.fulfilledWorkOutcomes+1]=row
+    if #person.fulfilledWorkOutcomes>32 then table.remove(person.fulfilledWorkOutcomes,1) end
+    if SAO.Cognition and SAO.Cognition.commitmentOutcome then SAO.Cognition.commitmentOutcome(commitment.actorId,row) end
+    return true
+end
+function Org.fulfilledWorkOutcome(id,sequence)
+    local person=SAO.Identity and SAO.Identity.get(id)
+    for _,row in ipairs(person and person.fulfilledWorkOutcomes or {}) do
+        if row.actorId==id and row.sequence==sequence then return dataCopy(row) end
+    end
+end
+
 -- Registered native action owners use this boundary for procedure verbs that
 -- are not SourceUse or Handover. Admission and result identity are exact; a
 -- narration, state label or elapsed timer cannot complete a step.
-function Org.consumeProcedureResult(result)
+function Org.consumeProcedureResult(result, authority)
     if type(result) ~= "table" then return false, "invalid-result" end
     local commitment, process = Org.commitment(result.commitmentId)
+    if process and process.kind == "leisure-participation" and authority ~= PARTICIPATION then return false end
     local receiptId = identity(result.id)
     local token = identity(result.token)
     local status = tostring(result.status or "")
@@ -2333,6 +2397,11 @@ function Org.consumeProcedureResult(result)
             receiptId, witnesses, result.evidence or {
                 owner = result.owner, status = status }, result.at)
         if not completed then return false, why end
+        if result.owner=="Cooking" and token=="cooking:prepared" then
+            local sequence=tonumber(receiptId:match("/(%d+)$"))
+            local native=SAO.Cooking and SAO.Cooking.outcome and SAO.Cooking.outcome(commitment.actorId,sequence)
+            rememberFulfilledWork(commitment,"prepare",receiptId,native)
+        end
         workEvent(commitment, commitment.status == "completed"
             and "completed" or "step-completed", {
                 stepId = stepId, token = token, receiptId = receiptId })
@@ -2616,6 +2685,10 @@ function Org.consumeSourceResult(receipt)
         commitment.work.completedAt = receipt.at or nowHours()
         commitment.work.endedAt = commitment.work.completedAt
         workEvent(commitment, "completed", { receiptId = receiptId })
+        local native=SAO.WorldSources and SAO.WorldSources.actionOutcome and SAO.WorldSources.actionOutcome(receiptId,commitment.actorId)
+        if native and native.reservationId==receiptId and native.operation=="store" then
+            rememberFulfilledWork(commitment,"deliver",receiptId,native)
+        end
         completeProcedureToken(commitment, "source:store", receiptId,
             { commitment.actorId }, { owner = "SourceUse",
                 status = receipt.status, operation = receipt.operation },
@@ -2662,6 +2735,10 @@ function Org.consumeHandoverResult(receipt)
         commitment.work.completedAt = receipt.completedAt or nowHours()
         commitment.work.endedAt = commitment.work.completedAt
         workEvent(commitment, "completed", { receiptId = receiptId })
+        local native=SAO.Handover and SAO.Handover.result and SAO.Handover.result(receiptId)
+        if native and native.id==receiptId and native.recipientId==commitment.beneficiaryId then
+            rememberFulfilledWork(commitment,"deliver",receiptId,native)
+        end
         completeProcedureToken(commitment, "handover:completed", receiptId,
             { commitment.actorId, commitment.beneficiaryId }, {
                 owner = "Handover", status = receipt.status,
@@ -2802,6 +2879,186 @@ function Org.playerAction(personId, organizationId, action, target, addressedIds
         claim.processRevision = process.revision
     end
     return claim
+end
+
+-- Participation is a procedure, with private knowledge in the existing
+-- per-person/revision inputs. Hearing and the reported hearing are separate.
+local function participation(processId)
+    local process = processOf(processId)
+    local revision = process and proposalAt(process)
+    local terms = revision and revision.proposal
+    if not process or process.kind ~= "leisure-participation" or not terms
+        or not finite(terms.expiresAtHours) or terms.expiresAtHours < nowHours()
+        or process.status == "withdrawn" or process.status == "superseded" or process.status == "expired"
+        or terms.performerId ~= process.originatorId or type(terms.listenerId) ~= "string" then return nil end
+    return process, terms
+end
+
+local function participationPrivate(process, id, create)
+    local all = process.privateInputs[id]
+    if not all and create then all = {}; process.privateInputs[id] = all end
+    local key = revisionKey(process.revision)
+    if all and not all[key] and create then all[key] = {} end
+    local input = all and all[key]
+    if input and not input.participation and create then input.participation = {} end
+    return input and input.participation
+end
+
+local function participationCommitment(process, id)
+    for _, c in pairs(process.commitments or {}) do
+        if c.actorId == id and c.revision == process.revision
+            and (c.status == "accepted" or c.status == "in-progress" or c.status == "completed") then return c end
+    end
+end
+
+function Org.participationOffer(id, commitmentId)
+    local c, raw = Org.commitment(commitmentId)
+    local process, terms = participation(raw and raw.id)
+    if not process or not c or c.actorId ~= id or c.revision ~= process.revision
+        or (c.status ~= "accepted" and c.status ~= "in-progress") then return nil end
+    local response = responseAt(process, terms.listenerId)
+    if not response or response.response ~= "accept" or not response.delivered
+        or not finite(response.deliveredAt) or response.deliveredAt > nowHours()
+        or not participationCommitment(process, terms.listenerId) then return nil end
+    local own = participationPrivate(process, id)
+    return { processId = process.id, revision = process.revision, commitmentId = c.id,
+        actorId = id, role = id == terms.performerId and "perform" or "listen",
+        performerId = terms.performerId, listenerId = terms.listenerId, activity = terms.activity,
+        sourcePurposeId = terms.sourcePurposeId, itemId = terms.itemId, itemType = terms.itemType,
+        acceptedAt = response.deliveredAt, workId = own and own.workId,
+        announcedAt = own and own.announcedAt, purposeId = own and own.purposeId }
+end
+
+function Org.admitParticipation(processId, id, purposeId, workId)
+    local process, terms = participation(processId)
+    local c = process and participationCommitment(process, id)
+    local offer = c and Org.participationOffer(id, c.id)
+    if offer and not SAO.Coordination.participationOffer(id, SAO.Body.get(id), c.id) then return false end
+    local work = SAO.Gesture and SAO.Gesture.instrumentWork and SAO.Gesture.instrumentWork(id)
+    local binding = SAO.ProceduralPlanning and SAO.ProceduralPlanning.participationBinding
+        and SAO.ProceduralPlanning.participationBinding(id, purposeId)
+    if not offer or offer.role ~= "perform" or not work or not binding
+        or binding.processId ~= processId or binding.revision ~= process.revision
+        or binding.commitmentId ~= c.id or binding.sourcePurposeId ~= terms.sourcePurposeId
+        or work.workId ~= workId or work.status ~= "prepared" or work.itemId ~= terms.itemId
+        or work.itemType ~= terms.itemType or work.verb ~= "blow-harmonica"
+        or not finite(work.admittedAtHours) or work.admittedAtHours < offer.acceptedAt
+        or work.admittedAtHours > nowHours() or work.sequence < terms.minimumSequence then return false end
+    local own = participationPrivate(process, id, true)
+    if own.workId then return own.workId == workId and own.purposeId == purposeId end
+    own.workId, own.purposeId, own.preparedAt = workId, purposeId, work.admittedAtHours
+    if not SAO.Communication.deliverParticipation(id, terms.listenerId, processId, "announcement") then
+        own.workId, own.purposeId, own.preparedAt = nil, nil, nil
+        return false
+    end
+    return Org.noteWorkAdmission(c.id, "SAO.Gesture", workId, { stepId = "perform" }, PARTICIPATION)
+end
+
+function Org.consumeParticipationPerformance(processId, id, workId)
+    local process, terms = participation(processId)
+    local own = process and participationPrivate(process, id)
+    local c = process and participationCommitment(process, id)
+    local result = SAO.Gesture and SAO.Gesture.instrumentOutcome and SAO.Gesture.instrumentOutcome(id, workId)
+    local binding = own and SAO.ProceduralPlanning.participationBinding(id, own.purposeId)
+    if not process or id ~= terms.performerId or not own or own.workId ~= workId or not c
+        or not binding or not binding.physicalResult or binding.physicalResult.workId ~= workId
+        or not result or result.workId ~= workId or result.actorId ~= id
+        or result.itemId ~= terms.itemId or result.itemType ~= terms.itemType
+        or not finite(result.atHours) or result.atHours < own.preparedAt or result.atHours > nowHours() then return false end
+    if own.performance then return own.performance.workId == workId end
+    if not Org.consumeProcedureResult({ commitmentId = c.id, actorId = id, id = workId,
+        token = "participation:performed", stepId = "perform", owner = "SAO.Gesture",
+        status = result.status, at = result.atHours, reason = "native-instrument-interrupted" }, PARTICIPATION) then return false end
+    own.performance = { workId = workId, status = result.status, atHours = result.atHours }
+    if own.acknowledgement then SAO.ProceduralPlanning.consumeParticipation(id, processId) end
+    return true
+end
+
+function Org.consumeParticipationHearing(processId, id)
+    local process, terms = participation(processId)
+    local own = process and participationPrivate(process, id)
+    local c = process and participationCommitment(process, id)
+    local heard = own and own.workId and SAO.Perception.instrumentHearing(id, terms.performerId, own.workId)
+    if not process or id ~= terms.listenerId or not c or not heard or not own.announcedAt
+        or heard.acquiredAtCountyHours < own.announcedAt or heard.acquiredAtCountyHours > nowHours()
+        or heard.workId ~= own.workId or heard.observerId ~= id or heard.actorId ~= terms.performerId then return false end
+    if own.hearing then return own.hearing.pulseId == heard.pulseId end
+    if not Org.noteWorkAdmission(c.id, "SAO.Perception", heard.pulseId, { stepId = "listen" }, PARTICIPATION)
+        or not Org.consumeProcedureResult({ commitmentId = c.id, actorId = id, id = heard.pulseId,
+            token = "participation:heard", stepId = "listen", owner = "SAO.Perception", status = "completed",
+            at = heard.acquiredAtCountyHours }, PARTICIPATION) then return false end
+    own.hearing = dataCopy(heard)
+    return true
+end
+
+function Org.receiveParticipation(processId, fromId, toId, kind)
+    local process, terms = participation(processId)
+    if not process or not participationTransport(processId, fromId, toId, kind) then return false end
+    if kind == "announcement" then
+        local speaker = participationPrivate(process, fromId)
+        local c = participationCommitment(process, fromId)
+        if fromId ~= terms.performerId or toId ~= terms.listenerId or not speaker or not speaker.workId
+            or not c or not Org.participationOffer(fromId, c.id) then return false end
+        local work = SAO.Gesture.instrumentWork(fromId)
+        if not work or work.workId ~= speaker.workId or work.status ~= "prepared" then return false end
+        local listener = participationPrivate(process, toId, true)
+        listener.workId, listener.announcedAt = work.workId, nowHours()
+        return true
+    end
+    if kind ~= "acknowledgement" or fromId ~= terms.listenerId or toId ~= terms.performerId then return false end
+    local listener, performer = participationPrivate(process, fromId), participationPrivate(process, toId)
+    local hearing = listener and listener.hearing
+    local retained = hearing and SAO.Perception.instrumentHearing(fromId, toId, hearing.workId)
+    if not performer or not hearing or not retained or retained.pulseId ~= hearing.pulseId
+        or retained.workId ~= performer.workId or retained.acquiredAtCountyHours ~= hearing.acquiredAtCountyHours
+        or not finite(hearing.acquiredAtCountyHours) or hearing.acquiredAtCountyHours > nowHours() then return false end
+    performer.acknowledgement = { fromId = fromId, workId = hearing.workId, pulseId = hearing.pulseId,
+        heardAtHours = hearing.heardAtHours, acquiredAtCountyHours = hearing.acquiredAtCountyHours,
+        deliveredAt = nowHours(), channel = "spoken" }
+    listener.acknowledgedAt = nowHours()
+    SAO.ProceduralPlanning.consumeParticipation(toId, processId)
+    return true
+end
+
+function Org.participationAcknowledgements(fromId, toId)
+    local out = {}
+    for _, processId in ipairs(Org.processOrder) do
+        local process, terms = participation(processId)
+        local own = process and participationPrivate(process, fromId)
+        if process and terms.listenerId == fromId and terms.performerId == toId
+            and own and own.hearing and not own.acknowledgedAt then out[#out + 1] = { processId = processId } end
+        if #out >= 8 then break end
+    end
+    return out
+end
+
+function Org.participationOutcome(id, processId)
+    local process, terms = participation(processId)
+    local own = process and participationPrivate(process, id)
+    local a, p = own and own.acknowledgement, own and own.performance
+    if not process or id ~= terms.performerId or not a or not p or p.status ~= "completed"
+        or p.workId ~= a.workId or not finite(a.deliveredAt) or a.deliveredAt > nowHours()
+        or not finite(p.atHours) or p.atHours > nowHours() then return nil end
+    return { actorId = id, processId = processId, revision = process.revision,
+        sourcePurposeId = terms.sourcePurposeId, purposeId = own.purposeId, workId = p.workId,
+        itemId = terms.itemId, pulseId = a.pulseId, listenerId = a.fromId,
+        atHours = math.max(p.atHours, a.deliveredAt), basis = "native-sound-and-delivered-hearing-acknowledgement" }
+end
+
+function Org.reconcileParticipation(processId, id, purposeId)
+    local process = processOf(processId)
+    local own = process and participationPrivate(process, id)
+    local binding = SAO.ProceduralPlanning.participationBinding(id, purposeId)
+    local c = process and participationCommitment(process, id)
+    if not process or process.kind ~= "leisure-participation" or process.originatorId ~= id
+        or not own or own.purposeId ~= purposeId or not c or not binding
+        or not binding.physicalResult or binding.physicalResult.workId ~= own.workId
+        or binding.physicalResult.status ~= "unobservable" or SAO.Gesture.instrumentWork(id)
+        or SAO.Gesture.instrumentOutcome(id, own.workId) then return false end
+    c.status, c.work.phase, c.work.pauseReason = "paused", "awaiting-revision", "native-performance-owner-lost"
+    own.performance = { workId = own.workId, status = "unobservable", atHours = nowHours() }
+    workEvent(c, "paused", { reason = "native-performance-owner-lost" })
+    return true
 end
 
 return Org

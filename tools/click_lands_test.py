@@ -131,9 +131,39 @@ def main():
     if not re.search(r"rec\.homeX, rec\.homeY = wx, wy", body):
         faults.append("homes do not move off held ground - the same "
                       "wake violation repeats every load")
-    if "taken[" not in body:
-        faults.append("no one-body-one-square scatter - three people "
-                      "stood on one tile in the operator's kitchen")
+    # Native occupancy replaced the old per-call `taken` scatter. Validate the
+    # actual admission owner, then the exact constructed body before accounting.
+    square_start = body.find("local function wakeSquareValid(")
+    square_end = body.find("local function wakeSquareFor(", square_start)
+    square = body[square_start:square_end] if square_start >= 0 and square_end > square_start else ""
+    materialize = body[body.find("function Body.materialize("):body.find("function Body.", body.find("function Body.materialize(") + 1)]
+    for witness in (
+            "not claims or not wakePermitted(claims, mine, x, y)",
+            "found:isFree(ignoreBody == nil) ~= true",
+            "local moving = found:getMovingObjects()",
+            "if moving:get(i) ~= ignoreBody then return nil end",
+            "Body.active, Body.foreign or {}",
+            "Body.unloaded, Body.returning",
+            "held ~= ignoreBody and math.floor(held:getX()) == x",
+            "math.floor(held:getY()) == y and math.floor(held:getZ()) == z"):
+        if witness not in square:
+            faults.append("wake-square occupancy/permission admission missing: " + witness)
+    for witness in (
+            "if not wakeSquare then return nil, placementReason end",
+            "body:getCurrentSquare() == wakeSquare",
+            "math.floor(body:getX()) == wx and math.floor(body:getY()) == wy",
+            "math.floor(body:getZ()) == wz",
+            "wakeSquareValid(rec, wx, wy, wz, body) == wakeSquare",
+            "if not positioned or exact ~= true then",
+            'return nil, "native-wake-placement-refused"'):
+        if witness not in materialize:
+            faults.append("constructed body lacks exact wake admission: " + witness)
+    if not re.search(r"spawnShellNamed\(rec\.forename, rec\.surname,\s*wx, wy, wz,\s*SAO\.Identity\.femaleOf\(rec\), false\)", materialize):
+        faults.append("native birth must use admitted coordinates without premature accounting")
+    admission = materialize.find('return nil, "native-wake-placement-refused"')
+    accounting = materialize.find("SAOJavaBridge:accountShell(body)")
+    if admission < 0 or accounting < admission:
+        faults.append("native shell accounting precedes exact wake admission")
     if re.search(r"spawnShellNamed\(rec\.forename, rec\.surname,\s*\n?"
                  r"\s*math\.floor\(rec\.x\)", body):
         faults.append("the spawn still takes the record square raw - "
