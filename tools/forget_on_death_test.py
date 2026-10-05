@@ -70,6 +70,13 @@ MARK_DEAD = "markDead"
 #   "calls"  - the clearing function calls Identity.markDead itself,
 #              so the clear and the death are the same event
 CACHES = {
+    ("SAO_Gesture.lua", "yielding"): (
+        "G.releaseConflict", "gesture-retirement",
+        "a selected response retains only its exact pending optional-action "
+        "handback; detach releases it and an independent tick retires ended "
+        "owners or fully removed Lua and native actions. The action-keyed "
+        "optional registry retires explicitly while callback tombstones stay "
+        "on the exact action, without relying on weak-table collection"),
     ("SAO_Animals.lua", "A.careRuntime"): (
         "A.forget", "named",
         "exact native feeding work retains a living actor, animal, material "
@@ -368,6 +375,13 @@ NOT_A_SURVIVOR_ID = {
         "that exact entry, world rebind clears the table, and H.forgetPerson "
         "releases pending records involving a dead participant through the "
         "Identity.markDead funnel"),
+    ("SAO_Handover.lua", "retiring"): (
+        "keyed by a HANDOVER id, not a survivor id. It retains the exact "
+        "native attempt after a durable terminal result until cancelAttempt "
+        "or reconcile witnesses queue and native-action detachment. "
+        "H.forgetPerson removes rows involving either dead participant; "
+        "world rebind clears all rows, and terminal trimming clears the "
+        "same handover key"),
     ("SAO_Treatment.lua", "runtime"): (
         "keyed by a TREATMENT id, not a survivor id. Effective, ineffective, "
         "interrupted, released and queue-refused paths drop the exact entry; "
@@ -592,6 +606,73 @@ def check_files(files):
                 faults.append("native production refresh retirement is absent from markDead")
             if len(re.findall(r"retireRefresh\s*\(\s*id\s*,", detach)) != 2 or "R.interrupt" not in detach:
                 faults.append("production detach must retire handled-source references before and after interrupt")
+        elif how == "gesture-retirement":
+            def body(source, method):
+                return re.sub(r"\s+", "", strip_lua(function_body(source, method) or "", strings=False))
+
+            release = body(src, "G.releaseConflict")
+            retire = body(src, "retireHandbacks")
+            owner = body(src, "currentOwner")
+            optional_owner = body(src, "optionalOwner")
+            stop = body(src, "stopGesture")
+            perform = body(src, "performGesture")
+            public_play = body(src, "G.play")
+            play = body(src, "queueGesture")
+            reset_instruments = body(src, "G.resetInstruments")
+            stop_sound = body(src, "stopOwnedSound")
+            queue_owner = body(src, "ownsMaterialQueue")
+            detach = body(files.get("SAO_ConflictResponse.lua", ""), "R.detach")
+            code = re.sub(r"\s+", "", strip_lua(src, strings=False))
+            absent = ("ISTimedActionQueue.hasAction(action)~=trueandnot(action.actionand"
+                      "work.body:getCharacterActions():contains(action.action))")
+            owner_checks = {
+                "public gesture admission reaches the private queue owner":
+                    'returnqueueGesture(id,body,name,ticks,planReceipt,requiredItem)' in public_play,
+                "instrument sound cleanup prunes ended person and body owners":
+                    'forstate,ownerinpairs(soundCleanup)doifnotcurrentOwner(owner.id,owner.body,owner.rec,owner.token)thensoundCleanup[state]=nil' in retire,
+                "instrument sound cleanup uses only its exact retained handle":
+                    'state.emitter:stopSound(state.sound)' in stop_sound
+                    and 'returnstate.emitter:isPlaying(state.sound)==false' in stop_sound,
+                "instrument reset retires all native sound references":
+                    'forstate,ownerinpairs(soundCleanup)doifcurrentOwner(owner.id,owner.body,owner.rec,owner.token)thenstopOwnedSound(state)endsoundCleanup[state]=nilend' in reset_instruments,
+                "instrument pending cleanup prevents unbounded successor ownership":
+                    'for_,ownerinpairs(soundCleanup)doifowner.body==bodyandcurrentOwner(owner.id,owner.body,owner.rec,owner.token)thenreturnfalseendend' in play,
+                "gesture release keeps exact body and drops retained action":
+                    'ifnotworkorwork.body~=bodythenreturnfalseend' in release
+                    and 'yielding[id]=nilwork.action=nil' in release,
+                "response detach reaches gesture reference release":
+                    'SAO.Gesture.releaseConflict(id,body)' in detach,
+                "gesture retirement runs independently of another decision":
+                    'Events.OnTick.Add(retireHandbacks)' in code,
+                "gesture retirement recognizes ended canonical owners":
+                    'current~=recorcurrent.deadorcurrent.bodyOwner' in owner
+                    and 'SAO.Body.get(id)~=body' in owner
+                    and 'data.SAOExternalToken==tokenandcurrent.bodyOwnerToken==token' in owner
+                    and 'notbody:isDead()' in owner
+                    and 'currentOwner(work.id,work.body,work.rec,work.token)' in optional_owner,
+                "gesture handback waits for both Lua and native removal or owner end":
+                    ('forid,workinpairs(yielding)dolocalaction=work.action'
+                     'ifnotactionornotoptionalOwner(action,work)or'+absent+
+                     'thenG.releaseConflict(id,work.body)endend') in retire,
+                # optional[action] is deliberately outside the survivor-ID
+                # census. Its exact-action lifetime is checked here instead
+                # of adding an exemption for a shape the census never found.
+                "gesture live action registry prunes ended owners and removed actions":
+                    ('foraction,workinpairs(optional)doifnotoptionalOwner(action,work)or'+absent+
+                     'thenoptional[action]=nilwork.retired=true') in retire,
+                "gesture terminal callbacks remove their exact registry entries":
+                    'optional[self]=nilwork.retired=true' in stop
+                    and 'optional[self]=nil;work.retired=true;work.action=nil' in perform,
+                "gesture failed queue admission retires its registry entry":
+                    'ifnotokthenoptional[action]=nil;work.retired=true;work.action=nilend' in play,
+                "gesture late callbacks retain private exact-action tombstones":
+                    'action.stop=function(self)ifself==actionthenstopGesture(self,work)endend' in play
+                    and 'action.perform=function(self)ifself==actionthenperformGesture(self,work)endend' in play
+                    and 'work.retiredornotoptionalOwner(action,work)' in queue_owner
+                    and 'ifnotownsMaterialQueue(self,work)thenreturnend' in stop
+                    and 'ifnotownsMaterialQueue(self,work)thenreturnend' in perform,
+            }
+            faults.extend(name for name, present in owner_checks.items() if not present)
         elif how == "window-offer-retirement":
             def body(source, method):
                 return strip_lua(function_body(source, method) or "", strings=False)
@@ -769,6 +850,44 @@ def main():
          "world start reaches recovery reset"),
         ("SAO_Needs.lua", 'pcall(N.resetRecoveries, "module-reload")', "pcall(function() end)",
          "module reload retires the previous recovery map"),
+        ("SAO_ConflictResponse.lua", 'SAO.Gesture.releaseConflict(id,body)', 'do end',
+         "response detach reaches gesture reference release"),
+        ("SAO_Gesture.lua", 'return queueGesture(id, body, name, ticks, planReceipt, requiredItem)',
+         'return false', "public gesture admission reaches the private queue owner"),
+        ("SAO_Gesture.lua", 'if not currentOwner(owner.id, owner.body, owner.rec, owner.token) then soundCleanup[state] = nil',
+         'if false then soundCleanup[state] = nil', "instrument sound cleanup prunes ended person and body owners"),
+        ("SAO_Gesture.lua", 'state.emitter:stopSound(state.sound)',
+         'state.emitter:stopSound(0)', "instrument sound cleanup uses only its exact retained handle"),
+        ("SAO_Gesture.lua", 'if currentOwner(owner.id, owner.body, owner.rec, owner.token) then stopOwnedSound(state) end\n        soundCleanup[state] = nil',
+         'if currentOwner(owner.id, owner.body, owner.rec, owner.token) then stopOwnedSound(state) end',
+         "instrument reset retires all native sound references"),
+        ("SAO_Gesture.lua", 'if owner.body == body and currentOwner(owner.id, owner.body, owner.rec, owner.token) then return false end',
+         'if false then return false end', "instrument pending cleanup prevents unbounded successor ownership"),
+        ("SAO_Gesture.lua", 'Events.OnTick.Add(retireHandbacks)', 'do end',
+         "gesture retirement runs independently of another decision"),
+        ("SAO_Gesture.lua", 'if not work or work.body ~= body then return false end',
+         'if not work then return false end', "gesture release keeps exact body and drops retained action"),
+        ("SAO_Gesture.lua", 'yielding[id] = nil\n    work.action = nil\n    return true\nend\n\n-- A pending',
+         'yielding[id] = work\n    work.action = nil\n    return true\nend\n\n-- A pending',
+         "nothing in it sets an entry to nil"),
+        ("SAO_Gesture.lua", 'current ~= rec or current.dead or current.bodyOwner',
+         'current ~= rec or current.bodyOwner', "gesture retirement recognizes ended canonical owners"),
+        ("SAO_Gesture.lua", 'if not action or not optionalOwner(action, work)\n            or ISTimedActionQueue.hasAction(action) ~= true\n                and not (action.action and work.body:getCharacterActions():contains(action.action)) then',
+         'if not action or not optionalOwner(action, work) or ISTimedActionQueue.hasAction(action) ~= true then',
+         "gesture handback waits for both Lua and native removal or owner end"),
+        ("SAO_Gesture.lua", 'optional[action] = nil\n            work.retired = true',
+         'work.retired = true', "gesture live action registry prunes ended owners and removed actions"),
+        ("SAO_Gesture.lua", 'optional[self] = nil\n        work.retired = true',
+         'work.retired = true', "gesture terminal callbacks remove their exact registry entries"),
+        ("SAO_Gesture.lua", 'if work then optional[self] = nil;work.retired = true;work.action = nil end',
+         'if work then work.retired = true;work.action = nil end',
+         "gesture terminal callbacks remove their exact registry entries"),
+        ("SAO_Gesture.lua", 'if not ok then optional[action] = nil;work.retired = true;work.action = nil end',
+         'if not ok then work.retired = true;work.action = nil end',
+         "gesture failed queue admission retires its registry entry"),
+        ("SAO_Gesture.lua", 'action.stop = function(self) if self == action then stopGesture(self, work) end end',
+         'action.stop = function(self) if self == action then stopGesture(self, nil) end end',
+         "gesture late callbacks retain private exact-action tombstones"),
     ]
     for filename, before, after, expected in controls:
         source = files.get(filename, "")

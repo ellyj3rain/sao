@@ -34,9 +34,14 @@ prints what it covered so a tool that stops being seen is visible.
 import contextlib
 import importlib.util
 import io
+import itertools
+import os
 import pathlib
 import re
+import shlex
+import subprocess
 import sys
+import tempfile
 
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
@@ -67,12 +72,53 @@ ABSENT = pathlib.Path("/nonexistent/no-game-installed-here")
 
 
 def reads_the_game(path):
-    return bool(MARKER.search(path.read_text(encoding="utf-8",
-                                             errors="ignore")))
+    source = path.read_text(encoding="utf-8", errors="ignore")
+    return bool(MARKER.search(source) or
+                re.search(r'^from native_proof_preflight import .*installed_presence', source, re.M))
+
+
+def run_declared_absent(path):
+    """Exercise the actual registered CLI; shared native fixtures remain imports."""
+    source = (ROOT / 'tools/check.sh').read_text(encoding='utf-8')
+    matches = list(re.finditer(r'if ! "\$PY"\s+tools/' + re.escape(path.name) + r'([^\n]*?);\s*then', source))
+    if not matches:
+        return 'UNREGISTERED', False
+    with tempfile.TemporaryDirectory(prefix='sao-absence-audit-') as directory:
+        root = pathlib.Path(directory)
+        env = os.environ.copy()
+        env.update(PZ_DIR=str(root/'absent-engine'), JDK_BIN=str(root/'absent-jdk'),
+                   PYTHONDONTWRITEBYTECODE='1')
+        serial = 0
+        for match in matches:
+            # Redirection belongs to the shell, not argparse. Expand actual
+            # declared loop choices rather than selecting a guessed part.
+            line = re.split(r'\s+(?:[12]?>|[12]>&)', match.group(1))[0]
+            original = shlex.split(line)
+            loops = {m.group(1): shlex.split(m.group(2)) for m in
+                     re.finditer(r'for\s+(\w+)\s+in\s+([^;\n]+);\s*do', source[:match.start()])}
+            variables = sorted({name for value in original for name in re.findall(r'\$(\w+)', value)
+                                if name in loops})
+            for choices in itertools.product(*(loops[name] for name in variables)):
+                serial += 1
+                selected = dict(zip(variables, choices));args = []
+                for slot, value in enumerate(original):
+                    for name, choice in selected.items():
+                        value = value.replace('$'+name, choice)
+                    if '$' in value or (slot and original[slot-1] in ('--output', '--output-dir', '--out')):
+                        value = str(root/f'output-{serial}-{slot}')
+                    args.append(value)
+                result = subprocess.run([sys.executable, '-B', str(path), *args], cwd=ROOT, env=env,
+                                        capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=30)
+                if result.returncode != 0 or 'SKIPPED' not in result.stdout:
+                    return result.returncode, 'SKIPPED' in result.stdout
+    return 0, True
 
 
 def run_absent(path):
     """(exit code, said SKIPPED) with the game made absent."""
+    if re.search(r'^from native_proof_preflight import .*installed_presence',
+                 path.read_text(encoding='utf-8'), re.M):
+        return run_declared_absent(path)
     name = "skipprobe_" + path.stem
     spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)

@@ -621,6 +621,27 @@ public final class StudyObserver {
         frame.camCharacterRoom = frame.camCharacterSquare == null ? null : frame.camCharacterSquare.getRoom();
     }
 
+    /** Native cutaway calculation begins with the slot player's position.
+     * Our slot player retains streaming residency while its View follows the
+     * subject. Replace only that primary render point; retain the engine's
+     * auxiliary points, building geometry and native fading decisions.
+     */
+    public static void cutawayFocus(java.util.List<?> points) {
+        if (!hostOnly() || points == null || points.isEmpty()) return;
+        int slot = IsoCamera.frameState.playerIndex;
+        if (slot < 0 || slot > extraCameras.length) return;
+        View view = slot == 0 ? camera : extraCameras[slot - 1];
+        Anchor resident = slot == 0 ? anchor : extraAnchors[slot - 1];
+        if (IsoPlayer.players[slot] != resident || IsoCamera.frameState.camCharacter != view) return;
+        if (!(points.get(0) instanceof zombie.iso.fboRenderChunk.FBORenderCutaways.PointOfInterest point)
+                || point.mousePointer || point.x != (int) Math.floor(resident.getX())
+                || point.y != (int) Math.floor(resident.getY())
+                || point.z != (int) Math.floor(resident.getZ())) return;
+        point.x = (int) Math.floor(view.getX());
+        point.y = (int) Math.floor(view.getY());
+        point.z = (int) Math.floor(view.getZ());
+    }
+
     /** Data-only methods must be called from native game-thread work. */
     public static void setView(float x, float y, float z) {
         setView(0, x, y, z);
@@ -1311,9 +1332,10 @@ public final class StudyObserver {
     public static final class Anchor extends IsoPlayer {
         public Anchor() {
             // The native zero-position constructor does not register an actor.
-            // true skips clothes, sprite/action-state initialization and debug
-            // cheats. The remaining birth event is intercepted before dispatch.
-            super(null, new SurvivorDesc(false), 0, 0, 0, true);
+            // The final argument is isAnimal. Keep a human visual for native
+            // animation refresh; observer guards suppress participation.
+            // The birth event is intercepted before dispatch.
+            super(null, new SurvivorDesc(false), 0, 0, 0, false);
             getModData().rawset(MARKER, Boolean.TRUE);
             setNpc(true); setGhostMode(true); setInvisible(true); setZombiesDontAttack(true);
             setCollidable(false); setAlphaAndTarget(0.0f);

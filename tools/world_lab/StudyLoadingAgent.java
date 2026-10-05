@@ -82,6 +82,7 @@ public final class StudyLoadingAgent {
             "zombie.iso.IsoWorld", "zombie.savefile.PlayerDB", "zombie.iso.IsoCamera",
             "zombie.iso.IsoCamera$FrameState", "zombie.iso.IsoChunkMap", "zombie.ui.UI3DModel",
             "zombie.ui.UIManager", "zombie.inventory.ItemPickerJava", "zombie.iso.objects.IsoTree",
+            "zombie.iso.fboRenderChunk.FBORenderCutaways",
             "se.krka.kahlua.vm.KahluaThread");
         if (System.getProperty("study.viewDirectory") != null) java.util.Collections.addAll(names,
             "zombie.core.sprite.SpriteRenderState", "zombie.core.SpriteRenderer", "zombie.core.Core");
@@ -163,6 +164,11 @@ public final class StudyLoadingAgent {
         observerBuilder().type(ElementMatchers.named("zombie.iso.IsoCamera$FrameState"))
             .transform((builder, type, loader, module, domain) -> builder.visit(
                 Advice.to(ObserverFrame.class).on(ElementMatchers.named("set"))))
+            .installOn(instrumentation);
+        observerBuilder().type(ElementMatchers.named("zombie.iso.fboRenderChunk.FBORenderCutaways"))
+            .transform((builder, type, loader, module, domain) -> builder.visit(
+                Advice.to(ObserverCutaway.class).on(ElementMatchers.named("CalculatePointsOfInterest")
+                    .and(ElementMatchers.takesArguments(0)))))
             .installOn(instrumentation);
         observerBuilder().type(ElementMatchers.named("zombie.iso.IsoChunkMap"))
             .transform((builder, type, loader, module, domain) -> {
@@ -303,6 +309,13 @@ public final class StudyLoadingAgent {
 
     public static final class ObserverFrame {
         @Advice.OnMethodExit public static void exit(@Advice.This Object frame) { StudyObserver.frameState(frame); }
+    }
+
+    public static final class ObserverCutaway {
+        @Advice.OnMethodExit public static void exit(
+                @Advice.FieldValue("pointOfInterest") java.util.ArrayList<?> points) {
+            StudyObserver.cutawayFocus(points);
+        }
     }
 
     public static final class ObserverPreview {

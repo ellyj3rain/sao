@@ -67,6 +67,37 @@ def observer_fixture(root):
         str(HERE / 'sweep/evidence.lua')]
     if not fixture.build():
         return ['observer fixture runner did not build']
+    # Execute the dormant host's actual ordered module list without genesis or
+    # a native body. Registration-time receivers must bind before any callback.
+    original_modules, original_host = fixture.MODULES, fixture.PRELUDE
+    fixture.MODULES = list(Sweep.MODULES)
+    fixture.PRELUDE = (Sweep.SWEEP / 'prelude.lua').read_text(encoding='utf-8') + \
+        '\n' + Sweep.evidence_host(0)
+    loaded = fixture.probe(r'''(function()
+      for _, name in ipairs({ 'Education', 'EducationRegistry', 'ConceptKnowledge',
+          'PersonalMemory', 'PersonalAwareness', 'PersonState', 'SituationAppraisal' }) do
+        if type(SAO[name]) ~= 'table' then error('personal owner not loaded: ' .. name) end
+      end
+      if SAO.Perception.bindAwarenessReceiver(SAO.PersonalAwareness, function() end) ~= false then
+        error('awareness receiver was not bound at load')
+      end
+      if SAO.SituationAppraisal.bindPlanner(SAO.ProceduralPlanning) ~= nil then
+        error('appraisal planner was not bound at load')
+      end
+      local person = SAO.Identity.create(nil, nil, 10500, 9000, 0)
+      SAO.History.generate(person.id, person)
+      if SAO.Cognition.isDue(person.id) or person.cognition ~= nil
+          or SAO.EducationRegistry.currentBindings(person.id) ~= nil
+          or SAO.PersonalMemory.snapshot(person.id) ~= nil then
+        error('unconfigured dormant load manufactured evidence or a decision')
+      end
+      return 'loaded-person-owners-and-bindings'
+    end)()''')
+    fixture.MODULES, fixture.PRELUDE = original_modules, original_host
+    if loaded != 'loaded-person-owners-and-bindings':
+        return ['actual ordered personal owner load failed: ' + loaded]
+    print('  actual dormant personal owners loaded; appraisal/awareness bindings held; '
+          'no configured-source evidence or native decision manufactured')
     expression = r'''(function()
       local made = {}
       for i = 1, 3 do
@@ -227,17 +258,28 @@ def main(root):
     # declares that absent owner; it neither loads a body driver nor hides an
     # undeclared dependency. Removing the declaration must restore refusal.
     _, loaded = Sweep.modules_referenced(lua)
-    for owner in ('CognitiveModels', 'Cognition'):
+    durable_owners = ('CognitiveModels', 'Cognition', 'Education',
+                      'EducationRegistry', 'ConceptKnowledge', 'PersonalMemory',
+                      'PersonalAwareness', 'PersonState', 'SituationAppraisal')
+    for owner in durable_owners:
         if owner not in loaded or owner in Sweep.NOT_DORMANT:
-            faults.append('durable cognitive owner was excluded: ' + owner)
+            faults.append('durable personal owner was excluded: ' + owner)
         removed = [path for path in Sweep.MODULES
                    if path != 'shared/SAO_' + owner + '.lua']
         if len(removed) != len(Sweep.MODULES) - 1:
-            faults.append('cognitive load-removal control did not land: ' + owner)
+            faults.append('personal load-removal control did not land: ' + owner)
         with mock.patch.object(Sweep, 'MODULES', removed):
             if not rejects(lambda: Sweep.require_modules(lua)):
-                faults.append('missing cognitive owner accepted: ' + owner)
-    for owner in ('SourceUse', 'ResourceProduction', 'ModMechanics', 'WindowRepair'):
+                faults.append('missing personal owner accepted: ' + owner)
+    order = {path: index for index, path in enumerate(Sweep.MODULES)}
+    for producer, consumer in (('SituationAppraisal', 'Cognition'),
+                               ('SituationAppraisal', 'ProceduralPlanning'),
+                               ('Perception', 'PersonalAwareness'),
+                               ('Education', 'EducationRegistry')):
+        if order['shared/SAO_' + producer + '.lua'] >= order['shared/SAO_' + consumer + '.lua']:
+            faults.append('personal binding load order reversed: ' + producer + '/' + consumer)
+    for owner in ('SourceUse', 'ResourceProduction', 'ModMechanics', 'WindowRepair',
+                  'ConflictResponse'):
         if owner in loaded:
             faults.append('dormant county silently acquired loaded executor: ' + owner)
         undeclared = dict(Sweep.NOT_DORMANT)
@@ -303,7 +345,17 @@ def main(root):
         (absent / 'shared/SAO_BodySnapshot.lua').unlink()
         if not rejects(lambda: Sweep.require_modules(absent)):
             faults.append('single missing body snapshot dependency accepted')
-        source = (HERE / 'county_sweep.py').read_text(encoding='utf-8')
+        shutil.copy2(lua / 'shared/SAO_BodySnapshot.lua',
+                     absent / 'shared/SAO_BodySnapshot.lua')
+        for owner in durable_owners:
+            relative = 'shared/SAO_' + owner + '.lua'
+            omitted = absent / relative
+            held = omitted.read_bytes()
+            omitted.unlink()
+            if not rejects(lambda: Sweep.require_modules(absent)):
+                faults.append('single missing personal source accepted: ' + owner)
+            omitted.write_bytes(held)
+        source = pathlib.Path(Sweep.__file__).read_text(encoding='utf-8')
         old = "if result.get('ranTo') != owed:"
         if source.count(old) != 1:
             faults.append('partial-horizon control did not locate its mutation')
@@ -313,7 +365,7 @@ def main(root):
             path = pathlib.Path(tmp) / 'county_sweep_control.py'
             path.write_text(changed, encoding='utf-8')
             baseline = subprocess.run([sys.executable, str(__file__), '--probe',
-                                       str(HERE / 'county_sweep.py')], capture_output=True)
+                                       str(Sweep.__file__)], capture_output=True)
             control = subprocess.run([sys.executable, str(__file__), '--probe', str(path)],
                                       capture_output=True)
             if baseline.returncode != 0 or control.returncode != 1:
@@ -363,7 +415,26 @@ def main(root):
         Trajectory.export_records([row], selected)
         if json.loads(selected.read_text(encoding='utf-8')) != row:
             faults.append('explicit external export did not preserve the evidence')
-    faults.extend(observer_fixture(root))
+    actual_load_faults = observer_fixture(root)
+    faults.extend(actual_load_faults)
+    for producer, consumer in (
+        ('SituationAppraisal', 'Cognition'),
+        ('SituationAppraisal', 'ProceduralPlanning'),
+        ('Perception', 'PersonalAwareness'),
+        ('Education', 'EducationRegistry'),
+    ):
+        reversed_order = list(Sweep.MODULES)
+        path = 'shared/SAO_' + producer + '.lua'
+        reversed_order.remove(path)
+        reversed_order.insert(reversed_order.index('shared/SAO_' + consumer + '.lua') + 1, path)
+        with mock.patch.object(Sweep, 'MODULES', reversed_order):
+            try:
+                Sweep.require_modules(lua)
+                faults.append('wrong-order registration admitted: ' + producer + '/' + consumer)
+            except Sweep.EvidenceError as exc:
+                if 'invalid simulation binding order:' not in str(exc):
+                    faults.append('wrong-order control failed outside binding boundary: ' + str(exc))
+    print('  four wrong-order personal registration controls rejected at loader boundary')
     for fault in faults:
         print('159) FAULT:', fault)
     if faults:

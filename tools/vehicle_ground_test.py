@@ -249,10 +249,9 @@ def main():
         faults.append("CONTROL vehicle container guard removed but the "
                       "border passed")
 
-    bad_source = needs_src.replace(
-        "FoodSource best = nearestPrivateSource(shell, radius,\n"
-        "                item -> edible(item));",
-        "FoodSource best = null;", 1)
+    # Mutate the actual current method, including person-conditioned food appraisal.
+    food_body = method_body(needs_src, "findFoodSourceNear")
+    bad_source = needs_src.replace(food_body, "{", 1) if food_body else needs_src
     if bad_source == needs_src:
         faults.append("CONTROL did not remove the food vehicle source")
     elif not source_faults(driver_src, bad_source, private_src, controller_src, standing_src, cooking_src):

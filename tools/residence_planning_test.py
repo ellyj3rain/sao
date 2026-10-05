@@ -20,6 +20,9 @@ import flee_continuity_test as fixture
 ROOT = Path(__file__).resolve().parents[1]
 LUA = ROOT / 'mod/42.20/media/lua'
 FILES = {
+    'models': LUA / 'shared/SAO_CognitiveModels.lua',
+    'concepts': LUA / 'shared/SAO_ConceptKnowledge.lua',
+    'cognition': LUA / 'shared/SAO_Cognition.lua',
     'needs': LUA / 'client/SAO_Needs.lua',
     'perception': LUA / 'shared/SAO_Perception.lua',
     'world': LUA / 'shared/SAO_WorldSources.lua',
@@ -29,6 +32,7 @@ FILES = {
     'locomotion': LUA / 'client/SAO_Locomotion.lua',
     'dormant': LUA / 'client/SAO_DormantPopulation.lua',
     'controller': LUA / 'client/SAO_Controller.lua',
+    'response': LUA / 'client/SAO_ConflictResponse.lua',
     'harness': LUA / 'client/SAO_Harness.lua',
 }
 
@@ -49,12 +53,25 @@ SAO.History.countyTimeOfDay=function() return __hour end
 SAO.History.recordDay=function() return 1 end
 SAO.History.ticks=function() return __tick end
 SAO.Disposition.traits=function() return {nerve=.6,initiative=.5} end
+SAO.Disposition.conflictValues=function(id)
+    return {actorId=id,selfPreservation=.8,aggression=.2,nerve=.3,discipline=.7,compassion=.3}
+end
+SAO.Disposition.fear=function() return .1 end
+SAO.Disposition.decisionInterval=function() return 20 end
 SAO.Disposition.drinkAt=function() return .4 end
 SAO.Needs.read=function() return __needs end
 SAO.Needs.busy=function() return __busy==true end
 SAO.Needs.cold=function() return __cold or 0 end
 SAO.Needs.ownsRecoveryBody=function(id,b) return SAO.Body.active[id]==b end
 SAO.Needs.workAvailable=function(b) return not __busy and not b:isAsleep() end
+-- Native placement receivers are controlled here; the dedicated placement
+-- proof executes the actual geometry and admission owner.
+SAO.Needs.recoveryPlaces=function(id,b)
+    return {{kind='ground',key='fixture-clear-floor',available=true,x=b:getX(),y=b:getY(),z=b:getZ()}}
+end
+SAO.Needs.recoveryPlaceAt=function(id,b,p)
+    return SAO.Body.active[id]==b and p.x==b:getX() and p.y==b:getY() and p.z==b:getZ()
+end
 SAO.Needs.beginRecovery=function(id,b,kind)
     __recoveryAttempts=__recoveryAttempts+1
     if not __recoveryAdmit then return false end
@@ -73,6 +90,9 @@ SAOJavaBridge.setShellAsleep=function() return true end
 SAOJavaBridge.canSeePersonNow=function() return __personVisible==true end
 SAOJavaBridge.perceive=function() return __seen or '' end
 SAOJavaBridge.isShell=function() return true end
+SAOJavaBridge.localCombatMoves=function() return __conflictMoves or '' end
+SAOJavaBridge.combatOpportunity=function() return 'REFUSED\tfixture-no-combat-opportunity' end
+SAOJavaBridge.getShellHealth=function() return 100 end
 SAOJavaBridge.worldInspectionMemory=function(_,body)
     __inspectionMemory[body]=__inspectionMemory[body] or {} return __inspectionMemory[body]
 end
@@ -88,9 +108,10 @@ SAOJavaBridge.moveTo=function(_,body,x,y,z)
     __orderedForce=body.forceEntry
     __starts=__starts+1
     if __refuseNativeMove then return 'MOVE_REFUSED_LOCKED' end
-    __ordered={x=x,y=y,z=z} return 'MOVE_STARTED'
+    __ordered={x=x,y=y,z=z} return 'MOVE_STARTED route='..tostring(__starts)
 end
 SAOJavaBridge.tickMove=function() return __verdict end
+SAOJavaBridge.consumeMoveCrossing=function() local text=__crossing;__crossing=nil;return text end
 SAOJavaBridge.moveBarrier=function() return __barrier or 'MOVE_BARRIER_UNAVAILABLE' end
 SAO.Organization={offices={},activeCommitments=function(id) return __commitments[id] or {} end,
     leave=function() return true end,
@@ -140,8 +161,9 @@ local function body(id,x,y)
     return b
 end
 local function reset(hunger)
+    __conflictMoves=''
     __resetStores()
-    __hours=2 __hour=12 __tick=18000 __starts=0 __cancels=0 __verdict='Working' __barrier=nil
+    __hours=2 __hour=12 __tick=18000 __starts=0 __cancels=0 __verdict='Working' __barrier=nil __crossing=nil
     __randCalls=0 __randFixed=0 __forceThrow=false __forceRefuse=false __orderedForce=nil
     __withdrawals=0 __commitments={} __refuseNativeMove=false __busy=false __food=nil __drink=nil
     SAO.Organization.offices={}
@@ -336,9 +358,11 @@ __tick=__tick+120 C.__residenceTick(__tick)
 C.__residenceUpdate('a',a)
 check('actual_live_update_keeps_quiet_residence_route',a.state=='TRAVEL' and SAO.Locomotion.jobs.a==route and p.admission~=nil)
 __seen='Z:11:10:1:track:near:floor:0'
+__conflictMoves='MOVE\t8\t10\t0'
 __tick=__tick+120 C.__residenceTick(__tick)
 C.__residenceUpdate('a',a)
 check('actual_live_acquisition_preempts_residence_for_close_threat',a.state=='FLEE'
+    and a.conflictRoute~=nil and a.conflictRoute.job==SAO.Locomotion.jobs.a
     and a.residenceRoute==nil and p.admission==nil and p.lastResidenceResult==nil)
 
 a,b=reset() p=consider(a,b) C.advanceResidencePurpose('a',a,b,__tick)
@@ -629,8 +653,10 @@ b.forceEntry=true
 check('window_choice_uses_actual_locomotion',outsideThenEnter() and p.steps[2].basis=='observed-window-entry-hypothesis'
     and SAO.Locomotion.jobs.a.goal.x==102.5 and p.admission~=nil)
 check('ordinary_window_route_revokes_prior_force_permission',b.forceEntry==false and __orderedForce==false)
+__conflictMoves='MOVE\t100\t10\t0'
 __seen='Z:102:10:1:track:window-threat:floor:0';__tick=__tick+120;C.__residenceTick(__tick);C.__residenceUpdate('a',a)
-check('window_route_yields_to_current_threat',a.state=='FLEE' and p.admission==nil and p.lastResidenceResult==nil)
+check('window_route_yields_to_current_threat',a.state=='FLEE' and p.admission==nil and p.lastResidenceResult==nil
+    and a.conflictRoute~=nil and a.conflictRoute.job==SAO.Locomotion.jobs.a)
 for _,failureMode in ipairs({'refuse','throw'}) do
     entranceStart();observeEntrances(windowRow..'open');p=consider(a,b);b.forceEntry=true
     __forceRefuse=failureMode=='refuse';__forceThrow=failureMode=='throw'
@@ -781,8 +807,9 @@ a,b,p,route=recoverySearch();SAO.Perception.beliefs.a.known[1]=nil;bodyChanged(a
 check('unseen_home_address_does_not_supply_recovery_destination',p.mode=='search' and SAO.Locomotion.jobs.a==route)
 a,b,p,route=recoverySearch();S.claim('c',5,5,15,15,0);SAO.Perception.beliefs.a.places.c={minX=5,minY=5,maxX=15,maxY=15,at=__tick,source='observed'};bodyChanged(a,b)
 check('forbidden_home_does_not_supply_recovery_destination',p.mode=='search' and SAO.Locomotion.jobs.a==route)
-a,b,p,route=recoverySearch();__seen='Z:41:10:1:track:recovery-danger:floor:0';bodyChanged(a,b)
-check('actual_threat_owns_response_before_recovery',a.state=='FLEE' and not a.recovery and p.mode~='recover')
+a,b,p,route=recoverySearch();__conflictMoves='MOVE\t38\t10\t0';__seen='Z:41:10:1:track:recovery-danger:floor:0';bodyChanged(a,b)
+check('actual_threat_owns_response_before_recovery',a.state=='FLEE' and not a.recovery and p.mode~='recover'
+    and a.conflictRoute~=nil and a.conflictRoute.job==SAO.Locomotion.jobs.a)
 a,b=reset(.55);b.x=40;b.building=nil;__needs.fatigue=1;p=consider(a,b)
 check('unadmitted_search_can_choose_recovery_before_travel',p.mode=='recover' and p.destination.id=='home')
 a,b=reset(.55);__needs.fatigue=1;__recoveryAdmit=true
@@ -802,10 +829,285 @@ check('refused_state_change_preserves_search_admission',not C.preemptResidenceFo
     and SAO.Locomotion.jobs.a==route and p.admission and not p.recoveryInterrupted)
 SAO.SourceUse=priorChange
 
+
+-- The full Controller consumes native action endings without inventing effects.
+local originalGrant, originalEat, originalClearSource = SAOJavaBridge.grantXP, SAO.Needs.eatCarried, SAO.Needs.clearSource
+SAO.Needs.clearSource=function() end
+local closureXP, closureMeals = 0, 0
+SAOJavaBridge.grantXP=function() closureXP=closureXP+1 end
+SAO.Needs.eatCarried=function() closureMeals=closureMeals+1 return false end
+local function finishHold(state,purpose)
+    a,b=reset();a.state=state;a.treatPurpose=purpose;a.takePurpose=purpose
+    __busy=false;C.__residenceUpdate('a',a)
+    return a.state=='IDLE' and a.pressure and a.pressure.detail
+end
+local medicineEnded=finishHold('TREAT','medicine')
+check('medicine_queue_end_is_not_wound_completion',medicineEnded=='medicine action ended' and closureXP==0)
+local cleaningEnded=finishHold('TREAT','wound cleaning')
+check('disinfection_queue_end_grants_no_dressing_credit',cleaningEnded=='wound cleaning action ended' and closureXP==0)
+local dressingEnded=finishHold('TREAT','dressing')
+check('cancelled_dressing_queue_end_has_no_success_or_xp',dressingEnded=='dressing action ended' and closureXP==0)
+local farmEnded=finishHold('TAKE','farm')
+check('farm_closure_is_reachable_without_generic_meal',farmEnded=='farm action ended without a completion receipt' and closureMeals==0)
+local animalEnded=finishHold('TAKE','animal')
+check('animal_closure_is_reachable_without_generic_meal',animalEnded=='animal action ended without a completion receipt' and closureMeals==0)
+local buildEnded=finishHold('TAKE','build')
+check('build_closure_is_reachable_without_generic_meal',buildEnded=='build action ended without a completion receipt' and closureMeals==0)
+SAOJavaBridge.grantXP,SAO.Needs.eatCarried,SAO.Needs.clearSource=originalGrant,originalEat,originalClearSource
+
+-- Actual production grab admission/callback against a controlled native grab receiver.
+ISTimedActionQueue=ISTimedActionQueue or {}
+local oldQueueAdd,oldQueueHas,oldGrab,oldOffered=ISTimedActionQueue.add,ISTimedActionQueue.hasAction,ISGrabItemAction,SAOJavaBridge.offeredWorldItem
+local oldClearOffered=SAO.Needs.clearOffered
+SAO.Needs.clearOffered=function() end
+local groundItem,carriedItem,destination,pickupAction,queuedPickup,refusePickup,nativePickupCalls
+ISTimedActionQueue.add=function(action) if not refusePickup then queuedPickup=action end end
+ISTimedActionQueue.hasAction=function(action) return action==queuedPickup end
+ISGrabItemAction={new=function(_,character,world,time)
+    local action={character=character,item=world,destContainer=destination}
+    function action:isValid() return groundItem.square~=nil and not groundItem.blocked end
+    function action:stop() queuedPickup=nil end
+    function action:transferItem(world)
+        nativePickupCalls=nativePickupCalls+1
+        if groundItem.nativeNoEffect then return end
+        groundItem.square=nil;carriedItem.world=nil;carriedItem.container=destination
+    end
+    return action
+end}
+SAOJavaBridge.offeredWorldItem=function() return groundItem end
+local function pickupFixture()
+    a,b=reset();queuedPickup=nil;refusePickup=false;nativePickupCalls=0
+    destination={contains=function(_,item) return item==carriedItem and item.container==destination end}
+    function b:getInventory() return destination end
+    groundItem={square={}};carriedItem={world=groundItem}
+    function groundItem:getItem() return carriedItem end
+    function groundItem:getSquare() return self.square end
+    function carriedItem:getWorldItem() return self.world end
+    function carriedItem:getContainer() return self.container end
+end
+local function pickupHold(action)
+    a.state='TAKE';a.takePurpose='offered';a.offeredAction=action
+    SAO.Perception.beliefs.a.people.B={source='observed',at=__tick,x=b.x,y=b.y}
+    local trustCalls=0;local originalTrust=S.adjustTrust
+    S.adjustTrust=function() trustCalls=trustCalls+1 end
+    __busy=false;C.__residenceUpdate('a',a);S.adjustTrust=originalTrust
+    return trustCalls,a.pressure and a.pressure.detail
+end
+pickupFixture();refusePickup=true
+check('ground_pickup_requires_actual_queue_admission',not SAO.Needs.queueGrabOffered('a',b) and nativePickupCalls==0)
+pickupFixture();local pickupAdmitted;pickupAdmitted,pickupAction=SAO.Needs.queueGrabOffered('a',b)
+check('ground_pickup_admission_is_pending',pickupAdmitted and pickupAction.saoPickupResult=='pending' and carriedItem.container==nil)
+pickupAction:stop();local giftTrust,giftDetail=pickupHold(pickupAction)
+check('cancelled_pickup_has_no_acquisition_or_nearby_giver_credit',giftTrust==0 and giftDetail=='ground-item action ended without confirmed acquisition' and nativePickupCalls==0)
+pickupFixture();pickupAdmitted,pickupAction=SAO.Needs.queueGrabOffered('a',b);groundItem.nativeNoEffect=true;pickupAction:transferItem(groundItem)
+giftTrust,giftDetail=pickupHold(pickupAction)
+check('ineffective_native_pickup_has_no_success_or_trust',giftTrust==0 and giftDetail=='ground-item action ended without confirmed acquisition' and pickupAction.saoPickupResult=='unverified')
+pickupFixture();pickupAdmitted,pickupAction=SAO.Needs.queueGrabOffered('a',b);groundItem.square={};pickupAction:transferItem(groundItem)
+check('changed_ground_binding_refuses_native_effect',nativePickupCalls==0 and pickupAction.saoPickupResult=='source-changed')
+pickupFixture();pickupAdmitted,pickupAction=SAO.Needs.queueGrabOffered('a',b);pickupAction:transferItem(groundItem);pickupAction:transferItem(groundItem)
+giftTrust,giftDetail=pickupHold(pickupAction)
+check('exact_native_pickup_completes_once_without_invented_giver',nativePickupCalls==1 and giftTrust==0 and giftDetail=='picked up the observed ground item' and a.offeredAction==nil)
+ISTimedActionQueue.add,ISTimedActionQueue.hasAction,ISGrabItemAction,SAOJavaBridge.offeredWorldItem=oldQueueAdd,oldQueueHas,oldGrab,oldOffered
+SAO.Needs.clearOffered=oldClearOffered
+
+-- C120: native encountered edge changes a later real choice after transient
+-- memory/cooldown removal, with equal current private input for another person.
+entranceStart();SAO.Cognition.configure(0,12,3)
+observeEntrances(doorRow..'|'..windowRow..'closed');p=consider(a,b);outsideThenEnter()
+local learnedKey=p.destination.approachId
+local learnedId=p.destination.id
+failed=failedEdge('MOVE_BARRIER@99@10@100@10@0@door@closed@FAILED_LOCKED_DOOR','FailedObstacle:FAILED_LOCKED_DOOR')
+local savedCognition=__records.a.cognition
+local function withoutTransient()
+    p.admission=nil;p.exteriorEntryPending=nil;p.nextAppraisalAt=0;p.inspectUntil=nil;p.residenceAttempts={}
+    SAO.Perception.beliefs.a.buildingLeads[learnedKey].entryFailure=nil
+    a.residenceRoute=nil;a.state='IDLE';SAO.Locomotion.jobs.a=nil
+    b.x=10;b.y=10;b.building=1;a.nextResidenceAt=0
+end
+withoutTransient();residenceTime(3);observeEntrances(doorRow..'|'..windowRow..'closed');p=consider(a,b)
+check('entry_learning_changes_actual_choice',p.destination.kind=='window')
+local sharedDoor,sharedWindow
+for _, ranked in ipairs(p.interpretations.models[1].ranked) do
+    for _, predicted in ipairs(ranked.predictions) do
+        if predicted.sourceId==learnedId then sharedDoor=predicted end
+        if predicted.sourceId==p.destination.id then sharedWindow=predicted end
+    end
+end
+check('entry_shared_prediction_keeps_exact_source_and_condition',sharedDoor and sharedWindow
+    and sharedDoor.kind=='entry' and sharedDoor.condition=='closed' and sharedDoor.probability<.5
+    and #sharedDoor.evidenceIds==1 and sharedWindow.probability==.5
+    and p.interpretations.selected==p.destination.id)
+check('entry_native_producer_revises_both_models',savedCognition and savedCognition.models.ordinary.revision==1
+    and savedCognition.models.associative.revision==1)
+local entryReceipt=SAO.Perception.behaviorOutcome('a',1)
+check('entry_duplicate_receipt_does_not_relearn',SAO.Cognition.behaviorOutcome('a',entryReceipt)
+    and savedCognition.models.ordinary.revision==1)
+entryReceipt.succeeded=true
+check('entry_fabricated_receipt_is_rejected',not SAO.Cognition.behaviorOutcome('a',entryReceipt))
+entryReceipt.succeeded=false
+check('entry_foreign_receipt_is_rejected',not SAO.Cognition.behaviorOutcome('b',entryReceipt))
+
+local experiencedChoice=p.destination.id
+__records.a.cognition=nil;withoutTransient();p=consider(a,b)
+check('unexposed_same_private_inputs_keep_door',p.destination.kind=='door' and p.destination.id~=experiencedChoice)
+-- A detached serialized-data-shaped copy is rebound, not the original table.
+local function copyData(v) if type(v)~='table' then return v end local out={} for k,x in pairs(v) do out[k]=copyData(x) end return out end
+__records.a.cognition=copyData(savedCognition);SAO.Cognition.rebindWorld();withoutTransient();p=consider(a,b)
+check('entry_saved_rebound_learning_changes_choice',p.destination.kind=='window')
+
+__records.b={id='b',homeX=10,homeY=10,homeZ=0,x=10,y=10,z=0}
+local otherBody=__bodies.b;otherBody.x=10;otherBody.y=10;otherBody.building=1
+C.agents.b={state='IDLE',rec=__records.b}
+SAO.Perception.beliefs.b=copyData(SAO.Perception.beliefs.a)
+for _,otherLead in pairs(SAO.Perception.beliefs.b.buildingLeads) do otherLead.personId='b' end
+local otherPurpose=C.considerResidence('b',C.agents.b,otherBody,__tick)
+check('unexposed_person_with_equal_current_facts_keeps_door',otherPurpose and otherPurpose.destination.kind=='door'
+    and p.destination.kind=='window' and __records.b.cognition==nil)
+
+local revision=__records.a.cognition.models.ordinary.revision
+local expectation=SAO.Cognition.behaviorExpectation('a','entry',learnedId,'closed',__hours)
+residenceTime(240);withoutTransient();observeEntrances(doorRow..'|'..windowRow..'closed');p=consider(a,b)
+check('old_entry_confidence_ages_without_learning_on_read',p.destination.kind=='door'
+    and SAO.Cognition.behaviorExpectation('a','entry',learnedId,'closed',__hours)>expectation
+    and __records.a.cognition.models.ordinary.revision==revision)
+residenceTime(241);withoutTransient();observeEntrances('B:42:100.0:10.5:0:99.5:10.5:door:open|'..windowRow..'closed');p=consider(a,b)
+check('visible_changed_state_does_not_inherit_old_entry_prediction',p.destination.kind=='door'
+    and SAO.Cognition.behaviorExpectation('a','entry',learnedId,'open',__hours)==nil)
+check('approach_does_not_create_entry_learning',outsideThenEnter() and __records.a.cognition.models.ordinary.revision==revision)
+local successful=SAO.Locomotion.jobs.a
+b.x=p.steps[2].x;b.y=p.steps[2].y;b.building=42
+SAO.Perception.beliefs.a.known[42]={cx=b.x,cy=b.y,z=0,at=__tick,source='observed-building',visits=1}
+successful.done=true;successful.result='arrived';C.finishResidenceMovement('a',a,b)
+check('arrival_cannot_teach_an_unmeasured_aperture_crossing',__records.a.cognition.models.ordinary.revision==revision
+    and SAO.Cognition.behaviorExpectation('a','entry',learnedId,'open',__hours)==nil)
+
+entranceStart();SAO.Cognition.configure(0,12,3)
+observeEntrances(doorRow..'|'..windowRow..'closed');p=consider(a,b);outsideThenEnter()
+local boundKey=p.destination.approachId;local boundId=p.destination.id
+SAO.Perception.beliefs.a.buildingLeads[boundKey].apertureState='open'
+failed=failedEdge('MOVE_BARRIER@99@10@100@10@0@door@closed@FAILED_LOCKED_DOOR','FailedObstacle:FAILED_LOCKED_DOOR')
+check('entry_failure_uses_encountered_not_rescanned_condition',SAO.Cognition.behaviorExpectation('a','entry',boundId,'closed',__hours)<.5
+    and SAO.Cognition.behaviorExpectation('a','entry',boundId,'open',__hours)==nil)
+
+
+local failedExpectation=SAO.Cognition.behaviorExpectation('a','entry',boundId,'closed',__hours)
+local failureRevision=__records.a.cognition.models.ordinary.revision
+local function crossingTrial(edge,foreignRoute)
+    residenceTime(__hours+1);withoutTransient();SAO.Perception.beliefs.a.known[42]=nil
+    SAO.Perception.beliefs.a.buildingLeads[boundKey].entryFailure=nil
+    SAO.Perception.beliefs.a.buildingLeads[windowKey()]=nil
+    observeEntrances(doorRow);p=consider(a,b);outsideThenEnter()
+    local job=SAO.Locomotion.jobs.a
+    SAO.Perception.beliefs.a.buildingLeads[boundKey].apertureState='open'
+    b.x=p.steps[2].x;b.y=p.steps[2].y;b.building=42
+    SAO.Perception.beliefs.a.known[42]={cx=b.x,cy=b.y,z=0,at=__tick,source='observed-building',visits=1}
+    __crossing='MOVE_CROSSING@'..tostring(job.nativeRouteGeneration+(foreignRoute and 1 or 0))..'@1@'..edge
+    __verdict='Succeeded';SAO.Locomotion.tick('a');C.finishResidenceMovement('a',a,b)
+    return job
+end
+crossingTrial('101@10@102@10@0@door@closed',false)
+check('different_crossed_aperture_cannot_reverse_selected_failure',__records.a.cognition.models.ordinary.revision==failureRevision)
+crossingTrial('99@10@100@10@0@door@closed',true)
+check('foreign_native_route_crossing_cannot_teach',__records.a.cognition.models.ordinary.revision==failureRevision)
+local crossed=crossingTrial('99@10@100@10@0@door@closed',false)
+check('actual_crossed_aperture_revises_previous_failure',__records.a.cognition.models.ordinary.revision==failureRevision+1
+    and SAO.Cognition.behaviorExpectation('a','entry',boundId,'closed',__hours)>failedExpectation)
+check('successful_crossing_retains_pre_attempt_condition',SAO.Cognition.behaviorExpectation('a','entry',boundId,'open',__hours)==nil
+    and SAO.Perception.behaviorOutcome('a',2).apertureState=='closed')
+check('completed_crossing_replay_cannot_teach_twice',not SAO.Perception.noteEntrySuccess('a',b,crossed)
+    and __records.a.cognition.models.ordinary.revision==failureRevision+1)
+
+
+local projection=SAO.Cognition.snapshot('a',true)
+-- A declined destination square still belongs to the window's pre-attempt
+-- condition; native failure classification supplies no invented aperture state.
+entranceStart();SAO.Cognition.configure(0,12,3)
+observeEntrances(windowRow..'clear');p=consider(a,b);outsideThenEnter()
+local blockedId=p.destination.id
+failed=failedEdge('MOVE_BARRIER@101@10@102@10@0@window@clear@FAILED_BLOCKED_WINDOW','FailedObstacle:FAILED_BLOCKED_WINDOW')
+check('blocked_window_learns_actual_pre_attempt_condition',__records.a.cognition and __records.a.cognition.models.ordinary.revision==1
+    and SAO.Cognition.behaviorExpectation('a','entry',blockedId,'clear',__hours)<.5
+    and SAO.Perception.behaviorOutcome('a',1).apertureState=='clear')
+
+local direct={id='entry/a/999',actorId='a',observerId='a',worldHours=__hours,occurredAtHours=__hours,
+    kind='entry-outcome',category='body',perspective='performed',status='completed',sourceId=learnedId,
+    actionKind='door',apertureState='closed',succeeded=true}
+check('direct_plausible_behavior_event_requires_owner',not SAO.Cognition.experience('a',direct))
+
+-- The real study encountered a locked edge during ROAM before residence tried
+-- the same entrance. Learning belongs to the native movement result itself.
+entranceStart();SAO.Cognition.configure(0,12,3)
+observeEntrances(doorRow..'|'..windowRow..'closed');p=consider(a,b)
+local roamKey=p.destination.approachId
+check('roam_encounter_starts_without_residence_admission',p.destination.kind=='door' and not p.admission
+    and SAO.Locomotion.order('a',b,140,30,0))
+a.state='ROAM';a.nextDecisionAt=__tick+600;local roamingJob=SAO.Locomotion.jobs.a
+__barrier='MOVE_BARRIER@99@10@100@10@0@door@closed@FAILED_LOCKED_DOOR'
+__verdict='FailedObstacle:FAILED_LOCKED_DOOR'
+C.__residenceUpdate('a',a)
+local roamingCognition=__records.a.cognition
+local roamingFailure=SAO.Perception.knownBuildingLeads('a',__tick)[roamKey].entryFailure
+check('roam_terminal_edge_teaches_without_residence_completion',roamingJob.done and roamingJob.entryOutcomeRecorded
+    and roamingFailure and roamingFailure.reason=='FAILED_LOCKED_DOOR' and roamingJob.goal.x==140
+    and roamingCognition and roamingCognition.models.ordinary.revision==1
+    and roamingCognition.models.associative.revision==1 and __records.a.entryExperienceSequence==1
+    and not p.lastResidenceResult)
+check('roam_receipt_replay_cannot_duplicate_cognition',not SAO.Perception.noteEntryOutcome('a',b,roamingJob)
+    and roamingCognition.models.ordinary.revision==1 and __records.a.entryExperienceSequence==1)
+SAO.Perception.beliefs.a.buildingLeads[roamKey].entryFailure=nil
+p.admission=nil;p.nextAppraisalAt=0;p.inspectUntil=nil;p.residenceAttempts={}
+a.residenceRoute=nil;a.state='IDLE';SAO.Locomotion.jobs.a=nil
+b.x=10;b.y=10;b.building=1
+residenceTime(3);observeEntrances(doorRow..'|'..windowRow..'closed');p=consider(a,b)
+check('roam_experience_changes_later_residence_alternative',p.destination.kind=='window')
+
+entranceStart();SAO.Cognition.configure(0,12,3);observeEntrances(doorRow)
+SAO.Locomotion.order('a',b,140,30,0);a.state='ROAM'
+local foreignJob=SAO.Locomotion.jobs.a
+__bodies.a=body('a',10,10)
+__barrier='MOVE_BARRIER@99@10@100@10@0@door@closed@FAILED_LOCKED_DOOR'
+__verdict='FailedObstacle:FAILED_LOCKED_DOOR';SAO.Locomotion.tick('a')
+check('foreign_movement_body_cannot_teach_entry',foreignJob.done and not foreignJob.entryOutcomeRecorded
+    and __records.a.entryExperienceSequence==nil
+    and SAO.Perception.knownBuildingLeads('a',__tick)[exteriorKey].entryFailure==nil)
+__bodies.a=b;SAO.Locomotion.jobs.a=nil
+check('retired_movement_job_cannot_teach_entry',not SAO.Perception.noteEntryOutcome('a',b,foreignJob)
+    and __records.a.entryExperienceSequence==nil)
+
+entranceStart();SAO.Locomotion.order('a',b,140,30,0)
+local optionalPerception=SAO.Perception;SAO.Perception=nil
+__barrier='MOVE_BARRIER@99@10@100@10@0@door@closed@FAILED_LOCKED_DOOR'
+__verdict='FailedObstacle:FAILED_LOCKED_DOOR';SAO.Locomotion.tick('a')
+local optionalJob=SAO.Locomotion.jobs.a;SAO.Perception=optionalPerception
+check('terminal_movement_without_perception_preserves_failure',optionalJob.done
+    and optionalJob.result==__verdict and not optionalJob.faults)
+
+MAXIMAL_EXPORT=true;MAXIMAL_SNAPSHOT=projection
 __residenceResults=table.concat(checks,'\n')
 '''
 
 CONTROLS = [
+    ('controller', 'local treatment = agent.treatPurpose or "treatment"',
+     'SAOJavaBridge:grantXP(body, "Doctor", 1.0) local treatment = agent.treatPurpose or "treatment"',
+     'medicine_queue_end_is_not_wound_completion'),
+    ('controller', 'elseif agent.state == "TAKE" and (agent.takePurpose == "farm"',
+     'elseif false and (agent.takePurpose == "farm"', 'farm_closure_is_reachable_without_generic_meal'),
+    ('controller', 'local pickup = agent.offeredAction',
+     'SAO.Standing.adjustTrust(id, "b", 0.15) local pickup = agent.offeredAction',
+     'cancelled_pickup_has_no_acquisition_or_nearby_giver_credit'),
+    ('needs', 'if not N.queueVerified(action) then return false end',
+     'ISTimedActionQueue.add(action)', 'ground_pickup_requires_actual_queue_admission'),
+    ('needs', 'and "completed" or "unverified"',
+     'and "completed" or "completed"', 'ineffective_native_pickup_has_no_success_or_trust'),
+    ('needs', 'or worldItem:getSquare() ~= square or worldItem:getItem() ~= item',
+     'or false or worldItem:getItem() ~= item', 'changed_ground_binding_refuses_native_effect'),
+    ('perception', 'and lead.cx==crossing.x+0.5 and lead.cy==crossing.y+0.5\n            and lead.surfaceX==(crossing.x+crossing.tx+1)/2\n            and lead.surfaceY==(crossing.y+crossing.ty+1)/2', 'and true', 'different_crossed_aperture_cannot_reverse_selected_failure'),
+
+    ('planner', 'consequences = candidate.exterior and { { kind = "entry", category = "body",',
+     'consequences = false and { { kind = "entry", category = "body",', 'entry_learning_changes_actual_choice'),
+    ('planner', 'if views and destinations[views.selected] then',
+     'if false then', 'entry_learning_changes_actual_choice'),
+    ('perception', '            retainEntryExperience(id,rec,lead,key,at,edge.apertureState)', '            -- learning producer omitted', 'entry_learning_changes_actual_choice'),
     ('controller', '        if agent.residenceRoute and Ctl.preemptResidenceForRecovery(id, agent, body, tickCount) then return true end',
      '        -- recovery reconsideration omitted', 'actual_live_fatigue_changes_search_into_recovery_return'),
     ('planner', '    if recovery then\n', '    if false then\n', 'actual_live_fatigue_changes_search_into_recovery_return'),
@@ -819,7 +1121,7 @@ CONTROLS = [
      'unseen_home_address_does_not_supply_recovery_destination'),
     ('labor', 'and standing.mayAttemptBelieved(id, rec.homeX, rec.homeY, "standing") then',
      'then', 'forbidden_home_does_not_supply_recovery_destination'),
-    ('controller', '    if Ctl.recoveryChoice(id, agent, body, tick, needs) then\n',
+    ('controller', '    if not ordinary and Ctl.recoveryChoice(id, agent, body, tick, needs) then\n',
      '    if false then\n', 'actual_needs_decision_recovers_before_speculative_food_route'),
     ('controller', 'return SAOJavaBridge:setForceEntry(body, false)\n    end)', 'return true\n    end)',
      'ordinary_window_route_revokes_prior_force_permission'),
@@ -827,8 +1129,8 @@ CONTROLS = [
      'entry_permission_refuse_cannot_start_native_route'),
     ('locomotion', '        captureBarrier(job, verdict)', '        -- barrier capture omitted',
      'native_failed_edge_is_consumed_into_private_entry_memory'),
-    ('planner', '            SAO.Perception.noteEntryOutcome(id, body, job)', '            -- encounter not consumed',
-     'native_failed_edge_is_consumed_into_private_entry_memory'),
+    ('locomotion', '            SAO.Perception.noteEntryOutcome(id, job.body, job)', '            -- encounter not consumed',
+     'roam_terminal_edge_teaches_without_residence_completion'),
     ('perception', '        lead.entryFailure = prior.entryFailure', '        lead.entryFailure = nil',
      'unchanged_barrier_changes_choice_after_backoff'),
     ('planner', 'if encountered and finite(encountered.atHours) and encountered.atHours <= at then', 'if false then',
@@ -889,7 +1191,7 @@ CONTROLS = [
      'if false then return false end','repeated_decisions_honor_exact_route_retry'),
     ('dormant', 'if purpose.status == "blocked" or (attempt and not attempt.supersededAt and hoursNow() < (attempt.retryAt or 0)) then',
      'if false then','unloaded_blocked_route_respects_same_retry'),
-    ('controller', 'if agent.residenceRoute then\n        local threat, count, person, key = selectedThreat',
+    ('controller', 'if agent.residenceRoute or agent.inquiryRoute or agent.recoveryRoute then\n        local threat, count, person, key = selectedThreat',
      'if false then\n        local threat, count, person, key = selectedThreat',
      'actual_live_acquisition_preempts_residence_for_close_threat'),
     ('standing', 'function S.rehomeCompanions(playerKey, x, y, z)\n    return 0\nend',
@@ -909,7 +1211,7 @@ CONTROLS = [
      'if false then return nil end', 'changed_candidate_cannot_rewrite_observed_geometry'),
     ('planner', 'not prior.admission and (not prior.residence\n                    or prior.status == "completed" or prior.status == "abandoned") and (not prior.resourceOutcome',
      'not prior.admission and (not prior.resourceOutcome', 'purpose_capacity_keeps_maintained_residence'),
-    ('controller', 'or agent.state == "FOLLOW" or agent.residenceRoute ~= nil then',
+    ('controller', 'or agent.state == "FOLLOW" or agent.residenceRoute ~= nil or agent.inquiryRoute ~= nil or agent.recoveryRoute ~= nil then',
      'or agent.state == "FOLLOW" then', 'actual_live_treatable_bleeding_preempts_residence_route'),
 ]
 
@@ -918,20 +1220,22 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--required',action='store_true')
     parser.add_argument('--output',type=Path)
+    parser.add_argument('--baseline-only',action='store_true')
+    parser.add_argument('--control',action='append',default=[],choices=[row[3] for row in CONTROLS])
     args=parser.parse_args()
     game, jdk = fixture.GAME, fixture.JDK
-    owned=[Path(__file__).resolve(),Path(fixture.__file__).resolve(),ROOT/'tools/luacheck/LuaRun.java',*FILES.values()]
+    owned=[Path(__file__).resolve(),Path(fixture.__file__).resolve(),ROOT/'tools/luacheck/LuaRun.java',ROOT/'tools/cognition_checks/export.lua',*FILES.values()]
     missing=[str(p) for p in owned if not p.is_file()]
     if missing:
         print('FAULT residence planning: owned inputs absent: '+', '.join(missing)); return 1
     if not all(path.is_file() for path in (game/'projectzomboid.jar',game/'stdlib.lua',jdk/'java.exe',jdk/'javac.exe')):
         print('Residence planning '+('FAILED' if args.required else 'SKIPPED')+': installed game or JDK absent; production execution unverified'); return 1 if args.required else 0
-    output=(args.output or ROOT/'_scratch/c118-validation/residence').resolve()
+    output=(args.output or ROOT/'_scratch/shared-reasoning/residence').resolve()
     output.mkdir(parents=True,exist_ok=True)
     inputs=owned+[game/'projectzomboid.jar',game/'stdlib.lua',jdk/'java.exe',jdk/'javac.exe']
     def digest(p): return hashlib.sha256(p.read_bytes()).hexdigest()
     receipt={'schema':'sao-residence-proof/1','status':'RUNNING','boundary':__doc__,
-             'inputs_before':{str(p):digest(p) for p in inputs},'runs':[]}
+             'inputs_before':{str(p):digest(p) for p in inputs},'baselineOnly':args.baseline_only,'runs':[]}
     def save(): (output/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
     def execute(command,cwd,name):
         done=subprocess.run(command,cwd=cwd,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=60)
@@ -939,11 +1243,16 @@ def main():
         receipt['runs'].append({'name':name,'command':command,'exitCode':done.returncode,'logSha256':digest(log)})
         save();return done
     texts = {name:path.read_text(encoding='utf-8-sig') for name,path in FILES.items()}
-    # Execute the unchanged production preference; native recovery remains in
-    # Border 225. Controlled bodies here expose only decision inputs/admission.
-    preference = texts['needs'].split('function N.recoveryPreference(',1)[1].split(
+    # Execute the production alternatives and their shared preference consumer;
+    # native recovery remains in Border 225. Controlled bodies expose inputs/admission.
+    preference = texts['needs'].split('function N.recoveryAlternatives(',1)[1].split(
         '-- A module reload releases',1)[0]
-    texts['needs'] = 'local N=SAO.Needs\nfunction N.recoveryPreference('+preference
+    need_methods = texts['needs']
+    texts['needs'] = 'local N=SAO.Needs\nlocal function log() end\nfunction N.recoveryAlternatives('+preference
+    for method in ('queueVerified','queueGrabOffered'):
+        start=need_methods.index('function N.'+method+'(')
+        end=need_methods.index('\nend',start)+4
+        texts['needs']+='\n'+need_methods[start:end]
     expose = 'Ctl.__residenceAddress=resolvedHomeAddress\nCtl.__residenceHome=decideHomeAndEquipment\nCtl.__residenceCompany=decideCompany\nCtl.__residenceNeeds=decideNeedsAndCompanion\nCtl.__residenceState=setState\nCtl.__residenceUpdate=updateAgent\nCtl.__residenceTick=function(t) tickCount=t end\nreturn Ctl\n'
     expected=set(re.findall(r"check\('([a-z0-9_]+)'\s*,",CASES))
     expected.update({"entry_permission_refuse_cannot_start_native_route","entry_permission_throw_cannot_start_native_route"})
@@ -963,14 +1272,15 @@ def main():
                 code=dict(texts); code.update(changed or {})
                 if code['controller'].count('return Ctl\n')!=1: raise RuntimeError('Controller export drift')
                 code['controller']=code['controller'].replace('return Ctl\n',expose,1)
-                chunks={'prelude':fixture.PRELUDE,'setup':SETUP,**code,'cases':CASES}
+                chunks={'prelude':fixture.PRELUDE,'setup':SETUP,**code,'cases':CASES,
+                    'export':(ROOT/'tools/cognition_checks/export.lua').read_text(encoding='utf-8')}
                 paths=[]
                 for name,text in chunks.items():
                     marker=work/(name+'-loading.lua')
                     marker.write_text('__residencePhase='+json.dumps('LOADING '+name),encoding='utf-8');paths.append(marker)
                     path=work/(name+'.lua');path.write_text(text,encoding='utf-8');paths.append(path)
                 done=execute([str(jdk/'java.exe'),'-Djava.awt.headless=true','-cp',
-                    str(work)+os.pathsep+str(game/'projectzomboid.jar'),'LuaRun',*map(str,paths),'--','__residenceResults'],
+                    str(work)+os.pathsep+str(game/'projectzomboid.jar'),'LuaRun',*map(str,paths), '--',"__residenceResults..'\\nSNAPSHOT '..RESULT"],
                     work,str(run_number)+'-control-'+target if target else 'production')
                 checks=dict(re.findall(r'^([a-z0-9_]+)=(true|false)$',done.stdout.replace('VALUE ',''),re.M))
                 if target:
@@ -979,18 +1289,21 @@ def main():
                     raise RuntimeError(target+': wrong mutation verdict: '+done.stdout[-5000:]+done.stderr[-1000:])
                 if done.returncode or set(checks)!=expected:
                     raise RuntimeError(done.stdout[-5000:]+done.stderr[-1000:])
+                exported=json.loads(next(line[9:] for line in done.stdout.splitlines() if line.startswith('SNAPSHOT ')))
+                (output/'entry-cognition-snapshot.json').write_text(json.dumps(exported,indent=2)+'\n',encoding='utf-8')
                 return checks
             checks=run()
             failed=[name for name,value in checks.items() if value!='true']
             if failed: raise RuntimeError('failed cases: '+', '.join(failed))
-            for name,before,after,target in CONTROLS:
+            selected=[] if args.baseline_only else [row for row in CONTROLS if not args.control or row[3] in args.control]
+            for name,before,after,target in selected:
                 if texts[name].count(before)!=1: raise RuntimeError(target+': mutation anchor differs')
                 mutant=run({name:texts[name].replace(before,after,1)},target)
                 if mutant[target]!='false': raise RuntimeError(target+': production mutation survived')
-            receipt.update(status='PASS',cases=len(checks),controls=len(CONTROLS),inputs_after={str(p):digest(p) for p in inputs})
+            receipt.update(status='PASS',cases=len(checks),controls=len(selected),inputs_after={str(p):digest(p) for p in inputs})
             if receipt['inputs_before']!=receipt['inputs_after']: raise RuntimeError('relevant inputs changed during proof')
             save()
-            print(f'Border 226 PASS: residence planning; {len(checks)} production Kahlua cases; {len(CONTROLS)} named controls')
+            print(f'Border 226 PASS: residence planning; {len(checks)} production Kahlua cases; {len(selected)} named controls')
             return 0
     except Exception as error:
         receipt.update(status='FAIL',error=str(error));save()

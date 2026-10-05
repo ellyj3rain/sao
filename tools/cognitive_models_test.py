@@ -38,7 +38,11 @@ def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--receipt', type=Path)
     parser.add_argument('--baseline-only', action='store_true')
+    parser.add_argument('--control', action='append', default=[],
+                        help='Run only these named controls, plus the production baseline.')
     args = parser.parse_args(argv)
+    if args.baseline_only and args.control:
+        parser.error('--baseline-only and --control are mutually exclusive')
     engine = GAME / 'projectzomboid.jar'
     # Missing repository inputs remain faults even on a machine without PZ.
     inputs = [fingerprint(MODULE), fingerprint(CASES), fingerprint(Path(__file__))]
@@ -61,6 +65,8 @@ def main(argv=None):
     source = MODULE.read_text(encoding='utf-8')
     checks = CASES.read_text(encoding='utf-8')
     controls = [
+        ('structural identity fallback', [('if not structural and (not text(candidate.id, 128)',
+          'if (not text(candidate.id, 128)')], 'long native identity lost neutral structural fallback'),
         ('ordinary equality', [('frame.thirst>=frame.drinkAt', 'frame.thirst>frame.drinkAt')],
          'ordinary drinking equality or priority changed'),
         ('ordinary priority', [('if frame.waterAllowed and frame.thirst>=frame.drinkAt then',
@@ -142,9 +148,54 @@ def main(argv=None):
          'held branch was used as current interpretation'),
         ('unbounded revision history', [('if #h.revisions>8 then', 'if false then')],
          'refutation history exceeded its bound or lost identity'),
+        ('plan exact evidence retention', [('    rememberPlanEvidence(state, e, yes)', '')],
+         'exact acquisition did not change relative plan order'),
+        ('plan specific expectation influence', [('adjustment = predicted.adjustment', 'adjustment = 0')],
+         'exact acquisition did not change relative plan order'),
+        ('plan exact source isolation', [('c.sourceId ~= nil and b.sourceId == c.sourceId', 'c.sourceId ~= nil')],
+         'exact acquisition did not change relative plan order'),
+        ('plan exact item isolation', [('(c.itemType == nil or b.itemType == c.itemType\n                or modelId=="associative" and c.kind=="study" and b.sourceId==c.sourceId)', 'true'),
+                                       ('(c.itemType==nil or b.itemType==c.itemType)', 'true')],
+         'another item type became exact acquisition evidence'),
+        ('plan private actor', [('if state.actorId and state.actorId ~= context.actorId then return false end', '')],
+         'foreign actor plan prediction admitted'),
+        ('plan current state clock', [('if state.lastHours ~= nil and (not finite(state.lastHours) or state.lastHours > context.atHours) then return false end', '')],
+         'future state entered plan prediction'),
+        ('plan current receipt clock', [('or sample.hours < 0 or sample.hours > context.atHours or type(sample.yes)',
+                                         'or sample.hours < 0 or type(sample.yes)')],
+         'future receipt entered plan prediction'),
+        ('plan query clock aging', [('local weight = 0.5 ^ ((context.atHours - sample.hours) / CONFIDENCE_HALF_LIFE_HOURS)',
+                                    'local weight = 1')],
+         'plan evidence did not age at query clock'),
+        ('plan weaker preparation transfer', [('return transfer, "related-experience", 0.45',
+                                               'return transfer, "related-experience", 1')],
+         'related preparation failed to transfer with lower confidence'),
+        ('plan current capability prior', [('if c.kind == "prepare" and context.capabilities and context.capabilities.cook == true then',
+                                           'if false then')],
+         'current capability prior invented experience or certainty'),
+        ('plan duplicate identity', [('or ids[candidate.id] then', 'then')],
+         'duplicate plan identity admitted'),
+        ('plan measured inspection contents', [('retain("inspect", "food", e.foodPresent)',
+                                                'retain("inspect", "food", true)')],
+         'empty inspection became successful food discovery'),
+        ('plan owner influence cap', [('adjustment = math.max(-candidate.maxAdjustment, math.min(candidate.maxAdjustment, adjustment))',
+                                      'adjustment = adjustment')],
+         'plan adjustment cap changed belief or exceeded owner bound'),
+        ('plan query mutation', [('local result = {schema="sao-plan-prediction/1", predictions={}, expectedValue=0, adjustment=0}',
+                                 'state.revision=state.revision+1\n    local result = {schema="sao-plan-prediction/1", predictions={}, expectedValue=0, adjustment=0}')],
+         'plan query trained or aged stored facts'),
+        ('plan consequence bounds', [('not boundedArray(candidate.consequences, 4)',
+                                      'not boundedArray(candidate.consequences, 8)')],
+         'unbounded consequence list admitted'),
     ]
+    unknown = set(args.control) - {name for name, _, _ in controls}
+    if unknown:
+        parser.error('unknown controls: ' + ', '.join(sorted(unknown)))
+    selected = [control for control in controls if not args.control or control[0] in args.control]
     receipt = {'schema': 'sao-cognitive-model-proof/1', 'inputs': inputs,
-               'engine': fingerprint(engine), 'controls': [], 'boundary': __doc__.strip()}
+               'engine': fingerprint(engine), 'controls': [], 'boundary': __doc__.strip(),
+               'selectedControls': [name for name, _, _ in selected] if not args.baseline_only else [],
+               'partialControls': bool(args.control) or args.baseline_only}
     faults = []
     with tempfile.TemporaryDirectory(prefix='sao-cognitive-models-') as temporary:
         work = Path(temporary)
@@ -165,10 +216,10 @@ def main(argv=None):
         code, result = run(source)
         print('BASELINE', code, result, flush=True)
         receipt['baseline'] = {'exit': code, 'result': result}
-        if code or result != 'VALUE PASS 29 cases':
+        if code or result != 'VALUE PASS 43 cases':
             faults.append('production baseline')
         if not faults and not args.baseline_only:
-            for name, changes, expected in controls:
+            for name, changes, expected in selected:
                 changed = source
                 for old, new in changes:
                     if changed.count(old) != 1:

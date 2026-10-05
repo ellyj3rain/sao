@@ -54,7 +54,7 @@ public final class SAOMovement {
         state.targetY = y + 0.5f;
         state.targetZ = z;
         shell.pathToLocationF(x + 0.5f, y + 0.5f, z);
-        return "MOVE_STARTED target=" + x + "," + y + "," + z;
+        return "MOVE_STARTED target=" + x + "," + y + "," + z + " route=" + state.routeGeneration;
     }
 
     /**
@@ -63,12 +63,15 @@ public final class SAOMovement {
      */
     public static String tick(SAOIsoPlayerShell shell, SAORouteState state) {
         if (!state.requested) {
+            state.apertureCrossing = null;
             return "IDLE";
         }
+        observeApertureCrossing(shell, state);
         if (state.hasRoute()) {
             String result = driveCapturedRoute(shell, state);
             if ("Succeeded".equals(result) || result.startsWith("Failed")) {
                 state.requested = false;
+                state.apertureCrossing = null;
             }
             return result;
         }
@@ -89,7 +92,55 @@ public final class SAOMovement {
         }
         clearIntent(shell);
         state.requested = false;
+        state.apertureCrossing = null;
         return result.name();
+    }
+
+    /** Observe the exact body crossing the previously encountered cardinal edge.
+     * Reaching a goal, opening an aperture or requesting a climb is insufficient. */
+    private static void observeApertureCrossing(SAOIsoPlayerShell shell, SAORouteState state) {
+        SAORouteState.ApertureCrossing edge = state.apertureCrossing;
+        if (edge == null) return;
+        IsoGridSquare here = shell.getCurrentSquare();
+        if (edge.body.get() != shell || edge.generation != state.routeGeneration
+                || shell.isDead() || shell.getCell() != edge.cell || here == null
+                || edge.cell.getGridSquare(edge.from.getX(), edge.from.getY(), edge.from.getZ()) != edge.from
+                || edge.cell.getGridSquare(edge.to.getX(), edge.to.getY(), edge.to.getZ()) != edge.to
+                || (here != edge.from && here != edge.to)
+                || (int) Math.floor(shell.getX()) != here.getX()
+                || (int) Math.floor(shell.getY()) != here.getY()
+                || (int) Math.floor(shell.getZ()) != here.getZ()
+                || edge.aperture.getSquare() == null
+                || !edge.aperture.getSquare().getObjects().contains(edge.aperture)
+                || ("door".equals(edge.kind) ? edge.from.getDoorTo(edge.to) : edge.from.getWindowTo(edge.to)) != edge.aperture) {
+            state.apertureCrossing = null;
+            return;
+        }
+        if (here == edge.from) {
+            if (edge.reached) state.apertureCrossing = null;
+            return;
+        }
+        edge.reached = true;
+        // A window state may have moved the body before its crossing completes.
+        if (nativeCrossing(shell)) return;
+        if (!edge.admitted || (edge.aperture instanceof IsoDoor door && !door.IsOpen())
+                || (edge.aperture instanceof IsoWindow window && !window.canClimbThrough(shell))) {
+            state.apertureCrossing = null;
+            return;
+        }
+        state.crossingResult = "MOVE_CROSSING@" + state.routeGeneration + "@" + (++state.crossingSequence)
+            + "@" + edge.from.getX() + "@" + edge.from.getY() + "@" + edge.to.getX() + "@" + edge.to.getY()
+            + "@" + edge.from.getZ() + "@" + edge.kind + "@" + edge.before;
+        state.apertureCrossing = null;
+    }
+
+    private static void encounterAperture(SAOIsoPlayerShell shell, SAORouteState state,
+            IsoGridSquare from, IsoGridSquare to, IsoObject aperture, String kind, String before) {
+        if (!state.requested) return;
+        SAORouteState.ApertureCrossing old = state.apertureCrossing;
+        if (old != null && old.body.get() == shell && old.from == from && old.to == to
+                && old.aperture == aperture && old.generation == state.routeGeneration) return;
+        state.apertureCrossing = new SAORouteState.ApertureCrossing(shell, state, from, to, aperture, kind, before);
     }
 
     public static String cancel(SAOIsoPlayerShell shell, SAORouteState state) {
@@ -194,7 +245,7 @@ public final class SAOMovement {
                 + " goal=" + state.targetX + "," + state.targetY + "," + state.targetZ);
             IsoGridSquare current = shell.getCurrentSquare();
             if (current != null) {
-                state.barrierResult = barrierResult(current, node, transition);
+                state.barrierResult = barrierResult(shell, state, current, node, transition);
                 state.rememberEdgeFailure(
                     edgeKey(current, node), transition);
             }
@@ -212,7 +263,8 @@ public final class SAOMovement {
 
     /** The failed physical edge, not the route destination. Only interaction
      * verdicts that establish a barrier condition produce this receipt. */
-    private static String barrierResult(IsoGridSquare current, float[] node, String verdict) {
+    private static String barrierResult(SAOIsoPlayerShell shell, SAORouteState state,
+            IsoGridSquare current, float[] node, String verdict) {
         String kind;
         String condition;
         switch (verdict) {
@@ -220,7 +272,15 @@ public final class SAOMovement {
             case "FAILED_BARRICADED_DOOR": kind = "door"; condition = "barricaded"; break;
             case "FAILED_BARRICADED_WINDOW": kind = "window"; condition = "barricaded"; break;
             case "FAILED_WINDOW_DECLINED": kind = "window"; condition = "closed"; break;
-            case "FAILED_BLOCKED_WINDOW": kind = "window"; condition = "blocked"; break;
+            case "FAILED_BLOCKED_WINDOW":
+                SAORouteState.ApertureCrossing attempt = state.apertureCrossing;
+                if (attempt == null || attempt.body.get() != shell || attempt.generation != state.routeGeneration
+                        || attempt.cell != shell.getCell() || attempt.from != current || !"window".equals(attempt.kind)
+                        || attempt.to.getX() != (int) Math.floor(node[0])
+                        || attempt.to.getY() != (int) Math.floor(node[1])
+                        || attempt.to.getZ() != (int) Math.floor(node[2])
+                        || current.getWindowTo(attempt.to) != attempt.aperture) return null;
+                kind = "window"; condition = attempt.before; break;
             default: return null;
         }
         int nx = (int) Math.floor(node[0]), ny = (int) Math.floor(node[1]);
@@ -403,7 +463,9 @@ public final class SAOMovement {
 
         IsoObject doorObject = current.getDoorTo(next);
         if (doorObject instanceof IsoDoor door) {
+            encounterAperture(shell, state, current, next, door, "door", door.IsOpen() ? "open" : "closed");
             if (door.IsOpen()) {
+                if (state.apertureCrossing != null) state.apertureCrossing.admitted = true;
                 return "CLEAR";
             }
             if (door.isBarricaded()) {
@@ -414,6 +476,7 @@ public final class SAOMovement {
                 return "TURNING_TO_DOOR";
             }
             door.ToggleDoor(shell);
+            if (door.IsOpen() && state.apertureCrossing != null) state.apertureCrossing.admitted = true;
             return door.IsOpen() ? "OPENING_DOOR" : "FAILED_LOCKED_DOOR";
         }
 
@@ -439,6 +502,8 @@ public final class SAOMovement {
 
         IsoWindow window = current.getWindowTo(next);
         if (window != null) {
+            encounterAperture(shell, state, current, next, window, "window",
+                window.isSmashed() ? (window.isGlassRemoved() ? "clear" : "smashed") : (window.IsOpen() ? "open" : "closed"));
             if (window.isBarricaded()) {
                 return "FAILED_BARRICADED_WINDOW";
             }
@@ -492,8 +557,10 @@ public final class SAOMovement {
                 return "FAILED_BLOCKED_WINDOW";
             }
             shell.climbThroughWindow(window);
-            return admittedCrossing(shell, state, "EventClimbWindow",
+            String admitted = admittedCrossing(shell, state, "EventClimbWindow",
                 "STARTED_WINDOW_CLIMB", "FAILED_WINDOW_CLIMB_REFUSED");
+            if ("STARTED_WINDOW_CLIMB".equals(admitted) && state.apertureCrossing != null) state.apertureCrossing.admitted = true;
+            return admitted;
         }
         return "CLEAR";
     }

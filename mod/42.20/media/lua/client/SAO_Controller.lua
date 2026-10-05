@@ -30,6 +30,8 @@ end
 if not SAO.Study and type(require) == "function" then pcall(require, "SAO_Study") end
 if not SAO.ResourceProduction and type(require) == "function" then pcall(require, "SAO_ResourceProduction") end
 if not SAO.WindowRepair and type(require) == "function" then pcall(require, "SAO_WindowRepair") end
+if not SAO.ConceptKnowledge and type(require) == "function" then pcall(require, "SAO_ConceptKnowledge") end
+if not SAO.ConflictResponse and type(require) == "function" then pcall(require, "SAO_ConflictResponse") end
 
 -- id -> { rec, state, stateSince, nextDecisionAt, fleeTarget }
 Ctl.agents = Ctl.agents or {}
@@ -218,13 +220,34 @@ end
 local function log(msg) SAO.Log.line("CTL", msg) end
 
 -- [C60] A shared activity starts from the actor's own fresh observed belief,
--- then rechecks the actual bodies at use. The bridge applies the scanner's
--- same-floor, facing, range and occlusion law; raw Body.active membership is
--- only how the candidate's current body is resolved.
+-- then rechecks the current physical bodies and their shared floor at use.
+-- The bridge owns facing, range and native occlusion; visual knowledge can
+-- cross floors, while a cashier, playmate or follow anchor must share a floor.
 local function activityParticipantAtHand(
     id, body, otherId, otherBody, tick, actionRange)
     if not (SAO.Perception and SAO.Perception.freshObservedPerson
-        and SAOJavaBridge and otherBody) then return false end
+        and SAOJavaBridge and SAO.Body and SAO.Body.get
+        and body and otherBody) or body == otherBody then return false end
+    local placed, sameFloor = pcall(function()
+        if SAO.Body.get(id) ~= body then return false end
+        if otherId then
+            if SAO.Body.get(otherId) ~= otherBody then return false end
+        else
+            local player = (SAO.Participants and SAO.Participants.player
+                or getSpecificPlayer)(0)
+            if player ~= otherBody then return false end
+        end
+        local bx, by, bz = body:getX(), body:getY(), body:getZ()
+        local ox, oy, oz = otherBody:getX(), otherBody:getY(), otherBody:getZ()
+        local coordinates = { bx, by, bz, ox, oy, oz }
+        for index = 1, 6 do
+            local value = coordinates[index]
+            if type(value) ~= "number" or value ~= value
+                or value == math.huge or value == -math.huge then return false end
+        end
+        return math.abs(bz - oz) < 0.5
+    end)
+    if not placed or not sameFloor then return false end
     local key = nil
     if otherId then
         local rec = SAO.Identity and SAO.Identity.get
@@ -303,7 +326,16 @@ function Ctl.adopt(rec)
     if not Ctl.agents[rec.id] and SAO.Needs.retireRecovery then
         SAO.Needs.retireRecovery(rec.id, "controller-adopt")
     end
-    if not Ctl.agents[rec.id] then closeUnownedCognitionOnAdoption(rec.id) end
+    if not Ctl.agents[rec.id] then
+        closeUnownedCognitionOnAdoption(rec.id)
+        if SAO.ProceduralPlanning and SAO.ProceduralPlanning.reconcileConflict then
+            SAO.ProceduralPlanning.reconcileConflict(rec.id,"loaded owner was absent at adoption; prior outcome is unobserved")
+        end
+        if SAO.ProceduralPlanning and SAO.ProceduralPlanning.reconcileInstrument then
+            SAO.ProceduralPlanning.reconcileInstrument(rec.id,
+                "loaded instrument owner was absent at adoption; prior outcome is unobserved")
+        end
+    end
     Ctl.agents[rec.id] = Ctl.agents[rec.id] or {
         rec = rec, state = "IDLE", stateSince = tickCount, nextDecisionAt = 0,
     }
@@ -382,6 +414,9 @@ function Ctl.drop(id)
     if Ctl.agents[id] then
         local body = SAO.Body and SAO.Body.get and SAO.Body.get(id) or nil
         local rec = Ctl.agents[id].rec
+        if SAO.ConflictResponse and not SAO.ConflictResponse.detach(id,Ctl.agents[id],body,"controller detached") then
+            return false,"conflict-native-action-pending"
+        end
         if SAO.WindowRepair and SAO.WindowRepair.interrupt(id, body, "controller-drop") ~= true then
             return false, "window-repair-action-pending"
         end
@@ -431,6 +466,13 @@ function Ctl.drop(id)
         -- and the same private address. Death/release and actual state changes
         -- terminate through their own owners.
         if SAO.Needs.retireRecovery then SAO.Needs.retireRecovery(id, "controller-drop") end
+        if rec and rec.recoveryPlacement and Ctl.agents[id].recoveryRoute then
+            rec.recoveryPlacement.status="interrupted"
+            rec.recoveryPlacement.reason="loaded-owner-detached"
+        end
+        if SAO.ProceduralPlanning and SAO.ProceduralPlanning.interruptConceptInquiry then
+            SAO.ProceduralPlanning.interruptConceptInquiry(id,"loaded-owner-detached")
+        end
         clearLoadedContact(Ctl.agents[id])
         if SAO.ProceduralPlanning and SAO.ProceduralPlanning.detachResidence then
             SAO.ProceduralPlanning.detachResidence(id, "loaded-owner-detached")
@@ -800,6 +842,33 @@ local function setState(agent, id, state, why, answer, repairingSourceProjection
         end
         agent.residenceRoute = nil
     end
+    if state ~= "TRAVEL" and agent.inquiryRoute then
+        SAO.ProceduralPlanning.interruptConceptInquiry(id,"interrupted:"..tostring(state))
+        agent.inquiryRoute=nil
+    end
+    if state ~= "IDLE" and agent.recoveryAdmission then
+        local pending=agent.recoveryAdmission
+        if pending.savedPreparation and SAO.Needs.cancelPreparingRecovery then
+            SAO.Needs.cancelPreparingRecovery(id,pending.rec,pending.savedPreparation,"interrupted:"..tostring(state))
+        end
+        agent.recoveryAdmission=nil
+        if agent.rec.recoveryPlacement then
+            agent.rec.recoveryPlacement.status="interrupted"
+            agent.rec.recoveryPlacement.reason="interrupted:"..tostring(state)
+        end
+    end
+    if state ~= "TRAVEL" and agent.recoveryRoute then
+        local route=agent.recoveryRoute
+        if route.savedPreparation then
+            SAO.Needs.cancelPreparingRecovery(id,route.rec,route.savedPreparation,"interrupted:"..tostring(state))
+            if SAO.Locomotion.jobs[id]==route.job then SAO.Locomotion.cancel(id) end
+        end
+        if agent.rec.recoveryPlacement then
+            agent.rec.recoveryPlacement.status="interrupted"
+            agent.rec.recoveryPlacement.reason="interrupted:"..tostring(state)
+        end
+        agent.recoveryRoute=nil
+    end
     -- [B19] A venture ends when the state does. The ones who came
     -- along are following an announced TRIP, not a person - so the
     -- trip has to be able to end, or they would follow forever.
@@ -808,6 +877,8 @@ local function setState(agent, id, state, why, answer, repairingSourceProjection
     -- way it survives ROAM itself.
     if state ~= "ROAM" and state ~= "DRIVE" then agent.onVenture = nil end
     if agent.state ~= state then
+        if agent.state == "TAKE" then agent.offeredAction = nil end
+        if agent.state == "TREAT" then agent.treatPurpose = nil end
         if CONTACT_STATES[agent.state] and not CONTACT_STATES[state] then
             finishLoadedContact(id, agent, "interrupted", {
                 owner = "SAO.Controller",
@@ -856,7 +927,7 @@ local function setState(agent, id, state, why, answer, repairingSourceProjection
                     agent.lastRestHours = nil
                     pcall(function() SAOJavaBridge:setShellAsleep(restingBody, false) end)
                 end
-                pcall(function() restingBody:setSitOnGround(false) end)
+                if not wasRecovery then pcall(function() restingBody:setSitOnGround(false) end) end
                 pcall(function() SAO.Gesture.standUp(restingBody) end)   -- [C35]
             end
         end
@@ -1225,6 +1296,7 @@ local SUPPORTED_COORDINATION = {
     ["rendezvous-holding"] = true,
     ["cooperative-action"] = true,
     ["strategic-cooperation"] = true,
+    ["leisure-participation"] = true,
 }
 
 local function activeCoordinationCommitment(id, preferredId)
@@ -1241,7 +1313,7 @@ local function activeCoordinationCommitment(id, preferredId)
     end
     for _, matter in ipairs({ "food-delivery", "provisioning",
             "rendezvous-holding", "cooperative-action",
-            "strategic-cooperation" }) do
+            "strategic-cooperation", "leisure-participation" }) do
         local commitment = SAO.Organization.activeCommitment(id, matter)
         if commitment then return commitment end
     end
@@ -1374,6 +1446,68 @@ local function tickCoordinationRoute(id, body, runtime)
     return true, result
 end
 
+function Ctl.reconcileLeisureCommitment(id, agent)
+    if not agent or not agent.coordinationCommitment or not SAO.Organization then return end
+    local commitment = SAO.Organization.commitment(agent.coordinationCommitment)
+    if not commitment or commitment.actorId ~= tostring(id)
+        or commitment.matter ~= "leisure-participation" then return end
+    local offer = SAO.Organization.participationOffer(id, commitment.id)
+    local work = SAO.Gesture and SAO.Gesture.instrumentWork(id)
+    if not offer or not work or work.workId ~= offer.workId then
+        agent.coordinationCommitment = nil
+    end
+end
+
+function Ctl.advanceLeisureParticipation(id, agent, body, commitmentId)
+    Ctl.reconcileLeisureCommitment(id, agent)
+    local coordination = SAO.Coordination
+    local offer = coordination and coordination.participationOffer
+        and coordination.participationOffer(id, body, commitmentId)
+    if not offer then return false, "participation-unavailable" end
+    local at = SAO.History.ticks()
+    if offer.role == "listen" then
+        local heard, reason = coordination.advanceParticipation(id, body, offer.commitmentId)
+        if agent then
+            agent.pressure = { answer = "accepted shared activity",
+                detail = heard and "heard the agreed music; returning acknowledgement"
+                    or "waiting to hear the agreed music",
+                phase = heard and "observed" or "intended", owner = "SAO.Coordination", at = at }
+        end
+        return heard, reason
+    end
+    if offer.role ~= "perform" then return false, "participation-role-unavailable" end
+    if offer.workId then
+        local work = SAO.Gesture and SAO.Gesture.instrumentWork(id)
+        if not work or work.workId ~= offer.workId then
+            return false, "awaiting-participation-result"
+        end
+        if agent then
+            agent.pressure = { answer = "accepted shared activity",
+                detail = work.status == "started" and "playing the agreed music"
+                    or "preparing the agreed music",
+                phase = work.status == "started" and "executing" or "preparing",
+                owner = "SAO.Gesture", at = at }
+        end
+        return true, "participation-performance-" .. work.status
+    end
+    if not (SAO.Needs and SAO.Gesture and SAO.Gesture.playInstrument) then
+        return false, "participation-native-owner-unavailable"
+    end
+    local item, capability = SAO.Needs.carriedInstrument(id, body, offer.itemType)
+    if not item or not capability or tostring(item:getID()) ~= offer.itemId
+        or item:getFullType() ~= offer.itemType then return false, "participation-material-unavailable" end
+    local purpose = coordination.prepareParticipation(id, body, offer.commitmentId)
+    if not purpose then return false, "participation-purpose-unavailable" end
+    local started = SAO.Gesture.playInstrument(id, body, capability.verb, offer.itemType, item, purpose.id)
+    if not started then return false, "participation-native-admission-refused" end
+    if agent then
+        agent.coordinationCommitment = offer.commitmentId
+        agent.pressure = { answer = "accepted shared activity", detail = "preparing the agreed music",
+            phase = "preparing", owner = "SAO.Gesture", at = at }
+    end
+    return true, "participation-performance-admitted"
+end
+
 local function advanceCoordination(id, body, owner, activity, agent, selected)
     if not (SAO.Organization and SAO.Locomotion) then
         return false
@@ -1413,7 +1547,9 @@ local function advanceCoordination(id, body, owner, activity, agent, selected)
                     activity, agent, candidate)
                 if advanced then
                     runtime.coordinationChoiceIndex = index
-                    runtime.coordinationCommitment = candidate.id
+                    if candidate.matter ~= "leisure-participation" then
+                        runtime.coordinationCommitment = candidate.id
+                    end
                     return true, reason
                 end
                 lastReason = reason or lastReason
@@ -1423,6 +1559,10 @@ local function advanceCoordination(id, body, owner, activity, agent, selected)
     end
     local commitment = selected
     if not commitment then return false end
+    if commitment.matter == "leisure-participation" then
+        if tostring(activity or "idle") ~= "idle" then return false, "competing-activity" end
+        return Ctl.advanceLeisureParticipation(id, agent, body, commitment.id)
+    end
     local plan = SAO.Organization.workPlan(commitment.id, id)
     if not plan then return false end
     local proposal = plan.proposal or {}
@@ -1938,7 +2078,7 @@ local function nearestHostilePerson(id, tick, fromX, fromY)
         end
     end
     if best then
-        return { x = best.x, y = best.y, dist = bestDist, at = best.at,
+        return { x = best.x, y = best.y, z = best.z, dist = bestDist, at = best.at,
                  source = best.source, condition = best.condition },
             bestName, bestKey
     end
@@ -2091,7 +2231,7 @@ end
 
 -- A delivered commitment can interrupt reading only while this exact survivor
 -- still owns the body and the listener's private next step is ready to act.
-function Ctl.preemptStudyForCoordination(id, agent, body)
+function Ctl.preemptStudyForCoordination(id, agent, body, selected)
     if not (agent and agent.state == "IDLE" and not agent.passive and body
         and SAO.Body.active[id] == body and SAO.Body.foreign[id] == nil
         and SAO.Controller.agents[id] == agent and SAO.Identity.get(id) == agent.rec
@@ -2106,6 +2246,7 @@ function Ctl.preemptStudyForCoordination(id, agent, body)
     if agent.studyCancellationPending then
         local pending = agent.studyCancellationPending
         if pending.body ~= body then agent.studyCancellationPending = nil return false end
+        if pending.commitmentId then selected = {id=pending.commitmentId} end
         if pending.action and ISTimedActionQueue.hasAction(pending.action) then
             local queue = ISTimedActionQueue.queues[body]
             for _, member in ipairs(queue and queue.queue or {}) do
@@ -2124,6 +2265,7 @@ function Ctl.preemptStudyForCoordination(id, agent, body)
         local work = commitment.work or {}
         local status = commitment.status
         local eligible = commitment.actorId == tostring(id) and commitment.acceptedAt ~= nil
+            and (selected == nil or commitment.id == selected.id)
             and (status == "accepted" or status == "in-progress" or status == "paused")
             and not work.pendingReceiptId
             and (not work.owner or work.owner == "SAO" or work.owner == "Locomotion")
@@ -2155,13 +2297,20 @@ function Ctl.preemptStudyForCoordination(id, agent, body)
             -- Lua queue. A refused or incomplete cancellation owns this turn.
             if not cancelled or result ~= true or SAO.Needs.busy(body)
                 or SAO.Study.active(id, body) then
-                agent.studyCancellationPending = { body = body, action = action }
+                agent.studyCancellationPending = { body = body, action = action, commitmentId = commitment.id }
                 return true
             end
             local advanced = advanceCoordination(id, body, "SAO", "idle", agent, commitment)
-            if advanced then return true end
+            if cancellationFinished and agent.rec.ordinaryPurposeDecision then
+                agent.rec.ordinaryPurposeDecision.status = advanced and "admitted" or "unavailable"
+            end
+            if advanced or cancellationFinished then return true end
             return false
         end
+    end
+    if cancellationFinished then
+        if agent.rec.ordinaryPurposeDecision then agent.rec.ordinaryPurposeDecision.status = "unavailable" end
+        return true
     end
     return false
 end
@@ -2269,6 +2418,24 @@ end
 -- owners. It gives accepted responsibility priority without cancelling a book
 -- for a step whose material, destination or execution owner is unavailable.
 function Ctl.coordinationStudyReady(id, body, commitment, plan, step)
+    if commitment.matter == "leisure-participation" then
+        local coordination = SAO.Coordination
+        local offer = coordination and coordination.participationOffer
+            and coordination.participationOffer(id, body, commitment.id)
+        if not offer then return false end
+        if offer.role == "listen" then
+            return offer.workId ~= nil and SAO.Perception
+                and SAO.Perception.instrumentHearing(id, offer.performerId, offer.workId) ~= nil
+        end
+        if offer.role ~= "perform" then return false end
+        if offer.workId then
+            local work = SAO.Gesture and SAO.Gesture.instrumentWork(id)
+            return work ~= nil and work.workId == offer.workId
+        end
+        local item = SAO.Needs and SAO.Needs.carriedInstrument(id, body, offer.itemType)
+        return item ~= nil and tostring(item:getID()) == offer.itemId
+            and item:getFullType() == offer.itemType
+    end
     local proposal = plan.proposal or {}
     if step and (step.verb == "prepare" or step.capability == "prepare") then
         if not (SAO.Cooking and SAO.Cooking.begin) then return false end
@@ -2529,32 +2696,6 @@ end
 
 -- Each decision phase returns true only when it consumed the decision.
 -- Separate functions also keep cumulative locals within the engine debug compiler limit.
-local function continueFleeRoute(id, agent, body, bx, by, awayX, awayY, awayLength)
-    local job = SAO.Locomotion.jobs[id]
-    if agent.state ~= "FLEE" or not job or job.done
-        or job.body ~= body or not job.goal then return false end
-    local goal = job.goal
-    -- The bridge narrows the requested tile toward zero; SAOMovement walks
-    -- to its centre. Testing the tile corner would abandon the last half
-    -- tile before the native arrival verdict. New-refuge ARRIVAL_REACH also
-    -- does not apply to an already executing route.
-    local targetX = (goal.x < 0 and math.ceil(goal.x) or math.floor(goal.x)) + 0.5
-    local targetY = (goal.y < 0 and math.ceil(goal.y) or math.floor(goal.y)) + 0.5
-    local gx, gy = targetX - bx, targetY - by
-    local remaining = math.sqrt(gx * gx + gy * gy)
-    local away = remaining ~= 0 and (awayLength < 0.1
-        or gx * awayX + gy * awayY > 0.1 * remaining * awayLength)
-    if goal.z == math.floor(body:getZ()) and away
-        and mayEnterBelieved(id, goal.x, goal.y) then
-        agent.fleeTargetX, agent.fleeTargetY = goal.x, goal.y
-        return true
-    end
-    -- An invalidated route is no longer a candidate for Loco.order's
-    -- two-tile retarget shortcut, even if the replacement happens to be near.
-    SAO.Locomotion.cancel(id)
-    return false
-end
-
 local function advanceFleeConsequences(id, agent, body, tick)
     -- [B20] Hurt AND running is when a person actually
     -- screams. The cooldown and the severity gate keep
@@ -2629,296 +2770,22 @@ local function advanceFleeConsequences(id, agent, body, tick)
     end
 end
 
-local function decideThreat(id, agent, body, tick, threat, threatCount, governingPerson, governingPersonKey)
-    -- Threat beliefs outrank everything except an active flee.
-    if threat then
-        if SAO.Adaptation and threat.form and threat.form ~= "none" then
-            SAO.Adaptation.observe(
-                id, threat.form, threat.formPerformance, "witnessed", tick)
-        end
-        local fleeAt = SAO.PathogenPressure
-            and SAO.PathogenPressure.fleeDistance(id, threat)
-            or SAO.Disposition.fleeDistance(id)
-        local overwhelmed = threatCount >= SAO.Disposition.overwhelmThreshold(id)
-        -- [C118] The word before the blow. An armed person with a
-        -- standing grudge, at talking distance, whose own character
-        -- says demand rather than strike, speaks what they want and
-        -- stands - this decision is the offer. What the other person
-        -- does with it is THEIR machinery: the frightened hand over
-        -- (the yield branch reads its own fear below), the brave
-        -- fight or run, and if nobody answers the silence is answered
-        -- by the confrontation branch on a later decision, exactly
-        -- as it always has - the demand buys a window, never an
-        -- outcome. Once per pair per county day: a mugger does not
-        -- nag. [B3]'s bitten cadence, robbed.
-        if governingPerson and threat.dist <= TALK_REACH and not overwhelmed
-            and agent.armed and SAO.Standing.mayEngagePerson(id, governingPersonKey)
-            and SAO.Disposition.wouldDemand(id) then
-            local okD, dayD = pcall(function()
-                return math.floor(SAO.History.countyHours() / 24.0)
-            end)
-            agent.demandedAt = agent.demandedAt or {}
-            if okD and dayD ~= (agent.demandedAt[governingPersonKey] or -1) then
-                agent.demandedAt[governingPersonKey] = dayD
-                pcall(function() SAO.Voice.onEvent(id, "demand", tick) end)
-                log(id .. " demands of " .. tostring(governingPerson)
-                    .. string.format(" at %.1f tiles", threat.dist)
-                    .. " - the word before the blow")
-                return true
-            end
-        end
-        -- Doctrine of the grudge: a hostile PERSON, close, faced by an
-        -- armed survivor whose temperament says fight - the confrontation
-        -- goes through the same evidence-based combat loop. Standing is the
-        -- authority (hostility must exist; same-group is never permitted);
-        -- temperament chooses; everyone else still flees below.
-        if governingPerson and threat.dist <= fleeAt and not overwhelmed
-            and agent.armed and SAO.Disposition.wouldEngage(id, true, threatCount)
-            and SAO.Standing.mayEngagePerson(id, governingPersonKey) then
-            -- A grudge at range is a shooting matter when a loaded gun
-            -- is carried; the bat serves when it is not.
-            if threat.dist > 3.0 then
-                pcall(function() return SAOJavaBridge:equipBestRanged(body) end)
-            end
-            local okC, verdict = pcall(function()
-                return SAOJavaBridge:beginCombatWithName(body, governingPerson, 15)
-            end)
-            verdict = tostring(verdict)
-            if okC and verdict:find("COMBAT_STARTED", 1, true) then
-                agent.lastCombatVerdict = ""
-                pcall(function() SAO.Voice.onEvent(id, "confront", tick) end)
-                setState(agent, id, "ENGAGE",
-                    string.format("confronts %s at %.1f tiles (standing grudge)",
-                        governingPerson, threat.dist))
-                return true
-            end
-        end
-
-        -- Standing ground is a choice, not a default: armed, willing per
-        -- their own aggression and nerve, not overwhelmed, and the threat is
-        -- a zombie (person-fights stay flee/hold until doctrine exists).
-        -- [C116] A formed person is neither: no combat against the
-        -- neighbor the pathogen left half-shaped - the fear is real
-        -- and the standing is not.
-        local isZombieThreat = threat.source ~= nil and not threat.teller
-            and governingPerson == nil and not threat.fromPerson
-        if isZombieThreat and threat.dist <= fleeAt and not overwhelmed
-            and agent.armed and SAO.Disposition.wouldEngage(id, true, threatCount)
-            and SAO.Standing.mayEngageZombie(id) then
-            local ok, verdict = pcall(function()
-                return SAOJavaBridge:beginCombatNearest(body, true)
-            end)
-            verdict = ok and tostring(verdict) or tostring(verdict)
-            if verdict:find("COMBAT_STARTED", 1, true) then
-                agent.lastCombatVerdict = ""
-                setState(agent, id, "ENGAGE",
-                    string.format("stands ground: believed threat at %.1f tiles%s",
-                        threat.dist, threat.prone and " (downed)" or ""))
-                return true
-            end
-        end
-
-        -- The gun's hour: overwhelmed beyond melee sense, nerve enough to
-        -- stand, and a LOADED firearm in the pack - shoot instead of run.
-        -- The shot is loud by the engine's own rules; everything that hears
-        -- it, dead or living, reacts for real. That price is the doctrine.
-        if overwhelmed and agent.armed
-            and SAO.Disposition.wouldShootWhenOverwhelmed(id)
-            and SAO.Standing.mayEngageZombie(id) then
-            local okG, gunVerdict = pcall(function()
-                return SAOJavaBridge:equipBestRanged(body)
-            end)
-            if okG and tostring(gunVerdict):find("EQUIPPED_RANGED", 1, true) then
-                local okC, verdict = pcall(function()
-                    return SAOJavaBridge:beginCombatNearest(body, true)
-                end)
-                if okC and tostring(verdict):find("COMBAT_STARTED", 1, true) then
-                    agent.lastCombatVerdict = ""
-                    setState(agent, id, "ENGAGE",
-                        string.format("overwhelmed (%d believed) - opens fire", threatCount))
-                    return true
-                end
-            end
-        end
-
-        -- [C118] The robbed hand. A believed-hostile person at talking
-        -- distance, faced by a character whose fear and
-        -- self-preservation say give rather than run or fight, hands
-        -- over a spare piece of what they carry - the same vanilla
-        -- transfer every kindness in this county uses, with none of
-        -- the kindness. Whether the other person demanded is not this
-        -- side's question: the yield reads only the yielded's own
-        -- character and the threat they see, so a demand may meet no
-        -- hand, and a hand may rise with no word before it. The spare
-        -- is the second-best: the robbed keep their own last meal.
-        -- Once per pair per county day; the trust bend is the memory
-        -- of it. Flow continues - fear's answer walks away right after.
-        if governingPerson and threat.dist <= TALK_REACH
-            and SAO.Disposition.wouldYieldTo(id) then
-            local okD2, dayY = pcall(function()
-                return math.floor(SAO.History.countyHours() / 24.0)
-            end)
-            agent.yieldedAt = agent.yieldedAt or {}
-            if okD2 and dayY ~= (agent.yieldedAt[governingPersonKey] or -1) then
-                local okF2, item = pcall(function()
-                    return SAOJavaBridge:findSpareFood(body)
-                end)
-                if okF2 and item ~= nil then
-                    local rBody = nil
-                    pcall(function()
-                        rBody = SAO.Body.get(governingPersonKey)
-                    end)
-                    if rBody then
-                        local receipt = SAO.Handover
-                            and SAO.Handover.begin
-                            and SAO.Handover.begin(id, body,
-                                governingPersonKey, rBody, item, "yield", {
-                                    effect = {
-                                        trust = { {
-                                            from = id,
-                                            to = governingPersonKey,
-                                            delta = -0.05,
-                                        } },
-                                        voice = { actor = id, kind = "yielded",
-                                            at = tick },
-                                        log = id .. " hands over what they carry to "
-                                            .. tostring(governingPerson)
-                                            .. string.format(" at %.1f tiles", threat.dist)
-                                            .. " - fear's answer",
-                                    },
-                                }) or nil
-                        if receipt then
-                            agent.yieldedAt[governingPersonKey] = dayY
-                        end
-                    end
-                end
-            end
-        end
-
-        if threat.dist <= fleeAt or overwhelmed then
-            -- Flee AWAY FROM THE BELIEF: the believed position, not the live
-            -- zombie. If the belief is stale, the survivor flees a ghost —
-            -- that is correct behavior for a person, not a bug.
-            local bx, by = body:getX(), body:getY()
-            local dx, dy = bx - threat.x, by - threat.y
-            local len = math.sqrt(dx * dx + dy * dy)
-            if continueFleeRoute(id, agent, body, bx, by, dx, dy, len) then
-                advanceFleeConsequences(id, agent, body, tick)
-                return true
-            end
-            if len < 0.1 then dx, dy, len = 1, 0, 1 end
-            local dist = 8 + math.min(6, threatCount * 2)
-            local gx = math.floor(bx + dx / len * dist)
-            local gy = math.floor(by + dy / len * dist)
-            -- Flight prefers a REFUGE over a bare vector: the nearest
-            -- present fellow first (company is safety), then home - but
-            -- never a refuge that lies THROUGH the threat (the direction
-            -- to it must not oppose the away-vector).
-            local function refugeValid(rx, ry, maxDist)
-                local ddx, ddy = rx - bx, ry - by
-                local dlen = math.sqrt(ddx * ddx + ddy * ddy)
-                -- [B47] A refuge nearer than arrival is not a
-                -- refuge, it is here. Same rule as the walk order the
-                -- harness refuses, read from the other side.
-                if dlen < ARRIVAL_REACH or dlen > maxDist then
-                    return false
-                end
-                local dot = (ddx / dlen) * (dx / len) + (ddy / dlen) * (dy / len)
-                return dot > 0.1   -- broadly away from the threat
-            end
-            do
-                local fellows = SAO.Standing.fellowsOf(id)
-                local flightGroup = SAO.Standing.groupOf(id)
-                local flightLeader = flightGroup
-                    and SAO.Standing.leaderOf(flightGroup) or nil
-                local bestFx, bestFy, bestFd
-                local sharedX, sharedY
-                -- The bonded outrank even the leader in flight: run to
-                -- your person first.
-                local bondedKey = SAO.Standing.bondedWith(id)
-                if bondedKey and not SAO.Standing.isHostileTo(id, bondedKey) then
-                    local bBody = SAO.Body.get(bondedKey)
-                    if bBody then
-                        local bx2, by2 = bBody:getX(), bBody:getY()
-                        if refugeValid(bx2, by2, 50.0) then
-                            sharedX, sharedY = bx2, by2
-                        end
-                    end
-                end
-                -- The leader's chosen refuge is the company's first choice.
-                if not sharedX and flightLeader and flightLeader ~= id then
-                    local la = Ctl.agents[flightLeader]
-                    if la and la.state == "FLEE" and la.fleeTargetX
-                        and refugeValid(la.fleeTargetX, la.fleeTargetY, 60.0) then
-                        sharedX, sharedY = la.fleeTargetX, la.fleeTargetY
-                    end
-                end
-                for i = 1, #fellows do
-                    local fid = fellows[i]
-                    local fellowAgent = Ctl.agents[fid]
-                    -- Coordinated flight: a fellow ALREADY running has a
-                    -- chosen refuge - converge on it rather than scatter.
-                    -- The company that runs together regroups together.
-                    if not sharedX and fellowAgent
-                        and fellowAgent.state == "FLEE"
-                        and fellowAgent.fleeTargetX
-                        and refugeValid(fellowAgent.fleeTargetX,
-                            fellowAgent.fleeTargetY, 60.0) then
-                        sharedX, sharedY = fellowAgent.fleeTargetX, fellowAgent.fleeTargetY
-                    end
-                    local fbody = SAO.Body.get(fid)
-                    if fbody then
-                        local fx2, fy2 = fbody:getX(), fbody:getY()
-                        if refugeValid(fx2, fy2, 40.0) then
-                            local fd = (fx2 - bx) ^ 2 + (fy2 - by) ^ 2
-                            if not bestFd or fd < bestFd then
-                                bestFx, bestFy, bestFd = fx2, fy2, fd
-                            end
-                        end
-                    end
-                end
-                local rec2 = agent.rec
-                if sharedX then
-                    gx, gy = math.floor(sharedX), math.floor(sharedY)
-                elseif bestFx then
-                    gx, gy = math.floor(bestFx), math.floor(bestFy)
-                elseif rec2 and rec2.homeX and refugeValid(rec2.homeX, rec2.homeY, 60.0) then
-                    gx, gy = rec2.homeX, rec2.homeY
-                end
-            end
-            agent.fleeTargetX, agent.fleeTargetY = gx, gy
-            if mayEnterBelieved(id, gx, gy) then
-                local run = SAO.Disposition.paceUnderThreat(id) == "run"
-                -- Fleeing is the urgency that licenses forced entry (a person
-                -- goes through the glass ahead of a horde; never on a stroll).
-                pcall(function() SAOJavaBridge:setForceEntry(body, true) end)
-                if SAO.Locomotion.order(id, body, gx, gy, math.floor(body:getZ()), run) then
-                    setState(agent, id, "FLEE",
-                        string.format("believed threat at %.1f tiles, count=%d", threat.dist, threatCount))
-                    advanceFleeConsequences(id, agent, body, tick)
-                    return true
-                end
-            end
-            -- Could not path away (or not permitted): hold ALERT facing it.
-            setState(agent, id, "ALERT", "flee blocked; holding")
+local function decideThreat(id, agent, body, tick, threat, threatCount, governingPerson, governingPersonKey, beforeMovement)
+    if not SAO.ConflictResponse then
+        if threat and threat.dist<=SAO.Disposition.fleeDistance(id) then
+            setState(agent,id,"ALERT","Conflict execution module is unavailable.")
             return true
-        end
-        -- A retreat already underway retains its valid owner beyond the
-        -- distance that first triggered it. Otherwise distant danger remains
-        -- known while ordinary needs and responsibilities keep their turn,
-        -- as they already do during source work and carried consumption.
-        if agent.state == "FLEE" then
-            local bx, by = body:getX(), body:getY()
-            local dx, dy = bx - threat.x, by - threat.y
-            if continueFleeRoute(id, agent, body, bx, by, dx, dy,
-                math.sqrt(dx * dx + dy * dy)) then
-                advanceFleeConsequences(id, agent, body, tick)
-                return true
-            end
         end
         return false
     end
-
+    return SAO.ConflictResponse.decide(id,agent,body,tick,threat,threatCount,
+        governingPerson,governingPersonKey,{
+            setState=setState,mayEnter=mayEnterBelieved,advance=advanceFleeConsequences,
+            pumpMovement=beforeMovement and function(actor) SAO.Locomotion.tick(actor) end or nil,
+            coordinate=function(actor,ownedBody,runtime,commitment)
+                return advanceCoordination(actor,ownedBody,"SAO","coordination",runtime,commitment)
+            end,
+        })
 end
 
 -- Threat reception belongs to the threatened person.  This records a heard
@@ -3090,13 +2957,13 @@ local function competeForResources(id, agent, body, tick, needs)
     return cognition.choose(id, frame)
 end
 
-local function decideNeedsAndCompanion(id, agent, body, tick, needs)
+local function decideNeedsAndCompanion(id, agent, body, tick, needs, ordinaryExcluded)
     -- Bleeding outranks every appetite: a wound left open is the fastest
     -- clock there is. Bandage in place when carrying one; without one,
     -- rip carried cloth into rags ([A10]); with neither, note it once and
     -- live with the odds.
     if agent.state == "IDLE" or agent.state == "ROAM" or agent.state == "HOMEWARD"
-        or agent.state == "FOLLOW" or agent.residenceRoute ~= nil then
+        or agent.state == "FOLLOW" or agent.residenceRoute ~= nil or agent.inquiryRoute ~= nil or agent.recoveryRoute ~= nil then
         -- [B20] The cry. You shout BEFORE you start working on
         -- yourself - that is the order it happens in. [B20] made aid
         -- reach the right person and left the wounded unable to ask:
@@ -3119,6 +2986,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
             if sick9 and sick9 > 25 then
                 agent.nextPillAt = tick + 7200
                 if SAO.Needs.takePills(id, body) then
+                    agent.treatPurpose = "medicine"
                     agent.taskDeadline = tick + 900
                     pcall(function()
                         SAO.Voice.onEvent(id, "sick", tick)
@@ -3144,6 +3012,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                 pcall(function()
                     SAO.Voice.onEvent(id, "cleanWound", tick)
                 end)
+                agent.treatPurpose = "wound cleaning"
                 setState(agent, id, "TREAT", "cleans the wound", "need")
                 return true
             end
@@ -3152,6 +3021,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
             and tick >= (agent.nextRedressAt or 0) then
             agent.nextRedressAt = tick + 3600
             if SAO.Needs.bandageSelf(id, body) then
+                agent.treatPurpose = "dressing"
                 agent.taskDeadline = tick + 1200
                 setState(agent, id, "TREAT",
                     "changes a fouled dressing", "need")
@@ -3160,6 +3030,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
         end
         if SAO.Needs.bleeding(body) > 0 then
             if SAO.Needs.bandageSelf(id, body) then
+                agent.treatPurpose = "dressing"
                 -- Trained hands are faster ([B2]): the treat window
                 -- reads the real Doctor level - a medic binds in half
                 -- the time a fumbling cook needs.
@@ -3191,9 +3062,19 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
         end
     end
 
+    ordinaryExcluded = ordinaryExcluded or {}
+    local ordinary, offered = Ctl.chooseOrdinaryPurpose(id, agent, body, tick, needs, ordinaryExcluded)
+    for attempt = 1, 16 do
+        if not ordinary or ordinary == "food" or ordinary == "water" then break end
+        if Ctl.dispatchOrdinaryPurpose(id, agent, body, tick, needs, ordinary, offered) then return true, ordinary end
+        if ordinary == "continue" then ordinary = nil break end
+        ordinaryExcluded[offered.key] = true
+        ordinary, offered = Ctl.chooseOrdinaryPurpose(id, agent, body, tick, needs, ordinaryExcluded)
+    end
+
     -- Carried relief keeps its immediate opportunity. Otherwise exhaustion can
     -- change an optional search before another resource route takes the body.
-    if Ctl.recoveryChoice(id, agent, body, tick, needs) then
+    if not ordinary and Ctl.recoveryChoice(id, agent, body, tick, needs) then
         if Ctl.offerRecovery(id, agent, body, tick, needs) then return true end
         if agent.state == "IDLE" then
             local purpose = Ctl.considerResidence(id, agent, body, tick)
@@ -3202,8 +3083,12 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
         end
     end
 
-    local selection, episodeId = competeForResources(id, agent, body, tick, needs)
+    local selection, episodeId = ordinary, nil
+    if not selection then selection, episodeId = competeForResources(id, agent, body, tick, needs) end
     local function cognitionStarted(admitted, reason)
+        if ordinary and agent.rec.ordinaryPurposeDecision then
+            agent.rec.ordinaryPurposeDecision.status = admitted and "admitted" or "unavailable"
+        end
         if episodeId then SAO.Cognition.started(id, episodeId, admitted, reason); episodeId = nil end
         return admitted
     end
@@ -3390,6 +3275,10 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
     end
 
     cognitionStarted(false, "selected intent unavailable")
+    if ordinary == "food" or ordinary == "water" then
+        ordinaryExcluded[ordinary] = true
+        return decideNeedsAndCompanion(id, agent, body, tick, needs, ordinaryExcluded)
+    end
 
     -- Actual relief attempts retain first refusal. Recovery can compete before
     -- optional company/idle activity, without becoming a scalar work ban.
@@ -3723,7 +3612,10 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
         if not agent.nextOfferedAt or tick >= agent.nextOfferedAt then
             agent.nextOfferedAt = tick + 600
             local offeredName = SAO.Needs.findOffered(id, body)
-            if offeredName and SAO.Needs.queueGrabOffered(id, body) then
+            local queued, pickup
+            if offeredName then queued, pickup = SAO.Needs.queueGrabOffered(id, body) end
+            if queued then
+                agent.offeredAction = pickup
                 agent.taskDeadline = tick + 900
                 agent.takePurpose = "offered"
                 setState(agent, id, "TAKE", "picks up " .. offeredName)
@@ -4333,11 +4225,13 @@ function Ctl.recoveryChoice(id, agent, body, tick, needs)
             and SAOJavaBridge:findCarriedFood(body) ~= nil
     end)
     if not ok or ready then return nil end
-    return SAO.Needs.recoveryPreference(id, needs, {
+    local kind, reasoning = SAO.Needs.recoveryPreference(id, needs, {
         emergency = policy().desperation, committed = agent.coordinationCommitment ~= nil,
         threat = SAO.Perception.believedThreatCount(id, tick, 10, body:getX(), body:getY()) > 0,
         bleeding = SAO.Needs.bleeding(body) > 0, cold = SAO.Needs.cold(body) >= 1.5,
     })
+    agent.recoveryReasoning = reasoning
+    return kind
 end
 
 -- An admitted speculative search must still feel a changing body. The exact
@@ -4386,11 +4280,17 @@ local function stopRecovery(id, agent, body, reason)
     agent.recoveryBody = nil
     agent.recovery, agent.resting, agent.sleeping, agent.lastRestHours = nil, nil, nil, nil
     if SAO.Needs.ownsRecoveryBody(id, receiver) then
-        pcall(function() receiver:setSitOnGround(false); SAO.Gesture.standUp(receiver) end)
+        pcall(function() SAO.Gesture.standUp(receiver) end)
     end
 end
 
 function Ctl.updateRecovery(id, agent, body, tick, needs, threat)
+    if agent.recoveryRoute and agent.recoveryRoute.savedPreparation then
+        if Ctl.pollPreparingRecoveryRoute(id,agent,body,tick,needs,threat) then return true end
+    end
+    if agent.recoveryAdmission then
+        if Ctl.pollRecoveryAdmission(id,agent,body,tick,needs,threat) then return true end
+    end
     if not agent.recovery then return false end
     if agent.recoveryBody ~= body then
         stopRecovery(id, agent, body, "body-binding-lost"); return false
@@ -4404,7 +4304,15 @@ function Ctl.updateRecovery(id, agent, body, tick, needs, threat)
         return false
     end
     local result = SAO.Needs.pollRecovery(id, body)
-    if result == "running" then return true end
+    if result == "running" or result == "preparing" then
+        local observed = SAO.Needs.recoveryStatus(id,body)
+        agent.sleeping = observed and observed.phase == "active" and observed.kind == "sleep" or nil
+        agent.pressure = { answer="chosen recovery", detail=result == "preparing"
+            and "preparing bodily recovery; native action pending"
+            or agent.sleeping and "native sleep observed; recovery outcome pending"
+            or "awake rest observed; recovery outcome pending", at=tick }
+        return true
+    end
     stopRecovery(id, agent, body, result)
     agent.nextRecoveryHours = SAO.History.countyHours() + 0.25
     agent.pressure = { answer = "need", detail = result == "completed"
@@ -4412,40 +4320,730 @@ function Ctl.updateRecovery(id, agent, body, tick, needs, threat)
     return false
 end
 
-function Ctl.offerRecovery(id, agent, body, tick, needs)
+local function recoveryPlaceReason(place)
+    return place.kind=="bed" and "uses an observed available bed for bodily recovery"
+        or "no presently admissible bed; uses an observed clear floor space for bodily recovery"
+end
+-- Route cancellation releases movement intent; the native state machine still
+-- owns its next transition. Keep only an already selected exact recovery place
+-- while that boundary is pending, without claiming pose or physiology.
+local function pendingRecoveryPlaceCopy(place)
+    local out={}
+    for _,key in ipairs({"key","kind","available","x","y","z","objectX","objectY","objectZ","objectIndex"}) do out[key]=place[key] end
+    return out
+end
+function Ctl.admitRecoveryPlace(id,agent,body,tick,kind,place,retrying)
+    local reason
+    if not SAO.Needs.ownsRecoveryBody(id,body) then reason="body-unavailable"
+    elseif not SAO.Needs.recoveryPlaceAt(id,body,place) then reason="recovery-place-unavailable"
+    elseif not SAO.Standing.mayAttemptBelieved(id,place.x,place.y,"standing") then reason="standing-refused"
+    elseif not SAO.Needs.workAvailable(body) then reason="body-work-unavailable"
+    elseif not setState(agent,id,"IDLE",recoveryPlaceReason(place),"need") then reason="state-transition-refused" end
+    local admitted
+    if not reason then admitted,reason=SAO.Needs.beginRecovery(id,body,kind,place) end
+    if not admitted then
+        reason=reason or "native-pose-refused"
+        if not retrying then
+            local ok,state=pcall(function()return body:getCurrentStateName()end)
+            agent.rec.recoveryPlacement={kind=kind,place=pendingRecoveryPlaceCopy(place),status="unresolved",reason=reason,
+                atTick=tick,atHours=SAO.History.countyHours(),nativeState=ok and tostring(state) or "unavailable"}
+            log(id.." recovery admission refused: "..tostring(reason).."; native="
+                ..tostring(agent.rec.recoveryPlacement.nativeState))
+        end
+        if reason=="native-body-not-idle" and not retrying then
+            local loaded=pcall(require,"SAO_RecoveryPose")
+            local pose=loaded and SAO.RecoveryPose
+            local ok,custody=pcall(function()return pose and pose.captureCustody(body)end)
+            if ok and custody then
+                agent.recoveryAdmission={body=body,rec=agent.rec,custody=custody,kind=kind,
+                    place=pendingRecoveryPlaceCopy(place),startedAt=tick,deadline=tick+120}
+                agent.rec.recoveryPlacement.status="waiting-native-idle"
+                agent.pressure={answer="chosen recovery",detail="selected place; waits for native idle boundary",at=tick}
+                return true,reason
+            end
+        end
+        return false,reason
+    end
+    agent.recoveryAdmission=nil
+    agent.recovery,agent.resting,agent.sleeping=true,true,nil
+    agent.recoveryBody=body
+    agent.rec.recoveryPlacement={kind=kind,place=place,status="preparing",reason=recoveryPlaceReason(place)}
+    agent.pressure={answer="chosen recovery",detail=recoveryPlaceReason(place).."; native action pending",at=tick}
+    log(id.." recovery admission accepted: "..tostring(kind).." at "..tostring(place.key))
+    return true
+end
+local function savedPreparationWorkBlocked(id,agent,body)
+    local ok,blocked=pcall(function()
+        return agent.forageInspection~=nil or agent.coordinationCommitment~=nil
+            or agent.rec.worldSourceReservation~=nil
+            or agent.rec.cookingWork~=nil or agent.rec.resourceProductionWork~=nil
+            or SAO.WorldSources and SAO.WorldSources.pendingActionFor and SAO.WorldSources.pendingActionFor(id)~=nil
+            or SAO.Study and SAO.Study.active and SAO.Study.active(id,body)
+    end)
+    return not ok or blocked==true
+end
+local function recoveryNeedsValid(needs)
+    if type(needs)~="table" then return false end
+    for _,key in ipairs({"hunger","thirst","fatigue","endurance"}) do
+        local value=needs[key]
+        if type(value)~="number" or value~=value or value<0 or value>1 then return false end
+    end
+    return true
+end
+-- Saved travel and native idle admission have distinct existing budgets.
+-- Both use the county clock; neither is renewed by module/body reload.
+local function savedPreparationClockReason(intent,tick)
+    if type(tick)~="number" or tick~=tick or tick<0 or tick%1~=0 then return "recovery-clock-unavailable" end
+    for _,clock in ipairs({{"resumeWaitStartedAt","resumeWaitDeadline",120},
+        {"resumeTravelStartedAt","resumeTravelDeadline",1800}}) do
+        local startedAt,deadline=intent[clock[1]],intent[clock[2]]
+        if startedAt~=nil or deadline~=nil then
+            if type(startedAt)~="number" or type(deadline)~="number" or startedAt~=startedAt
+                or startedAt<0 or startedAt%1~=0 or deadline~=startedAt+clock[3] then
+                return "saved-preparation-deadline-invalid"
+            end
+        end
+    end
+    local startedAt,deadline=intent.resumeWaitStartedAt,intent.resumeWaitDeadline
+    if startedAt and (tick<startedAt or tick>=deadline) then return "native-idle-wait-expired" end
+    startedAt,deadline=intent.resumeTravelStartedAt,intent.resumeTravelDeadline
+    if startedAt and (tick<startedAt or tick>=deadline and not intent.resumeWaitStartedAt) then
+        return "saved-approach-travel-expired"
+    end
+    return nil
+end
+function Ctl.pollRecoveryAdmission(id,agent,body,tick,needs,threat)
+    local pending=agent.recoveryAdmission
+    if not pending then return false end
+    local pose=SAO.RecoveryPose
+    local ok,owned=pcall(function()return pose and pose.ownsCustody(pending.custody)end)
+    local reason
+    local choice,source
+    if pending.savedPreparation then choice,source=SAO.Needs.preparingRecoveryChoice(id,body) end
+    local original=pending.savedOriginalPlace or pending.place
+    if pending.body~=body or pending.rec~=agent.rec or agent.state~="IDLE"
+        or not ok or not owned or not SAO.Needs.ownsRecoveryBody(id,body) then reason="body-binding-lost"
+    elseif pending.savedPreparation and (source~=pending.savedPreparation or not choice
+        or choice.kind~=pending.kind or SAO.Needs.recoveryApproachKey(choice.place)~=SAO.Needs.recoveryApproachKey(original)
+        or choice.place.objectIndex~=original.objectIndex or choice.place.objectX~=original.objectX
+        or choice.place.objectY~=original.objectY or choice.place.objectZ~=original.objectZ) then reason="saved-preparation-changed"
+    elseif tick<pending.startedAt or tick>=pending.deadline then reason="native-idle-wait-expired"
+    elseif pending.savedPreparation and not recoveryNeedsValid(needs) then reason="current-needs-unavailable"
+    elseif pending.savedPreparation and savedPreparationWorkBlocked(id,agent,body) then reason="owned-work-unavailable"
+    elseif threat or not mayEnterBelieved(id,body:getX(),body:getY())
+        or SAO.Needs.bleeding(body)>0 or SAO.Needs.cold(body)>=1.5
+        or not needs or math.max(needs.hunger,needs.thirst)>=policy().desperation
+            and needs.endurance>0.2 then reason="competing-survival-pressure"
+    elseif pending.savedPreparation and (pending.kind=="sleep" and needs.fatigue<=0.3
+        or pending.kind=="rest" and needs.endurance>=0.8) then reason="preparation-need-relieved"
+    elseif not SAO.Needs.recoveryPlaceAt(id,body,pending.place) then reason="recovery-place-unavailable"
+    elseif not SAO.Standing.mayAttemptBelieved(id,pending.place.x,pending.place.y,"standing") then reason="standing-refused"
+    elseif not SAO.Needs.workAvailable(body) then reason="body-work-unavailable" end
+    if not reason then
+        local admitted
+        admitted,reason=Ctl.admitRecoveryPlace(id,agent,body,tick,pending.kind,pending.place,true)
+        if admitted then
+            if pending.savedPreparation then
+                -- Fresh queue work keeps the original bounded replay window.
+                -- Runtime body/action handles remain in their current owners.
+                agent.rec.recoveryIntent.resumeWaitStartedAt=pending.startedAt
+                agent.rec.recoveryIntent.resumeWaitDeadline=pending.deadline
+                agent.rec.recoveryIntent.resumeTravelStartedAt=pending.savedPreparation.resumeTravelStartedAt
+                agent.rec.recoveryIntent.resumeTravelDeadline=pending.savedPreparation.resumeTravelDeadline
+                agent.rec.recoveryIntent.resumePlaceSource={priorKey=pending.savedPreparation.resumePlaceSource
+                    and pending.savedPreparation.resumePlaceSource.priorKey or original.key,
+                    currentKey=pending.place.key,reacquiredAtHours=SAO.History.countyHours(),
+                    basis="current-observed-place-tuple",persistentObjectIdentity=false}
+            end
+            return true
+        end
+        if reason=="native-body-not-idle" then return true end
+    end
+    agent.recoveryAdmission=nil
+    if pending.savedPreparation then
+        SAO.Needs.cancelPreparingRecovery(id,pending.rec,pending.savedPreparation,reason or "native-pose-refused")
+    end
+    if agent.rec.recoveryPlacement then
+        agent.rec.recoveryPlacement.status="unresolved"
+        agent.rec.recoveryPlacement.reason=reason or "native-pose-refused"
+    end
+    log(id.." selected recovery wait ended: "..tostring(reason))
+    agent.nextDecisionAt=0
+    return false
+end
+function Ctl.resumePreparingRecovery(id,agent,body,tick,needs,threat)
+    if not agent or SAO.Identity.get(id)~=agent.rec or not SAO.Needs.ownsRecoveryBody(id,body) then
+        return false,"body-binding-lost"
+    end
+    if agent.recovery or agent.recoveryAdmission or agent.recoveryRoute then return false end
+    local choice,intent=SAO.Needs.preparingRecoveryChoice(id,body)
+    local reason
+    if not choice then reason=type(intent)=="string" and intent or "saved-preparation-unavailable"
+    elseif SAO.Identity.get(id)~=agent.rec or not SAO.Needs.ownsRecoveryBody(id,body) then reason="body-binding-lost"
+    elseif agent.state~="IDLE" then reason="controller-work-unavailable"
+    elseif type(tick)~="number" or tick~=tick or tick<0 or tick%1~=0 then reason="recovery-clock-unavailable" end
+    local startedAt=choice and intent.resumeWaitStartedAt or nil
+    local deadline=choice and intent.resumeWaitDeadline or nil
+    if not reason then reason=savedPreparationClockReason(intent,tick) end
+    if reason then
+        SAO.Needs.cancelPreparingRecovery(id,agent.rec,choice and intent or agent.rec.recoveryIntent,reason)
+        log(id.." saved recovery preparation refused: "..tostring(reason))
+        return false,reason
+    end
+    local loaded=pcall(require,"SAO_RecoveryPose")
+    local ok,custody=pcall(function()return loaded and SAO.RecoveryPose.captureCustody(body)end)
+    if not ok or not custody then
+        SAO.Needs.cancelPreparingRecovery(id,agent.rec,intent,"body-custody-unavailable")
+        return false,"body-custody-unavailable"
+    end
+    local far=(body:getX()-choice.place.x)^2+(body:getY()-choice.place.y)^2>0.35^2
+        or math.abs(body:getZ()-choice.place.z)>0.1
+    if far then
+        startedAt,deadline=intent.resumeTravelStartedAt or tick,intent.resumeTravelDeadline or tick+1800
+        intent.resumeTravelStartedAt,intent.resumeTravelDeadline=startedAt,deadline
+        local safety=Ctl.preparingRecoveryRouteReason(id,agent,body,tick,needs,threat,choice,intent,startedAt,deadline)
+        local live=SAO.Locomotion.jobs[id]
+        if not safety and live and not live.done then safety="locomotion-work-unavailable" end
+        if not safety and not SAO.Locomotion.order(id,body,choice.place.x,choice.place.y,choice.place.z) then
+            safety="saved-approach-route-refused"
+        end
+        local job=SAO.Locomotion.jobs[id]
+        if not safety and (not job or job.body~=body or not job.goal or job.goal.x~=choice.place.x
+            or job.goal.y~=choice.place.y or job.goal.z~=choice.place.z) then safety="saved-approach-route-mismatch" end
+        if safety then
+            SAO.Needs.cancelPreparingRecovery(id,agent.rec,intent,safety)
+            return false,safety
+        end
+        agent.recoveryRoute={kind=choice.kind,place=pendingRecoveryPlaceCopy(choice.place),job=job,
+            deadline=deadline,startedAt=startedAt,savedPreparation=intent,body=body,rec=agent.rec,custody=custody}
+        agent.rec.recoveryPlacement={kind=choice.kind,place=pendingRecoveryPlaceCopy(choice.place),status="approaching",
+            reason="returns to the privately known preparation approach; current place remains unconfirmed"}
+        if setState(agent,id,"TRAVEL","returns to the chosen recovery approach","need") then return true end
+        if SAO.Locomotion.jobs[id]==job then SAO.Locomotion.cancel(id) end
+        SAO.Needs.cancelPreparingRecovery(id,agent.rec,intent,"native-state-transition-refused")
+        agent.recoveryRoute=nil;return false,"native-state-transition-refused"
+    end
+    local currentPlace=SAO.Needs.reacquirePreparingRecoveryPlace(id,body,intent)
+    startedAt,deadline=startedAt or tick,deadline or tick+120
+    intent.resumeWaitStartedAt,intent.resumeWaitDeadline=startedAt,deadline
+    agent.recoveryAdmission={body=body,rec=agent.rec,custody=custody,kind=choice.kind,
+        place=pendingRecoveryPlaceCopy(currentPlace or choice.place),savedOriginalPlace=pendingRecoveryPlaceCopy(choice.place),
+        startedAt=startedAt,deadline=deadline,savedPreparation=intent}
+    return Ctl.pollRecoveryAdmission(id,agent,body,tick,needs,threat)
+end
+function Ctl.preparingRecoveryRouteReason(id,agent,body,tick,needs,threat,choice,intent,startedAt,deadline)
+    if SAO.Identity.get(id)~=agent.rec or not SAO.Needs.ownsRecoveryBody(id,body) then return "body-binding-lost" end
+    if not choice or agent.rec.recoveryIntent~=intent then return "saved-preparation-changed" end
+    local clockReason=savedPreparationClockReason(intent,tick)
+    if clockReason then return clockReason end
+    if tick<startedAt or tick>=deadline then return "saved-approach-travel-expired" end
+    if not recoveryNeedsValid(needs) then return "current-needs-unavailable" end
+    if savedPreparationWorkBlocked(id,agent,body) or not SAO.Needs.workAvailable(body) then return "owned-work-unavailable" end
+    if threat or not mayEnterBelieved(id,body:getX(),body:getY()) or SAO.Needs.bleeding(body)>0
+        or SAO.Needs.cold(body)>=1.5 or math.max(needs.hunger,needs.thirst)>=policy().desperation
+            and needs.endurance>0.2 then return "competing-survival-pressure" end
+    if choice.kind=="sleep" and needs.fatigue<=0.3 or choice.kind=="rest" and needs.endurance>=0.8 then return "preparation-need-relieved" end
+    if not mayEnterBelieved(id,choice.place.x,choice.place.y)
+        or not SAO.Standing.mayAttemptBelieved(id,choice.place.x,choice.place.y,"standing") then return "standing-refused" end
+    local entryOk,entryAllowed=pcall(function()return SAOJavaBridge:setForceEntry(body,false)end)
+    if not entryOk or entryAllowed~=true then return "native-entry-permission-unavailable" end
+    return nil
+end
+function Ctl.pollPreparingRecoveryRoute(id,agent,body,tick,needs,threat)
+    local route=agent.recoveryRoute
+    if not route or not route.savedPreparation then return false end
+    if route.body~=body or route.rec~=agent.rec or SAO.Identity.get(id)~=route.rec then return false end
+    local choice,intent=SAO.Needs.preparingRecoveryChoice(id,body)
+    local ok,owned=pcall(function()return SAO.RecoveryPose.ownsCustody(route.custody)end)
+    local job=SAO.Locomotion.jobs[id]
+    local reason
+    if route.body~=body or route.rec~=agent.rec or agent.state~="TRAVEL" or not ok or not owned then reason="body-binding-lost"
+    elseif job~=route.job or not job or job.body~=body or not job.goal
+        or job.goal.x~=route.place.x or job.goal.y~=route.place.y or job.goal.z~=route.place.z then reason="saved-approach-route-replaced"
+    elseif not choice or intent~=route.savedPreparation or choice.kind~=route.kind
+        or SAO.Needs.recoveryApproachKey(choice.place)~=SAO.Needs.recoveryApproachKey(route.place)
+        or choice.place.objectIndex~=route.place.objectIndex or choice.place.objectX~=route.place.objectX
+        or choice.place.objectY~=route.place.objectY or choice.place.objectZ~=route.place.objectZ then reason="saved-preparation-changed"
+    else reason=Ctl.preparingRecoveryRouteReason(id,agent,body,tick,needs,threat,choice,intent,route.startedAt,route.deadline) end
+    if not reason and not job.done then return true end
+    if not reason and (job.result~="arrived" or not job.goal or job.goal.x~=route.place.x
+        or job.goal.y~=route.place.y or job.goal.z~=route.place.z) then reason="saved-approach-did-not-arrive" end
+    local currentPlace=not reason and SAO.Needs.reacquirePreparingRecoveryPlace(id,body,route.savedPreparation) or nil
+    if not reason and not currentPlace then reason="current-preparation-place-unavailable" end
+    agent.recoveryRoute=nil
+    if reason then
+        local sameRoute=job==route.job and job and job.body==body and job.goal
+            and job.goal.x==route.place.x and job.goal.y==route.place.y and job.goal.z==route.place.z
+        local currentOwner=SAO.Needs.ownsRecoveryBody(id,body)
+        if sameRoute and currentOwner then SAO.Locomotion.cancel(id)
+        elseif sameRoute then SAO.Locomotion.jobs[id]=nil end
+        SAO.Needs.cancelPreparingRecovery(id,route.rec,route.savedPreparation,reason)
+        -- A replacement movement belongs to its current owner. Transitioning
+        -- the old route would cancel that owner's job through setState.
+        if sameRoute and currentOwner and agent.state=="TRAVEL" then setState(agent,id,"IDLE",reason,"need") end
+        log(id.." saved preparation approach ended: "..tostring(reason))
+        return false
+    end
+    setState(agent,id,"IDLE","observes the chosen preparation approach again","need")
+    local startedAt=route.savedPreparation.resumeWaitStartedAt or tick
+    local deadline=route.savedPreparation.resumeWaitDeadline or tick+120
+    route.savedPreparation.resumeWaitStartedAt,route.savedPreparation.resumeWaitDeadline=startedAt,deadline
+    agent.recoveryAdmission={body=body,rec=agent.rec,custody=route.custody,kind=route.kind,place=currentPlace,
+        savedOriginalPlace=route.place,startedAt=startedAt,deadline=deadline,savedPreparation=route.savedPreparation}
+    return Ctl.pollRecoveryAdmission(id,agent,body,tick,needs,threat)
+end
+function Ctl.finishRecoveryPlaceMovement(id,agent,body)
+    local binding=agent.recoveryRoute
+    if not binding then return false end
+    if binding.savedPreparation then
+        if binding.body~=body or binding.rec~=agent.rec or SAO.Identity.get(id)~=binding.rec then return false end
+        local threat=SAO.Perception.believedThreatCount(id,tickCount,10,body:getX(),body:getY())>0
+        return Ctl.pollPreparingRecoveryRoute(id,agent,body,tickCount,SAO.Needs.read(body),threat)
+    end
+    local job=SAO.Locomotion.jobs[id]
+    if not SAO.Needs.ownsRecoveryBody(id,body) or job~=binding.job or not job or job.body~=body then
+        agent.recoveryRoute=nil
+        if agent.rec.recoveryPlacement then agent.rec.recoveryPlacement.status="interrupted" end
+        return false
+    end
+    if not job.done and tickCount<binding.deadline then return true end
+    agent.recoveryRoute=nil
+    if not job.done then SAO.Locomotion.cancel(id) end
+    local arrived=job.done and job.result=="arrived" and job.goal
+        and job.goal.x==binding.place.x and job.goal.y==binding.place.y and job.goal.z==binding.place.z
+    local admitted,admissionReason
+    if arrived then admitted,admissionReason=Ctl.admitRecoveryPlace(id,agent,body,tickCount,binding.kind,binding.place) end
+    if admitted then return true end
+    if not arrived then SAO.Needs.recoveryRouteResult(id,body,binding.place,binding.kind,job) end
+    local retained=agent.rec.recoveryPlacement
+    if retained then
+        retained.status="unresolved"
+        retained.reason=arrived and (admissionReason or "native-pose-refused") or "recovery-place approach did not arrive"
+    end
+    agent.recoveryPlaceRetry=agent.recoveryPlaceRetry or {}
+    agent.recoveryPlaceRetry[SAO.Needs.recoveryApproachKey(binding.place)]=tickCount+600
+    setState(agent,id,"IDLE","reconsiders a suitable place for bodily recovery","need")
+    agent.nextDecisionAt=0
+    return true
+end
+
+local function rememberedRecoveryInquiry(id,kind,tick,includeSearch)
+    local planning=SAO.ProceduralPlanning
+    local goal=kind=="sleep" and "relief-from-tiredness" or kind=="rest" and "relief-from-exertion"
+    local offer=goal and planning and planning.conceptInquiryOffer and planning.conceptInquiryOffer(id,goal,tick)
+    return offer and offer.status=="actionable" and (includeSearch or offer.mode=="remembered-means") and offer or nil
+end
+function Ctl.offerRecovery(id, agent, body, tick, needs, selectedKind)
     if not SAO.Needs.recoveryPreference or not needs or agent.recovery
         or agent.resting or SAO.History.countyHours() < (agent.nextRecoveryHours or 0)
         or agent.state ~= "IDLE" and agent.state ~= "ROAM" and agent.state ~= "FOLLOW"
         or agent.forageInspection or agent.rec.worldSourceReservation
         or not SAO.Needs.ownsRecoveryBody(id, body) then return false end
-    local kind = SAO.Needs.recoveryPreference(id, needs, {
+    local kind, reasoning = SAO.Needs.recoveryPreference(id, needs, {
         emergency = policy().desperation, committed = agent.coordinationCommitment ~= nil,
         threat = SAO.Perception.believedThreatCount(id, tick, 10, body:getX(), body:getY()) > 0,
         bleeding = SAO.Needs.bleeding(body) > 0, cold = SAO.Needs.cold(body) >= 1.5,
     })
+    agent.recoveryReasoning = reasoning
+    if selectedKind then
+        local alternatives = SAO.Needs.recoveryAlternatives(id, needs, {
+            emergency = policy().desperation,
+            threat = SAO.Perception.believedThreatCount(id, tick, 10, body:getX(), body:getY()) > 0,
+            bleeding = SAO.Needs.bleeding(body) > 0, cold = SAO.Needs.cold(body) >= 1.5,
+        })
+        kind = nil
+        for _, alternative in ipairs(alternatives or {}) do
+            if alternative.id == selectedKind and selectedKind ~= "continue" then kind = selectedKind end
+        end
+    end
     if not kind or not mayEnterBelieved(id, body:getX(), body:getY()) then return false end
     local x, y, z = resolvedHomeAddress(id, agent.rec)
     if not occupiesKnownHome(id, body, x, y, z)
-        and not SAO.Standing.insideClaim(id, body:getX(), body:getY()) then return false end
+        and not SAO.Standing.insideClaim(id, body:getX(), body:getY()) then
+        local remembered=rememberedRecoveryInquiry(id,kind,tick)
+        return remembered and Ctl.beginConceptInquiry(id,agent,body,tick,remembered) or false
+    end
     -- Actual admitted occupancy is an option here, never a return route or a
     -- newly manufactured safe place.
     if SAO.Study and SAO.Study.active(id, body) then
         local ok, cancelled = pcall(SAO.Study.interrupt, id, body, "chosen bodily recovery")
         if not ok or cancelled ~= true or SAO.Study.active(id, body) then return false end
     end
-    if not SAO.Needs.workAvailable(body)
-        or not setState(agent, id, "IDLE", "chooses bodily recovery", "need") then return false end
-    local admitted = SAO.Needs.beginRecovery(id, body, kind)
-    if not admitted then
-        agent.nextRecoveryHours = SAO.History.countyHours() + 0.25
+    if not SAO.Needs.workAvailable(body) then return false end
+    local choices={}
+    for key,retry in pairs(agent.recoveryPlaceRetry or {}) do
+        if tick>=retry then agent.recoveryPlaceRetry[key]=nil end
+    end
+    for _,place in ipairs(SAO.Needs.recoveryPlaces(id,body)) do
+        if (kind=="sleep" or place.kind=="ground")
+            and tick>=(agent.recoveryPlaceRetry and agent.recoveryPlaceRetry[SAO.Needs.recoveryApproachKey(place)] or 0)
+            and not SAO.Needs.recoveryMeansUnavailable(id,kind,place)
+            and SAO.Standing.mayAttemptBelieved(id,place.x,place.y,"standing") then
+            choices[#choices+1]=place
+        end
+    end
+    table.sort(choices,function(a,b)
+        if a.kind~=b.kind then return a.kind=="bed" end
+        local da=(body:getX()-a.x)^2+(body:getY()-a.y)^2
+        local db=(body:getX()-b.x)^2+(body:getY()-b.y)^2
+        return da==db and a.key<b.key or da<db
+    end)
+    for _,place in ipairs(choices) do
+        if SAO.Needs.recoveryPlaceAt(id,body,place) then
+            if Ctl.admitRecoveryPlace(id,agent,body,tick,kind,place) then return true end
+        else
+            local ok,allowed=pcall(function()return SAOJavaBridge:setForceEntry(body,false)end)
+            if not ok or allowed~=true then return false end
+            local live=SAO.Locomotion.jobs[id]
+            if live and not live.done then
+                local movable,crossing=pcall(function()
+                    local nativeState=body:getCurrentStateName()
+                    return body:isClimbing() or nativeState=="ClimbOverFenceState"
+                        or nativeState=="ClimbThroughWindowState" or nativeState=="SmashWindowState"
+                        or tostring(nativeState):find("OpenWindowState",1,true)~=nil
+                end)
+                if live.body~=body or not movable or crossing
+                    or tostring(live.lastVerdict):sub(1,11)=="Transition:" then return false end
+                -- Recovery requires this exact approach; the ordinary two-tile
+                -- route reuse tolerance cannot substitute a nearby older goal.
+                if not live.goal or live.goal.x~=place.x or live.goal.y~=place.y or live.goal.z~=place.z then
+                    SAO.Locomotion.cancel(id)
+                end
+            end
+            if SAO.Locomotion.order(id,body,place.x,place.y,place.z) then
+                local exact=SAO.Locomotion.jobs[id]
+                if not exact or exact.body~=body or not exact.goal or exact.goal.x~=place.x
+                    or exact.goal.y~=place.y or exact.goal.z~=place.z then return false end
+                agent.rec.recoveryPlacement={kind=kind,place=place,status="approaching",reason=recoveryPlaceReason(place)}
+                agent.recoveryRoute={kind=kind,place=place,job=SAO.Locomotion.jobs[id],deadline=tick+1800}
+                if setState(agent,id,"TRAVEL","approaches a suitable place: "..recoveryPlaceReason(place),"need") then return true end
+                agent.recoveryRoute=nil;SAO.Locomotion.cancel(id)
+            end
+        end
+    end
+    agent.rec.recoveryPlacement={kind=kind,status="unresolved",reason="no personally observed admissible recovery place"}
+    local remembered=rememberedRecoveryInquiry(id,kind,tick,true)
+    if remembered then return Ctl.beginConceptInquiry(id,agent,body,tick,remembered) end
+    return false
+end
+
+-- One ordinary choice compares personally available purposes. Collection reads
+-- private owners; only the selected dispatch may change their native work.
+function Ctl.chooseOrdinaryPurpose(id, agent, body, tick, needs, excluded)
+    Ctl.reconcileLeisureCommitment(id, agent)
+    local cognition, planning = SAO.Cognition, SAO.ProceduralPlanning
+    if not (cognition and cognition.interpretPlans and planning and needs and agent
+        and Ctl.agents[id] == agent and agent.rec == SAO.Identity.get(id)
+        and agent.state == "IDLE" and not agent.passive and not agent.recovery
+        and not agent.resting and SAO.Needs.ownsRecoveryBody
+        and SAO.Needs.ownsRecoveryBody(id, body)) then return nil end
+    if agent.rec.worldSourceReservation or agent.rec.cookingWork and agent.rec.cookingWork.status == "cooking"
+        or agent.rec.resourceProductionWork or agent.forageInspection or agent.coordinationRoute
+        or agent.studyCancellationPending then return nil end
+    local studying = SAO.Study and SAO.Study.active(id, body)
+    if SAO.Needs.busy(body) and not studying then return nil end
+    if SAO.Needs.bleeding(body) > 0 or SAO.Needs.cold(body) >= 1.5
+        or SAO.Perception.believedThreatCount(id, tick, 10, body:getX(), body:getY()) > 0
+        or math.max(needs.hunger, needs.thirst) >= policy().desperation
+        or needs.endurance <= 0.12 or needs.fatigue >= 0.97 then return nil end
+    -- Capacity may have queued this exact obligation during an owned threat
+    -- response. Restore intent only after that executor has handed back; the
+    -- ordinary comparison below still decides whether and how to attempt it.
+    local resumedPurpose
+    local route = SAO.Locomotion and SAO.Locomotion.jobs[id]
+    local conflict = SAO.ConflictResponse
+    if planning.queuedPurpose and planning.resumeQueuedPurpose
+        and agent.queuedPurposeResumeTick ~= tick and not studying
+        and SAO.Needs.workAvailable(body)
+        and not (route and not route.done)
+        and not agent.conflictRoute and not agent.conflictCombat
+        and not agent.conflictCoordination and not agent.conflictHandover
+        and not (conflict and conflict.gesturePriority and conflict.gesturePriority(id, body)) then
+        local queued = planning.queuedPurpose(id)
+        if queued then
+            resumedPurpose = planning.resumeQueuedPurpose(id, queued.id)
+            if resumedPurpose then agent.queuedPurposeResumeTick = tick end
+        end
+    end
+    local traits = SAO.Disposition.traits(id)
+    local initiative, discipline = traits.initiative or 0.5, traits.discipline or 0.5
+    local candidates, offered = {}, {}
+    local function add(key, kind, utility, consequence, payload, reasons)
+        if excluded and excluded[key] then return end
+        candidates[#candidates + 1] = { id = key, utility = utility,
+            evidence = 1, continuity = reasons.continuity or 0, novelty = 0,
+            informationGain = 0, blockers = 0, maxAdjustment = 0.15,
+            consequences = consequence and {consequence} or {}, reasons = reasons }
+        offered[key] = { kind = kind, payload = payload, key = key }
+    end
+    local now = SAO.History.countyHours()
+    local alternatives = SAO.Needs.recoveryAlternatives
+        and SAO.Needs.recoveryAlternatives(id, needs, {separateResponsibilities=true})
+    local hx, hy, hz = resolvedHomeAddress(id, agent.rec)
+    local localRecovery=mayEnterBelieved(id, body:getX(), body:getY())
+        and (occupiesKnownHome(id, body, hx, hy, hz) or SAO.Standing.insideClaim(id, body:getX(), body:getY()))
+    if alternatives and now >= (agent.nextRecoveryHours or 0) then
+        for _, option in ipairs(alternatives) do
+            if option.id ~= "continue" and (localRecovery or rememberedRecoveryInquiry(id,option.id,tick)) then
+                add(option.id, "recovery", option.utility - alternatives[1].utility + 0.6,
+                    option.consequences[1], option.id,
+                    { bodilyPressure = option.utility, activityTolerance = alternatives[1].utility })
+            end
+        end
+    end
+    for _, category in ipairs({"water", "food"}) do
+        local value = category == "water" and needs.thirst or needs.hunger
+        local threshold = category == "water" and SAO.Disposition.drinkAt(id) or SAO.Disposition.eatAt(id)
+        if value >= threshold then
+            local carried = category == "water" and SAOJavaBridge:findCarriedDrink(body)
+                or category == "food" and SAOJavaBridge:findCarriedFood(body)
+            local retryAt
+            if category == "water" then retryAt = agent.nextWaterAt else retryAt = agent.nextForageAt end
+            local demand = planning.resourceDemand and planning.resourceDemand(id)
+            local continuation = demand and demand.resourceCategory == category and 0.1 or 0
+            if carried or tick >= (retryAt or 0) then
+                add(category, category, value / math.max(0.1, threshold) * 0.65 + continuation,
+                    {kind="acquire", category=category, value=0.6}, nil,
+                    { bodilyPressure=value, personalThreshold=threshold,
+                        carriedRelief=carried ~= nil and carried ~= false, continuity=continuation,
+                        purposeId=demand and demand.id or nil })
+            end
+        end
+    end
+    local organization = SAO.Organization
+    if organization and organization.activeCommitments and organization.workPlan then
+        for index, commitment in ipairs(organization.activeCommitments(id)) do
+            if index > 8 then break end
+            local work, status = commitment.work or {}, commitment.status
+            local eligible = commitment.actorId == tostring(id) and type(commitment.acceptedAt) == "number"
+                and commitment.acceptedAt >= 0 and commitment.acceptedAt <= now
+                and (status == "accepted" or status == "in-progress" or status == "paused")
+                and not work.pendingReceiptId
+                and (not work.owner or work.owner == "SAO" or work.owner == "Locomotion")
+                and SUPPORTED_COORDINATION[tostring(commitment.matter or "")]
+            local plan = eligible and organization.workPlan(commitment.id, id)
+            local step = plan and coordinationProcedureStep(plan)
+            local ready = plan and ((plan.proposal or {}).cooperative ~= true or step ~= nil)
+                and Ctl.coordinationStudyReady(id, body, commitment, plan, step)
+                and (not organization.routeRetryReady or organization.routeRetryReady(commitment.id) == true)
+            if ready then
+                local continuity = status == "in-progress" and 0.12 or 0
+                add("commitment:" .. commitment.id, "commitment",
+                    0.35 + (traits.compassion or 0.5) * 0.4 + discipline * 0.4 + continuity,
+                    {kind="commitment", category="social", sourceId=commitment.id,
+                        condition=commitment.matter ~= "leisure-participation"
+                            and (step and (step.verb=="prepare" or step.capability=="prepare") and "prepare"
+                            or step and (step.verb=="deliver" or step.capability=="deliver") and "deliver"
+                            or not (plan.proposal or {}).cooperative and plan.kind~="rendezvous-holding" and "deliver") or nil,
+                        value=0.6}, commitment,
+                    { acceptedAt=commitment.acceptedAt, beneficiaryId=commitment.beneficiaryId,
+                        compassion=traits.compassion or 0.5, discipline=discipline, continuity=continuity })
+            end
+        end
+    end
+    if SAO.Study and (studying or tick >= (agent.nextStudyAt or 0)) then
+        local manual = SAO.Study.offer(id, body)
+        if manual and not body:tooDarkToRead() then
+            local demand = planning.studyDemand(id)
+            local continuity = demand and demand.bookSkill == manual:getSkillTrained() and 0.15 or 0
+            add("study", "study", 0.25 + initiative * 0.55 + discipline * 0.2 + continuity,
+                {kind="study", category="learning", sourceId="manual:"..manual:getSkillTrained(), itemType=manual:getFullType(), value=0.6}, manual,
+                { initiative=initiative, discipline=discipline, continuity=continuity,
+                    purposeId=demand and demand.id or nil, literacy=SAO.History.literacyOf(id),
+                    subject=manual:getSkillTrained(), qualification="native-readable-held-manual" })
+        end
+    end
+    if not studying and tick >= (agent.nextPurposeAt or 0) and planning.pending then
+        local purpose, step = planning.pending(id, "practice", "Cooking")
+        if not purpose then purpose, step = planning.pending(id, "produce", "Cooking") end
+        if purpose and not purpose.resourceCategory and step
+            and Ctl.coordinationStudyReady(id, body, {}, {proposal={}}, {verb="prepare"}) then
+            local means=SAO.Cooking and SAO.Cooking.expectationOffer
+                and SAO.Cooking.expectationOffer(id,body,{privateFood=true,acquiredItemId=step.acquiredItemId})
+            add("practice", "practice", 0.35 + initiative * 0.5 + discipline * 0.2,
+                means and {kind="prepare",category="food",sourceId=means.sourceId,itemType=means.itemType,value=0.6}
+                    or {kind="practice", category="learning", value=0.6}, purpose,
+                { initiative=initiative, discipline=discipline, continuity=0.15, purposeId=purpose.id })
+            if offered.practice then offered.practice.means=means end
+        end
+    end
+    if not studying and planning.pendingConceptInquiries then
+        for _, demand in ipairs(planning.pendingConceptInquiries(id,tick)) do
+            local target = planning.conceptInquiryTarget(demand.offer)
+            if target and SAO.Standing.mayAttemptBelieved(id,target.x,target.y,"standing") then
+                local key = "inquiry-purpose:" .. demand.purposeId
+                add(key,"inquiry",0.35 + initiative * 0.5 + discipline * 0.2,
+                    demand.offer.mode=="inspect-holder" and {kind="inspect",category="container",value=0.6,
+                        sourceId=#demand.offer.sourceId<=160 and demand.offer.sourceId or nil} or nil,demand.offer,
+                    {initiative=initiative,discipline=discipline,continuity=0.15,
+                        purposeId=demand.purposeId,goal=demand.offer.goal,qualification="current-personal-expectation"})
+            end
+        end
+    end
+    -- Continuing is the floor for unappealing alternatives, not an idle hold.
+    -- Its dispatch returns to existing residence, company and local activity.
+    local situationOffer,situationView
+    if not studying and planning.situationInquiryOffer then
+        situationOffer,situationView=planning.situationInquiryOffer(id,body,tick)
+        local target=situationOffer and planning.conceptInquiryTarget(situationOffer)
+        if target and SAO.Standing.mayAttemptBelieved(id,target.x,target.y,"standing") then
+            local key="situation:"..situationOffer.questionKey..":"..target.key
+            add(key,"inquiry",situationOffer.utility,{kind="investigate",category="learning",sourceId=situationOffer.questionKey,value=.6},situationOffer,
+                {subject=situationOffer.subject,qualification="private-unresolved-situation",
+                    appraisal=situationOffer.appraisal,informationGain=1})
+        end
+    end
+    add("continue", "continue", 0.1, nil, nil, {})
+    local views = cognition.interpretPlans(id, candidates, { domain="ordinary-purpose", atHours=now,
+        pressure=math.min(1, math.max(needs.hunger, needs.thirst, needs.fatigue, 1-needs.endurance)),
+        needs={ hunger=needs.hunger, thirst=needs.thirst, fatigue=needs.fatigue, endurance=needs.endurance } })
+    if not views or not offered[views.selected] then return nil end
+    local unavailable = {}
+    for key in pairs(excluded or {}) do unavailable[#unavailable+1] = key end
+    table.sort(unavailable)
+    agent.rec.ordinaryPurposeDecision = { atHours=now, selected=views.selected,
+        status="selected", alternatives=candidates, interpretations=views, unavailable=unavailable,
+        situation=situationView }
+    -- Legacy arbitration chooses the concern. Personal conceptual relations
+    -- then ask which means to investigate; utility does not invent that link.
+    local selected=offered[views.selected]
+    local effects={sleep="relief-from-tiredness",rest="relief-from-exertion",
+        food="relief-from-hunger",water="relief-from-thirst",study="understanding",practice="understanding"}
+    local goal=effects[selected.kind=="recovery" and selected.payload or selected.kind]
+    local hasRelief=selected.kind=="food" and SAOJavaBridge:findCarriedFood(body)
+        or selected.kind=="water" and SAOJavaBridge:findCarriedDrink(body)
+        or selected.kind=="study" and selected.payload
+    if goal and not hasRelief and not studying and planning.conceptInquiryOffer then
+        local inquiry=planning.conceptInquiryOffer(id,goal,tick)
+        agent.rec.ordinaryPurposeDecision.inquiry=inquiry
+        if inquiry and inquiry.status=="actionable" then
+            local target=planning.conceptInquiryTarget and planning.conceptInquiryTarget(inquiry)
+            local key="inquiry:"..goal..":"..tostring(target and target.key or inquiry.frontier.key)
+            if not (excluded and excluded[key]) then
+                agent.rec.ordinaryPurposeDecision.selectedMeans=key
+                return "inquiry",{kind="inquiry",key=key,payload=inquiry}
+            end
+        end
+    end
+    return offered[views.selected].kind, offered[views.selected]
+end
+
+function Ctl.beginConceptInquiry(id,agent,body,tick,offer)
+    local planning=SAO.ProceduralPlanning
+    if agent.state~="IDLE" or agent.inquiryRoute or agent.residenceRoute
+        or not SAO.Needs.ownsRecoveryBody(id,body) or SAO.Needs.busy(body)
+        or not SAO.Needs.workAvailable(body) or not planning or not planning.planConceptInquiry then return false end
+    if type(offer)~="table" then return false end
+    if offer.mode=="inspect-holder" then
+        local sources=SAO.WorldSources
+        local fresh=planning.conceptInquiryOffer(id,offer.goal,tick)
+        if not fresh or fresh.status~="actionable" or fresh.mode~="inspect-holder"
+            or fresh.sourceId~=offer.sourceId or not offer.path or fresh.path.id~=offer.path.id
+            or not sources or not sources.inspectionCandidate or not sources.beginPurposeInspection then return false end
+        local fact=fresh.observedMeans
+        if not fact or not SAO.Standing.mayAttemptBelieved(id,fact.x,fact.y,"standing") then return false end
+        local live=SAO.Locomotion.jobs[id]
+        if live and not live.done then return false end
+        local ok,admitted=pcall(function()return SAOJavaBridge:setForceEntry(body,false)end)
+        if not ok or admitted~=true then return false end
+        local context=sources.inspectionCandidate(id,body,"standing",12,fresh.sourceId)
+        if not context then return false end
+        local purpose,step=planning.planConceptInquiry(id,fresh,tick,context)
+        if not purpose or not step or not SAO.Standing.mayAttemptBelieved(id,step.x,step.y,"standing")
+            or not sources.beginPurposeInspection(id,body,context,purpose.id,step.id) then
+            sources.inspectionFailed(id,body,context,"inquiry-admission-refused")
+            return false
+        end
+        return beginContainerInspection(id,agent,body,0,fresh.desiredConcept,tick,context)
+            and agent.forageInspection==context
+    end
+    local purpose,step=planning.planConceptInquiry(id,offer,tick)
+    if not purpose or not step or not SAO.Standing.mayAttemptBelieved(id,step.x,step.y,"standing") then return false end
+    local ok,admitted=pcall(function()return SAOJavaBridge:setForceEntry(body,false)end)
+    if not ok or admitted~=true then return false end
+    local live=SAO.Locomotion.jobs[id]
+    if live and not live.done then return false end
+    if not SAO.Locomotion.order(id,body,step.x,step.y,step.z) then return false end
+    local routeId=purpose.id..":inquiry:"..tostring(tick)
+    if not planning.noteAdmission(id,purpose.id,"SAO.Locomotion",routeId,step.id) then
+        SAO.Locomotion.cancel(id);return false
+    end
+    agent.inquiryRoute={purposeId=purpose.id,routeId=routeId,job=SAO.Locomotion.jobs[id],deadline=tick+1800}
+    if not setState(agent,id,"TRAVEL",offer.reason,"inquiry") then
+        planning.interruptConceptInquiry(id,"state-refused")
+        agent.inquiryRoute=nil;SAO.Locomotion.cancel(id);return false
+    end
+    return true
+end
+function Ctl.finishConceptInquiryMovement(id,agent,body)
+    local binding=agent.inquiryRoute
+    if not binding then return false end
+    local job=SAO.Locomotion.jobs[id]
+    if not SAO.Needs.ownsRecoveryBody(id,body) or not job or job~=binding.job or job.body~=body then
+        SAO.ProceduralPlanning.interruptConceptInquiry(id,"native-inquiry-owner-interrupted")
+        agent.inquiryRoute=nil
         return false
     end
-    agent.recovery, agent.resting, agent.sleeping = true, true, kind == "sleep" or nil
-    agent.recoveryBody = body
-    agent.pressure = { answer = "chosen rest", detail = kind == "sleep"
-        and "sleeps to recover; outcome pending" or "rests to recover endurance; outcome pending", at = tick }
-    pcall(function() body:setSitOnGround(true); SAO.Gesture.seat(id, body) end)
+    if not job.done and tickCount<(binding.deadline or 0) then return true end
+    if job.done then
+        local inquiryFinished=SAO.ProceduralPlanning.finishConceptInquiry(id,body,binding.purposeId,binding.routeId,job)
+        if inquiryFinished and job.result=="arrived" and SAO.Perception.observeConcepts then
+            SAO.Perception.observeConcepts(id,body,tickCount)
+        end
+        if inquiryFinished and SAO.ProceduralPlanning.reviseSituationInquiry then
+            SAO.ProceduralPlanning.reviseSituationInquiry(id,body,binding.purposeId,binding.routeId,tickCount)
+        end
+    else
+        SAO.ProceduralPlanning.interruptConceptInquiry(id,"inquiry-route-expired")
+        SAO.Locomotion.cancel(id)
+    end
+    agent.inquiryRoute=nil
+    setState(agent,id,"IDLE","looks again after investigating a possible means","inquiry")
+    agent.nextDecisionAt=0
     return true
+end
+
+function Ctl.dispatchOrdinaryPurpose(id, agent, body, tick, needs, kind, offered)
+    local admitted = false
+    if kind == "inquiry" then
+        admitted=Ctl.beginConceptInquiry(id,agent,body,tick,offered.payload)
+    elseif kind == "recovery" then
+        admitted = Ctl.offerRecovery(id, agent, body, tick, needs, offered.payload)
+    elseif kind == "commitment" then
+        if SAO.Study and SAO.Study.active(id, body) then
+            admitted = Ctl.preemptStudyForCoordination(id, agent, body, offered.payload)
+        else
+            admitted = advanceCoordination(id, body, "SAO", "idle", agent, offered.payload)
+        end
+    elseif kind == "study" then
+        admitted = SAO.Study.active(id, body) or SAO.Study.begin(id, body, offered.payload)
+        if admitted then
+            agent.nextStudyAt = tick + 2400
+            agent.pressure = {answer="chosen study", detail=SAO.Study.describe and SAO.Study.describe(id)
+                or "prepares to study a carried manual", at=tick}
+        end
+    elseif kind == "practice" then
+        local planning = SAO.ProceduralPlanning
+        local purpose, step = planning.pending(id, "practice", "Cooking")
+        if not purpose then purpose, step = planning.pending(id, "produce", "Cooking") end
+        if purpose and purpose.id == offered.payload.id and not purpose.resourceCategory
+            and step and SAO.Cooking and SAO.Needs.workAvailable(body) then
+            agent.nextPurposeAt = tick + 600
+            admitted = SAO.Cooking.begin(id, body, {privateFood=true,
+                purposeId=step.owner == "Cooking" and purpose.id or nil,
+                purposeStepId=step.owner == "Cooking" and step.id or nil,
+                acquiredItemId=offered.means and offered.means.itemId or step.acquiredItemId,
+                expectedSourceId=offered.means and offered.means.sourceId})
+            if admitted then setState(agent, id, "COOK", "continues preparing food", "designation")
+            else planning.interrupt(id, purpose.id, "no accessible food and cooking appliance") end
+        end
+    end
+    local decision = agent.rec.ordinaryPurposeDecision
+    if decision then
+        decision.status = agent.studyCancellationPending and "awaiting-release"
+            or admitted and "admitted" or kind == "continue" and "continued" or "unavailable"
+    end
+    return admitted == true
 end
 
 -- A failed home route is the person's own attempt, not knowledge that the
@@ -4845,25 +5443,17 @@ local function decideNightAndDrift(id, agent, body, tick, rec)
             if needs and needs.fatigue
                 and ((agent.sleeping and needs.fatigue > 0.000001)
                     or (not agent.sleeping and needs.fatigue > 0.2)) then
-                if not agent.sleeping then
-                    agent.sleeping = true
-                    agent.pressure = { answer = "chosen rest",
-                        detail = "sleeps - tomorrow starts early", at = tick }
-                    pcall(function() SAOJavaBridge:setShellAsleep(body, true) end)
-                    log(id .. " falls asleep")
-                end
-                local okWH, nowH = pcall(function()
-                    return SAO.History.countyHours()
+                -- Night-time sleep uses the same place and pose owner as an
+                -- ordinary recovery choice. A generic evening seat is no longer
+                -- sufficient admission for a native sleeping flag.
+                if not SAO.Needs.ownsRecoveryBody(id,body) then return false end
+                agent.resting,agent.sleeping,agent.lastRestHours=nil,nil,nil
+                pcall(function()
+                    SAOJavaBridge:setShellAsleep(body,false)
+                    body:setSitOnGround(false)
+                    SAO.Gesture.standUp(body)
                 end)
-                if okWH then
-                    local delta = nowH - (agent.lastRestHours or nowH)
-                    agent.lastRestHours = nowH
-                    if delta > 0 then
-                        pcall(function()
-                            SAOJavaBridge:restRecoverTick(body, delta)
-                        end)
-                    end
-                end
+                return Ctl.offerRecovery(id,agent,body,tick,needs,"sleep")
             elseif agent.sleeping then
                 agent.sleeping = nil
                 agent.lastRestHours = nil
@@ -4920,155 +5510,161 @@ local function decideNightAndDrift(id, agent, body, tick, rec)
     end
 end
 
+function Ctl.proposeLeisureParticipation(id, agent, body, tick)
+    local coordination, planning = SAO.Coordination, SAO.ProceduralPlanning
+    if not (coordination and coordination.proposeLeisure and coordination.knownContacts
+        and planning and planning.participationSource and SAO.Communication
+        and SAO.Communication.canConverse) or tick < (agent.nextParticipationAt or 0) then return false end
+    local source = planning.participationSource(id)
+    if not source then return false end
+    local contacts = coordination.knownContacts(id)
+    for index = 1, math.min(#contacts, 8) do
+        local contact = contacts[index]
+        if contact.id ~= id and not contact.hostile and SAO.Communication.canConverse(id, contact.id) then
+            agent.nextParticipationAt = tick + 300
+            local proposal, reason = coordination.proposeLeisure(id, contact.id, source.purposeId)
+            if proposal and reason == "received" then
+                agent.pressure = { answer = "shared activity invitation", detail = "invited someone to share music",
+                    phase = "delivered", owner = "SAO.Communication", at = tick }
+                return true
+            end
+            return false
+        end
+    end
+    return false
+end
+
+-- Source facts come only from this person's observations. Definition metadata
+-- proposes a use after acquisition; it reveals neither custom text nor success.
+function Ctl.leisureGroundOffers(id, body)
+    local sources, planning = SAO.WorldSources, SAO.ProceduralPlanning
+    if not sources or not sources.actionOptions or not planning or not planning.leisureAcquisitionAvailable
+        or not SAO.Needs.ownsRecoveryBody(id, body) then return {} end
+    local rows, seen = {}, {}
+    for _, belief in pairs(SAO.Perception.knownPlaces(id, true) or {}) do
+        if belief.sourceId and string.sub(belief.sourceId,1,2)=="G:" and belief.z==math.floor(body:getZ()) then
+            local place={id="source:"..belief.sourceId,sourceId=belief.sourceId,cx=belief.cx,cy=belief.cy,z=belief.z}
+            for _, kind in ipairs({"instrument","reading"}) do
+                local options=sources.actionOptions(place,kind,id,body,1,"standing","acquire")
+                for _, option in ipairs(options and options.options or {}) do
+                    local p=option.parameters
+                    local ok, eligible=pcall(function()
+                        local definition=getScriptManager():getItem(p.itemType)
+                        if not definition then return false end
+                        if kind=="instrument" then return SAO.Needs.instrumentCapability(definition)~=nil end
+                        return SAO.History.literacyOf(id)~="none" and not body:hasTrait(CharacterTrait.ILLITERATE)
+                            and not definition:hasTag(ItemTag.UNINTERESTING) and not SkillBook[definition:getSkillTrained()]
+                    end)
+                    if ok and eligible and not seen[option.id] and p.sourceKind=="ground"
+                        and planning.leisureAcquisitionAvailable(id,p.sourceId,p.itemId,p.revision) then
+                        seen[option.id]=true
+                        rows[#rows+1]={kind=kind,option=option,distance=(p.sourceX-body:getX())^2+(p.sourceY-body:getY())^2}
+                    end
+                end
+            end
+        end
+    end
+    SAO.Perception.sortEvidence(rows,function(a,b)return a.distance<b.distance or a.distance==b.distance and a.option.id<b.option.id end)
+    while #rows>16 do table.remove(rows) end
+    return rows
+end
+
 local function decideRestActivity(id, agent, body, tick, idleRec)
-    if not agent.pressure or tick - (agent.pressure.at or 0) > 600 then
+    if not agent.pressure or agent.pressure.phase == "refused"
+        or tick - (agent.pressure.at or 0) > 600 then
         local detail
-        -- [B32] The cooldown belongs in the GUARD, as
-        -- study's already does. Tested only inside the body, this
-        -- branch was taken even while on cooldown - `detail` is
-        -- set above the check - so the chain never fell through
-        -- and an instrument-carrier could never study, read, or
-        -- handle a keepsake. The inner check below is now
-        -- redundant rather than wrong.
-        if idleRec and idleRec.instrument
-            and tick >= (agent.nextTuneAt or 0) then
-            -- Boot-camp leisure, enriched ([A19]): short, pointed,
-            -- interruptible - the porch, the instrument, the bat in
-            -- reach. Designation earned the pause; the environment
-            -- still collects.
-            local what = idleRec.instrument == "Base.Banjo" and "banjo"
-                or idleRec.instrument == "Base.Harmonica" and "harmonica"
-                or "guitar"
-            -- [C119] The bard's own shape: the carried type goes
-            -- with the tune so the flute-player plays the flute's
-            -- clip, not the guitar's. The label keeps the
-            -- county's word for it; only the body tells the
-            -- truth about what is held.
-            local carriedInstrument = idleRec.instrument
-            if carriedInstrument and what == "guitar"
-                and carriedInstrument:match("%.(.+)$") then
-                what = carriedInstrument:match("%.(.+)$")
+        if not SAO.Needs or not SAO.Needs.ownsRecoveryBody(id, body)
+            or not SAO.Needs.workAvailable(body) then return false end
+        if Ctl.proposeLeisureParticipation(id, agent, body, tick) then return true end
+        local material, capability
+        local offeredReading = idleRec and SAO.Study and SAO.Study.offerLeisure
+            and SAO.Study.offerLeisure(id, body)
+        if idleRec and SAO.Needs and SAO.Needs.carriedInstrument then
+            material, capability = SAO.Needs.carriedInstrument(id, body)
+        end
+        local candidates, offered = {}, {}
+        local planning = SAO.ProceduralPlanning
+        local function offer(kind, item, activity, consequence)
+            local itemKey = tostring(item:getID())
+            local purpose = planning and planning.pending and planning.pending(id, "recreate", activity)
+            local retained = purpose and purpose.leisure and purpose.leisure.itemKey == itemKey
+            if not retained and planning and planning.leisureAcquiredPurpose then
+                purpose = planning.leisureAcquiredPurpose(id,itemKey,item:getFullType(),
+                    kind=="instrument" and "SAO.Gesture" or "SAONeeds")
+                retained = purpose ~= nil
             end
-            detail = "picks the " .. what .. " on the porch, "
-                .. (agent.armed and "weapon" or "bat") .. " in reach"
-            local leisure95, site95 = nil, nil
-            if SAO.ProceduralPlanning then
-                site95 = "activity-site:" .. tostring(math.floor(body:getX()))
-                    .. ":" .. tostring(math.floor(body:getY()))
-                    .. ":" .. tostring(math.floor(body:getZ()))
-                SAO.ProceduralPlanning.rememberSpatial(id, {
-                    key = site95, kind = "shared-activity-place",
-                    x = body:getX(), y = body:getY(), z = body:getZ(),
-                    source = "current-physical-place", confidence = 1,
-                    familiarity = 0.6, routeKnown = true, usable = true,
-                    tags = { "leisure", "instrument" },
-                })
-                leisure95 = SAO.ProceduralPlanning.planLeisure(id, {
-                    activity = "play " .. what, affordance = carriedInstrument,
-                    locationKey = site95, atLocation = true,
-                    owner = "SAO.Gesture", spontaneous = true,
-                })
+            local key = kind .. ":" .. itemKey
+            candidates[#candidates + 1] = { id = key, kind = kind, itemKey = itemKey,
+                itemType = item:getFullType(), activity = activity,
+                purposeId = retained and purpose.id or nil, evidence = 1,
+                continuity = retained and 1 or 0, novelty = retained and 0 or 1,
+                informationGain = 0, blockers = 0, consequences = consequence and { consequence } or {} }
+            offered[key] = { kind = kind, item = item }
+        end
+        if material and capability and tick >= (agent.nextTuneAt or 0) then
+            offer("instrument", material, capability.verb, { kind = "recreate", category = "leisure",
+                sourceId = "native:sound:BlowHarmonica", itemType = material:getFullType(), value = 1 })
+        end
+        if offeredReading and not body:tooDarkToRead() and tick >= (agent.nextPageAt or 0) then
+            offer("reading", offeredReading, "read " .. offeredReading:getFullType())
+        end
+        for _, row in ipairs(Ctl.leisureGroundOffers(id,body)) do
+            if (row.kind=="instrument" and tick >= (agent.nextTuneAt or 0))
+                or (row.kind=="reading" and tick >= (agent.nextPageAt or 0)) then
+                local p=row.option.parameters
+                local key="acquire:"..row.option.id
+                candidates[#candidates+1]={id=key,kind="acquire",itemKey=tostring(p.itemId),itemType=p.itemType,
+                    activity=row.kind,sourceId=p.sourceId,revision=p.revision,evidence=1,continuity=0,novelty=1,
+                    informationGain=0,blockers=0,consequences={}}
+                offered[key]={kind="acquire",materialKind=row.kind,option=row.option}
             end
-            -- [B21] And it CARRIES. This used to set a string and
-            -- stop - a hobby with no audience is a flavour label.
-            -- The sound is real and reaches the dead too, which is
-            -- the honest price of playing out loud here.
-            if tick >= (agent.nextTuneAt or 0) then
-                agent.nextTuneAt = tick + 2400
-                pcall(function()
-                    addSound(body, math.floor(body:getX()),
-                        math.floor(body:getY()),
-                        math.floor(body:getZ()), 14, 8)
-                end)
-                local heard43 = 0
-                pcall(function()
-                    heard43 = SAOJavaBridge:easeListeners(body, 12)
-                end)
-                -- [C35] The tune, seen: the instrument's own
-                -- animation - [C119] and the bard's own clip
-                -- when the carried type has one.
-                pcall(function()
-                    if leisure95 then
-                        SAO.Gesture.planReceipt(id, leisure95.id)
-                    end
-                    SAO.Gesture.playInstrument(id, body, what,
-                        carriedInstrument)
-                end)
-                -- People come. Nothing else had to be built for
-                -- the consequence: co-location is what the
-                -- meeting, telling and trust machinery has always
-                -- run on. The porch makes the seating chart; the
-                -- seating chart was already wired.
-                local came43 = 0
-                local myG43 = SAO.Standing.groupOf(id)
-                if myG43 then
-                    for oid43, oag43 in pairs(Ctl.agents) do
-                        if oid43 ~= id
-                            and oag43.state == "IDLE"
-                            and not oag43.escortId
-                            and not oag43.riding
-                            and (not oag43.pressure
-                                or oag43.pressure.answer ~= "need")
-                            and SAO.Standing.groupOf(oid43) == myG43
-                            and SAO.Disposition.circle(oid43) ~= "loner"
-                        then
-                            local ob43 = SAO.Body.get(oid43)
-                            if ob43 then
-                                local odx = ob43:getX() - body:getX()
-                                local ody = ob43:getY() - body:getY()
-                                local od2 = odx * odx + ody * ody
-                                if od2 > 16.0 and od2 <= 196.0 then
-                                    if orderTravelState(oag43, oid43, ob43,
-                                        math.floor(body:getX()),
-                                        math.floor(body:getY()),
-                                        math.floor(body:getZ()), "ROAM",
-                                        "drawn by the " .. what,
-                                        "chosen rest") then
-                                        came43 = came43 + 1
-                                    end
-                                elseif od2 <= PORCH_REACH * PORCH_REACH then
-                                    -- [C35] Already close: half dance, the
-                                    -- rest clap - the porch, seen and heard.
-                                    local joinedPurpose95 = nil
-                                    if SAO.ProceduralPlanning and site95 then
-                                        joinedPurpose95 = SAO.ProceduralPlanning.planLeisure(
-                                            oid43, { activity = "join " .. what,
-                                                affordance = carriedInstrument,
-                                                locationKey = site95, atLocation = true,
-                                                owner = "SAO.Gesture", spontaneous = true })
-                                    end
-                                    pcall(function()
-                                        if (SAO.Hash.of(oid43, "dance:" .. tostring(tick)) % 100) < 50 then
-                                            if joinedPurpose95 then
-                                                SAO.Gesture.planReceipt(oid43,
-                                                    joinedPurpose95.id, id)
-                                            end
-                                            SAO.Gesture.dance(oid43, ob43)
-                                        else
-                                            local clapped95 = SAO.Gesture.clap(ob43)
-                                            if clapped95 and joinedPurpose95
-                                                and SAO.ProceduralPlanning.recordResult(oid43,
-                                                    joinedPurpose95.id, {
-                                                        owner = "SAO.Gesture",
-                                                        token = "leisure:performed",
-                                                        status = "completed" }) then
-                                                SAO.Standing.adjustTrust(id, oid43, 0.01)
-                                                SAO.Standing.adjustTrust(oid43, id, 0.01)
-                                            end
-                                        end
-                                    end)
-                                end
-                            end
-                        end
-                    end
-                end
-                if heard43 > 0 or came43 > 0 then
-                    log(id .. " plays the " .. what .. " - "
-                        .. heard43 .. " eased, " .. came43
-                        .. " come over")
-                end
+        end
+        local views = #candidates > 0 and SAO.Cognition and SAO.Cognition.interpretPlans
+            and SAO.Cognition.interpretPlans(id, candidates, { domain = "leisure-action", pressure = 0 })
+        local chosen = views and offered[views.selected]
+        -- Keep only plain private alternatives and their interpretations. Native
+        -- item handles remain local, and only the selected receiver creates work.
+        agent.rec.leisureDecision = { atHours = SAO.History.countyHours(),
+            selected = chosen and views.selected or nil, status = chosen and "selected" or "unavailable",
+            alternatives = candidates, interpretations = views or nil }
+        if chosen and chosen.kind == "acquire" then
+            local purpose,step,place=planning.planLeisureAcquisition(id,body,chosen.option,chosen.materialKind)
+            local p=chosen.option.parameters
+            local started=purpose and step and SAO.SourceUse and SAO.SourceUse.beginAcquisition(id,body,place,p.category,{
+                purposeId=purpose.id,purposeStepId=step.id,sourceId=p.sourceId,itemId=p.itemId,
+                itemType=p.itemType,sourceRevision=p.revision})
+            agent.rec.leisureDecision.status=started and "admitted" or "refused"
+            if started then
+                agent.taskDeadline=tick+5400
+                setState(agent,id,"SOURCEWARD","approaches personally observed material for "..chosen.materialKind)
+                return true
+            end
+            return false
+        elseif chosen and chosen.kind == "instrument" then
+            local what = capability.kind
+            local carriedInstrument = material:getFullType()
+            local purpose = SAO.ProceduralPlanning and SAO.ProceduralPlanning.planLeisure(id, {
+                activity = capability.verb, nativeVerb = capability.verb,
+                owner = "SAO.Gesture", itemKey = tostring(material:getID()),
+                affordance = carriedInstrument, atLocation = true,
+                locationKey = tostring(math.floor(body:getX())) .. ":"
+                    .. tostring(math.floor(body:getY())) .. ":" .. tostring(math.floor(body:getZ())),
+            })
+            local admitted = purpose and SAO.Gesture
+                and SAO.Gesture.playInstrument(id, body, what, carriedInstrument, material, purpose.id)
+            agent.rec.leisureDecision.status = admitted and "admitted" or "refused"
+            agent.nextTuneAt = tick + (admitted and 2400 or 300)
+            detail = admitted and ("prepares to use " .. what .. "; native action admitted")
+                or ("wants to play " .. what .. "; carried instrument or native action unavailable")
+            -- Admission precedes the native sound owner's actual result.
+            -- Hearing and sharing require their own observed participation.
+            if admitted then
+                agent.pressure = { answer = "chosen rest", detail = detail, at = tick,
+                    phase = "preparing", owner = "SAO.Gesture" }
+                return true
             end
         elseif idleRec and idleRec.designation
+            and not chosen
             and SAO.Census.JOB_PERK
             and SAO.Census.JOB_PERK[idleRec.designation]
             and tick >= (agent.nextStudyAt or 0) then
@@ -5092,7 +5688,7 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
         -- [B32] Same lock as the porch above: on cooldown
         -- this still took the slot, so a reader never reached
         -- their keepsake.
-        elseif idleRec and idleRec.reading
+        elseif idleRec and (chosen and chosen.kind == "reading" or not chosen and idleRec.reading)
             and tick >= (agent.nextPageAt or 0) then
             -- [B22] Something to read, and it GOES ROUND. A
             -- keepsake helps only its owner; the standing law
@@ -5100,9 +5696,19 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
             -- other bodies. So a reader beside a bored housemate
             -- hands the book over - the same vanilla transfer
             -- every other kindness here uses.
-            detail = "reads a while, back to the wall"
-            if tick >= (agent.nextPageAt or 0) then
+            local literature = chosen and chosen.kind == "reading" and chosen.item
+            if literature and SAO.Study.beginLeisure(id, body, literature) then
+                agent.rec.leisureDecision.status = "admitted"
                 agent.nextPageAt = tick + 3000
+                agent.pressure = { answer = "chosen rest", detail = SAO.Study.describe(id),
+                    phase = "preparing", owner = "SAO.Study", at = tick }
+                return true
+            end
+            if chosen then agent.rec.leisureDecision.status = "refused" end
+            detail = literature and "wants to read; native reading unavailable here"
+                or "wants to read; no unread carried literature available"
+            if tick >= (agent.nextPageAt or 0) then
+                agent.nextPageAt = tick + 300
                 -- [B41] What the book is ABOUT.
                 --
                 -- `rec.reading` has always held the item's full
@@ -5182,7 +5788,10 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
                             voice = { actor = id, kind = "passItOn", at = tick },
                             log = passLog,
                         } }) then
-                        idleRec.reading = nil
+                        agent.pressure = { answer = "chosen rest",
+                            detail = "prepares to pass carried reading material",
+                            phase = "preparing", owner = "SAO.Handover", at = tick }
+                        return true
                     end
                 end
             end
@@ -5196,13 +5805,8 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
             -- nothing for the house, which is precisely what
             -- makes it evidence of a person rather than a
             -- function.
-            detail = "turns something over in their hands"
-            if tick >= (agent.nextKeepsakeAt or 0) then
-                agent.nextKeepsakeAt = tick + 3600
-                pcall(function()
-                    SAOJavaBridge:steady(body, 0.04)
-                end)
-            end
+            detail = "wants time with a keepsake; handling is not admitted"
+            agent.nextKeepsakeAt = tick + 3600
         -- [B32] The solo life, moved out of the way.
         -- This has no cooldown and always sets a detail, so as the
         -- FIRST branch it could never yield - an undesignated
@@ -5221,20 +5825,21 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
             if (idleRec.contactMonths or 0) < 0.5
                 and not SAO.Lessons.has(id, "routine-is-armor")
                 and not SAO.Lessons.has(id, "measure-the-danger") then
-                detail = "waits for someone to come"
+                detail = "wants company; no shared activity admitted"
             elseif SAO.Disposition.isSmoker(id) then
-                detail = "keeps hands busy - a smoke, eyes on the road"
+                detail = "wants a smoke; no smoking action admitted"
             else
-                detail = "keeps hands busy, eyes on the road"
+                detail = "wants something to do; no activity admitted"
             end
         elseif SAO.Disposition.traits(id).discipline > 0.5 then
-            detail = "tends their kit between rounds"
+            detail = "wants to tend their kit; no maintenance action admitted"
         else
-            detail = "a short rest, weapon in reach"
+            detail = "wants a short rest; no resting posture admitted"
         end
-        agent.pressure = { answer = "chosen rest", detail = detail, at = tick }
+        agent.pressure = { answer = "chosen rest", detail = detail, at = tick,
+            phase = chosen and agent.rec.leisureDecision.status == "refused" and "refused" or "intended" }
     end
-
+    return false
 end
 
 local function decideLocalResources(id, agent, body, tick, idleRec)
@@ -7162,18 +7767,25 @@ local function decide(id, agent, body)
     -- Deprivation without an executable relief route still leaves resource
     -- planning available rather than repeatedly travelling to an unheard ask.
     local needs = SAO.Needs.read(body)
-    if not agent.recovery and agent.rec.recoveryIntent and SAO.Needs.resumeRecovery then
-        local resumed, kind = SAO.Needs.resumeRecovery(id, body)
+    if not agent.recovery and not agent.recoveryAdmission and not agent.recoveryRoute and agent.rec.recoveryIntent and SAO.Needs.resumeRecovery then
+        local resumed, kind, status = SAO.Needs.resumeRecovery(id, body)
         if resumed then
             agent.recovery, agent.recoveryBody, agent.resting = true, body, true
             agent.sleeping = kind == "sleep" or nil
+        elseif status=="saved-preparation" then
+            Ctl.resumePreparingRecovery(id,agent,body,tick,needs,threat)
         end
     end
     if Ctl.updateRecovery(id, agent, body, tick, needs, threat) then return end
     if Ctl.preemptContactForNeeds(id, agent, body, needs) == "held" then return end
-    if not CONTACT_STATES[agent.state] and decideNeedsAndCompanion(id, agent, body, tick, needs) then
-        if SAO.Study then SAO.Study.interrupt(id, body, "immediate need or companion") end
-        return
+    if not CONTACT_STATES[agent.state] then
+        local handled, activity = decideNeedsAndCompanion(id, agent, body, tick, needs)
+        if handled then
+            if activity ~= "study" and not agent.studyCancellationPending and SAO.Study then
+                SAO.Study.interrupt(id, body, "immediate need or companion")
+            end
+            return
+        end
     end
 
     -- CONTACTWAIT is an explicit hold gate: only actual exchange, process
@@ -7197,7 +7809,7 @@ local function decide(id, agent, body)
 
     if Ctl.preemptStudyForCoordination(id, agent, body) then return end
     if SAO.Study and SAO.Study.active(id, body) then
-        agent.pressure = { answer = "chosen rest", detail = "studies a carried manual", at = tick }
+        agent.pressure = { answer = "chosen rest", detail = SAO.Study.describe(id), at = tick }
         return
     end
     if agent.state == "IDLE" then
@@ -7227,9 +7839,8 @@ local function decide(id, agent, body)
             local manual = SAO.Study.offer(id, body)
             if manual and SAO.Study.begin(id, body, manual) then
                 agent.nextStudyAt = tick + 2400
-                pcall(function() SAO.Voice.onEvent(id, "studies", tick) end)
                 agent.pressure = { answer = "chosen rest",
-                    detail = "studies " .. tostring(manual:getSkillTrained()), at = tick }
+                    detail = SAO.Study.describe(id), at = tick }
                 return
             end
         end
@@ -7511,7 +8122,42 @@ local function witnessDeath(id, agent, body)
     return cause
 end
 
+function Ctl.advancePosture(id,agent,body,tick)
+    -- Cooperative watch and cover own a finite native body/head posture.
+    -- A newly close threat interrupts the accepted segment so the ordinary
+    -- threat decision can choose again on the next pass.
+    if SAO.Posture and SAO.Posture.jobs and SAO.Posture.jobs[id] then
+        local postureJob=SAO.Posture.jobs[id]
+        local threat,count,person,personKey = selectedThreat(id, tick, body:getX(), body:getY())
+        if person and threat then threat.name=person end
+        if threat and threat.dist <= SAO.Disposition.fleeDistance(id)
+            and (not SAO.ConflictResponse or SAO.ConflictResponse.coordinationThreatChanged(id,agent,body,threat,count,personKey)) then
+            SAO.Posture.interrupt(id, body, "close-threat-interrupted")
+            if SAO.ConflictResponse then SAO.ConflictResponse.finishCoordination(id,agent,body,postureJob,
+                "cancelled","danger changed during cooperative posture") end
+            agent.nextDecisionAt = 0
+            setState(agent, id, "IDLE", "cooperative posture interrupted")
+            return true
+        end
+        local outcome = SAO.Posture.tick(id, body)
+        if not SAO.Posture.jobs[id] then
+            if SAO.ConflictResponse then SAO.ConflictResponse.finishCoordination(id,agent,body,postureJob,
+                outcome=="completed" and "completed" or "failed","cooperative posture segment: "..tostring(outcome)) end
+            agent.nextDecisionAt = 0
+            setState(agent, id, "IDLE",
+                "cooperative posture: " .. tostring(outcome))
+        end
+        return true
+    elseif agent.state == "POSTURE" then
+        setState(agent, id, "IDLE", "cooperative posture owner ended")
+        return true
+    end
+
+    return false
+end
+
 local function retireDeadBodyWork(id, body, rec)
+    if SAO.ConflictResponse then SAO.ConflictResponse.detach(id,Ctl.agents[id],body,"person died",true) end
     if SAO.Needs.retireRecovery then SAO.Needs.retireRecovery(id, "death") end
     if SAO.ProceduralPlanning and SAO.ProceduralPlanning.detachResidence then
         SAO.ProceduralPlanning.detachResidence(id, "death")
@@ -7580,14 +8226,22 @@ local function decisionIntervalFor(id)
 end
 
 local function updateMovement(id, agent, body)
+    Ctl.reconcileLeisureCommitment(id, agent)
     if agent.coordinationRoute and agent.coordinationCommitment
         and SAO.Organization and coordinationWorkEnded(
             SAO.Organization.commitment(agent.coordinationCommitment)) then
+        if agent.conflictCoordination and SAO.ConflictResponse then
+            SAO.ConflictResponse.finishCoordination(id,agent,body,agent.conflictCoordination.nativeJob,
+                "cancelled","accepted commitment ended")
+        end
         agent.coordinationRoute, agent.coordinationCommitment = nil, nil
         agent.forageContext = nil
-        SAO.Locomotion.cancel(id)
-        setState(agent, id, "IDLE", "the accepted commitment ended")
-        return false
+        -- A retired cooperative route cannot cancel a later threat response.
+        if agent.state == "WORKWARD" or agent.state == "FORAGE" then
+            SAO.Locomotion.cancel(id)
+            setState(agent, id, "IDLE", "the accepted commitment ended")
+            return false
+        end
     end
     if agent.state == "CONTACTWARD" and agent.contactRecipientId
         and SAO.Organization and SAO.Organization.activeContact
@@ -7618,6 +8272,14 @@ local function updateMovement(id, agent, body)
         or agent.state == "SEARCHWARD" or agent.state == "HEARTHWARD" then
         SAO.Locomotion.tick(id)
         local s = SAO.Locomotion.status(id)
+        if agent.conflictCoordination and SAO.ConflictResponse then
+            local job=SAO.Locomotion.jobs[id]
+            if job and job.done then
+                SAO.ConflictResponse.finishCoordination(id,agent,body,job,
+                    job.result=="arrived" and "completed" or "failed",
+                    "cooperative movement segment: "..tostring(job.result))
+            end
+        end
         if agent.state == "WATERWARD" and agent.taskDeadline
             and tickCount >= agent.taskDeadline and s:sub(1, 5) ~= "done:" then
             local job = SAO.Locomotion.jobs and SAO.Locomotion.jobs[id]
@@ -7636,6 +8298,10 @@ local function updateMovement(id, agent, body)
         -- interrupt: accepted crossing events can precede native state entry.
         if agent.residenceRoute and Ctl.preemptResidenceForRecovery(id, agent, body, tickCount) then return true end
         if agent.residenceRoute and Ctl.finishResidenceMovement(id, agent, body) then return true end
+        if agent.recoveryRoute and Ctl.finishRecoveryPlaceMovement(id,agent,body) then return true end
+        if agent.inquiryRoute and Ctl.finishConceptInquiryMovement(id,agent,body) then return true end
+        if agent.conflictRoute and SAO.ConflictResponse
+            and SAO.ConflictResponse.finishMovement(id,agent,body,setState) then return true end
         if agent.state == "FORAGE" and agent.forageInspection
             and agent.taskDeadline and tickCount >= agent.taskDeadline
             and s:sub(1, 5) ~= "done:" then
@@ -8463,6 +9129,11 @@ local function updateAgent(id, agent)
     -- it ([B19]). A sleeping person is not a sentry.
     SAO.Perception.observe(id, body, tickCount, agent.sleeping)
     Ctl.considerResidence(id, agent, body, tickCount)
+    if SAO.ConflictResponse and agent.conflictHandover then
+        local threat,count,person,personKey=selectedThreat(id,tickCount,body:getX(),body:getY())
+        if threat and person then threat.name=person end
+        if SAO.ConflictResponse.pendingTransfer(id,agent,body,threat,count,personKey) then return end
+    end
 
     -- Native production owns its exact fixture/vessel action until it retires.
     if agent.rec.resourceProductionWork and SAO.ResourceProduction then
@@ -8551,28 +9222,7 @@ local function updateAgent(id, agent)
         return
     end
 
-    -- Cooperative watch and cover own a finite native body/head posture.
-    -- A newly close threat interrupts the accepted segment so the ordinary
-    -- threat decision can choose again on the next pass.
-    if SAO.Posture and SAO.Posture.jobs and SAO.Posture.jobs[id] then
-        local threat = selectedThreat(id, tickCount, body:getX(), body:getY())
-        if threat and threat.dist <= SAO.Disposition.fleeDistance(id) then
-            SAO.Posture.interrupt(id, body, "close-threat-interrupted")
-            agent.nextDecisionAt = 0
-            setState(agent, id, "IDLE", "cooperative posture interrupted")
-            return
-        end
-        local outcome = SAO.Posture.tick(id, body)
-        if not SAO.Posture.jobs[id] then
-            agent.nextDecisionAt = 0
-            setState(agent, id, "IDLE",
-                "cooperative posture: " .. tostring(outcome))
-        end
-        return
-    elseif agent.state == "POSTURE" then
-        setState(agent, id, "IDLE", "cooperative posture owner ended")
-        return
-    end
+    if Ctl.advancePosture(id,agent,body,tickCount) then return end
 
     -- The durable phase, rather than a possibly interrupted state assignment,
     -- says which runtime projection owns the body. Resume also reconstructs
@@ -8740,6 +9390,11 @@ local function updateAgent(id, agent)
     -- Combat pump: harness-initiated engagements tick Java-side combat and
     -- exit on its evidence-based verdicts.
     if agent.state == "ENGAGE" then
+        if agent.conflictCombat and SAO.ConflictResponse then
+            local threat,count,person,personKey=selectedThreat(id,tickCount,body:getX(),body:getY())
+            if person and threat then threat.name=person end
+            if SAO.ConflictResponse.pump(id,agent,body,tickCount,threat,count,personKey,setState) then return end
+        end
         local ok, verdict = pcall(function() return SAOJavaBridge:tickCombat(body) end)
         verdict = ok and tostring(verdict) or ("tick threw: " .. tostring(verdict))
         if verdict ~= (agent.lastCombatVerdict or "") then
@@ -9010,35 +9665,15 @@ local function updateAgent(id, agent)
             if agent.state == "TAKE" and agent.takePurpose == "offered" then
                 agent.takePurpose = nil
                 SAO.Needs.clearOffered(body)
-                -- Kindness attribution: the nearest person believed HERE,
-                -- fresh and close, gets the credit and the thanks.
-                local beliefs = SAO.Perception.beliefs[id]
-                local giverName, giverDist
-                if beliefs then
-                    for name, belief in pairs(beliefs.people) do
-                        if belief.source == "observed"
-                            and (tickCount - belief.at) <= 120 then
-                            local dx = belief.x - body:getX()
-                            local dy = belief.y - body:getY()
-                            local d = math.sqrt(dx * dx + dy * dy)
-                            if d <= 5.0 and (not giverDist or d < giverDist) then
-                                giverName, giverDist = name, d
-                            end
-                        end
-                    end
-                end
-                if giverName then
-                    local giverKey = SAO.Standing.keyForObserved(giverName)
-                    if not SAO.Standing.isHostileTo(id, giverKey) then
-                        SAO.Standing.adjustTrust(id, giverKey, 0.15)
-                        pcall(function() SAO.Voice.onEvent(id, "thanks", tickCount) end)
-                        log(id .. " takes the gift and thanks " .. giverName)
-                    end
-                else
-                    log(id .. " pockets a found item (nobody to thank)")
-                end
-                pcall(function() SAOJavaBridge:equipBestMelee(body) end)
-                setState(agent, id, "IDLE", "ground-item action ended")
+                local pickup = agent.offeredAction
+                agent.offeredAction = nil
+                local acquired = pickup and pickup.character == body
+                    and pickup.saoPickupResult == "completed"
+                -- Ground presence establishes no giver. Exact native pickup
+                -- can establish acquisition, but supplies no gift attribution.
+                if acquired then pcall(function() SAOJavaBridge:equipBestMelee(body) end) end
+                setState(agent, id, "IDLE", acquired and "picked up the observed ground item"
+                    or "ground-item action ended without confirmed acquisition")
             elseif agent.state == "TAKE"
                 and agent.takePurpose == "coordination" then
                 agent.takePurpose = nil
@@ -9062,6 +9697,11 @@ local function updateAgent(id, agent)
                 end)
                 setState(agent, id, "IDLE",
                     "gear action ended: " .. (okE and tostring(what) or "equip failed"))
+            elseif agent.state == "TAKE" and (agent.takePurpose == "farm"
+                or agent.takePurpose == "animal" or agent.takePurpose == "build") then
+                local work = agent.takePurpose
+                agent.takePurpose = nil
+                setState(agent, id, "IDLE", work .. " action ended without a completion receipt")
             elseif agent.state == "TAKE" then
                 -- A legacy queue may have left carried food, but its end
                 -- alone supplies no acquisition or experience receipt.
@@ -9088,31 +9728,12 @@ local function updateAgent(id, agent)
                         body:getX(), body:getY(), 8)
                 end)
                 setState(agent, id, "IDLE", "drinking action ended")
-            elseif agent.state == "TAKE"
-                and agent.takePurpose == "farm" then
-                -- The plant is tended or the crop is in the pack
-                -- ([B4]); the shelving machinery takes it from here.
-                agent.takePurpose = nil
-                setState(agent, id, "IDLE", "the ground is worked")
-            elseif agent.state == "TAKE"
-                and agent.takePurpose == "animal" then
-                agent.takePurpose = nil
-                setState(agent, id, "IDLE", "the ranch is tended")
-            elseif agent.state == "TAKE"
-                and agent.takePurpose == "build" then
-                -- The board is up (or the action lapsed) ([B2]): the
-                -- engine granted the Carpentry itself; the wall is
-                -- the reward.
-                agent.takePurpose = nil
-                setState(agent, id, "IDLE", "the window is boarded")
             elseif agent.state == "TREAT" then
-                -- More wounds? The next decision re-enters TREAT.
-                -- Binding your own wound teaches too ([B2]) - the
-                -- last write-only gap in the XP loop.
-                pcall(function()
-                    SAOJavaBridge:grantXP(body, "Doctor", 1.0)
-                end)
-                setState(agent, id, "IDLE", "wound bound")
+                local treatment = agent.treatPurpose or "treatment"
+                agent.treatPurpose = nil
+                -- Effective dressing and its skill credit belong to Treatment.
+                -- Queue disappearance is only the end of this controller hold.
+                setState(agent, id, "IDLE", treatment .. " action ended")
             else
                 setState(agent, id, "IDLE", "eating action ended")
             end
@@ -9221,11 +9842,20 @@ local function updateAgent(id, agent)
 
     -- An owned strategic journey still yields to newly acquired immediate
     -- danger. Quiet reconsideration keeps the exact route and native owner.
-    if agent.residenceRoute then
+    if agent.residenceRoute or agent.inquiryRoute or agent.recoveryRoute then
         local threat, count, person, key = selectedThreat(id, tickCount, body:getX(), body:getY())
-        if threat and decideThreat(id, agent, body, tickCount, threat, count, person, key) then return end
+        if threat and decideThreat(id, agent, body, tickCount, threat, count, person, key, true) then return end
         local needs = SAO.Needs.read(body)
         local immediate = SAO.Needs.bleeding(body) > 0
+        if agent.inquiryRoute and needs and (math.max(needs.hunger,needs.thirst)>=policy().desperation
+            or needs.fatigue>=0.97 or needs.endurance<=0.12) then
+            if setState(agent,id,"IDLE","interrupts inquiry for an immediate bodily need","need") then
+                agent.nextDecisionAt=0
+            end
+        end
+        if agent.recoveryRoute and needs and math.max(needs.hunger,needs.thirst)>=policy().desperation then
+            if setState(agent,id,"IDLE","interrupts recovery approach for an immediate bodily need","need") then agent.nextDecisionAt=0 end
+        end
         if immediate and decideNeedsAndCompanion(id, agent, body, tickCount, needs) then return end
     end
     if CONTACT_STATES[agent.state] and tickCount >= (agent.nextContactNeedsAt or 0) then

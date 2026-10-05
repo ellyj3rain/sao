@@ -13,6 +13,8 @@ import re
 import shutil
 import subprocess
 import tempfile
+import argparse
+import hashlib
 
 import source_use_test as fixture
 
@@ -48,9 +50,16 @@ ROUTES = fixture.snapshot(1, 1, 'routes', [
      'x': 56, 'y': 8, 'building': 42, 'quantities': {'food': 1},
      'items': [{'id': 15, 'type': 'Base.Apple', 'amount': 1, 'cats': 'food'}]},
 ])
+MANY = fixture.snapshot(1, 1, 'many', [
+    {'id':f'C:choice-{index:02d}:0','fp':f'choice-{index:02d}','rev':'r1','kind':'container',
+     'x':8,'y':8,'building':42,'quantities':{'food':1},
+     'items':[{'id':100+index,'type':'Base.Apple','amount':1,'cats':'food'}]}
+    for index in range(1,13)
+])
 
 SETUP = r'''
 require=function() end
+ModData.get=function(key) return __stores[key] end
 SAO.Census={skillOf=function() return 0 end}
 SAO.Lessons={has=function(_,work) return work=='quartermaster' end}
 SAO.Standing.mayEngageZombie=function() return false end
@@ -80,6 +89,14 @@ SAO.Perception.nearestBelievedThreat=function(id,tick,x,y)
 end
 SAO.Perception.knownAidRequests=function(id) return __requests[id] or {},'available' end
 SAO.Organization={activeCommitments=function(id) return __obligations[id] or {} end}
+-- Controlled canonical Cooking reader; production Cognition owns qualification
+-- and its private native-result capability. Heating/action probes are separate.
+SAO.Cooking={outcome=function(id,sequence)
+    local rec=__records[id]
+    for _,receipt in ipairs(rec and rec.cookingOutcomes or {}) do
+        if receipt.actorId==id and receipt.sequence==sequence then return receipt end
+    end
+end}
 SAO.Disposition={wouldGiveToStranger=function(id) return __willing[id]==true end}
 SAOJavaBridge.carriedWorldTransferItem=function()
     return 'T|operation=acquire|source=C:pantry:0|id=12|type=Base.Chicken|uses=1|amount=1|fluid=|poison=0|rotten=0|cats=food'
@@ -157,7 +174,7 @@ check('models_independently_disagree_on_feasible_routes',purpose.interpretations
 local original=M.interpretPlans
 local seen={}
 M.interpretPlans=function(model,state,candidates,ctx)
-    seen[#seen+1]=candidates[1].evidence
+    if #candidates>1 then seen[#seen+1]=candidates[1].evidence end
     local answer=original(model,state,candidates,ctx)
     state.tainted=true candidates[1].evidence=0
     return answer
@@ -165,7 +182,12 @@ end
 P.planResource('a',context)
 M.interpretPlans=original
 check('independent_models_receive_same_feasible_candidates',#seen==2 and seen[1]==seen[2]
-    and not __records.a.cognition.models.ordinary.tainted and not __records.a.cognition.models.associative.tainted)
+    and __records.a.cognition==nil)
+check('cold_resource_interpretation_does_not_create_learning',__records.a.cognition==nil
+    and purpose.interpretations.selectedModelId=='ordinary')
+check('current_capability_cannot_backfill_historical_plan',C.interpretPlans('a',{
+    {id='past',evidence=1,continuity=0,novelty=0,informationGain=0,blockers=0}},
+    {pressure=.35,atHours=47})==nil and __records.a.cognition==nil)
 local revision,events=purpose.revision,#purpose.events
 local again=P.planResource('a',context)
 check('decision_ticks_do_not_replace_goal',again==purpose and purpose.revision==revision
@@ -230,9 +252,9 @@ check('time_evidence_comes_from_native_observed_work',profile.capacity.timeEvide
     and profile.capacity.timeEvidence.observedMinimumHours==2)
 local snapshot=P.snapshot('a')
 snapshot.purposes[1].demand.pressure=0 snapshot.purposes[1].sequence[1].itemId=99
-snapshot.purposes[1].interpretations.models[1].selected='forged'
+if snapshot.purposes[1].interpretations then snapshot.purposes[1].interpretations.models[1].selected='forged' end
 check('resource_observation_is_bounded_detached_data',purpose.demand.pressure==.35
-    and purpose.steps[1].itemId==12 and purpose.interpretations.models[1].selected~='forged'
+    and purpose.steps[1].itemId==12 and purpose.interpretations and purpose.interpretations.models[1].selected~='forged'
     and snapshot.purposes[1].labor.slack.status=='unknown')
 
 context=reset() context.sources={} context.inspectPlace=nil
@@ -274,15 +296,15 @@ context.sources={{sourceId='C:pantry:0',revision='r1',place=place,category='food
 again,step=P.planResource('a',context)
 check('inspection_facts_recompile_without_fake_completion',again==purpose and step.verb=='acquire'
     and step.itemId==13 and not purpose.completedSteps)
-local interpret=C.interpretPlans
-C.interpretPlans=function(id,candidates,ctx)
-    local value=interpret(id,candidates,ctx)
-    value.models[1].selected='inspect:10:C:pantry:0:pantry'
-    return value
-end
+C.configure(1,12,3)
 again,step=P.planResource('a',context)
-C.interpretPlans=interpret
-check('ordinary_selected_alternative_changes_executed_owner',step.verb=='inspect' and step.owner=='SAO.WorldSources')
+check('configured_associative_selection_changes_executed_owner',step.verb=='inspect'
+    and step.owner=='SAO.WorldSources' and purpose.interpretations.selectedModelId=='associative'
+    and purpose.selectedStrategy==purpose.interpretations.selected)
+C.configure(0,12,3)
+again,step=P.planResource('a',context)
+check('configured_ordinary_selection_restores_exact_acquisition',step.verb=='acquire'
+    and step.itemId==13 and purpose.interpretations.selectedModelId=='ordinary')
 
 context=reset() context.category='water' context.inspectPlace=nil
 context.sources={{sourceId='C:pantry:0',revision='r1',place=place,category='water',quantity=1,
@@ -601,6 +623,129 @@ local foreign=profile.options[1] foreign.appraisal.actorId='b'
 check('model_refuses_foreign_detached_appraisal',M.interpretPlans('ordinary',M.newState('ordinary'),{foreign},
     {actorId='a',pressure=.35})==nil)
 
+-- Current private alternatives stay fixed while observed outcomes change the
+-- actual exact item/source selected by production planning. The experience
+-- admission is production; controlled source receipts above own native credit.
+local function learnedRoutes()
+    local ctx=routes();C.configure(0,12,3)
+    ctx.position.x=32;__records.a.homeX=32
+    ctx.sources[1].distance=24;ctx.sources[2].distance=24
+    return ctx
+end
+local function acquireEvidence(actor,serial,source,status)
+    return C.experience(actor,{id='shared/'..actor..'/'..serial,actorId=actor,observerId=actor,
+        kind='acquire',category='food',perspective='performed',status=status,
+        sourceId=source,itemType='Base.Apple',worldHours=48})
+end
+context=learnedRoutes();purpose,step=P.planResource('a',context)
+check('equal_known_routes_start_with_exact_pantry_item',step.itemId==13 and step.sourceId=='C:pantry:0')
+check('measured_remote_acquisition_enters_personal_learning',acquireEvidence('a',1,'C:remote:0','completed'))
+purpose,step=P.planResource('a',context)
+check('shared_source_prediction_changes_actual_exact_item',step.verb=='acquire'
+    and step.itemId==15 and step.sourceId=='C:remote:0')
+local selectedPrediction=purpose.interpretations.models[1].ranked[1].predictions[1]
+check('selected_resource_prediction_retains_exact_basis',selectedPrediction and selectedPrediction.kind=='acquire'
+    and selectedPrediction.sourceId=='C:remote:0' and selectedPrediction.itemType=='Base.Apple'
+    and selectedPrediction.probability>.5 and selectedPrediction.evidenceIds[1]=='shared/a/1')
+local detachedPrediction=P.snapshot('a').purposes[1].interpretations.models[1].ranked[1].predictions[1]
+check('resource_snapshot_preserves_shared_prediction_fields',detachedPrediction and detachedPrediction.kind=='acquire'
+    and detachedPrediction.sourceId=='C:remote:0' and detachedPrediction.probability>.5
+    and detachedPrediction.evidenceIds[1]=='shared/a/1')
+if detachedPrediction and detachedPrediction.evidenceIds then
+    detachedPrediction.evidenceIds[1]='foreign';detachedPrediction.probability=0
+end
+check('resource_snapshot_prediction_is_detached',selectedPrediction and selectedPrediction.evidenceIds[1]=='shared/a/1'
+    and selectedPrediction.probability>.5)
+for i=2,8 do assert(acquireEvidence('a',i,'C:remote:0','no-effect')) end
+purpose,step=P.planResource('a',context)
+check('unmeasured_acquire_no_effect_remains_censored',step.itemId==15 and step.sourceId=='C:remote:0'
+    and __records.a.cognition.models.ordinary.revision==1
+    and __records.a.cognition.models.associative.revision==1)
+context=learnedRoutes();assert(acquireEvidence('b',1,'C:remote:0','completed'))
+purpose,step=P.planResource('a',context)
+check('another_person_source_learning_cannot_change_actual_item',step.itemId==13
+    and step.sourceId=='C:pantry:0' and __records.a.cognition==nil)
+
+context=reset();C.configure(0,12,3);context.sources={};context.inspectPlace=nil
+context.carriedRaw=2;context.carriedRawItems={{itemId=55,itemType='Base.Chicken',cookable=true},
+    {itemId=56,itemType='Base.FishFillet',cookable=true}}
+purpose,step=P.planResource('a',context)
+check('cold_preparation_uses_available_exact_item',step.acquiredItemId==55 and step.owner=='Cooking')
+local genericAccepted,genericReason=C.experience('a',{id='cooking/a/1',actorId='a',observerId='a',kind='preparation',category='food',
+    perspective='performed',status='completed',sourceId='oven:previous',itemType='Base.FishFillet',
+    itemId=900,worldHours=48,occurredAtHours=47,beforeCookingTime=0,afterCookingTime=20,heatObserved=true})
+purpose,step=P.planResource('a',context)
+check('generic_preparation_cannot_teach_resource_choice',not genericAccepted
+    and genericReason=='behavior-owner-required' and __records.a.cognition==nil
+    and step.acquiredItemId==55 and step.owner=='Cooking')
+-- Isolate each owner refusal from deliberately restored guard defects.
+__records.a.cognition=nil
+local prepared={id='cooking/a/1',sequence=1,actorId='a',status='completed',
+    detail='native-food-cooked-and-retrieved',nativeCredit='cooking/a/1',
+    sourceId='oven:previous',itemType='Base.FishFillet',itemId=900,
+    startedAt=46,atHours=47,retrieved=true,heatObserved=true,
+    beforeCookingTime=0,afterCookingTime=20}
+local unownedAccepted,unownedReason=C.preparationOutcome('a',prepared)
+check('unowned_preparation_cannot_teach_resource_choice',not unownedAccepted
+    and unownedReason=='preparation-owner-unavailable' and __records.a.cognition==nil)
+__records.a.cognition=nil
+__records.a.cookingOutcomes={prepared}
+local changed={};for key,value in pairs(prepared) do changed[key]=value end
+changed.afterCookingTime=21
+check('changed_preparation_receipt_cannot_teach_resource_choice',not C.preparationOutcome('a',changed)
+    and __records.a.cognition==nil)
+__records.a.cognition=nil
+check('foreign_preparation_receipt_cannot_teach_resource_choice',not C.preparationOutcome('b',prepared)
+    and __records.b.cognition==nil)
+local preparedAccepted=C.preparationOutcome('a',prepared)
+check('canonical_preparation_teaches_resource_choice',preparedAccepted==true
+    and __records.a.cognition.experiences[1].id==prepared.id
+    and __records.a.cognition.experiences[1].worldHours==48
+    and __records.a.cognition.experiences[1].occurredAtHours==47)
+local preparedCount=#__records.a.cognition.experiences
+check('canonical_preparation_resource_replay_is_exact_once',C.preparationOutcome('a',prepared)==true
+    and #__records.a.cognition.experiences==preparedCount)
+context.carriedRawItems={{itemId=155,itemType='Base.Chicken',cookable=true},
+    {itemId=156,itemType='Base.FishFillet',cookable=true}}
+purpose,step=P.planResource('a',context)
+check('preparation_experience_transfers_to_new_exact_owned_item',step.acquiredItemId==156
+    and step.itemType=='Base.FishFillet' and step.owner=='Cooking'
+    and purpose.interpretations.models[1].ranked[1].predictions[1]
+    and purpose.interpretations.models[1].ranked[1].predictions[1].kind=='prepare')
+
+local function manyRoutes()
+    local ctx=reset();ctx.inspectPlace=nil;ctx.sources={}
+    SAO.WorldSources.applySnapshot(SAO.WorldSources.parse(__many))
+    local q,r,a,f=SAO.WorldSources.beliefSnapshot(place)
+    __known.a[42]={cx=8,cy=8,sources=q,sourceRevision=r,sourceAccess=a,sourceFacts=f}
+    for i=1,12 do
+        local key='C:choice-'..(i<10 and '0' or '')..tostring(i)..':0'
+        ctx.sources[i]={sourceId=key,revision='r1',place=place,category='food',quantity=1,
+            itemId=100+i,itemType='Base.Apple',known=true,distance=1}
+    end
+    return ctx
+end
+context=manyRoutes();purpose,step=P.planResource('a',context)
+for i=1,8 do
+    if step then P.deferResourceRoute('a',purpose.id,step.id,'native-queue-refused',48) end
+    purpose,step=P.planResource('a',context)
+end
+check('retry_filter_can_select_ninth_private_source',step and step.itemId==109
+    and step.sourceId=='C:choice-09:0' and #purpose.routeFailures==8)
+context=manyRoutes();local allSources=context.sources;context.sources={allSources[9]}
+purpose,step=P.planResource('a',context);context.sources=allSources
+purpose,step=P.planResource('a',context)
+check('existing_ninth_strategy_remains_available_to_shared_selection',step and step.itemId==109
+    and purpose.interpretations.selected==purpose.selectedStrategy)
+
+context=reset();context.sources={};context.inspectPlace=nil;context.carriedRaw=2
+local longType='Base.'..string.rep('x',156)
+context.carriedRawItems={{itemId=55,itemType=longType,cookable=true},
+    {itemId=56,itemType='Base.Chicken',cookable=true}}
+local planned,longPurpose,longStep=pcall(P.planResource,'a',context)
+check('unmodelled_long_identity_keeps_native_planning_available',planned and longPurpose and longStep
+    and longStep.owner=='Cooking' and longStep.acquiredItemId==55 and longStep.itemType==longType)
+
 context=reset() context.sources={}
 context.inspectPlace.sourceId='C:pantry:0' context.inspectFingerprint='pantry'
 context.inspectX=8 context.inspectY=8 context.inspectZ=0
@@ -669,12 +814,34 @@ __laborResults=table.concat(checks,'\n')
 '''
 
 CONTROLS = [
+    ('cognition', 'or supplied.kind=="preparation")', ')',
+     'generic_preparation_cannot_teach_resource_choice'),
+    ('cognition', 'if not canonical or not sameData(canonical,receipt) then return false,"preparation-owner-unavailable" end',
+     'if false then return false,"preparation-owner-unavailable" end',
+     'unowned_preparation_cannot_teach_resource_choice'),
+    ('cognition', 'if not finite(frame.atHours, 0, now) or frame.atHours ~= now then return nil end',
+     'if not finite(frame.atHours, 0, now) then return nil end', 'current_capability_cannot_backfill_historical_plan'),
+    ('models', 'planCandidate(candidate, context, state == nil and context == nil)',
+     'planCandidate(candidate, context)', 'unmodelled_long_identity_keeps_native_planning_available'),
+    ('labor', 'for _, option in ipairs(sources) do\n        -- The input is bounded at 64.',
+     'for index, option in ipairs(sources) do\n        if index > 8 then break end\n        -- The input is bounded at 64.',
+     'retry_filter_can_select_ninth_private_source'),
+    ('planner', 'interpretations = dataCopy(purpose.interpretations, 0, 8)',
+     'interpretations = dataCopy(purpose.interpretations)', 'resource_snapshot_preserves_shared_prediction_fields'),
+    ('planner', 'local selected = views and views.selected',
+     'local selected = views and views.models[1].selected', 'configured_associative_selection_changes_executed_owner'),
+    ('planner', 'consequences = dataCopy(option.consequences)',
+     'consequences = {}', 'shared_source_prediction_changes_actual_exact_item'),
+    ('models', 'c.sourceId ~= nil and b.sourceId == c.sourceId',
+     'c.sourceId ~= nil', 'shared_source_prediction_changes_actual_exact_item'),
+    ('labor', 'out[#out + 1] = { kind = "prepare", category = "food",\n            itemType = option.itemType, value = value }',
+     'out[#out + 1] = { kind = "prepare", category = "food", value = value }', 'preparation_experience_transfers_to_new_exact_owned_item'),
     ('labor', 'inspectId = "inspect:" .. #inspect.sourceId .. ":" .. inspect.sourceId .. ":" .. fingerprint',
      'inspectId = "inspect:" .. tostring(inspect.id)', 'failed_holder_does_not_delay_another_in_same_place'),
     ('planner', 'steps[#steps + 1] = { id = option.id, verb = "inspect",',
      'steps[#steps + 1] = { id = "inspect:" .. tostring(option.place.id), verb = "inspect",',
      'failed_holder_does_not_delay_another_in_same_place'),
-    ('planner', 'local aScore = SAO.CognitiveModels.planScore("ordinary", a, assessment.demand.pressure)\n            local bScore = SAO.CognitiveModels.planScore("ordinary", b, assessment.demand.pressure)',
+    ('planner', 'local aScore = SAO.CognitiveModels.planScore("ordinary", a, assessment.demand.pressure)\n            local bScore = SAO.CognitiveModels.planScore("ordinary", b, assessment.demand.pressure)\n            aScore, bScore = scores[a.id] or aScore or -math.huge,\n                scores[b.id] or bScore or -math.huge',
      'local aScore = a.evidence * 0.55 + a.continuity * 0.3 - math.min(1, a.blockers * 0.35)\n            local bScore = b.evidence * 0.55 + b.continuity * 0.3 - math.min(1, b.blockers * 0.35)',
      'candidate_bound_retains_route_with_private_risk_advantage'),
     ('planner', 'local score = SAO.CognitiveModels.planScore("ordinary", candidate, assessment.demand.pressure)',
@@ -727,11 +894,18 @@ CONTROLS = [
     ('planner', 'authority ~= RESOURCE_RESULT', 'false', 'unverified_resource_result_never_grants_credit'),
     ('planner', 'canonical.nativeCredit ~= canonical.id', 'false', 'native_preparation_credit_cannot_be_fabricated'),
     ('planner', 'admission.correlationId ~= canonical.id', 'false', 'superseded_preparation_never_completes_replacement'),
-    ('cognition', 'copy(s.models[name]), copy(candidates), copy(context or {}))',
-     'copy(s.models[name]), candidates, copy(context or {}))', 'independent_models_receive_same_feasible_candidates'),
+    ('cognition', 'own, copy(offered), detached(frame))',
+     'own, offered, detached(frame))', 'independent_models_receive_same_feasible_candidates'),
 ]
 
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--baseline-only',action='store_true')
+    parser.add_argument('--control-from',help='Resume named controls after an independently recorded passing prefix')
+    parser.add_argument('--control',action='append',default=[],
+                        help='Run only the exact named causal control (repeatable)')
+    parser.add_argument('--output',type=Path,default=ROOT/'_scratch/shared-reasoning/labor')
+    args=parser.parse_args()
     missing = [str(path) for path in FILES.values() if not path.is_file()]
     if missing:
         print('FAULT Border 216: repository inputs missing: ' + ', '.join(missing)); return 1
@@ -739,23 +913,39 @@ def main():
         print('Border 216 SKIPPED: installed game VM or JDK absent'); return 0
     texts = {name: path.read_text(encoding='utf-8-sig') for name,path in FILES.items()}
     expected = set(re.findall(r"check\('([a-z0-9_]+)'", CASES))
+    output=args.output.resolve();output.mkdir(parents=True,exist_ok=True)
+    inputs=[Path(__file__).resolve(),Path(fixture.__file__).resolve(),ROOT/'tools/luacheck/LuaRun.java',
+            *FILES.values(),GAME/'projectzomboid.jar',GAME/'stdlib.lua',JDK/'java.exe',JDK/'javac.exe']
+    def pins():return {str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in inputs}
+    receipt={'schema':'sao-labor-proof/1','status':'RUNNING','boundary':__doc__,
+             'inputs_before':pins(),'baselineOnly':args.baseline_only,'controlFrom':args.control_from,
+             'controlTargets':args.control,'runs':[]}
+    def save(): (output/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
+    def execute(command,cwd,name):
+        done=subprocess.run(command,cwd=cwd,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=60)
+        log=output/(name+'.log');log.write_text(done.stdout+done.stderr,encoding='utf-8')
+        receipt['runs'].append({'name':name,'command':command,'exitCode':done.returncode,
+            'logSha256':hashlib.sha256(log.read_bytes()).hexdigest()})
+        save();return done
     try:
         with tempfile.TemporaryDirectory(prefix='sao-labor-planning-') as directory:
             work = Path(directory)
             shutil.copy2(GAME/'stdlib.lua', work/'stdlib.lua')
-            subprocess.run([str(JDK/'javac.exe'), '-cp', str(GAME/'projectzomboid.jar'), '-d', str(work),
-                            str(ROOT/'tools/luacheck/LuaRun.java')], check=True, capture_output=True, text=True)
-            def run(changed=None):
+            compiled=execute([str(JDK/'javac.exe'), '-cp', str(GAME/'projectzomboid.jar'), '-d', str(work),
+                            str(ROOT/'tools/luacheck/LuaRun.java')],work,'compile')
+            if compiled.returncode: raise RuntimeError(compiled.stdout+compiled.stderr)
+            def run(changed=None,label='production'):
                 code = dict(texts); code.update(changed or {})
                 chunks = {'prelude': fixture.ACTION_PRELUDE, 'setup': SETUP + '\n__before=' + json.dumps(BEFORE)
-                          + '\n__after=' + json.dumps(AFTER) + '\n__routes=' + json.dumps(ROUTES), **code,
+                          + '\n__after=' + json.dumps(AFTER) + '\n__routes=' + json.dumps(ROUTES)
+                          + '\n__many=' + json.dumps(MANY), **code,
                           'reload': 'function __reloadPlanner()\n' + code['planner'] + '\nend', 'cases': CASES}
                 paths=[]
                 for name,text in chunks.items():
                     path = work/(name+'.lua'); path.write_text(text, encoding='utf-8'); paths.append(path)
-                done = subprocess.run([str(JDK/'java.exe'), '-Djava.awt.headless=true', '-cp',
+                done = execute([str(JDK/'java.exe'), '-Djava.awt.headless=true', '-cp',
                     str(work)+os.pathsep+str(GAME/'projectzomboid.jar'), 'LuaRun', *map(str,paths), '--', '__laborResults'],
-                    cwd=work, capture_output=True, text=True, timeout=60)
+                    work,label)
                 checks = dict(re.findall(r'^([a-z0-9_]+)=(true|false)$',done.stdout.replace('VALUE ',''),re.M))
                 if done.returncode or set(checks) != expected:
                     raise RuntimeError(done.stdout[-6000:]+done.stderr[-1000:])
@@ -763,13 +953,28 @@ def main():
             checks=run()
             failed=[name for name,value in checks.items() if value!='true']
             if failed: raise RuntimeError('failed cases: '+', '.join(failed))
-            for name,before,after,target in CONTROLS:
+            selected=[] if args.baseline_only else CONTROLS
+            if args.control:
+                if args.baseline_only or args.control_from:
+                    raise RuntimeError('--control requires neither --baseline-only nor --control-from')
+                unknown=set(args.control)-{control[3] for control in CONTROLS}
+                if unknown:raise RuntimeError('unknown control target: '+', '.join(sorted(unknown)))
+                selected=[control for control in CONTROLS if control[3] in args.control]
+            if args.control_from:
+                offset=next((i for i,c in enumerate(selected) if c[3]==args.control_from),None)
+                if offset is None:raise RuntimeError('unknown control target: '+args.control_from)
+                selected=selected[offset:]
+            for index,(name,before,after,target) in enumerate(selected):
                 if texts[name].count(before)!=1: raise RuntimeError(target+': mutation anchor differs')
-                mutant=run({name:texts[name].replace(before,after,1)})
+                mutant=run({name:texts[name].replace(before,after,1)},str(index)+'-'+target)
                 if mutant[target]!='false': raise RuntimeError(target+': mutation survived')
-            print(f'Border 216 PASS: {len(checks)} production Kahlua cases; {len(CONTROLS)} named controls')
+            receipt.update(status='PASS',cases=len(checks),controls=len(selected),inputs_after=pins())
+            if receipt['inputs_before']!=receipt['inputs_after']:raise RuntimeError('relevant inputs changed during proof')
+            save()
+            print(f'Border 216 PASS: {len(checks)} production Kahlua cases; {len(selected)} named controls')
             return 0
     except Exception as error:
+        receipt.update(status='FAIL',error=str(error));save()
         print('FAULT Border 216:',error); return 1
 
 if __name__=='__main__': raise SystemExit(main())

@@ -3,6 +3,25 @@
 SAO = SAO or {}
 SAO.Communication = SAO.Communication or {}
 local Communication = SAO.Communication
+local conceptReceptions = {}
+local participationTransport
+
+-- A transient transport capability, available only inside a revalidated spoken
+-- delivery. A saved envelope or a caller's transportAdmitted flag is not it.
+function Communication.participationTransport(processId, fromId, toId, kind)
+    local row = participationTransport
+    if not row or row.processId ~= processId or row.fromId ~= fromId
+        or row.toId ~= toId or row.kind ~= kind then return false end
+    local needs, bodies = SAO.Needs, SAO.Body
+    return needs and needs.ownsRecoveryBody and bodies and bodies.get
+        and needs.ownsRecoveryBody(fromId, bodies.get(fromId))
+        and needs.ownsRecoveryBody(toId, bodies.get(toId)) or false
+end
+local function copyConcept(value)
+    if type(value)~="table" then return value end
+    local result={} for key,item in pairs(value) do result[key]=copyConcept(item) end
+    return result
+end
 
 Communication.messages = Communication.messages or {}
 -- Runtime-only execution ownership. Durable ownership remains on the Identity
@@ -415,6 +434,7 @@ function Communication.deliverProcessProposal(fromId, toId, processId,
     local revision, kind = SAO.Organization.transportRevision(
         processId, fromId, toId)
     if not revision then return nil, kind or "not-addressed" end
+    if kind == "leisure-participation" then requestedChannel = "spoken" end
     local channel, why = admittedConversation(fromId, toId, requestedChannel)
     if not channel then return nil, why or "transport-refused" end
     local message = Communication.send(fromId, toId, "process-proposal", {
@@ -424,15 +444,52 @@ function Communication.deliverProcessProposal(fromId, toId, processId,
     message.transportAdmitted = true
     message.channel = channel
     message.transportEvidence = type(evidence) == "table" and evidence or {}
-    if Communication.deliver(message) ~= true then
+    participationTransport = { processId = processId, fromId = fromId, toId = toId, kind = "proposal" }
+    local okDelivery, delivered = pcall(Communication.deliver, message)
+    participationTransport = nil
+    if not okDelivery or delivered ~= true then
         return nil, "delivery-refused"
     end
     return message, "received"
 end
 
--- Carry every currently addressed revision between these two people through
--- the same admitted channel.  Addressing remains durable intent; this call is
--- the separate event that can turn it into reception.
+-- Private association reception is available only while its admitted message
+-- is being consumed. Generic messages do not supply this capability.
+function Communication.conceptReception(message)
+    local receipt=conceptReceptions[message]
+    if not receipt or message.delivered~=true then return nil end
+    return copyConcept(receipt)
+end
+
+function Communication.deliverConceptAssociation(fromId,toId,requestedChannel)
+    local knowledge=SAO.ConceptKnowledge
+    if not knowledge or not knowledge.teachingOffer or not knowledge.receiveAssociation then
+        return nil,"knowledge-unavailable"
+    end
+    if SAO.Standing and not SAO.Standing.sameGroup(fromId,toId)
+        and SAO.Standing.trust(fromId,toId)<0.3 then return nil,"trust-refused" end
+    local edge=knowledge.teachingOffer(fromId,toId)
+    if not edge then return nil,"nothing-new" end
+    local channel,why=admittedConversation(fromId,toId,requestedChannel)
+    if not channel then return nil,why or "transport-refused" end
+    local message=Communication.send(fromId,toId,"concept-association",{
+        from=edge.from,relation=edge.relation,into=edge.into,sourceId=edge.id})
+    if not message then return nil,"message-refused" end
+    conceptReceptions[message]={id="concept-reception:"..fromId..":"..toId..":"..edge.id,
+        from=fromId,to=toId,at=message.at,channel=channel,edge=copyConcept(edge)}
+    local delivered=Communication.deliver(message)
+    local ok,accepted,result=false,false,nil
+    if delivered then ok,accepted,result=pcall(knowledge.receiveAssociation,toId,message) end
+    if delivered and knowledge.rememberSpokenAssociation then
+        pcall(knowledge.rememberSpokenAssociation,fromId,message)
+    end
+    conceptReceptions[message]=nil
+    if not ok or accepted~=true then return nil,"knowledge-reception-refused" end
+    return message,result
+end
+
+-- Carry every currently addressed revision through the admitted channel.
+-- Addressing is durable intent; this separate event can become reception.
 function Communication.deliverPendingProposals(fromId, toId, channel, evidence)
     if not (SAO.Organization and SAO.Organization.pendingProposals) then
         return 0
@@ -465,10 +522,11 @@ function Communication.deliver(message)
     if SAO.Organization and message.kind == "process-proposal"
         and type(message.payload) == "table"
         and message.transportAdmitted == true then
-        SAO.Organization.recordReception(message.payload.processId,
+        local acquired = SAO.Organization.recordReception(message.payload.processId,
             message.to, message.payload.revision,
             message.channel or "communication", message.from,
             message.transportEvidence or {})
+        if message.payload.kind == "leisure-participation" and not acquired then return false end
     end
     -- [C105] Delivered is done: the fact now lives where it was
     -- recorded, and the carrier does not hoard spent messages -
@@ -566,12 +624,35 @@ function Communication.deliverPendingResponses(fromId, toId, channel, evidence)
     if not admitted then return 0 end
     local delivered = 0
     for _, pending in ipairs(SAO.Organization.pendingResponses(fromId, toId)) do
-        if SAO.Organization.deliverResponse(pending.processId, fromId, toId,
-            admitted, evidence or {}) then
+        participationTransport = admitted == "spoken" and { processId = pending.processId,
+            fromId = fromId, toId = toId, kind = "response" } or nil
+        local ok, accepted = pcall(SAO.Organization.deliverResponse, pending.processId, fromId, toId,
+            admitted, evidence or {})
+        participationTransport = nil
+        if ok and accepted == true then
             delivered = delivered + 1
         end
     end
     return delivered
+end
+
+function Communication.deliverParticipation(fromId, toId, processId, kind)
+    if kind ~= "announcement" and kind ~= "acknowledgement" then return false end
+    local channel = admittedConversation(fromId, toId, "spoken")
+    if channel ~= "spoken" or not (SAO.Organization and SAO.Organization.receiveParticipation) then return false end
+    participationTransport = { processId = processId, fromId = fromId, toId = toId, kind = kind }
+    local ok, result = pcall(SAO.Organization.receiveParticipation, processId, fromId, toId, kind)
+    participationTransport = nil
+    return ok and result == true
+end
+
+function Communication.deliverParticipationAcknowledgements(fromId, toId)
+    local count = 0
+    for _, row in ipairs(SAO.Organization and SAO.Organization.participationAcknowledgements
+            and SAO.Organization.participationAcknowledgements(fromId, toId) or {}) do
+        if Communication.deliverParticipation(fromId, toId, row.processId, "acknowledgement") then count = count + 1 end
+    end
+    return count
 end
 
 -- One proved conversation carries outstanding proposals in both directions,
@@ -600,6 +681,8 @@ function Communication.exchangeProcesses(firstId, secondId, channel, evidence)
     local returned = Communication.deliverPendingResponses(firstId, secondId,
         channel, evidence) + Communication.deliverPendingResponses(secondId,
         firstId, channel, evidence)
+    Communication.deliverParticipationAcknowledgements(firstId, secondId)
+    Communication.deliverParticipationAcknowledgements(secondId, firstId)
     return { channel = admitted, proposals = carried,
         appraisals = appraised, responses = returned }, "exchanged"
 end

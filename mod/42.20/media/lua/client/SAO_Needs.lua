@@ -285,8 +285,22 @@ end
 -- when an action was queued (or the engine fallback ate directly).
 function N.eatCarried(id, body)
     if not SAOJavaBridge then return false end
-    local okF, item = pcall(function() return SAOJavaBridge:findCarriedFood(body) end)
-    if not okF or item == nil then return false end
+    local item
+    if SAO.ConceptKnowledge and SAO.ConceptKnowledge.chooseCarriedFood then
+        if not N.ownsRecoveryBody(id,body) then return false end
+        local chosen,reasoning=SAO.ConceptKnowledge.chooseCarriedFood(id,body)
+        local agent=SAO.Controller and SAO.Controller.agents[id]
+        if agent then agent.foodReasoning=reasoning end
+        if not chosen then return false end
+        local okF,value=pcall(function() return SAOJavaBridge:personalFoodChoice(body,
+            chosen.itemId,chosen.itemType,chosen.recognizedPoison,chosen.basis) end)
+        if not okF or not value or not N.ownsRecoveryBody(id,body) then return false end
+        item=value
+    else
+        local okF,value=pcall(function() return SAOJavaBridge:findCarriedFood(body) end)
+        if not okF or value==nil then return false end
+        item=value
+    end
     local action = ISEatFoodAction:new(body, item, 1)
     if not action then return false end
     local queued = N.queueVerified(action)
@@ -506,7 +520,8 @@ function N.bandageSelf(id, body)
     -- when a survivor starts bleeding, because something found them
     -- asleep. A dropped bandage was reported as a bandage applied.
     local receipt = SAO.Treatment.begin(id, body, id, body, item, part, {
-        effect = { log = id .. " bandages a wound" },
+        effect = { aid = { actor = id, patient = id, xp = 1.0 },
+            log = id .. " bandages a wound" },
     })
     return receipt or false
 end
@@ -906,14 +921,37 @@ end
 
 -- Take the noticed ground item through the vanilla grab action.
 function N.queueGrabOffered(id, body)
-    if not SAOJavaBridge then return false end
+    if not SAOJavaBridge or N.busy(body) then return false end
     local okI, worldItem = pcall(function() return SAOJavaBridge:offeredWorldItem(body) end)
     if not okI or worldItem == nil then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(ISGrabItemAction:new(body, worldItem, 50))
-    end)
-    if okQ then log(id .. " picks something up from the ground") end
-    return okQ
+    local item, square, destination = worldItem:getItem(), worldItem:getSquare(), body:getInventory()
+    if not item or not square or item:getWorldItem() ~= worldItem then return false end
+    local action = ISGrabItemAction:new(body, worldItem, 50)
+    local nativeTransfer, nativeStop = action.transferItem, action.stop
+    action.saoPickupResult = "pending"
+    function action:transferItem(offered)
+        if self ~= action or self.saoPickupResult ~= "pending" then return end
+        if self.character ~= body or self.item ~= worldItem or offered ~= worldItem
+            or body:getModData().SAOPersonId ~= id
+            or worldItem:getSquare() ~= square or worldItem:getItem() ~= item
+            or item:getWorldItem() ~= worldItem or self.destContainer ~= destination
+            or not self:isValid() then
+            self.saoPickupResult = "source-changed"
+            return
+        end
+        local result = nativeTransfer(self, offered)
+        self.saoPickupResult = item:getContainer() == destination and destination:contains(item)
+            and item:getWorldItem() == nil and worldItem:getSquare() == nil
+            and "completed" or "unverified"
+        return result
+    end
+    function action:stop()
+        if self.saoPickupResult == "pending" then self.saoPickupResult = "interrupted" end
+        return nativeStop(self)
+    end
+    if not N.queueVerified(action) then return false end
+    log(id .. " begins picking up an observed ground item")
+    return true, action
 end
 
 function N.clearOffered(body)
@@ -1047,7 +1085,7 @@ end
 
 -- Recovery competes with survival and continuity. Disposition supplies the
 -- person's tolerance; no score grants a place, a bed, safety or completion.
-function N.recoveryPreference(id, needs, context)
+function N.recoveryAlternatives(id, needs, context)
     if not needs then return nil end
     context = context or {}
     local fatigue, endurance = needs.fatigue or 0, needs.endurance or 1
@@ -1057,12 +1095,55 @@ function N.recoveryPreference(id, needs, context)
     local pressure = fatigue * fatigue + (1 - endurance) * (1 - endurance)
     local survival = math.max(needs.hunger or 0, needs.thirst or 0)
     if context.threat or context.bleeding or context.cold then return nil end
-    if context.committed then tolerance = tolerance + 0.25 end
+    local responsibilities = {}
+    local now = SAO.History.countyHours()
+    local ok, obligations = pcall(function() return SAO.Organization.activeCommitments(id) end)
+    for i, obligation in ipairs(ok and type(obligations) == "table" and obligations or {}) do
+        if i > 8 then break end
+        if obligation.actorId == id and type(obligation.acceptedAt) == "number"
+            and obligation.acceptedAt >= 0 and obligation.acceptedAt <= now then
+            responsibilities[#responsibilities + 1] = { id = obligation.id,
+                beneficiaryId = obligation.beneficiaryId, acceptedAt = obligation.acceptedAt,
+                purpose = "continue an accepted responsibility" }
+        end
+    end
+    if not context.separateResponsibilities then
+        if context.committed or #responsibilities > 0 then tolerance = tolerance + 0.25 end
+    end
     -- Urgent deprivation retains strategic action while energy remains. A
     -- nearby permitted rest option is never an order to abandon that search.
     if survival >= (context.emergency or 0.85) and endurance > 0.2 then return nil end
-    if pressure <= math.max(tolerance, survival) then return nil end
-    return fatigue * fatigue >= (1 - endurance) * (1 - endurance) and "sleep" or "rest"
+    local function option(name, utility, value)
+        return { id = name, utility = utility, evidence = 1, continuity = 0,
+            novelty = 0, informationGain = 0, blockers = 0,
+            maxAdjustment = 0.15,
+            consequences = value and { { kind = name, category = "body", value = value } } or {} }
+    end
+    local tired, exhausted = fatigue * fatigue, (1 - endurance) * (1 - endurance)
+    return {
+        option("continue", math.max(tolerance, survival)),
+        option("sleep", pressure - math.max(0, exhausted - tired), 0.6),
+        option("rest", pressure - math.max(0, tired - exhausted), 0.6),
+    }, { domain = "recovery", pressure = math.min(1, pressure), atHours = now,
+        needs = { fatigue = fatigue, endurance = endurance, hunger = needs.hunger or 0,
+            thirst = needs.thirst or 0 }, purposes = responsibilities }
+end
+
+function N.recoveryPreference(id, needs, context)
+    local alternatives, frame = N.recoveryAlternatives(id, needs, context)
+    if not alternatives then return nil end
+    local cognition = SAO.Cognition
+    if cognition and cognition.interpretPlans then
+        local views = cognition.interpretPlans(id, alternatives, frame)
+        if views then
+            return views.selected ~= "continue" and views.selected or nil, views
+        end
+    end
+    local best = alternatives[1]
+    for _, alternative in ipairs(alternatives) do
+        if alternative.utility > best.utility then best = alternative end
+    end
+    return best.id ~= "continue" and best.id or nil
 end
 
 -- A module reload releases the previous disposable receiver map first.
@@ -1089,48 +1170,379 @@ function N.ownsRecoveryBody(id, body)
     return recoveryOwner(id, body) ~= nil
 end
 
-function N.beginRecovery(id, body, kind)
-    local rec, before = recoveryOwner(id, body), N.read(body)
-    if not rec or not before or recoveries[id] or not N.workAvailable(body)
+-- Installed item metadata identifies the native verb, not musical competence.
+function N.instrumentCapability(item)
+    local ok, capability = pcall(function()
+        if not item or item:getDisplayCategory() ~= "Instrument"
+            or not item:hasTag(ItemTag.HARMONICA)
+            or item:getShoutType() ~= "BlowHarmonica" then return nil end
+        local multiplier = item:getShoutMultiplier()
+        if type(multiplier) ~= "number" or multiplier ~= multiplier
+            or multiplier <= 0 or multiplier == math.huge then return nil end
+        local radius = math.floor(30 * multiplier)
+        if radius < 1 or radius > 2147483647 then return nil end
+        -- IsoGameCharacter.Callout uses radius30 times the carried item's multiplier.
+        return { kind = "harmonica", verb = "blow-harmonica", sound = "BlowHarmonica",
+            radius = radius }
+    end)
+    return ok and capability or nil
+end
+
+function N.instrumentAvailable(id, body, item)
+    if not recoveryOwner(id, body) then return nil end
+    local ok, capability = pcall(function()
+        if body:isAsleep() or body:getVehicle() or not body:isCanShout() then return nil end
+        local candidate = N.instrumentCapability(item)
+        if not candidate then return nil end
+        local items = SAOJavaBridge:privateCarriedItems(body)
+        for i = 0, items:size() - 1 do
+            if items:get(i) == item then return candidate end
+        end
+    end)
+    return ok and capability or nil
+end
+
+function N.carriedInstrument(id, body, itemType)
+    if not recoveryOwner(id, body) then return nil end
+    local ok, item, capability = pcall(function()
+        local items = SAOJavaBridge:privateCarriedItems(body)
+        for i = 0, items:size() - 1 do
+            local candidate = items:get(i)
+            if not itemType or candidate:getFullType() == itemType then
+                local native = N.instrumentAvailable(id, body, candidate)
+                if native then return candidate, native end
+            end
+        end
+    end)
+    if ok then return item, capability end
+end
+
+local function recoverySegment(rec)
+    local prior=rec.recoveryExperienceSequence or 0
+    if type(prior)~="number" or prior<0 then return nil end
+    local sequence=prior+1
+    if type(sequence)~="number" or sequence~=sequence or sequence>9007199254740991
+        or sequence~=math.floor(sequence) then return nil end
+    rec.recoveryExperienceSequence=sequence
+    return sequence
+end
+function N.behaviorOutcome(id,sequence)
+    local rec=SAO.Identity and SAO.Identity.get(id)
+    for _,receipt in ipairs(rec and rec.recoveryExperiences or {}) do
+        if receipt.sequence==sequence then local out={} for k,v in pairs(receipt) do out[k]=v end return out end
+    end
+end
+local function retainRecoveryExperience(id,work,needs,now)
+    local ok,active=pcall(function()
+        return work.kind=="sleep" and work.body:isAsleep()
+            or work.kind=="rest" and (work.body:isResting() or work.body:isSitOnGround())
+    end)
+    if not ok or not active or work.phase ~= "active"
+        or not SAO.RecoveryPose.observed(work.body,work.kind)
+        or recoveryOwner(id,work.body)~=work.rec then return false end
+    local duration=now-work.startedAt
+    if not work.sequence or duration<=0 or duration>12 or duration~=duration then return false end
+    local before=work.kind=="sleep" and work.before.fatigue or work.before.endurance
+    local after=work.kind=="sleep" and needs.fatigue or needs.endurance
+    local receipt={actorId=id,kind="recovery-outcome",sequence=work.sequence,atHours=now,
+        actionKind=work.kind,beforeValue=before,afterValue=after,durationHours=duration,
+        succeeded=work.kind=="sleep" and after<before or work.kind=="rest" and after>before}
+    local rec=work.rec
+    rec.recoveryExperiences=rec.recoveryExperiences or {}
+    rec.recoveryExperiences[#rec.recoveryExperiences+1]=receipt
+    if #rec.recoveryExperiences>32 then table.remove(rec.recoveryExperiences,1) end
+    if SAO.Cognition and SAO.Cognition.behaviorOutcome then SAO.Cognition.behaviorOutcome(id,receipt) end
+    return true
+end
+local function recoveryPlaceCopy(place)
+    if type(place)~="table" or type(place.key)~="string" or #place.key>256
+        or (place.kind~="bed" and place.kind~="ground") or place.available~=true then return nil end
+    local out={key=place.key,kind=place.kind,available=true}
+    for _,key in ipairs({"x","y","z","objectX","objectY","objectZ","objectIndex"}) do
+        local value=place[key]
+        if value~=nil then
+            if type(value)~="number" or value~=value or math.abs(value)>1000000000 then return nil end
+            out[key]=value
+        end
+    end
+    if out.x==nil or out.y==nil or out.z==nil then return nil end
+    if out.kind=="bed" and (out.objectX==nil or out.objectY==nil or out.objectZ==nil or out.objectIndex==nil) then return nil end
+    return out
+end
+local function meansCandidate(place)
+    return place.key.."@"..tostring(place.x)..":"..tostring(place.y)..":"..tostring(place.z)
+end
+function N.recoveryApproachKey(place)
+    return meansCandidate(place)
+end
+-- A private native-owner receipt, not a thought or a claim that recovery ran.
+-- Query refusals concern this source; route refusals concern this exact approach.
+local function retainMeansResult(id,rec,place,scope,available,reason,kind)
+    if type(place)~="table" or type(place.key)~="string" or #place.key>256
+        or (place.kind~="bed" and place.kind~="ground") then return end
+    local at=SAO.History.countyHours()
+    local candidate=scope=="geometry" and place.key or meansCandidate(place)
+    local rows=rec.recoveryMeansResults or {}
+    local last=rows[#rows]
+    if last and last.atHours==at and last.sourceId==place.key and last.candidateId==candidate
+        and last.scope==scope and last.available==available and last.reason==reason and last.actionKind==kind then return end
+    rec.recoveryMeansSequence=(rec.recoveryMeansSequence or 0)+1
+    local row={schema="sao.physical-means-result/1",actorId=id,owner="SAO.Needs",
+        sequence=rec.recoveryMeansSequence,sourceId=place.key,candidateId=candidate,
+        sourceKind=place.kind,scope=scope,available=available,reason=reason,atHours=at,actionKind=kind}
+    rows[#rows+1]=row
+    if #rows>32 then table.remove(rows,1) end
+    rec.recoveryMeansResults=rows
+    if SAO.ProceduralPlanning and SAO.ProceduralPlanning.meansResult then
+        SAO.ProceduralPlanning.meansResult(id,"SAO.Needs",row.sequence)
+    end
+end
+function N.meansResult(id,sequence)
+    local rec=SAO.Identity and SAO.Identity.get(id)
+    for _,row in ipairs(rec and rec.recoveryMeansResults or {}) do
+        if row.actorId==id and row.sequence==sequence then
+            local copy={} for key,value in pairs(row) do copy[key]=value end return copy
+        end
+    end
+end
+function N.recoveryMeansUnavailable(id,kind,place)
+    local planning=SAO.ProceduralPlanning
+    local goal=kind=="sleep" and "relief-from-tiredness" or kind=="rest" and "relief-from-exertion"
+    return goal and planning and planning.meansUnavailable
+        and planning.meansUnavailable(id,goal,place.key,meansCandidate(place)) or false
+end
+function N.recoveryRouteResult(id,body,place,kind,job)
+    local rec=recoveryOwner(id,body)
+    if not rec or not recoveryPlaceCopy(place) or not job or not job.done
+        or job.body~=body or not SAO.Locomotion or SAO.Locomotion.jobs[id]~=job
+        or not job.goal or job.goal.x~=place.x or job.goal.y~=place.y or job.goal.z~=place.z
+        or job.result=="arrived" or job.result=="cancelled" or job.result=="interrupted"
+        or type(job.result)~="string" or #job.result>160 then return false end
+    retainMeansResult(id,rec,place,"approach",false,job.result,kind)
+    return true
+end
+function N.recoveryPlaces(id,body)
+    local rec=recoveryOwner(id,body)
+    if not rec then return {} end
+    local ok,result=pcall(function()return SAOJavaBridge:recoveryPlaces(body,8)end)
+    if recoveryOwner(id,body)~=rec then return {} end
+    local report={schema="sao.recovery-place-observation/1",requestedRadius=8,
+        atHours=SAO.History.countyHours(),x=body:getX(),y=body:getY(),z=body:getZ(),offeredCount=0,acceptedCount=0}
+    local function text(value) return type(value)=="string" and value:sub(1,160) or nil end
+    local function count(value)
+        return type(value)=="number" and value==value and value>=0 and value<=1000000 and math.floor(value) or nil
+    end
+    if not ok then report.status,report.reason="error","native-query-error"
+    elseif type(result)~="table" then report.status,report.reason="unavailable","native-reader-unavailable"
+    elseif result.status=="available" and result.actorId==id and type(result.places)=="table" then report.status="available"
+    elseif result.status=="unavailable" or result.status=="error" then report.status=result.status
+    else report.status,report.reason="error","native-result-invalid" end
+    local diagnostics=type(result)=="table" and result.diagnostics or nil
+    if type(diagnostics)=="table" and report.reason~="native-result-invalid" then
+        local copy={schema=text(diagnostics.schema),bodyAdmission=text(diagnostics.bodyAdmission),bedRejections={}}
+        report.reason=report.reason or text(diagnostics.reason)
+        for _,key in ipairs({"visibleSquares","visibleBedParts","uniqueBeds","admissibleBeds","unavailableBeds",
+            "admissibleGround","groundRejectedVisibility","groundRejectedClearance"}) do copy[key]=count(diagnostics[key]) end
+        for _,key in ipairs({"nativeAsleep","nativeOnBed"}) do
+            if type(diagnostics[key])=="boolean" then copy[key]=diagnostics[key] end
+        end
+        for index,row in ipairs(type(diagnostics.bedRejections)=="table" and diagnostics.bedRejections or {}) do
+            if index>16 then break end
+            if type(row)=="table" then
+                local rejected={key=text(row.key),sprite=text(row.sprite),reason=text(row.reason),facing=text(row.facing)}
+                for _,key in ipairs({"gridWidth","gridHeight","approachRejectedVisibility","approachRejectedClearance",
+                    "approachRejectedBoundary"}) do rejected[key]=count(row[key]) end
+                copy.bedRejections[#copy.bedRejections+1]=rejected
+            end
+        end
+        report.diagnostics=copy
+    end
+    rec.recoveryPlaceObservation=report
+    if report.status~="available" then return {} end
+    local places={}
+    for index,place in ipairs(result.places) do
+        if index>64 then break end
+        report.offeredCount=report.offeredCount+1
+        local copy=recoveryPlaceCopy(place)
+        if copy then
+            places[#places+1]=copy
+            retainMeansResult(id,rec,copy,"geometry",true,"native-place-available")
+        elseif type(place)=="table" and place.kind=="bed" and place.available==false
+            and place.reason=="native-bed-approach-unavailable" then
+            retainMeansResult(id,rec,place,"geometry",false,place.reason)
+        end
+    end
+    report.acceptedCount=#places
+    return places
+end
+function N.recoveryPlaceAt(id,body,place)
+    local selected=recoveryPlaceCopy(place)
+    if not selected or not recoveryOwner(id,body) then return nil end
+    for _,candidate in ipairs(N.recoveryPlaces(id,body)) do
+        local same=true
+        for _,key in ipairs({"key","kind","x","y","z","objectX","objectY","objectZ","objectIndex"}) do
+            if candidate[key]~=selected[key] then same=false;break end
+        end
+        if same and (body:getX()-candidate.x)^2+(body:getY()-candidate.y)^2<=0.35^2
+            and math.abs(body:getZ()-candidate.z)<=0.1 then return candidate end
+    end
+end
+-- A saved choice contains no native action or receiver. Its current owner must
+-- validate the exact place again before starting a fresh preparation.
+function N.preparingRecoveryChoice(id,body)
+    local rec=recoveryOwner(id,body)
+    local intent=rec and rec.recoveryIntent
+    if not rec or type(intent)~="table" or intent.status~="preparing" then return nil,"saved-preparation-unavailable" end
+    local place=recoveryPlaceCopy(intent.place)
+    local now=SAO.History.countyHours()
+    if (intent.kind~="sleep" and intent.kind~="rest") or not place
+        or intent.actorId~=nil and intent.actorId~=id
+        or intent.requestedAtHours~=nil and (type(intent.requestedAtHours)~="number"
+            or intent.requestedAtHours~=intent.requestedAtHours or intent.requestedAtHours<0
+            or type(now)~="number" or now~=now or intent.requestedAtHours>now) then
+        return nil,"saved-preparation-invalid"
+    end
+    return {kind=intent.kind,place=place},intent
+end
+function N.cancelPreparingRecovery(id,rec,intent,reason)
+    if not rec or not SAO.Identity or SAO.Identity.get(id)~=rec
+        or rec.recoveryIntent~=intent or type(intent)~="table" or intent.status~="preparing" then return false end
+    rec.recoveryIntent=nil
+    rec.recoveryPlacement={kind=intent.kind,place=recoveryPlaceCopy(intent.place),status="unresolved",
+        reason=reason,atHours=SAO.History.countyHours()}
+    return true
+end
+-- A prior choice identifies a known approach, not a persistent native object.
+-- Only a newly observed, currently admissible tuple supplies the new runtime key.
+function N.reacquirePreparingRecoveryPlace(id,body,intent)
+    local choice,source=N.preparingRecoveryChoice(id,body)
+    if not choice or source~=intent then return nil end
+    for _,candidate in ipairs(N.recoveryPlaces(id,body)) do
+        local same=true
+        for _,key in ipairs({"kind","x","y","z","objectX","objectY","objectZ","objectIndex"}) do
+            if candidate[key]~=choice.place[key] then same=false;break end
+        end
+        if same and (body:getX()-candidate.x)^2+(body:getY()-candidate.y)^2<=0.35^2
+            and math.abs(body:getZ()-candidate.z)<=0.1 then return recoveryPlaceCopy(candidate) end
+    end
+end
+function N.beginRecovery(id, body, kind, place)
+    local rec = recoveryOwner(id, body)
+    if not rec or not N.read(body) or recoveries[id] or not N.workAvailable(body)
         or kind ~= "sleep" and kind ~= "rest" then return false, "body-unavailable" end
     local idleOk, idle = pcall(function()
         return body:getCurrentStateName() == "IdleState" and not body:isClimbing()
     end)
     if not idleOk or idle ~= true then return false, "native-body-not-idle" end
-    local now = SAO.History.countyHours()
-    local ok, admitted = pcall(function()
+    local selected=N.recoveryPlaceAt(id,body,place)
+    if not selected then return false,"recovery-place-unavailable" end
+    local loaded = pcall(require, "SAO_RecoveryPose")
+    if not loaded or not SAO.RecoveryPose then return false, "recovery-source-unavailable" end
+    local ok, pose, reason = pcall(SAO.RecoveryPose.begin, body, kind, id, selected)
+    if not ok or not pose then
+        -- Missing readers, busy bodies and queue refusal establish no failed furniture.
+        if ok and (reason=="native-bed-unavailable" or reason=="native-bed-entry-occupied"
+            or reason=="native-ground-clearance-refused") and recoveryOwner(id,body)==rec then
+            retainMeansResult(id,rec,selected,"admission",false,reason,kind)
+        end
+        return false, reason or "native-pose-refused"
+    end
+    recoveries[id] = { body=body, rec=rec, kind=kind, pose=pose, phase="preparing" }
+    rec.recoveryIntent = { actorId=id,kind=kind,status="preparing",place=selected,
+        requestedAtHours=SAO.History.countyHours() }
+    return true
+end
+
+-- Selection and queued work are not execution. The observed native pose and
+-- exact body's physiological flag jointly admit a measured recovery segment.
+local function recoveryBedBound(work)
+    if not work.pose or not work.pose.place or work.pose.place.kind~="bed" then return true end
+    local ok,bound=pcall(function()
+        local bed=work.pose.bed
+        return bed~=nil and bed:getObjectIndex()>=0 and work.body:isOnBed()
+            and work.body:getBed()==bed and work.body:getSitOnFurnitureObject()==bed
+    end)
+    return ok and bound==true
+end
+local function admitRecovery(work)
+    local body, kind = work.body, work.kind
+    if not recoveryBedBound(work) then return false end
+    if not SAO.RecoveryPose.observed(body,kind) then return false end
+    local ok, active = pcall(function()
         if kind == "sleep" then
-            SAOJavaBridge:setShellAsleep(body, true)
+            if not body:isAsleep() then SAOJavaBridge:setShellAsleep(body,true) end
             return body:isAsleep()
         end
         body:setIsResting(true)
-        return body:isResting()
+        return body:isResting() and not body:isAsleep()
     end)
-    if not ok or admitted ~= true then return false, "native-recovery-refused" end
-    recoveries[id] = { body = body, rec = rec, kind = kind, before = before,
-        last = before, startedAt = now, progressAt = now,
-        -- Installed SleepingEvent.doDelayToSleep allows up to two county
-        -- hours before fatigue falls. That interval earns no recovery credit.
-        progressGrace = kind == "sleep" and 2.5 or 0.5 }
-    rec.recoveryIntent = { kind = kind, status = "recovering" }
+    if not ok or active ~= true then return false end
+    local now, before = SAO.History.countyHours(), N.read(body)
+    if not before then return false end
+    work.phase, work.before, work.last = "active", before, before
+    work.sequence, work.startedAt, work.progressAt = recoverySegment(work.rec), now, now
+    work.progressGrace = kind == "sleep" and 2.5 or 0.5
+    work.rec.recoveryIntent.status = "recovering"
     return true
+end
+
+function N.recoveryStatus(id,body)
+    local work = recoveries[id]
+    if not work or work.body ~= body or recoveryOwner(id,body) ~= work.rec then return nil end
+    local pose = recoveryBedBound(work) and SAO.RecoveryPose and SAO.RecoveryPose.observed(body,work.kind) or false
+    local active = work.phase == "active" and pose
+    local ok, flag = pcall(function()
+        return work.kind == "sleep" and body:isAsleep()
+            or work.kind == "rest" and body:isResting() and not body:isAsleep()
+    end)
+    return { kind=work.kind, phase=active and ok and flag and "active" or work.phase == "active" and "interrupted" or "preparing",
+        nativePose=pose, nativePhysiology=ok and flag == true,
+        sleepTransition=work.pose and work.pose.sleepEvent == true }
 end
 
 -- A reloaded owned native action supplies a fresh measured baseline; elapsed
 -- unobserved time and the prior receiver never contribute completion credit.
 function N.resumeRecovery(id, body)
-    local rec, before = recoveryOwner(id, body), N.read(body)
+    local rec = recoveryOwner(id, body)
     local intent = rec and rec.recoveryIntent
-    if not intent or not before or recoveries[id] or N.busy(body) then return false end
+    if not intent or recoveries[id] then return false end
+    local loaded = pcall(require,"SAO_RecoveryPose")
     local ok, active = pcall(function()
-        return intent.kind == "sleep" and body:isAsleep()
-            or intent.kind == "rest" and (body:isResting() or body:isSitOnGround())
+        return loaded and (intent.kind == "sleep" and body:isAsleep()
+            or intent.kind == "rest" and body:isResting() and not body:isAsleep())
     end)
-    if not ok or not active then rec.recoveryIntent = nil; return false end
+    if not ok or not active then
+        if type(intent)=="table" and intent.status=="preparing" then
+            local choice,source=N.preparingRecoveryChoice(id,body)
+            if choice then return false,choice.kind,"saved-preparation",choice end
+            N.cancelPreparingRecovery(id,rec,intent,source)
+            return false,intent.kind,source
+        end
+        if N.busy(body) then return false end
+        rec.recoveryIntent = nil; return false
+    end
+    if N.busy(body) then return false end
+    local bed
+    if intent.place and intent.place.kind=="bed" then
+        local bound,exact=pcall(function()
+            local candidate=body:getBed()
+            if not body:isOnBed() or not candidate or body:getSitOnFurnitureObject()~=candidate
+                or candidate:getObjectIndex()~=intent.place.objectIndex
+                or candidate:getX()~=intent.place.objectX or candidate:getY()~=intent.place.objectY
+                or candidate:getZ()~=intent.place.objectZ then return nil end
+            return candidate
+        end)
+        if not bound or not exact then rec.recoveryIntent=nil;return false end
+        bed=exact
+    end
     local now = SAO.History.countyHours()
-    recoveries[id] = { body = body, rec = rec, kind = intent.kind, before = before,
-        last = before, startedAt = now, progressAt = now, progressGrace = intent.kind == "sleep" and 2.5 or 0.5 }
-    intent.status = "recovering"
+    local work = { body=body, rec=rec, kind=intent.kind, phase="reacknowledging", requestedAt=now,
+        pose={body=body,custody=SAO.RecoveryPose.captureCustody(body),kind=intent.kind,id=id,rec=rec,phase="active",place=intent.place,bed=bed,started=true} }
+    recoveries[id] = work
+    intent.status = "reacknowledging"
+    if SAO.RecoveryPose.observed(body,intent.kind) then
+        if not admitRecovery(work) then N.stopRecovery(id,body,"native-recovery-refused"); return false end
+    end
     return true, intent.kind
 end
 
@@ -1138,15 +1550,23 @@ function N.stopRecovery(id, body, reason, retireOnly)
     local work = recoveries[id]
     if not work or work.body ~= body then return false end
     recoveries[id] = nil
-    if retireOnly and (reason == "controller-drop" or reason == "controller-adopt" or reason == "module-reload")
-        and work.rec.recoveryIntent then work.rec.recoveryIntent.status = "paused"
+    local resumable = retireOnly and (work.phase == "active" or work.phase == "reacknowledging" or work.phase == "preparing")
+        and (reason == "controller-drop" or reason == "controller-adopt" or reason == "module-reload")
+        and recoveryOwner(id,body) == work.rec
+    if resumable and work.rec.recoveryIntent then
+        work.rec.recoveryIntent.status=work.phase=="preparing" and "preparing" or "paused"
     else work.rec.recoveryIntent = nil end
     -- Never wake or clear a replacement/foreign receiver.
-    if not retireOnly and recoveryOwner(id, body) == work.rec then
+    if (not retireOnly or work.phase == "preparing") and recoveryOwner(id, body) == work.rec then
         pcall(function()
+            local exited,exitReason=SAO.RecoveryPose.cancel(work.pose)
+            if not exited and exitReason~="pending-safe-exit" then return end
             if work.kind == "sleep" then SAOJavaBridge:setShellAsleep(body, false)
             else body:setIsResting(false) end
         end)
+    elseif work.pose then
+        -- A foreign/replaced/dead receiver is never actuated; retire callbacks.
+        SAO.RecoveryPose.retire(work.pose, not resumable)
     end
     return true
 end
@@ -1189,7 +1609,38 @@ function N.pollRecovery(id, body)
     if not work or work.body ~= body then return "missing" end
     local needs = recoveryOwner(id, body) == work.rec and N.read(body) or nil
     if not needs then N.stopRecovery(id, body, "body-binding-lost"); return "failed" end
+    if work.phase == "reacknowledging" then
+        if not recoveryBedBound(work) then N.stopRecovery(id,body,"native-bed-binding-lost");return "failed" end
+        local now = SAO.History.countyHours()
+        local ok, active = pcall(function()
+            return work.kind == "sleep" and body:isAsleep()
+                or work.kind == "rest" and body:isResting() and not body:isAsleep()
+        end)
+        if not ok or not active or now < work.requestedAt or now-work.requestedAt > 0.25 then
+            N.stopRecovery(id,body,"native-pose-not-reacknowledged"); return "failed"
+        end
+        if SAO.RecoveryPose.observed(body,work.kind) then
+            if admitRecovery(work) then return "running" end
+            N.stopRecovery(id,body,"native-recovery-refused"); return "failed"
+        end
+        return "preparing"
+    end
+    if work.phase == "preparing" then
+        local ok, result = pcall(SAO.RecoveryPose.poll,work.pose)
+        if not ok or result == "failed" then
+            N.stopRecovery(id,body,"native-pose-interrupted"); return "failed"
+        end
+        if result == "admitted" and not admitRecovery(work) then
+            N.stopRecovery(id,body,"native-recovery-refused"); return "failed"
+        end
+        return work.phase == "active" and "running" or "preparing"
+    end
     local now = SAO.History.countyHours()
+    local status = N.recoveryStatus(id,body)
+    -- The action must still be physically present before any outcome or credit.
+    if not status or status.phase ~= "active" then
+        N.stopRecovery(id,body,"native-recovery-ended"); return "failed"
+    end
     local improved = work.kind == "sleep" and needs.fatigue < work.last.fatigue - 0.000001
         or work.kind == "rest" and needs.endurance > work.last.endurance + 0.000001
     if improved then work.progressAt = now; work.progressGrace = 0.5 end
@@ -1199,16 +1650,14 @@ function N.pollRecovery(id, body)
     local measured = work.kind == "sleep" and needs.fatigue < work.before.fatigue - 0.000001
         or work.kind == "rest" and needs.endurance > work.before.endurance + 0.000001
     if reached and measured then
+        retainRecoveryExperience(id,work,needs,now)
         N.stopRecovery(id, body, "native-recovery-measured"); return "completed"
     end
-    local ok, active = pcall(function()
-        return work.kind == "sleep" and body:isAsleep()
-            or work.kind == "rest" and (body:isResting() or body:isSitOnGround())
-    end)
-    if not ok or not active or now < work.startedAt or now - work.progressAt >= work.progressGrace
-        or now - work.startedAt >= 12 then
-        N.stopRecovery(id, body, not active and "native-recovery-ended" or "native-recovery-no-progress")
-        return "failed"
+    if now < work.startedAt or now - work.progressAt >= work.progressGrace or now - work.startedAt >= 12 then
+        if now >= work.startedAt and now-work.progressAt >= work.progressGrace and not measured then
+            retainRecoveryExperience(id,work,needs,now)
+        end
+        N.stopRecovery(id,body,"native-recovery-no-progress"); return "failed"
     end
     return "running"
 end

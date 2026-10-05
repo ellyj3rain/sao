@@ -217,7 +217,7 @@ def execute(args, cwd, expected=None):
     return output
 
 
-def native_checks(root):
+def native_checks(root, focus=None):
     source = Lab.ROOT / "tools/world_lab"
     classes = root / "classes"; classes.mkdir()
     native = os.pathsep.join(str(GAME / name) for name in ("projectzomboid.jar", "ZombieBuddy.jar"))
@@ -234,10 +234,14 @@ def native_checks(root):
         return execute([GAME / "jre64/bin/java.exe", "-Djava.awt.headless=true", f"-Duser.home={home}",
                         "-Dstudy.observer=true", f"-javaagent:{agent}=isolated-study", "--enable-native-access=ALL-UNNAMED",
                         "-cp", classpath, name], GAME, expected)
-    for name in ("NativeObserverSitesProbe", "NativeRegionalCaptureProbe", "NativeObserverResidencyProbe"):
+    for name in (("NativeObserverSitesProbe",) if focus == "cutaway" else
+                 ("NativeObserverSitesProbe", "NativeRegionalCaptureProbe", "NativeObserverResidencyProbe")):
         output = probe(name)
         print("\n".join(line for line in output.splitlines() if line.startswith("PASS ")))
-    for filename, old, new, name, why in (
+    controls = (
+        ("StudyObserver.java", "super(null, new SurvivorDesc(false), 0, 0, 0, false);",
+         "super(null, new SurvivorDesc(false), 0, 0, 0, true);", "NativeObserverSitesProbe",
+         "observer animation refresh requested an undefined animal model"),
         ("StudyObserver.java", "LightingJNI.init && LightingJNI.getUpdateCounter(slot) >= 0", "LightingJNI.init",
          "NativeObserverResidencyProbe", "uninitialized regional lighting attempted native teleport"),
         ("StudyObserver.java", "var chunk = map.LoadChunkForLater(x, y, x - left, y - top);",
@@ -247,7 +251,17 @@ def native_checks(root):
         ("StudyObserver.java", "extraAnchors.length > 0 && rx == vx && ry == vy && rz == vz", "false", "NativeObserverSitesProbe", "loaded regional camera visit unnecessarily scrolled native residency"),
         ("StudyObserver.java", "if (failure != null) failContext(failure);", "if (false) failContext(failure);", "NativeObserverSitesProbe", "missing native map did not preserve a failed clock receipt"),
         ("StudyLoadingAgent.java", "StudyObserver.streamingFailure(map, actor, failure);", "/* immediate native failure receipt removed */", "NativeObserverSitesProbe", "native streaming exception lost its immediate cause receipt"),
-        ("StudyViewCapture.java", "full.getSubimage(site.left(), site.top(), site.width(), site.height())", "full.getSubimage(0, 0, site.width(), site.height())", "NativeRegionalCaptureProbe", "regional capture reused another viewport pixels")):
+        ("StudyViewCapture.java", "full.getSubimage(site.left(), site.top(), site.width(), site.height())", "full.getSubimage(0, 0, site.width(), site.height())", "NativeRegionalCaptureProbe", "regional capture reused another viewport pixels"))
+    cutaway_controls = (
+        ("StudyLoadingAgent.java", "StudyObserver.cutawayFocus(points);", "/* cutaway binding omitted */", "NativeObserverSitesProbe", "native cutaway focus remained at residency or used another slot"),
+        ("StudyObserver.java", "point.x = (int) Math.floor(view.getX());", "point.x = (int) Math.floor(camera.getX());", "NativeObserverSitesProbe", "native cutaway focus remained at residency or used another slot"),
+        ("StudyObserver.java", "if (!hostOnly() || points == null || points.isEmpty()) return;", "if (points == null || points.isEmpty()) return;", "NativeObserverSitesProbe", "cutaway focus changed ordinary native rendering"),
+        ("StudyObserver.java", " || IsoCamera.frameState.camCharacter != view", "", "NativeObserverSitesProbe", "cutaway focus accepted another slot's frame"),
+        ("StudyObserver.java", "point.y = (int) Math.floor(view.getY());", "point.y = (int) Math.floor(view.getY()); resident.setY(view.getY());", "NativeObserverSitesProbe", "cutaway focus moved the streaming owner"),
+        ("StudyObserver.java", "point.z = (int) Math.floor(view.getZ());", "point.z = (int) Math.floor(view.getZ()); if (points.size() > 1) points.remove(1);", "NativeObserverSitesProbe", "cutaway focus changed native auxiliary points"),
+    )
+    selected_controls = cutaway_controls if focus == "cutaway" else controls[:1] if focus == "animation" else controls + cutaway_controls
+    for filename, old, new, name, why in selected_controls:
         bad = root / ("bad-" + filename + "-" + hashlib.sha256(old.encode()).hexdigest()[:8]); bad.mkdir()
         code = (source / filename).read_text(); assert code.count(old) == 1, "regional control seam differs"
         path = bad / filename; path.write_text(code.replace(old, new))
@@ -266,6 +280,8 @@ def native_checks(root):
                      "-cp", str(bad) + os.pathsep + str(classes) + os.pathsep + native, name], GAME, why)
         else: probe(name, bad, why)
         print("PASS regional control rejected: " + why)
+    if focus in {"cutaway", "animation"}:
+        return {"probe": "NativeObserverSitesProbe", "controls": len(selected_controls)}
     participants = (Lab.ROOT / "mod/42.20/media/lua/shared/SAO_Participants.lua").read_text()
     population = (Lab.ROOT / "mod/42.20/media/lua/client/SAO_PopulationRepresentation.lua").read_text()
     fixture = '''local bodies, records, visits, releases = {}, {}, {}, {}

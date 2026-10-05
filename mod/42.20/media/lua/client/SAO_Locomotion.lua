@@ -16,6 +16,7 @@ Loco.jobs = Loco.jobs or {}
 
 local STALL_TICKS = 300   -- route ticks without physical or waypoint progress
 local PROGRESS_REACH = 0.01
+local MAX_CROSSINGS = 16
 
 local function finite(value)
     value = tonumber(value)
@@ -66,6 +67,29 @@ local function captureBarrier(job, verdict)
         or verdict ~= "FailedObstacle:" .. tostring(reason) then return end
     job.barrier = { x = x, y = y, tx = tx, ty = ty, z = z,
         kind = kind, apertureState = condition, reason = reason, source = "native-route-interaction" }
+end
+
+local function captureCrossing(job)
+    if not job.nativeRouteGeneration then return end
+    local ok, text = pcall(function() return SAOJavaBridge:consumeMoveCrossing(job.body) end)
+    if not ok or type(text) ~= "string" then return end
+    local route, sequence, x, y, tx, ty, z, kind, condition = text:match(
+        "^MOVE_CROSSING@([^@]+)@([^@]+)@([^@]+)@([^@]+)@([^@]+)@([^@]+)@([^@]+)@([^@]+)@([^@]+)$")
+    route, sequence = finite(route), finite(sequence)
+    x, y, tx, ty, z = finite(x), finite(y), finite(tx), finite(ty), finite(z)
+    if not (route and sequence and x and y and tx and ty and z)
+        or route ~= job.nativeRouteGeneration or sequence <= (job.lastCrossingSequence or 0)
+        or route ~= math.floor(route) or sequence ~= math.floor(sequence)
+        or x ~= math.floor(x) or y ~= math.floor(y) or tx ~= math.floor(tx)
+        or ty ~= math.floor(ty) or z ~= math.floor(z)
+        or math.abs(tx - x) + math.abs(ty - y) ~= 1
+        or (kind ~= "door" and kind ~= "window")
+        or (condition ~= "closed" and condition ~= "open" and condition ~= "smashed" and condition ~= "clear") then return end
+    job.lastCrossingSequence = sequence
+    job.crossings = job.crossings or {}
+    job.crossings[#job.crossings + 1] = {route=route,sequence=sequence,x=x,y=y,tx=tx,ty=ty,z=z,
+        kind=kind,apertureState=condition,source="native-route-crossing"}
+    if #job.crossings > MAX_CROSSINGS then table.remove(job.crossings, 1) end
 end
 
 -- [B47] One door out: everything this module says goes
@@ -154,6 +178,7 @@ function Loco.order(id, body, x, y, z, running)
     if job and not job.done then observed(id, "replaced", job, "Accepted a different route") end
     Loco.jobs[id] = {
         body = body, goal = { x = x, y = y, z = z },
+        nativeRouteGeneration = finite(tostring(verdict):match(" route=(%d+)$")),
         lastVerdict = "", sameVerdictTicks = 0,
         done = false, result = nil,
     }
@@ -186,6 +211,7 @@ local function tickInner(id)
     local ok, verdict = pcall(function() return SAOJavaBridge:tickMove(job.body) end)
     if not ok then error(verdict) end
     verdict = tostring(verdict)
+    captureCrossing(job)
 
     if verdict == job.lastVerdict then
         job.sameVerdictTicks = job.sameVerdictTicks + 1
@@ -206,6 +232,11 @@ local function tickInner(id)
     if verdict:find("Failed", 1, true) or verdict == "IDLE" or verdict:find("_FAILED", 1, true) then
         captureBarrier(job, verdict)
         job.done, job.result = true, verdict
+        -- Encountered resistance belongs to this person whichever purpose sent
+        -- them here. Perception authenticates the exact live job and known edge.
+        if job.barrier and SAO.Perception and SAO.Perception.noteEntryOutcome then
+            SAO.Perception.noteEntryOutcome(id, job.body, job)
+        end
         observed(id, "failed", job, verdict)
         return
     end

@@ -388,6 +388,32 @@ function Neuro.stateOf(rec)
     return ownerState(rec, false)
 end
 
+-- Provenance for exports that need to distinguish a recorded brain projection
+-- from the numeric compatibility defaults used by existing behaviour callers.
+-- This reads the durable owner and creates no state or new health observation.
+function Neuro.projectionEvidence(rec)
+    local function finite(value)
+        return type(value)=="number" and value==value and math.abs(value)<math.huge
+    end
+    if not rec then return {status="unavailable",reason="person-unavailable"} end
+    if not Neuro.isActive() then return {status="disabled",reason="brain-model-disabled"} end
+    local state=ownerState(rec,false)
+    local now=countyHours()
+    if type(state)~="table" or state.version~=2 or not finite(state.atHours)
+        or state.atHours<0 or not finite(now) or state.atHours>now
+        or not finite(state.burden) or state.burden<0 or type(state.active)~="table"
+        or state.enabled~=true or type(state.history)~="table" or #state.history==0 then
+        return {status="unavailable",reason="brain-observation-unavailable"}
+    end
+    local last=state.history[#state.history]
+    if type(last)~="table" or not finite(last.atHours) or last.atHours<0
+        or last.atHours>state.atHours or type(last.source)~="string" then
+        return {status="unavailable",reason="brain-history-unavailable"}
+    end
+    return {status="available",source="event-derived-brain-state",observedAtHours=state.atHours,
+        owner=ZAO and ZAO.Brain and ZAO.Brain.stateFor and "ZAO" or "SAO"}
+end
+
 function Neuro.loadOf(rec)
     if not rec or not Neuro.isActive() then return 0.0 end
     local state = ownerState(rec, false)
@@ -412,7 +438,7 @@ end
 -- intoxication reach perception through these same physical states.
 function Neuro.physicalReadiness(rec)
     local body = rec and rec.id and SAO.Body and SAO.Body.get(rec.id)
-    if not body then return 1.0, 1.0 end
+    if not body then return 1.0, 1.0, {status="unavailable",reason="body-unavailable"} end
     local ok, tired, drunk, pain = pcall(function()
         local moodles = body:getMoodles()
         return moodles:getMoodleLevel(MoodleType.TIRED),
@@ -420,10 +446,13 @@ function Neuro.physicalReadiness(rec)
             moodles:getMoodleLevel(MoodleType.PAIN)
     end)
     if not ok or type(tired) ~= "number" or type(drunk) ~= "number"
-        or type(pain) ~= "number" then return 1.0, 1.0 end
+        or type(pain) ~= "number" then return 1.0, 1.0, {status="unavailable",reason="moodles-unavailable"} end
     local attention = clamp(1.0 - math.max(tired, drunk) / 4.0, 0.0, 1.0)
     local motor = clamp(1.0 - math.max(tired, drunk, pain) / 4.0, 0.0, 1.0)
-    return attention, motor
+    local observed=tired==tired and drunk==drunk and pain==pain
+        and tired>=0 and tired<=4 and drunk>=0 and drunk<=4 and pain>=0 and pain<=4
+    return attention, motor, observed and {status="available",source="native-moodles"}
+        or {status="unavailable",reason="moodles-invalid"}
 end
 
 function Neuro.clarityOf(rec)

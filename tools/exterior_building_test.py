@@ -28,7 +28,15 @@ CONTROLS=[
     ('boolean opening = door || window != null;', 'boolean opening = door;', 'visible_closed_window_no_hidden_lock'),
     ('window.getBarricadeForCharacter(observer) != null', 'window.isBarricaded()', 'opposite_window_barricade_not_exposed'),
 ]
-MOVEMENT_CONTROLS=[('state.barrierResult = barrierResult(current, node, transition);', 'state.barrierResult = null;', 'native_failed_edge_is_not_final_target')]
+MOVEMENT_CONTROLS=[
+    ('state.barrierResult = barrierResult(shell, state, current, node, transition);', 'state.barrierResult = "FAILED_LOCKED_DOOR".equals(transition) ? null : barrierResult(shell, state, current, node, transition);', 'native_failed_edge_is_not_final_target'),
+    ('kind = "window"; condition = attempt.before; break;', 'kind = "window"; condition = "blocked"; break;', 'blocked_window_retains_authenticated_before_state'),
+    ('attempt.generation != state.routeGeneration', 'false', 'blocked_window_wrong_route_state_refuses'),
+    ('state.crossingResult = "MOVE_CROSSING@" + state.routeGeneration', 'state.crossingResult = "NO_CROSSING@" + state.routeGeneration', 'actual_window_crossing_keeps_before_state'),
+    ('(here != edge.from && here != edge.to)', 'false', 'detour_does_not_teach_nominated_door'),
+    ('edge.body.get() != shell', 'false', 'foreign_body_does_not_consume_crossing'),
+    ('if (nativeCrossing(shell)) return;', 'if (false) return;', 'window_position_during_climb_does_not_complete'),
+]
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)

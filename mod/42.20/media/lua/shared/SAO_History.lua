@@ -494,6 +494,70 @@ function H.birthYearOf(id)
     return start - H.ageOf(id)
 end
 
+-- Calendar age is a detached projection of the owned clock and birth year.
+-- The baseline age remains the deterministic identity fact. A birth year
+-- bounds attained age; it supplies neither a birthday nor an eligibility rule.
+local function ageFinite(value)
+    return type(value) == "number" and value == value
+        and value ~= math.huge and value ~= -math.huge
+end
+
+local function calendarYear(instant)
+    if type(instant) ~= "string" or #instant ~= 19 then return nil end
+    local y,m,d,h,n,s = instant:match("^([0-9][0-9][0-9][0-9])%-([0-9][0-9])%-([0-9][0-9])T([0-9][0-9]):([0-9][0-9]):([0-9][0-9])$")
+    y,m,d,h,n,s = tonumber(y),tonumber(m),tonumber(d),tonumber(h),tonumber(n),tonumber(s)
+    if not y or y < 1 or m < 1 or m > 12 or d < 1
+        or h > 23 or n > 59 or s > 59 then return nil end
+    local days = {31,28,31,30,31,30,31,31,30,31,30,31}
+    if y%4 == 0 and (y%100 ~= 0 or y%400 == 0) then days[2] = 29 end
+    if d > days[m] then return nil end
+    return y
+end
+
+function H.calendarAgeOf(id, optionalCountyHours)
+    local out = { actorId = type(id) == "string" and id or nil,
+        status = "unavailable", precision = "birth-year", birthdayKnown = false,
+        source = "SAO.History.countyInstant+birthYearOf" }
+    local rec = nil
+    if type(id) == "string" and id ~= "" and SAO.Identity
+        and type(SAO.Identity.get) == "function" then
+        pcall(function() rec = SAO.Identity.get(id) end)
+    end
+    if type(rec) ~= "table" or rec.id ~= id then
+        out.reason = "person-unavailable"; return out
+    end
+    local current = nil
+    pcall(function() current = H.countyHours() end)
+    local hours = optionalCountyHours == nil and current or optionalCountyHours
+    if not ageFinite(current) or not ageFinite(hours) or hours > current then
+        out.reason = "clock-unavailable"; return out
+    end
+    local instant = nil
+    pcall(function() instant = H.countyInstant(hours) end)
+    local year = calendarYear(instant)
+    if not year then out.reason = "calendar-unavailable"; return out end
+    out.currentInstant = instant
+    local birth,baseline = nil,nil
+    pcall(function() birth = H.birthYearOf(id); baseline = H.ageOf(id) end)
+    if not ageFinite(birth) or birth ~= math.floor(birth) or birth < 1
+        or not ageFinite(baseline) or baseline ~= math.floor(baseline) or baseline < 0 then
+        out.reason = "birth-year-unavailable"; return out
+    end
+    out.birthYear,out.baselineAge = birth,baseline
+    if SAO.EducationRegistry and type(SAO.EducationRegistry.profile) == "function" then
+        local ok,profile = pcall(SAO.EducationRegistry.profile,id)
+        if not ok or (profile ~= nil and (type(profile) ~= "table"
+            or profile.personId ~= id or profile.birthYear ~= birth)) then
+            out.reason = "education-birth-mismatch"; return out
+        end
+    end
+    if year < birth then out.reason = "not-yet-born"; return out end
+    local nominal = year - birth
+    out.status,out.nominalAge = "available",nominal
+    out.minimumAge,out.maximumAge = math.max(0,nominal-1),nominal
+    return out
+end
+
 -- How old they were in a given year - negative before they existed.
 -- The whole point of carrying age: what a person can remember of a
 -- decade depends entirely on how old they were during it.

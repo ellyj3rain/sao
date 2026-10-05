@@ -20,6 +20,11 @@ public final class NativeObserverSitesProbe {
     public static void main(String[] args) throws Exception {
         zombie.core.random.RandStandard.INSTANCE.init();
         zombie.ZomboidFileSystem.instance.init();
+        // Native character creation normally receives this palette from Lua startup.
+        zombie.characters.SurvivorDesc.addHairColor(new zombie.core.textures.ColorInfo(.2f, .2f, .2f, 1f));
+        zombie.core.skinnedmodel.population.HairStyles.init();
+        zombie.core.skinnedmodel.population.BeardStyles.init();
+        zombie.core.skinnedmodel.population.PopTemplateManager.instance.init();
         zombie.SoundManager.instance = new zombie.DummySoundManager();
         zombie.Lua.LuaManager.platform = new se.krka.kahlua.j2se.J2SEPlatform();
         zombie.Lua.LuaManager.env = zombie.Lua.LuaManager.platform.newTable();
@@ -45,6 +50,16 @@ public final class NativeObserverSitesProbe {
         StudyObserver.View[] views = new StudyObserver.View[3];
         for (int index = 0; index < 3; index++) {
             residents[index] = new StudyObserver.Anchor(); views[index] = new StudyObserver.View();
+            try {
+                zombie.core.skinnedmodel.ModelManager.instance.getBodyModel(residents[index]);
+            } catch (NullPointerException failure) {
+                throw new AssertionError("observer animation refresh requested an undefined animal model", failure);
+            }
+            check(!residents[index].isAnimal()
+                    && residents[index].getVisual() instanceof zombie.core.skinnedmodel.visual.HumanVisual,
+                    "observer anchor uses undefined animal visual");
+            check(residents[index].getHumanVisual() != null && residents[index].getAnimalType() == null,
+                    "observer human visual contract differs");
             residents[index].playerIndex = index; residents[index].sqlId = -1;
             residents[index].setX(64 + 128 * index); residents[index].setY(64);
             views[index].setX(64 + 128 * index); views[index].setY(64);
@@ -66,6 +81,58 @@ public final class NativeObserverSitesProbe {
             check(frame.camCharacter == views[index] && frame.camCharacterX == 64 + 128 * index,
                 "native frame did not use its actual regional position");
         }
+        var cutaways = zombie.iso.fboRenderChunk.FBORenderCutaways.getInstance();
+        cutaways.cell = cell;
+        Field pointsField = cutaways.getClass().getDeclaredField("pointOfInterest");
+        pointsField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        var points = (java.util.ArrayList<zombie.iso.fboRenderChunk.FBORenderCutaways.PointOfInterest>) pointsField.get(cutaways);
+        for (int index = 0; index < 3; index++) {
+            views[index].setX(74.75f + 128 * index); views[index].setY(55.25f);
+            IsoCamera.frameState.set(index);
+            cutaways.CalculatePointsOfInterest();
+            check(points.size() == 1 && points.get(0).x == 74 + 128 * index && points.get(0).y == 55,
+                "native cutaway focus remained at residency or used another slot");
+            check(residents[index].getX() == 64 + 128 * index && residents[index].getY() == 64
+                    && IsoPlayer.players[index] == residents[index],
+                "cutaway focus moved the streaming owner");
+        }
+        IsoCamera.frameState.set(1);
+        cutaways.CalculatePointsOfInterest();
+        var primary = points.get(0);
+        primary.x = 192; primary.y = 64;
+        var auxiliary = new zombie.iso.fboRenderChunk.FBORenderCutaways.PointOfInterest();
+        auxiliary.x = 210; auxiliary.y = 72; auxiliary.z = 0; auxiliary.mousePointer = true;
+        points.add(auxiliary);
+        StudyObserver.cutawayFocus(points);
+        check(points.size() == 2 && points.get(1) == auxiliary && auxiliary.x == 210 && auxiliary.y == 72
+                && auxiliary.mousePointer, "cutaway focus changed native auxiliary points");
+        primary.x = 192; primary.y = 64; primary.mousePointer = true;
+        StudyObserver.cutawayFocus(points);
+        check(primary.x == 192 && primary.y == 64, "cutaway focus rewrote a cursor point");
+        primary.mousePointer = false; primary.x = 191;
+        StudyObserver.cutawayFocus(points);
+        check(primary.x == 191, "cutaway focus rewrote an unrelated primary point");
+        IsoCamera.frameState.camCharacter = views[0];
+        cutaways.CalculatePointsOfInterest();
+        check(points.get(0).x == 192 && points.get(0).y == 64,
+                "cutaway focus accepted another slot's frame");
+        IsoCamera.frameState.set(1);
+        StudyObserver.Anchor foreign = new StudyObserver.Anchor();
+        foreign.setX(31); foreign.setY(42); IsoPlayer.players[1] = foreign;
+        cutaways.CalculatePointsOfInterest();
+        check(points.get(0).x == 31 && points.get(0).y == 42,
+                "cutaway focus accepted a replaced native slot");
+        IsoPlayer.players[1] = residents[1];
+        host("ready", false);
+        cutaways.CalculatePointsOfInterest();
+        check(points.get(0).x == 192 && points.get(0).y == 64,
+                "cutaway focus changed ordinary native rendering");
+        host("ready", true);
+        for (int index = 0; index < 3; index++) {
+            views[index].setX(64 + 128 * index); views[index].setY(64);
+        }
+        System.out.println("PASS native cutaway: three distinct detached views, retained residency, auxiliary points and ordinary/foreign frame isolation");
         Method set = StudyObserver.class.getDeclaredMethod("setResidency", int.class, float.class, float.class, float.class);
         set.setAccessible(true); set.invoke(null, 2, 360f, 70f, 0f);
         check(residents[2].getX() == 360 && residents[0].getX() == 64 && residents[1].getX() == 192,

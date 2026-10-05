@@ -32,7 +32,7 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 sys.path.append(str(pathlib.Path(sys.argv[1]).resolve() / "tools") if len(sys.argv) > 1 else str(pathlib.Path(__file__).resolve().parent))
-from lua_read import strip_lua
+from lua_read import function_body, strip_lua
 
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
@@ -63,13 +63,74 @@ def lua_list(src, name):
     return re.findall(r'"([A-Za-z0-9_]+)"', m.group(1)) if m else []
 
 
-INSTRUMENT_CALL = re.compile(
-    r"\bSAO\.Gesture\.playInstrument\(\s*id\s*,\s*body\s*,"
-    r"\s*what\s*,\s*carriedInstrument\s*\)")
+INSTRUMENT_WRITER = re.compile(r"\bSAO\.Gesture\.playInstrument\s*\(")
+INSTRUMENT_ROUTES = {
+    "decideRestActivity": ("what", "carriedInstrument", "material"),
+    "Ctl.advanceLeisureParticipation": ("capability.verb", "offer.itemType", "item"),
+}
 
 
-def instrument_call(source):
-    return INSTRUMENT_CALL.search(strip_lua(source)) is not None
+def instrument_pattern(arguments):
+    return re.compile(r"\bSAO\.Gesture\.playInstrument\s*\(\s*"
+                      + r"\s*,\s*".join(re.escape(arg) for arg in
+                          ("id", "body", *arguments, "purpose.id")) + r"\s*\)")
+
+
+def instrument_faults(source):
+    """Both owned routes carry the exact material and admitted purpose.
+
+    A global writer census also refuses an additional unsupported route;
+    finding one good call cannot conceal a missing or malformed sibling.
+    """
+    text = strip_lua(source)
+    faults = []
+    if len(INSTRUMENT_WRITER.findall(text)) != len(INSTRUMENT_ROUTES):
+        faults.append("instrument writer census requires exactly two owned calls")
+    for name, arguments in INSTRUMENT_ROUTES.items():
+        body = function_body(source, name, stripped=text)
+        route = strip_lua(body or "")
+        if (len(INSTRUMENT_WRITER.findall(route)) != 1
+                or len(instrument_pattern(arguments).findall(route)) != 1):
+            faults.append("instrument route requires exact material and purpose: " + name)
+    return faults
+
+
+def instrument_controls(source):
+    """Restore omissions and extra writers at each actual source seam."""
+    faults = []
+    checked = 0
+    if instrument_faults(source):
+        return ["instrument controls require valid current owned routes"], checked
+    text = strip_lua(source)
+    for name, arguments in INSTRUMENT_ROUTES.items():
+        pattern = instrument_pattern(arguments)
+        matches = list(pattern.finditer(text))
+        if len(matches) != 1:
+            faults.append("instrument control requires one unique route call: " + name)
+            continue
+        call = matches[0]
+        prefix, suffix = source[:call.start()], source[call.end():]
+        missing_material = "SAO.Gesture.playInstrument(id, body, %s, %s, purpose.id)" % arguments[:2]
+        missing_purpose = "SAO.Gesture.playInstrument(id, body, %s, %s, %s)" % arguments
+        witness = "instrument route requires exact material and purpose: " + name
+        for label, replacement in (
+                ("missing material", missing_material),
+                ("missing purpose", missing_purpose),
+                ("missing call", "false"),
+                ("commented call", "false -- " + " ".join(call.group().split()) + "\n"),
+                ("duplicate call", call.group() + "\n" + call.group())):
+            checked += 1
+            if witness not in instrument_faults(prefix + replacement + suffix):
+                faults.append("instrument control accepted " + label + ": " + name)
+        # Matching invocation text in a string or comment is not a writer.
+        inert = source + '\n-- ' + call.group() + '\nlocal inert = "' + call.group() + '"\n'
+        checked += 1
+        if instrument_faults(inert):
+            faults.append("instrument control counted comment/string text: " + name)
+    checked += 1
+    if not instrument_faults(source + "\nSAO.Gesture.playInstrument(id, body, what)\n"):
+        faults.append("instrument control accepted an unsupported extra writer")
+    return faults, checked
 
 
 def main():
@@ -194,19 +255,12 @@ def main():
     print("     sounds defined: %d over %d clips" % (len(defined), len(clips)))
 
     ctl = read(CONTROLLER)
-    # The call's arguments are the seam; indentation is not. Mutate the
-    # actual call to prove that omitting the carried item still refuses.
-    matches = list(INSTRUMENT_CALL.finditer(strip_lua(ctl)))
-    if len(matches) != 1:
-        faults.append("instrument control requires exactly one carried-item call")
-    else:
-        call = matches[0]
-        broken = (ctl[:call.start()] + "SAO.Gesture.playInstrument(id, body, what)"
-                  + ctl[call.end():])
-        if instrument_call(broken):
-            faults.append("instrument control accepted the missing carried item")
-        if instrument_call("-- " + " ".join(call.group().split())):
-            faults.append("instrument control accepted a commented-out call")
+    route_faults = instrument_faults(ctl)
+    faults.extend(route_faults)
+    control_faults, instrument_count = instrument_controls(ctl)
+    faults.extend(control_faults)
+    print("     instrument routes: %d owned; restored-defect controls: %d"
+          % (len(INSTRUMENT_ROUTES), instrument_count))
     seams = {
         "the action derives from the vanilla base": 'ISBaseTimedAction:derive("SAOGestureAction")' in g,
         "and carries the variable the nodes read": 'self:setAnimVariable("SAOGesture", self.gesture)' in g,
@@ -214,10 +268,10 @@ def main():
         "the meeting is seen on both people": "SAO.Gesture.meet(id, body, otherId, otherBody, verdict, warmM, sharpM)" in read(EXCHANGE),
         "the evening seat sets the seat": "SAO.Gesture.seat(id, body)" in ctl,
         "and every stand clears it": ctl.count("SAO.Gesture.standUp(") >= 3,
-        # [C119] The tune now carries the instrument the bard actually
-        # holds, so the seam is the call with its fourth argument.
-        "the tune plays the instrument": instrument_call(ctl),
-        "and those close dance or clap": "SAO.Gesture.dance(oid43, ob43)" in ctl and "SAO.Gesture.clap(ob43)" in ctl,
+        # The ordinary and shared routes both carry current material,
+        # observed type and the purpose that owns queue completion.
+        "the tune plays the instrument": not route_faults,
+        "unobserved tune grants no listener effects": "easeListeners(body, 12)" not in ctl,
         "the harness gives the four receipts": all(s in read(HARNESS) for s in
             ('"Gesture: agree"', '"Gesture: argue"', '"Dance a while"', '"Play the guitar"')),
         "the credits name Hobbies": "## Lifestyle: Hobbies (Angry)" in read(CREDITS),

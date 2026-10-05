@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 r"""Border 114 - the county stands on its own ([C40], DR-035).
 
-No capability of this mod may require another survivor mod, and
+No survivor capability of this mod requires another survivor framework, and
 nothing of it may run through one unless the player asks. Two paths
 did, on every world start: taking the neighbour framework's people
 over through its own spawn and teardown functions, and rewriting the
@@ -27,14 +27,15 @@ WHAT THIS HOLDS
      Every other door into their namespace defaults off too.
   3. The defensive half calls none of their code: SAOKnox reads marks
      and nothing more.
-  4. No manifest requires anything but the loader, and the
-     description does not claim a requirement the manifest does not
-     carry. [C39] left exactly that untrue for a day because no
+  4. Both manifests declare the approved installed Lean & Lie animation
+     dependency, whose availability gate also checks TchernoLib. The
+     descriptions disclose this requirement and ZombieBuddy. [C39] left exactly that untrue for a day because no
      border read the description, which is why this one does.
 
 An optional argv[1] points the checker at another tree root, which is
 how its control runs: the pre-batch tree faults at every seam.
 """
+import json
 import pathlib
 import re
 import sys
@@ -200,13 +201,35 @@ def main():
     gates["and reads their marks through the engine"] = (
         "getVariableBoolean" in knox and "getModData" in knox)
 
-    # 4. The manifests and the description.
+    # 4. The approved external animation dependency is distinct from survivor
+    # framework absorption. Exact metadata, reviewed provenance and the actual
+    # availability gate must agree; this grants no arbitrary dependency.
+    pose = strip_comments(read(LUA / "client" / "SAO_RecoveryPose.lua"))
+    at = pose.find("function P.available()")
+    stop = pose.find("function P.", at + 1)
+    available = pose[at:stop] if at >= 0 and stop > at else ""
+    for witness in ('mods:contains("LeanAndLie")', 'mods:contains("TchernoLib")',
+                    'type(TchAL) == "table"',
+                    'TchAL.stateVariableOnGround == P.stateVariableOnGround',
+                    'return ok and available == true'):
+        gates["installed animation availability: " + witness] = witness in available
+    try:
+        source = json.loads(read(ROOT / "tools" / "recovery_source_manifest.json"))
+    except (ValueError, TypeError):
+        source = {}
+    gates["external animation source contract is declared"] = (
+        source.get("schema") == "sao-installed-recovery-adapter/1"
+        and source.get("runtimeDependencies") == ["LeanAndLie", "TchernoLib"])
+    gates["credits disclose installed animation dependency"] = (
+        "## Lean & Lie (Tchernobill)" in read(CREDITS)
+        and "externally installed Lean & Lie" in read(CREDITS))
+    # The manifests and their player-facing descriptions.
     for manifest in MANIFESTS:
         text = read(manifest)
-        require = re.search(r"^require=(.*)$", text, re.M)
-        if require:
-            faults.append("%s requires %s" % (manifest.parent.name,
-                                              require.group(1).strip()))
+        requirements = re.findall(r"^require=(.*)$", text, re.M)
+        if [value.strip() for value in requirements] != ["LeanAndLie"]:
+            faults.append("%s must require exactly the approved LeanAndLie animation dependency; found %r"
+                          % (manifest.parent.name, requirements))
         description = re.search(r"^description=(.*)$", text, re.M)
         body = description.group(1) if description else ""
         for claimed in ("Infirmities", "Even More Traits", "twbInfirmities",
@@ -217,9 +240,11 @@ def main():
                     "and the manifest requires nothing. A description is read "
                     "by every player and by no border until this one"
                     % (manifest.parent.name, claimed))
+        if "Ground recovery requires installed Lean & Lie" not in body or "TchernoLib dependency" not in body:
+            faults.append("%s's description omits its installed animation dependency" % manifest.parent.name)
         if "ZombieBuddy" not in body:
             faults.append("%s's description does not name the one requirement "
-                          "there is" % manifest.parent.name)
+                          "for the Java loader" % manifest.parent.name)
 
     gates["the credits say nothing of ours runs through theirs"] = (
         "nothing of this county's runs through it" in read(CREDITS))
@@ -240,8 +265,8 @@ def main():
             print("  FAULT: " + f)
         return 1
     print("  114) the county stands on its own: one door, closed by default; "
-          "what is always on uses none of their code; nothing required but "
-          "the loader")
+          "survivor-framework protection calls none of their code; the loader "
+          "and approved installed animation dependency are disclosed")
     return 0
 
 

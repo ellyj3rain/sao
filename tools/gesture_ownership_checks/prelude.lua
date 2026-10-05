@@ -1,5 +1,6 @@
 require = function() end
-Events = { OnTick = { Add = function() end }, OnGameStart = { Add = function() end } }
+__fixtureTicks = {}
+Events = { OnTick = { Add = function(fn) __fixtureTicks[#__fixtureTicks+1] = fn end }, OnGameStart = { Add = function() end } }
 ISLogSystem = { logAction = function() end }
 print = __nativePrint
 SAO = {}

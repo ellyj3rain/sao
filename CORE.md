@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Core |
 |---|---|
-| Version | `2.11.1.0-pre-alpha` |
+| Version | `3.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `CORE.md` |
 | Status | ACTIVE - genesis identity for this project. |
@@ -8,9 +8,12 @@
 # Survivor Awareness Overhaul â€” core
 
 **Survivor Awareness Overhaul** is a Project Zomboid Build 42 NPC framework, not a
-survivor mod with better scripts. Survivors act on what they have actually
-perceived and been told, rather than on map geometry they could not know or on
-nothing at all. They are durable inhabitants of Knox County with their own
+survivor mod with better scripts. Survivors act on personal observations,
+acquired knowledge, ordinary-life priors and defeasible conceptual inference.
+DR-056 ratifies associations among situations, objects, activities and effects
+as a basis for anticipating possibilities and investigating what remains unknown.
+Particular local facts retain their acquisition source; inferred possibilities
+retain their uncertainty. They are durable inhabitants of Knox County with their own
 positions, intentions and histories, and they persist whether or not the player
 is looking at them.
 
@@ -51,6 +54,14 @@ native machinery. `ARCHITECTURE.md` holds the ratified shape.
 | Standing | relationships, group membership, orders, territory claims, hostility state, who may command whom | tactical execution, invented knowledge |
 | Execution | movement, entry, combat, looting, work, treatment, withdrawal | global truth, personality, relationship state |
 
+Person-owned knowledge supports this four-pillar composition. It retains general
+and learned associations with provenance; bounded inference proposes possible
+means and unresolved questions. Perception supplies particular acquired facts,
+Disposition and accepted purposes determine what matters, Standing governs
+permission, and Execution owns the physical attempt and its result. A house can
+suggest a bedroom and a bed without establishing that either exists at a local
+coordinate. Observation and experience can refine those expectations.
+
 Execution ships first and rides the engine's native substrate. The other three are
 what make this a framework rather than a behavior list.
 
@@ -67,9 +78,10 @@ what make this a framework rather than a behavior list.
 - **A survivor is a person, not a shell.** Identity is a persistent record. The
   engine object is a temporary body that exists while its cell is loaded and is
   never the save entity.
-- **No omniscience, no oblivion.** The two failure modes are symmetric. A survivor
-  that pathfinds against facts it never perceived is as wrong as one that ignores
-  a threat in front of it.
+- **No omniscience, no oblivion.** Particular local facts come from personal
+  acquisition. General knowledge and defeasible inference can motivate inquiry
+  without manufacturing observed rooms, contents, coordinates or permission.
+  Ignoring a perceived threat and acting on fabricated local facts are both faults.
 - **Declarations are promises.** Settings copy and in-game text match shipped
   behavior exactly.
 - **Author causes, inspect consequences.** Simulation depth does not justify

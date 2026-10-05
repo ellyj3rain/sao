@@ -60,6 +60,21 @@ function D.traitEvidence(id)
     return out
 end
 
+-- Conflict preferences carry the same personal causes as every other trait
+-- consumer. They describe what matters to this person, not an order to fight.
+function D.conflictValues(id)
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id)
+    if not rec or rec.dead then return nil end
+    local out = { actorId = id, provenance = {} }
+    for _, name in ipairs({ "selfPreservation", "aggression", "nerve", "discipline", "compassion" }) do
+        local ok, evidence = pcall(trait, id, name, true)
+        if not ok or type(evidence) ~= "table" or type(evidence.effective) ~= "number"
+            or evidence.effective ~= evidence.effective or evidence.effective < 0 or evidence.effective > 1 then return nil end
+        out[name], out.provenance[name] = evidence.effective, evidence
+    end
+    return out
+end
+
 function D.traits(id)
     return {
         nerve = trait(id, "nerve"),                       -- composure under threat

@@ -300,6 +300,15 @@ local function routeAppraisal(id, rec, context, option, social)
             danger.nearest = { distance = nearest.dist, at = nearest.at,
                 source = short(nearest.source), fromPerson = nearest.fromPerson == true,
                 form = short(nearest.form) }
+            local geometry=SAO.CognitiveModels and SAO.CognitiveModels.contactGeometry
+                and SAO.CognitiveModels.contactGeometry({distance=nearest.dist,z=nearest.z,observerZ=target.z})
+            if geometry then
+                danger.nearest.z,danger.nearest.observerZ=nearest.z,target.z
+                danger.nearest.floorKnown,danger.nearest.sameFloor=geometry.floorKnown,geometry.sameFloor
+                danger.nearest.reachability=geometry.reachability
+                if geometry.sameFloor==false then danger.uncertainty=danger.uncertainty
+                    .. "; the contact is remembered on another floor; a usable path and physical reach are unconfirmed" end
+            end
             danger.ordinal = math.max(danger.ordinal, 12 / (12 + nearest.dist))
         end
     end
@@ -309,6 +318,26 @@ local function routeAppraisal(id, rec, context, option, social)
             basis = "own-native-position-and-own-home; straight-line ordinal comparison",
             uncertainty = "barriers, duration and the return route remain unconfirmed" },
         social = social, requestValue = social.concern * (option.kind == "inspect" and 0.5 or 1) }
+end
+
+-- These are conditional consequences of already admitted private options.
+-- Acquiring material may help a received request; it never predicts that a
+-- recipient accepted it or that delivery has happened.
+local function resourceConsequences(option, category, concern)
+    local out = {}
+    local value = 0.8 + (concern or 0) * 0.4
+    if option.kind == "inspect" then
+        out[1] = { kind = "inspect", category = category,
+            sourceId = option.place and option.place.sourceId, value = value * 0.5 }
+    elseif option.kind == "acquire-ready" or option.kind == "acquire-prepare" then
+        out[1] = { kind = "acquire", category = category,
+            sourceId = option.sourceId, itemType = option.itemType, value = value }
+    end
+    if option.cooking then
+        out[#out + 1] = { kind = "prepare", category = "food",
+            itemType = option.itemType, value = value }
+    end
+    return out
 end
 
 -- The caller supplies native own-inventory and private observation rows.
@@ -385,6 +414,7 @@ function Labor.assess(id, context)
             fatigue = capacity.fatigue, health = capacity.health }
         -- Skill is evidence about technique, not a zero-level action gate.
         option.appraisal = option.appraisal or routeAppraisal(id, rec, context, option, social)
+        option.consequences = resourceConsequences(option, category, social.concern)
         if not finite(context.tick) then option.evidence = option.evidence - (out.knownRisk or 0) * 0.1 end
         option.uncertainty = option.uncertainty .. "; " .. option.appraisal.danger.uncertainty
             .. "; " .. option.appraisal.travel.uncertainty .. "; " .. social.uncertainty
@@ -443,18 +473,21 @@ function Labor.assess(id, context)
         option.continuity = option.continuity + 0.1 / (1 + option.distance)
         option.blockers = capacity.available and 0 or 1
         option.appraisal = routeAppraisal(id, rec, context, option, social)
+        option.consequences = resourceConsequences(option, category, social.concern)
     end
     table.sort(sources, function(a, b)
         if SAO.CognitiveModels and SAO.CognitiveModels.planScore then
             local sa = SAO.CognitiveModels.planScore("ordinary", a, out.demand.pressure)
             local sb = SAO.CognitiveModels.planScore("ordinary", b, out.demand.pressure)
+            sa, sb = sa or -math.huge, sb or -math.huge
             if sa ~= sb then return sa > sb end
         end
         if a.distance == b.distance then return a.id < b.id end
         return a.distance < b.distance
     end)
-    for i, option in ipairs(sources) do
-        if i > 8 then break end
+    for _, option in ipairs(sources) do
+        -- The input is bounded at 64. Purpose-specific retry and continuity
+        -- appraisal precede the planner's single candidate bound.
         -- This is an ordinal preference for a shorter known approach, not a
         -- calibrated travel duration or production-rate claim.
         add(option)

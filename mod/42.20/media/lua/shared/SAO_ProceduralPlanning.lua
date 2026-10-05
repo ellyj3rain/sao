@@ -9,8 +9,12 @@
 SAO = SAO or {}
 SAO.ProceduralPlanning = SAO.ProceduralPlanning or {}
 local P = SAO.ProceduralPlanning
+if not SAO.SituationAppraisal and type(require)=="function" then pcall(require,"SAO_SituationAppraisal") end
+local retainSituation=SAO.SituationAppraisal and SAO.SituationAppraisal.bindPlanner(P)
 local RESOURCE_RESULT = {}
 local WINDOW_REPAIR_RESULT = {}
+local INSTRUMENT_RESULT = {}
+local NOTE_RESULT = {}
 
 local MAX_PURPOSES, MAX_FACTS, MAX_EVENTS = 12, 64, 32
 local MAX_RESIDENCE_ATTEMPTS = 16
@@ -73,9 +77,10 @@ local function copyList(source, maximum)
     end
     return out
 end
-local function dataCopy(value, depth)
+local function dataCopy(value, depth, maximumDepth)
     depth = depth or 0
-    if depth > 6 then return nil end
+    maximumDepth = maximumDepth or 6
+    if depth > maximumDepth then return nil end
     if type(value) == "string" then return string.sub(value, 1, 512) end
     if type(value) == "number" then return finite(value) and value or nil end
     if type(value) == "boolean" then return value end
@@ -85,15 +90,53 @@ local function dataCopy(value, depth)
         if type(key) == "string" or type(key) == "number" then
             count = count + 1
             if count > 32 then break end
-            out[key] = dataCopy(item, depth + 1)
+            out[key] = dataCopy(item, depth + 1, maximumDepth)
         end
     end
     return out
 end
 
+-- A completed personal activity can leave an optional invitation to share.
+-- That possibility is not an admitted obligation and need not occupy a live
+-- intention slot while another purpose needs attention.
+local function optionalSharing(purpose)
+    if not purpose or not purpose.leisure or purpose.admission
+        or purpose.status == "abandoned" or purpose.status == "completed" then return false end
+    local performed, pending = false, false
+    for _, step in ipairs(purpose.steps or {}) do
+        if step.id == "perform-activity" and step.status == "completed" then performed = true end
+        if step.status ~= "completed" then
+            if step.required ~= false then return false end
+            pending = true
+        end
+    end
+    return performed and pending
+end
+local function suspendedPurpose(s, key)
+    for _, ledger in ipairs({ s.suspendedLeisure or {}, s.queuedPurposes or {} }) do
+        for _, id in ipairs(ledger.order or {}) do
+            local purpose = ledger.purposes[id]
+            if purpose and purpose.key == key and purpose.status == "suspended"
+                and purpose.suspendedStatus ~= "completed" and purpose.suspendedStatus ~= "abandoned" then return purpose, ledger end
+        end
+    end
+end
 local function retirePurpose(s, index)
     local removed = table.remove(s.order, index)
     local old = s.purposes[removed]
+    if optionalSharing(old) then
+        s.suspendedLeisure = s.suspendedLeisure or { purposes = {}, order = {}, omitted = 0 }
+        local ledger = s.suspendedLeisure
+        old.status, old.suspendedAt = "suspended", nowHours()
+        old.suspensionReason = "another-purpose-needs-active-capacity"
+        addEvent(old, "suspended", "optional-sharing-remains-unresolved", old.suspendedAt)
+        ledger.purposes[removed] = old
+        ledger.order[#ledger.order + 1] = removed
+        while #ledger.order > MAX_EVENTS do
+            ledger.purposes[table.remove(ledger.order, 1)] = nil
+            ledger.omitted = ledger.omitted + 1 -- bounded retention, never a completion claim
+        end
+    end
     local goal = old and old.resourceOutcome
     local request = goal and s.resourceOutcomeRequests and s.resourceOutcomeRequests[goal.id]
     if request and request.purposeId == removed then
@@ -109,34 +152,128 @@ function P.maintain(id, spec)
     if not s or type(spec) ~= "table" or type(spec.key) ~= "string"
         or spec.key == "" or type(spec.objective) ~= "string" then return nil end
     local purpose = purposeByKey(s, spec.key)
+    local suspended, suspensionLedger
+    if not purpose then suspended, suspensionLedger = suspendedPurpose(s, spec.key) end
     local at = finite(spec.atHours) and spec.atHours or nowHours()
+    if suspended and suspensionLedger == s.queuedPurposes then return P.resumeQueuedPurpose(id, suspended.id) end
     if not purpose then
         if #s.order >= MAX_PURPOSES then
             local removable
             for i, purposeId in ipairs(s.order) do
                 local prior = s.purposes[purposeId]
-                if not prior or not prior.admission and (not prior.residence
+                if not prior or not prior.admission and (not prior.leisure or optionalSharing(prior)
+                    or prior.status == "completed" or prior.status == "abandoned") and (not prior.residence
                     or prior.status == "completed" or prior.status == "abandoned") and (not prior.resourceOutcome
                     or prior.status == "completed" or prior.status == "abandoned") then removable = i; break end
             end
             if not removable then return nil end
             retirePurpose(s, removable)
         end
+        if suspended then
+            local ledger = suspensionLedger
+            ledger.purposes[suspended.id] = nil
+            for i, id in ipairs(ledger.order) do
+                if id == suspended.id then table.remove(ledger.order, i); break end
+            end
+            purpose = suspended
+            purpose.status, purpose.revivedAt = purpose.suspendedStatus or "maintained", at
+            addEvent(purpose, "revived", "retained-purpose-requires-owned-execution", at)
+        else
         s.nextPurpose = s.nextPurpose + 1
         purpose = { id = "purpose/" .. tostring(s.nextPurpose), key = spec.key,
             objective = spec.objective, domain = tostring(spec.domain or "general"),
             origin = tostring(spec.origin or "self"), authority = spec.authority,
             createdAt = at, updatedAt = at, status = "maintained", revision = 1,
             blockers = {}, steps = {}, cursor = 1, events = {} }
+        addEvent(purpose, "formed", purpose.objective, at)
+        end
         s.purposes[purpose.id] = purpose
         s.order[#s.order + 1] = purpose.id
-        addEvent(purpose, "formed", purpose.objective, at)
     elseif purpose.objective ~= spec.objective then
         purpose.objective, purpose.revision = spec.objective, purpose.revision + 1
         addEvent(purpose, "revised", purpose.objective, at)
     end
     purpose.updatedAt = at
     return purpose
+end
+
+function P.queuedPurpose(id)
+    local s = state(id)
+    local ledger = s and s.queuedPurposes
+    for _, key in ipairs(ledger and ledger.order or {}) do
+        local purpose = ledger.purposes[key]
+        if purpose and not purpose.conflict and purpose.status == "suspended"
+            and purpose.suspendedStatus ~= "completed" and purpose.suspendedStatus ~= "abandoned" then
+            return { id = purpose.id, key = purpose.key, domain = purpose.domain, status = purpose.status }
+        end
+    end
+end
+
+function P.resumeQueuedPurpose(id, purposeId)
+    local s = state(id)
+    local ledger = s and s.queuedPurposes
+    local next = not purposeId and P.queuedPurpose(id)
+    local key = purposeId or next and next.id
+    local purpose = ledger and key and ledger.purposes[key]
+    if not purpose or purpose.admission or purpose.status ~= "suspended"
+        or purpose.suspendedStatus == "completed" or purpose.suspendedStatus == "abandoned" then return nil end
+    local replace
+    if #s.order >= MAX_PURPOSES then
+        for index, activeId in ipairs(s.order) do
+            local active = s.purposes[activeId]
+            if active and not active.admission then
+                replace = replace or index
+                -- The ordinary caller has established that no current danger
+                -- owns this turn; preserve that conflict record off the live set.
+                if not purpose.conflict and active.conflict then replace = index; break end
+            end
+        end
+        if not replace then return nil, "native-handback-required" end
+    end
+    for index, queuedId in ipairs(ledger.order) do
+        if queuedId == key then table.remove(ledger.order, index); break end
+    end
+    ledger.purposes[key] = nil
+    if replace then
+        local activeId = table.remove(s.order, replace)
+        local active = s.purposes[activeId];s.purposes[activeId] = nil
+        active.suspendedStatus, active.status = active.status, "suspended"
+        active.suspendedIndex = replace
+        active.suspendedAt, active.suspensionReason = nowHours(), "another-retained-purpose-resumes"
+        addEvent(active, "suspended", active.suspensionReason, active.suspendedAt)
+        ledger.purposes[activeId] = active;ledger.order[#ledger.order + 1] = activeId
+    end
+    purpose.status, purpose.revivedAt = purpose.suspendedStatus or "maintained", nowHours()
+    s.purposes[key] = purpose
+    local position = finite(purpose.suspendedIndex) and math.floor(purpose.suspendedIndex) or #s.order + 1
+    table.insert(s.order, clamp(position, 1, #s.order + 1), key)
+    addEvent(purpose, "revived", "retained-purpose-requires-owned-execution", purpose.revivedAt)
+    if purpose.resourceOutcome then P.resourceOutcomeDemand(id) end
+    return purpose
+end
+
+-- This handoff is reachable only after canonical private conflict appraisal.
+-- It preserves accepted work without pretending that its executor completed or
+-- cancelled anything. A native admission must hand back through its own owner.
+local function queueForConflict(s, at)
+    if not s then return false, "conflict-purpose-capacity" end
+    local ledger = s.queuedPurposes
+    if ledger and #ledger.order >= MAX_EVENTS then return false, "queued-purpose-capacity" end
+    for index, id in ipairs(s.order) do
+        local purpose = s.purposes[id]
+        if purpose and not purpose.admission then
+            s.queuedPurposes = ledger or { purposes = {}, order = {} }
+            ledger = s.queuedPurposes
+            purpose.suspendedStatus, purpose.status = purpose.status, "suspended"
+            purpose.suspendedIndex = index
+            purpose.suspendedAt, purpose.suspensionReason = at, "current-conflict-needs-execution"
+            addEvent(purpose, "suspended", purpose.suspensionReason, at)
+            ledger.purposes[id] = purpose; ledger.order[#ledger.order + 1] = id
+            table.remove(s.order, index);s.purposes[id] = nil
+            return true
+        end
+    end
+    return false, "conflict-native-handback-required"
 end
 
 local function outcomeRequest(spec)
@@ -184,7 +321,8 @@ function P.admitResourceOutcome(id, spec)
     s.resourceOutcomeRequests = s.resourceOutcomeRequests or {}
     s.resourceOutcomeOrder = s.resourceOutcomeOrder or {}
     local prior = s.resourceOutcomeRequests[request.id]
-    local oldPurpose = prior and s.purposes[prior.purposeId]
+    local oldPurpose = prior and (s.purposes[prior.purposeId]
+        or s.queuedPurposes and s.queuedPurposes.purposes[prior.purposeId])
     if prior then
         if prior.request.sourceDefinition ~= request.sourceDefinition then
             return nil, "outcome-source-conflict"
@@ -192,6 +330,11 @@ function P.admitResourceOutcome(id, spec)
         if request.revision <= prior.request.revision then
             if sameOutcome(prior.request, request) then
                 if not oldPurpose then return nil, "outcome-purpose-retired" end
+                if not s.purposes[oldPurpose.id] then
+                    local revived = P.resumeQueuedPurpose(id, oldPurpose.id)
+                    if not revived then return nil, "outcome-awaiting-active-capacity" end
+                    oldPurpose = revived
+                end
                 return oldPurpose, "already-admitted"
             end
             return nil, "outcome-revision-conflict"
@@ -205,7 +348,8 @@ function P.admitResourceOutcome(id, spec)
         local removable
         for i, purposeId in ipairs(s.order) do
             local p = s.purposes[purposeId]
-            if not p or not p.admission and (not p.residence
+            if not p or not p.admission and (not p.leisure or optionalSharing(p)
+                or p.status == "completed" or p.status == "abandoned") and (not p.residence
                 or p.status == "completed" or p.status == "abandoned") and (not p.resourceOutcome
                 or p.status == "completed" or p.status == "abandoned"
                 or p == oldPurpose) then removable = i; break end
@@ -498,6 +642,7 @@ function P.planResidence(id, context)
     local traits = SAO.Disposition and SAO.Disposition.traits and SAO.Disposition.traits(id) or {}
     local fear = 1 - (tonumber(traits.nerve) or 0.5)
     local best, bestScore
+    local alternatives, destinations = {}, {}
     for _, candidate in ipairs(appraisal.candidates) do
         local failure = purpose.residenceAttempts and purpose.residenceAttempts[candidate.id]
         local delayed = failure and not failure.supersededAt and finite(failure.retryAt) and at < failure.retryAt
@@ -527,8 +672,22 @@ function P.planResidence(id, context)
             if unsafeHome then score = score + 1 - math.min(0.6, appraisal.attachment * 0.15) end
             if urgent then score = score + math.max(hunger, thirst) end
             if not bestScore or score > bestScore then best, bestScore = candidate, score end
+            alternatives[#alternatives + 1] = { id = candidate.id, utility = clamp(score, -16, 16),
+                evidence = 1, continuity = 0, novelty = 0, informationGain = 0, blockers = 0,
+                consequences = candidate.exterior and { { kind = "entry", category = "body",
+                    sourceId = candidate.id, condition = candidate.apertureState, value = 1.5 } } or {} }
+            destinations[candidate.id] = candidate
         end
     end
+    local views = #alternatives > 0 and interpretations(id, alternatives,
+        { actorId = id, domain = "residence", pressure = math.max(hunger, thirst), atHours = at }) or nil
+    if views and destinations[views.selected] then
+        best = destinations[views.selected]
+        for _, view in ipairs(views.models) do
+            if view.modelId == views.selectedModelId then bestScore = view.score end
+        end
+    end
+    purpose.interpretations = dataCopy(views, 0, 8)
     local mode, reason = "stay", "the current place remains a usable reference"
     local travelAvailable = appraisal.capacity.canMove and best ~= nil and bestScore > 0
     -- These policy weights are uncalibrated choices, not learned competence.
@@ -686,6 +845,7 @@ function P.finishResidenceRoute(id, body, routeId, job)
         local known = SAO.Perception.knownPlaces(id)
         local building = known[residence.buildingId] or known[tonumber(residence.buildingId)]
         if not building then return P.deferResidenceRoute(id, "doorway-entry-not-privately-observed") end
+        if SAO.Perception.noteEntrySuccess then SAO.Perception.noteEntrySuccess(id,body,job) end
         residence = { id = purpose.destination.buildingId, cx = building.cx, cy = building.cy, z = building.z or 0 }
     end
     if mode == "depart" and (not exterior or purpose.cursor == 2) then
@@ -872,7 +1032,7 @@ function P.planResource(id, context)
         local candidate = { id = option.id, evidence = option.evidence,
             continuity = option.continuity, novelty = option.novelty,
             informationGain = option.informationGain, blockers = option.blockers,
-            appraisal = dataCopy(option.appraisal) }
+            appraisal = dataCopy(option.appraisal), consequences = dataCopy(option.consequences) }
         if failure then candidate.evidence = math.max(0, candidate.evidence - math.min(0.4, failure.attempts * 0.1)) end
         if purpose.selectedStrategy == option.id and not failure then candidate.continuity = 1 end
         if failure and finite(failure.retryAt) and at < failure.retryAt then
@@ -884,6 +1044,12 @@ function P.planResource(id, context)
     -- Both models share their existing sixteen-candidate contract. Preserve
     -- a private inspection route alongside the strongest known work routes.
     if #candidates > 16 then
+        local scores = {}
+        for _, candidate in ipairs(candidates) do
+            scores[candidate.id] = SAO.Cognition and SAO.Cognition.scorePlan
+                and SAO.Cognition.scorePlan(id, candidate, { domain = "provisioning",
+                    category = assessment.category, pressure = assessment.demand.pressure, atHours = at })
+        end
         local inspect
         for _, candidate in ipairs(candidates) do
             if string.sub(candidate.id, 1, 8) == "inspect:" then inspect = candidate; break end
@@ -891,6 +1057,8 @@ function P.planResource(id, context)
         table.sort(candidates, function(a, b)
             local aScore = SAO.CognitiveModels.planScore("ordinary", a, assessment.demand.pressure)
             local bScore = SAO.CognitiveModels.planScore("ordinary", b, assessment.demand.pressure)
+            aScore, bScore = scores[a.id] or aScore or -math.huge,
+                scores[b.id] or bScore or -math.huge
             if aScore == bScore then return a.id < b.id end
             return aScore > bScore
         end)
@@ -904,10 +1072,7 @@ function P.planResource(id, context)
     local views = #candidates > 0 and interpretations(id, candidates,
         { domain = "provisioning", category = assessment.category,
             pressure = assessment.demand.pressure, atHours = at, actorId = id }) or nil
-    local selected
-    for _, view in ipairs(views and views.models or {}) do
-        if view.modelId == "ordinary" then selected = view.selected; break end
-    end
+    local selected = views and views.selected
     local option
     for _, candidate in ipairs(assessment.options) do
         if candidate.id == selected and not candidate.retryDelayed then option = candidate; break end
@@ -918,7 +1083,7 @@ function P.planResource(id, context)
         local best
         for i, candidate in ipairs(candidates) do
             local score = SAO.CognitiveModels.planScore("ordinary", candidate, assessment.demand.pressure)
-            if not best or score > best then
+            if score and (not best or score > best) then
                 for _, offered in ipairs(assessment.options) do
                     if offered.id == candidate.id then option = offered; break end
                 end
@@ -929,6 +1094,9 @@ function P.planResource(id, context)
     local steps, blockers = {}, {}
     if assessment.blocker then blockers[#blockers + 1] = assessment.blocker end
     if not option and delayed and not assessment.blocker then blockers[#blockers + 1] = "known-route-retry-delayed" end
+    if not option and not delayed and #candidates > 0 and not assessment.blocker then
+        blockers[#blockers + 1] = "resource-interpretation-unavailable"
+    end
     if option then
         if option.kind == "inspect" then
             steps[#steps + 1] = { id = option.id, verb = "inspect",
@@ -969,7 +1137,24 @@ function P.planResource(id, context)
     purpose.rationale = option and option.rationale or blockers[1]
     purpose.appraisal = option and dataCopy(option.appraisal) or nil
     purpose.uncertainty = option and option.uncertainty or assessment.demand.uncertainty
-    purpose.alternatives = dataCopy(assessment.options)
+    local retained, included = {}, {}
+    -- Keep every considered alternative visible before diagnostic rows for
+    -- delayed or pruned work; report the remainder explicitly.
+    for _, candidate in ipairs(candidates) do
+        for _, offered in ipairs(assessment.options) do
+            if offered.id == candidate.id and not included[offered.id] then
+                retained[#retained + 1] = offered; included[offered.id] = true; break
+            end
+        end
+    end
+    for _, offered in ipairs(assessment.options) do
+        if #retained >= 32 then break end
+        if not included[offered.id] then
+            retained[#retained + 1] = offered; included[offered.id] = true
+        end
+    end
+    purpose.alternatives = dataCopy(retained)
+    purpose.omittedAlternatives = #assessment.options - #retained
     purpose.decisionAt = at
     if previous ~= purpose.selectedStrategy then
         purpose.admission = nil
@@ -1083,15 +1268,189 @@ function P.planFortification(id, context)
     return purpose, purpose.steps[purpose.cursor]
 end
 
+local function leisurePurpose(id, activity, itemKey, unfinishedInstrument)
+    local s, person = state(id), record(id)
+    local candidates = {}
+    for _, purposeId in ipairs(s and s.order or {}) do candidates[#candidates + 1] = s.purposes[purposeId] end
+    local suspended = s and s.suspendedLeisure
+    for _, purposeId in ipairs(suspended and suspended.order or {}) do
+        candidates[#candidates + 1] = suspended.purposes[purposeId]
+    end
+    for _, purpose in ipairs(candidates) do
+        local choice = purpose and type(purpose.leisure) == "table" and purpose.leisure
+        local work = person and person.studyWork
+        if purpose and ((choice and (choice.activityKey or choice.activity) == activity and choice.itemKey == itemKey)
+            or not choice and purpose.key == "leisure:" .. activity
+                and (not itemKey or work and work.purposeId == purpose.id and work.itemId == itemKey)) then
+            local performed = false
+            for _, step in ipairs(purpose.steps or {}) do
+                if step.id == "perform-activity" and step.status == "completed" then performed = true end
+            end
+            if not unfinishedInstrument or purpose.instrument and not performed then return purpose end
+        end
+    end
+end
+
+-- Pure exact-item choice feedback. A performed step may still have unfinished
+-- sharing; choosing another item must leave that purpose and its receipts intact.
+function P.leisureChoice(id, activity, itemKey, activityKey)
+    if not record(id) then return false, "person-unavailable" end
+    local purpose = leisurePurpose(id, type(activityKey) == "string" and activityKey or activity, itemKey)
+    if not purpose then return true end
+    for _, step in ipairs(purpose.steps or {}) do
+        if step.id == "perform-activity" and step.status == "completed" then
+            return false, "activity-already-performed"
+        end
+    end
+    local refusal, at = type(purpose.leisure) == "table" and purpose.leisure.refusal, nowHours()
+    if type(refusal) == "table" and finite(refusal.at) and finite(refusal.retryAt)
+        and refusal.at <= at and at < refusal.retryAt and refusal.retryAt <= refusal.at + 1 / 60 then
+        return false, "native-reading-recently-refused"
+    end
+    return true
+end
+
+function P.leisureRefusal(id, purposeId, workId)
+    local s, person = state(id), record(id)
+    local purpose = s and s.purposes[purposeId]
+    local work = person and person.studyWork
+    local at = nowHours()
+    if not purpose or not purpose.leisure or not work or work.kind ~= "leisure"
+        or work.id ~= workId or work.purposeId ~= purposeId or work.itemId ~= purpose.leisure.itemKey
+        or work.status ~= "interrupted" or work.reason ~= "native-reading-queue-refused"
+        or not finite(work.endedAt) or work.endedAt > at or at - work.endedAt > 1 / 60 then return false end
+    if purpose.leisure.refusal and purpose.leisure.refusal.workId == workId then return true end
+    -- One game minute is a bounded admission retry policy, not learned value.
+    purpose.leisure.refusal = { workId = workId, at = work.endedAt, retryAt = work.endedAt + 1 / 60,
+        reason = work.reason, basis = "Study-native-queue-refusal" }
+    addEvent(purpose, "admission-refused", work.reason, work.endedAt)
+    return true
+end
+
+local function acquiredLeisurePurpose(id, itemKey, itemType, owner)
+    local s = state(id)
+    for index = #(s and s.order or {}), 1, -1 do
+        local purposeId = s.order[index]
+        local purpose = s.purposes[purposeId]
+        local acquisition = purpose and purpose.leisureAcquisition
+        if acquisition and not purpose.leisure and purpose.status ~= "abandoned"
+            and acquisition.itemId == itemKey and acquisition.itemType == itemType and acquisition.owner == owner
+            and acquisition.resultId then
+            local result = SAO.WorldSources.actionOutcome(acquisition.resultId, id)
+            if result and result.status == "completed" and result.operation == "acquire"
+                and result.measurement == "native-item-transfer" and (tonumber(result.observedQuantity) or 0) > 0
+                and result.preRevision == acquisition.revision and finite(result.at) and result.at <= nowHours()
+                and result.purposeId == purpose.id and tostring(result.itemId) == itemKey
+                and result.itemType == itemType and result.sourceId == acquisition.sourceId then return purpose end
+        end
+    end
+end
+
+function P.leisureAcquisitionAvailable(id, sourceId, itemId, revision)
+    local s = state(id)
+    for _, purposeId in ipairs(s and s.order or {}) do
+        local purpose = s.purposes[purposeId]
+        local acquisition = purpose and purpose.leisureAcquisition
+        if acquisition and acquisition.sourceId == sourceId and acquisition.itemId == tostring(itemId)
+            and acquisition.revision == revision then
+            if purpose.admission then return false end
+            if finite(acquisition.failedAt) and nowHours() < acquisition.failedAt + 1/60 then return false end
+        end
+    end
+    return true
+end
+
+function P.leisureAcquiredPurpose(id, itemKey, itemType, owner)
+    local purpose = acquiredLeisurePurpose(id, itemKey, itemType, owner)
+    return purpose and { id=purpose.id, itemKey=purpose.leisureAcquisition.itemId } or nil
+end
+
+-- Only selected, privately known native source options create acquisition work.
+function P.planLeisureAcquisition(id, body, offer, kind)
+    if kind ~= "reading" and kind ~= "instrument" or type(offer) ~= "table" then return nil end
+    local parameters = offer.parameters
+    if not parameters or parameters.sourceKind ~= "ground" or parameters.category ~= (kind == "reading" and "reading" or "instrument")
+        or not P.leisureAcquisitionAvailable(id, parameters.sourceId, parameters.itemId, parameters.revision) then return nil end
+    local place = {id="source:"..parameters.sourceId,sourceId=parameters.sourceId,
+        cx=parameters.sourceX+0.5,cy=parameters.sourceY+0.5,z=parameters.sourceZ}
+    local options = SAO.WorldSources.actionOptions(place,parameters.category,id,body,1,"standing","acquire")
+    local exact
+    for _, candidate in ipairs(options and options.options or {}) do
+        local p = candidate.parameters
+        if p.sourceId==parameters.sourceId and p.itemId==parameters.itemId and p.itemType==parameters.itemType
+            and p.revision==parameters.revision and p.fingerprint==parameters.fingerprint then exact=p;break end
+    end
+    if not exact then return nil end
+    local key="leisure-acquire:"..exact.sourceId..":"..tostring(exact.itemId)..":"..exact.revision
+    -- A genuinely reobserved dropped item can be acquired again. Preserve the
+    -- old native receipt and purpose rather than rewriting their acquisition.
+    local s, previous = state(id), nil
+    for _, purposeId in ipairs(s and s.order or {}) do
+        local prior = s.purposes[purposeId]
+        local a = prior and prior.leisureAcquisition
+        if a and a.sourceId==exact.sourceId and a.itemId==tostring(exact.itemId)
+            and a.revision==exact.revision and a.resultId then previous=a.resultId end
+    end
+    if previous then key=key..":after:"..previous end
+    local purpose=P.maintain(id,{key=key,domain="leisure",objective="obtain "..exact.itemType.." for "..kind,origin="observed-material"})
+    if not purpose then return nil end
+    purpose.leisureAcquisition={sourceId=exact.sourceId,itemId=tostring(exact.itemId),itemType=exact.itemType,
+        revision=exact.revision,fingerprint=exact.fingerprint,kind=kind,owner=kind=="instrument" and "SAO.Gesture" or "SAONeeds"}
+    setPlan(purpose,{{id="acquire-leisure-item",verb="acquire",owner="SAO.SourceUse",status="available",
+        token="leisure:item-acquired",target=exact.sourceId,itemId=exact.itemId,itemType=exact.itemType,sourceId=exact.sourceId},
+        {id="use-acquired-item",verb="recreate",owner=purpose.leisureAcquisition.owner,status="dependent",
+            token="leisure:performed",target=kind}}, {}, nil,nowHours())
+    return purpose,purpose.steps[purpose.cursor],place
+end
+
 function P.planLeisure(id, context)
     context = type(context) == "table" and context or {}
     local activity = tostring(context.activity or "recreation")
-    local purpose = P.maintain(id, { key = "leisure:" .. activity,
+    local activityKey = type(context.activityKey) == "string" and context.activityKey or activity
+    local itemKey = type(context.itemKey) == "string" and context.itemKey or nil
+    local instrument = context.nativeVerb == "blow-harmonica" and context.owner == "SAO.Gesture" and itemKey
+    local sequence
+    if instrument then
+        local owner = SAO.Gesture
+        sequence = owner and owner.nextInstrumentSequence and owner.nextInstrumentSequence(id)
+        if not finite(sequence) or sequence < 1 or sequence ~= math.floor(sequence) then
+            return nil, "instrument-sequence-unavailable"
+        end
+    else
+        local available, reason = P.leisureChoice(id, activity, itemKey, activityKey)
+        if not available then return nil, reason end
+    end
+    local key = "leisure:" .. activityKey .. (itemKey and ":item:" .. itemKey or "")
+    local purpose = leisurePurpose(id, activityKey, itemKey, instrument)
+        or acquiredLeisurePurpose(id, itemKey, context.affordance, context.owner)
+    if instrument then
+        if purpose and purpose.admission then return purpose, purpose.steps[purpose.cursor] end
+        key = key .. ":occurrence:" .. tostring(purpose and purpose.instrument and purpose.instrument.occurrence or sequence)
+    end
+    if purpose then purpose.key = key end
+    purpose = purpose or P.maintain(id, { key = key,
         objective = "make time for " .. activity .. " in a usable shared place",
         domain = "leisure", origin = context.spontaneous and "impulse" or "routine",
         atHours = context.atHours })
     if not purpose then return nil, "person-unavailable" end
+    purpose.leisure = purpose.leisure or { activity = activity, itemKey = itemKey,
+        activityKey = type(context.activityKey) == "string" and context.activityKey or nil }
+    if context.nativeVerb == "read-written-note" and context.owner == "SAONeeds" and itemKey then
+        purpose.noteReading = true
+    end
+    if instrument then
+        purpose.instrument = purpose.instrument or { verb = context.nativeVerb, itemKey = itemKey,
+            itemType = context.affordance, occurrence = sequence }
+        purpose.instrument.expectedSequence = sequence
+    end
     local blockers, steps = {}, {}
+    if purpose.leisureAcquisition then
+        for _, prior in ipairs(purpose.steps or {}) do
+            if prior.id == "acquire-leisure-item" and prior.status == "completed" then
+                steps[#steps + 1] = dataCopy(prior)
+            end
+        end
+    end
     if not context.affordance then blockers[#blockers + 1] = "missing-activity-affordance" end
     if not context.locationKey then blockers[#blockers + 1] = "no-known-usable-place" end
     if context.crowding and context.crowding > 1 then
@@ -1104,7 +1463,7 @@ function P.planLeisure(id, context)
     steps[#steps + 1] = { id = "perform-activity", verb = "recreate",
         owner = tostring(context.owner or "native-activity"),
         status = context.atLocation and #blockers == 0 and "available" or "dependent",
-        token = "leisure:performed", target = activity }
+        token = purpose.noteReading and "note:text-exposed" or "leisure:performed", target = activity }
     steps[#steps + 1] = { id = "share-activity", verb = "socialize",
         owner = "native-participation", status = "dependent",
         token = "leisure:shared", target = activity, required = false }
@@ -1114,6 +1473,13 @@ function P.planLeisure(id, context)
     local spontaneous = { id = "spontaneous", evidence = context.atLocation and 0.7 or 0.2,
         continuity = 0.2, novelty = 0.8, informationGain = 0.5,
         blockers = #blockers }
+    if instrument then
+        -- The predicted consequence is one physically emitted native sound.
+        -- Pleasure, competence and another person's participation need evidence.
+        local effect = { kind = "recreate", category = "leisure",
+            sourceId = "native:sound:BlowHarmonica", itemType = context.affordance, value = 1 }
+        planned.consequences, spontaneous.consequences = { dataCopy(effect) }, { dataCopy(effect) }
+    end
     setPlan(purpose, steps, blockers, interpretations(id,
         { planned, spontaneous }, { domain = "leisure",
             pressure = clamp(tonumber(context.boredom) or 0, 0, 1) }),
@@ -1274,6 +1640,368 @@ function P.pending(id, verb, target)
     end
 end
 
+-- A concept inquiry concerns a means to an existing end. Its relational path
+-- supplies a question; only personally observed frontiers supply route targets.
+-- Exact means failures are temporary, person-private objections. The native
+-- owner supplies a correlated receipt; an appraisal cannot manufacture one.
+function P.meansResult(id,owner,sequence)
+    if owner~="SAO.Needs" or not SAO.Needs or not SAO.Needs.meansResult then return false end
+    local row=SAO.Needs.meansResult(id,sequence)
+    local at=nowHours()
+    if not row or row.schema~="sao.physical-means-result/1" or row.actorId~=id or row.owner~=owner
+        or not finite(row.sequence) or row.sequence~=sequence or not finite(row.atHours) or row.atHours~=at
+        or type(row.sourceId)~="string" or #row.sourceId>256 or type(row.candidateId)~="string" or #row.candidateId>384
+        or type(row.available)~="boolean" or type(row.reason)~="string" or #row.reason>160
+        or (row.scope~="geometry" and row.scope~="approach" and row.scope~="admission") then return false end
+    local s=state(id,false)
+    if row.available and not s then return true end
+    s=s or state(id,true)
+    if not s then return false end
+    s.meansReadThrough=s.meansReadThrough or {}
+    if sequence<=(s.meansReadThrough[owner] or 0) then return false end
+    s.meansReadThrough[owner]=sequence
+    s.meansFailures,s.meansFailureOrder=s.meansFailures or {},s.meansFailureOrder or {}
+    local goals={}
+    if row.actionKind=="sleep" or not row.actionKind then goals[#goals+1]="relief-from-tiredness" end
+    if row.actionKind=="rest" or not row.actionKind and row.sourceKind=="ground" then goals[#goals+1]="relief-from-exertion" end
+    for _,goal in ipairs(goals) do
+        local key=goal.."\30"..row.sourceId.."\30"..row.candidateId.."\30"..row.scope
+        if row.available then
+            -- A visible clear approach revokes only a geometry refusal. It says
+            -- nothing about whether a previous route or queued action succeeded.
+            s.meansFailures[key]=nil
+            for index=#s.meansFailureOrder,1,-1 do
+                if s.meansFailureOrder[index]==key then table.remove(s.meansFailureOrder,index) end
+            end
+        else
+            if not s.meansFailures[key] then
+                if #s.meansFailureOrder>=64 then s.meansFailures[table.remove(s.meansFailureOrder,1)]=nil end
+                s.meansFailureOrder[#s.meansFailureOrder+1]=key
+            end
+            local failure=dataCopy(row)
+            failure.goal=goal
+            -- Same bounded retry as the existing recovery approach owner, in
+            -- the persisted county clock rather than a runtime body binding.
+            failure.retryAtHours=at+600/(SAO.History.TICKS_PER_HOUR or 9000)
+            s.meansFailures[key]=failure
+        end
+    end
+    return true
+end
+function P.meansUnavailable(id,goal,sourceId,candidateId)
+    if type(sourceId)~="string" then return false end
+    local s,at=state(id,false),nowHours()
+    for _,key in ipairs(s and s.meansFailureOrder or {}) do
+        local failure=s.meansFailures and s.meansFailures[key]
+        if failure and failure.actorId==id and failure.goal==goal and failure.sourceId==sourceId
+            and finite(failure.atHours) and failure.atHours<=at and finite(failure.retryAtHours) and at<failure.retryAtHours
+            and (not candidateId or failure.scope=="geometry" or failure.candidateId==candidateId) then
+            return true,dataCopy(failure)
+        end
+    end
+    return false
+end
+local function excludedMeans(id,goal,fact)
+    return P.meansUnavailable(id,goal,fact.recoverySourceId)
+end
+function P.conceptFrontierKey(frontier)
+    return tostring(frontier.key).."@"..tostring(frontier.roomId)
+end
+function P.conceptInquiryTarget(offer)
+    if type(offer)~="table" then return nil end
+    if offer.mode=="inspect-holder" and offer.observedMeans then
+        if type(offer.sourceId)~="string" then return nil end
+        local fact=offer.observedMeans
+        -- This is the known holder used for appraisal, never a walking tile.
+        return {key="holder:"..offer.sourceId,x=fact.x,y=fact.y,z=fact.z}
+    end
+    if offer.approach then
+        return {key="remembered:"..offer.observedMeans.key.."@"..offer.approach.roomId,
+            x=offer.approach.x,y=offer.approach.y,z=offer.approach.z}
+    end
+    local frontier=offer.frontier
+    return frontier and {key=P.conceptFrontierKey(frontier),x=frontier.entryX,y=frontier.entryY,z=frontier.entryZ} or nil
+end
+function P.conceptInquiryOffer(id,goal,tick)
+    local knowledge,perception=SAO.ConceptKnowledge,SAO.Perception
+    if not knowledge or not perception or not perception.conceptContext then return nil end
+    local context=perception.conceptContext(id,tick)
+    local s=state(id,false)
+    local retained=s and purposeByKey(s,"concept-inquiry:"..tostring(goal)..":"..tostring(context.buildingId))
+    local attempts=retained and retained.inquiry and retained.inquiry.attempts or {}
+    local out={goal=goal,status="unresolved",reason="No current personally observed place is available."}
+    -- A personally witnessed holder can be inspected for possible contents.
+    -- The query reads only this person's evidence. Native candidate selection
+    -- and its walkable approach belong to the selected dispatch below.
+    local tried=0 for _ in pairs(attempts) do tried=tried+1 end
+    if context.status=="observed" and context.roomId and context.buildingId and tried<12 then
+        for _,fact in ipairs(context.observations) do
+            if fact.kind=="object" and fact.roomId==context.roomId and type(fact.sourceId)=="string"
+                and #fact.sourceId<=512 and string.sub(fact.sourceId,1,2)=="C:"
+                and finite(fact.x) and finite(fact.y) and finite(fact.z) then
+                local attempt=attempts["holder:"..fact.sourceId]
+                local previous=attempt and SAO.WorldSources and SAO.WorldSources.inspectionOutcome
+                    and SAO.WorldSources.inspectionOutcome(id,attempt.receiptId)
+                local inspected=previous and previous.actorId==id and previous.sourceId==fact.sourceId
+                    and previous.status=="completed" and previous.nativeInspected==true and previous.privateLearned==true
+                    and finite(previous.atHours) and previous.atHours<=nowHours()
+                if not inspected then
+                    local inference=knowledge.infer(id,fact.concept,goal,context.buildingId)
+                    for _,path in ipairs(inference and inference.paths or {}) do
+                        local first=path.roots[1]
+                        if first and (first.relation=="may-contain" or first.relation=="typically-contains"
+                            or first.relation=="contains") then
+                            out.status,out.mode,out.sourceId="actionable","inspect-holder",fact.sourceId
+                            out.observedMeans,out.path=dataCopy(fact),path
+                            out.contextId,out.desiredConcept=context.buildingId,first.into
+                            out.reason=knowledge.explain(path).." I can inspect that observed holder; its contents are unconfirmed."
+                            return out
+                        end
+                    end
+                end
+            end
+        end
+    end
+    -- A visible usable means outranks an unlocated intermediate room label.
+    -- Only affordance/effect links count here: a container's possible contents
+    -- still require inspection, so its presence cannot establish food or water.
+    for _,fact in ipairs(context.observations) do
+        if fact.kind=="object" and fact.roomId==context.roomId and not excludedMeans(id,goal,fact) then
+            local inference=knowledge.infer(id,fact.concept,goal,context.buildingId)
+            for _,path in ipairs(inference and inference.paths or {}) do
+                local means=true
+                for _,edge in ipairs(path.roots) do
+                    if edge.relation=="contains" or edge.relation=="typically-contains"
+                        or edge.relation=="may-contain" then means=false;break end
+                end
+                if means then
+                    out.status,out.observedMeans,out.path="observed-means",dataCopy(fact),path
+                    out.reason="A possible means is already personally observed here; its native owner must check usability."
+                    return out
+                end
+            end
+        end
+    end
+    -- Memory supplies a reason to revisit a witnessed location, never current
+    -- usability. The approach is a tile this person actually occupied in that
+    -- room, not the object's possibly solid tile or an invented adjacent tile.
+    local memories=perception.conceptMemories and perception.conceptMemories(id,tick) or {}
+    for _,fact in ipairs(memories) do
+        if fact.kind=="object" and fact.roomId and fact.buildingId and not excludedMeans(id,goal,fact) then
+            local inference=knowledge.infer(id,fact.concept,goal,fact.buildingId)
+            for _,path in ipairs(inference and inference.paths or {}) do
+                local direct=true
+                for _,edge in ipairs(path.roots) do
+                    if edge.relation=="contains" or edge.relation=="typically-contains" or edge.relation=="may-contain" then direct=false;break end
+                end
+                if direct then
+                    local memoryPurpose=s and purposeByKey(s,"concept-inquiry:"..tostring(goal)..":"..fact.buildingId)
+                    local memoryAttempts=memoryPurpose and memoryPurpose.inquiry and memoryPurpose.inquiry.attempts or {}
+                    local key="remembered:"..fact.key.."@"..fact.roomId
+                    local used=0 for _ in pairs(memoryAttempts) do used=used+1 end
+                    if used>=12 then
+                        out.limitReached=true
+                        out.reason="I have exhausted this bounded search and need another lead."
+                    elseif not memoryAttempts[key] then
+                        out.reason="I remember a possible means, but do not have an observed approach to its room."
+                    end
+                    if not memoryAttempts[key] and used<12 then
+                        for _,room in ipairs(memories) do
+                            if room.kind=="room" and room.roomId==fact.roomId and room.buildingId==fact.buildingId and room.z==fact.z then
+                                out.status,out.mode="actionable","remembered-means"
+                                out.observedMeans,out.approach,out.path=dataCopy(fact),dataCopy(room),path
+                                out.contextId,out.desiredConcept=fact.buildingId,fact.concept
+                                out.reason="I remember "..fact.concept.." in a room I have visited. "..knowledge.explain(path)
+                                    .." I can return to that observed place and check whether it is usable now."
+                                return out
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    if context.status~="observed" or not context.roomId or not context.buildingId then return out end
+    local tried=0 for _ in pairs(attempts) do tried=tried+1 end
+    if tried>=12 then out.reason="I have exhausted this bounded search and need another lead.";out.limitReached=true;return out end
+    for _,anchor in ipairs(context.observations) do
+        if (anchor.kind=="room" or anchor.kind=="place") and anchor.roomId==context.roomId then
+            local inference=knowledge.infer(id,anchor.concept,goal,context.buildingId)
+            out.inference=inference
+            for _,path in ipairs(inference and inference.paths or {}) do
+                local means=path.roots[1] and path.roots[1].into
+                local seen=false
+                for _,fact in ipairs(context.observations) do
+                    if fact.roomId==context.roomId and fact.concept==means and not excludedMeans(id,goal,fact) then seen=true;break end
+                end
+                if not seen then
+                    out.path,out.desiredConcept,out.contextId=path,means,context.buildingId
+                    out.reason=knowledge.explain(path)
+                    local selected,backtrack
+                    for _,frontier in ipairs(context.frontiers) do
+                        if not attempts[P.conceptFrontierKey(frontier)] then
+                            local crossed=false
+                            for key,attempt in pairs(attempts) do
+                                if (attempt.frontierKey==frontier.key or key==frontier.key)
+                                    and attempt.status=="approached" then crossed=true;break end
+                            end
+                            if not crossed then selected=frontier;break end
+                            backtrack=backtrack or frontier
+                        end
+                    end
+                    selected=selected or backtrack
+                    if selected then
+                        out.status,out.frontier="actionable",dataCopy(selected)
+                        out.backtracking=selected==backtrack
+                        if out.backtracking then out.reason=out.reason.." I can return through a known doorway to continue looking." end
+                        return out
+                    end
+                    out.reason=out.reason.." I do not currently know an unchecked way onward."
+                else out.reason="A relevant means is already personally observed here." end
+            end
+        end
+    end
+    return out
+end
+-- A question about present circumstances supplies its own end. It needs no
+-- deprivation and does not turn a remembered sound origin into a walking tile.
+function P.situationInquiryOffer(id,body,tick)
+    local cognition=SAO.Cognition
+    local view=cognition and cognition.appraiseSituation and cognition.appraiseSituation(id,body,tick)
+    if not view or view.status~="questions" or view.actorId~=id or view.clarity<=0 then return nil,view end
+    local context=view.context
+    if not context or context.status~="observed" or not context.buildingId or not context.roomId then return nil,view end
+    local s=state(id,false)
+    for _,question in ipairs(view.questions) do
+        local key="situation-inquiry:"..question.key..":"..context.buildingId
+        local retained=s and purposeByKey(s,key)
+        local attempts=retained and retained.inquiry and retained.inquiry.attempts or {}
+        local count=0 for _ in pairs(attempts) do count=count+1 end
+        if count<12 then
+            for _,frontier in ipairs(context.frontiers or {}) do
+                local targetKey=P.conceptFrontierKey(frontier)
+                if not attempts[targetKey] and finite(frontier.entryX) and finite(frontier.entryY) and finite(frontier.entryZ) then
+                    return {status="actionable",mode="situation",goal="understanding",subject=question.subject,
+                        questionKey=question.key,contextId=context.buildingId,frontier=dataCopy(frontier),
+                        appraisal=dataCopy(question,0,10),utility=question.utility,reason=question.reason},view
+                end
+            end
+        end
+    end
+    return nil,view
+end
+function P.planConceptInquiry(id,offer,tick,inspectionContext)
+    if type(offer)=="table" and offer.mode=="situation" then
+        local body=SAO.Body and SAO.Body.get and SAO.Body.get(id)
+        local fresh=P.situationInquiryOffer(id,body,tick)
+        local target,current=P.conceptInquiryTarget(offer),fresh and P.conceptInquiryTarget(fresh)
+        if not fresh or not target or not current or fresh.questionKey~=offer.questionKey
+            or target.key~=current.key or target.x~=current.x or target.y~=current.y or target.z~=current.z then return nil end
+        local purpose=P.maintain(id,{key="situation-inquiry:"..fresh.questionKey..":"..fresh.contextId,
+            domain="inquiry",origin="personal-situation",objective="investigate "..fresh.subject.." from a known approach"})
+        if not purpose or purpose.admission or not retainSituation or not retainSituation(id,body,tick,fresh.questionKey,"selected") then return nil end
+        local prior=purpose.inquiry
+        purpose.inquiry={mode="situation",questionKey=fresh.questionKey,goal=fresh.goal,contextId=fresh.contextId,
+            subject=fresh.subject,frontier=dataCopy(fresh.frontier),appraisal=dataCopy(fresh.appraisal,0,10),
+            attempts=prior and prior.attempts or {}}
+        purpose.rationale=fresh.reason
+        purpose.steps={{id="look:"..target.key,verb="investigate",owner="SAO.Locomotion",token="inquiry:approached",
+            target=target.key,status="available",x=target.x,y=target.y,z=target.z}}
+        purpose.cursor,purpose.status=1,"maintained"
+        return purpose,purpose.steps[1]
+    end
+    if type(offer)~="table" or offer.status~="actionable" or type(offer.path)~="table" then return nil end
+    local fresh=P.conceptInquiryOffer(id,offer.goal,tick)
+    local target=P.conceptInquiryTarget(offer)
+    local current=fresh and P.conceptInquiryTarget(fresh)
+    if not fresh or fresh.status~="actionable" or not target or not current or current.key~=target.key
+        or current.x~=target.x or current.y~=target.y or current.z~=target.z
+        or fresh.path.id~=offer.path.id then return nil end
+    local anchor
+    if fresh.mode=="inspect-holder" then
+        local body=SAO.Body and SAO.Body.get and SAO.Body.get(id)
+        anchor=SAO.WorldSources and SAO.WorldSources.currentInspectionAnchor
+            and SAO.WorldSources.currentInspectionAnchor(id,body,inspectionContext)
+        if not anchor or anchor.sourceId~=fresh.sourceId or anchor.sourceX~=fresh.observedMeans.x
+            or anchor.sourceY~=fresh.observedMeans.y or anchor.sourceZ~=fresh.observedMeans.z then return nil end
+    end
+    local purpose=P.maintain(id,{key="concept-inquiry:"..offer.goal..":"..offer.contextId,domain="inquiry",origin="personal-expectation",
+        objective="look for "..offer.desiredConcept.." as a possible means to "..offer.goal})
+    if not purpose or purpose.admission then return nil end
+    local prior=purpose.inquiry
+    purpose.inquiry={goal=offer.goal,desiredConcept=offer.desiredConcept,contextId=offer.contextId,
+        mode=offer.mode,sourceId=offer.sourceId,observedMeans=dataCopy(offer.observedMeans),approach=dataCopy(offer.approach),
+        path=dataCopy(offer.path),frontier=dataCopy(offer.frontier),attempts=prior and prior.attempts or {}}
+    purpose.rationale=offer.reason
+    purpose.steps={{id="look:"..target.key,verb="investigate",owner="SAO.Locomotion",
+        token="inquiry:approached",target=target.key,status="available",x=target.x,y=target.y,z=target.z}}
+    if anchor then
+        purpose.steps={{id="inspect:"..anchor.sourceId..":"..anchor.fingerprint,verb="inspect",owner="SAO.WorldSources",
+            token="inquiry:inspected",target=anchor.sourceId,sourceId=anchor.sourceId,fingerprint=anchor.fingerprint,
+            sourceX=anchor.sourceX,sourceY=anchor.sourceY,sourceZ=anchor.sourceZ,
+            status="available",x=anchor.cx,y=anchor.cy,z=anchor.z}}
+    end
+    purpose.cursor,purpose.status=1,"maintained"
+    return purpose,purpose.steps[1]
+end
+function P.interruptConceptInquiry(id,reason)
+    local s=state(id,false)
+    for _,key in ipairs(s and s.order or {}) do
+        local purpose=s.purposes[key]
+        if purpose and purpose.inquiry and purpose.admission then
+            purpose.admission=nil
+            purpose.status="interrupted"
+            purpose.blockers={tostring(reason or "interrupted")}
+            addEvent(purpose,"inquiry-interrupted",reason,nowHours())
+        end
+    end
+end
+-- An interrupted intention may compete again only through current personal
+-- evidence. This read grants neither a route nor the sought material.
+function P.pendingConceptInquiries(id,tick)
+    local rec, s = record(id), state(id,false)
+    local out = {}
+    if not rec or rec.id ~= id or rec.dead then return out end
+    local now = nowHours()
+    for _, key in ipairs(s and s.order or {}) do
+        local purpose = s.purposes[key]
+        if purpose and purpose.domain == "inquiry" and purpose.origin == "personal-expectation"
+            and purpose.inquiry and not purpose.admission
+            and (purpose.status == "maintained" or purpose.status == "interrupted")
+            and finite(purpose.createdAt) and purpose.createdAt <= now then
+            local offer = P.conceptInquiryOffer(id,purpose.inquiry.goal,tick)
+            if offer and offer.status == "actionable" and offer.contextId == purpose.inquiry.contextId then
+                out[#out+1] = {purposeId=purpose.id,offer=offer}
+                if #out >= 4 then break end
+            end
+        end
+    end
+    return out
+end
+function P.finishConceptInquiry(id,body,purposeId,routeId,job)
+    local s=state(id,false)
+    local purpose=s and s.purposes[purposeId]
+    local admission=purpose and purpose.admission
+    local step=purpose and purpose.steps[purpose.cursor]
+    if not purpose or not purpose.inquiry or not admission or admission.correlationId~=routeId
+        or not step or admission.stepId~=step.id or not job or job.body~=body or not job.done
+        or not SAO.Locomotion or SAO.Locomotion.jobs[id]~=job or not job.goal
+        or job.goal.x~=step.x or job.goal.y~=step.y or job.goal.z~=step.z then return false end
+    local at=nowHours()
+    purpose.inquiry.attempts[step.target]={at=at,status=job.result=="arrived" and "approached" or "route-blocked"}
+    local attempt=purpose.inquiry.attempts[step.target]
+    if attempt and purpose.inquiry.frontier then attempt.frontierKey=purpose.inquiry.frontier.key;attempt.fromRoomId=purpose.inquiry.frontier.roomId end
+    if purpose.inquiry.mode=="situation" then
+        purpose.inquiry.pendingRevision={routeId=routeId,atHours=at,result=job.result}
+    end
+    purpose.admission=nil
+    purpose.status="maintained"
+    purpose.blockers={job.result=="arrived" and "desired-means-not-yet-observed" or "inquiry-route-blocked"}
+    addEvent(purpose,"inquiry-route-ended",job.result,at)
+    -- A route result establishes neither an unseen room nor the desired object.
+    return true
+end
+
 function P.studyDemand(id)
     local s = state(id)
     for _, key in ipairs(s and s.order or {}) do
@@ -1298,17 +2026,30 @@ function P.studyPurpose(id, subject)
     end
 end
 
-function P.noteAdmission(id, purposeId, owner, correlationId, stepId)
+function P.noteAdmission(id, purposeId, owner, correlationId, stepId, authority)
     local s = state(id)
     local purpose = s and s.purposes[tostring(purposeId or "")]
-    if not purpose or type(owner) ~= "string" or type(correlationId) ~= "string" then return false end
+    if not purpose or purpose.conflict or type(owner) ~= "string" or type(correlationId) ~= "string" then return false end
+    if purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
     local step = purpose.steps[purpose.cursor]
     if purpose.resourceCategory and (not step or step.owner ~= owner) then return false end
     if purpose.resourceCategory and step.owner == "SAO.WorldSources" and not step.sourceId then return false end
     if stepId and (not step or step.id ~= stepId or step.owner ~= owner) then return false end
+    local noteWork
+    if purpose.noteReading then
+        noteWork = SAO.Study and SAO.Study.noteWork and SAO.Study.noteWork(id)
+        if not noteWork or noteWork.actorId ~= id or noteWork.workId ~= correlationId
+            or noteWork.purposeId ~= purposeId or owner ~= "SAONeeds" or noteWork.status ~= "prepared"
+            or noteWork.itemId ~= purpose.leisure.itemKey or noteWork.activityKey ~= purpose.leisure.activityKey
+            or not step or step.token ~= "note:text-exposed" then return false end
+    end
     purpose.admission = { owner = owner, correlationId = correlationId,
         stepId = step and step.id, target = step and step.target, token = step and step.token,
         at = nowHours() }
+    if noteWork then
+        purpose.admission.note = dataCopy(noteWork)
+        purpose.admission.stage = "prepared"
+    end
     addEvent(purpose, "admitted", owner .. ":" .. correlationId, purpose.admission.at)
     return true
 end
@@ -1316,8 +2057,15 @@ end
 function P.recordResult(id, purposeId, result, authority)
     local s = state(id)
     local purpose = s and s.purposes[tostring(purposeId or "")]
+    if purpose and purpose.leisureAcquisition and not purpose.leisure and authority ~= RESOURCE_RESULT then return false end
+    if purpose and purpose.conflict then return false end
     if purpose and purpose.resourceCategory and authority ~= RESOURCE_RESULT then return false end
     if purpose and purpose.windowRepair and authority ~= WINDOW_REPAIR_RESULT then return false end
+    if purpose and purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
+    if purpose and purpose.noteReading and authority ~= NOTE_RESULT then return false end
+    -- Inspection of a conceptual means is consumed only from WorldSources'
+    -- canonical private receipt, never a caller-authored completion table.
+    if purpose and purpose.inquiry and purpose.inquiry.mode=="inspect-holder" then return false end
     if not purpose or type(result) ~= "table" or type(result.owner) ~= "string"
         or type(result.token) ~= "string"
         or (result.status ~= "completed" and result.status ~= "failed"
@@ -1348,9 +2096,9 @@ function P.recordResult(id, purposeId, result, authority)
             practice.lastReadAt = at
             s.practice[key] = practice
         end
-        if step.verb == "practice" or step.verb == "produce"
+        if not purpose.instrument and not purpose.noteReading and (step.verb == "practice" or step.verb == "produce"
             or step.verb == "construct" or step.verb == "recreate"
-            or step.verb == "socialize" then
+            or step.verb == "socialize") then
             local key = tostring(step.target or purpose.domain)
             local practice = s.practice[key] or { completed = 0, failed = 0 }
             practice.completed, practice.lastAt = practice.completed + 1, at
@@ -1367,10 +2115,12 @@ function P.recordResult(id, purposeId, result, authority)
         step.status = result.status
         purpose.status = result.status == "interrupted" and "interrupted" or "blocked"
         purpose.blockers = { tostring(result.reason or result.status) }
-        local key = tostring(step.target or purpose.domain)
-        local practice = s.practice[key] or { completed = 0, failed = 0 }
-        practice.failed, practice.lastAt = practice.failed + 1, at
-        s.practice[key] = practice
+        if not purpose.instrument and not purpose.noteReading and not purpose.leisureAcquisition then
+            local key = tostring(step.target or purpose.domain)
+            local practice = s.practice[key] or { completed = 0, failed = 0 }
+            practice.failed, practice.lastAt = practice.failed + 1, at
+            s.practice[key] = practice
+        end
         if purpose.resourceCategory and (result.status == "failed" or result.routeFailure == true) then
             resourceFailure(purpose, purpose.selectedStrategy, result.reason, at, step.id)
         end
@@ -1381,12 +2131,50 @@ function P.recordResult(id, purposeId, result, authority)
         purpose.resultReceipts[#purpose.resultReceipts + 1] = receiptKey
         if #purpose.resultReceipts > MAX_EVENTS then table.remove(purpose.resultReceipts, 1) end
     end
-    if purpose.resourceCategory or purpose.windowRepair then
+    if purpose.resourceCategory or purpose.windowRepair or purpose.leisure or purpose.leisureAcquisition then
         purpose.lastAdmission = dataCopy(purpose.admission)
         purpose.admission = nil
     end
     addEvent(purpose, "result", result.status .. ":" .. result.token, at)
     return true
+end
+
+function P.consumeNoteOutcome(id, sequence)
+    local owner = SAO.Study
+    local result = owner and owner.noteOutcome and owner.noteOutcome(id, sequence)
+    local s = state(id)
+    local purpose = result and s and s.purposes[result.purposeId]
+    local admission = purpose and (purpose.admission or purpose.lastAdmission)
+    local expected = admission and admission.note
+    if not purpose or not purpose.noteReading or not expected or type(result) ~= "table"
+        or result.actorId ~= id or result.status ~= "completed" or result.sequence ~= sequence
+        or result.nativeOwner ~= "SAONoteReadAction/ISBaseTimedAction" or result.token ~= "note:text-exposed"
+        or admission.owner ~= "SAONeeds" or result.workId ~= admission.correlationId
+        or result.workId ~= expected.workId or result.sequence ~= expected.sequence
+        or result.itemId ~= expected.itemId or result.itemType ~= expected.itemType
+        or result.contentBinding ~= expected.contentBinding or result.contentBinding ~= result.workId
+        or result.bodyToken ~= expected.bodyToken or result.bodyGenerationKnown ~= expected.bodyGenerationKnown
+        or (result.bodyGenerationKnown ~= true and result.bodyGenerationKnown ~= false)
+        or result.bodyGenerationKnown and (type(result.bodyToken) ~= "string" or result.bodyToken == "")
+        or not result.bodyGenerationKnown and result.bodyToken ~= nil
+        or result.beganAt ~= expected.beganAt or not finite(result.beganAt)
+        or not finite(result.startedAt) or not finite(result.endedAt) or not finite(result.atHours)
+        or result.startedAt < result.beganAt or result.endedAt < result.startedAt
+        or result.atHours < result.endedAt or result.atHours < admission.at or result.atHours > nowHours()
+        or type(result.content) ~= "table" or type(result.content.pages) ~= "table"
+        or result.content.pageCount ~= expected.contentPages or result.content.bytes ~= expected.contentBytes
+        or result.content.source ~= "native-Literature.customPages" then return false end
+    local bytes = 0
+    if not finite(result.content.pageCount) or result.content.pageCount < 1 or result.content.pageCount > 32
+        or result.content.pageCount ~= math.floor(result.content.pageCount)
+        or #result.content.pages ~= result.content.pageCount then return false end
+    for _, text in ipairs(result.content.pages) do
+        if type(text) ~= "string" or #text > 16384 then return false end
+        bytes = bytes + #text
+    end
+    if bytes ~= result.content.bytes or bytes > 65536 then return false end
+    return P.recordResult(id, purpose.id, { owner = "SAONeeds", token = "note:text-exposed",
+        status = "completed", correlationId = result.workId, atHours = result.atHours }, NOTE_RESULT)
 end
 
 function P.consumeWindowRepairOutcome(id, sequence)
@@ -1442,13 +2230,23 @@ function P.consumeSourceResult(receipt)
         or (tonumber(authoritative.observedQuantity) or 0) <= 0) then return false end
     if completed and purpose.resourceCategory and (step.sourceId ~= authoritative.sourceId
         or step.itemId ~= authoritative.itemId or step.category ~= authoritative.category) then return false end
-    return P.recordResult(receipt.actorId, purpose.id, {
+    local acquisition=purpose.leisureAcquisition
+    if acquisition then
+        if step.id~="acquire-leisure-item" or acquisition.sourceId~=authoritative.sourceId
+            or acquisition.itemId~=tostring(authoritative.itemId) or acquisition.itemType~=authoritative.itemType
+            or acquisition.revision~=authoritative.preRevision then return false end
+    end
+    local accepted = P.recordResult(receipt.actorId, purpose.id, {
         owner = "SAO.SourceUse", token = admission.token,
         status = completed and "completed" or "interrupted",
         reason = authoritative.detail, correlationId = authoritative.reservationId,
         routeFailure = authoritative.status == "conflict",
         atHours = authoritative.at,
     }, RESOURCE_RESULT)
+    if accepted and acquisition then
+        if completed then acquisition.resultId=authoritative.reservationId else acquisition.failedAt=nowHours() end
+    end
+    return accepted
 end
 
 function P.admitInspection(id, receipt)
@@ -1463,9 +2261,11 @@ function P.admitInspection(id, receipt)
     local s = state(id)
     local purpose = s and s.purposes[receipt.purposeId]
     local step = purpose and purpose.steps[purpose.cursor]
-    if not purpose or not purpose.resourceCategory or purpose.status == "completed" or purpose.status == "abandoned"
+    local concept=purpose and purpose.inquiry and purpose.inquiry.mode=="inspect-holder"
+        and purpose.inquiry.sourceId==receipt.sourceId
+    if not purpose or not (purpose.resourceCategory or concept) or purpose.status == "completed" or purpose.status == "abandoned"
         or not step or step.status ~= "available" or step.owner ~= "SAO.WorldSources"
-        or step.token ~= "resource:inspected" or step.id ~= receipt.purposeStepId
+        or step.token ~= (concept and "inquiry:inspected" or "resource:inspected") or step.id ~= receipt.purposeStepId
         or type(step.sourceId) ~= "string" or step.target ~= step.sourceId
         or type(step.fingerprint) ~= "string" or step.sourceId ~= receipt.sourceId
         or step.fingerprint ~= receipt.fingerprint
@@ -1489,7 +2289,10 @@ function P.consumeInspectionResult(id, receipt)
     local purpose = s and s.purposes[canonical.purposeId]
     if not purpose or purpose.status == "abandoned" then return true, "purpose-retired" end
     local step, admission = purpose.steps[purpose.cursor], purpose.admission
-    if not step or not admission or step.owner ~= "SAO.WorldSources" or step.token ~= "resource:inspected"
+    local concept=purpose.inquiry and purpose.inquiry.mode=="inspect-holder"
+        and purpose.inquiry.sourceId==canonical.sourceId
+    if not step or not admission or step.owner ~= "SAO.WorldSources"
+        or step.token ~= (concept and "inquiry:inspected" or "resource:inspected")
         or step.id ~= canonical.purposeStepId or admission.stepId ~= step.id
         or admission.owner ~= step.owner or canonical.id ~= admission.correlationId or admission.target ~= step.target then
         local key = "SAO.WorldSources:" .. canonical.id
@@ -1503,6 +2306,25 @@ function P.consumeInspectionResult(id, receipt)
     if step.sourceId ~= canonical.sourceId or step.fingerprint ~= canonical.fingerprint
         or step.sourceX ~= canonical.sourceX or step.sourceY ~= canonical.sourceY or step.sourceZ ~= canonical.sourceZ then return false end
     if canonical.status == "completed" and (canonical.nativeInspected ~= true or canonical.privateLearned ~= true) then return false end
+    if concept then
+        if not finite(canonical.atHours) or canonical.atHours<admission.at or canonical.atHours>nowHours() then return false end
+        local key="SAO.WorldSources:"..canonical.id
+        purpose.resultReceipts=purpose.resultReceipts or {}
+        for _,seen in ipairs(purpose.resultReceipts) do if seen==key then return true end end
+        purpose.resultReceipts[#purpose.resultReceipts+1]=key
+        if #purpose.resultReceipts>MAX_EVENTS then table.remove(purpose.resultReceipts,1) end
+        purpose.inquiry.attempts=purpose.inquiry.attempts or {}
+        purpose.inquiry.attempts["holder:"..canonical.sourceId]={receiptId=canonical.id,
+            at=canonical.atHours,status=canonical.status,fingerprint=canonical.fingerprint}
+        purpose.lastAdmission,purpose.admission=dataCopy(admission),nil
+        step.status=canonical.status
+        purpose.status,purpose.updatedAt="maintained",canonical.atHours
+        purpose.blockers={canonical.status=="completed" and "holder-inspected-goal-unfulfilled" or tostring(canonical.reason)}
+        addEvent(purpose,"inquiry-inspection-ended",canonical.status,canonical.atHours)
+        -- Only knowledge changed. No item was acquired and no personal goal,
+        -- practice or material consequence is completed by this receipt.
+        return true
+    end
     local consumed = P.recordResult(id, purpose.id, { owner = "SAO.WorldSources", token = "resource:inspected",
         status = canonical.status, correlationId = canonical.id, reason = canonical.reason,
         atHours = canonical.atHours }, RESOURCE_RESULT)
@@ -1636,8 +2458,31 @@ function P.snapshot(id)
     local s = state(id)
     if not s then return nil end
     local out = { purposes = {}, resourceOutcomeRequests = {}, spatialFacts = #s.spatialOrder,
+        suspendedLeisure = { purposes = {}, omitted = s.suspendedLeisure and s.suspendedLeisure.omitted or 0 },
+        queuedPurposes = {},
         study = SAO.Study and SAO.Study.snapshot and SAO.Study.snapshot(id) or nil,
         practiceDomains = 0 }
+    local queued = s.queuedPurposes
+    for _, purposeId in ipairs(queued and queued.order or {}) do
+        local purpose = queued.purposes[purposeId]
+        out.queuedPurposes[#out.queuedPurposes + 1] = { id = purpose.id, key = purpose.key,
+            status = purpose.status, suspendedStatus = purpose.suspendedStatus,
+            reason = purpose.suspensionReason, suspendedAt = purpose.suspendedAt,
+            domain = purpose.domain, objective = purpose.objective,
+            revision = purpose.revision, resourceOutcome = dataCopy(purpose.resourceOutcome),
+            steps = dataCopy(purpose.steps), resultReceipts = copyList(purpose.resultReceipts),
+            lastAdmission = dataCopy(purpose.lastAdmission) }
+    end
+    local suspended = s.suspendedLeisure
+    for _, purposeId in ipairs(suspended and suspended.order or {}) do
+        local purpose = suspended.purposes[purposeId]
+        out.suspendedLeisure.purposes[#out.suspendedLeisure.purposes + 1] = {
+            id = purpose.id, key = purpose.key, status = purpose.status,
+            activity = purpose.leisure.activity, itemKey = purpose.leisure.itemKey,
+            suspendedAt = purpose.suspendedAt, reason = purpose.suspensionReason,
+            steps = dataCopy(purpose.steps), resultReceipts = copyList(purpose.resultReceipts),
+            lastAdmission = dataCopy(purpose.lastAdmission) }
+    end
     for _, practice in pairs(s.practice) do
         if (tonumber(practice.completed) or 0) > 0 then
             out.practiceDomains = out.practiceDomains + 1
@@ -1657,7 +2502,7 @@ function P.snapshot(id)
                 nextOwner = nextStep and nextStep.owner or nil,
                 blockers = copyList(purpose.blockers, 6),
                 selectedSpatialFact = purpose.selectedSpatialFact,
-                interpretations = dataCopy(purpose.interpretations),
+                interpretations = dataCopy(purpose.interpretations, 0, 8),
                 resourceCategory = purpose.resourceCategory, demand = dataCopy(purpose.demand),
                 origin = purpose.origin, authority = purpose.authority,
                 resourceOutcome = dataCopy(purpose.resourceOutcome), outcomeProgress = dataCopy(purpose.outcomeProgress),
@@ -1666,9 +2511,11 @@ function P.snapshot(id)
                 labor = dataCopy(purpose.labor), selectedStrategy = purpose.selectedStrategy,
                 rationale = purpose.rationale, uncertainty = purpose.uncertainty,
                 appraisal = dataCopy(purpose.appraisal),
+                inquiry = dataCopy(purpose.inquiry),
                 decisionAt = purpose.decisionAt, assessedAt = purpose.assessedAt,
                 sequence = dataCopy(purpose.steps), completedSteps = dataCopy(purpose.completedSteps),
-                alternatives = dataCopy(purpose.alternatives), routeFailures = dataCopy(purpose.routeFailures) }
+                alternatives = dataCopy(purpose.alternatives), omittedAlternatives = purpose.omittedAlternatives or 0,
+                routeFailures = dataCopy(purpose.routeFailures) }
             local row = out.purposes[#out.purposes]
             if purpose.residence then
                 row.residence = { mode = purpose.mode, destination = dataCopy(purpose.destination),
@@ -1678,6 +2525,416 @@ function P.snapshot(id)
         end
     end
     return out
+end
+
+-- One maintained conflict purpose survives individual attempts. Refusal is
+-- different from admission, and completing an attempt does not prove that a
+-- threat was defeated or that another person agreed.
+local CONFLICT_ROUTE_MEMORY = 0.05 -- bounded engineering retry policy, not empirical calibration
+local CONFLICT_ATTEMPT_HORIZON = 2
+local CONFLICT_OWNERS={withdraw="Locomotion",reposition="Locomotion",engage="SAO.Combat",
+    defend="SAO.Combat",communicate="SAO.Communication",coordinate="SAO.Coordination",concede="Handover",watch="Posture"}
+local function conflictText(value,maximum)
+    return type(value)=="string" and #value>0 and #value<=maximum
+end
+
+function P.admitInstrument(id, purposeId, workId)
+    local owner = SAO.Gesture
+    local work = owner and owner.instrumentWork and owner.instrumentWork(id)
+    local s = state(id)
+    local purpose = s and s.purposes[purposeId]
+    local step = purpose and purpose.steps[purpose.cursor]
+    if not purpose or not purpose.instrument or not step or step.id ~= "perform-activity"
+        or step.owner ~= "SAO.Gesture" or type(work) ~= "table" or work.actorId ~= id
+        or work.workId ~= workId or work.sequence ~= purpose.instrument.expectedSequence
+        or work.workId ~= "instrument:" .. id .. ":" .. tostring(work.sequence)
+        or work.itemId ~= purpose.instrument.itemKey
+        or work.itemType ~= purpose.instrument.itemType or work.verb ~= purpose.instrument.verb
+        or (work.status ~= "prepared" and work.status ~= "admitted" and work.status ~= "started")
+        or (work.bodyGenerationKnown ~= true and work.bodyGenerationKnown ~= false)
+        or (work.bodyGenerationKnown == true and type(work.bodyToken) ~= "string")
+        or (work.bodyGenerationKnown == false and work.bodyToken ~= nil)
+        or not finite(work.admittedAtHours) or work.admittedAtHours > nowHours() then return false end
+    if purpose.admission then return purpose.admission.correlationId == workId end
+    if purpose.participation and not (SAO.Organization and SAO.Organization.admitParticipation
+        and SAO.Organization.admitParticipation(purpose.participation.processId, id, purposeId, workId)) then return false end
+    if not P.noteAdmission(id, purposeId, "SAO.Gesture", workId, step.id, INSTRUMENT_RESULT) then return false end
+    purpose.admission.bodyToken = work.bodyToken
+    purpose.admission.bodyGenerationKnown = work.bodyGenerationKnown
+    purpose.admission.itemId, purpose.admission.itemType = work.itemId, work.itemType
+    purpose.admission.nativeAdmittedAt = work.admittedAtHours
+    purpose.admission.sequence = work.sequence
+    purpose.admission.stage = work.status -- prepared binds intent before native add/start
+
+    return true
+end
+
+function P.consumeInstrumentOutcome(id, sequenceOrWorkId)
+    local owner = SAO.Gesture
+    local result = owner and owner.instrumentOutcome and owner.instrumentOutcome(id, sequenceOrWorkId)
+    local s = state(id)
+    if not s or type(result) ~= "table" or result.actorId ~= id
+        or type(result.workId) ~= "string" or not finite(result.atHours) or result.atHours > nowHours()
+        or (result.status ~= "completed" and result.status ~= "interrupted") then return false end
+    for _, purposeId in ipairs(s.order) do
+        local purpose = s.purposes[purposeId]
+        local admission = purpose and (purpose.admission or purpose.lastAdmission)
+        if purpose and purpose.instrument and admission and admission.owner == "SAO.Gesture"
+            and admission.correlationId == result.workId then
+            if result.sequence ~= admission.sequence or result.itemId ~= admission.itemId or result.itemType ~= admission.itemType
+                or result.verb ~= purpose.instrument.verb or result.bodyToken ~= admission.bodyToken
+                or result.bodyGenerationKnown ~= admission.bodyGenerationKnown
+                or result.admittedAtHours ~= admission.nativeAdmittedAt
+                or result.atHours < admission.at then return false end
+            if result.status == "completed" and (result.queueAdmitted ~= true
+                or result.soundEmitted ~= true or result.worldSoundEmitted ~= true
+                or result.soundEnded ~= true or not finite(result.startedAtHours)
+                or not finite(result.endedAtHours) or result.startedAtHours < admission.nativeAdmittedAt
+                or result.endedAtHours < result.startedAtHours or result.endedAtHours > result.atHours) then return false end
+            local consumed = P.recordResult(id, purposeId, { owner = "SAO.Gesture", token = "leisure:performed",
+                correlationId = result.workId, status = result.status, atHours = result.atHours,
+                reason = result.status == "interrupted" and "native-instrument-interrupted" or nil }, INSTRUMENT_RESULT)
+            if consumed and purpose.participation then
+                purpose.participation.physicalResult = { workId = result.workId, status = result.status, atHours = result.atHours }
+                SAO.Organization.consumeParticipationPerformance(purpose.participation.processId, id, result.workId)
+            end
+            return consumed
+        end
+    end
+    return false
+end
+-- Called only by the runtime adoption boundary after establishing that its
+-- former native owner is absent. Missing execution cannot become completion.
+function P.reconcileInstrument(id, reason)
+    local owner = SAO.Gesture
+    if not owner or not owner.instrumentWork or owner.instrumentWork(id) then return false end
+    local s, changed = state(id), false
+    for _, key in ipairs(s and s.order or {}) do
+        local purpose = s.purposes[key]
+        local admission = purpose and purpose.instrument and purpose.admission
+        if admission and admission.owner == "SAO.Gesture" and finite(admission.at) and admission.at <= nowHours() then
+            if not P.consumeInstrumentOutcome(id, admission.correlationId) then
+                purpose.lastAdmission, purpose.admission = dataCopy(admission), nil
+                P.interrupt(id, purpose.id, reason or "instrument-runtime-unavailable", nowHours())
+                addEvent(purpose, "instrument-unobservable", admission.correlationId, nowHours())
+                if purpose.participation then
+                    purpose.participation.physicalResult = { workId = admission.correlationId,
+                        status = "unobservable", atHours = nowHours() }
+                    SAO.Organization.reconcileParticipation(purpose.participation.processId, id, purpose.id)
+                end
+            end
+            changed = true
+        end
+    end
+    return changed
+end
+
+-- Study has already retained its own terminal before handing planning back.
+-- A refused retry therefore cannot inherit an earlier action's admission.
+function P.releaseStudy(id, purposeId, workId)
+    local person, s = record(id), state(id)
+    local work = person and person.studyWork
+    local purpose = s and s.purposes[purposeId]
+    local admission = purpose and purpose.admission
+    if not work or work.id ~= workId or work.purposeId ~= purposeId or work.status ~= "interrupted"
+        or not finite(work.endedAt) or work.endedAt > nowHours() or not admission
+        or admission.owner ~= "SAONeeds" or admission.correlationId ~= workId then return false end
+    purpose.lastAdmission, purpose.admission = dataCopy(admission), nil
+    return true
+end
+
+local function conflictPurpose(id,purposeId,allowDead)
+    local s,rec=state(id,false),record(id)
+    local key = s and (purposeId or s.conflictPurposeId)
+    local purpose=s and (s.purposes[key] or s.queuedPurposes and s.queuedPurposes.purposes[key])
+    if rec and (allowDead or not rec.dead) and purpose and purpose.conflict then return purpose,s end
+end
+function P.conflictRouteBlocked(id,routeKey,atHours)
+    local at=atHours or nowHours()
+    if not conflictText(routeKey,128) or not finite(at) or at<0 or at>nowHours() then return false end
+    local s=state(id,false)
+    for _,failure in ipairs(s and s.conflictRouteFailures or {}) do
+        if failure.routeKey==routeKey and failure.atHours<=at and at-failure.atHours<CONFLICT_ROUTE_MEMORY then return true end
+    end
+    return false
+end
+local function conflictFailure(s,routeKey,reason,at)
+    if not routeKey then return end
+    s.conflictRouteFailures=s.conflictRouteFailures or {}
+    for i=#s.conflictRouteFailures,1,-1 do
+        if s.conflictRouteFailures[i].routeKey==routeKey then table.remove(s.conflictRouteFailures,i) end
+    end
+    s.conflictRouteFailures[#s.conflictRouteFailures+1]={routeKey=routeKey,reason=reason,atHours=at,
+        expiresAtHours=at+CONFLICT_ROUTE_MEMORY,basis="native-refusal-or-failed-attempt",
+        expiryPolicy="bounded-engineering-retry"}
+    if #s.conflictRouteFailures>8 then table.remove(s.conflictRouteFailures,1) end
+end
+local function sameConflictOffer(a,b)
+    return a.id==b.id and a.kind==b.kind and a.routeKey==b.routeKey
+        and a.targetKey==b.targetKey and a.nativeMode==b.nativeMode
+end
+local function conflictOfferFailure(s,offer,reason,at)
+    s.conflictOfferFailures=s.conflictOfferFailures or {}
+    local row={id=offer.id,kind=offer.kind,routeKey=offer.routeKey,targetKey=offer.targetKey,
+        nativeMode=offer.nativeMode,reason=reason,atHours=at}
+    s.conflictOfferFailures[#s.conflictOfferFailures+1]=row
+    if #s.conflictOfferFailures>16 then table.remove(s.conflictOfferFailures,1) end
+end
+function P.planConflict(id,frame,offers)
+    if not SAO.Cognition or not SAO.Cognition.appraiseConflict then return nil,"conflict-appraisal-unavailable" end
+    -- Validate the supplied data before the planner copies it into retention.
+    local initial,why=SAO.Cognition.appraiseConflict(id,frame,offers)
+    if not initial then return nil,why end
+    local old,s=conflictPurpose(id)
+    if old and frame.atHours<old.updatedAt then return nil,"old-conflict-frame" end
+    local ownFrame,offered=dataCopy(frame,0,12),dataCopy(offers,0,12)
+    ownFrame.priorAction=nil
+    if old and not old.conflict.needsReappraisal and old.conflict.appraisal.selected then
+        ownFrame.priorAction={id=old.conflict.appraisal.selected,kind=old.conflict.appraisal.kind,
+            evidenceKey=old.conflict.appraisal.evidenceKey}
+    end
+    for _,offer in ipairs(offered) do
+        if offer.routeKey and P.conflictRouteBlocked(id,offer.routeKey,frame.atHours) then
+            offer.available=false
+            offer.reason="This exact route was recently refused or failed; it needs changed conditions or a later retry."
+        end
+        for _,failed in ipairs(s and s.conflictOfferFailures or {}) do
+            if sameConflictOffer(offer,failed) and failed.atHours<=frame.atHours
+                and frame.atHours-failed.atHours<CONFLICT_ROUTE_MEMORY then
+                offer.available=false;offer.reason="This exact attempt was recently refused or failed; I need another feasible response."
+            end
+        end
+    end
+    local appraisal=SAO.Cognition.appraiseConflict(id,ownFrame,offered)
+    if not appraisal then return nil,"conflict-appraisal-refused" end
+    if old and not s.purposes[old.id] and appraisal.kind ~= "watch" then
+        local resumed, why = P.resumeQueuedPurpose(id, old.id)
+        if not resumed then return nil, why or "conflict-native-handback-required" end
+        old = resumed
+    end
+    local purpose=old or P.maintain(id,{key="conflict:current",objective="Respond to believed danger without assuming an outcome",
+        domain="conflict",origin="private-threat-appraisal",atHours=frame.atHours})
+    if not purpose then
+        local executable = false
+        for _, offer in ipairs(offered) do
+            if offer.id == appraisal.selected and offer.available == true and offer.kind ~= "watch" then executable = true end
+        end
+        if not executable then return nil, "conflict-purpose-capacity" end
+        local queued, reason = queueForConflict(state(id,false), frame.atHours)
+        if not queued then return nil, reason end
+        purpose = P.maintain(id, {key="conflict:current",objective="Respond to believed danger without assuming an outcome",
+            domain="conflict",origin="private-threat-appraisal",atHours=frame.atHours})
+        if not purpose then return nil, "conflict-purpose-capacity" end
+    end
+    s=state(id,false);s.conflictPurposeId=purpose.id
+    purpose.conflict=purpose.conflict or {receipts={}}
+    local conflict=purpose.conflict
+    conflict.revision=(conflict.revision or 0)+1
+    appraisal.frameId=appraisal.frameId.."/"..tostring(conflict.revision)
+    conflict.appraisal=dataCopy(appraisal,0,12)
+    conflict.threat=dataCopy(frame.threat)
+    conflict.offers=offered
+    conflict.needsReappraisal=false
+    purpose.updatedAt,purpose.status=frame.atHours,s.purposes[purpose.id] and "maintained" or "suspended"
+    purpose.rationale=appraisal.reason
+    return {selected=appraisal.selected,kind=appraisal.kind,reason=appraisal.reason,
+        purposeId=purpose.id,frameId=appraisal.frameId,continuing=appraisal.continuing}
+end
+local function conflictOffer(purpose,offerId)
+    local conflict=purpose and purpose.conflict
+    if not conflict or conflict.appraisal.selected~=offerId then return nil end
+    for _,offer in ipairs(conflict.offers or {}) do
+        if offer.id==offerId and offer.available then return offer end
+    end
+end
+function P.conflictAdmission(id,purposeId,token,offerId)
+    local purpose=conflictPurpose(id,purposeId)
+    local offer=conflictOffer(purpose,offerId)
+    local at=nowHours()
+    if not offer or state(id).purposes[purpose.id] ~= purpose or type(token)~="table" or token.owner~=CONFLICT_OWNERS[offer.kind]
+        or not conflictText(token.id,128) or at<purpose.updatedAt
+        or at-purpose.updatedAt>CONFLICT_ROUTE_MEMORY or purpose.admission then return false end
+    for _,receipt in ipairs(purpose.conflict.receipts) do
+        if receipt.owner==token.owner and receipt.id==token.id then return false end
+    end
+    purpose.admission={owner=token.owner,correlationId=token.id,offerId=offerId,kind=offer.kind,
+        frameId=purpose.conflict.appraisal.frameId,routeKey=offer.routeKey,targetKey=offer.targetKey,nativeMode=offer.nativeMode,at=at}
+    purpose.conflict.needsReappraisal=false
+    addEvent(purpose,"conflict-admitted",token.owner..":"..token.id,at)
+    return true
+end
+function P.conflictResult(id,purposeId,token,result)
+    local purpose,s=conflictPurpose(id,purposeId,true)
+    local admission=purpose and purpose.admission
+    local at=nowHours()
+    if not admission or type(token)~="table" or token.owner~=admission.owner
+        or token.id~=admission.correlationId or type(result)~="table"
+        or (result.status~="failed" and result.status~="completed" and result.status~="cancelled")
+        or not conflictText(result.reason,256) or result.routeKey~=nil and result.routeKey~=admission.routeKey
+        or at<admission.at or at-admission.at>CONFLICT_ATTEMPT_HORIZON and result.status~="cancelled" then return false end
+    local conflict=purpose.conflict
+    conflict.lastOutcome={status=result.status,reason=result.reason,offerId=admission.offerId,kind=admission.kind,
+        routeKey=admission.routeKey,atHours=at,admitted=true,owner=token.owner,id=token.id}
+    conflict.receipts[#conflict.receipts+1]={owner=token.owner,id=token.id,status=result.status,atHours=at}
+    if #conflict.receipts>16 then table.remove(conflict.receipts,1) end
+    if result.status=="failed" then
+        conflictFailure(s,admission.routeKey,result.reason,at)
+        conflictOfferFailure(s,{id=admission.offerId,kind=admission.kind,routeKey=admission.routeKey,
+            targetKey=admission.targetKey,nativeMode=admission.nativeMode},result.reason,at)
+    end
+    purpose.admission=nil
+    conflict.needsReappraisal=true
+    addEvent(purpose,"conflict-attempt-"..result.status,result.reason,at)
+    return true
+end
+function P.conflictRefusal(id,purposeId,offerId,result)
+    local purpose,s=conflictPurpose(id,purposeId)
+    local offer=conflictOffer(purpose,offerId)
+    local at=nowHours()
+    if not offer or purpose.admission or type(result)~="table"
+        or result.frameId~=purpose.conflict.appraisal.frameId
+        or not conflictText(result.reason,256) or result.routeKey~=nil and result.routeKey~=offer.routeKey
+        or at<purpose.updatedAt or at-purpose.updatedAt>CONFLICT_ROUTE_MEMORY then return false end
+    local conflict=purpose.conflict
+    if conflict.lastRefusalFrame==result.frameId and conflict.lastRefusalOffer==offerId then return false end
+    conflict.lastRefusalFrame,conflict.lastRefusalOffer=result.frameId,offerId
+    conflict.lastOutcome={status="refused",reason=result.reason,offerId=offerId,kind=offer.kind,
+        routeKey=offer.routeKey,atHours=at,admitted=false}
+    conflict.needsReappraisal=true
+    conflictFailure(s,offer.routeKey,result.reason,at)
+    conflictOfferFailure(s,offer,result.reason,at)
+    addEvent(purpose,"conflict-refused",result.reason,at)
+    return true
+end
+function P.conflictSnapshot(id)
+    local purpose,s=conflictPurpose(id,nil,true)
+    if not purpose then return nil end
+    local conflict=purpose.conflict
+    local appraisal=conflict.appraisal
+    local admission=purpose.admission
+    return dataCopy({schema=1,actorId=id,purposeId=purpose.id,status=purpose.status,
+        atHours=purpose.updatedAt,threat=conflict.threat,selected=appraisal.selected,kind=appraisal.kind,
+        reason=appraisal.reason,frameId=appraisal.frameId,alternatives=appraisal.alternatives,
+        admission=admission and {owner=admission.owner,id=admission.correlationId,
+            offerId=admission.offerId,atHours=admission.at},
+        lastOutcome=conflict.lastOutcome,routeFailures=s.conflictRouteFailures or {}},0,12)
+end
+
+-- The adopting runtime calls this only after establishing that no live owner
+-- remains. A saved admission is intent evidence, not proof of unseen work.
+function P.reconcileConflict(id,reason)
+    local purpose=conflictPurpose(id,nil,true)
+    local admission=purpose and purpose.admission
+    if not admission or not conflictText(reason,256) then return false end
+    local accepted=P.conflictResult(id,purpose.id,{owner=admission.owner,id=admission.correlationId},
+        {status="cancelled",reason=reason})
+    if accepted then purpose.conflict.lastOutcome.observability="runtime-owner-lost" end
+    return accepted
+end
+
+local function retainedLeisure(s, purposeId)
+    return s and (s.purposes[purposeId]
+        or s.suspendedLeisure and s.suspendedLeisure.purposes[purposeId]
+        or s.queuedPurposes and s.queuedPurposes.purposes[purposeId])
+end
+
+-- Pure private offer: an unfinished sharing intention can survive outside
+-- active execution capacity. It never implies that another person joined.
+function P.participationSource(id, purposeId)
+    local s, person = state(id), record(id)
+    if not s or not person or person.dead then return nil end
+    local ids = purposeId and { purposeId } or copyList(s.order, MAX_PURPOSES)
+    if not purposeId then
+        for _, key in ipairs(s.suspendedLeisure and s.suspendedLeisure.order or {}) do ids[#ids + 1] = key end
+    end
+    for _, key in ipairs(ids) do
+        local purpose = retainedLeisure(s, key)
+        if purpose and purpose.instrument and optionalSharing(purpose) and not purpose.participation then
+            return { purposeId = key, activity = purpose.leisure.activity, itemId = purpose.instrument.itemKey,
+                itemType = purpose.instrument.itemType, processId = purpose.participationProcessId }
+        end
+    end
+end
+
+function P.bindParticipationSource(id, purposeId, processId)
+    local source = P.participationSource(id, purposeId)
+    local view = SAO.Organization and SAO.Organization.viewFor(id, processId, false)
+    local terms = view and view.proposal and view.proposal.proposal
+    if not source or not terms or view.originatorId ~= id or view.kind ~= "leisure-participation"
+        or terms.sourcePurposeId ~= purposeId or terms.itemId ~= source.itemId then return false end
+    retainedLeisure(state(id), purposeId).participationProcessId = processId
+    return true
+end
+-- Called after Perception has had its own chance to acquire current native
+-- observations. The planner has no writer for the presumed event or cause.
+function P.reviseSituationInquiry(id,body,purposeId,routeId,tick)
+    local s=state(id,false)
+    local purpose=s and s.purposes[purposeId]
+    local pending=purpose and purpose.inquiry and purpose.inquiry.pendingRevision
+    if not pending or purpose.inquiry.mode~="situation" or purpose.admission or pending.routeId~=routeId
+        or not finite(pending.atHours) or pending.atHours>nowHours() then return false end
+    local retained=retainSituation and retainSituation(id,body,tick,purpose.inquiry.questionKey,"observed-after-route") or false
+    if retained then purpose.inquiry.pendingRevision=nil end
+    return retained
+end
+
+function P.planParticipation(id, commitmentId, body)
+    local offer = SAO.Coordination and SAO.Coordination.participationOffer(id, body, commitmentId)
+    if not offer or offer.role ~= "perform" or offer.workId then return nil end
+    local source = P.participationSource(id, offer.sourcePurposeId)
+    if not source or source.processId ~= offer.processId then return nil end
+    local purpose = P.planLeisure(id, { activity = offer.activity, itemKey = offer.itemId,
+        affordance = offer.itemType, owner = "SAO.Gesture", nativeVerb = "blow-harmonica",
+        locationKey = "current-observed-place", atLocation = true })
+    if not purpose or purpose.admission or purpose.steps[purpose.cursor].id ~= "perform-activity" then return nil end
+    purpose.participation = { processId = offer.processId, revision = offer.revision,
+        commitmentId = commitmentId, sourcePurposeId = offer.sourcePurposeId }
+    return purpose
+end
+
+function P.participationBinding(id, purposeId)
+    local purpose = retainedLeisure(state(id), purposeId)
+    return purpose and dataCopy(purpose.participation)
+end
+
+function P.participationInterests(id, activity)
+    local s, out = state(id), { related = false, competing = false }
+    for _, key in ipairs(s and s.order or {}) do
+        local p = s.purposes[key]
+        if p and p.status ~= "completed" and p.status ~= "abandoned" then
+            if p.leisure and p.leisure.activity == activity then out.related = true end
+            if p.admission or p.resourceOutcome or p.resourceCategory or p.domain == "learning" then out.competing = true end
+        end
+    end
+    return out
+end
+
+function P.consumeParticipation(id, processId)
+    local result = SAO.Organization and SAO.Organization.participationOutcome(id, processId)
+    if not result or result.actorId ~= id or result.processId ~= processId
+        or not finite(result.atHours) or result.atHours > nowHours() then return false end
+    local s = state(id)
+    local performed = retainedLeisure(s, result.purposeId)
+    local source = retainedLeisure(s, result.sourcePurposeId)
+    local binding = performed and performed.participation
+    if not source or not binding or binding.processId ~= processId or binding.revision ~= result.revision
+        or binding.sourcePurposeId ~= source.id or source.participationProcessId ~= processId
+        or not binding.physicalResult or binding.physicalResult.status ~= "completed"
+        or binding.physicalResult.workId ~= result.workId or source.instrument.itemKey ~= result.itemId then return false end
+    -- Exact current social receipt advances only these sharing steps. Neither
+    -- native sound nor acknowledgement grants practice, trust or enjoyment.
+    for _, purpose in ipairs({ source, performed }) do
+        for index, step in ipairs(purpose.steps) do
+            if step.id == "share-activity" and step.owner == "native-participation" and step.status ~= "completed" then
+                step.status, step.completedAt = "completed", result.atHours
+                purpose.participationResult = dataCopy(result)
+                purpose.cursor, purpose.status = index + 1, "completed"
+                purpose.updatedAt = result.atHours
+                addEvent(purpose, "result", "delivered-participation-acknowledgement", result.atHours)
+            end
+        end
+    end
+    return true
 end
 
 return P

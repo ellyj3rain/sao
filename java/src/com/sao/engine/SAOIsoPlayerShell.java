@@ -102,6 +102,7 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
     @Override
     public void update() {
         if (removalPending) { SAOOrientation.forget(this); return; }
+        if (SAONativeDeath.hasCorpse(this)) { SAOOrientation.forget(this); return; }
         IsoPlayer keep = IsoPlayer.getInstance();
         IsoGameCharacter camera = IsoCamera.getCameraCharacter();
         try {
@@ -114,6 +115,7 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
     @Override
     public void postupdate() {
         if (removalPending) { SAOOrientation.forget(this); return; }
+        if (SAONativeDeath.hasCorpse(this)) { SAOOrientation.forget(this); return; }
         IsoPlayer keep = IsoPlayer.getInstance();
         IsoGameCharacter camera = IsoCamera.getCameraCharacter();
         try {
@@ -122,6 +124,14 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
         } finally {
             restoreGlobalOwners(keep, camera);
         }
+    }
+
+    @Override
+    public void setCurrentSquareFromPosition(float x, float y, float z) {
+        // startFrame() precedes the cell's deferred removal drain. A corpse's
+        // former shell must not regain a square during that intervening frame.
+        if (SAONativeDeath.hasCorpse(this)) return;
+        super.setCurrentSquareFromPosition(x, y, z);
     }
 
     @Override

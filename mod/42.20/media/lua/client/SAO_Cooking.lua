@@ -203,7 +203,7 @@ local function transfer(id, body, rt, work, container, operation, stage, sourceI
         reservation.id, operation, sourceId
     return true
 end
-function C.begin(id, body, context)
+local function selectMeans(id, body, context)
     local rec = owner(id, body)
     if not rec or rec.cookingWork or rec.resourceProductionWork or rec.worldSourceReservation or SAO.Needs.busy(body)
         or body:isAsleep() or body:isDead() then return false end
@@ -212,7 +212,9 @@ function C.begin(id, body, context)
     local offers = SAOJavaBridge:cookingOffers(body, 12)
     if type(offers) ~= "table" then return false end
     local appliance, food
-    for _, row in ipairs(offers.appliances or {}) do if allowed(id, row) then appliance = row break end end
+    for _, row in ipairs(offers.appliances or {}) do
+        if allowed(id,row) and (not context or not context.expectedSourceId or context.expectedSourceId==row.sourceId) then appliance=row;break end
+    end
     if not appliance then return false end
     for _, row in ipairs(offers.foods or {}) do
         local exact = not context or context.acquiredItemId == nil
@@ -221,6 +223,27 @@ function C.begin(id, body, context)
             or SAO.WorldSources.privatelyKnowsItem(id, row.sourceId, row.itemId))) then food = row break end
     end
     if not food then return false end
+    return appliance,food
+end
+-- Same admitted private candidate that begin rechecks. This returns scalar
+-- expectation inputs, never reserves an item or grants native completion.
+function C.expectationOffer(id,body,context)
+    local appliance,food=selectMeans(id,body,context)
+    if not appliance or not food then return nil end
+    return {sourceId=appliance.sourceId,itemId=food.itemId,itemType=food.itemType}
+end
+function C.outcome(id,sequence)
+    local rec=SAO.Identity.get(id)
+    for _,row in ipairs(rec and rec.cookingOutcomes or {}) do
+        if row.actorId==id and row.sequence==sequence then
+            local copy={} for key,value in pairs(row) do copy[key]=value end return copy
+        end
+    end
+end
+function C.begin(id, body, context)
+    local appliance,food=selectMeans(id,body,context)
+    if not appliance or not food then return false end
+    local rec=owner(id,body)
     rec.cookingSequence = (rec.cookingSequence or 0) + 1
     context = type(context) == "table" and context or {}
     rec.cookingWork = { id = "cooking/" .. tostring(id) .. "/" .. tostring(rec.cookingSequence), sequence = rec.cookingSequence,

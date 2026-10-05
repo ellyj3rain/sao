@@ -1,0 +1,37 @@
+{
+  "schema": "sao-c-product-application/1",
+  "standing": "LOCAL_APPLIED_PUBLIC_RECONCILIATION_PENDING",
+  "atUtc": "2026-10-05T21:34:16.908080+00:00",
+  "productCount": 82,
+  "sourceCount": 120,
+  "ownershipContractsRetained": 35,
+  "generation": "20261005-product-consolidation",
+  "version": "3.8.0.0-pre-alpha",
+  "productManifest": {
+    "path": "Batches/C_PRODUCT_CATALOGUE.json",
+    "sha256": "55ae08738f13c855af1b8def955fcf23b799772dea1b4455392c8878925e0b59"
+  },
+  "proofs": {
+    "mapper": {
+      "path": "_scratch/d1-finish/c-product-consolidation-01/candidate-03/verification-01/receipt.json",
+      "sha256": "7216e7d746795fc1389a45188d399d0c9fd073f0fa32bef1c41967617b3443df"
+    },
+    "productLanding": {
+      "path": "_scratch/d1-finish/c-product-consolidation-01/candidate-03/actual-landing-01/receipt.json",
+      "sha256": "2de93b44aa2daf7c9baab031bfeaf13acc8567151f42d9b2472fb99d5a68a8d5"
+    },
+    "reader": {
+      "path": "_scratch/d1-finish/c-product-replay-seams-01/actual-reader-stage-02/manifest.json",
+      "sha256": "1a22da1aa0cac691ba6abc43b377f38dcc7c25021ea41cec234583e06370405d"
+    },
+    "readerLanding": {
+      "path": "_scratch/d1-finish/c-product-replay-seams-01/reader-landing-01/receipt.json",
+      "sha256": "59de8650a267ca738b4cb32fc73fa8184e38c36332d08b4ac279dc922e228fea"
+    },
+    "canonicalIntegration": {
+      "path": "_scratch/d1-finish/actual-close-01/c-product-root-integration-01/manifest.json",
+      "sha256": "ddb4a1a0c0a5bf62edd176f5da268e37be6d2bb7c1167f2fbf06ed8a3fca4670"
+    }
+  },
+  "boundary": "Local application and source/reader proof only. Required remote checks and protected merge remain pending; no new native or maturity credit."
+}

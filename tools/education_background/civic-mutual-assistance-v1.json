@@ -1,0 +1,48 @@
+{
+  "schema": "sao-background-meaning/2",
+  "id": "civic-mutual-assistance-1",
+  "courseId": "grade-11-social-studies",
+  "unit": {
+    "activities": [
+      {
+        "kind": "instruction",
+        "literalEvidence": "CHAPTER I."
+      }
+    ],
+    "editionEvidence": {
+      "basis": "printed-source",
+      "literal": "Revised to 1916."
+    },
+    "editionYear": 1916,
+    "id": "civil-government-13278-18666-grade-11-social-studies",
+    "selector": {
+      "endCharacter": 18666,
+      "excerptSha256": "e767ebf11a7a5fcd3ef4a5219e20995057140dfc39b0e8a4083b90c40de6e05b",
+      "extractionSha256": "3a5df900cfc646e86cf0b46f3e0f586a359b360eee02e21c21a8442863e49d59",
+      "format": "plain-text",
+      "sourcePath": "civil-government/source.txt",
+      "sourceSha256": "c407ef5d6cc76a008ce76f08f892bde3666669cde6bb9f0ab27499d228e94c51",
+      "startCharacter": 13278
+    },
+    "sourceId": "civil-government",
+    "sourceVersion": "c407ef5d6cc76a008ce76f08f892bde3666669cde6bb9f0ab27499d228e94c51",
+    "temporalStanding": "source-period-review-required",
+    "title": "CHAPTER I.  THE FAMILY.  INTRODUCTORY.[1]--People living in the United States owe respect and"
+  },
+  "statementText": "DUTIES.--As each of the members has his rights, each also has his duties; for where a right exists, a duty always exists with it. It is the duty of each to treat the others kindly; to teach them what is right and what is wrong; to aid them in their work; to comfort them in their sorrows; and to rejoice with them in their gladness. It is the",
+  "statementSha256": "36d48c3eedd1f35e8f16d50750c4087d277569b306a378a2c2502fde5ebddb38",
+  "relations": [
+    {
+      "from": "family-cooperation",
+      "relation": "supports",
+      "into": "possible-mutual-support"
+    }
+  ],
+  "conditions": [
+    "relevant-family-relationship",
+    "voluntary-participation",
+    "response-unconfirmed"
+  ],
+  "contentRole": "reported-norm",
+  "standing": "authored-semantic-projection-of-cited-text; exposure-not-assessed-retention-or-assent"
+}

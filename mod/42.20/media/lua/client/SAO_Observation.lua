@@ -456,28 +456,218 @@ local function mobileHousehold(id)
     if (view.failures or 0) > 0 then row(s, "Recorded failures", view.failures) end
     return s
 end
-local function planning(id)
+local function conflictText(value, fallback)
+    return type(value) == "string" and #value > 0 and text(value):gsub("%-", " ")
+        or fallback
+end
+local function conflictList(values, maximum)
+    local out = {}
+    if type(values) == "table" then
+        for index = 1, maximum do
+            local value = conflictText(values[index])
+            if value then out[#out + 1] = value end
+        end
+    end
+    return #out > 0 and table.concat(out, "; ") or nil
+end
+local function conflictPlanning(s, id)
+    local getter = SAO.ProceduralPlanning and SAO.ProceduralPlanning.conflictSnapshot
+    if type(getter) ~= "function" then return false end
+    local ok, view = pcall(getter, id)
+    if ok and view == nil then
+        row(s, "Conflict appraisal", "No conflict appraisal recorded")
+        return false
+    end
+    if not ok or type(view) ~= "table" or view.schema ~= 1 or view.actorId ~= id then
+        row(s, "Conflict appraisal", "Recorded conflict appraisal unavailable")
+        return false
+    end
+    row(s, "Conflict appraisal", conflictText(view.status, "Recorded")
+        .. (finite(view.atHours) and " at game hour " .. tostring(view.atHours) or " / time unavailable"))
+    local threat = type(view.threat) == "table" and view.threat or {}
+    local basis = conflictText(threat.kind, "Threat kind unknown") .. " / "
+        .. conflictText(threat.source, "acquisition source unavailable")
+    if finite(threat.distance) and threat.distance >= 0 then
+        basis = basis .. " / believed distance " .. string.format("%.1f", threat.distance) .. " tiles"
+    end
+    row(s, "Threat belief", basis)
+    row(s, "Intended response", conflictText(view.kind, "No response recorded"))
+    row(s, "Response reason", conflictText(view.reason, "No rationale recorded"))
+    local admission = type(view.admission) == "table" and view.admission or nil
+    row(s, "Native admission", admission and conflictText(admission.owner, "Execution owner unavailable")
+        .. (finite(admission.atHours) and " admitted at game hour " .. tostring(admission.atHours) or " / admission time unavailable")
+        or "No native attempt admission recorded")
+    local outcome = type(view.lastOutcome) == "table" and view.lastOutcome or nil
+    if outcome then
+        row(s, "Last native attempt", conflictText(outcome.kind, "Attempt") .. " / "
+            .. conflictText(outcome.status, "result unavailable")
+            .. (finite(outcome.atHours) and " at game hour " .. tostring(outcome.atHours) or " / time unavailable"))
+        row(s, "Attempt detail", conflictText(outcome.reason, "No native result detail recorded"))
+        row(s, "Threat after attempt", "Requires fresh perception; the attempt result does not establish that the threat is gone")
+    else
+        row(s, "Last native attempt", "No native attempt result recorded")
+    end
+    local alternatives = type(view.alternatives) == "table" and view.alternatives or {}
+    for index = 1, 4 do
+        local alternative = alternatives[index]
+        if type(alternative) == "table" then
+            local label = tostring(index)
+            local status = alternative.selected == true and "selected"
+                or alternative.continuing == true and "continuing"
+                or alternative.available == true and "available"
+                or alternative.available == false and "unavailable" or "availability unknown"
+            row(s, "Alternative " .. label, conflictText(alternative.kind, "Unspecified response") .. " / " .. status)
+            row(s, "Reason " .. label, conflictText(alternative.reason)
+                or conflictList(alternative.reasons, 3) or "No rationale recorded")
+            local objections = conflictList(alternative.objections, 3)
+            if objections then row(s, "Objection " .. label, objections) end
+            local effects = type(alternative.expectedEffects) == "table" and alternative.expectedEffects or {}
+            local expectations = {}
+            for effectIndex = 1, 2 do
+                local effect = effects[effectIndex]
+                if type(effect) == "table" then
+                    expectations[#expectations + 1] = conflictText(effect.concept, "Effect unknown")
+                        .. " (" .. (effect.status == "possible" and "possible" or "unresolved") .. ")"
+                        .. (conflictText(effect.basis) and ": " .. conflictText(effect.basis) or "")
+                end
+            end
+            if #expectations > 0 then row(s, "Expected effect " .. label, table.concat(expectations, "; ")) end
+        end
+    end
+    return true
+end
+local function planning(id, rec)
     local s = section("planning", "Purposes and next steps",
         "ProceduralPlanning person-private store",
         "Maintained intent, blockers and model interpretations")
+    local hasConflict = conflictPlanning(s, id)
+    local leisure = rec and rec.leisureDecision
+    if type(leisure) == "table" then
+        row(s, "Leisure decision hour", leisure.atHours or "unknown")
+        row(s, "Leisure selection status", leisure.status or "unknown")
+        row(s, "Selected leisure action", leisure.selected or "No available selection")
+        for index, alternative in ipairs(leisure.alternatives or {}) do
+            if index > 2 then break end
+            row(s, "Leisure alternative " .. tostring(index),
+                tostring(alternative.kind or "unknown") .. " / "
+                    .. tostring(alternative.itemType or "unknown item") .. " ["
+                    .. tostring(alternative.itemKey or "unknown identity") .. "]")
+        end
+        for index, model in ipairs(leisure.interpretations and leisure.interpretations.models or {}) do
+            if index > 2 then break end
+            row(s, "Leisure model " .. tostring(index), tostring(model.modelId or "unknown")
+                .. " selects " .. tostring(model.selected or "No available selection"))
+        end
+        row(s, "Leisure evidence boundary", "Decision and admission are separate from completed use or shared participation")
+    end
     local view = SAO.ProceduralPlanning and SAO.ProceduralPlanning.snapshot
         and SAO.ProceduralPlanning.snapshot(id) or nil
     if not view then
-        s.status, s.message = "unavailable", "No maintained planning state"
+        s.status = (hasConflict or type(leisure) == "table") and "available" or "unavailable"
+        s.message = hasConflict and "No other maintained planning state" or "No maintained planning state"
         return s
     end
     row(s, "Remembered spatial facts", view.spatialFacts or 0)
     row(s, "Practiced domains", view.practiceDomains or 0)
+    local queued = view.queuedPurposes or {}
+    for index, purpose in ipairs(queued) do
+        if index > 4 then break end
+        row(s, "Deferred purpose " .. tostring(index), tostring(purpose.id or "unknown")
+            .. " / " .. tostring(purpose.objective or purpose.key or "unknown purpose")
+            .. " / " .. tostring(purpose.status or "unknown")
+            .. " / " .. tostring(purpose.reason or "No reason recorded"))
+    end
+    if #queued > 4 then row(s, "Other deferred purposes", #queued - 4) end
+    local suspended = view.suspendedLeisure
+    if type(suspended) == "table" then
+        for index, purpose in ipairs(suspended.purposes or {}) do
+            if index > 4 then break end
+            row(s, "Deferred leisure " .. tostring(index), tostring(purpose.id or "unknown")
+                .. " / " .. tostring(purpose.activity or "unknown activity")
+                .. " / " .. tostring(purpose.status or "unknown")
+                .. " / " .. tostring(purpose.reason or "No reason recorded"))
+        end
+        if #(suspended.purposes or {}) > 4 then
+            row(s, "Other deferred leisure", #suspended.purposes - 4)
+        end
+        if (tonumber(suspended.omitted) or 0) > 0 then
+            row(s, "Older leisure records omitted", suspended.omitted)
+        end
+    end
+    local placement = rec and rec.recoveryPlacement
+    if placement then
+        row(s, "Resting place", tostring(placement.status or "unknown") .. " / "
+            .. tostring(placement.reason or "No reason recorded"))
+    end
+    local placeCheck = rec and rec.recoveryPlaceObservation
+    if placeCheck then
+        row(s, "Last recovery check", tostring(placeCheck.status or "unknown")
+            .. " at game hour " .. tostring(placeCheck.atHours or "unknown"))
+        if placeCheck.reason then row(s, "Recovery check detail", placeCheck.reason) end
+        row(s, "Place candidates", tostring(placeCheck.acceptedCount or 0)
+            .. " usable from " .. tostring(placeCheck.offeredCount or 0) .. " local offers")
+        local diagnostic = placeCheck.diagnostics or {}
+        if diagnostic.nativeAsleep ~= nil or diagnostic.nativeOnBed ~= nil then
+            row(s, "Observed recovery posture", "Asleep: " .. tostring(diagnostic.nativeAsleep)
+                .. " / on bed: " .. tostring(diagnostic.nativeOnBed))
+        end
+        if diagnostic.visibleBedParts ~= nil then
+            row(s, "Observed bed check", tostring(diagnostic.visibleBedParts)
+                .. " visible parts / " .. tostring(diagnostic.admissibleBeds or 0) .. " usable beds")
+            row(s, "Ground check", tostring(diagnostic.admissibleGround or 0) .. " clear places / "
+                .. tostring(diagnostic.groundRejectedVisibility or 0) .. " visibility refusals / "
+                .. tostring(diagnostic.groundRejectedClearance or 0) .. " clearance refusals")
+        end
+        for index, rejection in ipairs(diagnostic.bedRejections or {}) do
+            if index > 4 then break end
+            row(s, "Bed check " .. tostring(index), tostring(rejection.sprite or rejection.key or "Observed bed")
+                .. " / " .. tostring(rejection.reason or "Unspecified refusal"):gsub("%-", " "))
+        end
+    end
     if view.study then
-        row(s, "Study", tostring(view.study.subject) .. " / " .. tostring(view.study.status))
-        row(s, "Reading progress", tostring(view.study.pages) .. " of "
-            .. tostring(view.study.totalPages) .. " pages")
-        if view.study.reason then row(s, "Study interrupted by", view.study.reason) end
+        local reading = view.study
+        local readingPhase = tostring(reading.phase or "unconfirmed")
+        if reading.contentKind == "written-note" then
+            row(s, "Reading", "Written notes / " .. readingPhase)
+            row(s, "Text exposure", reading.exposureCompleted == true
+                and "Read; understanding unknown"
+                or (tonumber(reading.progress) or 0) > 0
+                    and "Reading underway; completion unconfirmed"
+                    or "No reading progress observed")
+        else
+            row(s, reading.kind == "leisure" and "Reading" or "Study",
+                tostring(reading.subject or reading.fullType or "Recorded book") .. " / "
+                .. readingPhase)
+            if tonumber(reading.totalPages) and tonumber(reading.totalPages) > 0 then
+                row(s, "Reading progress", tostring(reading.pages or 0) .. " of "
+                    .. tostring(reading.totalPages) .. " pages")
+            else
+                row(s, "Reading progress", (tonumber(reading.progress) or 0) > 0
+                    and "Native action progress observed" or "No native action progress observed")
+            end
+        end
+        if reading.reason then row(s, "Reading detail", reading.reason) end
     end
     for index = #(view.purposes or {}), 1, -1 do
         local purpose = view.purposes[index]
         row(s, "Purpose", tostring(purpose.objective) .. " / "
             .. tostring(purpose.status))
+        if purpose.inquiry then
+            local inquiry, connection = purpose.inquiry, {}
+            row(s, "Looking for", tostring(inquiry.desiredConcept or "an unresolved means")
+                .. " for " .. tostring(inquiry.goal or "the maintained purpose"))
+            for index, edge in ipairs(inquiry.path and inquiry.path.roots or {}) do
+                if index > 6 then break end
+                connection[#connection + 1] = tostring(edge.from):gsub("%-", " ") .. " "
+                    .. tostring(edge.relation):gsub("%-", " ") .. " "
+                    .. tostring(edge.into):gsub("%-", " ")
+            end
+            if #connection > 0 then row(s, "Expected connection", table.concat(connection, "; ")) end
+            row(s, "Knowledge status", "Personal expectation; local availability still requires observation and checking")
+            if #(inquiry.path and inquiry.path.missing or {}) > 0 then
+                row(s, "Still unknown", table.concat(inquiry.path.missing, ", "))
+            end
+        end
         if purpose.resourceOutcome then
             local goal, progress = purpose.resourceOutcome, purpose.outcomeProgress or {}
             local unit = goal.category == "food" and "food items" or "water units"
@@ -552,7 +742,7 @@ local function planning(id)
             row(s, "Model disagreement", "The models prefer different next routes")
         end
     end
-    if #(view.purposes or {}) == 0 then s.message = "No maintained purpose yet" end
+    if #(view.purposes or {}) == 0 and not hasConflict then s.message = "No maintained purpose yet" end
     return s
 end
 local function pressureFor(id)
@@ -577,7 +767,7 @@ local function samplePerson(id, rec, body, rich)
         currentAction(id, body), sourceWork(id, rec) }, events = {} }
     if rich then
         for _, value in ipairs({ lifeProfile(id, rec), medication(rec), preparation(id, rec),
-                horseState(id, rec, body), mobileHousehold(id), planning(id), inventory(body), processes(id) }) do
+                horseState(id, rec, body), mobileHousehold(id), planning(id, rec), inventory(body), processes(id) }) do
             out.sections[#out.sections + 1] = value
         end
         if SAO.Cognition and SAO.Cognition.snapshot then out.cognition = SAO.Cognition.snapshot(id) end

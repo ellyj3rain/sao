@@ -104,7 +104,7 @@ def call_text(src, open_paren):
 
 
 def literal_pattern(args):
-    """The LAST quoted string in a call's arguments, or None.
+    """The exact final argument, if it is a quoted pattern literal.
 
     Last, not first. `gmatch(tostring(line or ""), "[^|]+")` carries a
     quoted empty string in its SUBJECT, and a reader taking the first
@@ -119,17 +119,28 @@ def literal_pattern(args):
     """
     if args is None:
         return None
-    # A concatenation means the pattern is assembled rather than
-    # written. `"([^" .. sep .. "]+)"` has TWO literals and neither is
-    # the pattern - taking the last one gave `]+)`, which is not even
-    # valid on its own. Concatenation anywhere in the call is enough to
-    # say this cannot be read from the source.
-    if ".." in QUOTED.sub("", args):
-        return None
-    found = None
-    for m in QUOTED.finditer(args):
-        found = m.group(1)
-    return found
+    # Concatenation in the SUBJECT does not make the pattern dynamic.
+    # Split top-level arguments while preserving quoted commas/nesting.
+    start, depth, quote, i = 0, 0, None, 0
+    while i < len(args):
+        char = args[i]
+        if quote:
+            if char == "\\":
+                i += 2
+                continue
+            if char == quote:
+                quote = None
+        elif char in ('"', "'"):
+            quote = char
+        elif char in "([{":
+            depth += 1
+        elif char in ")]}":
+            depth -= 1
+        elif char == "," and depth == 0:
+            start = i + 1
+        i += 1
+    literal = QUOTED.fullmatch(args[start:].strip())
+    return literal.group(1) if literal else None
 
 # Patterns built at runtime, and why they cannot match empty.
 DYNAMIC = {
@@ -139,6 +150,30 @@ DYNAMIC = {
         "separator is, and `split` is only ever called with \"|\" and "
         "\":\" - single characters that are inert inside a set",
 }
+
+
+def registered_dynamic(name, args, src):
+    """Only the declared split construction and its actual inert separators.
+
+    A filename alone is not authority for another dynamic gmatch site. A new
+    construction or separator must be examined rather than inherit this claim.
+    """
+    if name != "SAO_Perception.lua" or args is None:
+        return None
+    compact = re.sub(r"\s+", "", args)
+    if compact != 's,"([^"..sep.."]+)"':
+        return None
+    calls = list(re.finditer(r"\bsplit\s*\(", src))
+    separators = []
+    for call in calls:
+        text = call_text(src, call.end() - 1)
+        if text == "s, sep":  # The registered function declaration.
+            continue
+        pattern = literal_pattern(text)
+        if pattern not in ("|", ":"):
+            return None
+        separators.append(pattern)
+    return (name, "split") if separators and set(separators) == {"|", ":"} else None
 
 
 def build():
@@ -188,11 +223,12 @@ def main():
         for m in ANY.finditer(src):
             total += 1
             line = src.count("\n", 0, m.start()) + 1
-            pat = literal_pattern(call_text(src, m.end() - 1))
+            args = call_text(src, m.end() - 1)
+            pat = literal_pattern(args)
             if pat is not None:
                 literal.setdefault(pat, []).append(f"{path.name}:{line}")
             else:
-                dynamic.append((path.name, line))
+                dynamic.append((path.name, line, registered_dynamic(path.name, args, src)))
 
     print(f"  gmatch call sites : {total}")
     print(f"  literal patterns  : {len(literal)}")
@@ -231,8 +267,7 @@ def main():
                         "line, the Lua thread simply stops. Require at least "
                         "one character")
 
-    for name, line in dynamic:
-        key = next((k for k in DYNAMIC if k[0] == name), None)
+    for name, line, key in dynamic:
         if key is None:
             faults.append(
                 f"{name}:{line} builds its gmatch pattern at runtime, so "
@@ -241,7 +276,7 @@ def main():
                 "will hang the game with nothing said")
 
     for key in sorted(DYNAMIC):
-        if not any(name == key[0] for name, _ in dynamic):
+        if not any(registered == key for _, _, registered in dynamic):
             faults.append(
                 f"DYNAMIC argues {key[0]}'s `{key[1]}` and it no longer "
                 "builds a pattern at runtime - the entry describes no code")

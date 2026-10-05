@@ -156,7 +156,7 @@ def main():
             if f"## {f}" not in findings:
                 faults.append(f"{rid} cites {f} and FINDINGS.md has no "
                               "such finding")
-        for b in set(re.findall(r"\[([ABC]\d+)\]", body)):
+        for b in set(re.findall(r"\[([A-Z]\d+)\]", body)):
             if b not in current_batches and b not in historical_batches:
                 faults.append(f"{rid} cites [{b}] and neither the current catalogue "
                               "nor its retained source generations has that batch")

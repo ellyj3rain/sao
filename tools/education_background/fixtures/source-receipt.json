@@ -1,0 +1,47 @@
+{
+  "schema": "sao-background-fixture-source-receipt/1",
+  "standing": "actual existing source owners with explicitly controlled fictional people; no assessment events",
+  "sourceGeneration": {
+    "command": [
+      "python",
+      "tools/education_background/source_fixture.py",
+      "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence",
+      "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r83-publisher-rights",
+      "_scratch\\d1-shared-reasoning\\background-priors\\source-3"
+    ],
+    "exit": 0,
+    "stdout": "PASS actual source reconstruction: [1, 0]",
+    "capture": "completion returned by exec session52066; initial full input hashes were not captured",
+    "compilerDeltaDuringRun": "CLI wrapper/imports added; build function remained unchanged",
+    "buildFunctionAstSha256": "b266b1a7e98aa29b48b3d25bc29845bd0b214ea4089192c7bb31fe07e568fa6f"
+  },
+  "inputInventoryAfterGeneration": {
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\decision_authoring.py": "3b7bfed0c39327fae6c8a95ccbc69fea35fa40cb56d8ab33ba096f1ba0a7b166",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\education_backgrounds.py": "f8af95b491fe10ae2940d1e1f00e8e952052792a0fc27ceb1aa182f8fb3e34fc",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\education_curriculum.py": "541fb2c6c8859b012390ca37f56846eed0bddcc4f04938cabb80c1656288439a",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\education_corpus.py": "0af721f524fb3f82d65241a0fdc0e6871d69144461a15a9fa7fc6078b587c9d6",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\education_learning.py": "f2b88f1e7beeda544955559f4e57a7addf447707daa55ffdedf6bc025380cf55",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\education_runtime_registry.py": "45ea82c2d8c301d168896f2e92129a9237123f506cd5249b72e6966c9f21332c",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\education_assessment.py": "c367ee6d90059305e27459f1a04cac91a4abb9e701c81d087dd82571aa24965b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r83-publisher-rights\\runs\\r84-rights-clean-foundation\\curriculum-v1.json": "c54a6e9a514cdf4204b7e3ad8b42df37fefa9f0e4b5d11ed5c51a91c435d67fd",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r83-publisher-rights\\runs\\r84-rights-clean-foundation\\assessment-bank-v1\\manifest.json": "0d49db0dd0082e5f7f979e14ece9998f77e66dc6c3beb3a2c9b657ad0ccdc696",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r83-publisher-rights\\runs\\r84-rights-clean-foundation\\source-archive-v1\\acquisition.json": "fa38d24ad254fb099559635b33a6df7f9a0896aceabc41525e7a06c2219fb1ee",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r83-publisher-rights\\runs\\r84-rights-clean-foundation\\source-archive-v1\\household-science\\source.txt": "33e8491494dcac35876eb50d5a7d88afeac456d75b2681e897914a7c81389017",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r83-publisher-rights\\runs\\r84-rights-clean-foundation\\source-archive-v1\\household-science\\source.json": "f04d9404ff6f9f0670c689b86e4c0f4c8737562ef68c443dfd85c2394e9b55ea"
+  },
+  "outputs": {
+    "registry.json": {
+      "bytes": 11725,
+      "sha256": "902c5dc823ff7f01adbfe80203a26390b8ac324990b1a4c92598ced280f600b0"
+    },
+    "source-evidence.json": {
+      "bytes": 171211,
+      "sha256": "ebc6f74121512a5995bea00909229da143a4a077aaa3768bc584b0d67ba60e28"
+    },
+    "world-definition.json": {
+      "bytes": 129,
+      "sha256": "001083f399d47ee52aba92fbca4b454472c97387fd4cfa021ce8448077748669"
+    }
+  },
+  "reuse": "Portable validator/consumer fixture copies exact successful producer output; recompiling source histories is a separate explicit external-owner check."
+}

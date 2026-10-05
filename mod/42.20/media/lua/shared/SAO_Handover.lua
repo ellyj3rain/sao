@@ -18,6 +18,7 @@ local MAX_DISTANCE = 6
 
 local storeMemo = nil
 local runtime = {}
+local retiring = {}
 local transferClass = nil
 local terminal = nil
 local lastReconcileAt = nil
@@ -82,7 +83,7 @@ local function trim(map, limit, mayRemove)
     while count >= limit do
         local oldestKey, oldestAt = nil, nil
         for key, value in pairs(map or {}) do
-            if mayRemove(value) then
+            if mayRemove(value, key) then
                 local at = tonumber(value.terminalAt or value.completedAt
                     or value.cancelledAt or value.createdAt
                     or value.acceptedAt) or 0
@@ -95,14 +96,16 @@ local function trim(map, limit, mayRemove)
         if oldestKey == nil then return false end
         map[oldestKey] = nil
         runtime[tostring(oldestKey)] = nil
+        retiring[tostring(oldestKey)] = nil
         count = count - 1
     end
     return true
 end
 
 local function trimRecords(s)
-    return trim(s.records, MAX_RECORDS, function(value)
+    return trim(s.records, MAX_RECORDS, function(value, key)
         return value and terminal(value.status)
+            and runtime[tostring(key)] == nil and retiring[tostring(key)] == nil
     end)
 end
 
@@ -143,6 +146,46 @@ local function bodyIdentity(body)
     return ok and identity(value) or nil
 end
 
+local function bodyToken(body)
+    local ok, token = pcall(function() return body:getModData().SAOExternalToken end)
+    return ok, token
+end
+
+-- Handover serves mapped native and foreign people. Their current Identity
+-- owner and generation must agree with the exact body at every callback.
+local function currentBody(id, body)
+    local ok, owned = pcall(function()
+        local person = SAO.Identity.get(id)
+        if not person or tostring(person.id) ~= id or person.dead
+            or person.zaoTransferPending or person.crossedTransferPending
+            or SAO.Body.get(id) ~= body then return false end
+        local data = body:getModData()
+        return data and tostring(data.SAOPersonId or "") == id
+            and data.SAOExternalToken == person.bodyOwnerToken
+            and data.SAOExternalOwner == person.bodyOwner
+    end)
+    return ok and owned == true
+end
+
+local function ownsAttempt(rec, live, action)
+    if not rec or not live or live.action ~= action or not action
+        or action.character ~= live.actorBody or action.saoHandoverId ~= tostring(rec.id)
+        or bodyIdentity(live.actorBody) ~= rec.actorId then return false end
+    local ok, token = bodyToken(live.actorBody)
+    if not ok or token ~= live.actorToken then return false end
+    if not currentBody(rec.actorId, live.actorBody) then return false end
+    return true
+end
+
+local function actionPresence(live)
+    local ok, queued, native = pcall(function()
+        local action = live.action
+        return ISTimedActionQueue.hasAction(action) == true,
+            action.action ~= nil and live.actorBody:getCharacterActions():contains(action.action)
+    end)
+    return ok, queued, native
+end
+
 local function inventories(body)
     if body == nil then return nil end
     local ok, value = pcall(function() return body:getInventory() end)
@@ -180,11 +223,6 @@ local function closeEnough(actorBody, recipientBody)
     if tonumber(az) ~= tonumber(bz) then return false end
     local dx, dy = tonumber(ax) - tonumber(bx), tonumber(ay) - tonumber(by)
     return dx * dx + dy * dy <= MAX_DISTANCE * MAX_DISTANCE
-end
-
-local function sameBodyId(expected, body)
-    local actual = bodyIdentity(body)
-    return actual ~= nil and actual == identity(expected)
 end
 
 local function effectCopy(effect)
@@ -338,6 +376,8 @@ local function setTerminal(rec, status, reason)
         t.legs[rec.termLeg].status = status
         finalizeTerm(rec.termsId)
     end
+    local active = runtime[tostring(rec.id)]
+    if active and active.action then retiring[tostring(rec.id)] = active end
     runtime[tostring(rec.id)] = nil
     if rec.commitmentId and SAO.Organization
         and SAO.Organization.consumeHandoverResult then
@@ -350,10 +390,30 @@ local function runtimeValid(rec, live)
     return rec and live and rec.status == "pending"
         and live.item ~= nil and live.actorBody ~= nil
         and live.recipientBody ~= nil
-        and sameBodyId(rec.actorId, live.actorBody)
-        and sameBodyId(rec.recipientId, live.recipientBody)
+        and currentBody(rec.actorId, live.actorBody)
+        and currentBody(rec.recipientId, live.recipientBody)
         and closeEnough(live.actorBody, live.recipientBody)
         and itemIn(live.item, live.sourceInventory)
+end
+
+local function reconcileTransfer(rec, live)
+    if not rec or rec.status ~= "pending" or not live
+        or not itemIn(live.item, live.destinationInventory)
+        or itemIn(live.item, live.sourceInventory) then return false end
+    rec.status, rec.completedAt = "completed", now()
+    local t = rec.termsId and term(rec.termsId) or nil
+    if t and t.legs and t.legs[rec.termLeg] then
+        t.legs[rec.termLeg].status = "completed"
+        finalizeTerm(rec.termsId)
+    else
+        applyRecordEffect(rec)
+    end
+    retiring[tostring(rec.id)] = live
+    runtime[tostring(rec.id)] = nil
+    if rec.commitmentId and SAO.Organization and SAO.Organization.consumeHandoverResult then
+        pcall(SAO.Organization.consumeHandoverResult, rec)
+    end
+    return true
 end
 
 local function ensureTransferClass()
@@ -377,6 +437,10 @@ local function ensureTransferClass()
     end
 
     function transferClass:update()
+        local rec = record(self.saoHandoverId)
+        local live = runtime[self.saoHandoverId]
+        if not ownsAttempt(rec, live, self) then return end
+        if live.cancelRequested then self:forceStop(); return end
         if self.saoOffSlot and self.saoFacingContainer then
             local ok, faced = pcall(function()
                 return SAOJavaBridge:faceTransferContainer(
@@ -390,7 +454,8 @@ local function ensureTransferClass()
     function transferClass:isValid()
         local rec = record(self.saoHandoverId)
         local live = rec and runtime[self.saoHandoverId] or nil
-        if not rec or not live or rec.status ~= "pending" then return false end
+        if not ownsAttempt(rec, live, self) or live.cancelRequested
+            or rec.status ~= "pending" then return false end
         local okBase, base = pcall(ISInventoryTransferAction.isValid, self)
         if not okBase or base ~= true then return false end
         return runtimeValid(rec, live)
@@ -399,7 +464,8 @@ local function ensureTransferClass()
     function transferClass:transferItem(item)
         local rec = record(self.saoHandoverId)
         local live = rec and runtime[self.saoHandoverId] or nil
-        if not rec or not live or not self:isValid() then
+        if not ownsAttempt(rec, live, self) then return false end
+        if not self:isValid() then
             self.dontAdd = true
             if rec and rec.status == "pending" then
                 setTerminal(rec, "interrupted", "invalid-before-transfer")
@@ -412,35 +478,43 @@ local function ensureTransferClass()
             setTerminal(rec, "conflict", "native-transfer-threw")
             return false
         end
-        if itemIn(live.item, live.destinationInventory)
-            and not itemIn(live.item, live.sourceInventory) then
-            rec.status = "completed"
-            rec.completedAt = now()
-            local t = rec.termsId and term(rec.termsId) or nil
-            if t and t.legs and t.legs[rec.termLeg] then
-                t.legs[rec.termLeg].status = "completed"
-                finalizeTerm(rec.termsId)
-            else
-                applyRecordEffect(rec)
-            end
-            runtime[tostring(rec.id)] = nil
-            if rec.commitmentId and SAO.Organization
-                and SAO.Organization.consumeHandoverResult then
-                pcall(SAO.Organization.consumeHandoverResult, rec)
-            end
-            return result
-        end
+        if reconcileTransfer(rec, live) then return result end
         setTerminal(rec, "conflict", "holder-mismatch")
         return false
     end
 
     function transferClass:stop()
         local rec = record(self.saoHandoverId)
-        local okBase, result = pcall(ISInventoryTransferAction.stop, self)
+        local live = runtime[self.saoHandoverId] or retiring[self.saoHandoverId]
+        if not ownsAttempt(rec, live, self) or self.saoStopped then return end
+        local presenceOK, queued, native = actionPresence(live)
+        if not presenceOK or not queued and not native then return end
+        self.saoStopped = true
+        reconcileTransfer(rec, live)
+        -- Installed inventory stop cleanup, with only this action retired.
+        -- ISBaseTimedAction.stop resets the entire shared queue.
+        pcall(function() self:playSourceContainerCloseSound() end)
+        pcall(function() self:playDestContainerCloseSound() end)
+        pcall(function() self:stopLoopingSound() end)
+        pcall(function() self.item:setJobDelta(0.0) end)
+        pcall(function() if self.action then self.action:setLoopedAction(false) end end)
+        pcall(function() removeItemTransaction(self.transactionId, true) end)
+        local q = ISTimedActionQueue.queues and ISTimedActionQueue.queues[self.character]
+        if q and q.current == self and q:indexOf(self) ~= -1 then q:onCompleted(self)
+        elseif q then q:removeFromQueue(self) end
+        self.started = false
         if rec and rec.status == "pending" then
-            setTerminal(rec, "interrupted", "action-stopped")
+            setTerminal(rec, "interrupted", live.cancelReason or "action-stopped")
         end
-        return okBase and result or nil
+    end
+
+    function transferClass:perform()
+        local rec = record(self.saoHandoverId)
+        local live = runtime[self.saoHandoverId] or retiring[self.saoHandoverId]
+        if not ownsAttempt(rec, live, self) or self.saoStopped
+            or ISTimedActionQueue.hasAction(self) ~= true then return end
+        if live.cancelRequested then self:stop(); return end
+        return ISInventoryTransferAction.perform(self)
     end
 
     function transferClass:new(character, item, sourceInventory,
@@ -570,8 +644,8 @@ function H.begin(actorId, actorBody, recipientId, recipientBody, item, kind,
     options = type(options) == "table" and options or {}
     if not s or not a or not b or a == b or actorBody == nil
         or recipientBody == nil or item == nil or type(kind) ~= "string"
-        or kind == "" or not sameBodyId(a, actorBody)
-        or not sameBodyId(b, recipientBody) or not closeEnough(actorBody,
+        or kind == "" or not currentBody(a, actorBody)
+        or not currentBody(b, recipientBody) or not closeEnough(actorBody,
             recipientBody) then
         return nil, "handover-access-refused"
     end
@@ -620,12 +694,15 @@ function H.begin(actorId, actorBody, recipientId, recipientBody, item, kind,
         commitmentId = identity(options.commitmentId),
     }
     s.records[id] = rec
-    runtime[id] = { item = item, actorBody = actorBody,
+    local tokenOK, token = bodyToken(actorBody)
+    if not tokenOK then setTerminal(rec, "released", "body-token-unavailable"); return nil, "body-token-unavailable" end
+    runtime[id] = { item = item, actorBody = actorBody, actorToken = token,
         recipientBody = recipientBody, sourceInventory = sourceInventory,
         destinationInventory = destinationInventory }
     local class = ensureTransferClass()
     local action = class and class.new(class, actorBody, item, sourceInventory,
         destinationInventory, id) or nil
+    runtime[id].action = action
     if not action or not queue(action) then
         runtime[id] = nil
         setTerminal(rec, "released", "queue-refused")
@@ -648,6 +725,51 @@ end
 
 function H.result(id)
     return record(id)
+end
+
+-- Cancellation is a request to this exact disposable native owner. A durable
+-- transfer result and release of the body are separate observations.
+function H.cancelAttempt(receiptId, actorId, actorBody, reason)
+    local rec = record(receiptId)
+    if not rec or rec.actorId ~= identity(actorId) then return false, "receipt-owner-mismatch" end
+    if not currentBody(rec.actorId, actorBody) then return false, "body-owner-mismatch" end
+    local live = runtime[tostring(rec.id)] or retiring[tostring(rec.id)]
+    if not live then
+        return terminal(rec.status), terminal(rec.status) and rec.status or "runtime-unavailable"
+    end
+    if live.actorBody ~= actorBody or not ownsAttempt(rec, live, live.action) then
+        return false, "attempt-owner-mismatch"
+    end
+    reconcileTransfer(rec, live)
+    live.cancelRequested = true
+    live.cancelReason = tostring(reason or "purpose-reconsidered")
+    local ok, queued, native = actionPresence(live)
+    if not ok then return false, "pending" end
+    local action = live.action
+    if native then
+        if not live.cancelIssued and not action.saoStopped then
+            local stopped = pcall(function() action:forceStop() end)
+            if stopped then live.cancelIssued = true end
+        end
+    elseif queued then
+        local q = ISTimedActionQueue.queues and ISTimedActionQueue.queues[actorBody]
+        if not q or q.character ~= actorBody or q:indexOf(action) == -1 then return false, "pending" end
+        if q.current == action then
+            action:stop()
+        else
+            local cancelled = pcall(function() action:forceCancel() end)
+            if not cancelled then return false, "pending" end
+            q:removeFromQueue(action)
+        end
+    end
+    ok, queued, native = actionPresence(live)
+    if not ok or queued or native then return false, "pending" end
+    reconcileTransfer(rec, live)
+    if rec.status == "pending" then
+        setTerminal(rec, itemIn(live.item, live.sourceInventory) and "interrupted" or "conflict", live.cancelReason)
+    end
+    retiring[tostring(rec.id)] = nil
+    return terminal(rec.status), rec.status
 end
 
 -- Consumers that react to a material transfer capture the current sequence at
@@ -699,21 +821,7 @@ function H.reconcile(force)
                     end)
                     hasQueue = okQueue
                 end
-                if itemIn(live.item, live.destinationInventory)
-                    and not itemIn(live.item, live.sourceInventory) then
-                    rec.status, rec.completedAt = "completed", now()
-                    local t = rec.termsId and term(rec.termsId) or nil
-                    if t and t.legs and t.legs[rec.termLeg] then
-                        t.legs[rec.termLeg].status = "completed"
-                        finalizeTerm(rec.termsId)
-                    else
-                        applyRecordEffect(rec)
-                    end
-                    runtime[tostring(rec.id)] = nil
-                    if rec.commitmentId and SAO.Organization
-                        and SAO.Organization.consumeHandoverResult then
-                        pcall(SAO.Organization.consumeHandoverResult, rec)
-                    end
+                if reconcileTransfer(rec, live) then
                     changed = changed + 1
                 elseif hasQueue and not actionPresent then
                     if itemIn(live.item, live.sourceInventory) then
@@ -731,6 +839,10 @@ function H.reconcile(force)
             and SAO.Organization and SAO.Organization.consumeHandoverResult then
             pcall(SAO.Organization.consumeHandoverResult, rec)
         end
+    end
+    for id, live in pairs(retiring) do
+        local ok, queued, native = actionPresence(live)
+        if ok and not queued and not native then retiring[id] = nil end
     end
     return changed
 end
@@ -756,6 +868,10 @@ function H.forgetPerson(personId)
             changed = changed + 1
         end
     end
+    for id, live in pairs(retiring) do
+        local rec = record(id)
+        if rec and (rec.actorId == target or rec.recipientId == target) then retiring[id] = nil end
+    end
     return changed
 end
 
@@ -770,6 +886,7 @@ function H.rebindWorld()
     storeMemo = nil
     lastReconcileAt = nil
     for key in pairs(runtime) do runtime[key] = nil end
+    for key in pairs(retiring) do retiring[key] = nil end
     return store() ~= nil
 end
 

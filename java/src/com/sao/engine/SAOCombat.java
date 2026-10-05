@@ -7,6 +7,9 @@ import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoZombie;
 import zombie.inventory.types.HandWeapon;
 import zombie.iso.IsoGridSquare;
+import zombie.iso.LosUtil;
+import zombie.inventory.InventoryItem;
+import java.util.Objects;
 
 /**
  * One controlled melee encounter through IsoPlayer's normal attack entry —
@@ -45,8 +48,226 @@ public final class SAOCombat {
     private int defenseWindowUntil;
     private boolean rangedMode;
 
+    // One actor-owned request, separate from the older encounter/gate driver.
+    private boolean bounded;
+    private String observedKind, observedKey, observedMode, actorId, terminal;
+    private Object actorToken;
+    private InventoryItem observedWeapon;
+    private boolean cancelRequested, requested, nativeCycleSeen, priorHandToHand;
+    private int startTicks;
+    private static final int NATIVE_START_LIMIT = 120;
+
+    private record Opportunity(IsoGameCharacter target, String mode, float distance,
+                               float reach, String refusal) {
+        String text() {
+            return refusal != null ? "REFUSED\t" + refusal
+                : "AVAILABLE\t" + mode + "\t" + distance + "\t" + reach;
+        }
+    }
+
+    private static Opportunity refused(String reason) {
+        return new Opportunity(null, null, 0, 0, reason);
+    }
+
+    /** Capability only. Disposition and Standing remain the calling person's owners. */
+    public static String opportunity(SAOIsoPlayerShell body, String kind, String key) {
+        return assess(body, kind, key, null).text();
+    }
+
+    private static Opportunity assess(SAOIsoPlayerShell body, String kind, String key, String mode) {
+        if (SAOConceptObservation.actor(body) == null) return refused("body-unavailable");
+        IsoGameCharacter other = SAOPerceptionScanner.observedCombatTarget(body, kind, key);
+        if (other == null) return refused("target-not-observed-now");
+        if (!zombie.CombatManager.checkPVP(body, other, false)) return refused("native-pvp");
+        IsoGridSquare from = body.getCurrentSquare(), to = other.getCurrentSquare();
+        if (from == null || to == null || from.getZ() != to.getZ()) return refused("floor");
+        var line = LosUtil.lineClear(body.getCell(), from.getX(), from.getY(), from.getZ(),
+            to.getX(), to.getY(), to.getZ(), false);
+        if (line != LosUtil.TestResults.Clear && line != LosUtil.TestResults.ClearThroughOpenDoor)
+            return refused("obstructed");
+        float dx = other.getX() - body.getX(), dy = other.getY() - body.getY();
+        float distance = (float)Math.sqrt(dx * dx + dy * dy);
+        if (!Float.isFinite(distance)) return refused("invalid-distance");
+        HandWeapon held = body.getPrimaryHandItem() instanceof HandWeapon value ? value : null;
+        float shoveReach = body.bareHands == null ? 0 : body.bareHands.getMaxRange(body);
+        boolean shove = shoveReach > 0 && distance <= shoveReach && body.canPerformHandToHandCombat()
+            && !other.isOnFloor() && !SAOPerceptionScanner.isProneOrCrawling(other);
+        // CombatManager.calculateAttackVars uses a strict .6 prone hand-to-hand
+        // range. Native targetOnGround/aimAtFloor are checked after admission too.
+        float stompReach = Math.min(shoveReach, .6f);
+        boolean stomp = stompReach > 0 && distance < stompReach && body.canPerformHandToHandCombat()
+            && (other.isOnFloor() || SAOPerceptionScanner.isProneOrCrawling(other));
+        boolean weapon = held != null && !held.isBroken();
+        float reach = weapon ? held.getMaxRange(body) : 0;
+        boolean inRange = Float.isFinite(reach) && reach > 0 && distance <= reach;
+        boolean ranged = weapon && held.isRanged() && !held.isJammed()
+            && (held.haveChamber() ? held.isRoundChambered() && !held.isSpentRoundChambered()
+                : held.getCurrentAmmoCount() >= Math.max(1, held.getAmmoPerShoot()))
+            && distance >= held.getMinRangeRanged() && inRange;
+        boolean melee = weapon && SAOEquipment.meleeScore(held) != Float.NEGATIVE_INFINITY && inRange;
+        if (mode == null) mode = ranged ? "ranged" : melee ? "melee" : stomp ? "stomp" : shove ? "shove" : null;
+        boolean available = "shove".equals(mode) ? shove : "melee".equals(mode) ? melee
+            : "stomp".equals(mode) ? stomp : "ranged".equals(mode) && ranged;
+        if (!available) return refused("no-physical-" + (mode == null ? "action" : mode));
+        return new Opportunity(other, mode, distance, "shove".equals(mode) ? shoveReach
+            : "stomp".equals(mode) ? stompReach : reach, null);
+    }
+
+    /** Adjacent observed candidates only; a MOVE row is not a safe-route promise. */
+    public static String localMoves(SAOIsoPlayerShell body) {
+        if (SAOConceptObservation.actor(body) == null) return "REFUSED\tbody-unavailable";
+        IsoGridSquare from = body.getCurrentSquare();
+        StringBuilder result = new StringBuilder();
+        for (int dx = -1; dx <= 1; dx++) for (int dy = -1; dy <= 1; dy++) {
+            if (dx == 0 && dy == 0) continue;
+            IsoGridSquare next = body.getCell().getGridSquare(from.getX() + dx, from.getY() + dy, from.getZ());
+            if (!SAOPerceptionScanner.canSeeWorldSquareNow(body, next, 3)
+                    || !next.isSolidFloor() || next.isSolid() || next.isSolidTrans()
+                    || next.HasStairs() || next.HasStairsBelow() || !next.isFree(false)
+                    || from.isBlockedTo(next)) continue;
+            boolean occupied = false;
+            for (var moving : next.getMovingObjects())
+                if (moving instanceof IsoGameCharacter && moving != body) { occupied = true; break; }
+            if (occupied) continue;
+            if (result.length() > 0) result.append('\n');
+            result.append("MOVE\t").append(next.getX() + .5f).append('\t')
+                .append(next.getY() + .5f).append('\t').append(next.getZ());
+        }
+        return result.toString();
+    }
+
+    public boolean isBounded() { return bounded; }
+    public boolean hasCommitment() {
+        return shell != null && (bounded ? terminal == null
+            : !("IDLE".equals(phase) || "FAILED".equals(phase) || "SUCCEEDED".equals(phase)));
+    }
+
+    public String beginObserved(SAOIsoPlayerShell body, String kind, String key, String mode) {
+        if (hasCommitment()) return "COMBAT_FAILED BODY_COMMITTED";
+        Opportunity offer = assess(body, kind, key, mode);
+        if (mode == null || offer.refusal != null)
+            return "COMBAT_FAILED " + (offer.refusal == null ? "invalid-mode" : offer.refusal);
+        if (nativeOwnsBody(body) || body.isAttackStarted() || body.isAttacking()
+                || unavailablePosture(body)) return "COMBAT_FAILED NATIVE_BODY_BUSY";
+        SwipeStatePlayer.instance();
+        if (!SAOCombatGate.isPatchReady()) return "COMBAT_FAILED CALLBACK_PATCH_NOT_READY";
+        reset();
+        bounded = true; shell = body; target = offer.target;
+        actorId = SAOConceptObservation.actor(body); actorToken = body.getModData().rawget("SAOExternalToken");
+        observedKind = kind; observedKey = key; observedMode = mode; observedWeapon = body.getPrimaryHandItem();
+        priorHandToHand = body.isAuthorizedHandToHand();
+        phase = "OBSERVED_READY";
+        return "COMBAT_STARTED mode=" + mode + " bounded=true";
+    }
+
+    private static boolean unavailablePosture(SAOIsoPlayerShell body) {
+        var current = body.getCurrentState();
+        return body.isOnFloor() || body.isSitOnGround() || body.isSittingOnFurniture()
+            || body.isOnBed() || body.isClimbing() || body.isBeingGrappled()
+            || body.getVehicle() != null || body.hasPath() || body.playerMoveDir.getLengthSquared() > .0001f
+            || current == zombie.ai.states.ClimbOverFenceState.instance()
+            || current == zombie.ai.states.ClimbThroughWindowState.instance()
+            || current == zombie.ai.states.ClimbOverWallState.instance()
+            || body.getActionContext().hasEventOccurred("EventClimbFence")
+            || body.getActionContext().hasEventOccurred("EventClimbWindow")
+            || !body.getCharacterActions().isEmpty();
+    }
+
+    private static boolean attackOwnsBody(SAOIsoPlayerShell body) {
+        String state = String.valueOf(body.getCurrentActionContextStateName()).toLowerCase(java.util.Locale.ROOT);
+        return body.isPerformingAttackAnimation() || body.isPerformingShoveAnimation() || body.isPerformingStompAnimation()
+            || body.getCurrentState() == SwipeStatePlayer.instance()
+            || state.contains("attack") || state.contains("shove") || state.contains("stomp");
+    }
+
+    private static boolean nativeOwnsBody(SAOIsoPlayerShell body) {
+        String state = String.valueOf(body.getCurrentActionContextStateName()).toLowerCase(java.util.Locale.ROOT);
+        return attackOwnsBody(body) || state.contains("hitreaction") || body.isBeingGrappled()
+            || body.getCurrentState() == zombie.ai.states.PlayerHitReactionState.instance()
+            || body.getCurrentState() == zombie.ai.states.PlayerHitReactionPVPState.instance();
+    }
+
+    private boolean sameOwner() {
+        return actorId != null && actorId.equals(SAOConceptObservation.actor(shell))
+            && Objects.equals(actorToken, shell.getModData().rawget("SAOExternalToken"));
+    }
+
+    public String cancelObserved() {
+        if (!bounded || terminal != null) return "COMBAT_CANCELLED";
+        cancelRequested = true;
+        return "COMBAT_HELD".equals(tickObserved()) ? "COMBAT_HELD" : "COMBAT_CANCELLED";
+    }
+
+    private String finishObserved(String result) {
+        if (sameOwner()) {
+            clearAttackIntent();
+            shell.setDoShove(false);
+            shell.setAuthorizedHandToHand(priorHandToHand);
+            shell.clearVariable("AttackType");
+        }
+        terminal = result; phase = "OBSERVED_DONE";
+        return result;
+    }
+
+    private String tickObserved() {
+        if (terminal != null) return terminal;
+        if (!sameOwner()) {
+            terminal = "COMBAT_FAILED BODY_OWNER_CHANGED";
+            return terminal; // A successor owner is never cleaned up by this commitment.
+        }
+        if (nativeOwnsBody(shell)) {
+            if (requested && attackOwnsBody(shell)) {
+                nativeCycleSeen = true;
+                shell.setInitiateAttack(false);
+                setAiAttackIntent(true, false);
+            }
+            return "COMBAT_HELD";
+        }
+        if (cancelRequested) return finishObserved("COMBAT_CANCELLED");
+        if (nativeCycleSeen) return finishObserved("COMBAT_COMPLETED attempt=1 outcome=unattributed");
+        if (requested) {
+            if (++startTicks >= NATIVE_START_LIMIT) return finishObserved("COMBAT_FAILED NO_NATIVE_START");
+            return "COMBAT_PENDING";
+        }
+        Opportunity fresh = assess(shell, observedKind, observedKey, observedMode);
+        if (fresh.refusal != null || fresh.target != target || shell.getPrimaryHandItem() != observedWeapon
+                || unavailablePosture(shell)) return finishObserved("COMBAT_FAILED ADMISSION_CHANGED");
+        faceTarget();
+        shell.setAttackTargetSquare(target.getCurrentSquare());
+        boolean shove = "shove".equals(observedMode);
+        boolean stomp = "stomp".equals(observedMode);
+        boolean handToHand = shove || stomp;
+        boolean floor = stomp || !shove && (target.isOnFloor() || SAOPerceptionScanner.isProneOrCrawling(target));
+        applyCombatStance(false, floor);
+        if (!handToHand && (++aimTicks < AIM_SETTLE_TICKS || !shell.isWeaponReady())) {
+            if (aimTicks >= NATIVE_START_LIMIT) return finishObserved("COMBAT_FAILED WEAPON_NOT_READY");
+            return "COMBAT_AIMING ticks=" + aimTicks;
+        }
+        shell.setAuthorizeShoveStomp(handToHand || floor);
+        shell.setAuthorizedHandToHand(handToHand || priorHandToHand);
+        shell.setDoShove(handToHand);
+        shell.useChargeDelta = 36.0f;
+        requested = true;
+        try {
+            shell.pressedAttack();
+        } catch (Throwable error) {
+            SAOAgent.log("observed combat request threw: " + error);
+            cancelRequested = true;
+            return nativeOwnsBody(shell) ? "COMBAT_HELD" : finishObserved("COMBAT_FAILED NATIVE_REQUEST_ERROR");
+        }
+        // pressedAttack owns admission. Do not fabricate its acceptance flags.
+        if (!shell.isAttackStarted() && !shell.isInitiateAttack())
+            return finishObserved("COMBAT_FAILED NATIVE_REFUSED");
+        if (stomp && (!shell.isDoStomp() || shell.targetOnGround != target))
+            return finishObserved("COMBAT_FAILED NATIVE_STOMP_TARGET_NOT_ADMITTED");
+        setAiAttackIntent(true, true);
+        phase = "OBSERVED_REQUESTED";
+        return "COMBAT_PENDING";
+    }
+
     public String begin(SAOIsoPlayerShell activeShell, IsoGameCharacter combatTarget,
                         boolean live) {
+        if (bounded && hasCommitment()) return "COMBAT_FAILED BODY_COMMITTED";
         reset();
         if (activeShell == null || combatTarget == null) {
             return "COMBAT_FAILED INVALID_TARGET";
@@ -113,6 +334,7 @@ public final class SAOCombat {
     }
 
     public String tick() {
+        if (bounded) return tickObserved();
         if (shell == null || target == null) {
             return "COMBAT_IDLE";
         }
@@ -305,7 +527,12 @@ public final class SAOCombat {
     }
 
     public void reset() {
-        if (shell != null) {
+        if (bounded && terminal == null) {
+            cancelObserved();
+            if (terminal == null) return;
+        }
+        boolean clearLegacy = !bounded;
+        if (shell != null && clearLegacy) {
             try {
                 clearAttackIntent();
             } catch (Throwable ignored) {
@@ -330,6 +557,10 @@ public final class SAOCombat {
         liveCombat = false;
         defenseWindowUntil = 0;
         rangedMode = false;
+        bounded = false; observedKind = null; observedKey = null; observedMode = null;
+        actorId = null; actorToken = null; observedWeapon = null; terminal = null;
+        cancelRequested = false; requested = false; nativeCycleSeen = false;
+        priorHandToHand = false; startTicks = 0;
     }
 
     public String phase() {

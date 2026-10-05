@@ -231,7 +231,9 @@ def main():
         return 0
     receipt={'schema':'sao-route-progress/1','status':'running','controls':[],
              'sources':{str(p):hashlib.sha256((ROOT/p).read_bytes()).hexdigest()
-                        for p in (LOCO,COORD,ORG,STATE,BRIDGE)}}
+                        for p in (LOCO,COORD,ORG,STATE,BRIDGE,Path('tools/route_progress_test.py'))},
+             'nativeDependencies':{str(p):hashlib.sha256(p.read_bytes()).hexdigest()
+                                   for p in (ROOT/'mod/42.20/media/java/SAO.jar',game/'projectzomboid.jar',game/'ZombieBuddy.jar')}}
     output=args.output.resolve() if args.output else None
     if output: output.mkdir(parents=True,exist_ok=True)
     try:
@@ -308,16 +310,18 @@ def main():
             (work/'RouteProgressProbe.java').write_text(JAVA_PROBE,encoding='utf-8')
             state=(ROOT/STATE).read_text(encoding='utf-8')
             (work/'SAORouteState.java').write_text(state,encoding='utf-8')
-            code,text=run([jdk/'javac.exe','-d',work,work/'SAORouteState.java',work/'RouteProgressProbe.java'],'compile-native')
+            installed_cp=os.pathsep.join(map(str,[ROOT/'mod/42.20/media/java/SAO.jar',game/'projectzomboid.jar',game/'ZombieBuddy.jar']))
+            route_cp=os.pathsep.join([str(work),installed_cp])
+            code,text=run([jdk/'javac.exe','-cp',installed_cp,'-d',work,work/'SAORouteState.java',work/'RouteProgressProbe.java'],'compile-native')
             assert code==0,text
-            code,text=run([jdk/'java.exe','-cp',work,'RouteProgressProbe'],'native-production')
+            code,text=run([jdk/'java.exe','-cp',route_cp,'RouteProgressProbe'],'native-production')
             assert code==0 and 'PASS native route progress 6' in text,text
             receipt['nativeCases']=6
             old='(node == null ? -1 : routeIndex)';assert state.count(old)==1
             (work/'SAORouteState.java').write_text(state.replace(old,'(node == null ? -1 : 0)',1),encoding='utf-8')
-            code,text=run([jdk/'javac.exe','-d',work,work/'SAORouteState.java',work/'RouteProgressProbe.java'],'compile-native-control')
+            code,text=run([jdk/'javac.exe','-cp',installed_cp,'-d',work,work/'SAORouteState.java',work/'RouteProgressProbe.java'],'compile-native-control')
             assert code==0,text
-            code,text=run([jdk/'java.exe','-cp',work,'RouteProgressProbe'],'native-control')
+            code,text=run([jdk/'java.exe','-cp',route_cp,'RouteProgressProbe'],'native-control')
             assert code!=0 and 'actual_node_advance_visible' in text,text
             receipt['controls'].append({'name':'native-node-advance-hidden','assertion':'actual_node_advance_visible','rejected':True})
             bridge=(ROOT/BRIDGE).read_text(encoding='utf-8')
@@ -327,7 +331,6 @@ def main():
             assert (game/'ZombieBuddy.jar').is_file()
             bridge_work=work/'bridge-proof';bridge_work.mkdir()
             (bridge_work/'RouteBridgeProbe.java').write_text(JAVA_BRIDGE_PROBE,encoding='utf-8')
-            installed_cp=os.pathsep.join(map(str,[ROOT/'mod/42.20/media/java/SAO.jar',game/'projectzomboid.jar',game/'ZombieBuddy.jar']))
             code,text=run([jdk/'javac.exe','-cp',installed_cp,'-d',bridge_work,bridge_work/'RouteBridgeProbe.java'],'compile-actual-bridge')
             assert code==0,text
             sandbox=work/'bridge-home';sandbox.mkdir()

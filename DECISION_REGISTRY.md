@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.11.1.0-pre-alpha` |
+| Version | `3.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1949,3 +1949,134 @@ C120 and its local recovery owners remain unmerged, with rendered acceptance
 and redistribution conditions open. `Batches/C_PUBLICATION_AVAILABILITY.json`
 records the two C34 owners absent from this public runtime using exact preserved
 archive and source-record pins. D1 remains OPEN and its runtime is separate.
+
+## DR-057 | 2026-10-04 06:43 UTC / 23:43 PST | Aggression, defense and cooperation
+
+**Status.** RATIFIED by the operator's live Rosewood observations and shared
+reasoning direction.
+
+**Decision.** Conflict uses the same person-private observe, orient, decide and
+act composition as other activity. Ordinary-life knowledge supports expectations
+about harm, separation, resistance, communication and mutual support before the
+person has experienced every circumstance. Particular threats, available ground,
+capabilities and another person's conduct require personal evidence. An encounter
+retains beliefs, purposes, alternatives, conditional consequences, objections,
+accepted commitments and the results of actual attempts.
+
+The person may engage, defend, reposition, withdraw, hold ground, seek help,
+coordinate, coerce or attempt agreement according to their beliefs and concerns.
+Costly resistance, recklessness and self-destructive beliefs belong to the model's
+expressive scope. Threat kind and observed conduct matter to the available social
+and physical responses. Hostile people, infected bodies and future opponent types
+share this reasoning structure while retaining their own capabilities and social
+meaning. Political collaboration, communal organization and authoritarian control
+can consume the same concepts and accepted-process boundaries as individual
+encounters.
+
+**Application.** Perception owns acquired local evidence; ConceptKnowledge owns
+defeasible associations; Disposition and accepted responsibilities supply personal
+concerns; Cognition compares conditional arguments; ProceduralPlanning retains the
+encounter and authentic feedback. Standing owns permission. Native combat,
+Locomotion, Posture, Communication, Handover and Organization own their respective
+attempts, body custody, reception, assent and consequences. An active native
+segment retains its body until safe handback. Changed evidence reopens appraisal.
+Failed movement informs the next route choice. A completed swing does not identify
+who caused a wound, and a received demand does not establish compliance.
+
+The first D1 conflict implementation is a bounded foundation. Explicit acquisition
+of wider ideologies and self-destructive convictions, joint attack procedures,
+opponent-specific pacification and institutional consumers require their own
+producer, interpretation, permission, execution and observation joins. Their
+ratification does not count them as delivered. Deaths and unsuccessful encounters
+remain causal evidence; the observation run retains native consequences.
+
+**Knowledge clarification, 2026-10-04.** The operator distinguishes a perceived
+sound from its inferred cause. Hearing a disturbance supplies evidence of that
+sound and its approximate origin. Interpretation depends on this person's prior
+knowledge, acquired experience, reports and circumstances at this stage of the
+apocalypse. An experienced survivor may suspect infected; an uninformed person
+may consider ordinary causes. The cause remains uncertain until supported by
+further evidence. World age alone does not grant everyone the same knowledge.
+
+A study may deliberately begin without outbreak awareness. The study records
+that starting condition separately from ordinary-life knowledge, world conditions
+and personal experience. Such a specimen retains ordinary conceptual associations
+unless their absence is itself the declared experiment. The current Rosewood
+specimen has zero initial mutation experience and inherited visible-infected
+recognition; it does not establish a configurable outbreak-naive implementation.
+
+**Playback clarification, 2026-10-04.** Recorded native video and synchronized
+person identities, physical positions, private observations and admitted actions
+support examination of encounter geometry. The operator's observed absence of
+effective defense requires tracing whether an option was perceived, physically
+available, selected, admitted and executed. A route arrival records movement to
+its endpoint; escape and protection require separate evidence about the ensuing
+threat and bodily consequences. Replay retention covers each native attempt and
+records missing intervals explicitly. Injuries and deaths remain part of the
+retained specimen and subsequent continuation.
+
+**Modeling use, 2026-10-04.** Post Latent is an existing project started by the
+operator and Pico, managed by Pico with Sesame under Pico's direction. The
+operator asks about using this evidence for that project's modeling, physics and
+sound expression. Its architecture and intake contract require verification
+before compatibility is claimed; SAO's evidence preparation preserves that
+project ownership. Replay and
+observation preserve separate world events, person-private perceptions,
+interpretations, attempted actions, native admission, physical consequences and
+expression. Infrastructure refusals retain their technical provenance. Position
+samples retain their sampling interval; sound records retain their supplied
+acoustic information; expression records retain emission and reception as
+distinct events. Missing video, unrecorded acoustic properties and unmeasured
+contacts remain explicit gaps in any derived modeling dataset. This direction
+does not establish a trained model or a complete physics/audio corpus.
+
+The operator identifies the Alchemist's Lab Slack workspace as continuing project
+context and supplies its workspace invite. After the operator adds the app,
+workspace access and reads of the `codev` channel are verified in this chat.
+Following Pico and Sesame's work should inform where shared conceptual and
+implementation boundaries can form, including how each project represents
+physical events, sensory evidence, interpretation and expression. Candidate
+connections require the projects' actual contracts and evidence. Post Latent's
+repository entry point, continuity contract, subject example and current audit
+event were read at commit `44e1863fea7f0b438854492b37a5a80c138fc336`.
+Initial plugin installation exposed no channel tools; adding the app resolved
+that access gap in the existing chat. These reads establish access and initial
+context; no automatic background monitor or shared implementation is claimed.
+
+The operator subsequently authorizes Pico's Post Latent work to access and use
+SAO motion and sensory observation data. That authorization, local source
+locations, study identity and evidence limits were relayed in Slack `codev`
+message `1791107458.607499`. A portable intake retains hashes, clocks, identity,
+measurement scope and known missing intervals; authorization does not by itself
+establish that a cloud collaborator has received the local files.
+
+Pico and Sesame acknowledged the authorization. Pico requested a hold on actual
+data transfer while resolving a clarification on his side; the SAO session
+provided pinned governance and executable record-format entry points in Slack
+message `1791107847.109359`. Pico will return a proposed identity/history/condition
+mapping with separate evidence and interpretation, plus explicit geometry roles,
+for peer review before treating it as an integration contract.
+
+The earlier recipient hold is subsequently lifted: Pico reports the bounded
+fictional-NPC request accepted after the operator reiterated authorization.
+Slack messages `1791109384.811019` and `1791109626.781049` preserve mutual
+physical-interface scope and the canonical DR-053 integration reference.
+SAO owns reasoning and execution; Pico manages Post-Latent and Sesame's
+physical representation. The authorized first intake is a bounded attempt-2
+action/outcome slice with clocks, provenance and original failure history.
+
+**Portable transfer, 2026-10-04.** The operator approves the reviewed packet,
+the existing Alchemist's Lab `codev` thread and its accompanying comment with
+"Approval for all". The approved destination receives Slack file `F0C6MG52QUA`,
+`post-latent-sao-urgent-join-v1.zip`: 2,881,694 bytes, SHA-256
+`ff2f0da4a13d90015df14a55f891b248da4b06c1d15dcbd186a9884aabf49ff0`.
+Its independent packaging review verifies the 35-member inventory and original
+input bytes. The archive preserves three response cases, eight final media
+fragments and initialization, the original incomplete native verdict,
+fourteen qualified/two unknown final camera pairs and the unobserved result of
+the final new shove. Runtime source remains referenced by hash. The exact
+attachment is shared; recipient download and byte authentication remain
+unconfirmed. Slack message `1791145564.769829` gives Pico the manifest and
+materialization instructions. The newer successful reading trial is separate
+evidence and does not correct the retained native failure. The operator is
+awake and directs continued work; no logoff message is sent.

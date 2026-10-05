@@ -329,9 +329,35 @@ end
 -- old and lose the recent - as a number of ours), and the haunted
 -- keep a threat half again as long (Scotty's hypervigilance).
 function Cn.memoryFactor(id, kind)
+    local age = ageOf(id)
+    local metadata = { status = "legacy", ageSource = "SAO.History.ageOf",
+        reason = "calendar-api-unavailable" }
+    if SAO.History and type(SAO.History.calendarAgeOf) == "function" then
+        local ok,projection = pcall(SAO.History.calendarAgeOf,id)
+        metadata.status,metadata.reason = "unavailable","calendar-age-unavailable"
+        if ok and type(projection) == "table" then
+            -- The owner returns a fresh table; retain only its declared fields.
+            metadata.ageProjection = {}
+            for _,key in ipairs({"actorId","status","reason","currentInstant","birthYear",
+                "precision","nominalAge","minimumAge","maximumAge","baselineAge",
+                "birthdayKnown","source"}) do
+                metadata.ageProjection[key] = projection[key]
+            end
+            metadata.reason = projection.reason or metadata.reason
+            if projection.status == "available" and projection.actorId == id
+                and projection.precision == "birth-year" and projection.birthdayKnown == false
+                and type(projection.nominalAge) == "number" and projection.nominalAge >= 0
+                and projection.nominalAge == math.floor(projection.nominalAge)
+                and projection.nominalAge ~= math.huge then
+                age = projection.nominalAge
+                metadata.status,metadata.reason = "available",nil
+                metadata.ageSource = "SAO.History.calendarAgeOf"
+            end
+        end
+    end
     local factor = 1.0
     if Cn.has(id, "dementia") then factor = factor * 0.5 end
-    if ageOf(id) >= 75 then factor = factor * 0.8 end
+    if age >= 75 then factor = factor * 0.8 end
     if kind == "zombies" and Cn.has(id, "ptsd") then factor = factor * 1.5 end
     -- [C125] Neuroinflammation degrades cognitive clarity and retention
     if SAO.Neuro and SAO.Neuro.isActive and SAO.Neuro.isActive() then
@@ -341,7 +367,7 @@ function Cn.memoryFactor(id, kind)
             factor = factor * math.max(0.2, clarity)
         end
     end
-    return factor
+    return factor, metadata
 end
 
 

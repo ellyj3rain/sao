@@ -40,7 +40,7 @@ import zombie.scripting.objects.CharacterTrait;
  *     not eyes in the back of the head): full range inside +-72 degrees of
  *     facing, 2.5 tiles otherwise;
  *   - tile occlusion via IsoGridSquare.isSomethingTo between eye and target;
- *   - same floor only (Z changes are not yet modeled anywhere in SAO).
+ *   - native three-dimensional line of sight across loaded floors.
  */
 public final class SAOPerceptionScanner {
 
@@ -61,6 +61,7 @@ public final class SAOPerceptionScanner {
         final String epoch = UUID.randomUUID().toString();
         long next;
         WeakHashMap<IsoGameCharacter, String> previous = new WeakHashMap<>();
+        WeakHashMap<IsoGameCharacter, String> persons = new WeakHashMap<>();
         SightTracks(IsoCell value) { cell = new WeakReference<>(value); }
         String track(IsoGameCharacter body) {
             String prior = previous.get(body);
@@ -181,6 +182,7 @@ public final class SAOPerceptionScanner {
             SIGHT_TRACKS.put(shell, tracks);
         }
         WeakHashMap<IsoGameCharacter, String> visible = new WeakHashMap<>();
+        tracks.persons = new WeakHashMap<>();
         Set<SightTile> requested = knownSightTiles(knownTiles);
         Set<SightTile> uncertain = new HashSet<>();
         float sx = shell.getX();
@@ -188,7 +190,10 @@ public final class SAOPerceptionScanner {
         float sz = shell.getZ();
         float faceX = SAOSenses.gazeX(shell);
         float faceY = SAOSenses.gazeY(shell);
-        if (!Float.isFinite(faceX) || !Float.isFinite(faceY)) return "";
+        if (!Float.isFinite(faceX) || !Float.isFinite(faceY)) {
+            tracks.previous.clear();
+            return "";
+        }
 
         StringBuilder out = new StringBuilder(256);
         appendExteriorBuildings(out, shell);
@@ -220,6 +225,8 @@ public final class SAOPerceptionScanner {
                 // never one of the dead - the trust web opens cross-mod.
                 appendIfVisible(out, "P", SAOKnox.knoxName(zombie),
                     eye, sx, sy, sz, faceX, faceY, zombie);
+                String knoxLabel = SAOKnox.knoxName(zombie);
+                if (inSight && knoxLabel != null) tracks.persons.put(zombie, clean(knoxLabel));
                 continue;
             }
             if (inSight && !visible.containsKey(zombie)) {
@@ -283,6 +290,8 @@ public final class SAOPerceptionScanner {
                 }
                 appendIfVisible(out, "P", label,
                     eye, sx, sy, sz, faceX, faceY, person);
+                if (label != null && canSeePersonNow(shell, person, RANGE))
+                    tracks.persons.put(person, clean(label));
             }
         }
 
@@ -415,6 +424,28 @@ public final class SAOPerceptionScanner {
         return tiles;
     }
 
+    /** Resolve only this observer's last admitted sight record, then recheck sight.
+     * Duplicate names are ambiguous, never permission to substitute another body. */
+    public static synchronized IsoGameCharacter observedCombatTarget(
+            IsoGameCharacter observer, String kind, String key) {
+        if (observer == null || key == null || key.isBlank() || key.length() > 256) return null;
+        SightTracks tracks = SIGHT_TRACKS.get(observer);
+        if (tracks == null || tracks.cell.get() != observer.getCell()) return null;
+        var records = "zombie".equals(kind) ? tracks.previous : "person".equals(kind) ? tracks.persons : null;
+        if (records == null) return null;
+        IsoGameCharacter found = null;
+        for (var entry : records.entrySet()) {
+            if (!key.equals(entry.getValue())) continue;
+            if (found != null && found != entry.getKey()) return null;
+            found = entry.getKey();
+        }
+        if (found == null || found.isDead() || !found.isExistInTheWorld()
+                || found.getCell() != observer.getCell()
+                || !canSeePersonNow(observer, found, RANGE)) return null;
+        if (found instanceof IsoZombie zombie && zombie.isUseless()) return null;
+        return found;
+    }
+
     private static boolean wholeTileVisible(IsoGameCharacter observer, IsoGridSquare square) {
         if (square == null) return false;
         // Every corner must fit the shorter prone-body range and facing cone.
@@ -461,6 +492,7 @@ public final class SAOPerceptionScanner {
                 out.append("+p");
             }
             appendZaoForm(out, other);
+            out.append(":floor:").append((int) Math.floor(other.getZ()));
         }
         // The turned are recognizable ([B3], corrected [C8]): descriptors
         // do NOT survive the turn - reanimate() builds the zombie a fresh
@@ -506,7 +538,7 @@ public final class SAOPerceptionScanner {
     /**
      * [C60] Current physical visibility for an action participant. The
      * candidate still has to come from the observer's belief store; this is
-     * the use-time recheck against the same floor, facing and occlusion law
+     * the use-time recheck against the facing and native occlusion law
      * used by acquisition.
      */
     public static boolean canSeePersonNow(IsoGameCharacter observer,
@@ -740,7 +772,14 @@ public final class SAOPerceptionScanner {
             float requestedRange) {
         float ox = other.getX();
         float oy = other.getY();
-        if (Math.abs(other.getZ() - sz) >= 0.5f) {
+        float oz = other.getZ();
+        IsoGridSquare target = other.getCurrentSquare();
+        if (eye == null || target == null || eye.getCell() != target.getCell()
+                || !Float.isFinite(sx) || !Float.isFinite(sy) || !Float.isFinite(sz)
+                || !Float.isFinite(ox) || !Float.isFinite(oy) || !Float.isFinite(oz)
+                || !Float.isFinite(faceX) || !Float.isFinite(faceY)
+                || !Float.isFinite(requestedRange) || requestedRange < 0.0f
+                || eye.getCell().getGridSquare(target.getX(), target.getY(), target.getZ()) != target) {
             return false;
         }
         float dx = ox - sx;
@@ -762,8 +801,7 @@ public final class SAOPerceptionScanner {
                 return false;
             }
         }
-        IsoGridSquare target = other.getCurrentSquare();
-        return target != null && clearPath(eye, target, true);
+        return clearPath(eye, target, true);
     }
 
     /** [C104] The sister mod's form and performance, appended the

@@ -1,0 +1,74 @@
+{
+  "schema": "sao-authored-exposure-fixture-provenance/1",
+  "standing": "source-reconstructed; explicit diagnostic personal history; not native person acquisition or assessed retention",
+  "generationReceiptSha256": "04f4da572a74dbd1b9bf6938d97726c5e19d06b862f5758b3b11c57aee45edc3",
+  "generationReceiptPath": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d1-shared-reasoning\\background-exposures\\source-1\\receipt.json",
+  "sourceInputs": {
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\education_background\\compiler.py": "1081bea330f6815701d5362dac30fb068e8a033263acc803094a2a3c89e533d3",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\education_background\\source_fixture.py": "c49b6f290e69880b613bd0b3f92d31d394e71a62a80fdf55c53041957747c575",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\education_background\\household-stove-cooking-v1.json": "92c4e541fb4be460dd679a5a7ae4281656177e7faa37a31343ff711db899a44b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\education_background\\workshop-tools-v1.json": "8686589304f2b946d39a76a9de008520d3ef94e587938b1e74dfaf3a3f015072",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\education_background\\civic-mutual-assistance-v1.json": "706b1a4818b49cc223e1c397396859e803d8d6a109a45af07f0cb4ba4b233f14",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\education_backgrounds.py": "4db8784c23c8a4fb344d1d050e05a538607abd52e1e812d81a6a22b5bf30aa5b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\education_runtime_registry.py": "45ea82c2d8c301d168896f2e92129a9237123f506cd5249b72e6966c9f21332c",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\education_curriculum.py": "541fb2c6c8859b012390ca37f56846eed0bddcc4f04938cabb80c1656288439a",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\education_learning.py": "f2b88f1e7beeda544955559f4e57a7addf447707daa55ffdedf6bc025380cf55",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\education_corpus.py": "0af721f524fb3f82d65241a0fdc0e6871d69144461a15a9fa7fc6078b587c9d6",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\education_assessment.py": "c367ee6d90059305e27459f1a04cac91a4abb9e701c81d087dd82571aa24965b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-game-knowledge-correspondence\\tools\\decision_authoring.py": "3b7bfed0c39327fae6c8a95ccbc69fea35fa40cb56d8ab33ba096f1ba0a7b166",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r83-publisher-rights\\runs\\r84-rights-clean-foundation\\curriculum-v1.json": "c54a6e9a514cdf4204b7e3ad8b42df37fefa9f0e4b5d11ed5c51a91c435d67fd",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r83-publisher-rights\\runs\\r84-rights-clean-foundation\\source-archive-v1\\acquisition.json": "fa38d24ad254fb099559635b33a6df7f9a0896aceabc41525e7a06c2219fb1ee",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r83-publisher-rights\\runs\\r84-rights-clean-foundation\\assessment-bank-v1\\manifest.json": "0d49db0dd0082e5f7f979e14ece9998f77e66dc6c3beb3a2c9b657ad0ccdc696",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r83-publisher-rights\\runs\\r84-rights-clean-foundation\\source-archive-v1\\household-science\\source.txt": "33e8491494dcac35876eb50d5a7d88afeac456d75b2681e897914a7c81389017",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r83-publisher-rights\\runs\\r84-rights-clean-foundation\\source-archive-v1\\practical-mechanics\\source.txt": "8995b5677258ef8a2f1ebb53b310d982c0f981b4fec4ff5ea1187dfa9edad885",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r83-publisher-rights\\runs\\r84-rights-clean-foundation\\source-archive-v1\\civil-government\\source.txt": "c407ef5d6cc76a008ce76f08f892bde3666669cde6bb9f0ab27499d228e94c51"
+  },
+  "legacySchoolingContentUnchanged": true,
+  "registrySha256": "2c8cc82b6a7de17255b4b7629f3d01e9af373dd9c1e4b355bc81cef8e8e859c3",
+  "authoredHistory": {
+    "runner": {
+      "events": [
+        {
+          "carrierId": "explicit-workshop",
+          "channel": "guided-practice",
+          "courseId": "grade-9-practical-arts",
+          "curriculumRef": {
+            "id": "k-college-source-progression",
+            "sha256": "2e67259783b2011d60999b1db6298a96ad11ccb43bf3da293d877cba2383088f",
+            "version": "0.3.0-rights-candidate"
+          },
+          "endYear": 1983,
+          "id": "work-reading-1982",
+          "kind": "work-training",
+          "regionId": "source-region",
+          "startYear": 1982,
+          "unitId": "practical-mechanics-24761-36722-grade-9-practical-arts"
+        },
+        {
+          "carrierId": "explicit-community-reading",
+          "channel": "heard",
+          "courseId": "grade-11-social-studies",
+          "curriculumRef": {
+            "id": "k-college-source-progression",
+            "sha256": "2e67259783b2011d60999b1db6298a96ad11ccb43bf3da293d877cba2383088f",
+            "version": "0.3.0-rights-candidate"
+          },
+          "endYear": 1984,
+          "id": "community-reading-1983",
+          "kind": "community-literary",
+          "regionId": "source-region",
+          "startYear": 1983,
+          "unitId": "civil-government-13278-18666-grade-11-social-studies"
+        }
+      ],
+      "personEducationSha256": "b1d574858de2d3acfae0e379415dbd3c50dc837ac259c303476203540343efde",
+      "personId": "runner",
+      "profileSha256": "d829d6de1bae499a12df0c963a05316c024ab34792b8584a2ee3bd76be81fc65",
+      "schema": "speakeasy-authored-content-exposure-history/1",
+      "worldOwner": {
+        "id": "d1-background-proof-world",
+        "seed": "controlled-schooling-source-1"
+      }
+    }
+  }
+}

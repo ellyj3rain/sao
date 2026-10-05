@@ -291,8 +291,28 @@ public class NativeVideoProbe {
             +String.join(",",admitted)+"],\"fragments\":["+String.join(",",receipts.values())+"]}");
         check(minimumWindow>=1500,"time-gap IDR catch-up shrank the retained source window");
     }
+    static void qualityImage(Path root, Path encoder, Path image, int ceiling) throws Exception {
+        var source=javax.imageio.ImageIO.read(image.toFile());
+        int width=source.getWidth(),height=source.getHeight();
+        byte[] pixels=new byte[width*height*3];
+        for(int y=0;y<height;y++)for(int x=0;x<width;x++) {
+            int rgb=source.getRGB(x,y),offset=((height-1-y)*width+x)*3;
+            pixels[offset]=(byte)(rgb>>>16);pixels[offset+1]=(byte)(rgb>>>8);pixels[offset+2]=(byte)rgb;
+        }
+        var producer=new StudyVideoCapture.Producer(root,encoder,width,height,ceiling);
+        for(int i=0;i<30;i++) {
+            producer.accept(new StudyVideoCapture.Frame(i+1,System.currentTimeMillis(),1,2+i*.001,
+                new StudyVideoCapture.Site[0],width,height,pixels));
+            Thread.sleep(100);
+        }
+        producer.close();
+        check(!producer.failed(),"quality producer failed");
+        check(producer.encoded.get()>=25,"quality producer dropped too many sparse frames");
+        check(producer.encoded.get()+producer.dropped.get()==30,"quality producer lost source accounting");
+    }
     public static void main(String[] args) throws Exception {
         String mode=args[0]; Path root=Path.of(args[1]);
+        if(mode.equals("quality-image")){qualityImage(root,Path.of(args[2]),Path.of(args[3]),Integer.parseInt(args[4]));return;}
         if(mode.startsWith("pbo-")){pbo(mode,root);return;}
         if(mode.startsWith("sites-")){videoSites(mode,root,Path.of(args[2]));return;}
         if(mode.startsWith("alignment-")){publication(mode.substring(10),root,Path.of(args[2]),null);return;}
@@ -978,6 +998,79 @@ class NativeVideo(unittest.TestCase):
             "stats": view["stats"], "retainedSegments": len(view["segments"]), "codecs": view["codecs"],
             "encoderSha256": hashlib.sha256(self.encoder.read_bytes()).hexdigest(),
             "independentFragmentsDecode": True, "constantRateGapCompression": False}, indent=2), encoding="utf-8")
+
+
+    def test_sparse_frames_preserve_image_detail_across_capture_ceilings(self):
+        self.require_encoder()
+        source = self.work / "quality-source.png"
+        reference = os.environ.get("SAO_VIDEO_QUALITY_REFERENCE")
+        if reference:
+            shutil.copy2(reference, source)
+        else:
+            # Detailed RGB input makes nominal-rate bitrate starvation observable.
+            made = subprocess.run([str(self.encoder), "-v", "error", "-f", "lavfi", "-i",
+                "nullsrc=size=2560x720,format=rgb24,geq=r='mod(X*13+Y*7,256)':g='mod(X*3+Y*17,256)':b='mod(X*19+Y*5,256)'",
+                "-frames:v", "1", str(source)], capture_output=True, text=True, timeout=30)
+            self.assertEqual(made.returncode, 0, made.stderr)
+
+        def detail(name, ceiling, classpath=None):
+            out = self.work / name
+            self.java("quality-image", out, self.encoder, source, ceiling, classpath=classpath)
+            view = self.validate_publication(out)
+            self.assertEqual(view["state"], "ended")
+            self.assertEqual(view["fps"], ceiling)
+            self.assertEqual((view["width"], view["height"]), (2560, 720))
+            last = view["segments"][-1]
+            joined = out / "quality-last.mp4"
+            joined.write_bytes((out / view["init"]["file"]).read_bytes() + (out / last["file"]).read_bytes())
+            decoded = out / "quality-decoded.png"
+            result = subprocess.run([str(self.encoder), "-v", "error", "-i", str(joined),
+                "-frames:v", "1", str(decoded)], capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            result = subprocess.run([str(self.encoder), "-hide_banner", "-i", str(source), "-i", str(decoded),
+                "-lavfi", "[0:v]format=yuv420p[ref];[1:v]format=yuv420p[decoded];[ref][decoded]ssim",
+                "-f", "null", "-"], capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            import re
+            matched = re.search(r"SSIM Y:[0-9.]+.*All:([0-9.]+)", result.stderr)
+            self.assertIsNotNone(matched, result.stderr)
+            (out / "quality-ssim.log").write_text(result.stderr, encoding="utf8")
+            return float(matched[1]), out
+
+        high, high_out = detail("quality-current-120", 120)
+        low, _ = detail("quality-current-30", 30)
+        self.assertGreaterEqual(high, .98, "sparse capture lost native image detail")
+        self.assertAlmostEqual(high, low, delta=.005,
+                               msg="capture ceiling changed compression quality")
+        # Restore the actual previous command in a separate compiled owner.
+        original = (ROOT / "tools/world_lab/StudyVideoCapture.java").read_text(encoding="utf8")
+        changed = original.replace('"-preset", "p4"', '"-preset", "p1"').replace(
+            '"-rc", "constqp", "-qp", "18",',
+            '"-b:v", "12M", "-maxrate", "18M", "-bufsize", "3M",')
+        self.assertNotEqual(changed, original)
+        old = self.work / "quality-old-owner"; old.mkdir()
+        path = old / "StudyVideoCapture.java"; path.write_text(changed, encoding="utf8")
+        compiled = subprocess.run([str(JDK / "javac.exe"), "-cp", self.classpath,
+            "-d", str(old), str(path)], capture_output=True, text=True, timeout=60)
+        self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+        bad, _ = detail("quality-restored-old-120", 120, os.pathsep.join([str(old), self.classpath]))
+        self.assertLess(bad, .98, "restored bitrate starvation did not fail image-detail verdict")
+        self.assertGreater(high - bad, .04)
+        proof = ROOT / "_scratch/stream-quality-01" / ("producer-quality-proof-" + uuid.uuid4().hex)
+        proof.mkdir(parents=True, exist_ok=False)
+        shutil.copytree(high_out, proof / "producer")
+        shutil.copy2(source, proof / "source.png")
+        (proof / "receipt.json").write_text(json.dumps({
+            "status": "PASS_ACTUAL_PRODUCER_QUALITY_WITH_RESTORED_DEFECT",
+            "loadedGame": False, "nativeScreenshotReference": bool(reference),
+            "sourceSha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+            "producerSourceSha256": hashlib.sha256(original.encode()).hexdigest(),
+            "testSha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "ssimCurrent120": high, "ssimCurrent30": low, "ssimRestoredOld120": bad,
+            "detailThreshold": .98, "oldDefectRejected": True,
+            "encoderSha256": hashlib.sha256(self.encoder.read_bytes()).hexdigest(),
+            "boundary": "Actual Java raw-frame producer/NVENC/fragment decode with sparse input; no native game launch or historical stream replacement."
+        }, indent=2) + "\n", encoding="utf8")
 
 
 if __name__ == "__main__":

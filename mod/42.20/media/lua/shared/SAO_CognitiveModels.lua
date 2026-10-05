@@ -4,8 +4,9 @@
 SAO = SAO or {}
 SAO.CognitiveModels = SAO.CognitiveModels or {}
 local M = SAO.CognitiveModels
-local VERSION = {ordinary="sao-ordinary/2",associative="sao-associative/2"}
-local PREVIOUS_VERSION = {ordinary="sao-ordinary/1",associative="sao-associative/1"}
+local VERSION = {ordinary="sao-ordinary/3",associative="sao-associative/3"}
+local PREVIOUS_VERSION = {ordinary="sao-ordinary/2",associative="sao-associative/2"}
+local LEGACY_VERSION = {ordinary="sao-ordinary/1",associative="sao-associative/1"}
 local MAX_BELIEFS, MAX_HYPOTHESES, MAX_EVENTS = 32, 32, 256
 local CONFIDENCE_HALF_LIFE_HOURS = 24
 local ACTIONS = { "food", "water", "inspect", "continue" }
@@ -18,9 +19,10 @@ local EVENT_KEYS = { id=true, actorId=true, observerId=true, worldHours=true,
     status=true, foodPresent=true, waterPresent=true, hungerDelta=true,
     thirstDelta=true, detail=true, capabilities=true, itemId=true,
     occurredAtHours=true, stats=true, beforeCookingTime=true,
-    afterCookingTime=true, heatObserved=true, consumedAmount=true, quantityUnit=true }
+    afterCookingTime=true, heatObserved=true, consumedAmount=true, quantityUnit=true, actionKind=true, apertureState=true, succeeded=true,
+    beforeValue=true, afterValue=true, durationHours=true }
 local EXTENDED = { ["medication-use"]=true, ["physical-change"]=true, preparation=true,
-    ["animal-care"]=true, ["window-repair"]=true }
+    ["animal-care"]=true, ["window-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true }
 local STATS = { "HUNGER", "THIRST", "FATIGUE", "ENDURANCE", "PANIC", "STRESS",
     "NICOTINE_WITHDRAWAL", "BOREDOM", "UNHAPPINESS", "DISCOMFORT", "INTOXICATION", "ANGER", "PAIN" }
 local STAT_KEYS = {} for _,name in ipairs(STATS) do STAT_KEYS[name]=true end
@@ -68,7 +70,12 @@ local function occurrencePosition(e)
         or e.kind=="physical-change" and "physical/"
         or e.kind=="preparation" and ("cooking/"..e.actorId.."/")
         or e.kind=="animal-care" and ("animal-care/"..e.actorId.."/")
-        or e.kind=="window-repair" and (e.actorId.."/window-result/") or nil
+        or e.kind=="window-repair" and (e.actorId.."/window-result/")
+        or e.kind=="entry-outcome" and ("entry/"..e.actorId.."/")
+        or e.kind=="recovery-outcome" and ("recovery/"..e.actorId.."/")
+        or e.kind=="study-outcome" and ("study/"..e.actorId.."/")
+        or e.kind=="commitment-outcome" and ("commitment/"..e.actorId.."/")
+        or e.kind=="instrument-use" and ("instrument/"..e.actorId.."/") or nil
     if not prefix or not text(e.id,128) or string.sub(e.id,1,#prefix)~=prefix then return nil end
     local suffix=string.sub(e.id,#prefix+1)
     local position=tonumber(suffix)
@@ -111,10 +118,15 @@ local function validEvent(e)
         or not text(e.actorId,128) or not text(e.observerId,128)
         or not finite(e.worldHours) or e.worldHours<0
         or (e.kind~="inspection" and e.kind~="acquire" and e.kind~="store" and e.kind~="consume" and not EXTENDED[e.kind])
-        or (e.category~="food" and e.category~="water" and e.category~="container" and e.category~="medicine" and e.category~="body" and e.category~="animal" and e.category~="construction")
+        or (e.category~="food" and e.category~="water" and e.category~="container" and e.category~="medicine" and e.category~="body" and e.category~="animal" and e.category~="construction" and e.category~="learning" and e.category~="social" and e.category~="leisure")
         or (e.status~="completed" and e.status~="no-effect"
             and e.status~="interrupted" and e.status~="unavailable")
         or (e.perspective~="performed" and e.perspective~="observed") then return false end
+    local behavior=e.kind=="entry-outcome" or e.kind=="recovery-outcome"
+    if not behavior and (e.kind~="commitment-outcome" and e.kind~="instrument-use" and (e.actionKind~=nil or e.succeeded~=nil) or e.apertureState~=nil
+        or e.kind~="study-outcome" and (e.beforeValue~=nil or e.afterValue~=nil) or e.durationHours~=nil) then return false end
+    if e.category=="learning" and e.kind~="study-outcome" or e.category=="social" and e.kind~="commitment-outcome" then return false end
+    if e.category=="leisure" and e.kind~="instrument-use" then return false end
     if e.kind~="animal-care" and (e.consumedAmount~=nil or e.quantityUnit~=nil) then return false end
     if e.category=="animal" and e.kind~="animal-care" then return false end
     if e.category=="construction" and e.kind~="window-repair" then return false end
@@ -134,6 +146,45 @@ local function validEvent(e)
             or e.foodPresent~=nil or e.waterPresent~=nil or e.hungerDelta~=nil or e.thirstDelta~=nil
             or not finite(e.occurredAtHours) or e.occurredAtHours<0
             or e.occurredAtHours>e.worldHours or not occurrencePosition(e) then return false end
+        if behavior then
+            if e.category~="body" or e.status~="completed" or type(e.succeeded)~="boolean"
+                or e.itemId~=nil or e.itemType~=nil or e.stats~=nil
+                or e.beforeCookingTime~=nil or e.afterCookingTime~=nil or e.heatObserved~=nil then return false end
+            if e.kind=="entry-outcome" then
+                return text(e.sourceId,160) and (e.actionKind=="door" or e.actionKind=="window")
+                    and (e.apertureState=="open" or e.apertureState=="closed" or e.apertureState=="clear"
+                        or e.apertureState=="smashed" or e.apertureState=="barricaded" or e.apertureState=="unknown")
+                    and e.beforeValue==nil and e.afterValue==nil and e.durationHours==nil
+            end
+            return e.sourceId==nil and e.apertureState==nil and (e.actionKind=="sleep" or e.actionKind=="rest")
+                and unit(e.beforeValue) and unit(e.afterValue) and finite(e.durationHours)
+                and e.durationHours>0 and e.durationHours<=12
+                and e.succeeded==(e.actionKind=="sleep" and e.afterValue<e.beforeValue
+                    or e.actionKind=="rest" and e.afterValue>e.beforeValue)
+        end
+        if e.kind=="instrument-use" then
+            return e.category=="leisure" and e.status=="completed"
+                and e.sourceId=="native:sound:BlowHarmonica" and e.actionKind=="blow-harmonica"
+                and type(e.succeeded)=="boolean" and text(e.itemType,160)
+                and finite(e.itemId) and e.itemId==math.floor(e.itemId)
+                and e.itemId>=-2147483648 and e.itemId<=2147483647 and e.stats==nil
+                and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
+        end
+        if e.kind=="commitment-outcome" then
+            return e.category=="social" and e.status=="completed" and text(e.sourceId,160)
+                and (e.actionKind=="prepare" or e.actionKind=="deliver") and e.succeeded==true
+                and e.itemId==nil and e.itemType==nil and e.stats==nil
+                and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
+        end
+        if e.kind=="study-outcome" then
+            return e.category=="learning" and e.status=="completed" and text(e.sourceId,160)
+                and e.sourceId:sub(1,7)=="manual:" and text(e.itemType,160)
+                and finite(e.itemId) and e.itemId==math.floor(e.itemId)
+                and e.itemId>=-2147483648 and e.itemId<=2147483647
+                and finite(e.beforeValue) and e.beforeValue>=0 and finite(e.afterValue)
+                and e.afterValue>e.beforeValue and e.afterValue<=1000000000
+                and e.stats==nil and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
+        end
         if e.kind=="physical-change" then
             if e.category~="body" or e.itemId~=nil or e.itemType~=nil or e.sourceId~=nil
                 or e.beforeCookingTime~=nil or e.afterCookingTime~=nil or e.heatObserved~=nil
@@ -191,7 +242,7 @@ end
 function M.acceptsExperience(e) return validEvent(e) end
 local function validState(id, state)
     return model(id) and type(state)=="table" and state.modelId==id
-        and (state.version==VERSION[id] or state.version==PREVIOUS_VERSION[id]) and type(state.beliefs)=="table"
+        and (state.version==VERSION[id] or state.version==PREVIOUS_VERSION[id] or state.version==LEGACY_VERSION[id]) and type(state.beliefs)=="table"
         and validPositions(state.nativePositions)
         and type(state.beliefOrder)=="table" and type(state.hypotheses)=="table"
         and type(state.seen)=="table" and type(state.eventOrder)=="table"
@@ -456,8 +507,45 @@ local function measurable(e)
     return e.category,e.status=="completed"
 end
 
+local function planBeliefKey(kind, category, sourceId, itemType, condition)
+    local source, item = sourceId or "", itemType or ""
+    return "plan:"..kind..":"..category..":"..#source..":"..source..":"..#item..":"..item..(condition and ":"..condition or "")
+end
+
+-- Both contestants retain the same measured occurrence independently. Exact
+-- source and item identities stay available when a later plan asks about them.
+local function rememberPlanEvidence(state, e, yes)
+    local function retain(kind, category, result)
+        local item = kind == "inspect" and nil or e.itemType
+        local condition=kind=="commitment" and e.actionKind or nil
+        local b = remember(state, planBeliefKey(kind, category, e.sourceId, item, condition),
+            "Personally acquired "..kind.." evidence for "..category, result, e)
+        b.planKind, b.category, b.sourceId, b.itemType, b.condition = kind, category, e.sourceId, item, condition
+    end
+    if e.kind == "acquire" then retain("acquire", e.category, yes)
+    elseif e.kind == "preparation" then retain("prepare", "food", true)
+    elseif e.kind == "study-outcome" then retain("study", "learning", true)
+    elseif e.kind == "commitment-outcome" then retain("commitment", "social", true)
+    elseif e.kind == "instrument-use" then retain("recreate", "leisure", e.succeeded)
+    elseif e.kind == "inspection" then
+        retain("inspect", "container", true)
+        if e.foodPresent ~= nil then retain("inspect", "food", e.foodPresent) end
+        if e.waterPresent ~= nil then retain("inspect", "water", e.waterPresent) end
+    end
+end
+
 local function extendedEvidence(modelId,state,e)
-    if e.kind=="physical-change" then
+    if e.kind=="entry-outcome" or e.kind=="recovery-outcome" then
+        local key=e.kind=="entry-outcome" and ("entry:"..e.sourceId..":"..e.apertureState)
+            or ("recovery:"..e.actionKind)
+        remember(state,key,"Personally performed "..e.actionKind.." outcome",e.succeeded,e)
+    elseif e.kind=="commitment-outcome" then
+        remember(state,"direct:accepted-work:"..e.sourceId..":"..e.actionKind,"Personally performed accepted "..e.actionKind.." work; broader social effects unmeasured",true,e)
+    elseif e.kind=="study-outcome" then
+        remember(state,"direct:study:"..e.itemType,"Personally completed native manual reading; understanding and competence unassessed",true,e)
+    elseif e.kind=="instrument-use" then
+        remember(state,"direct:instrument:"..e.itemType,"Personally attempted a native sound; repertoire, skill and shared participation unassessed",e.succeeded,e)
+    elseif e.kind=="physical-change" then
         -- Numeric changes remain separate from dose identity and pharmacology.
         -- A reversed measured direction challenges the prior direction; it
         -- does not refute or support any particular medicine's effectiveness.
@@ -547,6 +635,7 @@ function M.observe(modelId, state, experience, maxDepth)
     if e.kind~="store" and action(goal) then
         remember(state,"goal:"..goal,"Qualified "..goal.." outcomes",yes,e)
     end
+    rememberPlanEvidence(state, e, yes)
     if EXTENDED[e.kind] then extendedEvidence(modelId,state,e)
     elseif modelId=="ordinary" then
         remember(state,"direct:"..e.kind..":"..e.category..":"..tostring(e.sourceId or e.itemType or "unspecified"),
@@ -631,6 +720,19 @@ local function associativeChoice(state, f, p)
     return selected,"Anticipated pressure, independently learned outcomes and information value favor "..selected.."."
 end
 
+function M.behaviorExpectation(modelId, state, kind, sourceId, condition, hours)
+    if not validState(modelId,state) or not finite(hours) or hours<0
+        or state.lastHours and hours<state.lastHours then return nil end
+    local key
+    if kind=="entry" and text(sourceId,160) and text(condition,32) then
+        key="entry:"..sourceId..":"..condition
+    elseif kind=="sleep" or kind=="rest" then key="recovery:"..kind
+    else return nil end
+    local belief=state.beliefs[key]
+    if not belief then return nil end
+    return posterior(belief,hours)
+end
+
 function M.propose(modelId, state, frame)
     if not validState(modelId,state) then return nil,"model-state" end
     if not validFrame(frame) then return nil,"private-frame" end
@@ -660,66 +762,232 @@ end
 -- The same private plan candidates are interpreted independently by each
 -- contestant. This ranks proposed routes through already represented work;
 -- it cannot add a verb, technique, material, spatial fact or native result.
-function M.planScore(modelId, candidate, pressure, state)
+local CONSEQUENCE_KEYS = {kind=true, category=true, sourceId=true, itemType=true, condition=true, value=true}
+local CONDITIONS = {open=true, closed=true, clear=true, smashed=true, barricaded=true, unknown=true}
+local NEED_KEYS = {fatigue=true, endurance=true, hunger=true, thirst=true}
+local function boundedArray(value, maximum, minimum)
+    if type(value) ~= "table" or #value > maximum or #value < (minimum or 0) then return false end
+    local count = 0
+    for key in pairs(value) do
+        if not finite(key) or key ~= math.floor(key) or key < 1 or key > #value then return false end
+        count = count + 1
+    end
+    return count == #value
+end
+local function validConsequences(candidate)
+    if candidate.consequences == nil then return true end
+    if not boundedArray(candidate.consequences, 4) then return false end
+    for _, consequence in ipairs(candidate.consequences) do
+        local c = consequence
+        if not plainKeys(c, CONSEQUENCE_KEYS) or not finite(c.value) or c.value < 0 or c.value > 2 then return false end
+        if c.sourceId ~= nil and not text(c.sourceId, 160) then return false end
+        if c.itemType ~= nil and not text(c.itemType, 160) then return false end
+        if c.condition ~= nil and not (c.kind=="entry" and CONDITIONS[c.condition]
+            or c.kind=="commitment" and (c.condition=="prepare" or c.condition=="deliver")) then return false end
+        if c.kind == "entry" then
+            if c.category ~= "body" or not text(c.sourceId, 160) or not CONDITIONS[c.condition] or c.itemType ~= nil then return false end
+        elseif c.kind == "sleep" or c.kind == "rest" then
+            if c.category ~= "body" or c.sourceId ~= nil or c.itemType ~= nil then return false end
+        elseif c.kind == "study" or c.kind == "practice" or c.kind == "investigate" then
+            if c.category ~= "learning" then return false end
+        elseif c.kind == "commitment" then
+            if c.category ~= "social" or not text(c.sourceId, 160) then return false end
+        elseif c.kind == "recreate" then
+            if c.category ~= "leisure" or c.sourceId ~= "native:sound:BlowHarmonica"
+                or not text(c.itemType,160) or c.condition ~= nil then return false end
+        elseif c.kind == "prepare" then
+            if c.category ~= "food" then return false end
+        elseif c.kind == "acquire" then
+            if c.category ~= "food" and c.category ~= "water" then return false end
+        elseif c.kind == "inspect" then
+            if c.category ~= "food" and c.category ~= "water" and c.category ~= "container" then return false end
+        else return false end
+    end
+    return true
+end
+local function planContext(modelId, state, context)
+    if not validState(modelId, state) or type(context) ~= "table"
+        or not text(context.actorId, 128) or not finite(context.atHours) or context.atHours < 0
+        or not unit(context.pressure) then return false end
+    if state.actorId and state.actorId ~= context.actorId then return false end
+    if #state.beliefOrder > 0 and not text(state.actorId, 128) then return false end
+    if state.lastHours ~= nil and (not finite(state.lastHours) or state.lastHours > context.atHours) then return false end
+    if context.capabilities ~= nil and not capabilities(context.capabilities) then return false end
+    if context.needs ~= nil then
+        if not plainKeys(context.needs, NEED_KEYS) then return false end
+        for _, value in pairs(context.needs) do if not unit(value) then return false end end
+    end
+    return true
+end
+local function planCandidate(candidate, context, structural)
+    if type(candidate) ~= "table"
+        or not unit(candidate.evidence) or not unit(candidate.continuity) or not unit(candidate.novelty)
+        or not unit(candidate.informationGain) or not finite(candidate.blockers)
+        or candidate.blockers < 0 or candidate.blockers > 16 or candidate.blockers ~= math.floor(candidate.blockers)
+        or candidate.utility ~= nil and (not finite(candidate.utility) or math.abs(candidate.utility) > 16)
+        or candidate.maxAdjustment ~= nil and (not finite(candidate.maxAdjustment)
+            or candidate.maxAdjustment < 0 or candidate.maxAdjustment > 8)
+        then return false end
+    -- A native-feasible option can exceed the prediction identity budget.
+    -- Neutral fallback consumes only these structural values and leaves its
+    -- exact identity intact for the native owner.
+    if not structural and (not text(candidate.id, 128)
+        or not validConsequences(candidate)) then return false end
+    local a = candidate.appraisal
+    if a ~= nil and (type(a) ~= "table" or context and a.actorId ~= context.actorId
+        or type(a.danger) ~= "table" or not unit(a.danger.ordinal)
+        or type(a.travel) ~= "table" or not unit(a.travel.outwardCost) or not unit(a.travel.returnCost)
+        or not unit(a.requestValue) or type(a.social) ~= "table" or type(a.social.requests) ~= "table"
+        or type(a.social.responsibilities) ~= "table") then return false end
+    return true
+end
+
+local function consequenceBeliefs(modelId, state, c)
+    local exact, transfer = {}, {}
+    if c.kind == "entry" or c.kind == "sleep" or c.kind == "rest" then
+        local key = c.kind == "entry" and ("entry:"..c.sourceId..":"..c.condition) or ("recovery:"..c.kind)
+        if state.beliefs[key] then exact[1] = state.beliefs[key] end
+        return exact, "exact-experience", 1
+    end
+    for _, key in ipairs(state.beliefOrder) do
+        local b = state.beliefs[key]
+        if type(b) == "table" and b.planKind == c.kind and b.category == c.category
+            and (c.kind~="commitment" or c.condition~=nil and b.condition==c.condition)
+            and (c.itemType == nil or b.itemType == c.itemType
+                or modelId=="associative" and c.kind=="study" and b.sourceId==c.sourceId) then
+            if c.sourceId ~= nil and b.sourceId == c.sourceId
+                and (c.itemType==nil or b.itemType==c.itemType)
+                or c.kind == "prepare" and c.sourceId == nil and c.itemType ~= nil then exact[#exact+1] = b
+            elseif modelId == "associative" and (c.kind == "inspect"
+                or c.kind == "study" and b.sourceId==c.sourceId
+                or c.kind == "commitment" and b.condition==c.condition
+                or c.kind == "prepare" and c.itemType ~= nil and b.itemType == c.itemType) then
+                transfer[#transfer+1] = b
+            end
+        end
+    end
+    -- Existing /1-/3 states retain their original exact direct records. Reads
+    -- use those records without migrating, manufacturing receipts or teaching.
+    if #exact == 0 and c.sourceId ~= nil then
+        local key
+        if c.kind == "acquire" and c.itemType == nil then key = "direct:acquire:"..c.category..":"..c.sourceId
+        elseif c.kind == "inspect" and c.category == "container" then key = "direct:inspection:container:"..c.sourceId
+        elseif c.kind == "prepare" and c.itemType ~= nil then key = "direct:preparation:"..c.sourceId..":"..c.itemType end
+        if key and state.beliefs[key] then exact[1] = state.beliefs[key] end
+    end
+    if #exact > 0 then return exact, "exact-experience", 1 end
+    if modelId == "associative" and #transfer > 0 then return transfer, "related-experience", 0.45 end
+    if modelId == "associative" and c.kind == "inspect" and c.category ~= "container" then
+        local b = state.beliefs["relation:contain:container:"..c.category]
+        if b then return {b}, "related-experience", 0.35 end
+    end
+    return {}, "unknown", 0
+end
+
+local function consequencePrediction(modelId, state, c, context)
+    local beliefs, basis, strength = consequenceBeliefs(modelId, state, c)
+    local seen, evidenceIds, beliefIds, support, against, count = {}, {}, {}, 0, 0, 0
+    for _, b in ipairs(beliefs) do
+        if not text(b.id, 160) or not boundedArray(b.samples, 8) then return nil end
+        appendUnique(beliefIds, b.id, 8)
+        for _, sample in ipairs(b.samples) do
+            if type(sample) ~= "table" or not text(sample.id, 128) or not finite(sample.hours)
+                or sample.hours < 0 or sample.hours > context.atHours or type(sample.yes) ~= "boolean" then return nil end
+            if not seen[sample.id] then
+                seen[sample.id] = true
+                local weight = 0.5 ^ ((context.atHours - sample.hours) / CONFIDENCE_HALF_LIFE_HOURS)
+                if sample.yes then support = support + weight else against = against + weight end
+                appendUnique(evidenceIds, sample.id, 8)
+                count = count + 1
+            end
+        end
+    end
+    local probability = 0.5 + strength * ((1 + support) / (2 + support + against) - 0.5)
+    if count == 0 then
+        basis = "unknown"
+        if c.kind == "prepare" and context.capabilities and context.capabilities.cook == true then
+            probability, basis = 0.6, "current-cooking-capability"
+        end
+    end
+    return {kind=c.kind, category=c.category, sourceId=c.sourceId, itemType=c.itemType,
+        condition=c.condition, value=c.value, probability=probability,
+        uncertainty=1-math.abs(probability-0.5)*2, basis=basis,
+        evidenceIds=evidenceIds, beliefIds=beliefIds, omittedEvidence=math.max(0,count-#evidenceIds)}
+end
+
+function M.planPrediction(modelId, candidate, state, context)
+    if not planContext(modelId, state, context) then return nil, "private-plan-context" end
+    if not planCandidate(candidate, context) then return nil, "private-plan-candidate" end
+    local result = {schema="sao-plan-prediction/1", predictions={}, expectedValue=0, adjustment=0}
+    for _, consequence in ipairs(candidate.consequences or {}) do
+        local p = consequencePrediction(modelId, state, consequence, context)
+        if not p then return nil, "private-plan-evidence" end
+        result.predictions[#result.predictions+1] = p
+        result.expectedValue = result.expectedValue + p.probability * p.value
+        result.adjustment = result.adjustment + (p.probability - 0.5) * p.value
+    end
+    return result
+end
+
+function M.planScore(modelId, candidate, pressure, state, context)
+    if not model(modelId) or not unit(pressure)
+        or not planCandidate(candidate, context, state == nil and context == nil) then return nil end
+    local adjustment = 0
+    if state ~= nil or context ~= nil then
+        local predicted = M.planPrediction(modelId, candidate, state, context)
+        if not predicted then return nil end
+        adjustment = predicted.adjustment
+    end
+    if candidate.maxAdjustment ~= nil then
+        adjustment = math.max(-candidate.maxAdjustment, math.min(candidate.maxAdjustment, adjustment))
+    end
     local appraisal = candidate.appraisal or {}
     local danger, travel = appraisal.danger or {}, appraisal.travel or {}
     local risk = unit(danger.ordinal) and danger.ordinal or 0
+    -- An explicit material benefit does not erase a personally supported risk.
+    -- Use the same danger contribution as ordinary structural plan appraisal.
+    if candidate.utility ~= nil then
+        return candidate.utility - risk * (modelId == "ordinary" and 0.45 or 0.30) + adjustment
+    end
     local outward = unit(travel.outwardCost) and travel.outwardCost or 0
     local returning = unit(travel.returnCost) and travel.returnCost or 0
     local request = unit(appraisal.requestValue) and appraisal.requestValue or 0
     if modelId == "ordinary" then
         return candidate.evidence * 0.55 + candidate.continuity * 0.30 + pressure * 0.15
             - math.min(1, candidate.blockers * 0.35) - risk * 0.45
-            - outward * 0.18 - returning * 0.15 + request * 0.18
-    end
-    local learned = 0.5
-    for _, belief in pairs(state and state.beliefs or {}) do
-        learned = math.max(learned, posterior(belief, state.lastHours))
+            - outward * 0.18 - returning * 0.15 + request * 0.18 + adjustment
     end
     return candidate.evidence * 0.25 + candidate.continuity * 0.15 + candidate.novelty * 0.20
-        + candidate.informationGain * 0.30 + pressure * 0.10 + (learned - 0.5) * 0.1
+        + candidate.informationGain * 0.30 + pressure * 0.10 + adjustment
         - math.min(1, candidate.blockers * 0.25) - risk * 0.30
         - outward * 0.12 - returning * 0.10 + request * 0.15
 end
 
 function M.interpretPlans(modelId, state, candidates, context)
-    if not validState(modelId, state) or type(candidates) ~= "table"
-        or #candidates < 1 or #candidates > 16 or type(context) ~= "table" then
+    if not planContext(modelId, state, context) or not boundedArray(candidates, 16, 1) then
         return nil, "private-plan-frame"
     end
-    local pressure = tonumber(context.pressure) or 0
-    if not finite(pressure) or pressure < 0 or pressure > 1 then
-        return nil, "private-plan-pressure"
-    end
-    local ranked = {}
+    local pressure = context.pressure
+    local ranked, ids = {}, {}
     for _, candidate in ipairs(candidates) do
-        if type(candidate) ~= "table" or not text(candidate.id, 128) then
+        if not planCandidate(candidate, context) or ids[candidate.id] then
             return nil, "private-plan-candidate"
         end
-        local evidence = tonumber(candidate.evidence)
-        local continuity = tonumber(candidate.continuity)
-        local novelty = tonumber(candidate.novelty)
-        local information = tonumber(candidate.informationGain)
-        local blockers = tonumber(candidate.blockers)
-        if not unit(evidence) or not unit(continuity) or not unit(novelty)
-            or not unit(information) or not finite(blockers)
-            or blockers < 0 or blockers > 16 or blockers ~= math.floor(blockers) then
-            return nil, "private-plan-candidate"
-        end
-        if candidate.appraisal and (type(candidate.appraisal) ~= "table"
-            or candidate.appraisal.actorId ~= context.actorId
-            or type(candidate.appraisal.danger) ~= "table" or not unit(candidate.appraisal.danger.ordinal)
-            or type(candidate.appraisal.travel) ~= "table" or not unit(candidate.appraisal.travel.outwardCost)
-            or not unit(candidate.appraisal.travel.returnCost) or not unit(candidate.appraisal.requestValue)
-            or type(candidate.appraisal.social) ~= "table" or type(candidate.appraisal.social.requests) ~= "table"
-            or type(candidate.appraisal.social.responsibilities) ~= "table") then return nil, "private-plan-appraisal" end
+        ids[candidate.id] = true
+        local predicted, failure = M.planPrediction(modelId, candidate, state, context)
+        if not predicted then return nil, failure end
         local score, interpretation
         if modelId == "ordinary" then
-            score = M.planScore(modelId, candidate, pressure, state)
+            score = M.planScore(modelId, candidate, pressure, state, context)
             interpretation = "Demonstrated feasibility, maintained purpose and current pressure favor this route."
         else
-            score = M.planScore(modelId, candidate, pressure, state)
+            score = M.planScore(modelId, candidate, pressure, state, context)
             interpretation = "Association value, uncertainty reduction and possible adjacency favor testing this route."
+        end
+        for _, p in ipairs(predicted.predictions) do
+            interpretation = interpretation .. " " .. p.kind .. " " .. p.category .. ": " .. p.basis
+                .. (p.basis=="unknown" and "; I have not established how this attempt will turn out."
+                    or "; past experience informs this expectation, but this attempt remains uncertain.")
         end
         if candidate.appraisal then
             local a = candidate.appraisal
@@ -732,7 +1000,8 @@ function M.interpretPlans(modelId, state, candidates, context)
                 .. ". Route safety and successful delivery remain unconfirmed."
         end
         ranked[#ranked + 1] = { id = candidate.id, score = score,
-            interpretation = interpretation, appraisal = candidate.appraisal }
+            interpretation = interpretation, appraisal = candidate.appraisal,
+            predictions=predicted.predictions, expectedValue=predicted.expectedValue }
     end
     table.sort(ranked, function(a, b)
         if a.score == b.score then return a.id < b.id end
@@ -760,6 +1029,219 @@ function M.summary(modelId, state, hours)
             evidenceIds=copyList(h.evidenceIds,8),parentIds=copyList(h.parentIds,4),missing=copyList(h.missing,8)}
     end
     return out
+end
+
+-- Conflict is an appraisal of possible effects under personal concerns. The
+-- executor supplies availability; a conceptual expectation grants no target,
+-- safe route, agreement, or completed effect. Weights remain implementation
+-- detail. The returned account consists of reasons and unresolved premises.
+-- Floors describe the person's spatial evidence, not native attack reach.
+-- Legacy XY-only beliefs retain their uncertainty and distance convention.
+function M.contactGeometry(threat)
+    if type(threat)~="table" then return nil end
+    for _,key in ipairs({"z","observerZ"}) do
+        if threat[key]~=nil and (not finite(threat[key])
+            or threat[key]~=math.floor(threat[key])) then return nil end
+    end
+    local known=threat.z~=nil and threat.observerZ~=nil
+    local same=known and threat.z==threat.observerZ or nil
+    if known and threat.z~=threat.observerZ then same=false end
+    if threat.floorKnown~=nil and threat.floorKnown~=known
+        or threat.sameFloor~=nil and threat.sameFloor~=same then return nil end
+    return {floorKnown=known,sameFloor=same,reachability="unknown",
+        close=finite(threat.distance) and threat.distance<=3 and same~=false}
+end
+function M.interpretConflict(frame, offers)
+    if type(frame) ~= "table" or not text(frame.actorId,128) or not finite(frame.atHours)
+        or type(frame.values) ~= "table" or type(frame.threat) ~= "table"
+        or not boundedArray(offers,16,1) then return nil,"invalid-conflict-frame" end
+    local v=frame.values
+    for _,key in ipairs({"selfPreservation","aggression","nerve","discipline","compassion"}) do
+        if not unit(v[key]) then return nil,"invalid-conflict-values" end
+    end
+    local fear=unit(frame.fear) and frame.fear or 0
+    local geometry=M.contactGeometry(frame.threat)
+    if not geometry then return nil,"invalid-conflict-geometry" end
+    local close=geometry.close
+    local concerning=frame.risk and frame.risk.elevated and frame.risk.withinConcern
+    local distant=finite(frame.threat.distance) and frame.threat.distance>8 and not concerning
+    local unknown=frame.threat.source~="observed"
+    local protects=frame.commitment and frame.commitment.accepted==true
+        and frame.commitment.protectOther==true
+    local kinds={withdraw=true,reposition=true,engage=true,defend=true,communicate=true,coordinate=true,concede=true,watch=true}
+    local candidates,ids={},{}
+    for _,offer in ipairs(offers) do
+        if type(offer)~="table" or not text(offer.id,128) or ids[offer.id] or not kinds[offer.kind]
+            or type(offer.available)~="boolean" or not text(offer.reason,256)
+            or not boundedArray(offer.effects,8) or not boundedArray(offer.objections,8) then return nil,"invalid-conflict-offer" end
+        ids[offer.id]=true
+        local row={id=offer.id,kind=offer.kind,available=offer.available,continuing=offer.continuing==true,
+            reasons={},objections={},expectedEffects={},effects=copyList(offer.effects,8),arguments={}}
+        local merit,seen=0,{}
+        -- These arguments are the evaluated structure, not a graph appended
+        -- after selection. Each contribution has an effect, a personal concern
+        -- and the premises on which this person currently relies.
+        local function consider(amount,effect,concern,reason,relation,condition)
+            local premises={{kind="execution-offer",id=offer.id,available=offer.available,
+                basis="current-executor-offer"}}
+            if relation then premises[#premises+1]={kind="concept-path",from=relation.from,into=relation.into,
+                status=relation.supported and "supported" or "unresolved",basis=relation.basis,
+                evidenceIds=relation.evidenceIds,links=relation.links,contradictions=relation.contradictions} end
+            if condition then premises[#premises+1]=condition end
+            if frame.risk then premises[#premises+1]={kind="personally-appraised-danger",actorId=frame.risk.actorId,
+                contactKey=frame.risk.contactKey,form=frame.risk.form,elevated=frame.risk.elevated,
+                withinConcern=frame.risk.withinConcern,provenance=frame.risk.provenance} end
+            row.arguments[#row.arguments+1]={effect=effect,concern=concern,reason=reason,
+                polarity=amount>0 and "supports" or amount<0 and "opposes" or "unresolved",
+                expectedStatus="possible",uncertainty="The action may fail or conditions may change.",
+                premises=premises,valueBasis={actorId=frame.actorId,owner="SAO.Disposition",
+                    provenance=v.provenance}}
+            merit=merit+amount
+        end
+        local situation={kind="private-situation",contactKey=frame.threat.key,source=frame.threat.source,
+            close=close,z=frame.threat.z,observerZ=frame.threat.observerZ,floorKnown=geometry.floorKnown,
+            sameFloor=geometry.sameFloor,reachability=geometry.reachability,
+            overwhelmed=frame.overwhelmed,escapeBlocked=frame.escapeBlocked}
+        local obligation=protects and {kind="accepted-commitment",key=frame.commitment.key,
+            concern="protect-another-person",accepted=true} or nil
+        for _,effect in ipairs(offer.effects) do
+            if not text(effect,96) then return nil,"invalid-conflict-effect" end
+            if not seen[effect] then
+                seen[effect]=true
+                local relation=frame.relations and frame.relations[offer.kind=="concede"
+                    and ("concession:"..effect) or effect]
+                if relation and relation.supported then
+                    local gain,reason
+                    if effect=="break-contact" then
+                        gain=3*v.selfPreservation+fear
+                        reason="Separation may break contact and protect my life."
+                        if protects then
+                            consider(-2*v.compassion-v.discipline,"separation-from-dependent","honor-accepted-protection",
+                                "Leaving may abandon the person I accepted responsibility to protect.",relation,obligation)
+                            row.objections[#row.objections+1]="Leaving may abandon the person I accepted responsibility to protect."
+                        end
+                    elseif effect=="create-space" then
+                        gain=2*v.selfPreservation+v.nerve+(frame.escapeBlocked and 1.5 or 0)
+                        reason="Defensive action may create space to act or get away."
+                    elseif effect=="stop-threat" then
+                        gain=2.4*v.aggression+1.6*v.nerve+(close and v.selfPreservation or 0)
+                        reason="Force may stop the threat, but it may fail."
+                        if protects then
+                            gain=gain+2*v.compassion+v.discipline
+                            reason="Resisting may protect the person I accepted responsibility for, despite a cost to myself."
+                        end
+                    elseif effect=="possible-agreement" then
+                        gain=1.8*v.compassion+v.discipline+0.5*v.selfPreservation
+                        reason="Communication may open agreement; the other person still chooses their response."
+                        if offer.kind=="concede" then
+                            gain=gain+fear+v.selfPreservation
+                            reason="Giving something up may open agreement; it does not guarantee the other person will stop."
+                        end
+                    elseif effect=="imposed-compliance" then
+                        gain=2*v.aggression+v.nerve+v.discipline
+                        reason="A demand may make the other person comply, but they may refuse or resist."
+                    elseif effect=="mutual-support" then
+                        gain=1.5*v.compassion+v.discipline+v.selfPreservation
+                        reason="Cooperation may provide mutual support; reception and participation still need to happen."
+                    end
+                    if gain then
+                        local concern=effect=="stop-threat" and (protects and "honor-accepted-protection" or "resist-threat")
+                            or effect=="break-contact" and "preserve-own-life" or effect=="create-space" and "retain-room-to-act"
+                            or effect=="imposed-compliance" and "compel-a-response" or effect=="mutual-support" and "mutual-support"
+                            or "seek-agreement-without-assuming-assent"
+                        consider(gain,effect,concern,reason,relation,obligation or situation)
+                        row.reasons[#row.reasons+1]=reason
+                        row.expectedEffects[#row.expectedEffects+1]={concept=effect,status="possible",basis=relation.basis}
+                    else
+                        row.objections[#row.objections+1]="I have not connected this effect to the concerns in this decision."
+                    end
+                else
+                    consider(0,effect,"unresolved-means","I have not established this action's expected effect.",relation,situation)
+                    row.objections[#row.objections+1]="Whether this action can "..effect:gsub("%-"," ").." is unresolved."
+                    row.expectedEffects[#row.expectedEffects+1]={concept=effect,status="unresolved",
+                        basis=relation and relation.basis or "no-personal-association"}
+                end
+            end
+        end
+        local exposure=offer.kind=="engage" or offer.kind=="defend"
+        local ranged=offer.nativeMode=="ranged"
+        local waiting=offer.kind=="communicate" or offer.kind=="coordinate" or offer.kind=="concede" or offer.kind=="watch"
+        local execution={kind="native-execution",mode=offer.nativeMode,
+            contactRequired=not ranged,closeBelief=close,floorKnown=geometry.floorKnown,
+            z=frame.threat.z,observerZ=frame.threat.observerZ,sameFloor=geometry.sameFloor,
+            reachability=geometry.reachability,basis="current-executor-offer-and-private-distance"}
+        if exposure and (not ranged or close) then
+            local cost=(1.7*v.selfPreservation+(1-v.nerve)*0.6+fear*0.8)
+                *(frame.overwhelmed and 1.6 or 1)*(offer.kind=="defend" and 0.45 or 1)
+            consider(-cost,"bodily-harm","preserve-own-life",ranged
+                and "The nearby threat may harm me while I shoot." or "Close action may expose me to harm.",
+                frame.relations and frame.relations["bodily-harm"],execution)
+            row.objections[#row.objections+1]=frame.overwhelmed
+                and "Facing several threats may expose me to harm even if this action works."
+                or ranged and "Shooting leaves me exposed to the nearby threat."
+                or "Close action exposes me to possible harm."
+        elseif exposure and ranged then
+            consider(0,"bodily-harm","preserve-own-life",
+                "This shot does not require closing; whether the threat can retaliate remains unresolved.",
+                frame.relations and frame.relations["bodily-harm"],execution)
+            row.objections[#row.objections+1]="The shot may fail, and distance does not establish safety."
+        end
+        if close and waiting then
+            consider(-3*v.selfPreservation-2*fear,"continued-exposure","preserve-own-life",
+                "Waiting may leave the close threat able to act; native reach remains unconfirmed.",frame.relations and frame.relations["bodily-harm"],situation)
+            row.objections[#row.objections+1]="Waiting for information or a response may leave the close threat able to act."
+        end
+        if offer.kind=="watch" then
+            consider((unknown and 2 or 0)+(distant and 2 or 0)+0.5*v.discipline,"clearer-observation","understand-before-committing",
+                "Watching may clarify what is happening; it does not prevent harm.",nil,situation)
+            row.reasons[#row.reasons+1]="Watching may clarify what is happening; it does not prevent harm."
+            if concerning then row.objections[#row.objections+1]="What I recognize about this danger makes distance alone insufficient reassurance." end
+        end
+        if frame.escapeBlocked and offer.kind=="withdraw" then
+            consider(-3*v.selfPreservation-1,"movement-refused","find-a-usable-way-out",
+                "No offered withdrawal is currently usable.",frame.relations and frame.relations["blocks-movement"],situation)
+            row.objections[#row.objections+1]="No currently offered way out is usable; another route needs checking."
+        end
+        for _,objection in ipairs(offer.objections) do
+            if not text(objection,128) then return nil,"invalid-conflict-objection" end
+            row.objections[#row.objections+1]=objection
+            local cost=objection=="blocks-movement" and 4
+                or (objection=="bodily-harm" or objection=="exposure") and (v.selfPreservation+fear)
+                or (objection=="unanswered" or objection=="response-unconfirmed") and v.discipline
+                or objection=="loss-of-supplies" and (v.selfPreservation+0.5*v.discipline) or 0
+            consider(-cost,objection,"resolve-an-executor-objection",objection,nil,
+                {kind="executor-objection",objection=objection,basis="current-executor-offer"})
+        end
+        if offer.continuing then consider(0.5*v.discipline,"maintained-action","avoid-unnecessary-interruption",
+            "The current action remains executable.",nil,{kind="native-continuity",offerId=offer.id}) end
+        if not offer.available then row.objections[#row.objections+1]=offer.reason end
+        row.reason=(row.reasons[1] or "I have not established a useful consequence of this option.")
+            ..(#row.objections>0 and " "..row.objections[1] or "")
+        candidates[#candidates+1]={row=row,merit=merit}
+    end
+    table.sort(candidates,function(a,b)
+        if a.row.available~=b.row.available then return a.row.available end
+        if a.merit==b.merit then return a.row.id<b.row.id end
+        return a.merit>b.merit
+    end)
+    local selected
+    for _,candidate in ipairs(candidates) do
+        local row=candidate.row
+        if row.available and not selected then selected=row end
+        if row.available and row.continuing and frame.preserveContinuity
+            and frame.priorAction and row.id==frame.priorAction.id then
+            selected=row;break
+        end
+    end
+    local alternatives={}
+    for _,candidate in ipairs(candidates) do
+        candidate.row.selected=selected and candidate.row.id==selected.id or false
+        alternatives[#alternatives+1]=candidate.row
+    end
+    return {selected=selected and selected.id,kind=selected and selected.kind,
+        reason=selected and selected.reason or "No offered action is presently admitted; I need another feasible response.",
+        alternatives=alternatives,frameId=frame.frameId,evidenceKey=frame.evidenceKey,
+        continuing=selected and selected.continuing and frame.preserveContinuity==true or false}
 end
 
 return M

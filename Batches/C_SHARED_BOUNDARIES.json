@@ -6862,9 +6862,5 @@
         "T-030"
       ]
     }
-  ],
-  "publicationAvailability": {
-    "path": "Batches/C_PUBLICATION_AVAILABILITY.json",
-    "sha256": "ad163096f4809fd89a66be346006f123998eae8d0e4012998e22f12c3f536dee"
-  }
+  ]
 }

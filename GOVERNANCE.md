@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Governance |
 |---|---|
-| Version | `2.11.1.0-pre-alpha` |
+| Version | `3.8.0.0-pre-alpha` |
 | Design authority | ellyj3rain |
 | Repository | `GOVERNANCE.md` |
 | Status | ACTIVE - operating discipline for this repository. |
@@ -186,28 +186,29 @@ increasing complexity remains manageable.
 Improve the established process through its use. Prior recatalogues provide
 methods, provenance and justified conclusions that later passes can extend and
 correct. A revision states which new evidence or development need warrants the
-change and carries forward applicable decisions and verification. The current
-operator-directed recatalogue concerns C and the development sequence toward D;
-A and B supply precedent and inherited structure. Reopening their catalogues
+change and carries forward applicable decisions and verification. The requested
+era consolidation concerns C and the development sequence toward D; A and B
+supply the precedent of coherent substantive development batches. The retained
+35-unit ownership map is a separate technical projection and does not satisfy
+that product-batch request. Reopening their catalogues
 requires its own scoped reason and direction. Their present scope does not imply
 that their methods or results are permanently finished.
 
-The 2026-10-03 direction resolves current C boundaries by authoritative owner,
-admitted inputs, produced outputs and durable state. A source record may
-contribute to several contracts; the manifest records each scoped contribution
-and one primary navigation home. Current contracts live in `Batches/Catalogue/`
-and their source bytes, generation and component status are preserved in
-`Batches/C_SHARED_BOUNDARIES.json`. C118/C119's completed and merged status and
-C120's implemented, verified, local-unmerged status remain distinct. Rendered
-acceptance and redistribution retain their actual outstanding conditions.
+The implemented 2026-10-03 ownership map resolves interfaces by authoritative
+owner, inputs, outputs and durable state. It remains a separate 35-contract
+projection in `Batches/Catalogue/` and `Batches/C_SHARED_BOUNDARIES.json`. The
+operator clarified that this map differs from the requested era consolidation.
+Current products in `Batches/Products/` follow the A/B coherent development-batch
+method: the product manifest partitions all 120 sources into 82 chronological
+outcomes with explicit scope and tier rationale. Source bytes, former-label
+generations and measured component statuses remain preserved. C118/C119 source
+publication and C120 source acceptance remain historical; D1 subsequent bounded
+recovery proof is separately dated.
 
-Regulatory order follows the last delivered source contribution per contract.
-The version machine credits the delivered scope once per contract; neither
-contribution edges nor unmet extensions earn extra rows. The former 71-unit
-adjacency review is historical. Shared boundaries and explicit D dependencies
-determine this catalogue. A separately generated continuity graph presents
-chronology, concepts, dependencies and corrections with provenance, across
-letters and numbering generations, and can be rebuilt from their records.
+Regulatory order follows product source chronology. The version machine credits
+delivered product scope once, preserving A/B arithmetic and source classifications.
+Ownership contracts receive no duplicate credit. Version arithmetic, behavioral
+acceptance and public publication retain separate receipts.
 
 ### Existing hook and required CI
 

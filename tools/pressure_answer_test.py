@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-r"""Border 78 - four answers, spelled five ways.
+r"""Border 78 - the source-owned pressure answer vocabulary.
 
-`SAO_Controller` states the domain in its own comment:
+`SAO_Controller` retains the original four-answer baseline in its comment:
 
     The four answers (DR-011, [A18]): what is the pressure doing to
     this body right now - need, designation, chosen rest, or errand.
 
 Every transition passes through `setState`, which fills the answer from
 an explicit argument, then a per-state map, then `"errand"`. It is one
-of the load-bearing facts about this framework: a survivor is never
-doing nothing, and what they are doing is one of four things.
+of the load-bearing facts about this framework: a survivor's transition
+names its current pressure. Later explicit owners add the six purposes
+listed below; they do not rename the original answers.
 
 [B52] found the tree spelling five. Four sites answered `"rest"` and
 three answered `"chosen rest"` - the evening seat, sleep, a short rest
@@ -28,12 +29,19 @@ This is Border 11's shape for designations, applied to the answer.
 
 WHAT IS CHECKED
 ---------------
+Current controller owners add explicit recovery, study, inquiry and social
+activity answers; ConflictResponse owns the threat answer. The UI displays
+answer and detail directly. Behavioral comparisons currently distinguish need
+and designation rather than classifying every answer into the original four.
+This check retains a closed, documented producer/consumer vocabulary; it never
+admits an arbitrary new spelling because no current reader happens to test it.
+
   * every literal an answer is ASSIGNED - the per-state map's values,
     the `or "errand"` fallback, a `pressure = { answer = "..." }`, and
-    `setState`'s fifth argument - is one of the four
-  * every literal an answer is COMPARED AGAINST is one of the four, so
+    `setState`'s fifth argument - is in the declared domain
+  * every literal an answer is COMPARED AGAINST is in that domain, so
     a reader cannot ask for a value nothing sets
-  * every one of the four is actually produced somewhere, so the
+  * every declared answer is actually produced somewhere, so the
     domain describes the county rather than an older one
 
 Read from string-blanked source with offsets preserved, so a `why`
@@ -55,6 +63,12 @@ ANSWERS = {
     "designation": "the house gave them this, and they are on it",
     "chosen rest": "they chose to stop; not collapse, not idleness",
     "errand": "the fallback, so a survivor is never doing nothing",
+    "accepted shared activity": "Controller.advanceLeisureParticipation executes an accepted shared reading/music obligation",
+    "shared activity invitation": "Controller.proposeLeisureParticipation records a delivered music invitation, before peer participation",
+    "chosen recovery": "Controller.updateRecovery/admitRecoveryPlace exposes preparing or observed recovery; the label alone gives no completed credit",
+    "chosen study": "Controller.dispatchOrdinaryPurpose exposes the selected current Study.describe activity",
+    "inquiry": "Controller.beginConceptInquiry/advanceConceptInquiry owns a privately grounded route and subsequent unresolved investigation",
+    "threat": "ConflictResponse.apply executes an available personally appraised response, without claiming the threat was resolved",
 }
 
 SET_STATE = re.compile(r"\bsetState\s*\(")
@@ -102,7 +116,7 @@ def args_of(blank, open_at):
 def main():
     faults = []
     print("=" * 74)
-    print("FOUR ANSWERS, SPELLED FIVE WAYS")
+    print("SOURCE-OWNED PRESSURE ANSWERS")
     print("=" * 74)
 
     files = sorted(LUA.rglob("*.lua"))
@@ -204,9 +218,9 @@ def main():
             faults.append(
                 f"`{value}` is set as a pressure answer at {where[0]}"
                 f"{f' (and {len(where) - 1} more)' if len(where) > 1 else ''}"
-                f" and is not one of the four: {', '.join(sorted(ANSWERS))}. "
+                f" and is outside the declared domain: {', '.join(sorted(ANSWERS))}. "
                 "Nothing compares against it, so it costs nothing today - "
-                "and the day somebody reads for one of the four, this "
+                "and the day somebody reads the declared vocabulary, this "
                 "survivor is silently not among them")
     for value, where in sorted(compared.items()):
         if value not in ANSWERS:
@@ -217,7 +231,7 @@ def main():
     for value in sorted(ANSWERS):
         if value not in assigned:
             faults.append(
-                f"`{value}` is one of the four answers ({ANSWERS[value]}) "
+                f"`{value}` is a declared answer ({ANSWERS[value]}) "
                 "and nothing in the tree sets it. Either a path was lost or "
                 "the domain describes an older county")
 

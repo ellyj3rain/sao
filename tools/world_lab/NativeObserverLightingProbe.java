@@ -161,8 +161,16 @@ public final class NativeObserverLightingProbe {
         String kind = args[1]; boolean wall = Boolean.parseBoolean(args[2]);
         boolean observer = "observer".equals(kind);
         zombie.core.random.RandStandard.INSTANCE.init();
+        zombie.ZomboidFileSystem.instance.init();
+        // Native human creation receives these definitions during game startup.
+        zombie.characters.SurvivorDesc.addHairColor(new zombie.core.textures.ColorInfo(.2f, .2f, .2f, 1f));
+        zombie.core.skinnedmodel.population.PopTemplateManager.instance.init();
+        zombie.core.skinnedmodel.population.HairStyles.init();
+        zombie.core.skinnedmodel.population.BeardStyles.init();
         zombie.Lua.LuaManager.platform = new se.krka.kahlua.j2se.J2SEPlatform();
         zombie.Lua.LuaManager.env = zombie.Lua.LuaManager.platform.newTable();
+        zombie.Lua.LuaManager.thread = new se.krka.kahlua.vm.KahluaThread(zombie.Lua.LuaManager.platform, zombie.Lua.LuaManager.env);
+        zombie.Lua.LuaManager.thread.debugOwnerThread = Thread.currentThread();
         zombie.Lua.LuaEventManager.register(zombie.Lua.LuaManager.platform, zombie.Lua.LuaManager.env);
         zombie.SoundManager.instance = new zombie.DummySoundManager();
         Core.debug = true;

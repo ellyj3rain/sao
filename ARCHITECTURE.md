@@ -1,25 +1,11 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.11.1.0-pre-alpha` |
+| Version | `3.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
 
 # Architecture
-
-## Current C publication
-
-The current C catalogue contains 35 shared contracts reconstructed from 120
-preserved source records. `Batches/C_SHARED_BOUNDARIES.json` and
-`Batches/Catalogue/` are the current owner/interface map. The frozen compression
-event precedes D1. Earlier GitHub PRs retain their historical source identifiers;
-this additive publication reconciles the catalogue and version metadata without
-replaying runtime implementation. Source C118/C119 are already merged. Source
-C120 and its local recovery owners remain unmerged, with rendered acceptance
-and redistribution conditions open. `Batches/C_PUBLICATION_AVAILABILITY.json`
-records the two C34 owners absent from this public runtime using exact preserved
-archive and source-record pins. D1 remains OPEN and its runtime is separate.
-
 
 ## Product boundary
 
@@ -532,6 +518,14 @@ takes the days it takes. Death is durable: corpses belong to the
 engine, records become death records, claims lapse ([A11]), refill waits
 its sandbox-governed days and happens at spawn regions, never at the loss.
 All policy numbers are sandbox options.
+
+D1 preserves the boundary between physical and dormant time. Dormant walking
+starts after the later valid `lastWalkHours` or `releasedAtHours` checkpoint;
+time already enacted by a body cannot become offscreen travel on reload. The
+live population tick attempts nearby body admission before advancing remaining
+dormant records. Historical catch-up keeps its own scheduling order and rate.
+Native admission may still refuse a location, and existing saved positions and
+histories remain authoritative.
 
 C57 gives `SAO_BodySnapshot` the shared native-envelope contract: version
 interpretation, capture, validation and durable commit. `SAO_Body` owns
@@ -1251,6 +1245,22 @@ preserves completed prerequisites. Admission to a queue records only that an
 owner accepted work; it never counts as reading, construction, practice or
 social participation.
 
+The active store represents current planning focus. Validated private conflict
+appraisal can suspend an unadmitted purpose when an executable urgent response
+needs that focus. The durable queue preserves its identity, revision, accepted
+resource request, deadline, progress, steps and native result history. Ordinary
+Controller comparison resumes an eligible queued obligation only after current
+body, private threat and physical-owner checks permit an ordinary turn. Planning
+restores the original position; the existing resource chooser compares it.
+An owned native admission requires its executor's handback before suspension.
+
+A completed solo leisure purpose with only optional sharing remaining can move
+to a separate bounded suspended ledger under new pressure. It retains the
+completed physical result and unresolved participation. Older optional records
+have an explicit omission count. The required-obligation queue preserves its
+retained rows and reports its capacity boundary directly. Resumption preserves
+unfinished work rather than supplying a completion result.
+
 The planner holds person-private spatial facts with provenance, confidence,
 familiarity and decay. Familiar home ground lasts longer than a briefly seen
 route. A native claim survey records the holder's aggregate understanding of
@@ -1328,9 +1338,29 @@ distinct usable relief and new physiological danger can interrupt it.
 Fortification compiles survey, construction and verification over held ground.
 The existing SAOBuild native bridge still owns material checks, aperture choice,
 engine barricading and consumption. Instrument recreation records its physical
-activity site and carried affordance. Reciprocal trust changes only for nearby
-people whose bodies actually danced or clapped during the performance; hearing
-or accepting a route toward the activity is not participation.
+activity site and exact carried affordance. `SAO_Gesture` owns the supported
+native instrument sound, its queue action and terminal result. Planning binds
+the person, exact item and work occurrence before native queue admission can
+start the action. A completed result requires observed sound emission, the
+native world-sound stimulus, observed sound end and settled cleanup. Admission,
+start, sound end and native completion retain their individual dates.
+
+Controller compares materially eligible carried reading and a supported carried
+instrument through the shared personal interpretation interface. Only the
+selected alternative creates a physical purpose and attempts native admission.
+Acquired sound experience can change that selection; rejected admission permits
+another eligible choice during the existing retry interval. A plain private
+decision record retains exact item identities, alternatives, model selections
+and admission status. The existing person inspection projects this decision and
+bounded deferred-purpose rows separately from completed use.
+
+`SAO_Cognition` requeries this result owner before acquiring private
+instrument-use experience. Independent cognitive models can predict the known
+native sound effect from that evidence. Physical emission establishes neither
+pleasure nor competence. Hearing, accepted joint participation, another body's
+activity and its social consequences require their own acquired evidence; these
+joins remain open. Optional sharing retains its unfinished standing after solo
+performance and cannot establish a completed shared activity.
 
 The ordinary and associative models receive detached copies of the same bounded
 candidate set and their own model state. The ordinary model emphasizes evidence,
@@ -1388,7 +1418,20 @@ budget, simulated clock, accumulated simulated hours, last stop reason and
 whether the current state can checkpoint or continue. Lifecycle commands are
 exact immutable files. Save requests use the existing native stop route;
 configuration and continuation go to the supervisor through Speakeasy's
-allowlisted bridge. A failed or forced run has no continuation authority.
+allowlisted bridge. The default verifier refuses incomplete predecessors.
+A normally exited observer attempt with a returned native save may continue
+under a separate, predecessor-bound reviewed-error manifest. The qualifier
+checks the exact session, attempt, engine, log rows and retained incident
+evidence. It preserves the original incomplete verdict and grants no clean-run
+or behavioral acceptance. Forced termination, failed supervision and missing
+native save return refuse continuation.
+
+Saved-boundary gameplay delivery uses named profiles with exact file inventories,
+predecessor and successor hashes, retained bytes and rollback through launch
+failure. The shared-reasoning profile carries its thirteen Lua owners and the
+rebuilt SAO Java archive; the existing two-file profiles remain readable.
+Observer refresh is a separate verified transaction. Save bytes, engine,
+other mods and source identities remain under the predecessor's authority.
 
 Mousecat receives path-free session state with the native view. It exposes the
 one action valid now and places duration and automatic continuation inside an
@@ -1565,6 +1608,363 @@ a late result from resolving newer work. Both models revise independently from
 the same authenticated experience. Unavailable, interrupted and unmeasured
 results are censored. Both predictions are scored against the selected action's
 qualified outcome; unexecuted alternatives retain no outcome.
+
+C120 extends that existing ledger to personally encountered entry outcomes and
+measured native recovery. Perception owns exact-aperture receipts; Needs owns
+observed recovery segments. Cognition rereads the producer's canonical receipt,
+retains an actor-qualified sequence and updates both independent model states.
+The ordinary model's applicable expectation changes entrance cost and close
+recovery preferences through their existing consumers. Current observations,
+emergency needs, danger, Standing and native feasibility govern admission.
+Entry conditions remain tied to the actual encountered edge and its attempt;
+arrival alone supplies no evidence about which opening was used. Recovery
+requires the same body, measured values and observed elapsed time before its
+owner clears. Reload starts a fresh observed segment. Repeated receipts and
+unobserved elapsed time supply no additional experience. Confidence uses the
+existing aging rule; reads do not train either model. Model versions /1 and /2
+remain readable and migrate to /3 when authentic new evidence is admitted.
+
+RecoveryPose owns an independent exact-body/person/token action capsule through
+the existing native timed-action queue. Installed LeanAndLie 1.27 and TchernoLib
+1.16 supply external animation mechanics and the ground-state variable; SAO
+distributes its own adapter rather than copied external actions or animation XML.
+Admission, elapsed observation, cancellation and cleanup retain the same actual
+body and ownership token. Needs admits physiological recovery only from the
+qualified native pose and measured segment. Stale callbacks and retired receivers
+cannot earn another person's recovery result.
+
+The final bounded pending-intent and native admission contract is
+Saved preparation persists its existing1800 county-tick navigation origin/deadline separately from120 native-idle admission ticks begun at the observed approach. An already started wait remains binding during displacement; reload/requeue cannot renew either clock. Current record/body/custody, Standing, entry, needs, threat, responsibility, locomotion job, offered place geometry/index and current runtime key govern admission. Fresh reobservation retains prior-key provenance with persistentObjectIdentity=false; active native bed-pointer and pose/physiology ownership remain exact.. Its actual loaded verification is
+Original failed08 continuation09e96a7d-a49f-460d-8117-6ea264f3efe5 completed and saved normally, exit0/errors[]/unforced, county2.2487840652 to4.5107564926. sao-2 reached its retained approach, reacquired the currently visible bed and entered owned native sleep. Nine current intent/key acknowledgments persist; fatigue0.7782769799 to0.3887803555 over1.75 sampled countyhours establishes ongoing physiological recovery. The later native image shows a horizontal body partly hidden by the right-bedroom wall. Full sleep completion, a completed recovery experience, and rendered ground sleep are unobserved.. Unavailable or refused admission remains
+separate from completed physiological recovery.
+
+`SAORecoveryPlace` produces personally visible resting-place candidates. Native
+bed geometry supplies an exact furniture identity and a clear approach; ground
+requires a clear lying envelope at the base and animation-offset positions,
+away from doorways, windows, blocked seams and other bodies. Controller selects
+a permitted usable bed before a ground alternative and routes through the
+existing Locomotion owner to that exact approach. Arrival rechecks the body,
+Standing, native place availability and ownership. Nighttime sleep uses this
+same admission path. RecoveryPose reserves the exact bed while native entry is
+queued, uses `ISGetOnBedAction`, and binds its physiological quality only after
+native pose acknowledgment. Needs checks the selected furniture throughout
+recovery and reacknowledgment; native get-up owns bed teardown. Ground remains
+an explicitly considered fallback after inquiry, subject to physical clearance.
+The visible bed's furniture `Facing` supplies the producer's head/foot geometry
+and each owned native entry action's two direction calculations. The entry action
+retains the installed queue, animation events, alignment and get-up lifecycle.
+Native query diagnostics retain bounded visible rejection reasons and distinguish
+an unavailable query from an available query with no admissible place.
+
+The operator's qualitative-reasoning requirement applies across ordinary choice.
+General knowledge of purposes and relationships combines with a person's prior
+life, retained experience and current private observations to form alternatives
+and conditional expectations. A remembered general relationship can guide
+inference and investigation while the particular local condition remains unknown.
+Execution and its measured consequences remain the existing owners' work.
+
+The local shared-reasoning continuation gives private plan candidates explicit
+conditional consequences. Labor supplies exact acquisition, preparation and
+inspection alternatives. CognitiveModels compares applicable source, item type
+and entry-condition evidence, retaining uncertainty and the contributing receipt
+identities. Contrary outcomes revise these expectations; elapsed time weakens
+confidence without creating experience. The associative model can transfer a
+weaker expectation from related preparation or inspection evidence. Current
+native capability supplies a labelled preparation prior, with no claim of corpus
+comprehension or completed practice.
+
+Cognition gives both models separate copies of the same alternatives and their
+own retained state. Its configured contestant is stable within the private
+decision interval and supplies the actual selected resource route. Candidate
+pruning uses that same interpretation. Cold appraisal uses disposable model
+state; it does not create a learning record. Entry alternatives and the choice
+among sleep, awake rest and continuing activity use the same prediction owner.
+Needs retains accepted responsibilities as competing purposes and limits learned
+influence so repeated disappointment cannot veto extreme recovery pressure.
+Standing, known destinations and native ownership still govern admission.
+Planner observations retain detached, bounded predictions and their evidence.
+
+D1 joins ordinary bodily recovery and resource needs, ready accepted commitments,
+carried-manual study and retained cooking practice through that same private
+interpretation. Controller produces personally valued alternatives and dispatches
+the selected purpose through its existing native owner. Disposition, bodily
+pressure, retained purpose, accepted responsibility and authentic recovery
+experience contribute to the comparison. Urgent medical, danger and deprivation
+responses retain their admission boundaries. A failed admission removes that
+candidate and re-ranks the remaining alternatives; food and water retain separate
+retry clocks. Study survives the ordinary caller, and asynchronous study
+cancellation preserves the exact selected commitment for revalidation on resume.
+The retained ordinary-purpose decision contains detached values and explanation;
+native bodies, manuals and queued actions remain transient owner state.
+
+DR-057 extends this shared reasoning to aggression, self-defense and cooperation.
+`SAO_CognitiveModels` evaluates conceptual arguments about bodily harm, separation,
+obstruction, defense, force, agreement, mutual support and coercion. The person's
+private observations, learned associations, values and accepted responsibilities
+change the available reasons and the selected response. `SAO_Cognition` admits
+detached private frames; `SAO_ProceduralPlanning` retains the current purpose,
+alternatives, native admission, exact attempt results and recent route refusals.
+Numeric weights remain internal mechanisms. A conceptual expectation supplies
+neither a local target nor permission to attack.
+
+Every selected private contact may enter appraisal, including distant contacts.
+Watching can preserve a real ordinary task; its route toward danger supplies an
+objection. Appraisal may update during a native crossing while that owner retains
+the body. `SAO_PathogenPressure.appraise` reads the actor's recognized form and
+retained experience without acquiring another encounter. The resulting private
+risk premise qualifies reassurance from distance and participates in continuity.
+Physical distance still governs native reach. Anonymous audible events retain an
+unknown cause; the generic native sound row supplies no acoustic category.
+Personal outbreak knowledge and test initialization remain distinct from world
+age and ordinary-life priors under DR-057's knowledge clarification.
+
+`SAO_ConflictResponse` joins Controller's threat turn to this interpretation.
+Personally remembered routes and immediately observed ground support withdrawal
+and repositioning. Native combat offers a bounded shove, stomp, melee strike or
+ranged attempt against the actor's exact observed target. Standing governs force;
+the installed attack entry, physical reach, obstruction and native animation own
+admission and body custody. Changed danger requests handback before another
+action. A completed attempt proves neither injury nor threat elimination.
+Accepted cooperative segments use existing Organization and Coordination owners;
+spoken threats require Communication reception, and concessions use exact Handover
+receipts. Cancellation preserves a material transfer that already completed and
+waits for the exact action to leave both native and Lua queues. Agreement,
+compliance and pacification require their own observed consequences.
+
+Native player-versus-player permission is a remaining human-opponent boundary:
+the installed single-player engine treats SAO player shells as players and rejects
+their mutual attacks while cooperative PvP is disabled. Standing permission alone
+does not bypass that native rule. No global PvP setting is changed by this slice.
+
+Conflict admission and bounded feedback persist in the person record. Disposable
+body/job bindings belong to the loaded controller. Detach settles exact admissions;
+adoption reconciles orphaned work as unobserved. A terminal callback outside its
+admitted observation interval releases the token without crediting the outcome.
+Observation exposes beliefs, intended response, alternatives, physical admission,
+result and unresolved consequences separately. Broader acquired ideologies,
+self-destructive or last-stand commitments, coordinated attacks, pacification
+and institutional consumers remain explicit DR-057 implementation joins.
+
+`SAO_ConceptKnowledge` owns general relational expectations. Its declared
+ordinary-life foundation connects places, likely constituents, usable means,
+activities and effects. A person's canonical co-observations add private learned
+associations. Bounded traversal returns defeasible paths with contributing
+relations, provenance, contradictions and explicit unknowns. Reading an inference
+does not initialize or train a person's record. A house can suggest a bedroom,
+bed and sleep without supplying a bedroom's coordinates or asserting a usable bed.
+The foundation is a small vocabulary. The existing Education/Registry owners
+extend it with source-bound, dated personal schooling, work/training and
+community/literary exposure. Versioned authored events retain the actual
+carrier, acquisition channel and region chronology beside the literal held
+source unit; reported norms keep assent unestablished. Current native
+birth history and registry identity gate each background premise; refusal
+preserves the record and withholds its meaning. Literal source content supplies
+conditional inquiry, with retention and mastery unassessed. Native food
+recognition supplies another exact personal premise through current item and
+learned-recipe knowledge. Broader cultural differentiation and assessed
+K-through-college assessment and retained transfer remain separate implementation work.
+
+`PersonalAwareness` retains explicit initial personal reports and later private
+evidence. `PopulationAdmissions` stages the optional authored study history
+before genesis and binds its provider to the actual person, admission ordinal,
+source definition and save. Empty history means uninformed; omission uses the
+legacy setting. Current custody gates retained interpretation after reload.
+Private radio reception supplies a report, and personally observed change of a
+previously observed familiar body supplies a bounded association. Neither an
+unknown sound nor a stranger's body supplies a confirmed outbreak cause.
+Conflict appraisal consumes that private uncertainty while retaining ordinary
+physical defense and withdrawal alternatives. Later ideology, pacification and
+joint offensive coordination retain their separate behavior contracts.
+
+`PersonalMemory` retains dated autobiographical episodes on the actual person's
+record. `PopulationAdmissions.stageInitialLifeHistory` accepts source-defined
+episode sets before genesis, binds the requested site/admission ordinal to its
+generated identity and stamps that identity into each retained episode. Native
+GameTime supplies the world start date; native History and an available education
+profile must agree with the authored birth year. Occurrence precedes acquisition,
+acquisition precedes the pre-1994 start cutoff, and reload requires the original
+definition, save and complete source rows. An explicit empty episode set and an
+omitted history remain distinct.
+
+Configuration staging retains its attributed stamp separately from lived
+admission chronology. A fresh historical replay can rebase county time before
+genesis; custody remains tied to staging before identity generation and the
+exact source rows. Recall reads `History.countyInstant` on that owned coordinate.
+Episodes acquired after the current replay calendar remain retained and
+unavailable until their acquisition date; admission does not reset episode age.
+
+Each episode retains its description, participants, dates, valence, salience and
+declared real or authored-synthetic source identity. These source attributions
+do not themselves establish that a claimed real event occurred. Pure recall
+reads present `Neuro.clarityOf` and existing `Conditions.memoryFactor`, including
+its health-trait and age effects without applying its Neuro factor twice.
+An absent condition owner is identified as a Neuro-only projection. Invalid
+owned inputs withhold recall. The dated retention projection uses explicit
+uncalibrated coefficients; impairment changes accessibility without rewriting
+the underlying life. `ConceptKnowledge` consumes accessible autobiographical
+associations as modal premises for its existing inference and inquiry paths.
+A recalled counterexample remains attributed uncertainty alongside fresh
+evidence. Autobiography supplies neither current coordinates nor native success,
+mastery or another person's assent, and is not automatically a teaching offer.
+Bounded autobiographical roots expose their omitted count to the inference
+receipt; unresolved reasoning does not imply complete coverage of the history.
+Neo carries the relevant person-source and model integration through the
+participating repositories. Speakeasy owns its latent/post-latent pipeline and
+relevant salience; Neo's existing personality/memory mechanisms, SAO's durable
+person and reasoning, ZAO's bodily-state authority and the sibling Post-Latent
+component retain their producer/consumer seams. Post-Latent is one canonical
+participating repository. Wider clinical, hereditary and comprehensive life-history
+grounding retain their actual source, availability and implementation evidence.
+
+`History.calendarAgeOf` reads the actual current county instant and immutable
+birth year. It returns nominal calendar-year age and the attained-age interval
+implied by an unknown birthday. Conditions uses that current projection for its
+existing age-dependent retention factor and exposes unavailable projection
+metadata. Birth-year identity remains stable across elapsed time and replay.
+
+The January 1 authored-history specimen and its completed native continuation
+retain exact person/save/source custody, all three autobiographical episodes,
+available owned recall and ten initial purpose identities across reload. These
+bounded observations supplement the separately scoped causal owner controls;
+they do not establish that autobiography caused a particular native action.
+D1's final acceptance is CLOSED with controlled person-specific reasoning and bounded native recovery.
+
+`SituationAppraisal.query` combines attributed reports, personally heard fresh
+sound pulses, conceptual expectations, observed frontiers and current personal
+disposition. Its detached questions retain interpretation, uncertainty, possible
+consequences and source evidence. ProceduralPlanning offers a bounded inquiry
+through the existing movement owner. Controller includes it in ordinary
+arbitration alongside needs and commitments; a personally uninteresting concern
+can lose to continuing activity. Retained questions and exact-once observation
+revisions survive interruption and native serialization. Arrival supplies a
+route result, while recognition of a cause requires acquired evidence.
+
+`PersonState.query` exports `sao-person-state/1` for an exact registered person,
+owned body and current clock. Its `modelView` contains the eight effective SAO
+disposition axes, year-resolution age, accessible recalled episodes, native
+temper and cognitive projections with observation provenance. `audit` retains
+private trait, memory and question custody. Neuro supplies separate availability
+metadata for native moodles and the durable event-derived brain state; numeric
+compatibility defaults remain unavailable to the model task. Incarnation remains
+explicitly unknown when no universal generation producer exists.
+
+StudyWorld places this detached export at `people[].context.personState`, marks
+its schema-owned lists and records whole-field omissions on byte-budget or owner
+failure. The transport validates person and clock joins. Speakeasy's
+`person_history_intake` binds frames, profile/facet assignment and source bytes;
+its versioned person-context renderer selects only available person-state fields
+and accessible episode IDs. The composed responder checks the canonical fitted
+model owner and executes shared-base inference with complete-input bounds.
+Prepared tasks retain selected concerns, rendered-view hashes and pre-outcome
+custody. Output admission and training/assessment retain separate evidence.
+
+`Cognition.choose` retains optional `episode.decisionPersonState` with schema
+`sao-person-decision-state/1` before model proposals. The envelope binds the
+person, decision frame ID, current tick and decision county hour to a detached
+actual owner query. Missing ticks omit the optional field in legacy runtimes;
+stale frames and unavailable owners retain explicit unavailable reasons. Full
+snapshots preserve the whole state, and compact snapshots refuse an oversized
+state whole. The observer marks frozen person-state lists on its detached export
+before serialization. Frame IDs and trajectory episode IDs have separate roles.
+Both Speakeasy's task intake and the actual native watcher validate the sidecar
+and freeze its presence and contents across later snapshots. The model input uses
+the decision view; later periodic state and outcomes remain diagnostic evidence.
+The selected native concern joins through its canonical `question.key`. The
+versioned semantic renderer retains the full selected question's substantive
+evidence, uncertainty, anticipated consequences and acquired relation meanings;
+source graphs, revisions and custody remain in the exact typed task/audit rather
+than prompt metadata. A declared semantic projection is distinct from an exact
+full-graph prompt. The fitted owner's fixed context bound refuses oversized
+inputs whole, before generation, with no silent truncation or numeric health
+substitution. The actual watcher retries bounded transient session-file sharing
+failures; lasting denial, other errors and invalid schema remain failures.
+
+Native perception retains actual contact floors through private beliefs, threat
+selection, conflict interpretation and labor danger projection. A known separate
+floor qualifies horizontal proximity and leaves contact reachability unknown.
+Native combat opportunity continues to own admission of a physical defense or
+strike, including a genuinely available ranged opportunity.
+
+`SAOConceptObservation` supplies occupied-room geometry, personally visible
+objects and visible doorway approaches through the existing native gaze, range
+and line-of-sight owner. The bridge returns plain scalar records. Perception
+checks the current body against its canonical person and controller. Ordinary
+SAO bodies carry their person ID without an external-ownership token; foreign
+ownership and mismatched tokens are rejected. Perception retains observations
+privately; authored room names and hidden contents
+do not become personal knowledge. A remembered home can supply a residence
+classification. A visible doorway supplies an adjacent crossing to investigate;
+the unseen destination's role and contents remain unknown.
+
+ProceduralPlanning connects the selected concern's desired effect to those
+personal expectations and observed inquiry frontiers. Controller admits the
+resulting inquiry through Standing and the existing Locomotion owner. The
+retained purpose carries its relational path, sought means and attempted
+frontiers by their directed room-side edge. Untried doorways take precedence;
+the same doorway may be crossed back out of a dead end within the retained
+attempt bound. Runtime body and job bindings stay transient. An inquiry route result
+establishes movement or obstruction, and fresh Perception supplies what was
+actually found. Interruption preserves the question. Existing urgent needs and
+native action ownership govern admission. Ordinary concern priority still uses
+the earlier utility arbitration; this join makes conceptual knowledge causal in
+the choice of means while the wider priority reform remains open.
+
+Personally observed means also support inquiry after leaving the room. Perception
+retains the object and a room anchor where that person actually stood.
+ProceduralPlanning connects its known object-to-effect relation to the concern;
+Controller routes to that observed anchor and refreshes perception on arrival.
+Current native admission determines whether the object can be used. Attempts
+remain bounded by object, room and context, with Standing and work availability
+checked through their existing owners.
+
+Recreational literature uses `SAO_Study` and its exact carried book, body and
+native `ISReadABook` action. Planning retains the leisure purpose; Study separates
+preparation, observed execution, completed use and interruption. Native progress
+and completion own the book's effects. Reading retains the Controller turn until
+completion or an admitted interruption. Inspection projects these phases and
+does not infer a wall posture from the purpose. Musical gesture admission reports
+preparation; listener effects require actual sound and reception. A keepsake
+intention remains unresolved until a physical executor supplies its result.
+
+Personally visible loose items now enter Perception through native same-floor
+visibility. Private evidence retains item identity, visible type and geometry,
+and established reading or instrument affordances. Exact physical signatures
+remain with WorldSources for transfer validation; passive sight establishes no
+fluid safety, quantity or hydration. Controller can compare a supported loose
+material with carried activities through the existing ordinary chooser. Planning
+retains its acquisition purpose, SourceUse owns current permission and native
+pickup, and measured exact transfer advances that same purpose into Study or
+Gesture. Repeated acquisition, interruption and reload preserve exact receipt
+identity. Pickup establishes custody; the physical verb owns its later result.
+
+Writable literature has a distinct native timed-action owner. Study admits exact
+existing custom text from carried Literature, keeps unread content transient,
+and revalidates body, material and full text through native perform/complete.
+Private completed exposure remains separate from comprehension. Planning consumes
+the canonical Study result under typed authority; native book page counters,
+recipes and generic practice do not certify note exposure. Observation names
+written notes and exposure while retaining unknown understanding.
+
+Instrument work retains its exact native WorldSound occurrence. The normal
+scanner's actual audible acquisition and witnessed emitter visibility can join
+that occurrence to a listener-private hearing receipt. First anonymous hearing
+and later witnessed hearing retain separate dates, native clock domain, body
+generation and pulse epoch. Coordination and Organization use existing addressed
+procedures and accepted commitments for perform/listen roles. Returned assent
+precedes a fresh performance; native sound, private hearing and actual spoken
+acknowledgement precede the performer's shared-purpose result. Controller dispatch
+uses those private role offers. Waiting to hear yields an ordinary turn; recorded
+hearing supplies its own observation. The source joins have controlled proofs;
+current-source native deployment and rendered acceptance remain separate.
+
+Study, practice and social consequences have explicit unknown predictions until
+their authentic result owners supply applicable experience. The implementation
+remains local. Wider leisure and anticipatory resource purposes, educational and
+cultural priors, automatic assessment, retained understanding and broader transfer
+remain work across the existing owners. The literal corpus remains an actual
+knowledge and training input. Controlled decision proof and rendered end-to-end
+acceptance have separate standing; this shared comparison establishes no trained
+general competence.
 
 Connected receipts can seed near associations and cross-domain technological
 conjectures. Repeated identical operations cannot manufacture deeper evidence.

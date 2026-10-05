@@ -1,0 +1,44 @@
+{
+  "schema": "sao-installed-recovery-adapter/1",
+  "source": "Lean & Lie",
+  "installedVersion": "1.27",
+  "workshopId": "3652012357",
+  "runtimeDependencies": [
+    "LeanAndLie",
+    "TchernoLib"
+  ],
+  "standing": "Installed external animation dependency is explicitly required by staged published mod metadata; original carried selected-source bytes remain private historical evidence with redistribution terms unestablished",
+  "originalPrivateSources": {
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\client\\SAO_RecoveryPose.lua": "c1f04cd84d51f28b1a2684c2a62bc6248b745ef9cfb76461f5dd1aedc183010a",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\recovery_source_manifest.json": "c3af312b79f07facfd491e8c6135eefe4cbf6c161d409f39a33e4fc699ae25f4",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\TimedActions\\SAORecoverySitToAwakeAction.lua": "4488e3dfb5f7c08cdcc2611d6761f06438c4e6ee4e1a150d4e3c0688cda3a416",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\TimedActions\\SAORecoveryAwakeToAsleepAction.lua": "c3fc3580820802d0e9a052645450b8df00642703e90faf92a2b043e42b5def62",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\TimedActions\\SAORecoveryAsleepToAwakeAction.lua": "578f7051c10cf0031892fd3420f2358ab342f46672c026d761abc3d95096a459",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\shared\\TimedActions\\SAORecoveryAwakeToSitAction.lua": "b5286b3fd27b5ab95ba2e15766c8be217f3d7c9dcfe23cebf11ee5456c68da3a",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\AnimSets\\player\\sitonground-sitting\\SAORecovery_awake.xml": "3c6a2fb8a2b88756805dae8d492faae534d3e2574cfaa2e7eed3706fd07bfd71",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\AnimSets\\player\\sitonground-sitting\\SAORecovery_awake_to_sit.xml": "3818ecc999c7ba2313f8a23910db566b3116c25ab2d7a3d3e6146e7c6e5f9ffd",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\AnimSets\\player\\sitonground-sitting\\SAORecovery_awake_to_sleep.xml": "eb06983d7ccad233fea8015da66916c89a80991051e1732c420fc5506b591524",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\AnimSets\\player\\sitonground-sitting\\SAORecovery_ground_base.xml": "14747089b9e05dd554146010890366c3300b8f86494a1c390d04577b967c9b37",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\AnimSets\\player\\sitonground-sitting\\SAORecovery_sleep.xml": "74249daef214ef7a72c9333f63ccbd2bf100f64cf568ddb7926541de6ce807c0",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\AnimSets\\player\\sitonground-sitting\\SAORecovery_sleep_to_awake.xml": "cd61ec7e54882e03c1e6e09a288bc37d45715859605ad77447e66375f1e5daa9"
+  },
+  "externalSourceRoot": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3652012357/mods/LeanAndLie/common",
+  "invokedAPIs": [
+    "TchAL.stateVariableOnGround"
+  ],
+  "invokedNativeNodes": [
+    "sit_loop_Awake",
+    "sit_loop_Sleep",
+    "sit_loop_AwakeToAsleep",
+    "sit_loop_AwakeToSit"
+  ],
+  "scope": "SAO-owned native queue action and exact body/record/token offset custody; installed external animation nodes remain in installed dependency; no source actions, player-key registry, player sleep UI or unequip helper invoked",
+  "transitiveDependency": {
+    "id": "TchernoLib",
+    "installedVersion": "1.16",
+    "versionMin": "42.0.0",
+    "installedB42Path": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3389605231/mods/TchernoLib/common/mod.info"
+  },
+  "sourcePinMeaning": "Reviewed installed input hashes and packet custody metadata, not runtime content hashing",
+  "cleanup": "Blocked offset reversal releases the owned ground variable and requests native get-up. Runtime exact-custody pending exits retry bounded safe reversal or observe native movement. Ownership rebound retires the actuator receipt and preserves explicit unavailable audit; persisted audit alone grants no translation authority."
+}

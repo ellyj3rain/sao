@@ -1020,7 +1020,7 @@ if ! "$PY" tools/squared_scale_test.py > /dev/null; then
     fail=1
 fi
 
-# 78) The pressure answer is a closed domain of four - need,
+# 78) Pressure answers have an explicit producer/consumer domain - need,
 # designation, chosen rest, errand - and every transition fills it, so
 # a survivor is never doing nothing. [B52] found the tree spelling
 # five: four sites answered "rest" against three answering "chosen
@@ -1029,7 +1029,7 @@ fi
 # silently misses four of the seven rests in the county.
 if ! "$PY" tools/pressure_answer_test.py > /dev/null; then
     "$PY" tools/pressure_answer_test.py 2>&1 | grep -E "FAULT" || true
-    note "BORDER FINDING - a pressure answer outside the four"
+    note "BORDER FINDING - a pressure answer outside its declared domain"
     fail=1
 fi
 
@@ -1055,12 +1055,17 @@ if ! "$PY" tools/version_replay.py > /dev/null; then
     fail=1
 fi
 
-# Current C catalogue preservation and publication availability are detached metadata checks.
+# Current C classification also preserves source generations, measured status
+# and shared-interface references. Detached controls prove refusals without
+# changing the preserved source records or repeating native simulation.
 if ! "$PY" tools/catalogue_test.py; then
-    note "BORDER FINDING - shared C catalogue or explicit publication availability differs"
+    note "BORDER FINDING - shared-contract catalogue preservation or refusal control"
     fail=1
 fi
-
+if ! "$PY" tools/development_graph_test.py; then
+    note "BORDER FINDING - development continuity projection or provenance failed"
+    fail=1
+fi
 
 # [C3] Border 81 - one person, one name (DR-014). A follower shown as
 # one name dropped an ID card for somebody else: the spawn path stamped
@@ -1670,6 +1675,13 @@ if ! "$PY" tools/walk_rate_test.py > /dev/null; then
     note "BORDER FINDING - a day does not carry a day's walking"
     fail=1
 fi
+# A physical body's elapsed time is already enacted; only time after its
+# release may become dormant travel, and nearby bodies get admission first.
+if ! "$PY" tools/population_resume_test.py > /dev/null; then
+    "$PY" tools/population_resume_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - population reload replays represented travel"
+    fail=1
+fi
 
 # [C76] Border 141 - a house takes ground where its people already go:
 # taking ground had call sites in the controller alone, so a house in
@@ -2149,6 +2161,40 @@ if ! "$PY" tools/world_lab_test.py; then
     note "BORDER FINDING - native study world or observation boundary failed"
     fail=1
 fi
+world_lab_loose_proof="_scratch/world-lab-loose-items-gate-$$-$RANDOM"
+if ! "$PY" tools/world_lab_loose_items_test.py --output-dir "$world_lab_loose_proof"; then
+    note "BORDER FINDING - physical loose-item placement or persistence authority failed"
+    fail=1
+fi
+floor_asset_verb_proof="_scratch/floor-asset-verb-gate-$$-$RANDOM"
+if ! "$PY" tools/floor_asset_verb_test.py --output "$floor_asset_verb_proof"; then
+    note "BORDER FINDING - private floor-asset observation acquisition or physical use failed"
+    fail=1
+fi
+# Keep each actual native-export proof separate from its predecessors.
+world_lab_array_proof="_scratch/world-lab-arrays-gate-$$-$RANDOM"
+if ! "$PY" tools/world_lab_observation_arrays_test.py --output-dir "$world_lab_array_proof"; then
+    note "BORDER FINDING - authored awareness arrays or bound native observation decoding failed"
+    fail=1
+fi
+world_lab_reconciliation_proof="_scratch/world-lab-reconciliation-gate-$$-$RANDOM"
+if ! "$PY" tools/world_lab_observation_reconciliation_test.py --output-dir "$world_lab_reconciliation_proof"; then
+    note "BORDER FINDING - immutable observation reconciliation or saved delivery provenance failed"
+    fail=1
+fi
+gesture_conflict_proof="_scratch/gesture-conflict-gate-$$-$RANDOM"
+if ! "$PY" tools/gesture_ownership_checks/run_checks.py --conflict --output "$gesture_conflict_proof"; then
+    note "BORDER FINDING - optional gesture handback or current physical response ownership failed"
+    fail=1
+fi
+if ! "$PY" tools/world_lab_education_test.py; then
+    note "BORDER FINDING - independent education source binding or saved continuity differs"
+    fail=1
+fi
+if ! "$PY" tools/world_lab_combat_startup_test.py; then
+    note "BORDER FINDING - native study startup omitted required melee callbacks"
+    fail=1
+fi
 
 # [C87] The resource and inspection probes expose their own controlled verdicts.
 if ! "$PY" tools/resource_approach_test.py; then
@@ -2183,6 +2229,112 @@ if ! "$PY" tools/cognitive_models_test.py; then
 fi
 if ! "$PY" tools/cognition_test.py; then
     note "BORDER FINDING - cognitive execution binding or native experience failed"
+    fail=1
+fi
+# [D1] Shared ordinary purposes select and dispatch through their existing owners.
+if ! "$PY" tools/ordinary_purpose_test.py; then
+    note "BORDER FINDING - ordinary purpose selection, interruption or dispatch failed"
+    fail=1
+fi
+# [D1] Personal conceptual expectations guide inquiry through observed geometry.
+# [D1] Conflict priors, private appraisal, bounded native actions and visible results.
+if ! "$PY" tools/conflict_reasoning_test.py; then
+    note "BORDER FINDING - private conflict reasoning failed"
+    fail=1
+fi
+if ! "$PY" tools/conflict_response_test.py; then
+    note "BORDER FINDING - conflict execution and feedback failed"
+    fail=1
+fi
+if ! "$PY" tools/handover_cancel_test.py; then
+    note "BORDER FINDING - exact handover cancellation failed"
+    fail=1
+fi
+if ! "$PY" tools/conflict_native_test.py; then
+    note "BORDER FINDING - native combat commitment failed"
+    fail=1
+fi
+if ! "$PY" tools/conflict_observation_test.py; then
+    note "BORDER FINDING - conflict observation failed"
+    fail=1
+fi
+if ! "$PY" tools/concept_knowledge_test.py; then
+    note "BORDER FINDING - personal conceptual inference or executable inquiry failed"
+    fail=1
+fi
+if ! "$PY" tools/concept_reception_test.py; then
+    note "BORDER FINDING - admitted personal association reception or retained inference failed"
+    fail=1
+fi
+if ! "$PY" tools/education_background_test.py; then
+    note "BORDER FINDING - dated person-bound schooling expectations or retained source authority differs"
+    fail=1
+fi
+if ! "$PY" tools/education_exposure_test.py --workbench; then
+    note "BORDER FINDING - authored personal work/community content or current source-bound inquiry differs"
+    fail=1
+fi
+if ! "$PY" tools/personal_awareness_test.py; then
+    note "BORDER FINDING - personal threat interpretation, source custody or ordinary physical defense differs"
+    fail=1
+fi
+if ! "$PY" tools/initial_awareness_admission_test.py; then
+    note "BORDER FINDING - configured personal awareness or exact initial native admission differs"
+    fail=1
+fi
+if ! "$PY" tools/personal_memory_test.py; then
+    note "BORDER FINDING - dated private autobiography or Neuro-dependent recall differs"
+    fail=1
+fi
+if ! "$PY" tools/personal_memory_admission_test.py; then
+    note "BORDER FINDING - native person-history admission or resumed source custody differs"
+    fail=1
+fi
+if ! "$PY" tools/personal_memory_reasoning_test.py; then
+    note "BORDER FINDING - autobiographical premises or actual conceptual inquiry differs"
+    fail=1
+fi
+if ! "$PY" -m unittest discover -s tools -p world_lab_person_history_test.py; then
+    note "BORDER FINDING - authored personal history violates identity or calendar bounds"
+    fail=1
+fi
+if ! "$PY" tools/corpse_lifecycle_test.py; then
+    note "BORDER FINDING - native corpse ownership or retired-shell scheduling differs"
+    fail=1
+fi
+for food_part in lua native; do
+    if ! "$PY" tools/personal_food_knowledge_test.py --part "$food_part" --output "_scratch/d1-shared-reasoning/personal-food/gate-$food_part"; then
+        note "BORDER FINDING - $food_part personal food knowledge or exact selected action differs"
+        fail=1
+    fi
+done
+if ! "$PY" tools/recovery_place_test.py; then
+    note "BORDER FINDING - native recovery placement, bed admission or owned pose clearance failed"
+    fail=1
+fi
+if ! "$PY" tools/recovery_placement_test.py; then
+    note "BORDER FINDING - recovery placement routing or directed conceptual inquiry failed"
+    fail=1
+fi
+if ! "$PY" tools/recovery_admission_test.py; then
+    note "BORDER FINDING - selected recovery intent lost at native idle admission"
+    fail=1
+fi
+if ! "$PY" tools/physical_means_test.py --part native --output _scratch/d1-shared-reasoning/means-feedback/gate-native; then
+    note "BORDER FINDING - exact visible recovery-part identity or obscured-source refusal failed"
+    fail=1
+fi
+
+# D1 - exact reading, preparation and accepted-work outcomes revise private
+# expectations and later executable purpose choices through their owners.
+for outcome_part in study consumer cooking delivery withdrawal; do
+    if ! "$PY" tools/purpose_outcome_test.py --part "$outcome_part" --output "_scratch/d1-shared-reasoning/purpose-outcomes/gate-$outcome_part"; then
+        note "BORDER FINDING - $outcome_part outcome ownership or later purpose differs"
+        fail=1
+    fi
+done
+if ! "$PY" tools/concept_observation_test.py; then
+    note "BORDER FINDING - native concept observation or private doorway geometry failed"
     fail=1
 fi
 
@@ -2245,6 +2397,14 @@ if ! "$PY" tools/world_lab_session_test.py; then
     note "BORDER FINDING - durable study session or bounded continuation failed"
     fail=1
 fi
+if ! "$PY" tools/world_lab_video_archive_test.py; then
+    note "BORDER FINDING - native video archive integrity or session ownership failed"
+    fail=1
+fi
+if ! "$PY" tools/world_lab_delivery_test.py; then
+    note "BORDER FINDING - reviewed saved-world delivery changed unapproved inputs"
+    fail=1
+fi
 
 # Border 211 - [C95] maintained purposes compile person-private spatial and
 # knowledge prerequisites into native work; independent cognitive models may
@@ -2274,6 +2434,54 @@ fi
 # exact pages, queue identity and completion precede maintained learning.
 if ! "$PY" tools/study_test.py; then
     note "BORDER FINDING - native study progress or receipt ownership failed"
+    fail=1
+fi
+
+# D2 - meaningful native item verbs, exact intent admission and personal sound
+# feedback. Each instrument owns its output; publication does not select reruns.
+d2_reading_proof="_scratch/d2-reading-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_reading_test.py --output "$d2_reading_proof"; then
+    note "BORDER FINDING - meaningful reading or exact leisure renewal failed"
+    fail=1
+fi
+d2_intent_continuity_proof="_scratch/d2-intent-continuity-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_reading_test.py --repair-native --output "$d2_intent_continuity_proof"; then
+    note "BORDER FINDING - native result clocks, deferred intentions or urgent planning failed"
+    fail=1
+fi
+d2_instrument_proof="_scratch/d2-instrument-gate-$$-$RANDOM"
+if ! "$PY" tools/instrument_test.py --output "$d2_instrument_proof"; then
+    note "BORDER FINDING - exact native instrument ownership or physical outcome failed"
+    fail=1
+fi
+d2_participation_pulse_proof="_scratch/d2-participation-pulse-gate-$$-$RANDOM"
+if ! "$PY" tools/participation_pulse_test.py --output "$d2_participation_pulse_proof"; then
+    note "BORDER FINDING - exact emitted instrument pulse or private hearing acquisition failed"
+    fail=1
+fi
+d2_participation_proof="_scratch/d2-participation-gate-$$-$RANDOM"
+if ! "$PY" tools/participation_integration_test.py --output "$d2_participation_proof"; then
+    note "BORDER FINDING - received assent, fresh performance or returned participation acknowledgement failed"
+    fail=1
+fi
+d2_participation_controller_proof="_scratch/d2-participation-controller-gate-$$-$RANDOM"
+if ! "$PY" tools/participation_controller_test.py --output "$d2_participation_controller_proof"; then
+    note "BORDER FINDING - actual shared-activity invitation or accepted-role dispatch failed"
+    fail=1
+fi
+d2_cognition_proof="_scratch/d2-instrument-cognition-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_instrument_cognition_test.py --controller --output "$d2_cognition_proof"; then
+    note "BORDER FINDING - native instrument evidence or personal prediction failed"
+    fail=1
+fi
+d2_leisure_choice_proof="_scratch/d2-leisure-choice-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_choice_test.py --output "$d2_leisure_choice_proof"; then
+    note "BORDER FINDING - acquired leisure expectations or actual alternative dispatch failed"
+    fail=1
+fi
+d2_obligation_resumption_proof="_scratch/d2-obligation-resumption-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_choice_test.py --resumption --output "$d2_obligation_resumption_proof"; then
+    note "BORDER FINDING - actual ordinary choice or retained obligation resumption failed"
     fail=1
 fi
 
@@ -2422,6 +2630,34 @@ fi
 # verifies physical relocation and contents before reporting completion.
 if ! "$PY" tools/furniture_movement_test.py; then
     note "BORDER FINDING - furniture movement identity or physical completion differs"
+    fail=1
+fi
+
+# Current person-state owners use isolated proof directories so earlier sealed
+# native and controlled evidence survives repeated affected-contract checks.
+sao_person_proof="$(mktemp -d)"
+if ! "$PY" tools/calendar_age_test.py --output "$sao_person_proof/calendar"; then
+    note "BORDER FINDING - current calendar age or birth-year custody differs"
+    fail=1
+fi
+if ! "$PY" tools/person_state_test.py --output "$sao_person_proof/person-state"; then
+    note "BORDER FINDING - person-state custody, health availability or model/audit projection differs"
+    fail=1
+fi
+if ! "$PY" tools/decision_person_state_test.py --output "$sao_person_proof/decision-state"; then
+    note "BORDER FINDING - frozen decision-time person state or whole-state custody differs"
+    fail=1
+fi
+if ! "$PY" tools/situation_appraisal_test.py --output "$sao_person_proof/situation"; then
+    note "BORDER FINDING - personally acquired situation inquiry or retained revisions differ"
+    fail=1
+fi
+if ! "$PY" tools/upper_floor_sight_test.py --output "$sao_person_proof/upper-floor-sight"; then
+    note "BORDER FINDING - loaded target floor, facing or native line of sight differs"
+    fail=1
+fi
+if ! "$PY" tools/crossfloor_consumer_test.py --output "$sao_person_proof/floor-consumers"; then
+    note "BORDER FINDING - acquired floor or qualified contact reasoning differs"
     fail=1
 fi
 

@@ -23,8 +23,11 @@ public final class GestureOwnershipProbe {
         var boot=MovementCrossingProbe.class.getDeclaredMethod("boot");boot.setAccessible(true);
         var cell=(IsoCell)boot.invoke(null);
         var create=MovementCrossingProbe.class.getDeclaredMethod("person",IsoCell.class);create.setAccessible(true);
-        var cook=(SAOIsoPlayerShell)create.invoke(null,cell);cook.playerIndex=99;
-        var speaker=(SAOIsoPlayerShell)create.invoke(null,cell);speaker.playerIndex=98;
+        // Match production's nonzero, UI-range off-slot indices. Neither body
+        // is placed in IsoPlayer.players; native BaseAction.stop still uses
+        // getIndex() to address the four progress-bar slots.
+        var cook=(SAOIsoPlayerShell)create.invoke(null,cell);cook.playerIndex=1;
+        var speaker=(SAOIsoPlayerShell)create.invoke(null,cell);speaker.playerIndex=2;
         for(var body:new SAOIsoPlayerShell[]{cook,speaker}) {
             body.setSquare(body.getCurrentSquare());body.getCurrentSquare().getMovingObjects().add(body);cell.getObjectList().add(body);
         }
@@ -67,6 +70,37 @@ public final class GestureOwnershipProbe {
         var container=new ItemContainer("stove",square,stove);stove.setContainer(container);square.getObjects().add(stove);square.chunk.addGeneratorPos(10,20,0);
         env.rawset("__cook",cook);env.rawset("__speaker",speaker);env.rawset("__realBridge",SAOBridge.INSTANCE);
         env.rawset("__nativePrint",(JavaFunction)(frame,count)->{System.out.println(frame.get(0));return 0;});
+        env.rawset("__gestureStopRequested",(JavaFunction)(frame,count)->{
+            var action=(zombie.characters.CharacterTimedActions.BaseAction)frame.get(0);
+            frame.push(action.forceStop);return 1;
+        });
+        // Controlled dispatch of the installed updateInternal stop/removal
+        // boundary, independently pausable between callback and native release.
+        env.rawset("__gestureNativeStop",(JavaFunction)(frame,count)->{
+            var body=(SAOIsoPlayerShell)frame.get(0);
+            var action=(zombie.characters.CharacterTimedActions.BaseAction)frame.get(1);
+            if(!action.forceStop)throw new AssertionError("native stop was not requested");
+            if(Boolean.TRUE.equals(frame.get(2)))action.stop();
+            else body.getCharacterActions().removeElement(action);
+            return 0;
+        });
+        env.rawset("__gestureFixtureState",(JavaFunction)(frame,count)->{
+            try {
+                var body=(SAOIsoPlayerShell)frame.get(0);
+                String name=(String)frame.get(1);
+                zombie.ai.State state=switch(name) {
+                    case "open" -> zombie.ai.states.OpenWindowState.instance();
+                    case "smash" -> zombie.ai.states.SmashWindowState.instance();
+                    case "climb" -> zombie.ai.states.ClimbThroughWindowState.instance();
+                    default -> null;
+                };
+                // Controlled state receiver, not a claim that physical entry
+                // occurred. Production getCurrentStateName/isClimbing run.
+                var field=zombie.ai.StateMachine.class.getDeclaredField("currentState");
+                field.setAccessible(true);field.set(body.getStateMachine(),state);
+                return 0;
+            } catch(ReflectiveOperationException error) {throw new IllegalStateException(error);}
+        });
         for(int i=1;i<args.length;i++)thread.call(LuaCompiler.loadstring(Files.readString(Path.of(args[i])),args[i],env),null,null,null);
         System.out.println("GESTURE_NATIVE_DONE");
     }

@@ -1,0 +1,47 @@
+{
+  "schema": "sao.catalogue-transformation/1",
+  "id": "product-consolidation:C:20261005",
+  "standing": "LOCAL_APPLIED_PUBLIC_RECONCILIATION_PENDING",
+  "generation": "20261005-product-consolidation",
+  "sourceGeneration": "20260919-through-C120",
+  "sourceCount": 120,
+  "productCount": 82,
+  "sourceManifest": {
+    "path": "Batches/C_SHARED_BOUNDARIES.json",
+    "sha256": "59553cb403288d81b0a0d2d0912482e3b2b1192ca9f3d113bd2ec74e2210ca7d"
+  },
+  "productManifest": {
+    "path": "Batches/C_PRODUCT_CATALOGUE.json",
+    "sha256": "55ae08738f13c855af1b8def955fcf23b799772dea1b4455392c8878925e0b59"
+  },
+  "correctionOf": {
+    "pullRequest": 137,
+    "title": "[REPO] Reconcile C shared contracts with public source",
+    "mergeCommit": "50c8994d7195bbb56117eea562f17e8c84fb7f91",
+    "meaning": "Published the shared-contract interpretation as the requested C-era consolidation. The operator clarified that this was the wrong interpretation; actual product-batch consolidation is the requested outcome.",
+    "snapshot": {
+      "path": "artifacts/audits/20261005-c-product-consolidation/pr137-publication.json",
+      "sha256": "6acba738accbbf40ef6ed5ecbea2673f6b12bff124056f0ca8caef87a5b29de7"
+    },
+    "url": "https://github.com/ellyj3rain/sao/pull/137"
+  },
+  "preserved": {
+    "sharedContracts": 35,
+    "currentSourceRecords": 120,
+    "priorRawRecords": 127,
+    "priorProducts": 50,
+    "aOriginals": 200,
+    "aProducts": 29,
+    "bOriginals": 193,
+    "bProducts": 52
+  },
+  "publication": {
+    "status": "REQUIRED_CHECKS_AND_PROTECTED_MERGE_PENDING",
+    "authority": "Actual later landing/PR/check/merge receipt, never this preparation."
+  },
+  "preparationStanding": "PRIVATE_PREPARED_NOT_APPLIED_OR_PUBLISHED",
+  "application": {
+    "path": "artifacts/audits/20261005-c-product-consolidation/application.json",
+    "sha256": "c10444ba77b5cd6b417c02da4e008c66377a9c5cb6e672814151d57e85bfc414"
+  }
+}

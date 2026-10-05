@@ -207,6 +207,36 @@ MONTH = (
     ".. ' fallback=' .. tostring(fallback) end)()")
 
 
+def clock_read_body(body, name):
+    """Separate native sound freshness from elapsed county simulation time."""
+    if name != "SAO_Perception.lua":
+        return body
+    pieces = re.split(r"(?m)(?=^function )", body)
+    native = "local clockOk, nativeNow = pcall(function() return GameTime.getInstance():getWorldAgeHours() end)"
+    for i, piece in enumerate(pieces):
+        if (piece.startswith("function P.acquireInstrumentHearing(") or
+                piece.startswith("function P.instrumentHearing(")) and all(
+                    seam in piece for seam in ('"sao.instrument-hearing/1"',
+                    '"native-world-age-hours"', 'SAO.History.countyHours()', 'nativeNow')):
+            pieces[i] = piece.replace(native, "local clockOk, nativeNow = nativeSoundClock()", 1)
+    return "".join(pieces)
+
+
+def clock_reader_controls(body):
+    native = "local clockOk, nativeNow = pcall(function() return GameTime.getInstance():getWorldAgeHours() end)"
+    failures = []
+    if "getWorldAgeHours" in clock_read_body(body, "SAO_Perception.lua"):
+        failures.append("named native sound freshness baseline differs")
+    samples = ((body + "\nfunction P.countyLeak() return getWorldAgeHours() end\n", "SAO_Perception.lua"),
+               (body, "SAO_DormantPopulation.lua"),
+               (body.replace('"native-world-age-hours"', '"wrong-clock"'), "SAO_Perception.lua"),
+               (body.replace(native, native + "\nlocal leak = getWorldAgeHours()", 1), "SAO_Perception.lua"))
+    for changed, name in samples:
+        if "getWorldAgeHours" not in clock_read_body(changed, name):
+            failures.append("county clock reader control was concealed")
+    return failures
+
+
 def main():
     faults = []
     print("=" * 74)
@@ -217,6 +247,7 @@ def main():
             print("  FAULT: %s does not exist" % path.name)
             return 1
 
+    faults.extend(clock_reader_controls(read(LUA / "shared" / "SAO_Perception.lua")))
     hist = read(HISTORY)
     pop = read(POP)
     dormant = read(DORMANT)
@@ -229,7 +260,7 @@ def main():
     for path in sorted(LUA.rglob("*.lua")):
         if path.name == "SAO_History.lua":
             continue
-        body = read(path)
+        body = clock_read_body(read(path), path.name)
         if "getWorldAgeHours" in body:
             stray_hours.append(path.relative_to(LUA).as_posix())
         if "getMonth()" in body:
@@ -245,7 +276,7 @@ def main():
         print("      " + name)
 
     seams = {
-        "SAO_History is the only module reading the engine clock":
+        "county simulation time uses History; named sound freshness retains its native clock":
             not stray_hours,
         "SAO_History is the only module reading the engine month":
             not stray_month,

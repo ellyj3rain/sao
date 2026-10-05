@@ -25,10 +25,12 @@ capability boundary.
 
 WHAT IS DERIVED AND WHAT IS INPUT
 ---------------------------------
-A/B retain the tier table below. Current C tiers and delivered scopes
-come from Batches/C_SHARED_BOUNDARIES.json. Its generation-qualified
+A/B retain the tier table below. Current C product tiers and rationales
+come from Batches/C_PRODUCT_CATALOGUE.json. Its generation-qualified
 sources retain separate implementation, verification and publication
 status; a version tier does not close every remaining D obligation.
+Delivered D tiers follow the C catalogue in POST_C_UNITS.
+NEXT_BATCH names the next unconsumed D identifier.
 Names, dates and threads come from BATCH_LOG.md. The
 replay derives the coordinate; --write stamps VERSION and renders
 VERSION_MAP.md; the border refuses a tree whose VERSION, VERSION_MAP.md
@@ -45,7 +47,8 @@ import re
 import sys
 
 from catalogue import (CatalogueError, MANIFEST, index_rows, load_catalogue,
-                       validate_catalogue)
+                       validate_catalogue, PRODUCT_MANIFEST, load_product_catalogue,
+                       validate_product_catalogue)
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 BATCH_LOG = ROOT / "BATCH_LOG.md"
@@ -53,7 +56,7 @@ VERSION_FILE = ROOT / "VERSION"
 VERSION_MAP = ROOT / "VERSION_MAP.md"
 MOD_INFOS = (ROOT / "mod" / "mod.info", ROOT / "mod" / "42.20" / "mod.info")
 
-SCHEMA = "sao.version-model/2"
+SCHEMA = "sao.version-model/3"
 MINOR_CAP = 12
 KOHAI_CAP = 16
 PATCH_CAP = 24
@@ -61,7 +64,7 @@ MATURITY_LADDER = ("pre-alpha", "alpha", "beta", "rc")
 REPLAY_START = "0.1.0.0-pre-alpha"
 
 # Retained A/B (batch, tier, rationale) rows. C is read from the current
-# shared-boundary manifest; historical C generations remain unchanged.
+# product manifest; shared contracts and historical C generations remain unchanged.
 UNITS = [
     ('A1', 'initial', 'The governed repository itself: doc-pack, instruction surface, ratified pillar composition; no framework code.'),
     ('A2', 'kohai', 'The verified engine substrate (F-001..F-007) before anything built on it; preparation, not a shipped capability.'),
@@ -156,6 +159,13 @@ TIER_MEANINGS = [
 ]
 
 
+# Land this delivered unit only with D1's actual closure record and index row.
+POST_C_UNITS = [
+    ("D1", "minor", "Shared person-specific conceptual reasoning and source-bound prior-history admission establish a live authoring/runtime contract."),
+]
+NEXT_BATCH = "D2"
+
+
 def parse_version(text):
     m = re.fullmatch(r"(\d+)\.(\d+)\.(\d+)\.(\d+)(?:-([\w.-]+))?", text.strip())
     if not m:
@@ -224,29 +234,40 @@ def log_rows():
 
 def classified_units(manifest=None):
     if manifest is None:
-        manifest = load_catalogue(ROOT)
-        faults = validate_catalogue(ROOT, manifest)
+        manifest = load_product_catalogue(ROOT)
+        faults = validate_product_catalogue(ROOT, manifest)
         if faults:
             raise CatalogueError("; ".join(faults))
     return UNITS + [(unit["id"], unit["tier"], unit["rationale"])
-                    for unit in manifest["units"]]
+                    for unit in manifest["units"]] + POST_C_UNITS
 
 
 def catalogue_inputs():
     """Validate source preservation and index agreement before any stamp write."""
-    manifest = load_catalogue(ROOT)
-    faults = validate_catalogue(ROOT, manifest)
+    manifest = load_product_catalogue(ROOT)
+    faults = validate_product_catalogue(ROOT, manifest)
     if faults:
         raise CatalogueError("; ".join(faults))
+    post_ids = [unit[0] for unit in POST_C_UNITS]
+    if post_ids != [f"D{i}" for i in range(1, len(POST_C_UNITS) + 1)]:
+        faults.append("delivered D units must be unique D1..Dn in chronological order")
+    if any(tier not in ("minor", "kohai", "patch", "hotfix")
+           or not isinstance(rationale, str) or not rationale.strip()
+           for _batch, tier, rationale in POST_C_UNITS):
+        faults.append("delivered D units require a scope tier and nonempty rationale")
+    if NEXT_BATCH != f"D{len(POST_C_UNITS) + 1}":
+        faults.append("NEXT_BATCH must name the next unconsumed D identifier")
     indexed = index_rows(BATCH_LOG.read_text(encoding="utf-8"))
     units = classified_units(manifest)
     ids = [unit[0] for unit in units]
+    if NEXT_BATCH in indexed:
+        faults.append("NEXT_BATCH must remain unconsumed in BATCH_LOG")
     if ids != list(indexed):
         faults.append("tier table and BATCH_LOG disagree about classified delivered scope coverage/order")
     for unit in manifest["units"]:
         row = indexed.get(unit["id"])
         if row and any(row[key] != unit[field] for key, field in
-                       (("path", "path"), ("date", "date"), ("name", "name"))):
+                       (("path", "recordPath"), ("date", "date"), ("name", "name"))):
             faults.append(f"{unit['id']} BATCH_LOG path/date/name differs from the current manifest")
     if faults:
         raise CatalogueError("; ".join(faults))
@@ -269,21 +290,23 @@ def render(inputs=None):
     trace = replay(units)
     current = trace[-1][3]
     tip = units[-1][0]
-    nxt = f"{tip[0]}{int(tip[1:]) + 1}"
+    nxt = NEXT_BATCH
     lines = [
         "# Version map",
         "",
         "The regulatory version replay classifies evidenced delivered scope",
-        "once per current contract under CAO's unchanged caps. A/B retain",
-        "their original replay. Current C contracts combine explicit source",
-        "contributions in last-delivered-contribution order; original event",
-        "chronology remains in the archived generation. Delivered means",
+        "once per coherent product batch under CAO's unchanged caps. A/B retain",
+        "their original replay. Current C products partition the retained source",
+        "chronology into adjacent capability units. The separate 35-contract",
+        "ownership map preserves shared boundaries without version credit. Delivered D units",
+        "follow C in chronological order. Delivered means",
         "implemented: publication, rendered acceptance and remaining D work",
         "retain their separate component states. The",
         "version is a machine (DR-013): nobody picks the number - to disagree",
         "with the coordinate, disagree with the applicable A/B tier in",
-        "[`tools/version_replay.py`](tools/version_replay.py) or C tier in",
-        f"[the current manifest]({MANIFEST}), state its scope and rationale, and run",
+        "[`tools/version_replay.py`](tools/version_replay.py), including its",
+        "POST_C_UNITS for D, or C tier in",
+        f"[the product manifest]({PRODUCT_MANIFEST}), state its scope and rationale, and run",
         "`python tools/version_replay.py --write`; the map and `VERSION`",
         "follow. Border 80 refuses a tree whose stated versions disagree with",
         "the machine. Names, dates, and threads below come from",
@@ -319,22 +342,24 @@ def render(inputs=None):
         date, name, _threads = rows[batch]
         lines.append(f"| `{batch}` | {date} | {tier} | `{version}` | {name} | {rationale} |")
     lines += [
-        "", "## Current C scope and source status", "",
-        "Each C tier credits the stated implemented baseline once. Multiple",
-        "contribution edges preserve mixed source records without assigning",
-        "version credit per edge. Source labels below belong to the archived",
+        "", "## Current C products and retained source status", "",
+        "Each C product tier credits its coherent capability once. Each retained",
+        "source belongs to one chronological product; shared contract edges grant",
+        "no additional version credit. Source labels below belong to the archived",
         "120-record generation; they are not current C identifiers.", "",
-        "| Current contract | Delivered scope | Version-bearing source contributions |",
+        "| Current product | Classification | Retained chronological sources |",
         "|---|---|---|",
     ]
+    shared = load_catalogue(ROOT)
     for unit in manifest["units"]:
-        scopes = "; ".join(unit["delivered_scope"]).replace("|", "\\|")
+        scopes = unit["rationale"].replace("|", "\\|")
         credited = []
-        for source in unit["version_sources"]:
-            status = manifest["sources"][source]
+        for contribution in unit["sourceContributions"]:
+            source = contribution["sourceId"]
+            status = shared["sources"][source]
             credited.append(f"`{source}` ({status['implementation']}; "
                             f"{status['verification']}; {status['publication']})".replace("|", "\\|"))
-        lines.append(f"| [{unit['id']}]({unit['path']}) | {scopes} | {'; '.join(credited)} |")
+        lines.append(f"| [{unit['id']}]({unit['recordPath']}) | {scopes} | {'; '.join(credited)} |")
     lines += [
         "",
         "## The former number",

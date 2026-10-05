@@ -88,6 +88,9 @@ local function reset()
     body.isDead=function() return false end
     body.isAsleep=function() return body.sleeping==true end
     body.isExistInTheWorld=function() return true end
+    body.getModData=function() return {SAOPersonId='a'} end
+    SAO.Controller.agents={a={rec=__records.a}}
+    SAOJavaBridge.isShell=function() return true end
     SAOJavaBridge.privateCarriedItems=function() return {size=function() return 0 end} end
     __targetAnswer='READY:8:8:0:8:8:0' __bindAnswer='BOUND:8:8:0'
     __observeText=__before __routeAllowed=true __standingAllowed=true
@@ -316,7 +319,9 @@ def main():
                             str(ROOT/'tools/luacheck/LuaRun.java')],check=True,capture_output=True,text=True)
             def run(kind, changed=None):
                 code=dict(texts); code.update(changed or {})
-                availability='function __bindWorkAvailable() local N=SAO.Needs\nfunction N.workAvailable('+function_body(code['needs'],'N.workAvailable')+'end\nend\n'
+                availability='function __bindWorkAvailable() local N=SAO.Needs\nfunction N.workAvailable('+function_body(code['needs'],'N.workAvailable')+'end\n'
+                availability+='local function recoveryOwner('+function_body(code['needs'],'recoveryOwner')+'end\n'
+                availability+='function N.ownsRecoveryBody('+function_body(code['needs'],'N.ownsRecoveryBody')+'end\nend\n'
                 controller=code['controller'].split('function Ctl.advancePersonalPurpose',1)[1].split('-- Each decision phase',1)[0]
                 code['controller']='local Ctl=SAO.Controller\nlocal setState=function(agent,id,state) agent.state=state return true end\n'
                 code['controller']+='local beginContainerInspection=function() return false end\nfunction Ctl.advancePersonalPurpose'+controller+'\n__personalOwner=Ctl\n'

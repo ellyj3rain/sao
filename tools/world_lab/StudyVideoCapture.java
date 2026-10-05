@@ -320,9 +320,12 @@ public final class StudyVideoCapture {
                 "-video_size", width + "x" + height, "-framerate", Integer.toString(fps), "-analyzeduration", "0", "-probesize", "32",
                 "-use_wallclock_as_timestamps", "1", "-i", "pipe:0", "-an", "-sn", "-dn",
                 "-copyts", "-start_at_zero", "-vf", "vflip,format=nv12", "-c:v", "h264_nvenc",
-                "-preset", "p1", "-tune", "ull", "-profile:v", "high", "-bf", "0",
+                // The capture ceiling is not the actual native frame rate.
+                // Bitrate control at that ceiling starves sparse native frames;
+                // fixed quantization preserves their detail at either rate.
+                "-preset", "p4", "-tune", "ull", "-profile:v", "high", "-bf", "0",
+                "-rc", "constqp", "-qp", "18",
                 "-g", Integer.toString(Math.max(1, fps / 4)), "-rc-lookahead", "0", "-zerolatency", "1",
-                "-b:v", "12M", "-maxrate", "18M", "-bufsize", "3M",
                 "-fps_mode", "passthrough", "-enc_time_base", "1/1000",
                 // Time from the previous actual forced frame preserves native
                 // gaps without emitting per-frame IDRs to repay missed times.

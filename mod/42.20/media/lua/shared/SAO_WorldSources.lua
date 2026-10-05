@@ -692,6 +692,10 @@ function WS.applySnapshot(snapshot, exceptReservationId, inspectedSourceId)
     local accepted = header.status == "OBSERVED"
         or header.status == "HYDRATED"
     if not accepted or not header.cx or not header.cy then return false, 0 end
+    local partial = header.mode == "visible-ground"
+    if partial and (#snapshot.ordered ~= 1 or snapshot.ordered[1].kind ~= "ground"
+        or inspectedSourceId ~= snapshot.ordered[1].id
+        or pendingFor(value, inspectedSourceId, nil)) then return false, 0 end
 
     -- An executor's full-chunk scan owns evidence for its exact source. A
     -- different actor in that chunk may already have moved an item while its
@@ -798,7 +802,9 @@ function WS.applySnapshot(snapshot, exceptReservationId, inspectedSourceId)
     -- not a duplicate of the vanished native inventory.
     for id in pairs((priorChunk and priorChunk.sourceIds) or {}) do
         local old = value.sources[id]
-        if not seen[id] and scopedSourceId and id ~= scopedSourceId
+        if partial and not seen[id] then
+            seen[id] = true
+        elseif not seen[id] and scopedSourceId and id ~= scopedSourceId
             and pendingFor(value, id, nil) then
             -- Preserve membership as well as the old observation. Otherwise a
             -- later owner scan could no longer detect a missing container.
@@ -1089,9 +1095,29 @@ function WS.beliefSnapshot(place)
 end
 
 
-function WS.beliefFact(sourceId)
+function WS.beliefFact(sourceId, observationKind)
     local value = store()
-    return value and beliefFact(value.sources[tostring(sourceId or "")]) or nil
+    local source = value and value.sources[tostring(sourceId or "")]
+    if observationKind == "visible-ground" then
+        if not source or source.kind ~= "ground" then return nil end
+        local fact = {id=source.id,fingerprint=source.fingerprint,revision=source.revision,kind=source.kind,
+            x=source.x,y=source.y,z=source.z,chunkX=source.chunkX,chunkY=source.chunkY,buildingId=source.buildingId,
+            state=source.state,access="unknown",explored=false,knowledgeKind="visible-ground",quantities={},candidates={}}
+        for _, key in ipairs(source.itemOrder or {}) do
+            local item = source.items[key]
+            if item then
+                fact.visibleItem={id=item.id,type=item.type}
+                for _, category in ipairs({"reading","instrument"}) do
+                    if item.categories[category] then
+                        fact.quantities[category]=1
+                        fact.candidates[category]={id=item.id,type=item.type,categories={[category]=true}}
+                    end
+                end
+            end
+        end
+        return fact
+    end
+    return source and beliefFact(source) or nil
 end
 
 local function rememberedPlace(placeId, belief)
@@ -1278,7 +1304,10 @@ function WS.actionOptions(place, category, actorId, body, quantity, admission, o
                     and physical.fingerprint == source.fingerprint then
                     for _, key in ipairs(physical.itemOrder or {}) do
                         local item = physical.items[key]
-                        if item and item.categories and item.categories[category] then
+                        local visible = source.knowledgeKind == "visible-ground"
+                        local candidate = visible and source.candidates and source.candidates[category]
+                        if item and item.categories and item.categories[category]
+                            and (not visible or candidate and candidate.id==item.id and candidate.type==item.type) then
                             items[#items + 1] = item
                             if #items >= MAX_ACTION_OPTIONS then break end
                         end
@@ -1304,11 +1333,12 @@ function WS.actionOptions(place, category, actorId, body, quantity, admission, o
                         chunkX = source.chunkX, chunkY = source.chunkY,
                         fingerprint = source.fingerprint, revision = source.revision,
                         itemId = item.id, itemType = item.type,
-                        itemAmount = tonumber(item.amount) or 0,
-                        itemHydrationAmount = item.hydrationAmount,
-                        itemUses = tonumber(item.uses) or 0,
+                        itemAmount = source.knowledgeKind ~= "visible-ground" and (tonumber(item.amount) or 0) or nil,
+                        itemHydrationAmount = source.knowledgeKind ~= "visible-ground" and item.hydrationAmount or nil,
+                        itemUses = source.knowledgeKind ~= "visible-ground" and (tonumber(item.uses) or 0) or nil,
                         operation = operation == "acquire" and operation or nil,
-                        itemSignature = operation == "acquire" and itemSignature(item) or nil,
+                        itemSignature = operation == "acquire" and source.knowledgeKind ~= "visible-ground" and itemSignature(item) or nil,
+                        observationKind = source.knowledgeKind == "visible-ground" and "visible-ground" or nil,
                     },
                     eligibility = { status = "eligible", evidence = {
                         { kind = "private-source-revision", actorId = actorId,
@@ -1347,7 +1377,7 @@ function WS.privatelyKnowsItem(actorId, sourceId, itemId)
     local known = SAO.Perception.knownPlaces(actorId, true)
     for _, place in pairs(known or {}) do
         local observed = place.sourceFacts and place.sourceFacts[tostring(sourceId)]
-        if observed and observed.revision == physical.revision
+        if observed and observed.knowledgeKind ~= "visible-ground" and observed.revision == physical.revision
             and observed.fingerprint == physical.fingerprint
             and beliefHasRevision(place, sourceId, physical.revision) then return true end
     end
@@ -1646,6 +1676,30 @@ function WS.currentInspectionAnchor(actorId, body, context)
         cx = offered.x, cy = offered.y, z = offered.z,
         fingerprint = offered.fingerprint, sourceX = offered.sourceX,
         sourceY = offered.sourceY, sourceZ = offered.sourceZ }
+end
+
+-- A native observation writer, not an option query. Each packet contains one
+-- personally visible loose item; omitted chunk contents retain their evidence.
+function WS.observeVisibleGround(actorId, body)
+    if not inspectionActor(tostring(actorId or ""), body) or not SAO.Needs
+        or not SAO.Needs.ownsRecoveryBody or not SAO.Needs.ownsRecoveryBody(actorId,body) then return {} end
+    local ok, packets = pcall(function() return SAOJavaBridge:visibleGroundSources(body, 12) end)
+    if not ok or not packets then return {} end
+    local admitted = {}
+    for index = 0, math.min(packets:size(), 32) - 1 do
+        local snapshot = WS.parse(packets:get(index))
+        local row = snapshot and snapshot.ordered and snapshot.ordered[1]
+        if row and snapshot.header.mode == "visible-ground" and #snapshot.ordered == 1
+            and row.kind == "ground" and row.z == math.floor(body:getZ())
+            and WS.applySnapshot(snapshot, nil, row.id) then
+            local fact = WS.beliefFact(row.id)
+            if fact and fact.fingerprint == row.fingerprint and fact.revision == row.revision then
+                admitted[#admitted + 1] = { id="source:"..row.id, sourceId=row.id,
+                    cx=row.x+0.5, cy=row.y+0.5, z=row.z }
+            end
+        end
+    end
+    return admitted
 end
 
 -- A visible holder is an affordance, never an inference about its stock.
@@ -1970,7 +2024,8 @@ function WS.beginAction(place, category, actorId, body, quantity, admission, sel
         itemUses = parameters.itemUses,
         operation = operation or "consume",
         quantityUnit = operation == "acquire" and "item" or nil,
-        itemSignature = parameters.itemSignature,
+        itemSignature = parameters.observationKind == "visible-ground"
+            and itemSignature(value.sources[parameters.sourceId].items[tostring(parameters.itemId)]) or parameters.itemSignature,
         useTargetQuantity = category == "water"
             and (parameters.itemAmount * 0.5) or 1,
         category = category, quantity = parameters.quantity,

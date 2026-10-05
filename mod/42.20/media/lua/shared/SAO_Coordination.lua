@@ -10,6 +10,12 @@ SAO.Coordination = SAO.Coordination or {}
 local Coordination = SAO.Coordination
 local MIN_FALLBACK_VECTOR = 0.1
 local MIN_TACTICAL_FALLBACK_SEPARATION_SQUARED = 16
+local participationAuthority
+function Coordination.participationAuthority(kind, id, processId, value)
+    local row = participationAuthority
+    return row and row.kind == kind and row.id == id and row.processId == processId
+        and (value == nil or row.value == value) or false
+end
 
 local function finite(value)
     return type(value) == "number" and value == value
@@ -781,7 +787,15 @@ function Coordination.formResponse(id, processId, body, activity, ownerLabel)
     local context = Coordination.privateContext(id, agent, body,
         { processId = processId }, ownerLabel)
     if not context then return nil, "process-unavailable" end
-    return SAO.Organization.appraiseMatter(processId, id, context), context
+    local view = SAO.Organization.viewFor(id, processId, false)
+    if view and view.kind == "leisure-participation" then
+        context = Coordination.participationAppraisal(id, body, view, context)
+        participationAuthority = { kind = "appraisal", id = id, processId = processId, value = context }
+    end
+    local ok, response = pcall(SAO.Organization.appraiseMatter, processId, id, context)
+    participationAuthority = nil
+    if not ok then return nil, "appraisal-unavailable" end
+    return response, context
 end
 
 function Coordination.appraisePending(id, body, activity, ownerLabel)
@@ -813,5 +827,120 @@ function Coordination.appraisePending(id, body, activity, ownerLabel)
 end
 
 Coordination.appraise = Coordination.appraisePending
+
+local function participationAvailable(id, body, allowOwnWork)
+    local needs = SAO.Needs
+    if not body or not needs or not needs.ownsRecoveryBody or not needs.ownsRecoveryBody(id, body) then return false, "body-unavailable" end
+    if not allowOwnWork and not needs.workAvailable(body) then return false, "physical-work-in-progress" end
+    local pressure = needs.read(body)
+    if not pressure then return false, "bodily-pressure-unavailable" end
+    for _, key in ipairs({ "hunger", "thirst", "fatigue" }) do
+        if finite(pressure[key]) and pressure[key] >= 0.75 then return false, "bodily-need-needs-attention" end
+    end
+    local threat = SAO.Perception and SAO.Perception.nearestBelievedThreat
+        and SAO.Perception.nearestBelievedThreat(id, SAO.Controller.tick(), body:getX(), body:getY())
+    local concern = threat and SAO.Disposition and SAO.Disposition.fleeDistance and SAO.Disposition.fleeDistance(id, threat)
+    if SAO.ConflictResponse and SAO.ConflictResponse.gesturePriority and SAO.ConflictResponse.gesturePriority(id, body)
+        or threat and finite(threat.dist) and (not finite(concern) or threat.dist <= concern) then return false, "known-nearby-danger" end
+    return true
+end
+
+function Coordination.participationAppraisal(id, body, view, context)
+    local terms = view.proposal and view.proposal.proposal or {}
+    local available, reason = participationAvailable(id, body)
+    local interests = SAO.ProceduralPlanning and SAO.ProceduralPlanning.participationInterests(id, terms.activity) or {}
+    local obligations = false
+    for _, c in ipairs(SAO.Organization.activeCommitments(id)) do
+        if c.processId ~= view.id and c.processId ~= view.processId then obligations = true end
+    end
+    local traits = SAO.Disposition and SAO.Disposition.traits and SAO.Disposition.traits(id) or {}
+    local wantsCompany = finite(traits.talkativeness) and finite(traits.discipline)
+        and traits.talkativeness > traits.discipline and context.relationship > 0
+    local choice
+    if context.contest then choice, reason = "decline", "unwilling-to-participate-with-hostile-person"
+    elseif not available or obligations or interests.competing then
+        choice, reason = "defer", reason or (obligations and "accepted-work-needs-attention" or "own-intention-needs-attention")
+    elseif interests.related or wantsCompany then choice, reason = "accept", interests.related
+        and "this-activity-matches-my-unfinished-interest" or "I-want-company-with-someone-I-trust"
+    else choice, reason = "decline", "I-prefer-to-keep-my-time-for-other-interests" end
+    context.choice, context.reconsider = choice, view.response and view.response.response == "defer" or false
+    context.capabilities = { listen = available == true }
+    context.stepIds, context.maxProcedureSteps = { "listen" }, 1
+    context.terms = { reason = reason }
+    context.interests = { relatedIntention = interests.related == true, competingIntention = interests.competing == true,
+        acceptedObligation = obligations, seeksCompany = wantsCompany, reason = reason,
+        expectedEffect = "may-hear-a-fresh-performance", uncertainty = "participation-and-enjoyment-remain-unobserved" }
+    context.constraints.represented, context.constraints.executionOwnerAvailable = body ~= nil, available
+    context.inputOwners.interests = "SAO.ProceduralPlanning+SAO.Disposition+SAO.Standing"
+    return context
+end
+
+function Coordination.proposeLeisure(id, recipientId, sourcePurposeId)
+    local body = SAO.Body and SAO.Body.get(id)
+    local available, reason = participationAvailable(id, body)
+    local source = available and SAO.ProceduralPlanning.participationSource(id, sourcePurposeId)
+    if not source or id == recipientId then return nil, reason or "sharing-intention-unavailable" end
+    if source.processId then
+        local prior = SAO.Organization.viewFor(id, source.processId, false)
+        if prior and prior.status == "open" then
+            local terms = prior.proposal and prior.proposal.proposal
+            if terms and finite(terms.expiresAtHours) and terms.expiresAtHours < nowHours() then
+                SAO.Organization.withdrawMatter(source.processId, id, "participation-window-ended")
+            else return nil, "participation-already-proposed" end
+        end
+    end
+    local item = SAO.Needs.carriedInstrument(id, body, source.itemType)
+    if not item or tostring(item:getID()) ~= source.itemId or not SAO.Needs.instrumentAvailable(id, body, item)
+        or not SAO.Communication.canConverse(id, recipientId) then return nil, "proposal-transport-or-material-unavailable" end
+    local terms = { cooperative = true, responsePolicy = "procedure-completion", activity = source.activity,
+        performerId = id, listenerId = recipientId, sourcePurposeId = source.purposeId,
+        itemId = source.itemId, itemType = source.itemType, minimumSequence = SAO.Gesture.nextInstrumentSequence(id),
+        expiresAtHours = nowHours() + 1, -- bounded proposed encounter window, not evidence of success
+        procedure = {
+            { id = "perform", verb = "perform", role = "performer", domain = "leisure", capability = "instrument",
+                owner = "SAO.Gesture", assignedTo = id, maxActors = 1, completesOn = "participation:performed" },
+            { id = "listen", verb = "listen", role = "listener", domain = "leisure", capability = "listen",
+                owner = "SAO.Perception", assignedTo = recipientId, maxActors = 1, completesOn = "participation:heard" } } }
+    participationAuthority = { kind = "proposal", id = id, value = terms }
+    local ok, process = pcall(SAO.Organization.raiseMatter, id, "leisure-participation", nil, terms, { recipientId },
+        { source = "own-unfinished-sharing-purpose" })
+    participationAuthority = nil
+    if not ok or not process then return nil, "proposal-refused" end
+    local c = SAO.Organization.commitOriginator(process.id, id, { stepIds = { "perform" }, capabilities = { instrument = true } })
+    if not c or not SAO.ProceduralPlanning.bindParticipationSource(id, source.purposeId, process.id) then
+        SAO.Organization.withdrawMatter(process.id, id, "source-purpose-unavailable"); return nil end
+    local message = SAO.Communication.deliverProcessProposal(id, recipientId, process.id, "spoken")
+    return { processId = process.id, revision = process.revision, commitmentId = c.id }, message and "received" or "unheard"
+end
+
+function Coordination.participationOffer(id, body, commitmentId)
+    local commitments = SAO.Organization.activeCommitments(id)
+    if commitmentId then local c = SAO.Organization.commitment(commitmentId); commitments = c and { c } or {} end
+    local reason = "accepted-participation-unavailable"
+    for _, c in ipairs(commitments) do
+        local offer = SAO.Organization.participationOffer(id, c.id)
+        if offer then
+            local ownWork = offer.role == "perform" and SAO.Gesture.instrumentWork(id)
+            local available, why = participationAvailable(id, body, ownWork and ownWork.workId == offer.workId)
+            if available then return offer end
+            reason = why
+        end
+    end
+    return nil, reason
+end
+
+function Coordination.prepareParticipation(id, body, commitmentId)
+    return SAO.ProceduralPlanning.planParticipation(id, commitmentId, body)
+end
+
+function Coordination.advanceParticipation(id, body, commitmentId)
+    local offer = Coordination.participationOffer(id, body, commitmentId)
+    if not offer or offer.role ~= "listen" or not offer.workId then return false, "awaiting-fresh-performance" end
+    local heard = SAO.Perception.instrumentHearing(id, offer.performerId, offer.workId)
+        or SAO.Perception.acquireInstrumentHearing(id, body, offer.performerId, offer.workId)
+    if not heard or not SAO.Organization.consumeParticipationHearing(offer.processId, id) then return false, "not-heard" end
+    local returned = SAO.Communication.deliverParticipation(id, offer.performerId, offer.processId, "acknowledgement")
+    return true, returned and "hearing-acknowledged" or "heard-awaiting-return"
+end
 
 return Coordination

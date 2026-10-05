@@ -33,11 +33,17 @@ local function physical(minute,stats)
  stats=stats or {PAIN={before=50,after=20},THIRST={before=.6,after=.4}},
  exposures={hiddenFamily=17},family="secret-family",doseSequence=17}
 end
+-- Controlled canonical producer receipts; real native publication is exercised
+-- by purpose_outcome_test's cooking part. The ledger now rereads that owner.
+local preparations={}
+SAO.Cooking={outcome=function(id,seq)return preparations[id] and preparations[id][seq]end}
 local function preparation(id,seq)
- return {id="cooking/"..id.."/"..seq,actorId=id,sequence=seq,itemId=123,itemType="Base.Chicken",
+ local receipt={id="cooking/"..id.."/"..seq,actorId=id,sequence=seq,itemId=123,itemType="Base.Chicken",
  sourceId="C:fixture:0",startedAt=hours-.2,atHours=hours,status="completed",
  detail="native-food-cooked-and-retrieved",beforeCookingTime=0,afterCookingTime=45,
  heatObserved=true,nativeCredit="cooking/"..id.."/"..seq,retrieved=true,shutdown="off"}
+ preparations[id]=preparations[id] or {};preparations[id][seq]=receipt
+ return receipt
 end
 local function state(id) return records[id].cognition end
 local function last(id) local s=state(id) return s.experiences[#s.experiences] end
@@ -58,13 +64,18 @@ local malformed=dose("invalid",1);malformed.itemId=nil
 check("invalid_callback_does_not_allocate",not C.medicationUse("invalid",malformed) and records.invalid.cognition==nil)
 local legacyBefore=copy(state("legacy"))
 local p=M.propose("ordinary",state("legacy").models.ordinary,frame("legacy"))
-check("legacy_read_supported",p and p.version=="sao-ordinary/2")
+check("legacy_read_supported",p and p.version=="sao-ordinary/3")
 M.summary("associative",state("legacy").models.associative,hours)
 check("legacy_reads_inert",equal(legacyBefore,state("legacy")))
 check("legacy_event_admitted",C.medicationUse("legacy",dose("legacy",1)))
-check("legacy_observation_migrates",state("legacy").models.ordinary.version=="sao-ordinary/2"
- and state("legacy").models.associative.version=="sao-associative/2"
+check("legacy_observation_migrates",state("legacy").models.ordinary.version=="sao-ordinary/3"
+ and state("legacy").models.associative.version=="sao-associative/3"
  and state("legacy").models.ordinary.migratedFrom=="sao-ordinary/1")
+local versionTwo=copy(state("legacy").models.ordinary)
+versionTwo.version="sao-ordinary/2"
+local versionTwoBefore=copy(versionTwo)
+check("version_two_read_supported_and_inert",M.propose("ordinary",versionTwo,frame("legacy"))~=nil
+ and equal(versionTwo,versionTwoBefore))
 check("legacy_beliefs_preserved",state("legacy").models.ordinary.beliefs["goal:food"].id
  ==legacyBefore.models.ordinary.beliefs["goal:food"].id
  and state("legacy").models.ordinary.beliefs["goal:food"].support==1)

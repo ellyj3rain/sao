@@ -59,10 +59,32 @@ LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from menu_reach import strip_lua                       # noqa: E402
 
-SORT = re.compile(r"table\.sort\s*\(\s*([A-Za-z_]\w*)")
+SORT = re.compile(r"table\.sort\s*\(\s*([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)")
 
 # (file, the list being sorted) -> what bounds its length.
 BOUNDED = {
+    ("SAO_Cognition.lua", "material.offers"):
+        "appraiseConflict refuses candidate sequences longer than 16 before "
+        "detaching and copying those offers into material.offers",
+    ("SAO_CognitiveModels.lua", "candidates"):
+        "interpretConflict requires boundedArray(offers,16,1), and adds "
+        "exactly one ranked candidate per admitted offer before sorting",
+    ("SAO_ConceptKnowledge.lua", "candidates"):
+        "chooseCarriedFood adds one candidate per private food row; "
+        "Perception.personalFoodKnowledge refuses native foods above 64 "
+        "before publishing that private view; ranking precedes retaining 15",
+    ("SAO_Controller.lua", "choices"):
+        "offerRecovery filters Needs.recoveryPlaces; that owner stops copying "
+        "after index 64, so the accepted recovery choices cannot exceed 64",
+    ("SAO_Controller.lua", "unavailable"):
+        "the runtime decideNeedsAndCompanion caller starts a fresh exclusions "
+        "map, adds at most 16 failed dispatches per pass, and recurses only "
+        "after newly excluding food or water; at most three passes plus those "
+        "two fallback keys gives 50 distinct exclusions",
+    ("SAO_SituationAppraisal.lua", "out.questions"):
+        "query groups only the two admitted report kinds (outbreak, turned), "
+        "then adds at most one unclassified-sound question; at most three "
+        "questions reach this sort irrespective of evidence count",
     ("AttachmentsClient.lua", "toAddOptionsTo"):
         "the source-owned Horse menu copies at most MAX_GEAR_MENU_ITEMS (256) "
         "accessible inventory entries before sorting",
@@ -120,7 +142,7 @@ BOUNDED = {
         "resourceAssessment reads at most the first 64 context.sources rows "
         "before filtering private matching items; each accepted row contributes "
         "one source, so the sorted candidate list cannot exceed 64",
-    ("SAO_Labor.lua", "out"):
+    ("SAO_Labor.lua", "out.candidates"):
         "assessResidence examines at most 128 personally known-place rows "
         "and 64 actor-private exterior leads before copying candidates; "
         "each row contributes at most one candidate, so sorting receives "
@@ -177,7 +199,11 @@ BOUNDED = {
         "the fields in one detached fact or conditioning table; "
         "detachCanonical refuses the table at MAX_CATALOGUE_TABLE_ENTRIES "
         "(512) before adding another entry or reaching the sort",
-    ("SAO_Knowledge.lua", "coverage"):
+    ("SAO_Knowledge.lua", "coverage.readers"):
+        "distinct statically named readSource sites plus the three declared "
+        "owner readiness checks; repeated person/topic reads deduplicate by "
+        "name, so neither readers nor failures grows with county population",
+    ("SAO_Knowledge.lua", "coverage.failures"):
         "distinct statically named readSource sites plus the three declared "
         "owner readiness checks; repeated person/topic reads deduplicate by "
         "name, so neither readers nor failures grows with county population",

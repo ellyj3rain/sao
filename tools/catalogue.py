@@ -12,6 +12,8 @@ from pathlib import Path, PurePosixPath
 import re
 
 MANIFEST = "Batches/C_SHARED_BOUNDARIES.json"
+PRODUCT_MANIFEST = "Batches/C_PRODUCT_CATALOGUE.json"
+PRODUCT_SCHEMA = "sao.c-product-catalogue/1"
 SCHEMA = "sao.c-shared-boundaries/1"
 GENERATION = "20261003-shared-boundaries"
 SOURCE_IDS = {f"C{i}" for i in range(1, 121)}
@@ -47,6 +49,110 @@ def read_json(path: Path):
 
 def load_catalogue(root: Path):
     return read_json(root / MANIFEST)
+
+
+def load_product_catalogue(root: Path):
+    """Product chronology/version authority; the shared map remains separate."""
+    return read_json(root / PRODUCT_MANIFEST)
+
+
+def validate_product_catalogue(root: Path, data, shared=None, check_index=True):
+    """CAO-style adjacent capability partition of the exact retained C sources."""
+    if not isinstance(data, dict):
+        return ["product manifest is not an object"]
+    faults = []
+    if data.get("schema") != PRODUCT_SCHEMA:
+        faults.append("product schema differs")
+    generation = data.get("generation")
+    if not isinstance(generation, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,79}", generation):
+        faults.append("product generation must be a distinct portable identity")
+    if shared is None:
+        try:
+            shared = load_catalogue(root)
+        except CatalogueError as exc:
+            return faults + [str(exc)]
+    shared_faults = validate_catalogue(root, shared)
+    if shared_faults:
+        return faults + shared_faults
+    if generation in (shared["generation"], shared["source_generation"]):
+        faults.append("product generation collides with preserved source or contract generation")
+    if data.get("sourceGeneration") != shared["source_generation"]:
+        faults.append("product source generation differs from retained source")
+    pin = data.get("sourceManifest")
+    if (not isinstance(pin, dict) or pin.get("path") != MANIFEST
+            or pin.get("sha256") != hashlib.sha256((root / MANIFEST).read_bytes()).hexdigest()):
+        faults.append("product source manifest pin differs")
+    units = data.get("units")
+    if not isinstance(units, list) or not units or any(not isinstance(u, dict) for u in units):
+        return faults + ["product units must be a nonempty object list"]
+    for field, expected in (("sourceCount", len(SOURCE_IDS)), ("productCount", len(units))):
+        if field in data and (type(data[field]) is not int or data[field] != expected):
+            faults.append(f"product declared {field} differs from actual coverage")
+    if [u.get("id") for u in units] != [f"C{i}" for i in range(1, len(units) + 1)]:
+        faults.append("product IDs must be unique C1..Cn in order")
+    next_source, source_ids, records = 1, [], set()
+    for unit in units:
+        label = str(unit.get("id"))
+        first, last = unit.get("first"), unit.get("last")
+        valid_range = (type(first) is int and type(last) is int
+                       and 1 <= first <= last <= len(SOURCE_IDS))
+        if not valid_range or first != next_source:
+            faults.append(f"{label} product partition has a gap, overlap or reordered range")
+        if valid_range:
+            next_source = last + 1
+        if unit.get("tier") not in ("minor", "kohai", "patch", "hotfix"):
+            faults.append(f"{label} product tier is unknown")
+        for field in ("name", "date", "recordPath", "rationale"):
+            if not _text(unit.get(field)):
+                faults.append(f"{label} product has no {field}")
+        if valid_range and isinstance(unit.get("date"), str):
+            last_id = f"C{last}"
+            end_date = record_date(shared["sources"][last_id]["original_path"], last_id)
+            if unit["date"] < end_date:
+                faults.append(f"{label} product date precedes its last retained source")
+        path = local_path(root, unit.get("recordPath"))
+        if not path or not path.is_file() or not str(unit.get("recordPath", "")).startswith("Batches/Products/"):
+            faults.append(f"{label} product record is absent or outside Batches/Products")
+        elif unit["recordPath"] in records:
+            faults.append(f"{label} duplicates a product record")
+        else:
+            records.add(unit["recordPath"])
+            try:
+                if record_date(unit["recordPath"], label) != unit.get("date"):
+                    faults.append(f"{label} product record date differs")
+            except CatalogueError as exc:
+                faults.append(str(exc))
+        contributions = unit.get("sourceContributions")
+        if not isinstance(contributions, list) or not contributions or any(not isinstance(c, dict) for c in contributions):
+            faults.append(f"{label} product contributions must be a nonempty object list")
+            continue
+        ids = [c.get("sourceId") for c in contributions]
+        if valid_range and ids != [f"C{i}" for i in range(first, last + 1)]:
+            faults.append(f"{label} product contributions disagree with its chronological range")
+        source_ids.extend(ids)
+        for contribution in contributions:
+            source_id = contribution.get("sourceId")
+            source = shared["sources"].get(source_id) if isinstance(source_id, str) else None
+            if (source is None or contribution.get("path") != source["archive_path"]
+                    or contribution.get("sha256") != source["sha256"]):
+                faults.append(f"{label} product contribution source pin or path differs")
+    if source_ids != [f"C{i}" for i in range(1, len(SOURCE_IDS) + 1)] or next_source != len(SOURCE_IDS) + 1:
+        faults.append("product partition must cover all retained C1..C120 exactly once in order")
+    if check_index:
+        try:
+            rows = index_rows((root / "BATCH_LOG.md").read_text(encoding="utf-8-sig"))
+            c_rows = {key: value for key, value in rows.items() if key.startswith("C")}
+            if list(c_rows) != [u.get("id") for u in units]:
+                faults.append("product index coverage or order differs")
+            for unit in units:
+                unit_id = unit.get("id")
+                row = c_rows.get(unit_id) if isinstance(unit_id, str) else None
+                if row and any(row[key] != unit.get(field) for key, field in
+                               (("path", "recordPath"), ("name", "name"), ("date", "date"))):
+                    faults.append(f"{unit.get('id')} product index path/date/name differs")
+        except (CatalogueError, OSError) as exc:
+            faults.append(str(exc))
+    return faults
 
 
 def _text(value):
@@ -104,93 +210,10 @@ def index_rows(text: str):
     return result
 
 
-PUBLICATION_AVAILABILITY = "Batches/C_PUBLICATION_AVAILABILITY.json"
-PUBLICATION_SOURCE_AUDIT = "Batches/Transitions/C-20261003-publication-source-audit.json"
-LOCAL_RECOVERY_OWNERS = {
-    "mod/42.20/media/lua/client/SAO_RecoveryPose.lua": "8c812c15598a9429d65552dc798a13c524b6edfe66f1250594c624cd7b63c481",
-    "java/src/com/sao/engine/SAORecoveryPose.java": "48389bbfe8a6b936157c8fec8a9f6c5fa55eb179d8f347a34555352777a8f8d0",
-}
-COMPRESSION_ARCHIVE = "1b01e546f782656e76c9faffc4535a942adfa40c"
-LOCAL_RECOVERY_GIT_BLOBS = {
-    "mod/42.20/media/lua/client/SAO_RecoveryPose.lua": "ea658ae44f987e950defb5b9127118ac58ae5e25",
-    "java/src/com/sao/engine/SAORecoveryPose.java": "4218b5605f72b4178da70377de79aacbccae7791",
-}
-
-
-def publication_availability(root: Path, data):
-    """Authenticate two preserved local owners without admitting arbitrary absent files."""
-    descriptor = data.get("publicationAvailability")
-    if descriptor is None:
-        return set(), []
-    faults = []
-    allowed = set()
-    try:
-        path = local_path(root, descriptor.get("path")) if isinstance(descriptor, dict) else None
-        if (not path or descriptor.get("path") != PUBLICATION_AVAILABILITY
-                or set(descriptor) != {"path", "sha256"}
-                or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != descriptor.get("sha256")):
-            raise CatalogueError("publication availability binding differs")
-        availability = read_json(path)
-        if (not isinstance(availability, dict)
-                or set(availability) != {"schema", "publicBase", "generation", "sourceAudit", "owners"}
-                or availability.get("schema") != "sao.catalogue-publication-availability/1"
-                or availability.get("generation") != GENERATION
-                or availability.get("publicBase") != "6bfcd46e72146b941db6c26086201bc79e883a40"):
-            raise CatalogueError("publication availability identity differs")
-        audit_ref = availability.get("sourceAudit")
-        audit_path = local_path(root, audit_ref.get("path")) if isinstance(audit_ref, dict) else None
-        if (not audit_path or audit_ref.get("path") != PUBLICATION_SOURCE_AUDIT
-                or set(audit_ref) != {"path", "sha256"} or not audit_path.is_file()
-                or hashlib.sha256(audit_path.read_bytes()).hexdigest() != audit_ref.get("sha256")):
-            raise CatalogueError("publication source audit binding differs")
-        audit = read_json(audit_path)
-        rows = availability.get("owners")
-        if (not isinstance(audit, dict)
-                or set(audit) != {"schema", "archiveCommit", "archiveRef", "sourceGeneration", "owners", "boundary"}
-                or not _text(audit.get("boundary"))
-                or audit.get("schema") != "sao.catalogue-publication-source-audit/1"
-                or audit.get("archiveCommit") != COMPRESSION_ARCHIVE
-                or data.get("archive_commit") != COMPRESSION_ARCHIVE
-                or audit.get("archiveRef") != data.get("archive_ref")
-                or audit.get("sourceGeneration") != data.get("source_generation")
-                or not isinstance(rows, list) or len(rows) != 2
-                or rows != audit.get("owners")):
-            raise CatalogueError("publication source audit provenance differs")
-        source = data.get("sources", {}).get("C120")
-        if (not isinstance(source, dict) or source.get("publication") != "local-unmerged"
-                or source.get("sha256") != "1705c6a801bcf882a8f2a47242c1ff4ce1b4e0c00772e2a4a505f95f8aef8c34"):
-            raise CatalogueError("publication local source status differs")
-        for row in rows:
-            if (not isinstance(row, dict)
-                    or set(row) != {"path", "contract", "availability", "archiveCommit", "gitBlob", "sha256", "sourceId", "sourceRecord"}
-                    or row.get("path") not in LOCAL_RECOVERY_OWNERS
-                    or row.get("contract") != "C34" or row.get("availability") != "local-unpublished"
-                    or row.get("archiveCommit") != COMPRESSION_ARCHIVE or row.get("sourceId") != "C120"
-                    or row.get("sha256") != LOCAL_RECOVERY_OWNERS.get(row.get("path"))
-                    or row.get("gitBlob") != LOCAL_RECOVERY_GIT_BLOBS.get(row.get("path"))
-                    or row.get("sourceRecord") != {"path": source.get("archive_path"), "sha256": source.get("sha256")}):
-                raise CatalogueError("publication owner provenance differs")
-            record = local_path(root, source["archive_path"])
-            if not record or not record.is_file() or hashlib.sha256(record.read_bytes()).hexdigest() != source["sha256"]:
-                raise CatalogueError("publication archived source record differs")
-            owner = local_path(root, row["path"])
-            if not owner or owner.exists() or ("C34", row["path"]) in allowed:
-                raise CatalogueError("publication owner availability differs")
-            allowed.add(("C34", row["path"]))
-        if {path for _unit, path in allowed} != set(LOCAL_RECOVERY_OWNERS):
-            raise CatalogueError("publication owner inventory differs")
-    except (CatalogueError, OSError, TypeError, AttributeError) as exc:
-        faults.append(str(exc))
-        allowed.clear()
-    return allowed, faults
-
-
 def validate_catalogue(root: Path, data):
     faults = []
     if not isinstance(data, dict):
         return ["catalogue manifest is not an object"]
-    unpublished_owners, availability_faults = publication_availability(root, data)
-    faults.extend(availability_faults)
     if data.get("schema") != SCHEMA or data.get("generation") != GENERATION:
         faults.append("catalogue schema or generation differs from the current C migration")
     if not _text(data.get("source_generation")):
@@ -250,7 +273,7 @@ def validate_catalogue(root: Path, data):
                 faults.append(str(exc))
         for owner in unit.get("owners", []) if _strings(unit.get("owners")) else []:
             path = local_path(root, owner)
-            if (not path or not path.exists()) and (label, owner) not in unpublished_owners:
+            if not path or not path.exists():
                 faults.append(f"{label} owner does not exist in the repository: {owner}")
         if _strings(unit.get("depends_on")):
             reasons = unit.get("dependency_reasons", {})

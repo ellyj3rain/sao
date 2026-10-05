@@ -1,6 +1,6 @@
 | Document | The three projects and what each owns |
 |---|---|
-| Version | `2.11.1.0-pre-alpha` |
+| Version | `3.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |
@@ -178,9 +178,9 @@ SUBSTRATE.md records the implementation boundaries and current evidence.
 
 | | Version | Standing |
 |---|---|---|
-| SAO | see `VERSION` | C82 packages Speakeasy Record 67's exact coordination artifact and runs it as a bounded non-authoritative shadow after the real C79 appraisal. Revision, option and registered-owner drift withhold returned results; no model output creates a response or work. |
-| ZAO | `../zombie-awareness/VERSION` | A39 supplies one driver with distinct Afflicted/Crossed policies, actor-private option selection and state-evidenced settlements. Afflicted water/protein/alternative/human-origin consequences and Crossed ordinary/human-origin sustenance, predatory results, butchery and finite contaminated-weapon uses remain separate owners. Broader life and loaded-world observation remain open. |
-| Speakeasy | Record 67 / `1e26f90` | Record 66 independently approves and trains the 20-row synthetic coordination family. Record 67 exports its exact FP32 tokenizer/model bundle and parity vectors with shadow-candidate standing; decline/withdraw data and broader learned conversation remain open. |
+| SAO | see `VERSION` and `SESSION_STATE.md` | C118/C119 supply private entry and recovery owners; the open C120 candidate connects authentic experience to later choices and repairs native observation defects. General qualitative reasoning, corrected rendered recovery acceptance and broader learned behavior remain open. C82's coordination model retains its bounded shadow standing. |
+| ZAO | A45 / `3a20065`; own `VERSION` | Current engine compatibility builds on the single Afflicted/Crossed driver and distinct state policies. Retained human bodies, private options and state-specific consequences remain established boundaries; broader material/social life, degradation and loaded-world acceptance remain development obligations. |
+| Speakeasy | Record 90 / `34d05a8` | Current observation contract supports authentic learning evidence. R82's evaluated educational adapter scored 38/187 versus the seed's 43/187, with 0/49 numeric answers. R83's edition correction requires successor corpus, curriculum and assessment bindings before a qualified next fit. Broader consequential decisions and conversation remain open. |
 
 Each of those is its own repository's to update. This table says where
 the three stand relative to each other, which is the thing no single
