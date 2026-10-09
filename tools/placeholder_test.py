@@ -42,6 +42,7 @@ LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from menu_reach import strip_lua                       # noqa: E402
+from lua_read import function_body
 
 SENTINEL = "Unnamed"
 # The surfaces a player reads.
@@ -51,6 +52,30 @@ SHOWN = re.compile(
 # Files whose job IS the sentinel: the naming pass, and the identity
 # module that defines both renders.
 OWNS_SENTINEL = {"SAO_PopulationRepresentation.lua", "SAO_Identity.lua"}
+
+
+def creator_name_lines(ui, creator):
+    """Native creator entry text has no dormant-person naming sentinel."""
+    render = function_body(ui, 'Panel:prerender') or ''
+    show = function_body(ui, 'UI.show') or ''
+    draft = function_body(creator, 'C.newDraft') or ''
+    context = function_body(creator, 'currentContext') or ''
+    native = function_body(creator, 'nativeName') or ''
+    if not all((
+            'local C = SAO.Creator' in ui,
+            'local ctx = self.draft.context' in render,
+            'o.draft = draft' in ui,
+            'local draft, reason = C.newDraft(screen)' in show,
+            'Panel:new(screen, continuation, draft)' in show,
+            'local context, reason = currentContext(screen)' in draft,
+            'context = context' in draft,
+            'nativeName(screen)' in context,
+            'forename = forename' in context,
+            'main.forenameEntry:getText()' in native)):
+        return set()
+    start = ui.find(render)
+    return {ui.count('\n', 0, start + match.start()) + 1
+            for match in re.finditer(r'ctx\.forename\b', render)}
 
 
 def player_facing_lines(src):
@@ -84,12 +109,15 @@ def player_facing_lines(src):
 
 
 def main():
+    from source_scanner_baseline import Baseline
+    baseline = Baseline()
     faults = []
     print("=" * 74)
     print("WHAT THE PLAYER IS SHOWN")
     print("=" * 74)
 
     non_ascii, raw_names = [], []
+    creator = (LUA / 'client/SAO_PlayerCreator.lua').read_text(encoding='utf-8')
     for path in sorted(LUA.rglob("*.lua")):
         raw = path.read_text(encoding="utf-8", errors="replace")
         code = strip_lua(raw, strings=False)      # comments gone, strings kept
@@ -101,6 +129,8 @@ def main():
             #    or a key, neither of which wants a glyph the font lacks.
             for ch in line:
                 if ord(ch) > 126:
+                    if baseline.preserved(path, n):
+                        continue
                     non_ascii.append((path.name, n, hex(ord(ch)),
                                       line.strip()[:52]))
         # 2. a bare `.forename` reaching a surface the player reads,
@@ -114,6 +144,8 @@ def main():
         if path.name in OWNS_SENTINEL:
             continue
         code_lines = code.split("\n")
+        chosen_names = creator_name_lines(code, strip_lua(creator, strings=False)) \
+            if path.name == 'SAO_PlayerCreatorUI.lua' else set()
         tainted = {}
         for n, line in enumerate(code_lines, 1):
             bind = re.match(r"\s*local\s+(\w+)\s*=", line)
@@ -152,6 +184,8 @@ def main():
                 continue
             if re.search(r"\.forename\b", line) \
                     and SENTINEL not in line and "knownName" not in line:
+                if n in chosen_names and not re.search(r'\b(?!ctx\b)\w+\.forename\b', line):
+                    continue
                 raw_names.append((path.name, n, line.strip()[:52]))
                 continue
             for var, at in tainted.items():

@@ -306,6 +306,72 @@ check('refill_keeps_six_person_pace_after_wait',function()
     ensure(conf,864240)
     return #__created==30 and SAO.Identity.livingCount()==18 and __store.countySettled==true
 end)
+local function workRegions(northNurse)
+    return {
+        {name='North',points={
+            unemployed={{posX=100,posY=200,posZ=0}},
+            nurse=northNurse and {{posX=121,posY=221,posZ=0},
+                {posX=122,posY=222,posZ=0}} or nil}},
+        {name='South',points={
+            nurse={{posX=901,posY=902,posZ=0}}}}
+    }
+end
+local function workReset(northNurse)
+    A.rebindWorld()
+    SpawnRegionMgr.getSpawnRegions=function() return workRegions(northNurse) end
+    __random={}
+end
+check('workplace_first_choice_uses_saved_origin_region',function()
+    workReset(true)
+    local rec={originRegion='North',occupation='nurse'}
+    local work=A.workplaceFor(rec,'nurse')
+    return work and work.x==121 and work.y==221
+        and rec.workX==121 and rec.workY==221
+        and #__random==1 and __random[1].limit==2
+end)
+check('workplace_other_region_only_is_unavailable',function()
+    workReset(false)
+    local rec={originRegion='North',occupation='nurse'}
+    return A.workplaceFor(rec,'nurse')==nil
+        and rec.workX==nil and rec.workY==nil and #__random==0
+end)
+check('workplace_missing_region_is_unavailable',function()
+    workReset(true)
+    local rec={occupation='nurse'}
+    return A.workplaceFor(rec,'nurse')==nil
+        and rec.workX==nil and rec.workY==nil and #__random==0
+end)
+check('workplace_survives_rebind_and_region_change',function()
+    workReset(true)
+    local rec={originRegion='North',occupation='nurse'}
+    local first=A.workplaceFor(rec,'nurse')
+    if not first or #__random~=1 then return false end
+    workReset(false)
+    local later=A.workplaceFor(rec,'nurse')
+    return later and later.x==first.x and later.y==first.y
+        and rec.workX==first.x and rec.workY==first.y and #__random==0
+end)
+check('workplace_saved_legacy_coordinate_is_retained',function()
+    workReset(true)
+    local rec={originRegion='North',occupation='nurse',workX=901,workY=902}
+    local work=A.workplaceFor(rec,'nurse')
+    return work and work.x==901 and work.y==902
+        and rec.workX==901 and rec.workY==902 and #__random==0
+end)
+check('workplace_partial_saved_pair_is_not_reassigned',function()
+    workReset(true)
+    local rec={originRegion='North',occupation='nurse',workX=901}
+    return A.workplaceFor(rec,'nurse')==nil
+        and rec.workX==901 and rec.workY==nil and #__random==0
+end)
+check('workplace_loaded_and_dormant_order_is_stable',function()
+    workReset(true)
+    local rec={originRegion='North',occupation='nurse'}
+    local first=A.workplaceFor(rec,'nurse')
+    local second=A.workplaceFor(rec,'nurse')
+    return first and second and first.x==second.x and first.y==second.y
+        and #__random==1
+end)
 __admissionResult=table.concat(results,';')
 '''
 
@@ -317,6 +383,84 @@ ADMISSION_EXPECTED = {
     'road_refill_creates_no_claims', 'located_building_refill_creates_no_claims',
     'explicit_claim_survives_admissions', 'refill_keeps_arrival_and_presence_times',
     'refill_keeps_six_person_pace_after_wait', 'refill_all_admitted_people_learn_origin',
+    'workplace_first_choice_uses_saved_origin_region',
+    'workplace_other_region_only_is_unavailable',
+    'workplace_missing_region_is_unavailable',
+    'workplace_survives_rebind_and_region_change',
+    'workplace_saved_legacy_coordinate_is_retained',
+    'workplace_partial_saved_pair_is_not_reassigned',
+    'workplace_loaded_and_dormant_order_is_stable',
+}
+
+DAY_GOAL_CASES = r'''
+SAO.Perception.beliefs={}
+SAO.Lessons={desperationBump=function() return 0 end}
+SAO.Places.around=function() return {} end
+D={pendingContactGoal=function() return nil end}
+local THIRST_LETHAL,HUNGER_LETHAL=3,21
+local THIRST_PATIENCE,HUNGER_PATIENCE=2,7
+local UNVISITED,DESPERATE=1000000,10000000
+local function hoursNow() return 0 end
+local function daysWithout() return 0 end
+local function desperationLine() return 1 end
+local function placeBarred() return false end
+local function chooseWhoToGoTo() return nil end
+__DORMANT_CHOOSER__
+local function countyBefore()
+__PREFALL_PROBE__
+    return preFall
+end
+local results={}
+local function check(name,fn)
+    local ok,value=pcall(fn)
+    if not ok then print('DETAIL '..name..': '..tostring(value)) end
+    results[#results+1]=name..'='..tostring(ok and value==true)
+end
+local function person(designation)
+    return {id='day-goal-person',occupation='nurse',originRegion='Fixed origin',
+        x=100,y=200,homeX=100,homeY=200,designation=designation}
+end
+local function chosen(reason,designation)
+    SAO.PopulationAdmissions.rebindWorld()
+    SAO.Standing.fallHasCome=function()
+        if reason=='after' then return true,'calendar' end
+        return false,reason
+    end
+    local rec=person(designation)
+    local before=countyBefore()
+    local goal=chooseDayGoal(rec.id,rec,200,5400,before)
+    return before,goal,rec
+end
+check('unknown_clock_cannot_assign_ordinary_work',function()
+    local before,goal,rec=chosen('unknown')
+    return before==false and goal==nil and rec.workX==nil and rec.workY==nil
+end)
+check('before_fall_assigns_ordinary_work',function()
+    local before,goal,rec=chosen('before')
+    return before==true and goal and goal.x==120 and goal.y==220
+        and rec.workX==120 and rec.workY==220
+end)
+check('designated_person_keeps_organization_work',function()
+    local before,goal,rec=chosen('before','watch')
+    return before==true and goal==nil and rec.workX==nil and rec.workY==nil
+end)
+check('undesignated_person_can_commute',function()
+    local before,goal,rec=chosen('before',nil)
+    return before==true and goal and goal.x==120 and goal.y==220
+        and rec.workX==120 and rec.workY==220
+end)
+check('after_fall_cannot_assign_ordinary_work',function()
+    local before,goal,rec=chosen('after')
+    return before==false and goal==nil and rec.workX==nil and rec.workY==nil
+end)
+__admissionResult=table.concat(results,';')
+'''
+DAY_GOAL_EXPECTED = {
+    'unknown_clock_cannot_assign_ordinary_work',
+    'before_fall_assigns_ordinary_work',
+    'designated_person_keeps_organization_work',
+    'undesignated_person_can_commute',
+    'after_fall_cannot_assign_ordinary_work',
 }
 
 COHORT_CASES = r'''
@@ -563,7 +707,13 @@ def producer_checks(receipt, faults):
                 ('co-resident-knowledge-omitted', source.replace(mate_learning, '', 1)),
                 ('borrow-leader-trade', source.replace(mate_identity,
                     '            mate.originAnchored = rec.originAnchored\n'
-                    '            mate.knowsTradeGround = rec.knowsTradeGround\n' + mate_identity, 1))):
+                    '            mate.knowsTradeGround = rec.knowsTradeGround\n' + mate_identity, 1)),
+                ('workplace-global-lookup', source.replace(
+                    'local points = byRegion and byRegion[rec.originRegion]',
+                    'local points = regionPointsByProfession and regionPointsByProfession[enginePath]', 1)),
+                ('workplace-save-overwrite', source.replace(
+                    'if rec.workX ~= nil or rec.workY ~= nil then',
+                    'if false then', 1))):
             path = work / (label + '.lua')
             path.write_text(content, encoding='utf-8')
             result = run([JDK / 'java.exe', '-cp', os.pathsep.join(map(str, (engine, work))),
@@ -607,6 +757,19 @@ def producer_checks(receipt, faults):
                                   + result.stdout + result.stderr)
                     return
                 print('  PASS borrowed leader trade fails independent profession anchoring')
+            elif label == 'workplace-global-lookup':
+                if checks['workplace_other_region_only_is_unavailable'] != 'false':
+                    faults.append('countywide workplace lookup control did not expose regional leakage\n'
+                                  + result.stdout + result.stderr)
+                    return
+                print('  PASS countywide workplace lookup fails other-region-only case')
+            elif label == 'workplace-save-overwrite':
+                if checks['workplace_survives_rebind_and_region_change'] != 'false' \
+                        or checks['workplace_saved_legacy_coordinate_is_retained'] != 'false':
+                    faults.append('saved workplace overwrite control did not expose persistence loss\n'
+                                  + result.stdout + result.stderr)
+                    return
+                print('  PASS saved workplace overwrite fails rebind and legacy cases')
         receipt['producer_status'] = 'PASS'
         cohort_cases = work / 'cohort-cases.lua'
         cohort_cases.write_text(COHORT_CASES, encoding='utf-8')
@@ -617,11 +780,16 @@ def producer_checks(receipt, faults):
              '', 'initial_units_clamp_to_site_quota'),
             ('initial-trade-reanchor-unbounded', 'pickOriginFor(row.enginePath, siteId)',
              'pickOriginFor(row.enginePath)', 'initial_trade_anchor_stays_in_declared_site'),
-            ('initial-binding-check-omitted', 'prior.definitionSha256 ~= definitionSha256 or prior.saveName ~= saveName',
-             'prior.saveName ~= saveName', 'initial_foreign_binding_refused'),
+            ('initial-binding-check-omitted',
+             'prior.definitionSha256 ~= definitionSha256 or prior.saveName ~= saveName\n'
+             '            or prior.target ~= population',
+             'prior.saveName ~= saveName\n'
+             '            or prior.target ~= population', 'initial_foreign_binding_refused'),
             ('initial-too-late-check-omitted', 'if store.countySettled or existingPeople then',
              'if false then', 'initial_too_late_staging_refused'),
-            ('initial-replay-owner-omitted', 'if prior then', 'if false then',
+            ('initial-replay-owner-omitted',
+             'local prior = store.initialStudyPeople\n    if prior then',
+             'local prior = store.initialStudyPeople\n    if false then',
              'initial_rebind_replay_keeps_exact_people'),
             ('initial-site-proof-omitted', 'or siteFor(origin, cohort.sites) ~= site.id then',
              'then', 'initial_wrong_site_provenance_refused'),
@@ -657,10 +825,102 @@ def producer_checks(receipt, faults):
             print('  PASS ' + (str(len(checks)) + ' initial population cases in installed Kahlua'
                   if defect is None else 'initial population control refused: ' + label))
         receipt['initial_population_status'] = 'PASS'
+        dormant_source = read(ROOT / 'mod/42.20/media/lua/client/SAO_DormantPopulation.lua')
+        start = dormant_source.find('local function chooseDayGoal(')
+        stop = dormant_source.find('\nend\n\n-- Arrival can now', start)
+        fall_start = dormant_source.find('    local preFall = false\n    do\n', stop)
+        fall_stop = dormant_source.find('    for id, rec in pairs(SAO.Identity.all()) do', fall_start)
+        if min(start, stop, fall_start, fall_stop) < 0:
+            faults.append('dormant day-goal or county verdict extraction seam drifted')
+            return
+        chooser = dormant_source[start:stop + len('\nend')]
+        fall = dormant_source[fall_start:fall_stop]
+        reason = 'preFall = okF and fallen == false and why == "before"'
+        gate = 'if preFall and not rec.designation and not needOffer then'
+        if chooser.count(gate) != 1 or fall.count(reason) != 1:
+            faults.append('dormant work gate or county reason seam drifted')
+            return
+        day_variants = (
+            ('day-goal-production', chooser, fall, None),
+            ('day-goal-unknown-accepted', chooser,
+             fall.replace(reason, 'preFall = okF and fallen == false'),
+             'unknown_clock_cannot_assign_ordinary_work'),
+            ('day-goal-designation-ignored',
+             chooser.replace(gate, 'if preFall and not needOffer then'),
+             fall, 'designated_person_keeps_organization_work'),
+            ('day-goal-after-fall-work',
+             chooser.replace(gate, 'if not rec.designation and not needOffer then'),
+             fall, 'after_fall_cannot_assign_ordinary_work'),
+        )
+        for label, actual_chooser, actual_fall, defect in day_variants:
+            content = DAY_GOAL_CASES.replace('__DORMANT_CHOOSER__', actual_chooser).replace(
+                '__PREFALL_PROBE__', actual_fall)
+            path = work / (label + '.lua')
+            path.write_text(content, encoding='utf-8')
+            result = run([JDK / 'java.exe', '-cp', os.pathsep.join(map(str, (engine, work))),
+                          'LuaRun', host, work / 'production.lua', path,
+                          '--', '__admissionResult'], label)
+            checks = dict(re.findall(r'([a-z0-9_]+)=(true|false)', result.stdout))
+            receipt[label] = checks
+            if result.returncode or set(checks) != DAY_GOAL_EXPECTED:
+                faults.append(label + ' did not execute every dormant work case\n'
+                              + result.stdout + result.stderr)
+                return
+            if defect is None and any(value != 'true' for value in checks.values()):
+                faults.append('dormant day-goal producer failed: ' + result.stdout + result.stderr)
+                return
+            if defect and checks[defect] != 'false':
+                faults.append('dormant day-goal control survived: ' + label)
+                return
+            print('  PASS ' + (str(len(checks)) + ' actual dormant day-goal cases in installed Kahlua'
+                  if defect is None else 'dormant day-goal control refused: ' + label))
+        receipt['dormant_day_goal_status'] = 'PASS'
 
 
 def read(path):
     return path.read_text(encoding="utf-8", errors="ignore") if path.exists() else ""
+
+
+def workplace_consumer_checks(receipt, faults):
+    lua = ROOT / 'mod/42.20/media/lua/client'
+    controller, dormant = lua / 'SAO_Controller.lua', lua / 'SAO_DormantPopulation.lua'
+    receipt.setdefault('sources', {}).update({
+        str(path.relative_to(ROOT)).replace('\\', '/'): sha(path)
+        for path in (controller, dormant)
+    })
+    loaded = read(controller)
+    sleeping = read(dormant)
+    def section(source, start, stop):
+        begin = source.find(start)
+        end = source.find(stop, begin + len(start)) if begin >= 0 else -1
+        return source[begin:end] if begin >= 0 and end > begin else ''
+    def loaded_bound(source):
+        part = section(source, 'local function decideRoam(',
+                       'local range = SAO.Disposition.roamRange')
+        gate = part.find('if preFall and not desig then')
+        call = part.find('SAO.PopulationAdmissions.workplaceFor(')
+        return gate >= 0 and call > gate and 'SAO.Population.tradeGroundFor(' not in part
+    def dormant_bound(source):
+        part = section(source, '-- [C113] Before somebody',
+                       '-- [C72] Need first')
+        gate = part.find('if preFall and not rec.designation and not needOffer then')
+        call = part.find('SAO.PopulationAdmissions.workplaceFor(')
+        return gate >= 0 and call > gate and 'pickOriginFor(' not in part
+    checks = {
+        'loaded_workplace_uses_prefall_shared_owner': loaded_bound(loaded),
+        'dormant_workplace_uses_prefall_shared_owner': dormant_bound(sleeping),
+        'loaded_gate_removal_rejected': not loaded_bound(
+            loaded.replace('if preFall and not desig then', 'if true then', 1)),
+        'dormant_gate_removal_rejected': not dormant_bound(
+            sleeping.replace('if preFall and not rec.designation and not needOffer then',
+                             'if true then', 1)),
+        'dormant_caller_passes_exact_verdict': (
+            'chooseDayGoal(id, rec, reach, tickCounter, preFall)' in sleeping),
+    }
+    receipt['workplace_consumer_checks'] = checks
+    faults.extend(name for name, passed in checks.items() if not passed)
+    if all(checks.values()):
+        print('  PASS loaded and dormant pre-fall workplace bindings and gate controls')
 
 
 def main():
@@ -774,6 +1034,7 @@ def main():
         producer_checks(receipt, faults)
     except Exception as error:
         faults.append('admissions producer probe failed: ' + str(error))
+    workplace_consumer_checks(receipt, faults)
     receipt['static_checks'] = flags
     receipt['faults'] = faults
     receipt['status'] = 'FAIL' if faults else 'PASS'

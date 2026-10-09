@@ -1,0 +1,12 @@
+module Base
+{
+    xuiSkin default
+    {
+        entity ES_LS_PingPongTable
+        {
+            LuaWindowClass = ISEntityTabWindow,
+            DisplayName = Build_LS_PingPongTable,
+            Icon = LS_Build_PingPongTable,
+        }
+    }
+}

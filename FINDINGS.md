@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `3.8.0.0-pre-alpha` |
+| Version | `3.8.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -3274,3 +3274,12 @@ contracts remain verified. The initial static native-image clip grows from
 This is a current-source producer repair, verified without a fresh game launch.
 Future candidates must seal/build that source; historical compressed media and
 peer evidence retain their original bytes. D1 remains OPEN.
+
+
+### 2026-10-09 10:17 UTC / 03:17 PST — observed restored-body inquiry recovery and connected asset library
+
+Controlled native Kahlua result: The native motivating fixture on the old `SAO_WeekOneContinuity.lua` SHA-256 `1cc42ca262c72defa6a3cf7e5a5edc93e4878b406ea0d042d5c3cb1a46478858` fails at restored-body pending admission. Its exact preimage and receipt remain under `_scratch/d2-leisure-01/source-inquiry-body-recovery-20261009/`. The qualified repair admits only a successfully observed exact source body with retained inquiry work to durable pending metadata and the session queue. The existing 16-entry bounded round robin, deduplication, source marker checks, separate execution authority and 240-tick retry backoff retain their contracts. The unchanged raw discovery cursor has no new fairness credit for unobserved or unloaded entries.
+
+Changed runtime source SHA-256 `de2c8d2f5b029cc2cae11201e3437cbf0b8e1948aa349afaf4d1f40ccf4f0b7f` and focused instrument SHA-256 `328da9b66aba101c296c7e081895db5ad80bae0c0bdeb434b9e350b58288331b` are pinned by `inquiry-proof.json` SHA-256 `d22488891f6389c46a81d1cbb6658db52a46370fc104f6fa9b70613acb977bd0`. The current production run and 17 controlled defects qualify admission repair, wrong-body refusal, duplicate prevention, interrupted reconciliation with no borrowed body, and backoff preservation. Each controlled defect fails at its intended fixture stage. The unchanged imported fixture owners, shipped Kahlua/JAR, Lua runner and ports remain exact across these executions. Earlier source qualification, including 55 continuity controls at the preceding runtime pin, remains historical evidence for its unchanged contracts; it is not represented as a new full-suite run.
+
+The guarded one-leaf install receipt `installed-receipt.json` SHA-256 `c4cae407958d29ad39cdf8a5872dfd793a8568607f18baa636cb62d94992ee8a` verifies exact qualified source/installed bytes and original installed preimage. All 121 saved markers, selected default/latest settings, approval hash and 174 actual mods entries remain preserved; source/shipped/installed Java archives stay identical and the game process count is zero. The prior 92,290-file whole-tree receipt retains its historical scope. Native loaded/rendered gameplay and complete D2 leisure acceptance remain unobserved.

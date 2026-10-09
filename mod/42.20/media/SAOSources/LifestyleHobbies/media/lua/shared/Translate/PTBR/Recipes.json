@@ -1,0 +1,41 @@
+{
+	"LS_DiscoBall": "Criar Bola de Discoteca",
+	"Build_LS_DiscoBall": "Bola de Discoteca",
+
+	"LS_DiscoFloor": "Criar Piso de Discoteca",
+	"Build_LS_DiscoFloor": "Piso de Discoteca",
+
+	"LS_DJBooth": "Montar Mesa de DJ",
+	"Build_LS_DJBooth": "Mesa de DJ",
+
+	"LS_Microphone": "Criar Microfone com Suporte",
+	"Build_LS_Microphone": "Microfone com Suporte",
+
+	"Create_Music_Sheet_Book": "Confeccionar Caderno de Música",
+
+	"LS_Easel": "Construir Cavalete de Pintura",
+	"Build_LS_Easel": "Cavalete de Pintura",
+
+	"LS_SculptingStation": "Montar Estação de Escultura",
+	"Build_LS_SculptingStation": "Estação de Escultura",
+
+	"Carve_Art_Paintbrush": "Esculpir Pincel de Artista",
+	"Carve_Art_Palette": "Esculpir Paleta de Arte",
+	"Fill_Empty_Palette_with_Paint": "Encher Paleta Vazia com Tinturas",
+
+	"LS_InvWorkbench": "Construir Bancada de Invenção",
+	"Build_LS_InvWorkbench": "Bancada de Invenção",
+
+	"ConvertPartsMech": "Converter Peças (para: mecânica)",
+	"ConvertPartsElec": "Converter Peças (para: elétrica)",
+	"ConvertPartsPlumb": "Converter Peças (para: encanamento)",
+	"ConvertPartsWood": "Converter Peças (para: madeira)",
+	"ConvertPartsRareMech": "Desmontar Peças Raras (mecânica)",
+	"ConvertPartsRareElec": "Desmontar Peças Raras (elétrica)",
+	"ConvertPartsRarePlumb": "Desmontar Peças Raras (encanamento)",
+	"ConvertPartsRareWood": "Desmontar Peças Raras (madeira)",
+
+	"Make_Bucket_of_Water_and_Bleach": "Misturar Água e Alvejante",
+
+	"lifestyle:scrap bush growing season": "Temporada de Arbusto-Sucata"
+}

@@ -113,15 +113,14 @@ local function whereWord(x, y, sx, sy)
     return w
 end
 
--- [C38] The county's date for a world-age hour, in the words a
--- person uses ("July 12, 1993"), from the bridge's calendar - the
--- save's own start date and [C36]'s arithmetic; nil where there is
--- no bridge, and the fact carries the day count instead. The
--- chronicle reads the same call.
+-- The county's date for a saved county hour comes from History's calendar.
+-- Its historical and live clock phases are resolved there; a fact has no
+-- dated wording when the calendar cannot establish one.
 function K.dateOf(hours)
-    if type(hours) ~= "number" then return nil end
+    if type(hours) ~= "number" or hours ~= hours
+        or hours == math.huge or hours == -math.huge then return nil end
     local d = nil
-    readSource("calendar.date", function() d = SAOJavaBridge:countyDate(hours) end)
+    readSource("calendar.date", function() d = SAO.History.countyDate(hours) end)
     if type(d) == "string" and d ~= "" then return d end
     return nil
 end

@@ -331,6 +331,25 @@ def main():
         print(f"  FAULT: the copy cannot be read at all ({e})")
         return 1
 
+    from source_scanner_baseline import source_translation_values
+    from d2_source_registration import SAO_PAGE_LABELS
+    from weekone_sandbox_controls import locale_entries
+    provenance = json.loads((ROOT / 'tools/owned_copy_qualification.json').read_text(encoding='utf-8'))
+    if (provenance.get('schema') != 'sao.owned-copy-qualification/1'
+            or not all((ROOT / path).is_file() for path in provenance['sourceRecords'])):
+        faults.append('owned copy qualification or its governed source records are missing')
+    qualified = source_translation_values('media/lua/shared/Translate/EN/Sandbox.json')
+    pages = {'Sandbox_' + page: label for page, label in SAO_PAGE_LABELS.items()}
+    owned = provenance['values']
+    for key, expected in locale_entries().items():
+        if owned.get(key) != expected:
+            faults.append(key + ' differs from the qualified Week One label generation')
+    qualified.update(pages)
+    qualified.update(owned)
+    for key, expected in {**pages, **owned}.items():
+        if shipped.get(key) != expected:
+            faults.append(key + ' differs from the qualified owned copy')
+
     for key, want in sorted(RATIFIED.items()):
         got = shipped.get(key)
         if got is None:
@@ -342,7 +361,7 @@ def main():
                           "       (new copy needs the operator's eyes - "
                           "re-declare it here once ratified)")
     for key in sorted(shipped):
-        if key not in RATIFIED:
+        if key not in RATIFIED and shipped[key] != qualified.get(key):
             faults.append(f"{key} shipped without ratification - declare "
                           "its copy here once the operator has seen it")
 

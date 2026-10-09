@@ -1,0 +1,123 @@
+module Base
+{
+    sound ComputerTurnOnOff
+    {
+        category = UI,
+        clip
+        {
+            file = media/sound/turnonoff.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound ComputerStartup
+    {
+        category = UI,
+        clip
+        {
+            file = media/sound/startup.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound ComputerPongSong
+    {
+        category = Music,
+        loop = true,
+        clip
+        {
+            file = media/sound/pongsong.ogg,
+            volume = 0.5,
+        }
+    }
+
+    sound ComputerDoomGameOver
+    {
+        category = UI,
+        clip
+        {
+            file = media/sound/gameover.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound ComputerDoomGameOverRare
+    {
+        category = UI,
+        clip
+        {
+            file = media/sound/gameoverfah.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound ComputerCDEject
+    {
+        category = UI,
+        clip
+        {
+            file = media/sound/cdeject.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound ComputerDoomGun
+    {
+        category = UI,
+        clip
+        {
+            file = media/sound/doomgun.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound ComputerBirdJump
+    {
+        category = UI,
+        clip
+        {
+            file = media/sound/birdjump.ogg,
+            volume = 0.75,
+        }
+    }
+
+    sound ComputerLaserShot
+    {
+        category = UI,
+        clip
+        {
+            file = media/sound/lasershot.ogg,
+            volume = 0.75,
+        }
+    }
+
+    sound ComputerWinOpen
+    {
+        category = UI,
+        clip
+        {
+            file = media/sound/winopen.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound ComputerBallHit
+    {
+        category = UI,
+        clip
+        {
+            file = media/sound/ballhit.ogg,
+            volume = 0.75,
+        }
+    }
+
+    sound ComputerError
+    {
+        category = UI,
+        clip
+        {
+            file = media/sound/error.ogg,
+            volume = 0.8,
+        }
+    }
+}

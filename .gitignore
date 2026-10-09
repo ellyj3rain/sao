@@ -24,3 +24,11 @@ desktop.ini
 # [B83] Diagnostic imports of the border tools leave these behind.
 __pycache__/
 *.pyc
+
+# Operator's local universal permission mandate program.
+universal-permission-mandate/
+universal_permission_mandate/
+UniversalPermissionMandate/
+universal-permission-mandate.*
+universal_permission_mandate.*
+UniversalPermissionMandate.*

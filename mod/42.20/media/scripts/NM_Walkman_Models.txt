@@ -1,0 +1,628 @@
+module NewMusic
+{
+    model WalkmanBlue
+    {
+        mesh = WorldItems/NM_Walkman,
+        texture = WorldItems/Walkman/World_NM_WalkmanBlue,
+        scale = 1,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_left
+        {
+            offset = 0.0 0.01 0.01,
+            rotate = 20.0 -95.0 20.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_right
+        {
+            offset = 0.01 0.01 -0.01,
+            rotate = -20.0 -95.0 -20.0,
+            scale = 0.85,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+    }
+    model WalkmanPurple
+    {
+        mesh = WorldItems/NM_Walkman,
+        texture = WorldItems/Walkman/World_NM_WalkmanPurple,
+        scale = 1,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_left
+        {
+            offset = 0.0 0.01 0.01,
+            rotate = 20.0 -95.0 20.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_right
+        {
+            offset = 0.01 0.01 -0.01,
+            rotate = -20.0 -95.0 -20.0,
+            scale = 0.85,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+    }
+    model WalkmanRed
+    {
+        mesh = WorldItems/NM_Walkman,
+        texture = WorldItems/Walkman/World_NM_WalkmanRed,
+        scale = 1,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_left
+        {
+            offset = 0.0 0.01 0.01,
+            rotate = 20.0 -95.0 20.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_right
+        {
+            offset = 0.01 0.01 -0.01,
+            rotate = -20.0 -95.0 -20.0,
+            scale = 0.85,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+    }
+    model WalkmanBlack
+    {
+        mesh = WorldItems/NM_Walkman,
+        texture = WorldItems/Walkman/World_NM_WalkmanBlack,
+        scale = 1,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_left
+        {
+            offset = 0.0 0.01 0.01,
+            rotate = 20.0 -95.0 20.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_right
+        {
+            offset = 0.01 0.01 -0.01,
+            rotate = -20.0 -95.0 -20.0,
+            scale = 0.85,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+    }
+    model WalkmanPink
+    {
+        mesh = WorldItems/NM_Walkman,
+        texture = WorldItems/Walkman/World_NM_WalkmanPink,
+        scale = 1,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_left
+        {
+            offset = 0.0 0.01 0.01,
+            rotate = 20.0 -95.0 20.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_right
+        {
+            offset = 0.01 0.01 -0.01,
+            rotate = -20.0 -95.0 -20.0,
+            scale = 0.85,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+    }
+    model WalkmanGreen
+    {
+        mesh = WorldItems/NM_Walkman,
+        texture = WorldItems/Walkman/World_NM_WalkmanGreen,
+        scale = 1,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_left
+        {
+            offset = 0.0 0.01 0.01,
+            rotate = 20.0 -95.0 20.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_right
+        {
+            offset = 0.01 0.01 -0.01,
+            rotate = -20.0 -95.0 -20.0,
+            scale = 0.85,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+    }
+    model WalkmanCamo
+    {
+        mesh = WorldItems/NM_Walkman,
+        texture = WorldItems/Walkman/World_NM_WalkmanCamo,
+        scale = 1,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_left
+        {
+            offset = 0.0 0.01 0.01,
+            rotate = 20.0 -95.0 20.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_right
+        {
+            offset = 0.01 0.01 -0.01,
+            rotate = -20.0 -95.0 -20.0,
+            scale = 0.85,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+    }
+    model WalkmanOrange
+    {
+        mesh = WorldItems/NM_Walkman,
+        texture = WorldItems/Walkman/World_NM_WalkmanOrange,
+        scale = 1,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_left
+        {
+            offset = 0.0 0.01 0.01,
+            rotate = 20.0 -95.0 20.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_right
+        {
+            offset = 0.01 0.01 -0.01,
+            rotate = -20.0 -95.0 -20.0,
+            scale = 0.85,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+    }
+    model WalkmanYellow
+    {
+        mesh = WorldItems/NM_Walkman,
+        texture = WorldItems/Walkman/World_NM_WalkmanYellow,
+        scale = 1,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_left
+        {
+            offset = 0.0 0.01 0.01,
+            rotate = 20.0 -95.0 20.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_right
+        {
+            offset = 0.01 0.01 -0.01,
+            rotate = -20.0 -95.0 -20.0,
+            scale = 0.85,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+    }
+    model WalkmanCyan
+    {
+        mesh = WorldItems/NM_Walkman,
+        texture = WorldItems/Walkman/World_NM_WalkmanCyan,
+        scale = 1,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_left
+        {
+            offset = 0.0 0.01 0.01,
+            rotate = 20.0 -95.0 20.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_right
+        {
+            offset = 0.01 0.01 -0.01,
+            rotate = -20.0 -95.0 -20.0,
+            scale = 0.85,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+    }
+    model WalkmanMagenta
+    {
+        mesh = WorldItems/NM_Walkman,
+        texture = WorldItems/Walkman/World_NM_WalkmanMagenta,
+        scale = 1,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_left
+        {
+            offset = 0.0 0.01 0.01,
+            rotate = 20.0 -95.0 20.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_right
+        {
+            offset = 0.01 0.01 -0.01,
+            rotate = -20.0 -95.0 -20.0,
+            scale = 0.85,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+    }
+    model WalkmanWhite
+    {
+        mesh = WorldItems/NM_Walkman,
+        texture = WorldItems/Walkman/World_NM_WalkmanWhite,
+        scale = 1,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_left
+        {
+            offset = 0.0 0.01 0.01,
+            rotate = 20.0 -95.0 20.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_right
+        {
+            offset = 0.01 0.01 -0.01,
+            rotate = -20.0 -95.0 -20.0,
+            scale = 0.85,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+    }
+    model WalkmanLore
+    {
+        mesh = WorldItems/NM_Walkman,
+        texture = WorldItems/Walkman/World_NM_WalkmanLore,
+        scale = 1,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.01 -0.02 0.0,
+            rotate = 180.0 0.0 180.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_left
+        {
+            offset = 0.0 0.01 0.01,
+            rotate = 20.0 -95.0 20.0,
+            scale = 0.85,
+        }
+        attachment walkie_belt_right
+        {
+            offset = 0.01 0.01 -0.01,
+            rotate = -20.0 -95.0 -20.0,
+            scale = 0.85,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.015 0.0 0.0,
+            rotate = 0.0 -90.0 0.0,
+            scale = 0.85,
+        }
+    }
+}
+

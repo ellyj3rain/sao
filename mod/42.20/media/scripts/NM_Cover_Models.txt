@@ -1,0 +1,183 @@
+module NewMusic
+{
+    imports
+    {
+        Base
+    }
+
+    model Cover1
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover1,
+        scale = 0.1,
+    }
+
+    model Cover2
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover2,
+        scale = 0.1,
+    }
+
+    model Cover3
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover3,
+        scale = 0.1,
+    }
+
+    model Cover4
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover4,
+        scale = 0.1,
+    }
+
+    model Cover5
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover5,
+        scale = 0.1,
+    }
+
+    model Cover6
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover6,
+        scale = 0.1,
+    }
+
+    model Cover7
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover7,
+        scale = 0.1,
+    }
+
+    model Cover8
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover8,
+        scale = 0.1,
+    }
+
+    model Cover9
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover9,
+        scale = 0.1,
+    }
+
+    model Cover10
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover10,
+        scale = 0.1,
+    }
+
+    model Cover11
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover11,
+        scale = 0.1,
+    }
+
+    model Cover12
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover12,
+        scale = 0.1,
+    }
+
+    model Cover13
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover13,
+        scale = 0.1,
+    }
+
+    model Cover14
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover14,
+        scale = 0.1,
+    }
+
+    model Cover15
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover15,
+        scale = 0.1,
+    }
+
+    model Cover16
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover16,
+        scale = 0.1,
+    }
+
+    model Cover17
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover17,
+        scale = 0.1,
+    }
+
+    model Cover18
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover18_Vinyl,
+        scale = 0.1,
+    }
+
+    model Cover18Empty
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover18_Vinyl_Empty,
+        scale = 0.1,
+    }
+
+    model Cover19
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover19_Vinyl,
+        scale = 0.1,
+    }
+
+    model Cover19Empty
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover19_Vinyl_Empty,
+        scale = 0.1,
+    }
+
+    model Cover20
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover20_Vinyl,
+        scale = 0.1,
+    }
+
+    model Cover20Empty
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover20_Vinyl_Empty,
+        scale = 0.1,
+    }
+
+    model Cover21
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover21_Vinyl,
+        scale = 0.1,
+    }
+
+    model Cover21Empty
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Cover21_Vinyl_Empty,
+        scale = 0.1,
+    }
+}
+

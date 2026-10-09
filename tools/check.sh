@@ -20,12 +20,20 @@ fi
 fail=0
 note() { printf '[check] %s\n' "$*"; }
 
+# Imported executable files and original evidence share an exact sealed
+# provenance inventory. A vault location alone cannot bypass any scanner.
+if ! "$PY" tools/scanner_inventory.py; then
+    note "SOURCE SCANNER INVENTORY FAILED"
+    exit 1
+fi
+
 # 1. Structural Lua check on the relevant files.
 if [ "${1:-}" = "--staged" ]; then
-    files=$(git diff --cached --name-only --diff-filter=ACM \
+    staged_lua=$(git diff --cached --name-only --diff-filter=ACM \
             | grep '\.lua$' || true)
+    files=$(printf '%s\n' "$staged_lua" | "$PY" tools/scanner_inventory.py --filter) || exit 1
 else
-    files=$(find mod -name '*.lua' 2>/dev/null || true)
+    files=$("$PY" tools/scanner_inventory.py --lua) || exit 1
 fi
 
 # [C1] The gate's verdict must not depend on who invoked it. A pre-commit
@@ -54,8 +62,7 @@ fi
 # 2. The scope-split scanner (F-030 class: a local declared after a
 #    bare assignment to the same name). [C60] It receives the shipped Lua
 #    inventory explicitly; an empty invocation used to report zero candidates.
-mapfile -t scope_files < <(find mod/42.20/media/lua -type f -name '*.lua' -print)
-if ! "$PY" tools/scope_split_audit.py "${scope_files[@]}"; then
+if ! "$PY" tools/scope_split_audit.py --inventory; then
     note "SCOPE AUDIT ERRORED"
     fail=1
 fi
@@ -358,14 +365,25 @@ do
 done
 
 # [B41] A mirror nobody runs is a claim nobody checks. Thirty-three
-# mirrors existed and eleven ran; the rest were cited in batch records
-# as though writing one were the same as running it. Every
-# tools/*_test.py must now be invoked above or declared one-off with
-# the batch that wrote it, and every mirror must have a path that can
-# fail - a report in the gate is runtime bought for a guaranteed pass.
+# mirrors existed and eleven ran; the rest were cited in batch records.
+# Standing checks have actual invocations and a path that can fail.
+# Named qualification scopes preserve selected inputs and receipts under
+# GOVERNANCE.md rather than making every diagnostic a standing check.
+if ! "$PY" tools/native_proof_preflight_test.py; then
+    note "BORDER FINDING - installed dependency or owned input classification differs"
+    fail=1
+fi
+if ! "$PY" tools/scanner_boundary_controls_test.py; then
+    note "BORDER FINDING - source scanner ownership controls differ"
+    fail=1
+fi
+if ! "$PY" tools/nonrecursive_ordering_test.py; then
+    note "BORDER FINDING - complete native candidate ordering differs"
+    fail=1
+fi
 if ! "$PY" tools/gate_reach_test.py > /dev/null; then
     "$PY" tools/gate_reach_test.py 2>&1 | grep -E "FAULT" || true
-    note "BORDER FINDING - a mirror is not in the gate, or cannot fail"
+    note "BORDER FINDING - standing invocation or qualification ownership differs"
     fail=1
 fi
 
@@ -2482,6 +2500,218 @@ fi
 d2_obligation_resumption_proof="_scratch/d2-obligation-resumption-gate-$$-$RANDOM"
 if ! "$PY" tools/d2_leisure_choice_test.py --resumption --output "$d2_obligation_resumption_proof"; then
     note "BORDER FINDING - actual ordinary choice or retained obligation resumption failed"
+    fail=1
+fi
+
+# D2 - personally acquired native/modded leisure, maintained source owners,
+# actual effects and private experience. Installed-only proofs classify absence
+# as unchecked; owned proof inputs remain mandatory.
+d2_repertoire_proof="_scratch/d2-d2_reading_experience_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_reading_experience_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_reading_experience_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_native_hobbies_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_native_hobbies_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_native_hobbies_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_art_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_art_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_art_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_games_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_games_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_games_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_skill_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_skill_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_skill_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_exercise_observation_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_exercise_observation_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_exercise_observation_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_music_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_music_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_music_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_duet_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_duet_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_duet_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_social_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_social_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_social_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_radio_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_radio_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_radio_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_radio_capture_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_radio_capture_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_radio_capture_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_preparation_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_preparation_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_preparation_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_seating_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_seating_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_seating_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_music_scheduler_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_music_scheduler_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_music_scheduler_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_dance_cycle_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_dance_cycle_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_dance_cycle_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_choice_test-personal-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_choice_test.py --personal --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_choice_test-personal source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_choice_test-hobby-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_choice_test.py --hobby --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_choice_test-hobby source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_choice_test-game-input-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_choice_test.py --game-input --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_choice_test-game-input source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_games-tabletop_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_games/tabletop_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_games-tabletop_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_radio-native_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_radio/native_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_radio-native_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_music-world_audio_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_music/world_audio_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_music-world_audio_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_music-native_piano_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_music/native_piano_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_music-native_piano_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_music-dance_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_music/dance_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_music-dance_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_music-native_dance_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_music/native_dance_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_music-native_dance_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_leisure_music-partner_dance_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_music/partner_dance_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_leisure_music-partner_dance_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_exercise_observation-observation_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_exercise_observation/observation_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_exercise_observation-observation_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_exercise_observation-perception_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_exercise_observation/perception_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_exercise_observation-perception_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_exercise_observation-audio_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_exercise_observation/audio_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_exercise_observation-audio_test source or consumer contract failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-d2_exercise_observation-teardown_test-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_exercise_observation/teardown_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 d2_exercise_observation-teardown_test source or consumer contract failed"
+    fail=1
+fi
+
+d2_repertoire_proof="_scratch/d2-native-music-join-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_dance_cycle/completion_test.py --out "$d2_repertoire_proof-terminal"; then
+    note "BORDER FINDING - D2 native scoped terminal witness failed"
+    fail=1
+fi
+if ! "$PY" tools/d2_dance_cycle/music_join_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 actual native Music caller failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-native-stations-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_stations_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 personally acquired stations or native hearing failed"
+    fail=1
+fi
+
+d2_repertoire_proof="_scratch/d2-leisure-materials-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_materials_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 source material preview or context failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-leisure-acquisition-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_acquisition_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 same-purpose material acquisition failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-native-acquisition-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_acquisition_native_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 native material transfer and hobby consumer failed"
+    fail=1
+fi
+
+d2_repertoire_proof="_scratch/d2-art-acquisition-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_acquisition_art_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 retained acquisition purpose or original Art use failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-acquisition-portability-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_acquisition_portability_test.py --output "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 acquisition evidence or dependency classification failed"
+    fail=1
+fi
+
+d2_repertoire_proof="_scratch/d2-lifestyle-source-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_lifestyle_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 original Lifestyle source work failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-native-lifestyle-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_lifestyle/native_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 native Lifestyle effects or canonical skill authority failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-lifestyle-reception-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_leisure_lifestyle/hearing_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 current performer reception or listener effects failed"
+    fail=1
+fi
+d2_repertoire_proof="_scratch/d2-native-music-supply-gate-$$-$RANDOM"
+if ! "$PY" tools/d2_music_supply_test.py --out "$d2_repertoire_proof"; then
+    note "BORDER FINDING - D2 original Music supplies or same-purpose playback failed"
     fail=1
 fi
 

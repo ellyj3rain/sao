@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Lean & Lie 1.27, Tchernobill; local integration provenance: tools/recovery_source_manifest.json -->
+<animNode x_extends="SAORecovery_ground_base.xml">
+	<m_Name>SAORecovery_awakeToAsleep</m_Name>
+	<m_AnimName>Bob_AwakeToAsleep</m_AnimName>
+	<m_Looped>false</m_Looped>
+    <m_BlendTime>0.00</m_BlendTime>
+	<m_SpeedScale>1.0</m_SpeedScale>
+	<m_ConditionPriority>10</m_ConditionPriority>
+	<m_Conditions x_name="16010b1d-6650-4179-8c12-09574be5b5ae">
+		<m_Name>SAORecoveryGround</m_Name>
+		<m_Type>STRING</m_Type>
+		<m_Value>AwakeToAsleep</m_Value>
+	</m_Conditions>
+	<m_Events x_name="84587255-813b-40eb-8670-2f19446a755b">
+		<m_EventName>AsleepEvent</m_EventName>
+		<m_Time>End</m_Time>
+		<m_ParameterValue></m_ParameterValue>
+	</m_Events>
+</animNode>

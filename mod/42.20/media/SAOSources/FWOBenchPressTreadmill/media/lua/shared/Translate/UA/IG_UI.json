@@ -1,0 +1,12 @@
+{
+    "IGUI_BenchPress": "Bench Press",
+    "IGUI_BenchPress_Tooltip": "Тренуйся на bench press",
+    "IGUI_Treadmill": "Бігова доріжка",
+    "IGUI_Treadmill_Tooltip": "Бігай на біговій доріжці",
+    "IGUI_need_barbell": "Мені потрібна штанга або дві гантелі для цієї вправи",
+    "IGUI_low_endurance": "Я занадто виснажений",
+    "IGUI_pain": "Мені занадто боляче",
+    "IGUI_heavy": "Занадто важко для використання зараз",
+    "IGUI_treadmill_needs_electricity": "Біговій доріжці потрібна електрика, щоб працювати",
+    "IGUI_bench_rotate_bug": "Помилка: будь ласка, поверніть та/або перемістіть лаву!"
+}

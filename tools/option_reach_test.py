@@ -101,6 +101,10 @@ OWNED_ELSEWHERE = {
     # an opinion about it and the nuke module, which owns the draw,
     # the strike and the fallout, owns the dial too.
     "WeekOneNuke": "client/SAO_Nuke.lua",
+    # Representation is selected once when a Week One person is admitted.
+    # Active and dormant county loops then see the same SAO person record;
+    # this dial only chooses when its temporary source body hands over.
+    "WeekOneBodyMode": "client/SAO_WeekOneContinuity.lua",
     # [C121] A smoke break is a body's act - a cigarette in a hand,
     # an animation a witness can see - so the dormant half has no
     # body to read it from. The habit itself is drawn and carried

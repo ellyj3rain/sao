@@ -167,8 +167,8 @@ def main(argv=None):
         ('plan query clock aging', [('local weight = 0.5 ^ ((context.atHours - sample.hours) / CONFIDENCE_HALF_LIFE_HOURS)',
                                     'local weight = 1')],
          'plan evidence did not age at query clock'),
-        ('plan weaker preparation transfer', [('return transfer, "related-experience", 0.45',
-                                               'return transfer, "related-experience", 1')],
+        ('plan weaker preparation transfer', [('if modelId == "associative" and #transfer > 0 then return transfer, "related-experience", 0.45 end',
+                                               'if modelId == "associative" and #transfer > 0 then return transfer, "related-experience", c.kind == "prepare" and 1 or 0.45 end')],
          'related preparation failed to transfer with lower confidence'),
         ('plan current capability prior', [('if c.kind == "prepare" and context.capabilities and context.capabilities.cook == true then',
                                            'if false then')],
@@ -216,7 +216,7 @@ def main(argv=None):
         code, result = run(source)
         print('BASELINE', code, result, flush=True)
         receipt['baseline'] = {'exit': code, 'result': result}
-        if code or result != 'VALUE PASS 43 cases':
+        if code or result != 'VALUE PASS 44 cases':
             faults.append('production baseline')
         if not faults and not args.baseline_only:
             for name, changes, expected in selected:

@@ -109,7 +109,7 @@ end
 -- whole route and any transition in flight.
 local RETARGET_REACH = 2.0
 
-function Loco.order(id, body, x, y, z, running)
+function Loco.order(id, body, x, y, z, running, options)
     if not SAOJavaBridge then
         log("FAIL order " .. tostring(id) .. ": no java bridge")
         return false
@@ -152,7 +152,8 @@ function Loco.order(id, body, x, y, z, running)
     -- A known, nearby horse may own a long route. The same native path is
     -- captured as waypoints, while the integrated horse system owns mounting,
     -- collision, stamina, animation, position and dismount outcome.
-    if SAO.Animals and SAO.Animals.orderTravel then
+    if not (options and options.footOnly == true)
+        and SAO.Animals and SAO.Animals.orderTravel then
         local okHorse, accepted = pcall(SAO.Animals.orderTravel,
             id, body, x, y, z, running)
         if okHorse and accepted then

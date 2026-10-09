@@ -5,6 +5,7 @@ SAO.Communication = SAO.Communication or {}
 local Communication = SAO.Communication
 local conceptReceptions = {}
 local participationTransport
+local objectiveReportCapability
 
 -- A transient transport capability, available only inside a revalidated spoken
 -- delivery. A saved envelope or a caller's transportAdmitted flag is not it.
@@ -16,6 +17,15 @@ function Communication.participationTransport(processId, fromId, toId, kind)
     return needs and needs.ownsRecoveryBody and bodies and bodies.get
         and needs.ownsRecoveryBody(fromId, bodies.get(fromId))
         and needs.ownsRecoveryBody(toId, bodies.get(toId)) or false
+end
+
+-- A player can receive a returned work report only during its own currently
+-- admitted conversation. This capability exists for one delivery call.
+function Communication.objectiveReportTransport(processId, fromId, toId)
+    local row = objectiveReportCapability
+    return row and row.processId == processId and row.fromId == fromId
+        and row.toId == toId
+        and Communication.canConverse(fromId, toId) == true or false
 end
 local function copyConcept(value)
     if type(value)~="table" then return value end
@@ -34,6 +44,19 @@ local function finite(value)
         and value ~= math.huge and value ~= -math.huge
 end
 
+local function weekOneBodyFor(id, rec)
+    if not (rec and rec.weekOne and rec.weekOne.status == "external") then
+        return nil
+    end
+    local source = SAO.WeekOneContinuity
+    if not (source and type(source.sourceBodyFor) == "function") then
+        return nil
+    end
+    local ok, body, brain = pcall(source.sourceBodyFor, id)
+    if ok and body and type(brain) == "table" then return body, brain end
+    return nil
+end
+
 local function bodyFor(id)
     id = tostring(id or "")
     local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id)
@@ -44,21 +67,40 @@ local function bodyFor(id)
         if ok and body then return body end
         return nil
     end
+    if rec and rec.weekOne and rec.weekOne.status == "external" then
+        return weekOneBodyFor(id, rec)
+    end
     local body = SAO.Body and SAO.Body.get and SAO.Body.get(id) or nil
     if not body then
         body = SAO.Body and SAO.Body.active and SAO.Body.active[id] or nil
     end
     if body then return body end
-    local ok, player = pcall(function() return (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0) end)
-    if ok and player and SAO.Standing and SAO.Standing.playerKey
-        and SAO.Standing.playerKey(player) == id then return player end
-    return nil
+    local playerAt = SAO.Participants and SAO.Participants.player
+        or getSpecificPlayer
+    local playerKey = SAO.Standing and SAO.Standing.playerKey
+    if type(playerAt) ~= "function" or type(playerKey) ~= "function" then
+        return nil
+    end
+    local matched = nil
+    for slot = 0, 3 do
+        local ok, player = pcall(playerAt, slot)
+        local okKey, actual = false, nil
+        if ok and player then okKey, actual = pcall(playerKey, player) end
+        if okKey and actual == id then
+            if matched and matched ~= player then return nil end
+            matched = player
+        end
+    end
+    return matched
 end
 
 function Communication.registerExecutionOwner(ownerId, adapter)
     ownerId = type(ownerId) == "string" and ownerId or nil
     if not ownerId or ownerId == "" or type(adapter) ~= "table"
         or type(adapter.bodyFor) ~= "function" then return false end
+    if ownerId:sub(1, 10) == "companion:"
+        and Communication.executionOwners[ownerId]
+        and Communication.executionOwners[ownerId] ~= adapter then return false end
     Communication.executionOwners[ownerId] = adapter
     return true
 end
@@ -225,6 +267,10 @@ function Communication.canConverse(fromId, toId, channel)
             and SAO.Body.hasRepresentation) then return false end
         local a, b = SAO.Identity.get(fromId), SAO.Identity.get(toId)
         if not a or not b or a.dead or b.dead
+            or a.weekOne and a.weekOne.status ~= "transferred"
+            or b.weekOne and b.weekOne.status ~= "transferred"
+            or SAO.Claims and SAO.Claims.isHeld
+                and (SAO.Claims.isHeld(a) or SAO.Claims.isHeld(b))
             or SAO.Body.hasRepresentation(fromId)
             or SAO.Body.hasRepresentation(toId)
             or a.sleeping or b.sleeping then return false end
@@ -245,6 +291,20 @@ function Communication.canConverse(fromId, toId, channel)
         return dx * dx + dy * dy <= reach * reach
     end
     if channel ~= nil then return false end
+    local target = SAO.Identity and SAO.Identity.get and SAO.Identity.get(toId)
+    if target and target.weekOne and target.weekOne.status == "external" then
+        local body, brain = weekOneBodyFor(toId, target)
+        local player = bodyFor(fromId)
+        if not body or not brain or not player
+            or not (SAOJavaBridge and SAOJavaBridge.weekOneCanHearPlayer) then
+            return false
+        end
+        local ok, heard = pcall(function()
+            return SAOJavaBridge:weekOneCanHearPlayer(player, body, toId,
+                brain.id, brain.born)
+        end)
+        return ok and heard == true
+    end
     local a, b = bodyFor(fromId), bodyFor(toId)
     if not a or not b then return false end
     local ok, heard = pcall(function()
@@ -434,7 +494,7 @@ function Communication.deliverProcessProposal(fromId, toId, processId,
     local revision, kind = SAO.Organization.transportRevision(
         processId, fromId, toId)
     if not revision then return nil, kind or "not-addressed" end
-    if kind == "leisure-participation" then requestedChannel = "spoken" end
+    if kind == "leisure-participation" or kind=="leisure-duet" or kind=="leisure-dance" then requestedChannel = "spoken" end
     local channel, why = admittedConversation(fromId, toId, requestedChannel)
     if not channel then return nil, why or "transport-refused" end
     local message = Communication.send(fromId, toId, "process-proposal", {
@@ -526,7 +586,7 @@ function Communication.deliver(message)
             message.to, message.payload.revision,
             message.channel or "communication", message.from,
             message.transportEvidence or {})
-        if message.payload.kind == "leisure-participation" and not acquired then return false end
+        if (message.payload.kind == "leisure-participation" or message.payload.kind=="leisure-duet" or message.payload.kind=="leisure-dance") and not acquired then return false end
     end
     -- [C105] Delivered is done: the fact now lives where it was
     -- recorded, and the carrier does not hoard spent messages -
@@ -539,6 +599,36 @@ function Communication.deliver(message)
         end
     end
     return true
+end
+
+function Communication.deliverObjectiveWorkReport(fromId, toId, processId)
+    if not (SAO.Organization and SAO.Organization.objectiveWorkReady
+        and SAO.Organization.recordObjectiveWorkReport
+        and SAO.Organization.objectiveReportFor) then
+        return nil, "objective-report-owner-unavailable"
+    end
+    local channel, why = admittedConversation(fromId, toId, "spoken")
+    if channel ~= "spoken" then return nil, why or "report-conversation-unavailable" end
+    local prior = SAO.Organization.objectiveReportFor(processId, fromId, toId)
+    if prior then return prior, "already-delivered" end
+    if SAO.Organization.objectiveWorkReady(processId, fromId, toId) ~= true then
+        return nil, "work-not-complete"
+    end
+    local message = Communication.send(fromId, toId, "objective-work-report",
+        { processId = processId })
+    if not message then return nil, "report-message-unavailable" end
+    message.transportAdmitted = true
+    message.channel = channel
+    if Communication.deliver(message) ~= true then
+        return nil, "report-delivery-refused"
+    end
+    objectiveReportCapability = { processId = processId,
+        fromId = fromId, toId = toId }
+    local ok, report, status = pcall(SAO.Organization.recordObjectiveWorkReport,
+        processId, fromId, toId)
+    objectiveReportCapability = nil
+    if not ok then return nil, "report-owner-exception" end
+    return report, status
 end
 
 -- A threat is communication only when the ordinary speech transport admits

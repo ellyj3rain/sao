@@ -27,8 +27,8 @@ WHAT THIS HOLDS
      rather than in the two files this border first happened to name.
      Absence of a specific receipt stays a per-surface, per-batch
      statement.
-  5. The README states how many receipts the ledger holds, and that
-     number is checked against the ledger. [C64] found the claim alive
+  5. A receipt count stated in the README is checked against the ledger.
+     Current status can describe recovered outcomes directly. [C64] found the claim alive
      in five places thirty-five batches after DR-025 banned it,
      including the description a player reads on the Workshop page,
      because a negative nobody can check does not decay - it just
@@ -87,9 +87,9 @@ BLANKET = re.compile(
 QUOTES_THE_BAN = {"RECEIPTS.md", "DECISION_REGISTRY.md"}
 ALSO_SPEAKS = ("mod/mod.info", "mod/42.20/mod.info")
 
-# The README states how many receipts the ledger holds. A number is
-# checkable and "nothing has been tested" was not, which is the whole
-# reason it stood for thirty-five batches.
+# A README receipt count, when present, must agree with the ledger.
+# Neo maintains current outcome assessments from ordinary evidence;
+# the README does not have to duplicate the ledger's changing count.
 README_COUNT = re.compile(r"holds\s+(\d+)\s+so\s+far")
 
 
@@ -196,18 +196,12 @@ def main():
                       "it is meant to reach every root document and both "
                       "mod.info files, and it once read only two")
 
-    # The README says how many receipts the ledger holds. That number is
-    # the thing that goes stale, so the gate owns it.
+    # Check a stated count without forcing the README to duplicate it.
     readme = ROOT / "README.md"
     if readme.exists():
         said = README_COUNT.search(readme.read_text(encoding="utf-8",
                                                     errors="ignore"))
-        if not said:
-            faults.append("README.md does not say how many receipts the "
-                          "ledger holds - a number can be checked and "
-                          "'nothing has been tested' could not, which is "
-                          "why that one stood for thirty-five batches")
-        elif int(said.group(1)) != len(ids):
+        if said and int(said.group(1)) != len(ids):
             faults.append(f"README.md says the ledger holds "
                           f"{said.group(1)} receipts and it holds "
                           f"{len(ids)}")

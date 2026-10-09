@@ -545,6 +545,38 @@ case("plan current capability prior and zero skill",function()
             "unrelated capability supplied preparation evidence")
     end
 end)
+case("performed watch and return informs the next accepted objective",function()
+    local event={id="commitment/p1/1",actorId="p1",observerId="p1",
+        worldHours=10,occurredAtHours=10,kind="commitment-outcome",
+        category="social",sourceId="matter:watch:1",perspective="performed",
+        status="completed",actionKind="watch-return",succeeded=true}
+    for _,id in ipairs({"ordinary","associative"}) do
+        local state=M.newState(id)
+        local exact=plan("same","commitment","social","matter:watch:1")
+        exact.consequences[1].condition="watch-return"
+        local other=plan("next","commitment","social","matter:watch:2")
+        other.consequences[1].condition="watch-return"
+        local unknown=M.planPrediction(id,exact,state,context()).predictions[1]
+        check(unknown.probability==0.5,"new objective gained unperformed skill")
+        learn(id,state,event)
+        local known=M.planPrediction(id,exact,state,context()).predictions[1]
+        local transferred=M.planPrediction(id,other,state,context()).predictions[1]
+        check(known.probability>unknown.probability
+            and known.basis=="exact-experience",
+            "performed objective failed to revise own prediction")
+        if id=="ordinary" then
+            check(transferred.probability==unknown.probability,
+                "ordinary model invented transfer between requests")
+        else
+            check(transferred.probability>unknown.probability
+                and transferred.probability<known.probability
+                and transferred.basis=="related-experience",
+                "similar objective failed to use weaker learned evidence")
+        end
+        check(M.observe(id,state,event,4)=="ignored:duplicate",
+            "objective experience replay changed the model")
+    end
+end)
 case("plan preparation exact type and weaker transfer",function()
     local results={}
     for _,id in ipairs({"ordinary","associative"}) do

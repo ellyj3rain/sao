@@ -1,0 +1,12 @@
+{
+    "ContextMenu_ComputerMod_Computer": "コンピュータ",
+    "ContextMenu_ComputerMod_InsertCD": "CD を挿入します",
+    "ContextMenu_ComputerMod_NetworkTerminal": "ネットワーク端末",
+    "ContextMenu_ComputerMod_RemoveCD": "CD を削除する",
+    "ContextMenu_ComputerMod_ResumeSession": "セッションを再開する",
+    "ContextMenu_ComputerMod_TurnOn": "オンにする",
+    "ContextMenu_ComputerMod_Components": "コンポーネント",
+    "ContextMenu_ComputerMod_InstallComponent": "インストール",
+    "ContextMenu_ComputerMod_RepairComponent": "修理",
+    "ContextMenu_ComputerMod_RemoveComponent": "削除する"
+}

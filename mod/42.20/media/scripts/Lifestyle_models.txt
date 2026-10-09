@@ -1,0 +1,589 @@
+module Lifestyle
+{
+
+    /* ------------------------------------ Art ----------------------------------- */
+
+	model oldPaintBrush
+	{
+		mesh = WorldItems/oldPaintBrush,
+		texture = WorldItems/oldPaintBrush,
+		scale =  0.02,
+	}
+
+	model paintPaletteEmpty
+	{
+		mesh = WorldItems/paintPalette,
+		texture = WorldItems/paintPaletteEmpty,
+		scale =  0.01,
+	}
+
+	model paintPalette
+	{
+		mesh = WorldItems/paintPalette,
+		texture = WorldItems/paintPalette,
+		scale =  0.01,
+	}
+
+	model paintTubs
+	{
+		mesh = WorldItems/paintTubs,
+		texture = WorldItems/paintTubs,
+		scale =  0.01,
+	}
+
+    /* ------------------------------------ Instruments ----------------------------------- */
+
+	model violinBow
+	{
+		mesh = WorldItems/violinBow,
+		texture = WorldItems/violinBow,
+		scale =  0.004,
+	}
+
+    /* ------------------------------------ Inventions ----------------------------------- */
+
+	model InvHarvester
+	{
+		mesh = WorldItems/InvHarvester,
+		texture = WorldItems/InvHarvester,
+		scale =  0.0001,
+	}
+
+	model upgradeElectric
+	{
+		mesh = WorldItems/UpgradeElectric,
+		texture = WorldItems/UpgradeElectric,
+		scale =  0.01,
+	}
+	model upgradeElectricRare
+	{
+		mesh = WorldItems/UpgradeElectric,
+		texture = WorldItems/UpgradeElectricRare,
+		scale =  0.01,
+	}
+	model upgradeMechanical
+	{
+		mesh = WorldItems/UpgradeMechanical,
+		texture = WorldItems/UpgradeMechanical,
+		scale =  0.005,
+	}
+	model upgradeMechanicalRare
+	{
+		mesh = WorldItems/UpgradeMechanical,
+		texture = WorldItems/UpgradeMechanicalRare,
+		scale =  0.005,
+	}
+	model upgradePlumbing
+	{
+		mesh = WorldItems/UpgradePlumbing,
+		texture = WorldItems/UpgradePlumbing,
+		scale =  0.1,
+	}
+	model upgradePlumbingRare
+	{
+		mesh = WorldItems/UpgradePlumbing,
+		texture = WorldItems/UpgradePlumbingRare,
+		scale =  0.1,
+	}
+	model upgradeWood
+	{
+		mesh = WorldItems/UpgradeWood,
+		texture = WorldItems/UpgradeWood,
+		scale =  0.2,
+	}
+	model upgradeWoodRare
+	{
+		mesh = WorldItems/UpgradeWood,
+		texture = WorldItems/UpgradeWoodRare,
+		scale =  0.2,
+	}
+	model PasteBurger
+	{
+		mesh = WorldItems/Burger,
+		texture = WorldItems/PasteBurger,
+		scale =  0.4,
+	}
+	model PasteBurger_Red
+	{
+		mesh = WorldItems/Burger,
+		texture = WorldItems/PasteBurger_Red,
+		scale =  0.4,
+	}
+	model PasteBurger_Blue
+	{
+		mesh = WorldItems/Burger,
+		texture = WorldItems/PasteBurger_Blue,
+		scale =  0.4,
+	}
+	model PasteBurger_Green
+	{
+		mesh = WorldItems/Burger,
+		texture = WorldItems/PasteBurger_Green,
+		scale =  0.4,
+	}
+	model PasteBurger_Yellow
+	{
+		mesh = WorldItems/Burger,
+		texture = WorldItems/PasteBurger_Yellow,
+		scale =  0.4,
+	}
+	model PasteBurger_Orange
+	{
+		mesh = WorldItems/Burger,
+		texture = WorldItems/PasteBurger_Orange,
+		scale =  0.4,
+	}
+
+	model PasteGrub
+	{
+		mesh = WorldItems/PasteGrub,
+		texture = WorldItems/PasteGrub,
+		scale =  0.1,
+	}
+
+	model PasteRuined
+	{
+		mesh = WorldItems/PasteRuined,
+		texture = WorldItems/PasteRuined,
+		scale =  0.15,
+	}
+
+	model UmbrellaHat
+	{
+		mesh = WorldItems/LS_UmbrellaHatWorld,
+	}
+
+	model NeuralHat
+	{
+		mesh = WorldItems/LS_NeuralHatWorld,
+		scale =  0.25,
+	}
+
+	model ToothpasteCurio
+	{
+		mesh = WorldItems/Toothpaste,
+		texture = WorldItems/ToothpasteCurio,
+		scale =  0.5,
+	}
+
+	model ScrapBushSeed
+	{
+		mesh = WorldItems/ScrapBushSeed,
+		texture = WorldItems/ScrapBushSeed,
+		scale =  0.009,
+	}
+
+	model DemonCore
+	{
+		mesh = WorldItems/LS_DemonCore,
+		texture = WorldItems/DemonCore,
+		scale =  0.5,
+	}
+
+    /* -------------------------------- Literature -------------------------------- */
+	model LSMagazineEdition1Model
+	{
+		mesh = WorldItems/Magazine,
+		texture = WorldItems/LSMagazineEdition1,
+		scale =  0.5,
+	}
+
+	model LSMagazineEdition2Model
+	{
+		mesh = WorldItems/Magazine,
+		texture = WorldItems/LSMagazineEdition2,
+		scale =  0.5,
+	}
+
+	model sheetmusicbook
+	{
+		mesh = WorldItems/sheetmusicbook,
+		texture = WorldItems/SheetMusicBook,
+		scale =  0.1,
+	}
+
+    /* --------------------------------  Weapons -------------------------------- */
+
+	model Mop
+	{
+		mesh = weapons/2handed/Mop,
+	}
+
+    /* ------------------------------------ Toys ----------------------------------- */
+
+	model ToyNewtonCradle
+	{
+		mesh = WorldItems/ToyNewtonCradle,
+		texture = WorldItems/ToyNewtonCradle,
+		scale =  0.01,
+	}
+
+	model ClothToyPenguin
+	{
+		mesh = WorldItems/ClothToyPenguin,
+		texture = WorldItems/ClothToyPenguin,
+		scale =  0.01,
+	}
+
+	model MetalToyRobot
+	{
+		mesh = WorldItems/MetalToyRobot,
+		texture = WorldItems/MetalToyRobot,
+		scale =  0.003,
+	}
+
+	model MetalToyRocket
+	{
+		mesh = WorldItems/MetalToyRocket,
+		texture = WorldItems/MetalToyRocket,
+		scale =  0.02,
+	}
+
+	model WoodToyRabbit
+	{
+		mesh = WorldItems/WoodToyRabbit,
+		texture = WorldItems/WoodToyRabbit,
+		scale =  0.02,
+	}
+
+    /* ------------------------------------ Toys Painted ----------------------------------- */
+	/* ----- Toy Dog Metal ----- */
+	model MetalToyDog
+	{
+		mesh = WorldItems/MetalToyDog,
+		texture = WorldItems/MetalScrapA,
+		scale =  0.01,
+	}
+	model MetalToyDogScrapB
+	{
+		mesh = WorldItems/MetalToyDog,
+		texture = WorldItems/MetalScrapB,
+		scale =  0.01,
+	}
+	model MetalToyDogScrapC
+	{
+		mesh = WorldItems/MetalToyDog,
+		texture = WorldItems/MetalScrapC,
+		scale =  0.01,
+	}
+	/* ----- Toy Tank ----- */
+	model WoodToyTank
+	{
+		mesh = WorldItems/WoodToyTank,
+		texture = WorldItems/WoodLight,
+		scale =  0.007,
+	}
+
+	model WoodToyTankRed
+	{
+		mesh = WorldItems/WoodToyTank,
+		texture = WorldItems/WoodLightRed,
+		scale =  0.007,
+	}
+
+	model WoodToyTankGreen
+	{
+		mesh = WorldItems/WoodToyTank,
+		texture = WorldItems/WoodLightGreen,
+		scale =  0.007,
+	}
+
+	model WoodToyTankBlue
+	{
+		mesh = WorldItems/WoodToyTank,
+		texture = WorldItems/WoodLightBlue,
+		scale =  0.007,
+	}
+
+	model WoodToyTankScrapA
+	{
+		mesh = WorldItems/WoodToyTank,
+		texture = WorldItems/MetalScrapA,
+		scale =  0.007,
+	}
+
+	model WoodToyTankScrapB
+	{
+		mesh = WorldItems/WoodToyTank,
+		texture = WorldItems/MetalScrapB,
+		scale =  0.007,
+	}
+
+	model WoodToyTankScrapC
+	{
+		mesh = WorldItems/WoodToyTank,
+		texture = WorldItems/MetalScrapC,
+		scale =  0.007,
+	}
+	/* ----- Toy Plane Wood ----- */
+	model WoodToyPlane
+	{
+		mesh = WorldItems/WoodToyPlane,
+		texture = WorldItems/WoodLight,
+		scale =  0.01,
+	}
+
+	model WoodToyPlaneRed
+	{
+		mesh = WorldItems/WoodToyPlane,
+		texture = WorldItems/WoodLightRed,
+		scale =  0.01,
+	}
+
+	model WoodToyPlaneGreen
+	{
+		mesh = WorldItems/WoodToyPlane,
+		texture = WorldItems/WoodLightGreen,
+		scale =  0.01,
+	}
+
+	model WoodToyPlaneBlue
+	{
+		mesh = WorldItems/WoodToyPlane,
+		texture = WorldItems/WoodLightBlue,
+		scale =  0.01,
+	}
+
+	model WoodToyPlaneScrapA
+	{
+		mesh = WorldItems/WoodToyPlane,
+		texture = WorldItems/MetalScrapA,
+		scale =  0.01,
+	}
+
+	model WoodToyPlaneScrapB
+	{
+		mesh = WorldItems/WoodToyPlane,
+		texture = WorldItems/MetalScrapB,
+		scale =  0.01,
+	}
+
+	model WoodToyPlaneScrapC
+	{
+		mesh = WorldItems/WoodToyPlane,
+		texture = WorldItems/MetalScrapC,
+		scale =  0.01,
+	}
+	/* ----- Toy Plane Wooden ----- */
+	model WoodenToyPlane
+	{
+		mesh = WorldItems/WoodenToyPlane,
+		texture = WorldItems/WoodLight,
+		scale =  0.009,
+	}
+
+	model WoodenToyPlaneRed
+	{
+		mesh = WorldItems/WoodenToyPlane,
+		texture = WorldItems/WoodLightRed,
+		scale =  0.009,
+	}
+
+	model WoodenToyPlaneGreen
+	{
+		mesh = WorldItems/WoodenToyPlane,
+		texture = WorldItems/WoodLightGreen,
+		scale =  0.009,
+	}
+
+	model WoodenToyPlaneBlue
+	{
+		mesh = WorldItems/WoodenToyPlane,
+		texture = WorldItems/WoodLightBlue,
+		scale =  0.009,
+	}
+
+	model WoodenToyPlaneScrapA
+	{
+		mesh = WorldItems/WoodenToyPlane,
+		texture = WorldItems/MetalScrapA,
+		scale =  0.009,
+	}
+
+	model WoodenToyPlaneScrapB
+	{
+		mesh = WorldItems/WoodenToyPlane,
+		texture = WorldItems/MetalScrapB,
+		scale =  0.009,
+	}
+
+	model WoodenToyPlaneScrapC
+	{
+		mesh = WorldItems/WoodenToyPlane,
+		texture = WorldItems/MetalScrapC,
+		scale =  0.009,
+	}
+	/* ----- Toy Train ----- */
+	model WoodToyTrain
+	{
+		mesh = WorldItems/WoodToyTrain,
+		texture = WorldItems/WoodLight,
+		scale =  0.02,
+	}
+
+	model WoodToyTrainRed
+	{
+		mesh = WorldItems/WoodToyTrain,
+		texture = WorldItems/WoodLightRed,
+		scale =  0.02,
+	}
+
+	model WoodToyTrainGreen
+	{
+		mesh = WorldItems/WoodToyTrain,
+		texture = WorldItems/WoodLightGreen,
+		scale =  0.02,
+	}
+
+	model WoodToyTrainBlue
+	{
+		mesh = WorldItems/WoodToyTrain,
+		texture = WorldItems/WoodLightBlue,
+		scale =  0.02,
+	}
+
+	model WoodToyTrainScrapA
+	{
+		mesh = WorldItems/WoodToyTrain,
+		texture = WorldItems/MetalScrapA,
+		scale =  0.02,
+	}
+
+	model WoodToyTrainScrapB
+	{
+		mesh = WorldItems/WoodToyTrain,
+		texture = WorldItems/MetalScrapB,
+		scale =  0.02,
+	}
+
+	model WoodToyTrainScrapC
+	{
+		mesh = WorldItems/WoodToyTrain,
+		texture = WorldItems/MetalScrapC,
+		scale =  0.02,
+	}
+	/* ----- Toy Camper ----- */
+	model WoodToyCamper
+	{
+		mesh = WorldItems/WoodToyCamper,
+		texture = WorldItems/WoodLight,
+		scale =  0.009,
+	}
+
+	model WoodToyCamperRed
+	{
+		mesh = WorldItems/WoodToyCamper,
+		texture = WorldItems/WoodLightRed,
+		scale =  0.009,
+	}
+
+	model WoodToyCamperGreen
+	{
+		mesh = WorldItems/WoodToyCamper,
+		texture = WorldItems/WoodLightGreen,
+		scale =  0.009,
+	}
+
+	model WoodToyCamperBlue
+	{
+		mesh = WorldItems/WoodToyCamper,
+		texture = WorldItems/WoodLightBlue,
+		scale =  0.009,
+	}
+
+	model WoodToyCamperScrapA
+	{
+		mesh = WorldItems/WoodToyCamper,
+		texture = WorldItems/MetalScrapA,
+		scale =  0.009,
+	}
+
+	model WoodToyCamperScrapB
+	{
+		mesh = WorldItems/WoodToyCamper,
+		texture = WorldItems/MetalScrapB,
+		scale =  0.009,
+	}
+
+	model WoodToyCamperScrapC
+	{
+		mesh = WorldItems/WoodToyCamper,
+		texture = WorldItems/MetalScrapC,
+		scale =  0.009,
+	}
+	/* ----- Toy Helicopter ----- */
+	model WoodToyHelicopter
+	{
+		mesh = WorldItems/WoodToyHelicopter,
+		texture = WorldItems/WoodLight,
+		scale =  0.01,
+	}
+
+	model WoodToyHelicopterRed
+	{
+		mesh = WorldItems/WoodToyHelicopter,
+		texture = WorldItems/WoodLightRed,
+		scale =  0.01,
+	}
+
+	model WoodToyHelicopterGreen
+	{
+		mesh = WorldItems/WoodToyHelicopter,
+		texture = WorldItems/WoodLightGreen,
+		scale =  0.01,
+	}
+
+	model WoodToyHelicopterBlue
+	{
+		mesh = WorldItems/WoodToyHelicopter,
+		texture = WorldItems/WoodLightBlue,
+		scale =  0.01,
+	}
+
+	model WoodToyHelicopterScrapA
+	{
+		mesh = WorldItems/WoodToyHelicopter,
+		texture = WorldItems/MetalScrapA,
+		scale =  0.01,
+	}
+
+	model WoodToyHelicopterScrapB
+	{
+		mesh = WorldItems/WoodToyHelicopter,
+		texture = WorldItems/MetalScrapB,
+		scale =  0.01,
+	}
+
+	model WoodToyHelicopterScrapC
+	{
+		mesh = WorldItems/WoodToyHelicopter,
+		texture = WorldItems/MetalScrapC,
+		scale =  0.01,
+	}
+	/* ----- Toy Ship Wood ----- */
+	model WoodToyShip
+	{
+		mesh = WorldItems/WoodToyHelicopter,
+		texture = WorldItems/WoodLight,
+		scale =  0.01,
+	}
+	model WoodToyShipRed
+	{
+		mesh = WorldItems/WoodToyShip,
+		texture = WorldItems/WoodLightRed,
+		scale =  0.01,
+	}
+	model WoodToyShipGreen
+	{
+		mesh = WorldItems/WoodToyShip,
+		texture = WorldItems/WoodLightGreen,
+		scale =  0.01,
+	}
+	model WoodToyShipBlue
+	{
+		mesh = WorldItems/WoodToyShip,
+		texture = WorldItems/WoodLightBlue,
+		scale =  0.01,
+	}
+
+}

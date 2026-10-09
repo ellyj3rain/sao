@@ -1,0 +1,48 @@
+{
+  "ProjectArcade.ArcadeStreetFighterII": "Arcade Street Fighter II",
+  "ProjectArcade.ArcadePacMan": "Arcade Pac-Man Arcade",
+  "ProjectArcade.ArcadeDoubleDragon": "Arcade Double Dragon",
+  "ProjectArcade.ArcadeSpaceInvaders": "Arcade Space Invaders",
+  "ProjectArcade.ArcadeDonkeyKong": "Arcade Donkey Kong",
+  "ProjectArcade.ArcadeCentipede": "Arcade Centipede",
+  "ProjectArcade.ArcadeDigDug": "Arcade Dig Dug",
+  "ProjectArcade.ArcadeNBAJam": "Arcade NBA Jam",
+  "ProjectArcade.ArcadeTMNT": "Arcade Teenage Mutant Ninja Turtles",
+  "ProjectArcade.ArcadeMK": "Arcade Mortal Kombat",
+
+  "ProjectArcade.ComplexTerminator2": "Arcade Terminator 2 - Judgement Day Arcade",
+  "ProjectArcade.ComplexStarWars": "Arcade Star Wars",
+
+  "ProjectArcade.RecreationalPunchingMachine": "Punching Machine",
+  "ProjectArcade.RecreationalClawMachine": "CLAWpocalypse Machine",
+  "ProjectArcade.RecreationalCoinPusher": "Coin Galaxy",
+
+  "ProjectArcade.PinballAddamsFamily": "Pinball The Addams Family",
+  "ProjectArcade.PinballIndianaJones": "Pinball Indiana Jones",
+  "ProjectArcade.PinballTwilightZone": "Pinball The Twilight Zone",
+  "ProjectArcade.PinballFunHouse": "Pinball FunHouse",
+  "ProjectArcade.PinballBlackKnight2000": "Pinball Black Knight 2000",
+  "ProjectArcade.PinballElviraPartyMonsters": "Pinball Elvira and the Party Monsters",
+  "ProjectArcade.PinballMarioBros": "Pinball Mario Bros",
+
+  "ProjectArcade.ArcadeROM_StreetFighterII": "ROM de Arcade - Street Fighter II",
+  "ProjectArcade.ArcadeROM_PacMan": "ROM de Arcade - Pac-Man",
+  "ProjectArcade.ArcadeROM_SpaceInvaders": "ROM de Arcade - Space Invaders",
+  "ProjectArcade.ArcadeROM_DoubleDragon": "ROM de Arcade - Double Dragon",
+  "ProjectArcade.ArcadeROM_DonkeyKong": "ROM de Arcade - Donkey Kong",
+  "ProjectArcade.ArcadeROM_Centipede": "ROM de Arcade - Centipede",
+  "ProjectArcade.ArcadeROM_DigDug": "ROM de Arcade - Dig Dug",
+  "ProjectArcade.ArcadeROM_Terminator2": "ROM de Arcade - Terminator 2 - Judgement Day",
+  "ProjectArcade.ArcadeROM_NBAJam": "ROM de Arcade - NBA Jam",
+  "ProjectArcade.ArcadeROM_TMNT": "ROM de Arcade - Teenage Mutant Ninja Turtles",
+  "ProjectArcade.ArcadeROM_MK": "ROM de Arcade - Mortal Kombat",
+  "ProjectArcade.ArcadeROM_StarWars": "ROM de Arcade - Star Wars",
+
+  "ProjectArcade.WalletILovePixels": "Billetera I Love Pixels",
+  "ProjectArcade.KeyRing_BlueGhost": "Llavero de Fantasma Azul",
+  "ProjectArcade.PenMulticolor_DKong": "Lapicera multicolor de Donkey Kong",
+
+  "ProjectArcade.ArcadianCarpet": "Alfombra Arcadian",
+  "ProjectArcade.WallBlueLight": "Luz Fluorescente Azul",
+  "ProjectArcade.WallPurpleLight": "Luz Fluorescente Violeta",
+}

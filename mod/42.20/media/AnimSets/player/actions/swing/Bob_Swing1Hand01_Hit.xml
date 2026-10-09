@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<animNode>
+	<m_Name>Bob_Swing1Hand01_Hit</m_Name>
+	<m_AnimName>Bob_Attack1Hand01_Hit</m_AnimName>
+	<m_Looped>false</m_Looped>
+	<m_SyncTrackingEnabled>false</m_SyncTrackingEnabled>
+	<m_EarlyTransitionOut>true</m_EarlyTransitionOut>
+	<m_SpeedScale>2.00</m_SpeedScale>
+	<m_BlendTime>0.40</m_BlendTime>
+	<m_Scalar></m_Scalar>
+	<m_Scalar2></m_Scalar2>
+	<m_Conditions>
+		<m_Name>PerformingAction</m_Name>
+		<m_Type>STRING</m_Type>
+		<m_StringValue>Bob_Swing1Hand01_Hit</m_StringValue>
+	</m_Conditions>
+</animNode>

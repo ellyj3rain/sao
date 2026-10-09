@@ -1,0 +1,287 @@
+{
+
+	"UI_LSPerk_dt_good": "trait (gained) <LINE>",
+	"UI_LSPerk_dt_bad": "trait (lost) <LINE>",
+
+	"UI_LSPerk_Dancing_Max": "You are now the pinnacle of dance! A combination of flawless footwork and perfect gestures that can make any crowd gather to watch you move. So what if they're mostly mindless undead? You are an artist, who makes art for art's sake, swirling majestically in a sea of frozen honey and swan down. You are the embodiment of grace... in tights <LINE>",
+	"UI_LSPerk_Dancing_8_mp": "o Dancing in parties will contribute more points to the hidden party score <LINE>",
+	"UI_LSPerk_Dancing_8": "o More advanced moves added to the pool <LINE>",
+	"UI_LSPerk_Dancing_6": "o Can't fail due to low skill <LINE>",
+	"UI_LSPerk_Dancing_4_mp": "o Dancing in parties will contribute more points to the hidden party score <LINE>",
+	"UI_LSPerk_Dancing_4": "o More advanced moves added to the pool <LINE> o - action fail rate <LINE>",
+	"UI_LSPerk_Dancing_2": "o - action fail rate <LINE>",
+	"UI_LSPerk_Dancing_1": "And 1 and 2 and step. It might look a little awkward at first, but with enough practice, who knows where the rhythm might lead? You might even become an elegant swan. Until then, try not to trip over your own feet <LINE>",
+	"UI_LSPerk_Dancing_General": "o New dance moves <LINE> o + mood from dancing hobbies <LINE>",
+
+	"UI_LSPerk_Cleaning_Max": "Few in the world have ever achieved your level of cleanliness. There's no mess or stain you can't handle and it takes mere moments for you to transform any dilapidated dwelling into a spotless shrine to sanitation. Doesn't it feel good to bask in the shining gleam of success? <LINE>",
+	"UI_LSPerk_Cleaning_1": "The art of the scrub. You've started to learn the basics of tidying up and, with practice, will get better at scrubbing toilets, tackling stains and mopping the neighbor's blood from the rug. It may not be glamorous work, but it can turn any dirty old safehouse into a safeHOME! <LINE>",
+	"UI_LSPerk_Cleaning_General": "o + action work speed <LINE> o - cleaning supplies drain rate <LINE>",
+
+	"UI_LSPerk_Meditation_Max": "Through great discipline you've mastered the meditative arts. Keeping a state of perfect mindfulness is now second nature, a testament to your incredible inner strength. You've now become the de facto master of your mind and body <LINE>",
+	"UI_LSPerk_Meditation_10_mp": "o Can teach meditation lessons <LINE>",
+	"UI_LSPerk_Meditation_10": "o Mastered the ultimate technique <LINE> o New Mindfulness level, improved state can be achieved by meditating while under the effects of the previous level <LINE> o ++++ action duration <LINE>",
+	"UI_LSPerk_Meditation_8": "o Unlocked new techniques <LINE>",
+	"UI_LSPerk_Meditation_6": "o New Mindfulness level, improved state can be achieved by meditating while under the effects of the previous level <LINE> o --- neck pain rate <LINE> o +++ action duration <LINE>",
+	"UI_LSPerk_Meditation_5": "o --- boredom rate <LINE>",
+	"UI_LSPerk_Meditation_4": "o Unlocked new techniques <LINE> o -- neck pain rate <LINE> o ++ action duration <LINE> o -- boredom rate <LINE>",
+	"UI_LSPerk_Meditation_3": "o Unlocked Mindfulness state, achieved during long meditative sessions, can grant a variety of bonuses <LINE> o Can meditate while wearing backpack and bags <LINE> o -- boredom rate <LINE>",
+	"UI_LSPerk_Meditation_2": "o Unlocked new techniques <LINE> o - neck pain rate <LINE> o + action duration <LINE> o - boredom rate <LINE>",
+	"UI_LSPerk_Meditation_1": "Here begins your path towards inner peace! Who knows what hidden potential you might uncover with your mind? So sit still and be patient, the journey of a thousand breaths begins with a single... well, breath <LINE> o xp rate is reduced by boredom <LINE> o - boredom rate <LINE>",
+	"UI_LSPerk_Meditation_General": "o + effectiveness against stress <LINE>",
+
+	"UI_LSPerk_Music_Max": "You've become a master of your craft and your grasp of musical theory is unsurpassed. Your legendary solos speak in ways no words ever could. Congratulations, Maestro! <LINE>",
+	"UI_LSPerk_Music_10": "o + chance to learn songs <LINE>",
+	"UI_LSPerk_Music_9": "o + chance to learn songs <LINE>",
+	"UI_LSPerk_Music_8": "o Unlocked new options at the DJ Booth <LINE> o + chance to learn songs <LINE>",
+	"UI_LSPerk_Music_7": "o + chance to learn songs <LINE>",
+	"UI_LSPerk_Music_6_mp": "o Your performances are now enjoyable to most crowds, congrats! <LINE>",
+	"UI_LSPerk_Music_6": "o Can't fail due to low skill while playing songs (from skill) <LINE> o Unlocked new options at the DJ Booth <LINE> o + chance to learn songs <LINE>",
+	"UI_LSPerk_Music_5": "o - action fail rate <LINE> o + chance to learn songs <LINE>",
+	"UI_LSPerk_Music_4_mp": "o Some may even begin to applaud your solos now <LINE> o Unlocked group performances <LINE> o Can use the standing microphone to sing during group performances <LINE>",
+	"UI_LSPerk_Music_4": "o Unlocked new options at the DJ Booth <LINE> o - action fail rate <LINE> o + chance to learn songs <LINE>",
+	"UI_LSPerk_Music_3": "o Unlocked new options at the DJ Booth <LINE> o - action fail rate <LINE> o + chance to learn songs <LINE>",
+	"UI_LSPerk_Music_2_mp": "o Your music is starting to sound good enough for other people to enjoy <LINE>",
+	"UI_LSPerk_Music_2": "o Can learn songs by practicing with musical instruments, playing songs reduces boredom and unhappiness <LINE> o Can use music notebooks to save known songs <LINE> o Unlocked new options at the DJ Booth <LINE> o - action fail rate <LINE>",
+	"UI_LSPerk_Music_1": "Rhythm and melody, making noise is surprisingly fun! Start with simple melodies and slowly work your way up to actual songs. Every musical genius must start somewhere <LINE> o xp rate is reduced by stress <LINE> o - action fail rate <LINE>",
+	"UI_LSPerk_Music_General": "o + mood from musical hobbies <LINE> o - boredom rate from practicing with instruments <LINE>",
+
+	"UI_LSPerk_Art_Max": "You are now a true Master of the Arts! A visionary capable of works of such breathtaking beauty that you're convinced even the undead are stopping to stare. Welcome to the pantheon of artistic greatness <LINE>",
+	"UI_LSPerk_Art_10": "o Unlocked ice sculptures for the sculpting station <LINE>",
+	"UI_LSPerk_Art_8": "o + chance of producing masterpieces <LINE> o Unlocked stone sculptures for the sculpting station <LINE>",
+	"UI_LSPerk_Art_7": "o Unlocked simple painting option, which are completed faster at the cost of a lower beauty score <LINE>",
+	"UI_LSPerk_Art_6": "o Unlocked scrap metal sculptures for the sculpting station (req: metal welding skill) <LINE>",
+	"UI_LSPerk_Art_5": "o Unlocked large sized paintings for the art easel <LINE>",
+	"UI_LSPerk_Art_4": "o Unlocked wood sculptures for the sculpting station (req: carpentry skill) <LINE>",
+	"UI_LSPerk_Art_3": "o The sculpting station can now be used to create simple hedge sculptures (req: farming skill) <LINE>",
+	"UI_LSPerk_Art_2": "o Unlocked medium sized paintings for the art easel <LINE>",
+	"UI_LSPerk_Art_1": "The life of an artist is a noble pursuit filled with potential. Cover every wall of your home with serene landscapes and create wondrous sculptures that will make post-apocalyptic life worth living. Sure, for now, you may only possess the abilities of a (not very talented) small child, but thankfully there's almost no one left alive to judge you! <LINE>",
+	"UI_LSPerk_Art_General": "o + action work speed <LINE> o + new sculptures available <LINE> o + new paintings available <LINE> o + chance of producing higher quality artwork <LINE> o - art supplies drain rate <LINE>",
+
+	"UI_LSHS_Yoga": "Yoga",
+	"UI_LSHS_Yoga_Max": "A true force of nature, capable of achieving a state of tranquility that would humble most monks, your legendary physical feats would be the envy of any circus contortionist. You're at the top of every pose that's been created, even some that haven't. Congrats, Zen guru, you've earned it! <LINE>",
+	"UI_LSHS_Yoga_10_mp": "o Can teach Yoga lessons <LINE>",
+	"UI_LSHS_Yoga_9": "o Unlocked master level poses <LINE> o + pose sequence limit <LINE> o +++ Zen state duration <LINE>",
+	"UI_LSHS_Yoga_8": "o +++ pose sequence limit <LINE>",
+	"UI_LSHS_Yoga_6": "o Unlocked advanced level poses <LINE> o + pose sequence limit <LINE> o ++ Zen state duration <LINE>",
+	"UI_LSHS_Yoga_4": "o ++ pose sequence limit <LINE>",
+	"UI_LSHS_Yoga_3": "o Unlocked intermediate level poses <LINE> o + Zen state duration <LINE>",
+	"UI_LSHS_Yoga_2": "o + pose sequence limit <LINE>",
+	"UI_LSHS_Yoga_1": "Did somebody say Yoga? Start your inner peace journey by stretching the limits of your body and wobble your way towards unlocking new levels of mind-body synergy. Namaste! <LINE> o Unlocked Zen state for a short time after performing yoga <LINE>",
+	"UI_LSHS_Yoga_General": "o - action fall chance <LINE> o + stress reduction <LINE> o + fitness xp rate <LINE> o + muscle fatigue recovery <LINE>",
+	
+	"UI_LSHS_Inventing": "Inventing",
+	"UI_LSHS_Inventing_Max": "All this time spent in isolation, bending metal to your will and creating contraptions in your own image, has seriously twisted your mind. Nothing means anything. Everything is and isn't. What does it all mean? It means you're a true GENIUS! <LINE> o +%1 to max number of special improvements <LINE>",
+	"UI_LSHS_Inventing_10": "o Average cost for discovering new items permanently decreased by 50%% <LINE> o Can dismantle one rare part for two common versions of the same type <LINE>",
+	"UI_LSHS_Inventing_9": "o Can convert 3 improvement pieces into one of another type, except for rare pieces <LINE>",
+	"UI_LSHS_Inventing_7": "o You no longer have to wait until Eureka wears off to continue inventing or researching <LINE>",
+	"UI_LSHS_Inventing_6": "o Effects of mental fatigue now wear off more quickly <LINE>",
+	"UI_LSHS_Inventing_5": "o Added a small chance of trigering critical events for higher level inventions (stronger versions of failure and luck events) <LINE> o Rarely during production, be greeted by a mysterious being <LINE>",
+	"UI_LSHS_Inventing_4": "o Can now discover complex gadgets that can be improved trough research <LINE>",
+	"UI_LSHS_Inventing_3": "o Unlocked new failure events <LINE>",
+	"UI_LSHS_Inventing_2": "o Unlocked luck events <LINE>",
+	"UI_LSHS_Inventing_1": "Welcome to the world of tinkering and salvage! Hoard all kinds of scrap and items to create toys, costumes, random curios, clever gadgets and even complex machines. Experiment until you become a great inventor or die horribly in a freak accident. Good luck! <LINE> o Unlocked failure events <LINE>",
+	"UI_LSHS_Inventing_General": "o New inventions can be discovered <LINE> o Work speed increased <LINE>",
+
+	"UI_DJBooth_FloorLight_Missing": "Requires Disco Floor (center)",
+	"UI_DJBooth_FloorLight": "Light Scheme",
+
+	"UI_LSPM_ClassicalCat": "CLASSICAL",
+	"UI_LSPM_CountryCat": "COUNTRY",
+	"UI_LSPM_DiscoCat": "DISCO",
+	"UI_LSPM_JazzCat": "JAZZ",
+	"UI_LSPM_MetalCat": "METAL",
+	"UI_LSPM_PopCat": "POP",
+	"UI_LSPM_RapCat": "RAP",
+	"UI_LSPM_RBCat": "RB&SOUL",
+	"UI_LSPM_ReggaeCat": "REGGAE",
+	"UI_LSPM_RockCat": "ROCK",
+	"UI_LSPM_SalsaCat": "SALSA",
+	"UI_LSPM_TMCat": "TM/CUSTOM",
+	"UI_LSPM_WorldCat": "WORLD",
+
+	"UI_PlaylistText": "About to overwrite existing playlist:",
+	"UI_PlaylistText2": "Previous music selection will be replaced",
+
+	"UI_Confirm": "Confirm",
+	"UI_Cancel": "Cancel",
+	"UI_WardrobeText": "Replace the configuration for this outfit",
+	"UI_WardrobeText2": "This action cannot be undone",
+	"UI_WardrobeText3": "Are you sure?",
+
+	"UI_mainscreen_ls": "Lifestyle: Hobbies",
+	"UI_mainscreen_ls_music": "Music Update",
+	"UI_mainscreen_ls_disco": "Disco Update",
+	"UI_mainscreen_ls_home": "Homestead Update",
+	"UI_mainscreen_ls_art": "Art Update",
+
+    "UI_DJBooth_Scratch": "Disc Scratch",
+	"UI_DJBooth_Rewind": "Rewind",
+	"UI_DJBooth_Woosh": "Woosh",
+	"UI_DJBooth_Impact": "Impact",
+	"UI_DJBooth_Crowd": "Crowd",
+	"UI_DJBooth_War": "War",
+	"UI_DJBooth_Synth": "Synth",
+	"UI_DJBooth_Airhorn": "Airhorn",
+	"UI_DJBooth_Sirens": "Sirens",
+
+	"UI_DJBooth_Volume": "Volume Control",
+
+	"UI_DJBooth_Need": "Requires Music %1",
+	
+	"UI_DJBooth_LoopMode1": "Loop Mode 1",
+	"UI_DJBooth_LoopMode2": "Loop Mode 2",
+	"UI_DJBooth_LoopMode3": "Loop Mode 3",
+	"UI_DJBooth_LoopMode4": "Loop Mode 4",
+	"UI_DJBooth_LoopRecord": "Record Loop",
+	"UI_DJBooth_CustomLoop": "Custom Loop",
+	"UI_DJBooth_StopLoop": "Stop Loop",
+	"UI_DJBooth_Loop1A": "Drumbeats A",
+	"UI_DJBooth_Loop1B": "Drumbeats B",
+	"UI_DJBooth_Loop1C": "Drumbeats C",
+	"UI_DJBooth_Loop2A": "Dreamscape A",
+	"UI_DJBooth_Loop2B": "Dreamscape B",
+	"UI_DJBooth_Loop2C": "Dreamscape C",
+	"UI_DJBooth_Loop2D": "Dreamscape D",
+	"UI_DJBooth_Loop3A": "Electrobeats A",
+	"UI_DJBooth_Loop3B": "Electrobeats B",
+	"UI_DJBooth_Loop3C": "Electrobeats C",
+	"UI_DJBooth_Loop3D": "Electrobeats D",
+	"UI_DJBooth_Loop4A": "Lofi A",
+	"UI_DJBooth_Loop4B": "Lofi B",
+	"UI_DJBooth_Loop4C": "Lofi C",
+	"UI_DJBooth_Loop4D": "Lofi D",
+	"UI_DJBooth_ElecKickdrum": "Electric Kick",
+	"UI_DJBooth_Kickdrum": "Kick",
+	"UI_DJBooth_SafariKick": "Safari Kick",
+	"UI_DJBooth_ElecSnareDrum": "Electric Snare",
+	"UI_DJBooth_Snare": "Snare",
+	"UI_DJBooth_Snap": "Snap",
+	"UI_DJBooth_Clap": "Clap",
+	"UI_DJBooth_OpenHat": "Open Hat",
+	
+	"UI_DJBooth_Close": "Close",
+
+	"UI_trait_WeakStomachDesc": "Higher chance to have food illness.<br><br>Weaker Bladder, can barely hold it and has to use the bathroom more often.",
+	"UI_trait_IronGutDesc": "Less chance to have food illness.<br><br>Stronger Bladder, can hold for longer and needs the bathroom less often.",
+	"UI_trait_outdoorsmandesc": "Not affected by harsh weather conditions.<br><br>Smaller mood penalty when relieving bladder outdoors.",
+
+    "UI_trait_artistic": "Artistic",
+    "UI_trait_artisticdesc": "Naturally gifted artists, they strongly benefit from <SPACE><RGB:1,0.8,0> Art <RGB:1,1,1><SPACE> related hobbies, they can also make for pretty good writers.",
+
+    "UI_trait_couchpotato": "Couch Potato",
+    "UI_trait_couchpotatodesc": "They prefer to stay home and indulge in <SPACE><RGB:1,0.8,0> comfort<RGB:1,1,1>.<br><br>Gets tired faster and sleeps more often.<br>Enjoys passive entertainment.<br>Slower boredom buildup while indoors.<br>Hates <SPACE><RGB:1,0.8,0> Meditation <RGB:1,1,1><SPACE> and being outside.",
+
+    "UI_trait_disciplined": "Disciplined",
+    "UI_trait_disciplineddesc": "Diligent and focused, constantly striving to improve themselves, they make for excellent <SPACE><RGB:1,0.8,0> Martial Artists <RGB:1,1,1><SPACE> and <SPACE><RGB:1,0.8,0> Meditation <RGB:1,1,1><SPACE> masters.<br><br>Not very interested in passive entertainment.<br><RGB:1,0.8,0> Comfort <RGB:1,1,1><SPACE> need - reduced rate and positive/negative effects.",
+
+	"UI_trait_virtuoso": "Virtuoso",
+    "UI_trait_virtuosodesc": "Musicians at heart, with a natural talent for playing and composing <SPACE><RGB:1,0.8,0> Music <RGB:1,1,1><SPACE>, they also make for very charismatic performers.",
+
+	"UI_trait_tonedeaf": "Tone Deaf",
+    "UI_trait_tonedeafdesc": "Not gifted with a good ear for <SPACE><RGB:1,0.8,0> Music <RGB:1,1,1><SPACE> and can't stand this kind of entertainment, they much prefer peace and quiet.",
+  
+  	"UI_trait_partyanimal": "Party Animal",
+    "UI_trait_partyanimaldesc": "The life of the party and talented <SPACE><RGB:1,0.8,0> Dancers <RGB:1,1,1><SPACE>, always ready to hit the dance floor and keep the energy high.",
+   
+	"UI_trait_killjoy": "Killjoy",
+    "UI_trait_killjoydesc": "Large crowds, loud music, and frenetic energy are not your cup of tea.",
+  
+  	"UI_trait_cleanfreak": "Neat Freak",
+    "UI_trait_cleanfreakdesc": "They find solace in cleanliness and feel a compulsive need to live in a spotless environment.<br><br>Almost no tolerance for dirty environments.<br><RGB:1,0.8,0> Cleaning <RGB:1,1,1><SPACE> takes longer to perform.",
+
+	"UI_trait_sloppy": "Sloppy",
+    "UI_trait_sloppydesc": "Tidiness isn't their priority.<br><br>Higher tolerance for dirty environments.<br>Hates <SPACE><RGB:1,0.8,0> Cleaning <RGB:1,1,1><SPACE> and takes longer to perform it.<br>Almost never flushes the toilet on their own.<br>Clogs the toilet more often.<br>Higher chance to generate blood/dirt when bloody/dirty and trash when crafting.",
+
+	"UI_trait_tidy": "Tidy",
+    "UI_trait_tidydesc": "Keeping their living space clean comes easy to them.<br><br>Less chance to generate blood/dirt when bloody/dirty and trash when crafting.<br>Enjoys <SPACE><RGB:1,0.8,0> Cleaning <RGB:1,1,1><SPACE> and the action is done faster.",
+  
+	"UI_trait_disco": "Likes Oldies Music",
+    "UI_trait_discodesc": "This person has a preference for oldies music.",
+   
+	"UI_trait_discono": "Dislikes Oldies Music",
+    "UI_trait_disconodesc": "This person would prefer to hear anything but oldies music.",
+
+	"UI_trait_beach": "Likes Beach Music",
+    "UI_trait_beachdesc": "This person has a preference for beach music.",
+   
+	"UI_trait_beachno": "Dislikes Beach Music",
+    "UI_trait_beachnodesc": "This person would prefer to hear anything but beach music.",
+
+	"UI_trait_country": "Likes Country Music",
+    "UI_trait_countrydesc": "This person has a preference for country music.",
+   
+	"UI_trait_countryno": "Dislikes Country Music",
+    "UI_trait_countrynodesc": "This person would prefer to hear anything but country music.",
+
+	"UI_trait_classical": "Likes Classical Music",
+    "UI_trait_classicaldesc": "This person has a preference for classical music.",
+
+	"UI_trait_classicalno": "Dislikes Classical Music",
+    "UI_trait_classicalnodesc": "This person would prefer to hear anything but classical music.",
+
+	"UI_trait_holiday": "Likes Holiday Music",
+    "UI_trait_holidaydesc": "This person has a preference for holiday music.",
+   
+	"UI_trait_holidayno": "Dislikes Holiday Music",
+    "UI_trait_holidaynodesc": "This person would prefer to hear anything but holiday music.",
+
+	"UI_trait_jazz": "Likes Jazz Music",
+    "UI_trait_jazzdesc": "This person has a preference for jazz music.",
+   
+	"UI_trait_jazzno": "Dislikes Jazz Music",
+    "UI_trait_jazznodesc": "This person would prefer to hear anything but jazz music.",
+
+	"UI_trait_metal": "Likes Metal Music",
+    "UI_trait_metaldesc": "This person has a preference for metal music.",
+   
+	"UI_trait_metalno": "Dislikes Metal Music",
+    "UI_trait_metalnodesc": "This person would prefer to hear anything but metal music.",
+
+	"UI_trait_muzak": "Likes Muzak Music",
+    "UI_trait_muzakdesc": "This person has a preference for muzak music.",
+
+	"UI_trait_muzakno": "Dislikes Muzak Music",
+    "UI_trait_muzaknodesc": "This person would prefer to hear anything but muzak music.",
+
+	"UI_trait_pop": "Likes Pop Music",
+    "UI_trait_popdesc": "This person has a preference for pop music.",
+   
+	"UI_trait_popno": "Dislikes Pop Music",
+    "UI_trait_popnodesc": "This person would prefer to hear anything but pop music.",
+
+	"UI_trait_rap": "Likes Rap Music",
+    "UI_trait_rapdesc": "This person has a preference for rap music.",
+   
+	"UI_trait_rapno": "Dislikes Rap Music",
+    "UI_trait_rapnodesc": "This person would prefer to hear anything but rap music.",
+
+	"UI_trait_rock": "Likes Rock Music",
+    "UI_trait_rockdesc": "This person has a preference for rock music.",
+   
+	"UI_trait_rockno": "Dislikes Rock Music",
+    "UI_trait_rocknodesc": "This person would prefer to hear anything but rock music.",
+
+	"UI_trait_reggae": "Likes Reggae Music",
+    "UI_trait_reggaedesc": "This person has a preference for reggae music.",
+   
+	"UI_trait_reggaeno": "Dislikes Reggae Music",
+    "UI_trait_reggaenodesc": "This person would prefer to hear anything but reggae music.",
+
+	"UI_trait_salsa": "Likes Salsa Music",
+    "UI_trait_salsadesc": "This person has a preference for salsa music.",
+
+	"UI_trait_salsano": "Dislikes Salsa Music",
+    "UI_trait_salsanodesc": "This person would prefer to hear anything but salsa music.",
+
+	"UI_trait_world": "Likes World Music",
+    "UI_trait_worlddesc": "This person has a preference for world music.",
+   
+	"UI_trait_worldno": "Dislikes World Music",
+    "UI_trait_worldnodesc": "This person would prefer to hear anything but world music.",
+
+	"UI_trait_rbsoul": "Likes Rb&Soul Music",
+    "UI_trait_rbsouldesc": "This person has a preference for rb&soul music.",
+
+	"UI_trait_rbsoulno": "Dislikes Rb&Soul Music",
+    "UI_trait_rbsoulnodesc": "This person would prefer to hear anything but rb&soul music."
+}

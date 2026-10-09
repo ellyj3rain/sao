@@ -1,0 +1,12 @@
+{
+    "ContextMenu_ComputerMod_Computer": "Tietokone",
+    "ContextMenu_ComputerMod_InsertCD": "Aseta CD",
+    "ContextMenu_ComputerMod_NetworkTerminal": "Verkkopääte",
+    "ContextMenu_ComputerMod_RemoveCD": "Poista CD",
+    "ContextMenu_ComputerMod_ResumeSession": "Jatka istuntoa",
+    "ContextMenu_ComputerMod_TurnOn": "Kytke päälle",
+    "ContextMenu_ComputerMod_Components": "Komponentit",
+    "ContextMenu_ComputerMod_InstallComponent": "Asenna",
+    "ContextMenu_ComputerMod_RepairComponent": "Korjaus",
+    "ContextMenu_ComputerMod_RemoveComponent": "Poista"
+}

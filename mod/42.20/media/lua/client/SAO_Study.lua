@@ -185,6 +185,65 @@ function S.outcome(id,sequence)
         end
     end
 end
+-- Terminal reading facts belong to the persistent person; native objects stay
+-- transient. A detached query cannot alter the canonical measured occurrence.
+function S.leisureOutcome(id, sequence)
+    local person = rec(id)
+    for _, row in ipairs(person and person.leisureReadingOutcomes or {}) do
+        if row.actorId == id and row.sequence == sequence then
+            local out = {}
+            for key, value in pairs(row) do if key ~= "mood" then out[key] = value end end
+            if row.mood then
+                out.mood = {}
+                for name, values in pairs(row.mood) do
+                    out.mood[name] = { before = values.before, after = values.after }
+                end
+            end
+            return out
+        end
+    end
+end
+local function readingMood(action)
+    local ok, values = pcall(function()
+        local stats, out = action.character:getStats(), {}
+        for _, name in ipairs({ "BOREDOM", "UNHAPPINESS", "STRESS" }) do
+            local value = stats:get(CharacterStat[name])
+            if type(value) ~= "number" or value ~= value or value < 0 or value > 1000000 then return nil end
+            out[name] = value
+        end
+        return out
+    end)
+    return ok and values or nil
+end
+local function recordLeisureOutcome(person, work, action, custody)
+    if work.kind ~= "leisure" then return end
+    local note = work.contentKind == "written-note"
+    local outcome = { actorId = person.id, sequence = work.sequence, workId = work.id,
+        purposeId = work.purposeId, status = work.status,
+        nativeOwner = note and "SAONoteReadAction/ISBaseTimedAction" or "ISReadABook.complete",
+        token = note and "note:text-exposed" or "leisure:performed",
+        sourceId = note and "native:literature:customPages" or "native:literature:ISReadABook",
+        actionKind = note and "read-note" or "read-book", itemId = work.itemId, itemType = work.fullType,
+        bodyGenerationKnown = work.bodyGenerationKnown, bodyToken = work.bodyToken,
+        beganAt = work.beganAt, startedAt = work.startedAt, atHours = work.endedAt,
+        progress = work.progress, custodyVerified = custody == true,
+        nativeStarted = work.startedAt ~= nil, nativeCompleted = action and action.nativeCompleted == true or false,
+        pagesBefore = work.pagesBefore, pagesAfter = work.pagesAfter, totalPages = work.totalPages,
+        contentPages = work.contentPages, contentBytes = work.contentBytes,
+        contentBinding = note and work.id or nil,
+        meaning = note and "text-exposure; comprehension-unassessed" or "native-reading; comprehension-unassessed",
+        reason = work.reason }
+    if outcome.status == "completed" and not note and action and action.readingMood then
+        outcome.mood = action.readingMood
+        outcome.moodMeasurement = "immediate-native-completion"
+    end
+    person.leisureReadingOutcomes = person.leisureReadingOutcomes or {}
+    person.leisureReadingOutcomes[#person.leisureReadingOutcomes + 1] = outcome
+    if #person.leisureReadingOutcomes > 32 then table.remove(person.leisureReadingOutcomes, 1) end
+    if SAO.Cognition and SAO.Cognition.leisureReadingOutcome then
+        SAO.Cognition.leisureReadingOutcome(person.id, work.sequence)
+    end
+end
 function S.noteOutcome(id, sequence)
     local person = rec(id)
     for _, row in ipairs(person and person.noteReadingOutcomes or {}) do
@@ -215,7 +274,8 @@ local function close(action, status, reason)
     if not work or work.id ~= action.workId or work.status ~= "reading" then return false end
     local valid = bound(action)
     local note = work.contentKind == "written-note"
-    local pages = not note and (valid and action.character:getAlreadyReadPages(work.fullType) or work.pagesBefore) or nil
+    local pages = not note and (valid and action.character:getAlreadyReadPages(work.fullType)
+        or work.pagesAfter or work.pagesBefore) or nil
     work.pagesAfter, work.endedAt = pages, hours()
     if status == "completed" and (not valid or not action.nativeCompleted
         or (work.progress or 0) <= 0 or work.phase ~= "executing"
@@ -224,6 +284,7 @@ local function close(action, status, reason)
     end
     work.status, work.phase, work.reason = status, status, reason
     runtime[action.personId] = nil
+    recordLeisureOutcome(person, work, action, valid)
     if status == "completed" then
         if note then
             work.exposureCompleted = true
@@ -270,6 +331,7 @@ function SAOStudyAction:start()
     if not self:isValid() then self:forceStop(); return end
     ISReadABook.start(self)
     self.nativeStarted = true
+    rec(self.personId).studyWork.startedAt = hours()
 end
 function SAOStudyAction:update()
     if not self:isValid() then self:forceStop(); return end
@@ -283,6 +345,7 @@ function SAOStudyAction:update()
         and (work.totalPages < 0
             or self.character:getAlreadyReadPages(work.fullType) > work.pagesBefore) then
         work.phase, work.progress = "executing", progress
+        work.pagesAfter = self.character:getAlreadyReadPages(work.fullType)
         work.lastProgressAt = hours()
     end
 end
@@ -295,7 +358,16 @@ function SAOStudyAction:complete()
         close(self, "interrupted", "study-owner-or-book-changed")
         return false
     end
+    -- Sample immediately around the installed completion's ReadLiterature
+    -- effect. Elapsed boredom drift and note exposure are not attributed here.
+    local leisure = self.readingKind == "leisure"
+    local before = leisure and readingMood(self)
     local result = ISReadABook.complete(self)
+    local after = leisure and bound(self) and readableAction(self) and readingMood(self)
+    if result == true and before and after then
+        self.readingMood = {}
+        for name, value in pairs(before) do self.readingMood[name] = { before = value, after = after[name] } end
+    end
     self.nativeCompleted = result == true
     if result == true then close(self, "completed") end
     return result
@@ -451,7 +523,9 @@ function S.interrupt(id, body, reason)
         end
     else
         if work.contentKind ~= "written-note" and live(id, body) then work.pagesAfter = body:getAlreadyReadPages(work.fullType) end
+        if work.contentKind ~= "written-note" and work.pagesAfter == nil then work.pagesAfter = work.pagesBefore end
         work.status, work.phase, work.reason, work.endedAt = "interrupted", "interrupted", "study-runtime-unavailable", hours()
+        recordLeisureOutcome(person, work, nil, false)
         SAO.ProceduralPlanning.releaseStudy(id, work.purposeId, work.id)
         SAO.ProceduralPlanning.interrupt(id, work.purposeId, work.reason, work.endedAt)
         runtime[id] = nil
@@ -572,10 +646,8 @@ local function begin(id, body, item, kind)
     action.personId, action.workId, action.purposeId = id, workId, purpose.id
     action.readingKind = work.kind
     action.bodyToken = body:getModData().SAOExternalToken
-    if content then
-        work.bodyToken = action.bodyToken
-        work.bodyGenerationKnown = type(action.bodyToken) == "string" and action.bodyToken ~= ""
-    end
+    work.bodyToken = action.bodyToken
+    work.bodyGenerationKnown = type(action.bodyToken) == "string" and action.bodyToken ~= ""
     -- Preserve the native full-book duration and resumed startPage fraction.
     action.maxTime = action.maxTime * math.max(0.25, tonumber(effort) or 1)
     person.studyWork, runtime[id] = work, { action = action }

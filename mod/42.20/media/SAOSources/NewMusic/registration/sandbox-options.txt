@@ -1,0 +1,167 @@
+VERSION = 1,
+
+option NewMusic.MaxTrackingRange
+{
+    type = integer,
+    min = 0,
+    max = 36000,
+    default = 1500,
+    page = NewMusic,
+    translation = NewMusic_MaxTrackingRange,
+}
+
+option NewMusic.ActiveDeviceLimit
+{
+    type = integer,
+    min = 4,
+    max = 50,
+    default = 10,
+    page = NewMusic,
+    translation = NewMusic_ActiveDeviceLimit,
+}
+
+option NewMusic.BatteryDrainRate
+{
+    type = double,
+    min = 0.02,
+    max = 1000.00,
+    default = 24.00,
+    page = NewMusic,
+    translation = NewMusic_BatteryDrainRate,
+}
+
+option NewMusic.AudioMaxRadius
+{
+    type = integer,
+    min = 9,
+    max = 500,
+    default = 35,
+    page = NewMusic,
+    translation = NewMusic_AudioMaxRadius,
+}
+
+option NewMusic.ZombieAttractionRadius
+{
+    type = integer,
+    min = 9,
+    max = 200,
+    default = 105,
+    page = NewMusic,
+    translation = NewMusic_ZombieAttractionRadius,
+}
+
+option NewMusic.Disassembly
+{
+    type = boolean,
+    default = true,
+    page = NewMusic,
+    translation = NewMusic_Disassembly,
+}
+
+option NewMusic.ZomboidOST
+{
+    type = boolean,
+    default = true,
+    page = NewMusic,
+    translation = NewMusic_ZomboidOST,
+}
+
+option NewMusic.ConvertVanillaCDsAndCDPlayers
+{
+    type = boolean,
+    default = true,
+    page = NewMusic,
+    translation = NewMusic_ConvertVanillaCDsAndCDPlayers,
+}
+
+option NewMusic.MediaSpawnsWithCases
+{
+    type = boolean,
+    default = true,
+    page = NewMusic,
+    translation = NewMusic_MediaSpawnsWithCases,
+}
+
+option NewMusic.CassettesSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.6,
+    page = NewMusic,
+    title = MediaLootRarity,
+    translation = NewMusic_CassettesSpawnRate,
+}
+
+option NewMusic.VinylRecordsSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.3,
+    page = NewMusic,
+    translation = NewMusic_VinylRecordsSpawnRate,
+}
+
+option NewMusic.CDsSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.6,
+    page = NewMusic,
+    translation = NewMusic_CDsSpawnRate,
+}
+
+option NewMusic.WalkmanSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.6,
+    page = NewMusic,
+    title = DeviceLootRarity,
+    translation = NewMusic_WalkmanSpawnRate,
+}
+
+option NewMusic.BoomboxSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.6,
+    page = NewMusic,
+    translation = NewMusic_BoomboxSpawnRate,
+}
+
+option NewMusic.CDPlayerSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.6,
+    page = NewMusic,
+    translation = NewMusic_CDPlayerSpawnRate,
+}
+
+option NewMusic.RecordPlayerSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.6,
+    page = NewMusic,
+    translation = NewMusic_RecordPlayerSpawnRate,
+}
+
+option NewMusic.MusicalZombiesSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.6,
+    page = NewMusic,
+    translation = NewMusic_MusicalZombiesSpawnRate,
+}
+
+

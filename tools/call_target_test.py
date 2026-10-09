@@ -35,11 +35,24 @@ LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 
 
 def strip(src):
-    out = []
-    for line in src.split("\n"):
-        i = line.find("--")
-        out.append(line[:i] if i >= 0 else line)
-    return "\n".join(out)
+    from lua_read import strip_lua
+    return strip_lua(src)
+
+
+def module_aliases(sources):
+    aliases = {}
+    for source in sources:
+        for match in re.finditer(r'^\s*(SAO\.\w+)\s*=\s*(SAO\.\w+)\s*$', source, re.M):
+            aliases[match.group(1)] = match.group(2)
+    return aliases
+
+
+def canonical_module(module, aliases):
+    seen = set()
+    while module in aliases and module not in seen:
+        seen.add(module)
+        module = aliases[module]
+    return module
 
 
 def main():
@@ -55,22 +68,24 @@ def main():
         print("  FAULT: no Lua was read - a verdict about an empty set")
         return 1
 
+    stripped = {p: strip(s) for p, s in files.items()}
+    aliases = module_aliases(stripped.values())
+    assert canonical_module('SAO.Old', module_aliases(['SAO.Old = SAO.Current'])) == 'SAO.Current'
+    assert canonical_module('SAO.Old', module_aliases(['-- SAO.Old = SAO.Current'])) == 'SAO.Old'
     alias_of = {}
     for p, src in files.items():
         for m in re.finditer(r"^local\s+(\w+)\s*=\s*(SAO\.\w+)\s*$",
                              src, re.M):
-            alias_of[(p, m.group(1))] = m.group(2)
+            alias_of[(p, m.group(1))] = canonical_module(m.group(2), aliases)
         for m in re.finditer(r"^(SAO\.\w+)\s*=\s*(\w+)\s*$", src, re.M):
-            alias_of[(p, m.group(2))] = m.group(1)
-
-    stripped = {p: strip(s) for p, s in files.items()}
+            alias_of[(p, m.group(2))] = canonical_module(m.group(1), aliases)
 
     defined = set()
     for p, src in stripped.items():
         for m in re.finditer(r"function\s+(SAO\.\w+)\.(\w+)\s*\(", src):
-            defined.add((m.group(1), m.group(2)))
+            defined.add((canonical_module(m.group(1), aliases), m.group(2)))
         for m in re.finditer(r"^\s*(SAO\.\w+)\.(\w+)\s*=", src, re.M):
-            defined.add((m.group(1), m.group(2)))
+            defined.add((canonical_module(m.group(1), aliases), m.group(2)))
         for m in re.finditer(r"function\s+(\w+)\.(\w+)\s*\(", src):
             mod = alias_of.get((p, m.group(1)))
             if mod:
@@ -94,7 +109,7 @@ def main():
         faults.append("no qualified call site was read at all - the "
                       "reader is broken, not the tree clean")
     for (mod, fn), sites in sorted(calls.items()):
-        if (mod, fn) not in defined:
+        if (canonical_module(mod, aliases), fn) not in defined:
             faults.append(
                 f"{mod}.{fn} is called at {', '.join(sites[:3])} and "
                 "defined nowhere - inside this tree's pcall discipline "

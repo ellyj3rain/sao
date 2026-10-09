@@ -1,0 +1,82 @@
+VERSION = 1,
+
+option FWOFitness.InitialPerkBonus
+{
+	type = boolean, default = true,
+	page = FWOFitness, translation = FWOFitness_InitialPerkBonus,
+}
+option FWOFitness.currentExerciseRegularityBonus
+{
+	type = boolean, default = true,
+	page = FWOFitness, translation = FWOFitness_currentExerciseRegularityBonus,
+}
+option FWOFitness.currentExerciseOffset
+{
+	type = integer, min = 0, max = 100, default = 25,
+	page = FWOFitness, translation = FWOFitness_currentExerciseOffset ,
+}
+option FWOFitness.currentExerciseRate
+{
+	type = double, min = 0.01, max = 100.0, default = 5.0,
+	page = FWOFitness, translation = FWOFitness_currentExerciseRate,
+}
+option FWOFitness.AverageExerciseRegularityBonus
+{
+	type = double, min = 0.0, max = 100.0, default = 6,
+	page = FWOFitness, translation = FWOFitness_AverageExerciseRegularityBonus,
+}
+option FWOFitness.LevelBonus
+{
+	type = double, min = 0.0, max = 100.0, default = 0.30,
+	page = FWOFitness, translation = FWOFitness_LevelBonus,
+}
+option FWOFitness.SpaceOutExercise
+{
+	type = boolean, default = true,
+	page = FWOFitness, translation = FWOFitness_SpaceOutExercise ,
+}
+option FWOFitness.SpaceOutExerciseNegative
+{
+	type = double, min = 0.0, max = 100.0, default = 0.90,
+	page = FWOFitness, translation = FWOFitness_SpaceOutExerciseNegative ,
+}
+option FWOFitness.RestedBonus
+{
+	type = boolean, default = true,
+	page = FWOFitness, translation = FWOFitness_RestedBonus,
+}
+option FWOFitness.RestedBonusNegative
+{
+	type = double, min = 0.0, max = 10, default = 0.90,
+	page = FWOFitness, translation = FWOFitness_RestedBonusNegative,
+}
+option FWOFitness.XPMultiplier
+{
+	type = double, min = 0.01, max = 10, default = 1.0,
+	page = FWOFitness, translation = FWOFitness_XPMultiplier,
+}
+option FWOFitness.PassiveMultiplier
+{
+	type = double, min = 0, max = 10, default = 1.0,
+	page = FWOFitness, translation = FWOFitness_PassiveMultiplier,
+}
+option FWOFitness.BoredomMultiplier
+{
+	type = double, min = 0, max = 10, default = 1.0,
+	page = FWOFitness, translation = FWOFitness_BoredomMultiplier,
+}
+option FWOFitness.UnhappynessMultiplier
+{
+	type = double, min = 0, max = 10, default = 1.0,
+	page = FWOFitness, translation = FWOFitness_UnhappynessMultiplier,
+}
+option FWOFitness.DropBags
+{
+	type = boolean, default = false,
+	page = FWOFitness, translation = FWOFitness_DropBags,
+}
+option FWOFitness.KeepBagsOn
+{
+	type = boolean, default = false,
+	page = FWOFitness, translation = FWOFitness_KeepBagsOn,
+}

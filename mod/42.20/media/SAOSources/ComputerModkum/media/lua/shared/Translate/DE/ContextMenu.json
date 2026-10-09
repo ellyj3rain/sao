@@ -1,0 +1,12 @@
+{
+    "ContextMenu_ComputerMod_Computer": "Computer",
+    "ContextMenu_ComputerMod_InsertCD": "CD einlegen",
+    "ContextMenu_ComputerMod_NetworkTerminal": "Netzwerkterminal",
+    "ContextMenu_ComputerMod_RemoveCD": "CD entfernen",
+    "ContextMenu_ComputerMod_ResumeSession": "Sitzung fortsetzen",
+    "ContextMenu_ComputerMod_TurnOn": "Einschalten",
+    "ContextMenu_ComputerMod_Components": "Komponenten",
+    "ContextMenu_ComputerMod_InstallComponent": "Installieren",
+    "ContextMenu_ComputerMod_RepairComponent": "Reparieren",
+    "ContextMenu_ComputerMod_RemoveComponent": "Entfernen"
+}

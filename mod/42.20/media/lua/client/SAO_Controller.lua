@@ -28,6 +28,16 @@ if not SAO.ProceduralPlanning and type(require) == "function" then
     pcall(require, "SAO_ProceduralPlanning")
 end
 if not SAO.Study and type(require) == "function" then pcall(require, "SAO_Study") end
+if not SAO.Leisure and type(require) == "function" then pcall(require, "SAO_Leisure") end
+if not SAO.LeisureSkill and type(require) == "function" then pcall(require, "SAO_LeisureSkill") end
+if not SAO.LeisureExercise and type(require) == "function" then pcall(require, "SAO_LeisureExercise") end
+if not SAO.LeisureArt and type(require) == "function" then pcall(require, "SAO_LeisureArt") end
+if not SAO.LeisureMusic and type(require) == "function" then pcall(require, "SAO_LeisureMusic") end
+if not SAO.LeisureGames and type(require) == "function" then pcall(require, "SAO_LeisureGames") end
+if not SAO.LeisureRadio and type(require) == "function" then pcall(require, "SAO_LeisureRadio") end
+if not SAO.LeisurePreparation and type(require) == "function" then pcall(require, "SAO_LeisurePreparation") end
+if not SAO.LeisureAcquisition and type(require) == "function" then pcall(require, "SAO_LeisureAcquisition") end
+if not SAO.LeisureLifestyle and type(require) == "function" then pcall(require, "SAO_LeisureLifestyle") end
 if not SAO.ResourceProduction and type(require) == "function" then pcall(require, "SAO_ResourceProduction") end
 if not SAO.WindowRepair and type(require) == "function" then pcall(require, "SAO_WindowRepair") end
 if not SAO.ConceptKnowledge and type(require) == "function" then pcall(require, "SAO_ConceptKnowledge") end
@@ -321,6 +331,59 @@ local function closeUnownedCognitionOnAdoption(id)
     SAO.Cognition.interrupt(id, "controller-adopt-without-execution")
 end
 
+-- The Week One source hands off a witnessed choice only after its proxy has
+-- retired. Keep the ordinary controller's current player and Standing as the
+-- live authority; a source chat receipt alone cannot make a loyal follower.
+function Ctl.reconcileWeekOneCompanion(rec, agent, player)
+    if not rec or not agent or agent.rec ~= rec then return false end
+    local source = SAO.WeekOneContinuity
+    local intent = source and source.validTransferredCompanion
+        and source.validTransferredCompanion(rec, player) or nil
+    local prior = agent.weekOneHandoff
+    if not intent then
+        if prior then
+            if agent.weekOneHold then agent.holdPosition = nil end
+            agent.weekOneHold = nil
+            agent.weekOneHomeIntent = nil
+            agent.weekOneHandoff = nil
+        end
+        return false
+    end
+    if not prior or prior.intent ~= intent or prior.mode ~= intent.mode
+        or prior.playerKey ~= intent.playerKey then
+        if agent.weekOneHold then agent.holdPosition = nil end
+        agent.weekOneHold = nil
+        agent.weekOneHandoff = { intent = intent, mode = intent.mode,
+            playerKey = intent.playerKey }
+        if intent.mode == "hold" then
+            agent.holdPosition, agent.weekOneHold = true, true
+        end
+        agent.weekOneHomeIntent = intent.mode == "home"
+            and intent.homeArrivedAtHours == nil or nil
+    end
+    return true, intent.mode
+end
+
+-- A later received, accepted ordinary command supersedes the transfer's
+-- initial instruction while retaining the original source provenance.
+function Ctl.noteWeekOneCompanionOrder(id, playerKey, mode)
+    if mode == "close" or mode == "walk" then mode = "follow" end
+    local agent = Ctl.agents[tostring(id)]
+    local rec = agent and agent.rec
+    local player = (SAO.Participants and SAO.Participants.player
+        or getSpecificPlayer)(0)
+    local source = SAO.WeekOneContinuity
+    local intent = source and source.validTransferredCompanion
+        and source.validTransferredCompanion(rec, player) or nil
+    if not intent or intent.playerKey ~= playerKey
+        or mode ~= "follow" and mode ~= "hold" and mode ~= "home" then
+        return false end
+    intent.mode = mode
+    agent.weekOneHandoff = nil
+    Ctl.reconcileWeekOneCompanion(rec, agent, player)
+    return true
+end
+
 function Ctl.adopt(rec)
     if not rec or not rec.id then return false end
     if not Ctl.agents[rec.id] and SAO.Needs.retireRecovery then
@@ -340,6 +403,9 @@ function Ctl.adopt(rec)
         rec = rec, state = "IDLE", stateSince = tickCount, nextDecisionAt = 0,
     }
     local agent = Ctl.agents[rec.id]
+    local player = (SAO.Participants and SAO.Participants.player
+        or getSpecificPlayer)(0)
+    Ctl.reconcileWeekOneCompanion(rec, agent, player)
     if rec.dormantResting == true or rec.dormantSleeping == true then
         agent.resting = true
     end
@@ -414,6 +480,9 @@ function Ctl.drop(id)
     if Ctl.agents[id] then
         local body = SAO.Body and SAO.Body.get and SAO.Body.get(id) or nil
         local rec = Ctl.agents[id].rec
+        if Ctl.retireLeisureWork and not Ctl.retireLeisureWork(id,Ctl.agents[id],body,"controller-drop") then
+            return false,"leisure-native-action-pending"
+        end
         if SAO.ConflictResponse and not SAO.ConflictResponse.detach(id,Ctl.agents[id],body,"controller detached") then
             return false,"conflict-native-action-pending"
         end
@@ -3634,9 +3703,19 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs, ordinaryExc
     -- gone a while.
     if (agent.state == "IDLE" or agent.state == "ROAM"
         or agent.state == "PLAYERFOLLOW") then
-        if continueOwnedFollowCrossing(id, agent, body) then return true end
         local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
         local myKey = me and not me:isDead() and SAO.Standing.playerKey(me) or nil
+        local hadHandoff = agent.weekOneHandoff ~= nil
+        local _, handoffMode = Ctl.reconcileWeekOneCompanion(agent.rec, agent, me)
+        if hadHandoff and not handoffMode and agent.state == "PLAYERFOLLOW" then
+            SAO.Locomotion.cancel(id)
+            agent.companioning, agent.followOffset = nil, nil
+            setState(agent, id, "IDLE", "prior Week One company is no longer valid")
+            return true
+        end
+        if handoffMode ~= "home" and handoffMode ~= "hold"
+            and continueOwnedFollowCrossing(id, agent, body) then
+            return true end
         if not myKey then
             agent.companioning, agent.followOffset = nil, nil
             if agent.state == "PLAYERFOLLOW" then
@@ -3644,6 +3723,15 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs, ordinaryExc
                 return true
             end
             return
+        end
+        if handoffMode == "home" then
+            agent.companioning, agent.followOffset = nil, nil
+            if agent.state == "PLAYERFOLLOW" then
+                SAO.Locomotion.cancel(id)
+                setState(agent, id, "IDLE", "returns to own affairs after Week One")
+                return true
+            end
+            return false
         end
         -- Costly conversion ([A17]): a GROUPED survivor walks with the
         -- player only by LEAVING their faction - and only when they
@@ -3702,6 +3790,13 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs, ordinaryExc
                 end
             end
             local playerFresh = seenPlayer and (tick - seenPlayer.at) <= 1800
+            if handoffMode == "hold" and not playerFresh then
+                if agent.state == "ROAM" or agent.state == "PLAYERFOLLOW" then
+                    SAO.Locomotion.cancel(id)
+                    setState(agent, id, "IDLE", "holds accepted Week One position")
+                end
+                return true
+            end
             -- [C111] Their own need reads alongside trust here too
             -- (`companyStanding`): an ungrouped survivor short of
             -- company walks with somebody half-trusted rather than
@@ -4729,6 +4824,455 @@ end
 
 -- One ordinary choice compares personally available purposes. Collection reads
 -- private owners; only the selected dispatch may change their native work.
+-- These coefficients express an uncalibrated preference comparison. Native
+-- mood is present pressure, while dated recall supplies preference evidence;
+-- neither predicts that an offered activity will produce relief.
+function Ctl.leisureReasons(id, body, family)
+    local out={actorId=id,family=family,moodStatus="unavailable",recallStatus="unavailable",
+        interest=0,episodeIds={},boredom=0,unhappiness=0,stress=0}
+    if not SAO.Needs or not SAO.Needs.ownsRecoveryBody(id,body) then return out end
+    local ok,boredom,unhappiness,stress=pcall(function()
+        local stats=body:getStats()
+        return stats:get(CharacterStat.BOREDOM),stats:get(CharacterStat.UNHAPPINESS),stats:get(CharacterStat.STRESS)
+    end)
+    local function ranged(value,maximum)
+        return type(value)=="number" and value==value and value>=0 and value<=maximum
+    end
+    if ok and ranged(boredom,100) and ranged(unhappiness,100) and ranged(stress,1) then
+        out.moodStatus="native";out.boredom=boredom/100;out.unhappiness=unhappiness/100;out.stress=stress
+    end
+    local good,recall=pcall(function()return SAO.PersonalMemory.query(id,family)end)
+    if good and type(recall)=="table" and recall.actorId==id and type(recall.episodes)=="table" then
+        out.recallStatus=recall.status
+        local total,count=0,0
+        for _,episode in ipairs(recall.episodes) do
+            if count>=16 then break end
+            if episode.actorId==id and episode.ownerId==id and episode.accessible==true
+                and ranged(episode.accessibility,1) and type(episode.valence)=="number" and ranged(episode.valence+1,2)
+                and type(episode.episodeId)=="string" and type(episode.sourceId)=="string"
+                and type(episode.sourceSha256)=="string" and #episode.sourceSha256==64 then
+                count=count+1;total=total+episode.valence*episode.accessibility
+                out.episodeIds[#out.episodeIds+1]={id=episode.episodeId,sourceId=episode.sourceId,
+                    sourceSha256=episode.sourceSha256,provenance=episode.provenance}
+            end
+        end
+        if count>0 then out.interest=total/count end
+    end
+    return out
+end
+function Ctl.duetInvitationOffers(id,agent,body,tick)
+    local M,O,coordination=SAO.LeisureMusic,SAO.Organization,SAO.Coordination
+    if not M or not M.duetChoices or not O or not O.openMatter or not coordination
+        or not coordination.knownContacts or not SAO.Communication or not SAO.Communication.canConverse
+        or tick<(agent.nextDuetInviteAt or 0) then return {} end
+    local prior=O.openMatter(id,"leisure-duet")
+    if prior then
+        local view=O.viewFor(id,prior.id,false);local proposal=view and view.proposal and view.proposal.proposal
+        local expiry=proposal and proposal.duet and proposal.duet.expiresAtHours
+        if type(expiry)~="number" or expiry>=SAO.History.countyHours() then return {} end
+    end
+    local rows={};local traits=SAO.Disposition.traits(id) or {}
+    local seeksCompany=(traits.talkativeness or 0)-(traits.discipline or 0)
+    local reasons=Ctl.leisureReasons(id,body,"music")
+    if seeksCompany<=0 and reasons.interest<=0 then return rows end
+    for c,contact in ipairs(coordination.knownContacts(id)) do
+        if c>8 or #rows>=8 then break end
+        if contact.id~=id and not contact.hostile and SAO.Communication.canConverse(id,contact.id) then
+            for n,choice in ipairs(M.duetChoices(id,body)) do
+                if n>4 or #rows>=8 then break end
+                for roleIndex,role in ipairs(choice.partnerRoles or {}) do
+                    if roleIndex>2 or #rows>=8 then break end
+                    rows[#rows+1]={id="duet-invitation:"..id..":"..contact.id..":"..tostring(n)..":"..tostring(roleIndex),
+                        family="music",activity="invite-source-duet",sourceId=choice.sourceId,
+                        itemKey=choice.itemKey,itemType=choice.itemType,choiceId=choice.id,recipientId=contact.id,
+                        partnerRole=role,seeksCompany=seeksCompany,relationship=contact.relationship,
+                        uncertainty="recipient-source-part-and-agreement-are-unobserved"}
+                end
+            end
+        end
+    end
+    return rows
+end
+function Ctl.danceInvitationOffers(id,agent,body,tick)
+    local M,O,Q=SAO.LeisureMusic,SAO.Organization,SAO.Coordination
+    if not M or not M.danceChoices or not O or not O.openMatter or not Q or not Q.knownContacts
+        or not SAO.Communication or not SAO.Communication.canConverse
+        or tick<(agent.nextDanceInviteAt or 0)then return {}end
+    local prior=O.openMatter(id,"leisure-dance")
+    if prior then
+        local view=O.viewFor(id,prior.id,false);local proposal=view and view.proposal and view.proposal.proposal
+        local expiry=proposal and proposal.dance and proposal.dance.expiresAtHours
+        if type(expiry)~="number" or expiry>=SAO.History.countyHours()then return {}end
+    end
+    local traits=SAO.Disposition.traits(id) or {};local seeksCompany=(traits.talkativeness or 0)-(traits.discipline or 0)
+    local reasons=Ctl.leisureReasons(id,body,"music");local rows={}
+    if seeksCompany<=0 and reasons.interest<=0 then return rows end
+    local choices=M.danceChoices(id,body)
+    for n,contact in ipairs(Q.knownContacts(id))do
+        if n>8 or #rows>=8 then break end
+        if contact.id~=id and not contact.hostile and SAO.Communication.canConverse(id,contact.id)then
+            for c,choice in ipairs(choices)do
+                if c>2 or #rows>=8 then break end
+                rows[#rows+1]={id="dance-invitation:"..id..":"..contact.id..":"..tostring(c),family="music",
+                    activity="invite-source-dance",sourceId=choice.sourceId,itemKey=choice.itemKey,itemType=choice.itemType,
+                    choiceId=choice.id,recipientId=contact.id,partnerRole=choice.role=="source"and"target"or"source",
+                    seeksCompany=seeksCompany,relationship=contact.relationship,
+                    uncertainty="recipient-current-hearing-source-and-agreement-are-unobserved"}
+            end
+        end
+    end
+    return rows
+end
+function Ctl.leisureOffers(id, agent, body, tick)
+    local candidates,receivers={},{}
+    if not agent or agent.rec~=SAO.Identity.get(id) or not SAO.Needs.ownsRecoveryBody(id,body)
+        or not SAO.Needs.workAvailable(body) then return candidates,receivers end
+    local planning=SAO.ProceduralPlanning
+    local function add(key,family,activity,receiver,itemKey,itemType,sourceId,consequence)
+        local purpose=planning and planning.pending and planning.pending(id,"recreate",activity)
+        local continuity=purpose and purpose.leisure and purpose.leisure.itemKey==itemKey and 1 or 0
+        local reasons=Ctl.leisureReasons(id,body,family)
+        reasons.continuity=continuity;reasons.purposeId=continuity==1 and purpose.id or nil
+        local utility=0.1+reasons.boredom*0.3+reasons.unhappiness*0.15+reasons.stress*0.1
+            +reasons.interest*0.25+continuity*0.1
+        candidates[#candidates+1]={id=key,kind="leisure",family=family,activity=activity,
+            itemKey=itemKey,itemType=itemType,sourceId=sourceId,utility=utility,evidence=1,
+            continuity=continuity,novelty=0,informationGain=0,blockers=0,maxAdjustment=0.25,
+            consequences=consequence and {consequence} or {},reasons=reasons}
+        receivers[key]=receiver
+        return candidates[#candidates]
+    end
+    local instrument,capability=SAO.Needs.carriedInstrument(id,body)
+    if instrument and capability and tick >= (agent.nextTuneAt or 0) then
+        add("instrument:"..tostring(instrument:getID()),"music",capability.verb,
+            {kind="instrument",item=instrument,capability=capability},tostring(instrument:getID()),
+            instrument:getFullType(),"native:sound:BlowHarmonica",
+            {kind="recreate",category="leisure",sourceId="native:sound:BlowHarmonica",itemType=instrument:getFullType(),value=1})
+    end
+    local reading=SAO.Study and SAO.Study.offerLeisure and SAO.Study.offerLeisure(id,body)
+    if reading and not body:tooDarkToRead() and tick >= (agent.nextPageAt or 0) then
+        local note=reading:canBeWrite()
+        local sourceId=note and "native:literature:customPages" or "native:literature:ISReadABook"
+        add("reading:"..tostring(reading:getID()),"reading","read "..reading:getFullType(),
+            {kind="reading",item=reading},tostring(reading:getID()),reading:getFullType(),sourceId,
+            {kind="recreate",category="leisure",sourceId=sourceId,itemType=reading:getFullType(),value=1})
+    end
+    for _,provider in ipairs({{owner=SAO.Leisure,name="SAO.Leisure"},
+        {owner=SAO.LeisureExercise,name="SAO.LeisureExercise"},
+        {owner=SAO.LeisureArt,name="SAO.LeisureArt"},{owner=SAO.LeisureMusic,name="SAO.LeisureMusic"},
+        {owner=SAO.LeisureGames,name="SAO.LeisureGames"},{owner=SAO.LeisureRadio,name="SAO.LeisureRadio"},
+        {owner=SAO.LeisureLifestyle,name="SAO.LeisureLifestyle"}}) do
+        local owner=provider.owner
+        local query=owner and (owner.intentOffers or owner.offers)
+        local ok,offers=false,nil
+        if query then ok,offers=pcall(query,id,body) end
+        if ok and type(offers)=="table" then for _,offer in ipairs(offers) do
+            if type(offer)=="table" and type(offer.id)=="string" and type(offer.family)=="string"
+                and type(offer.activity)=="string" and type(offer.sourceId)=="string" and not offer.preparationBlocked then
+                add(offer.id,offer.family,offer.activity,{kind="hobby",offer=offer,ownerName=provider.name},
+                    offer.itemKey,offer.itemType,offer.sourceId,
+                    {kind="hobby",category="leisure",sourceId=offer.sourceId,itemType=offer.itemType,condition=offer.activity,value=1})
+            end
+        end end
+    end
+    local acquisition=SAO.LeisureAcquisition
+    for _,row in ipairs(acquisition and acquisition.offers(id,body) or {}) do
+        local candidate=add(row.id,row.family,row.activity,{kind="acquire-hobby-material",offer=row},
+            row.itemKey,row.itemType,row.sourceId,nil)
+        candidate.reasons.requirement=row.requirement
+        candidate.reasons.uncertainty="native-use-requires-exact-custody-and-owner-requery"
+        candidate.novelty=1
+    end
+    for _,row in ipairs(Ctl.leisureGroundOffers and Ctl.leisureGroundOffers(id,body) or {}) do
+        if row.kind=="instrument" and tick>=(agent.nextTuneAt or 0)
+            or row.kind=="reading" and tick>=(agent.nextPageAt or 0) then
+            local p=row.option.parameters
+            add("acquire:"..row.option.id,row.kind=="reading" and "reading" or "music",row.kind,
+                {kind="acquire-leisure-item",offer=row},tostring(p.itemId),p.itemType,p.sourceId,nil)
+        end
+    end
+    for _,invitation in ipairs(Ctl.duetInvitationOffers(id,agent,body,tick)) do
+        local candidate=add(invitation.id,invitation.family,invitation.activity,{kind="duet-invitation",offer=invitation},
+            invitation.itemKey,invitation.itemType,invitation.sourceId,nil)
+        if candidate then
+            candidate.utility=candidate.utility+math.max(0,invitation.seeksCompany)*.2
+            candidate.reasons.recipientId=invitation.recipientId;candidate.reasons.relationship=invitation.relationship
+            candidate.reasons.uncertainty=invitation.uncertainty
+            -- An exact previous duet with this person can inform whether a
+            -- shared performance was feasible. It does not predict enjoyment,
+            -- grant trust, or waive the partner's current consent and source part.
+            candidate.consequences[#candidate.consequences+1]={kind="hobby",category="leisure",
+                sourceId=invitation.sourceId,condition="duet:"..invitation.recipientId,value=0.4}
+        end
+    end
+    for _,invitation in ipairs(Ctl.danceInvitationOffers(id,agent,body,tick))do
+        local candidate=add(invitation.id,invitation.family,invitation.activity,{kind="dance-invitation",offer=invitation},
+            invitation.itemKey,invitation.itemType,invitation.sourceId,nil)
+        if candidate then
+            candidate.utility=candidate.utility+math.max(0,invitation.seeksCompany)*.2
+            candidate.reasons.recipientId=invitation.recipientId;candidate.reasons.relationship=invitation.relationship
+            candidate.reasons.uncertainty=invitation.uncertainty
+            -- A completed prior dance with this exact person can inform
+            -- feasibility. Current hearing, agreement and native availability
+            -- are still checked by their owners before any new performance.
+            candidate.consequences[#candidate.consequences+1]={kind="hobby",category="leisure",
+                sourceId=invitation.sourceId,condition="dance:"..invitation.recipientId,value=0.4}
+        end
+    end
+    return candidates,receivers
+end
+-- Rank acquired alternatives with the person's own selected model before its
+-- bounded detailed comparison. Each available family retains a representative;
+-- the receipt states the exact alternatives outside that comparison.
+function Ctl.limitPurposeComparison(id,candidates,context)
+    local cognition=SAO.Cognition
+    if #candidates<=16 then return candidates,{offered=#candidates,compared=#candidates,omitted={}} end
+    local ranked,groups={},{}
+    for _,candidate in ipairs(candidates) do
+        local score=cognition.scorePlan and cognition.scorePlan(id,candidate,context)
+        if type(score)=="number" and score==score and math.abs(score)<math.huge then
+            local group=candidate.kind=="leisure" and "leisure:"..tostring(candidate.family)
+                or candidate.kind or candidate.id
+            ranked[#ranked+1]={candidate=candidate,score=score,group=group}
+        end
+    end
+    SAO.Ordering.sort(ranked,function(a,b)return a.score>b.score or a.score==b.score and a.candidate.id<b.candidate.id end)
+    local selected,included={},{}
+    for _,row in ipairs(ranked) do
+        if not groups[row.group] and #selected<16 then
+            groups[row.group]=true;included[row.candidate.id]=true;selected[#selected+1]=row.candidate
+        end
+    end
+    for _,row in ipairs(ranked) do
+        if #selected>=16 then break end
+        if not included[row.candidate.id] then included[row.candidate.id]=true;selected[#selected+1]=row.candidate end
+    end
+    local omitted={}
+    for _,candidate in ipairs(candidates) do if not included[candidate.id] then omitted[#omitted+1]=candidate.id end end
+    return selected,{offered=#candidates,compared=#selected,omitted=omitted,
+        rankingOwner="SAO.Cognition.scorePlan",policy="private-model-ranked-family-representatives"}
+end
+function Ctl.beginLeisureOffer(id, agent, body, tick, offered)
+    local receiver=type(offered)=="table" and offered.payload
+    if type(receiver)~="table" or not SAO.Needs.ownsRecoveryBody(id,body)
+        or not SAO.Needs.workAvailable(body) then return false end
+    local admitted,owner=false,nil
+    if receiver.kind=="acquire-hobby-material" or receiver.kind=="acquire-leisure-item" then
+        local row=receiver.offer
+        if receiver.kind=="acquire-hobby-material" then
+            admitted=SAO.LeisureAcquisition and SAO.LeisureAcquisition.begin(id,body,row)
+        elseif row and row.option then
+            local p=row.option.parameters
+            local purpose,step,place=SAO.ProceduralPlanning.planLeisureAcquisition(id,body,row.option,row.kind,row.place)
+            admitted=purpose and step and SAO.SourceUse and SAO.SourceUse.beginAcquisition(id,body,place,p.category,{
+                purposeId=purpose.id,purposeStepId=step.id,sourceId=p.sourceId,itemId=p.itemId,
+                itemType=p.itemType,sourceRevision=p.revision})
+        end
+        owner="SAO.SourceUse"
+        if admitted then
+            agent.taskDeadline=tick+5400
+            setState(agent,id,"SOURCEWARD","approaches personally observed leisure material")
+        end
+    elseif receiver.kind=="dance-invitation" then
+        local invitation=receiver.offer;local coordination=SAO.Coordination
+        if not invitation or not coordination or not coordination.proposeDance then return false end
+        agent.nextDanceInviteAt=tick+300
+        local proposal,reason=coordination.proposeDance(id,body,invitation.recipientId,invitation.choiceId,invitation.partnerRole)
+        admitted=proposal~=nil;owner="SAO.Organization+SAO.Communication"
+        if proposal then agent.rec.danceInvitation={atHours=SAO.History.countyHours(),processId=proposal.processId,
+            recipientId=invitation.recipientId,choiceId=invitation.choiceId,partnerRole=invitation.partnerRole,
+            transport=reason,agreement="unobserved"}end
+    elseif receiver.kind=="duet-invitation" then
+        local invitation=receiver.offer;local coordination=SAO.Coordination
+        if not invitation or not coordination or not coordination.proposeDuet then return false end
+        agent.nextDuetInviteAt=tick+300
+        local proposal,reason=coordination.proposeDuet(id,body,invitation.recipientId,invitation.choiceId,invitation.partnerRole)
+        admitted=proposal~=nil;owner="SAO.Organization+SAO.Communication"
+        if proposal then agent.rec.duetInvitation={atHours=SAO.History.countyHours(),processId=proposal.processId,
+            recipientId=invitation.recipientId,choiceId=invitation.choiceId,partnerRole=invitation.partnerRole,
+            transport=reason,agreement="unobserved"} end
+    elseif receiver.kind=="reading" then
+        admitted=SAO.Study and SAO.Study.beginLeisure(id,body,receiver.item)
+        if admitted then agent.nextPageAt=tick+3000;owner="SAO.Study" end
+    elseif receiver.kind=="instrument" then
+        local item,capability=receiver.item,receiver.capability
+        if item and capability and SAO.Needs.instrumentAvailable(id,body,item) then
+            local purpose=SAO.ProceduralPlanning.planLeisure(id,{activity=capability.verb,
+                nativeVerb=capability.verb,owner="SAO.Gesture",itemKey=tostring(item:getID()),
+                affordance=item:getFullType(),atLocation=true,
+                locationKey=tostring(math.floor(body:getX()))..":"..tostring(math.floor(body:getY()))..":"..tostring(math.floor(body:getZ()))})
+            admitted=purpose and SAO.Gesture and SAO.Gesture.playInstrument(id,body,capability.kind,item:getFullType(),item,purpose.id)
+            if admitted then agent.nextTuneAt=tick+2400;owner="SAO.Gesture" end
+        end
+    elseif receiver.kind=="hobby" then
+        local provider=receiver.ownerName=="SAO.Leisure" and SAO.Leisure
+            or receiver.ownerName=="SAO.LeisureExercise" and SAO.LeisureExercise
+            or receiver.ownerName=="SAO.LeisureArt" and SAO.LeisureArt
+            or receiver.ownerName=="SAO.LeisureMusic" and SAO.LeisureMusic
+            or receiver.ownerName=="SAO.LeisureGames" and SAO.LeisureGames
+            or receiver.ownerName=="SAO.LeisureRadio" and SAO.LeisureRadio
+            or receiver.ownerName=="SAO.LeisureLifestyle" and SAO.LeisureLifestyle
+        local offer=receiver.offer
+        if not provider or not provider.begin or not offer or offer.preparationBlocked
+            or not SAO.Standing.mayAttemptBelieved(id,body:getX(),body:getY(),"standing") then return false end
+        local preparation=offer.requiresPreparation or {}
+        local x,y,z=body:getX(),body:getY(),body:getZ()
+        if preparation.frontSquare then x,y,z=offer.targetX,offer.targetY,offer.targetZ end
+        if type(x)~="number" or type(y)~="number" or type(z)~="number" then return false end
+        local acquired=SAO.LeisureAcquisition and SAO.LeisureAcquisition.acquiredPurpose(id,body,receiver.ownerName,offer)
+        local purpose=SAO.ProceduralPlanning.planLeisure(id,{activity=offer.activity,
+            activityKey=offer.id,nativeVerb=offer.activity,owner=receiver.ownerName,itemKey=offer.itemKey,
+            acquiredPurposeId=acquired and acquired.id,
+            affordance=offer.sourceId,atLocation=not preparation.frontSquare,
+            locationKey=tostring(math.floor(x))..":"..tostring(math.floor(y))..":"..tostring(math.floor(z))})
+        if not purpose then return false end
+        if preparation.frontSquare or preparation.equipPrimary or preparation.equipSecondary
+            or preparation.sitFurniture or preparation.faceObject or preparation.adjacentObject
+            or preparation.weldingMask or preparation.clearHands or preparation.stand or preparation.requiresYogaMat
+            or preparation.removeBags and #preparation.removeBags>0 then
+            local prepOwner=SAO.LeisurePreparation
+            if not prepOwner or not prepOwner.begin then return false end
+            local held,ready=prepOwner.begin(id,body,receiver.ownerName,offer,purpose.id)
+            if not ready then
+                if held then
+                    agent.rec.leisureDecision={atHours=SAO.History.countyHours(),selected=offered.key,
+                        status="preparing",candidate=offered.candidate,purposeId=purpose.id}
+                    agent.pressure={answer="chosen rest",detail="prepares "..tostring(offer.activity),
+                        at=tick,phase="preparing",owner="SAO.LeisurePreparation",purposeId=purpose.id}
+                end
+                return held==true
+            end
+            offer=ready.offer;preparation=offer.requiresPreparation or {}
+        end
+        if (preparation.sourceInitialization or preparation.sourceVoice)
+            and (not provider.prepareActor or not provider.prepareActor(id,body)) then return false end
+        if preparation.sitOnGround then
+            local ok,seated=pcall(function()body:setSitOnGround(true);return body:isSitOnGround()end)
+            if not ok or not seated then return false end
+        end
+        if provider.offers then
+            local fresh
+            for _,current in ipairs(provider.offers(id,body)) do if current.id==offer.id then fresh=current;break end end
+            if not fresh then return false end
+            offer=fresh
+        end
+        admitted=provider.begin(id,body,offer,purpose.id)
+        if admitted then owner=receiver.ownerName end
+    end
+    agent.rec.leisureDecision={atHours=SAO.History.countyHours(),selected=offered.key,
+        status=admitted and "admitted" or "refused",candidate=offered.candidate}
+    if admitted then agent.pressure={answer="chosen rest",detail="prepares the personally selected activity",
+        at=tick,phase="preparing",owner=owner} end
+    return admitted==true
+end
+local LEISURE_WORK_OWNERS = {
+    { name="SAO.Leisure", field="leisureWork", module="Leisure" },
+    { name="SAO.LeisureExercise", field="exerciseLeisureWork", module="LeisureExercise" },
+    { name="SAO.LeisureArt", field="artLeisureWork", module="LeisureArt" },
+    { name="SAO.LeisureMusic", field="leisureMusicWork", module="LeisureMusic" },
+    { name="SAO.LeisureGames", field="gamesWork", module="LeisureGames" },
+    { name="SAO.LeisureRadio", field="leisureRadioWork", module="LeisureRadio" },
+    { name="SAO.LeisureLifestyle", field="leisureLifestyleWork", module="LeisureLifestyle" },
+}
+function Ctl.retireLeisureWork(id,agent,body,reason)
+    if not agent or agent.rec~=SAO.Identity.get(id) or Ctl.agents[id]~=agent then return false end
+    local pending=false
+    for _,binding in ipairs(LEISURE_WORK_OWNERS)do
+        local work=agent.rec[binding.field]
+        if work and (work.status=="active" or work.status=="prepared")then pending=true end
+    end
+    for _,field in ipairs({"leisurePreparation","leisureSeating"})do
+        local work=agent.rec[field]
+        if work and work.status=="preparing"then pending=true end
+    end
+    if not pending then return true end
+    if not body then return false end
+    local ok,current=pcall(function()
+        local data=body:getModData()
+        return SAO.Body.get(id)==body and data.SAOPersonId==id
+            and data.SAOExternalToken==agent.rec.bodyOwnerToken and not data.ZAOOwned
+            and data.SAOExternalOwner==nil
+    end)
+    if not ok or not current then return false end
+    for _,name in ipairs({"LeisurePreparation","LeisureSeating"})do
+        local owner=SAO[name];local close=owner and (owner.detach or owner.interrupt)
+        if close then pcall(close,id,body,reason)end
+    end
+    for _,binding in ipairs(LEISURE_WORK_OWNERS)do
+        local owner=SAO[binding.module];local close=owner and (owner.detach or owner.interrupt)
+        if close then pcall(close,id,body,reason)end
+        local remaining=agent.rec[binding.field]
+        if remaining and (remaining.status=="active" or remaining.status=="prepared")then return false end
+    end
+    return not (agent.rec.leisurePreparation and agent.rec.leisurePreparation.status=="preparing")
+        and not (agent.rec.leisureSeating and agent.rec.leisureSeating.status=="preparing")
+end
+function Ctl.interruptLeisure(id, agent, body, reason)
+    if not agent or agent.rec~=SAO.Identity.get(id) or not SAO.Needs.ownsRecoveryBody(id,body) then return false end
+    local interrupted=false
+    if SAO.LeisurePreparation and SAO.LeisurePreparation.interrupt then
+        interrupted=SAO.LeisurePreparation.interrupt(id,body,reason)==true
+    end
+    for _,binding in ipairs(LEISURE_WORK_OWNERS) do
+        local work=agent.rec[binding.field]
+        local owner=SAO[binding.module]
+        if work and (work.status=="active" or work.status=="prepared") and owner and owner.interrupt then
+            owner.interrupt(id,body,reason)
+            interrupted=true
+        end
+    end
+    return interrupted
+end
+function Ctl.advanceLeisure(id, agent, body, tick, needs)
+    if not agent or agent.rec~=SAO.Identity.get(id) or not SAO.Needs.ownsRecoveryBody(id,body) then return false end
+    local preparing=agent.rec.leisurePreparation and agent.rec.leisurePreparation.status=="preparing"
+    local hasWork=preparing==true
+    for _,binding in ipairs(LEISURE_WORK_OWNERS) do
+        local work=agent.rec[binding.field]
+        if work and (work.status=="active" or work.status=="prepared") then hasWork=true;break end
+    end
+    if not hasWork then return false end
+    local conflict=SAO.ConflictResponse
+    local urgent=SAO.Needs.bleeding(body)>0 or SAO.Needs.cold(body)>=1.5
+        or needs and (needs.thirst>=SAO.Disposition.drinkAt(id) or needs.hunger>=SAO.Disposition.eatAt(id)
+            or needs.endurance<=0.12 or needs.fatigue>=0.97)
+        or conflict and conflict.gesturePriority and conflict.gesturePriority(id,body)
+    if urgent then Ctl.interruptLeisure(id,agent,body,"urgent need or owned conflict");return false end
+    if preparing then
+        local prepOwner=SAO.LeisurePreparation
+        if not prepOwner or not prepOwner.advance then return false end
+        local held,ready=prepOwner.advance(id,body)
+        if ready then return Ctl.beginLeisureOffer(id,agent,body,tick,
+            {key=ready.offer.id,payload={kind="hobby",ownerName=ready.ownerName,offer=ready.offer}}) end
+        if held then
+            agent.pressure={answer="chosen rest",detail="continues native preparation",at=tick,
+                phase="preparing",owner="SAO.LeisurePreparation"}
+        end
+        return held==true
+    end
+    for _,binding in ipairs(LEISURE_WORK_OWNERS) do
+        local work=agent.rec[binding.field]
+        local owner=SAO[binding.module]
+        if work and (work.status=="active" or work.status=="prepared") and owner and owner.advance then
+            local planning=SAO.ProceduralPlanning
+            if planning and planning.hobbyAdmission and not planning.hobbyAdmission(id,work.purposeId,work.workId or work.id) then
+                if owner.interrupt then owner.interrupt(id,body,"maintained leisure purpose unavailable") end
+            else
+                owner.advance(id,body)
+                if binding.name=="SAO.LeisureGames" and SAO.Cognition and SAO.Cognition.chooseGameInput then
+                    SAO.Cognition.chooseGameInput(id,body)
+                end
+            end
+            local current=agent.rec[binding.field]
+            if current and (current.status=="active" or current.status=="prepared") then
+                agent.pressure={answer="chosen rest",detail="continues "..tostring(current.activity),
+                    at=tick,phase=current.status,owner=binding.name,purposeId=current.purposeId}
+                return true
+            end
+        end
+    end
+    return false
+end
 function Ctl.chooseOrdinaryPurpose(id, agent, body, tick, needs, excluded)
     Ctl.reconcileLeisureCommitment(id, agent)
     local cognition, planning = SAO.Cognition, SAO.ProceduralPlanning
@@ -4770,7 +5314,7 @@ function Ctl.chooseOrdinaryPurpose(id, agent, body, tick, needs, excluded)
     local candidates, offered = {}, {}
     local function add(key, kind, utility, consequence, payload, reasons)
         if excluded and excluded[key] then return end
-        candidates[#candidates + 1] = { id = key, utility = utility,
+        candidates[#candidates + 1] = { id = key, kind=kind, utility = utility,
             evidence = 1, continuity = reasons.continuity or 0, novelty = 0,
             informationGain = 0, blockers = 0, maxAdjustment = 0.15,
             consequences = consequence and {consequence} or {}, reasons = reasons }
@@ -4834,6 +5378,8 @@ function Ctl.chooseOrdinaryPurpose(id, agent, body, tick, needs, excluded)
                         condition=commitment.matter ~= "leisure-participation"
                             and (step and (step.verb=="prepare" or step.capability=="prepare") and "prepare"
                             or step and (step.verb=="deliver" or step.capability=="deliver") and "deliver"
+                            or (plan.proposal or {}).objective=="player-marked-watch-return"
+                                and "watch-return"
                             or not (plan.proposal or {}).cooperative and plan.kind~="rendezvous-holding" and "deliver") or nil,
                         value=0.6}, commitment,
                     { acceptedAt=commitment.acceptedAt, beneficiaryId=commitment.beneficiaryId,
@@ -4893,17 +5439,29 @@ function Ctl.chooseOrdinaryPurpose(id, agent, body, tick, needs, excluded)
                     appraisal=situationOffer.appraisal,informationGain=1})
         end
     end
+    if not studying and Ctl.leisureOffers then
+        local leisure,receivers=Ctl.leisureOffers(id,agent,body,tick)
+        for _,candidate in ipairs(leisure) do
+            if not (excluded and excluded[candidate.id]) then
+                candidates[#candidates+1]=candidate
+                offered[candidate.id]={kind="leisure",key=candidate.id,payload=receivers[candidate.id],candidate=candidate}
+            end
+        end
+    end
     add("continue", "continue", 0.1, nil, nil, {})
-    local views = cognition.interpretPlans(id, candidates, { domain="ordinary-purpose", atHours=now,
+    local comparisonContext={domain="ordinary-purpose",atHours=now,
         pressure=math.min(1, math.max(needs.hunger, needs.thirst, needs.fatigue, 1-needs.endurance)),
-        needs={ hunger=needs.hunger, thirst=needs.thirst, fatigue=needs.fatigue, endurance=needs.endurance } })
+        needs={hunger=needs.hunger,thirst=needs.thirst,fatigue=needs.fatigue,endurance=needs.endurance}}
+    local comparison
+    candidates,comparison=Ctl.limitPurposeComparison(id,candidates,comparisonContext)
+    local views = cognition.interpretPlans(id,candidates,comparisonContext)
     if not views or not offered[views.selected] then return nil end
     local unavailable = {}
     for key in pairs(excluded or {}) do unavailable[#unavailable+1] = key end
     table.sort(unavailable)
     agent.rec.ordinaryPurposeDecision = { atHours=now, selected=views.selected,
         status="selected", alternatives=candidates, interpretations=views, unavailable=unavailable,
-        situation=situationView }
+        situation=situationView,comparison= comparison }
     -- Legacy arbitration chooses the concern. Personal conceptual relations
     -- then ask which means to investigate; utility does not invent that link.
     local selected=offered[views.selected]
@@ -5005,7 +5563,9 @@ end
 
 function Ctl.dispatchOrdinaryPurpose(id, agent, body, tick, needs, kind, offered)
     local admitted = false
-    if kind == "inquiry" then
+    if kind == "leisure" and Ctl.beginLeisureOffer then
+        admitted=Ctl.beginLeisureOffer(id,agent,body,tick,offered)
+    elseif kind == "inquiry" then
         admitted=Ctl.beginConceptInquiry(id,agent,body,tick,offered.payload)
     elseif kind == "recovery" then
         admitted = Ctl.offerRecovery(id, agent, body, tick, needs, offered.payload)
@@ -5118,30 +5678,61 @@ local function homeRouteOutcome(id, agent, body, status)
         atHours = now, attempts = attempts, reason = status }, true
 end
 
-local function decideHomeAndEquipment(id, agent, body, tick, rec)
-    if agent.state == "IDLE" and rec.homeX and not agent.hasLiveAnchor
-        and not agent.companioning and not (SAO.ProceduralPlanning
-            and SAO.ProceduralPlanning.residencePurpose and SAO.ProceduralPlanning.residencePurpose(id)) then
-        -- Households consolidate around leadership ([A14]): a grouped
-        -- survivor's night belongs at the LEADER's address when one is
-        -- settled; the solitary keep their own.
-        local homeX, homeY, homeZ = resolvedHomeAddress(id, rec)
-        local okH, hour = pcall(function() return GameTime.getInstance():getTimeOfDay() end)
-        if okH and (hour >= 20.0 or hour < 6.0) then
-            local bx, by = body:getX(), body:getY()
-            local dh = math.sqrt((homeX - bx) ^ 2 + (homeY - by) ^ 2)
-            local insideHome, knownHome = occupiesKnownHome(id, body, homeX, homeY, homeZ)
-            if insideHome then rec.homeRouteFailure = nil end
-            if not insideHome and (dh > 10.0 or knownHome)
-                and mayEnterBelieved(id, homeX, homeY)
-                and homeRouteReady(rec, body, homeX, homeY, homeZ) then
-                pcall(function() SAOJavaBridge:setForceEntry(body, false) end)
-                if SAO.Locomotion.order(id, body, homeX, homeY, homeZ or 0) then
-                    setState(agent, id, "HOMEWARD",
-                        string.format("night falls, home is %.0f tiles away", dh))
-                    return true
-                end
+local function attemptKnownHome(id, agent, body, rec, requestedHome, reason)
+    if agent.state ~= "IDLE" or not rec or not rec.homeX or not rec.homeY
+        or agent.hasLiveAnchor or agent.companioning
+        or (SAO.ProceduralPlanning and SAO.ProceduralPlanning.residencePurpose
+            and SAO.ProceduralPlanning.residencePurpose(id)) then return false end
+    -- Households consolidate around leadership ([A14]): a grouped
+    -- survivor's night belongs at the leader's settled address.
+    local homeX, homeY, homeZ = resolvedHomeAddress(id, rec)
+    local bx, by = body:getX(), body:getY()
+    local dh = math.sqrt((homeX - bx) ^ 2 + (homeY - by) ^ 2)
+    local insideHome, knownHome = occupiesKnownHome(id, body, homeX, homeY, homeZ)
+    if insideHome then
+        rec.homeRouteFailure = nil
+        if requestedHome then
+            agent.weekOneHomeIntent = nil
+            local intent = rec.playerCompanionIntent
+            local okNow, hours = pcall(SAO.History.countyHours)
+            if type(intent) == "table" and intent.mode == "home"
+                and okNow and homeRouteNumber(hours) then
+                intent.homeArrivedAtHours = hours
             end
+        end
+    end
+    if not insideHome and (dh > 10.0 or knownHome)
+        and mayEnterBelieved(id, homeX, homeY)
+        and homeRouteReady(rec, body, homeX, homeY, homeZ) then
+        pcall(function() SAOJavaBridge:setForceEntry(body, false) end)
+        if SAO.Locomotion.order(id, body, homeX, homeY, homeZ or 0) then
+            setState(agent, id, "HOMEWARD",
+                string.format("%s, home is %.0f tiles away", reason, dh))
+            return true
+        end
+    end
+    return false
+end
+
+local function decideHomeAndEquipment(id, agent, body, tick, rec)
+    local requestedHome = agent.weekOneHomeIntent == true
+    local okH, hour = pcall(function() return GameTime.getInstance():getTimeOfDay() end)
+    if okH and homeRouteNumber(hour)
+        and (requestedHome or hour >= 20.0 or hour < 6.0) then
+        local ordinaryNight = not requestedHome
+        if ordinaryNight then
+            local okF, fallen, why = pcall(function()
+                return SAO.Standing.fallHasCome()
+            end)
+            ordinaryNight = not (okF and fallen == false and why == "before")
+        end
+        -- The saved player companion request remains its own instruction.
+        -- In an ordinary county, the street leg below makes the home choice
+    -- at its own cadence rather than at a county-wide hour boundary.
+        if (requestedHome or ordinaryNight)
+            and attemptKnownHome(id, agent, body, rec, requestedHome,
+                requestedHome and "heads home as asked" or "night falls") then
+            return true
         end
     end
 
@@ -5541,9 +6132,10 @@ function Ctl.leisureGroundOffers(id, body)
     if not sources or not sources.actionOptions or not planning or not planning.leisureAcquisitionAvailable
         or not SAO.Needs.ownsRecoveryBody(id, body) then return {} end
     local rows, seen = {}, {}
-    for _, belief in pairs(SAO.Perception.knownPlaces(id, true) or {}) do
-        if belief.sourceId and string.sub(belief.sourceId,1,2)=="G:" and belief.z==math.floor(body:getZ()) then
-            local place={id="source:"..belief.sourceId,sourceId=belief.sourceId,cx=belief.cx,cy=belief.cy,z=belief.z}
+    for placeId, belief in pairs(SAO.Perception.knownPlaces(id, true) or {}) do
+        if belief.z==math.floor(body:getZ()) then
+            local place={id=placeId,sourceId=belief.sourceId,cx=belief.cx,cy=belief.cy,z=belief.z,
+                minX=belief.minX,minY=belief.minY,maxX=belief.maxX,maxY=belief.maxY}
             for _, kind in ipairs({"instrument","reading"}) do
                 local options=sources.actionOptions(place,kind,id,body,1,"standing","acquire")
                 for _, option in ipairs(options and options.options or {}) do
@@ -5555,17 +6147,16 @@ function Ctl.leisureGroundOffers(id, body)
                         return SAO.History.literacyOf(id)~="none" and not body:hasTrait(CharacterTrait.ILLITERATE)
                             and not definition:hasTag(ItemTag.UNINTERESTING) and not SkillBook[definition:getSkillTrained()]
                     end)
-                    if ok and eligible and not seen[option.id] and p.sourceKind=="ground"
+                    if ok and eligible and not seen[option.id] and (p.sourceKind=="ground" or p.sourceKind=="container")
                         and planning.leisureAcquisitionAvailable(id,p.sourceId,p.itemId,p.revision) then
                         seen[option.id]=true
-                        rows[#rows+1]={kind=kind,option=option,distance=(p.sourceX-body:getX())^2+(p.sourceY-body:getY())^2}
+                        rows[#rows+1]={kind=kind,option=option,place=place,distance=(p.sourceX-body:getX())^2+(p.sourceY-body:getY())^2}
                     end
                 end
             end
         end
     end
     SAO.Perception.sortEvidence(rows,function(a,b)return a.distance<b.distance or a.distance==b.distance and a.option.id<b.option.id end)
-    while #rows>16 do table.remove(rows) end
     return rows
 end
 
@@ -5616,7 +6207,7 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
                 candidates[#candidates+1]={id=key,kind="acquire",itemKey=tostring(p.itemId),itemType=p.itemType,
                     activity=row.kind,sourceId=p.sourceId,revision=p.revision,evidence=1,continuity=0,novelty=1,
                     informationGain=0,blockers=0,consequences={}}
-                offered[key]={kind="acquire",materialKind=row.kind,option=row.option}
+                offered[key]={kind="acquire",materialKind=row.kind,option=row.option,place=row.place}
             end
         end
         local views = #candidates > 0 and SAO.Cognition and SAO.Cognition.interpretPlans
@@ -5628,7 +6219,7 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
             selected = chosen and views.selected or nil, status = chosen and "selected" or "unavailable",
             alternatives = candidates, interpretations = views or nil }
         if chosen and chosen.kind == "acquire" then
-            local purpose,step,place=planning.planLeisureAcquisition(id,body,chosen.option,chosen.materialKind)
+            local purpose,step,place=planning.planLeisureAcquisition(id,body,chosen.option,chosen.materialKind,chosen.place)
             local p=chosen.option.parameters
             local started=purpose and step and SAO.SourceUse and SAO.SourceUse.beginAcquisition(id,body,place,p.category,{
                 purposeId=purpose.id,purposeStepId=step.id,sourceId=p.sourceId,itemId=p.itemId,
@@ -6651,15 +7242,14 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
     -- any era), and Week One's street hour says out. Staying
     -- in is the leg NOT taken: the gate re-arms and asks again
     -- at the next one, and the body keeps its evening - the
-    -- live half already holds the night at 22:00 with sleep of
-    -- its own, which no port overrides.
+    -- native sleep, when admitted, remains the body owner's decision.
     --
     -- Going out is a commute when the census filed ground
     -- under this person's trade ([A18]), else the same stretch
     -- of legs the undesignated always had. The workplace is
     -- the SAME persisted fact the dormant half derives
-    -- (`rec.workX`) - one job, both halves, whichever got
-    -- there first.
+    -- (`rec.workX`) - one job in this person's origin region,
+    -- whichever half got there first.
     local preFall = false
     do
         local okF, fallen, whyF = pcall(function()
@@ -6668,6 +7258,7 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
         preFall = okF and fallen == false and whyF == "before"
     end
     local streetWork = nil
+    local streetOut = false
     if preFall and not desig then
         local out = false
         pcall(function()
@@ -6678,26 +7269,31 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
             end
         end)
         if not out then
+            attemptKnownHome(id, agent, body, agent.rec, false,
+                "chooses a homeward street leg")
             return true
+        end
+        streetOut = true
+        -- A quiet evening seat is voluntary while awake. Stand before the
+        -- route ask so a previously seated person can take this leg; native
+        -- sleep/recovery is held by the caller and never reaches this path.
+        if agent.resting and not agent.sleeping and not agent.recovery then
+            agent.resting = nil
+            pcall(function() body:setSitOnGround(false) end)
+            pcall(function() SAO.Gesture.standUp(body) end)
         end
         local recSt = SAO.Identity.get(id)
         local rowSt = recSt and recSt.occupation
             and SAO.Census.rowOf(recSt.occupation) or nil
         if rowSt and rowSt.enginePath then
-            if not (recSt.workX and recSt.workY) then
-                pcall(function()
-                    local w = SAO.Population.tradeGroundFor(
-                        rowSt.enginePath)
-                    if w then
-                        recSt.workX, recSt.workY = w.x, w.y
-                    end
-                end)
-            end
-            if recSt.workX and recSt.workY then
-                streetWork = { x = recSt.workX, y = recSt.workY,
-                               label = rowSt.label
-                                   or tostring(recSt.occupation) }
-            end
+            pcall(function()
+                local w = SAO.PopulationAdmissions.workplaceFor(
+                    recSt, rowSt.enginePath)
+                if w then
+                    streetWork = { x = w.x, y = w.y,
+                        label = rowSt.label or tostring(recSt.occupation) }
+                end
+            end)
         end
     end
     local range = SAO.Disposition.roamRange(id)
@@ -7213,7 +7809,8 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
         local okHour, leisureHour = pcall(function()
             return GameTime.getInstance():getTimeOfDay()
         end)
-        if okHour and (leisureHour >= 22.0 or leisureHour < 6.0) and not streetWork then
+        if okHour and (leisureHour >= 22.0 or leisureHour < 6.0)
+            and not streetWork and not streetOut then
             agent.pressure = { answer = "chosen rest",
                 detail = "waits for daylight before a leisure walk", at = tick }
             return true
@@ -7665,6 +8262,17 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
     end
 end
 
+local function roamCadence(id, idleRec)
+    local interval = SAO.Disposition.roamInterval(id)
+    if SAO.Lessons.has(id, "routine-is-armor")
+        or SAO.Lessons.has(id, "measure-the-danger") then
+        interval = math.floor(interval * 0.7)
+    end
+    local desig = idleRec and idleRec.designation or nil
+    if desig == "scout" then interval = math.floor(interval * 0.6) end
+    return interval, desig
+end
+
 local function decide(id, agent, body)
     local tick = tickCount
     -- Riding ([B1]): a passenger is a passenger - no needs-driven
@@ -7734,6 +8342,7 @@ local function decide(id, agent, body)
     end
 
     if decideThreat(id, agent, body, tick, threat, threatCount, governingPerson, governingPersonKey) then
+        Ctl.interruptLeisure(id, agent, body, "threat response")
         if SAO.Study then SAO.Study.interrupt(id, body, "threat response") end
         if SAO.Cognition and SAO.Cognition.interrupt then SAO.Cognition.interrupt(id, "threat response") end
         return
@@ -7767,6 +8376,10 @@ local function decide(id, agent, body)
     -- Deprivation without an executable relief route still leaves resource
     -- planning available rather than repeatedly travelling to an unheard ask.
     local needs = SAO.Needs.read(body)
+    if SAO.LeisureExercise and SAO.LeisureExercise.maintainActor then
+        SAO.LeisureExercise.maintainActor(id,body)
+    end
+    if Ctl.advanceLeisure(id, agent, body, tick, needs) then return end
     if not agent.recovery and not agent.recoveryAdmission and not agent.recoveryRoute and agent.rec.recoveryIntent and SAO.Needs.resumeRecovery then
         local resumed, kind, status = SAO.Needs.resumeRecovery(id, body)
         if resumed then
@@ -7781,6 +8394,7 @@ local function decide(id, agent, body)
     if not CONTACT_STATES[agent.state] then
         local handled, activity = decideNeedsAndCompanion(id, agent, body, tick, needs)
         if handled then
+            if activity ~= "leisure" then Ctl.interruptLeisure(id, agent, body, "immediate need or companion") end
             if activity ~= "study" and not agent.studyCancellationPending and SAO.Study then
                 SAO.Study.interrupt(id, body, "immediate need or companion")
             end
@@ -7845,17 +8459,43 @@ local function decide(id, agent, body)
             end
         end
         if Ctl.advancePersonalPurpose(id, agent, body, tick, needs) then return end
+        local interval, desig = nil, nil
+        -- In a working county an awake person's due street leg is decided
+        -- before the generic night seat. An admitted native sleep/recovery,
+        -- fatigue that calls for it, an assigned night keeper, and the saved
+        -- player home request keep their existing owners. A refused route
+        -- may still settle in.
+        local dueNightStreet = false
+        if agent.weekOneHomeIntent ~= true
+            and not agent.keeperTonight
+            and not agent.recovery and not agent.sleeping
+            and needs and type(needs.fatigue) == "number"
+            and needs.fatigue <= 0.2 then
+            local okHour, hour = pcall(function()
+                return GameTime.getInstance():getTimeOfDay()
+            end)
+            if okHour and (hour >= 22.0 or hour < 6.0) then
+                local okFall, fallen, whyFall = pcall(function()
+                    return SAO.Standing.fallHasCome()
+                end)
+                if okFall and fallen == false and whyFall == "before" then
+                    interval, desig = roamCadence(id, idleRec)
+                    if not desig then
+                        agent.nextRoamAt = agent.nextRoamAt or (tick + interval)
+                        dueNightStreet = tick >= agent.nextRoamAt
+                    end
+                end
+            end
+        end
+        if dueNightStreet then
+            if decideRoam(id, agent, body, tick, interval, desig, idleRec)
+                or agent.state ~= "IDLE" then return end
+        end
         if decideNightAndDrift(id, agent, body, tick, rec) then return end
         if decideRestActivity(id, agent, body, tick, idleRec) then return end
         if decideLocalResources(id, agent, body, tick, idleRec) then return end
         if decidePromiseAndSearch(id, agent, body, tick, idleRec) then return end
-        local interval = SAO.Disposition.roamInterval(id)
-        if SAO.Lessons.has(id, "routine-is-armor")
-            or SAO.Lessons.has(id, "measure-the-danger") then
-            interval = math.floor(interval * 0.7)
-        end
-        local desig = idleRec and idleRec.designation or nil
-        if desig == "scout" then interval = math.floor(interval * 0.6) end
+        if not interval then interval, desig = roamCadence(id, idleRec) end
         agent.nextRoamAt = agent.nextRoamAt or (tick + interval)
         if tick >= agent.nextRoamAt then
             if decideRoam(id, agent, body, tick, interval, desig, idleRec) then return end
@@ -8157,6 +8797,7 @@ function Ctl.advancePosture(id,agent,body,tick)
 end
 
 local function retireDeadBodyWork(id, body, rec)
+    if Ctl.retireLeisureWork then Ctl.retireLeisureWork(id,Ctl.agents[id],body,"death")end
     if SAO.ConflictResponse then SAO.ConflictResponse.detach(id,Ctl.agents[id],body,"person died",true) end
     if SAO.Needs.retireRecovery then SAO.Needs.retireRecovery(id, "death") end
     if SAO.ProceduralPlanning and SAO.ProceduralPlanning.detachResidence then
@@ -10350,9 +10991,9 @@ local function onTickInner()
     -- already generic over the id, `store` is a plain table, and a
     -- survivor IS an IsoPlayer, so the player has an id and a body
     -- like anyone else. This is what gives them something to tell:
-    -- you cannot pass on what you never took in. It self-throttles on
-    -- SCAN_INTERVAL exactly as the survivors' does, and never runs
-    -- asleep, because you are not asleep while you are playing.
+    -- you cannot pass on what you never took in. Sight and ground use the
+    -- shared county-time cadence; native hearing runs on each observation
+    -- callback. The player is awake while playing.
     pcall(function()
         local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
         if not me or me:isDead() then return end

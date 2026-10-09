@@ -1,0 +1,6 @@
+Tooltip_DE = {
+    Tooltip_item_Walkman = "Ein tragbarer Kassettenrekorder für Musik unterwegs.",
+    Tooltip_item_Boombox = "Ein lauter, tragbarer Stereo-Player mit Platz für ein Kassettenlaufwerk und eine Batterie.",
+    Tooltip_item_CDPlayer = "Ein kompakter, tragbarer CD-Player zur Verwendung mit Kopfhörern.",
+    Tooltip_item_Vinyl = "Ein Plattenspieler zum Abspielen von Schallplatten.",
+}

@@ -39,15 +39,24 @@ EXPECTED = {
     "morning_wake_admits_encounter", "legacy_unknown_not_defaulted",
     "legacy_unknown_blocks_encounter", "native_state_is_acquired",
     "native_awake_law_advances", "saved_sleep_traits_change_fatigue",
+    "outdoor_leg_clears_rest_on_departure",
+    "outdoor_leg_stays_awake_near_home",
+    "saved_companion_home_precedes_old_goal",
+    "saved_companion_home_never_claims_arrival",
+    "barred_companion_home_holds_position",
 }
 
 PRELUDE = r'''
-__now, __tick, __records = 0, 9000, {}
+__now, __civil, __tick, __records = 0, 7, 9000, {}
 SAO = {
     Log = { line = function() end, tally = function() end },
     History = {
         countyHours = function() return __now end,
-        countyTimeOfDay = function() return __now % 24 end,
+        countyTimeOfDay = function() return __civil end,
+        civilTimeAtCountyHours = function(atHours)
+            if __civil == nil then return nil end
+            return (atHours + __civil - (__now % 24)) % 24
+        end,
     },
     Identity = {
         all = function() return __records end,
@@ -67,8 +76,11 @@ SAO = {
     Standing = {
         fallHasCome = function() return false, 'before' end,
         insideClaim = function() return false end,
+        mayEnterBelieved = function() return true end,
     },
     Perception = { EARSHOT = 10 },
+    Places = { comfortHorizon = function() return 24 end },
+    Rand = { int = function() return 0 end },
 }
 SandboxVars = { SurvivorAwareness = {} }
 getSpecificPlayer = function() return nil end

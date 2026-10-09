@@ -17,8 +17,8 @@ one day for the whole span:
   * `dormantLife` read GameTime's time of day, so a save begun at
     three in the morning sent everybody home for the whole span.
 
-[C62] gives the county one clock, in SAO_History beside [C61]'s, and
-every module in the tree reads it. Checked in the engine's own VM
+[C62] gives county replay one clock, in SAO_History beside [C61]'s.
+Checked in the engine's own VM
 (tools/luacheck/LuaRun) with the real SAO_History and SAO_Standing
 loaded:
 
@@ -35,10 +35,11 @@ loaded:
   * a simulated day is at noon and the engine's own hour answers
     once the years are done.
 
-And by text, which is what keeps the fix from decaying: SAO_History
-is the only module in the tree that reads GameTime's clock or its
-month, and the years pass writes the day it is living before it
-lives it rather than once a slice.
+The source boundary covers the replay producers SAO_Standing,
+SAO_Population and SAO_DormantPopulation. Their elapsed time and month
+come from SAO_History, and the years pass writes the day it is living
+before it lives it. Native playback, lifecycle, presentation and
+transport owners keep their source or engine timing.
 
 An optional argv[1] points the checker at another tree root, which is
 how its control runs: on the pre-batch tree the second day's drift is
@@ -50,6 +51,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from lua_read import strip_lua
 
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
@@ -59,6 +61,7 @@ HISTORY = LUA / "shared" / "SAO_History.lua"
 STANDING = LUA / "shared" / "SAO_Standing.lua"
 POP = LUA / "client" / "SAO_Population.lua"
 DORMANT = LUA / "client" / "SAO_DormantPopulation.lua"
+COUNTY_MODELS = (STANDING, POP, DORMANT)
 CHECK = ROOT / "tools" / "check.sh"
 SRC = HERE / "luacheck" / "LuaRun.java"
 OUT = ROOT / "java" / "out" / "luacheck"
@@ -108,7 +111,7 @@ def build():
     return done.returncode == 0
 
 
-def probe(expr):
+def probe(expr, history_path=HISTORY):
     with tempfile.TemporaryDirectory() as tmp:
         work = pathlib.Path(tmp)
         shutil.copy2(STDLIB, work / "stdlib.lua")
@@ -118,7 +121,7 @@ def probe(expr):
         prelude.write_text(PRELUDE, encoding="utf-8")
         done = subprocess.run(
             [str(JDK / "java.exe"), "-cp", f"{PZ};.", "LuaRun",
-             str(prelude), str(HISTORY), str(STANDING), "--", expr],
+             str(prelude), str(history_path), str(STANDING), "--", expr],
             cwd=str(work), capture_output=True, text=True, timeout=900)
     return (done.stdout or "").strip().split("\n")[-1] if done.stdout else "ERROR no output"
 
@@ -194,47 +197,64 @@ CLOCKFACE = (
     "local after = o(SAO.History.countyTimeOfDay()) "
     "return 'during=' .. during .. ' after=' .. after end)()")
 
-# The month is asked for the county's own hour, and the engine answers
-# where no record can.
+# The years pass advances from midnight. Native world age starts at 07:00,
+# so a replay interval can cross two different civil-hour mappings at the
+# saved years-owed join without changing any persisted county-hour stamp.
+CIVIL_REPLAY = (
+    "(function() _G.__behind = 10 _G.__hours = 2 _G.__civil = 9 "
+    "GameTime.getInstance = function() return { "
+    "getWorldAgeHours = function() return _G.__hours end, "
+    "getTimeOfDay = function() return _G.__civil end } end "
+    + years(10, 10) +
+    "local H = SAO.History local out = {} "
+    "local function say(name, at) local h, join = H.civilTimeAtCountyHours(at) "
+    "out[#out + 1] = name .. '=' .. tostring(h) "
+    "if join then out[#out + 1] = name .. 'join=' .. tostring(join) end end "
+    "say('hist22', 22) say('hist239', 239) "
+    "say('join240', 240) say('live241', 241) say('live242', 242) "
+    "_G.__hours = 5 _G.__civil = 12 say('noon', 245) "
+    "_G.__hours = 6 _G.__civil = 13 say('onepm', 246) "
+    "_G.__civil = nil say('missinglive', 246) say('historywithoutlive', 239) "
+    "s.yearsRun = 9 s.yearsTicks = 240 * 9000 "
+    "say('lastcatchuptick', 240) "
+    "s.yearsOwed = 10.5 say('invalidowed', 239) "
+    "return table.concat(out, ' ') end)()")
+
+# The record month follows the historical midnight phase and the native
+# civil phase. A missing record during replay cannot borrow the static
+# native month; once native play owns the clock, its month is a valid fallback.
 MONTH = (
-    "(function() _G.__hours = 0 _G.__behind = 1000 _G.__month = 6 "
+    "(function() _G.__hours = 0 _G.__behind = 1000 _G.__month = 6 _G.__civil = 9 "
+    "GameTime.getInstance = function() return { "
+    "getWorldAgeHours = function() return _G.__hours end, "
+    "getMonth = function() return _G.__month end, "
+    "getTimeOfDay = function() return _G.__civil end } end "
     + years(400) +
     "local m = SAO.History.countyMonth() "
     "local asked = _G.__askedWith "
+    "local bridge = SAOJavaBridge "
+    "SAOJavaBridge = nil "
+    "local replayMissing = SAO.History.countyMonth() "
+    "SAOJavaBridge = bridge s.yearsRun = 1000 _G.__hours = 15 _G.__civil = 0 "
+    "local live = SAO.History.countyMonth() local liveAsked = _G.__askedWith "
     "SAOJavaBridge = nil "
     "local fallback = SAO.History.countyMonth() "
     "return 'month=' .. tostring(m) .. ' asked=' .. tostring(asked) "
+    ".. ' replayMissing=' .. tostring(replayMissing) "
+    ".. ' live=' .. tostring(live) .. ' liveAsked=' .. tostring(liveAsked) "
     ".. ' fallback=' .. tostring(fallback) end)()")
 
 
-def clock_read_body(body, name):
-    """Separate native sound freshness from elapsed county simulation time."""
-    if name != "SAO_Perception.lua":
-        return body
-    pieces = re.split(r"(?m)(?=^function )", body)
-    native = "local clockOk, nativeNow = pcall(function() return GameTime.getInstance():getWorldAgeHours() end)"
-    for i, piece in enumerate(pieces):
-        if (piece.startswith("function P.acquireInstrumentHearing(") or
-                piece.startswith("function P.instrumentHearing(")) and all(
-                    seam in piece for seam in ('"sao.instrument-hearing/1"',
-                    '"native-world-age-hours"', 'SAO.History.countyHours()', 'nativeNow')):
-            pieces[i] = piece.replace(native, "local clockOk, nativeNow = nativeSoundClock()", 1)
-    return "".join(pieces)
-
-
-def clock_reader_controls(body):
-    native = "local clockOk, nativeNow = pcall(function() return GameTime.getInstance():getWorldAgeHours() end)"
-    failures = []
-    if "getWorldAgeHours" in clock_read_body(body, "SAO_Perception.lua"):
-        failures.append("named native sound freshness baseline differs")
-    samples = ((body + "\nfunction P.countyLeak() return getWorldAgeHours() end\n", "SAO_Perception.lua"),
-               (body, "SAO_DormantPopulation.lua"),
-               (body.replace('"native-world-age-hours"', '"wrong-clock"'), "SAO_Perception.lua"),
-               (body.replace(native, native + "\nlocal leak = getWorldAgeHours()", 1), "SAO_Perception.lua"))
-    for changed, name in samples:
-        if "getWorldAgeHours" not in clock_read_body(changed, name):
-            failures.append("county clock reader control was concealed")
-    return failures
+def county_clock_reads(paths=COUNTY_MODELS):
+    """County replay producers use History; native owners retain engine time."""
+    hours, months = [], []
+    for path in paths:
+        body = strip_lua(read(path))
+        if re.search(r"\bgetWorldAgeHours\s*\(", body):
+            hours.append(path)
+        if re.search(r"\bgetMonth\s*\(", body):
+            months.append(path)
+    return hours, months
 
 
 def main():
@@ -242,43 +262,36 @@ def main():
     print("=" * 74)
     print("THE COUNTY'S CLOCK MOVES WHILE THE YEARS ARE LIVED")
     print("=" * 74)
-    for path in (HISTORY, STANDING, POP, DORMANT):
-        if not path.exists():
+    for path in (HISTORY, STANDING, POP, DORMANT, SRC):
+        if not path.is_file():
             print("  FAULT: %s does not exist" % path.name)
             return 1
 
-    faults.extend(clock_reader_controls(read(LUA / "shared" / "SAO_Perception.lua")))
     hist = read(HISTORY)
     pop = read(POP)
     dormant = read(DORMANT)
 
     # ------------------------------------------------------------------
-    # By text: one module reads the engine, and the years pass publishes
+    # By text: replay producers read History, and the years pass publishes
     # the day it is living before it lives it.
     # ------------------------------------------------------------------
-    stray_hours, stray_month = [], []
-    for path in sorted(LUA.rglob("*.lua")):
-        if path.name == "SAO_History.lua":
-            continue
-        body = clock_read_body(read(path), path.name)
-        if "getWorldAgeHours" in body:
-            stray_hours.append(path.relative_to(LUA).as_posix())
-        if "getMonth()" in body:
-            stray_month.append(path.relative_to(LUA).as_posix())
+    hour_paths, month_paths = county_clock_reads()
+    stray_hours = [path.relative_to(LUA).as_posix() for path in hour_paths]
+    stray_month = [path.relative_to(LUA).as_posix() for path in month_paths]
 
-    print("  modules still reading the engine clock: %d" % len(stray_hours))
+    print("  county replay producers reading the engine clock: %d" % len(stray_hours))
     for name in stray_hours[:6]:
         print("      " + name)
     if len(stray_hours) > 6:
         print("      and %d more" % (len(stray_hours) - 6))
-    print("  modules still reading the engine month: %d" % len(stray_month))
+    print("  county replay producers reading the engine month: %d" % len(stray_month))
     for name in stray_month[:6]:
         print("      " + name)
 
     seams = {
-        "county simulation time uses History; named sound freshness retains its native clock":
+        "county replay producers use History for elapsed time":
             not stray_hours,
-        "SAO_History is the only module reading the engine month":
+        "county replay producers use History for the month":
             not stray_month,
         "the county's clock exists":
             "function H.countyHours()" in hist,
@@ -301,8 +314,8 @@ def main():
             "tools/county_clock_test.py" in read(CHECK),
     }
 
-    if not (JDK.exists() and PZ.exists() and STDLIB.exists() and SRC.exists()):
-        print("  SKIPPED the VM - no JDK, engine jar, stdlib or runner")
+    if not (JDK.exists() and PZ.exists() and STDLIB.exists()):
+        print("  SKIPPED the VM - no JDK, engine jar or stdlib")
         print()
         for k, v in seams.items():
             print(f"  {'yes' if v else 'NO '}  {k}")
@@ -357,8 +370,14 @@ def main():
                       "own 9600" % month.get("asked"))
     if month.get("month") != "3":
         faults.append("the record's month was not taken: %s" % month.get("month"))
+    if month.get("replayMissing") != "nil":
+        faults.append("historical replay used a native month after its record failed: %s"
+                      % month.get("replayMissing"))
+    if month.get("liveAsked") != "24024":
+        faults.append("native midnight asked for county hour %s, wanted 24024"
+                      % month.get("liveAsked"))
     if month.get("fallback") != "6":
-        faults.append("with no record the engine's own month must answer, "
+        faults.append("in native play the engine's own month must answer, "
                       "not %s" % month.get("fallback"))
 
     face = numbers(value(probe(CLOCKFACE)))
@@ -370,6 +389,21 @@ def main():
     if face.get("after") != "3.0":
         faults.append("after the years the engine's own hour must answer, "
                       "not %s" % face.get("after"))
+
+    civil = numbers(value(probe(CIVIL_REPLAY)))
+    print("     civil-hour replay: "
+          + " ".join("%s=%s" % kv for kv in civil.items()))
+    expected_civil = {
+        "hist22": "22", "hist22join": "240", "hist239": "23",
+        "hist239join": "240", "join240": "7", "live241": "8",
+        "live242": "9", "noon": "12", "onepm": "13",
+        "missinglive": "nil", "historywithoutlive": "23",
+        "historywithoutlivejoin": "240", "lastcatchuptick": "0",
+        "invalidowed": "nil",
+    }
+    for key, wanted in expected_civil.items():
+        if civil.get(key) != wanted:
+            faults.append(f"civil replay {key}={civil.get(key)}, wanted {wanted}")
 
     print()
     for k, v in seams.items():

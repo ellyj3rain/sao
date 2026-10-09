@@ -63,6 +63,12 @@ SORT = re.compile(r"table\.sort\s*\(\s*([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)")
 
 # (file, the list being sorted) -> what bounds its length.
 BOUNDED = {
+    ("SAO_AgeVisual.lua", "matches"):
+        "one row per source model candidate; the current authored catalog has five sourceSample registrations (ages0,8,15,31,72), with no population-dependent writer",
+    ("SAO_Cognition.lua", "offered"):
+        "appraiseInput refuses inputOffers above128 before copying and sorting; the detailed comparison keeps16 afterward, which does not define the sort pool",
+    ("SAO_MousecatInteraction.lua", "keys"):
+        "one authored response, person or event object's statically declared JSON field names; histories and people are encoded as arrays rather than sorted field maps",
     ("SAO_Cognition.lua", "material.offers"):
         "appraiseConflict refuses candidate sequences longer than 16 before "
         "detaching and copying those offers into material.offers",
@@ -229,6 +235,8 @@ BOUNDED = {
 
 
 def main():
+    from source_scanner_baseline import Baseline
+    baseline = Baseline()
     faults = []
     print("=" * 74)
     print("EVERY SORT IS HANDED A LIST SOMEBODY HAS BOUNDED")
@@ -238,7 +246,7 @@ def main():
     for path in sorted(LUA.rglob("*.lua")):
         src = strip_lua(path.read_text(encoding="utf-8", errors="ignore"),
                         strings=False)
-        for m in SORT.finditer(src):
+        for m in baseline.authored_matches(path, src, SORT):
             line = src.count("\n", 0, m.start()) + 1
             found.setdefault((path.name, m.group(1)), []).append(line)
 

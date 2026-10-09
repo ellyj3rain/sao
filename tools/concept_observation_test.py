@@ -1,6 +1,7 @@
 """Installed native visibility/geometry with controlled rooms and objects; no rendered-world claim."""
 from pathlib import Path
 import hashlib
+import argparse
 import json
 import os
 import subprocess
@@ -16,13 +17,14 @@ BRIDGE = ROOT / "java/src/com/sao/bridge/SAOBridge.java"
 PROBE = ROOT / "tools/javacheck/ConceptObservationProbe.java"
 BOOT = ROOT / "tools/luacheck/MovementCrossingProbe.java"
 RECOVERY_SOURCE = ROOT / "java/src/com/sao/engine/SAORecoveryPlace.java"
+FITNESS_SOURCE = ROOT / "java/src/com/sao/engine/SAOFitnessDefinitions.java"
 
 
 def run(selected_variants=None):
     OUT.mkdir(parents=True, exist_ok=True)
     jars = [GAME / "projectzomboid.jar", GAME / "ZombieBuddy.jar", ROOT / "mod/42.20/media/java/SAO.jar"]
     cp = os.pathsep.join(map(str, jars))
-    files = [SOURCE, RECOVERY_SOURCE, BRIDGE, PROBE, BOOT, Path(__file__), *jars]
+    files = [SOURCE, RECOVERY_SOURCE, FITNESS_SOURCE, BRIDGE, PROBE, BOOT, Path(__file__), *jars]
     files.append(Path(__file__).with_name('native_proof_preflight.py'))
     preflight = installed_presence(files, GAME, JDK, "concept observation")
     if preflight is not None:
@@ -36,12 +38,17 @@ def run(selected_variants=None):
         ("foreign-workbench-holder", 'holder.getSourceGrid() == square', 'true', "workbench_foreign_container_withheld"),
         ("foreign-workbench-parent", 'holder.getParent() == object', 'true', "workbench_foreign_parent_withheld"),
         ("ignore-visibility", "if (!SAOPerceptionScanner.canSeeWorldSquareNow(body, square, radius)) continue;", "if (square == null) continue;", "visible_bed_observed"),
+        ("aquarium-omitted", 'return "aquarium";', 'return null;', "aquarium_visible_object_acquired"),
+        ("aquarium-stale-appearance", 'fish.len() > 0', 'true', "aquarium_actual_appearance_change_reacquired"),
+        ("canvas-group-bypass", '|| "easelcanvassmall".equals(group) || "easelcanvaslarge".equals(group)', '|| true', "arbitrary_painting_label_not_canvas"),
+        ("foreign-instance-resolve", 'if (!key.equals(row.rawget("key")) || !instance.equals(row.rawget("runtimeInstance"))) continue;', 'if (key.equals(row.rawget("key"))) instance=(String)row.rawget("runtimeInstance");\n            if (!key.equals(row.rawget("key")) || !instance.equals(row.rawget("runtimeInstance"))) continue;', "foreign_native_instance_refused"),
         ("foreign-owner", 'data.rawget("SAOExternalOwner") != null', "false", "foreign_owner_refused"),
         ("duplicate-object", "!seenObjects.add(object)", "false", "duplicate_native_object_once"),
         ("authored-room-as-fact", 'row.rawset("concept", "room")', 'row.rawset("concept", currentRoom.getName())', "authored_room_labels_not_observed"),
         ("ignore-range", "radius < 1 || radius > 14", "false", "invalid_range_refused"),
         ("hidden-building-gate", "if (square.getBuildingDef() == null) continue;", "if (square.getBuildingDef() == null || next.getBuildingDef() == null || square.getBuildingDef().getID() != next.getBuildingDef().getID()) continue;", "hidden_building_does_not_change_frontier"),
         ("require-external-token", 'Object identity = data.rawget("SAOPersonId");', 'if (data.rawget("SAOExternalToken") == null) return null; Object identity = data.rawget("SAOPersonId");', "ordinary_tokenless_observer_admitted"),
+        ("outdoor-ground-omitted", 'currentRoom == null && square.getRoom() == null && square.isSolidFloor()', 'false', "personally_visible_outdoor_ground"),
     ]
     original = SOURCE.read_text(encoding="utf-8")
     if selected_variants is not None:
@@ -56,7 +63,7 @@ def run(selected_variants=None):
             source = source.replace(old, new, 1)
         candidate = target / SOURCE.name
         candidate.write_text(source, encoding="utf-8")
-        compile_command = [JDK / "javac.exe", "-encoding", "UTF-8", "-cp", cp, "-d", target, candidate, RECOVERY_SOURCE, BRIDGE, PROBE, BOOT]
+        compile_command = [JDK / "javac.exe", "-encoding", "UTF-8", "-cp", cp, "-d", target, candidate, RECOVERY_SOURCE, FITNESS_SOURCE, BRIDGE, PROBE, BOOT]
         compiled = subprocess.run(list(map(str, compile_command)), capture_output=True, text=True, timeout=120)
         (target / "compile.log").write_text(compiled.stdout + compiled.stderr, encoding="utf-8")
         assert compiled.returncode == 0, compiled.stdout + compiled.stderr
@@ -77,8 +84,13 @@ def run(selected_variants=None):
 
 
 if __name__ == "__main__":
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output',type=Path)
+    parser.add_argument('--variant',action='append')
+    args=parser.parse_args()
+    if args.output:OUT=args.output.resolve()
     try:
-        run()
+        run(args.variant)
     except Exception as error:
         print("FAIL concept observation: " + str(error), file=sys.stderr)
         raise SystemExit(1)

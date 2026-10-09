@@ -1,0 +1,12 @@
+{
+    "ContextMenu_ComputerMod_Computer": "Computer",
+    "ContextMenu_ComputerMod_InsertCD": "Plaats een cd",
+    "ContextMenu_ComputerMod_NetworkTerminal": "Netwerkterminal",
+    "ContextMenu_ComputerMod_RemoveCD": "Verwijder de cd",
+    "ContextMenu_ComputerMod_ResumeSession": "Sessie hervatten",
+    "ContextMenu_ComputerMod_TurnOn": "Schakel in",
+    "ContextMenu_ComputerMod_Components": "Componenten",
+    "ContextMenu_ComputerMod_InstallComponent": "Installeren",
+    "ContextMenu_ComputerMod_RepairComponent": "Reparatie",
+    "ContextMenu_ComputerMod_RemoveComponent": "Verwijderen"
+}

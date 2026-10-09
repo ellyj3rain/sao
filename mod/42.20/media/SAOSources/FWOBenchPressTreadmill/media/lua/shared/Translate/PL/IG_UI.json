@@ -1,0 +1,12 @@
+{
+    "IGUI_BenchPress": "Wyciskanie na ławce",
+    "IGUI_BenchPress_Tooltip": "Ćwicz wyciskanie na ławce",
+    "IGUI_Treadmill": "Bieżnia",
+    "IGUI_Treadmill_Tooltip": "Biegaj na bieżni",
+    "IGUI_need_barbell": "Potrzebuję sztangi albo dwóch hantli do tego ćwiczenia",
+    "IGUI_low_endurance": "Jestem zbyt wyczerpany",
+    "IGUI_pain": "Boli mnie za mocno",
+    "IGUI_heavy": "Za ciężkie do użycia teraz",
+    "IGUI_treadmill_needs_electricity": "Bieżnia potrzebuje prądu, aby działać",
+    "IGUI_bench_rotate_bug": "Błąd: obróć i/lub przesuń ławkę!"
+}

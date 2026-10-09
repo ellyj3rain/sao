@@ -55,7 +55,7 @@ CALL_OPEN = re.compile(r"pcall\s*\(\s*function\s*\(")
 # `d` that holds a distance in one function and a `d` that holds
 # something else in another are different variables, and a reader that
 # cannot tell them apart will count the wrong one.
-FUNC_HEAD = re.compile(r"^[ 	]*(?:local\s+)?function", re.M)
+FUNC_HEAD = re.compile(r"^[ 	]*(?:local\s+)?function\b", re.M)
 
 
 def _closure_span(src, start):
@@ -121,13 +121,17 @@ def bare_reaches(src):
     """
     out = []
     for m in INLINE.finditer(src):
+        if re.match(r"\s*[*+/\-]", src[m.end():]):
+            continue
         value = float(m.group(4))
         out.append((m.start(), value ** 0.5, m.group(0).strip()))
 
     for base, seg in _segments(src):
         out.extend((base + off, tiles, spell)
                    for off, tiles, spell in _named_in(seg))
-    return sorted(out)
+    # Zero validates a distance's sign or singularity; it does not admit a
+    # physical neighbourhood. Keep only actual positive reach thresholds.
+    return sorted(row for row in out if row[1] > 0)
 
 
 def _named_in(src):
@@ -147,6 +151,8 @@ def _named_in(src):
             r"(?<![\w.#])(" + "|".join(sorted(map(re.escape, names)))
             + r")\s*(<=|>=|<|>)\s*([0-9][0-9.]*)")
         for m in pattern.finditer(src):
+            if re.match(r'\s*[*+/\-]', src[m.end():]):
+                continue
             value = float(m.group(3))
             tiles = value ** 0.5 if m.group(1) in squared else value
             out.append((m.start(), tiles, m.group(0).strip()))

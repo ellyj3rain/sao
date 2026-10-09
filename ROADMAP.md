@@ -1,17 +1,17 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.8.0.0-pre-alpha` |
+| Version | `3.8.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
 
 # Roadmap
 
-The intended progression is mechanical readiness across the simulation,
-Speakeasy training and runtime integration, then tuning toward first play.
-This follows Speakeasy RECORD entry 45. Batch closure and a green gate do not
-establish readiness where causal mechanisms are missing or contradicted by
-evidence. SESSION_STATE.md states the current assessment.
+Development extends the delivered mechanics, Speakeasy training and runtime
+integration while play exercises the aggregate build. D1 is CLOSED and merged;
+D2 Leisure is CLOSED, and D3 construction/crafting/repair/utilities is next.
+Concrete missing or defective producers retain their owning work.
+SESSION_STATE.md states the current product and FIFO.
 
 ## C development history and ownership catalogue
 
@@ -42,7 +42,10 @@ CLOSED with controlled person-specific reasoning and bounded native recovery. It
 Personal knowledge and source-bound priors feed ordinary purpose arbitration,
 conditional predictions, resource/entry inquiry and bodily recovery through the
 existing owners. Producer/consumer controls and bounded rendered native evidence
-establish their stated behavior; Original failed08 continuation09e96a7d-a49f-460d-8117-6ea264f3efe5 completed and saved normally, exit0/errors[]/unforced, county2.2487840652 to4.5107564926. sao-2 reached its retained approach, reacquired the currently visible bed and entered owned native sleep. Nine current intent/key acknowledgments persist; fatigue0.7782769799 to0.3887803555 over1.75 sampled countyhours establishes ongoing physiological recovery. The later native image shows a horizontal body partly hidden by the right-bedroom wall. Full sleep completion, a completed recovery experience, and rendered ground sleep are unobserved..
+establish their stated behavior. The saved D1 continuation reacquired the visible
+bed, retained nine intent/key acknowledgements and measured fatigue falling from
+0.7783 to 0.3888 over 1.75 sampled county hours, with normal save return and no
+runtime errors. Its record retains the exact native observations.
 Literal corpus assessment, retained comprehension and wider transfer keep their
 applicable obligations, including the acquired-learning outcome at D6.
 D's integrated-county capability boundary remains proposed; broader gameplay
@@ -55,8 +58,8 @@ and the sibling Post-Latent component. Neo is a separate project whose existing
 tools and data may be reused when available; its project backlog is separately owned. Movie nights with loved ones and
 first jobs are examples within general personal history. Salience, recall,
 distortion and bodily effects require explicit source and calibration evidence.
-This extends the active D1 reasoning and existing downstream life/learning
-outcomes without changing FIFO or claiming comprehensive completion.
+This builds on delivered D1 reasoning and continues through the existing
+downstream life/learning outcomes in FIFO.
 
 SAO carries its source, person-model and sibling integration through implementation
 and verification. Speakeasy owns the relevant latent/post-latent and salience work
@@ -87,13 +90,12 @@ The operator directs a bounded successive run on 2026-10-04: define coherent
 success batches, maximize substantive completion through the run, and inform Pico
 through Slack when logging off. The endpoint is the acquired-learning outcome
 below. Supporting repairs remain inside their product outcome. Future rows are
-planned scope; a row becomes a numbered active batch when its predecessor closes.
-Bounded implementation preparation can proceed while a predecessor's external
-acceptance remains open; it receives neither closure nor version credit.
-Existing D1 and inherited C completion boundaries retain their evidence.
+planned scope; a row becomes the active batch when its predecessor closes.
+D1 and D2 are CLOSED. D3 is next; protected publication follows its existing
+branch/PR procedure, and later improvements link back to delivered products.
 
 These labels name coherent product outcomes. Scope is refined against the whole
-installed native/modded domain and its adjacent dependencies as implementation
+installed native/modded domain and its adjacent mechanics as implementation
 exposes the actual work. Each outcome has an appropriate substantive size; a
 named example, individual adapter, elapsed session or agent assignment does not
 define its boundary. Supporting repairs, persistence, integration and evidence
@@ -111,9 +113,11 @@ Pico receives a logoff notice when work actually stops, with current standing.
 |---|---|---|
 | 1 | SAO D1: shared person-specific reasoning | Ordinary purposes consume personal knowledge and authentic physical feedback; exact failed means permit alternative inquiry, retreat uses retained private threats, relevant priors differ by person, and interruption/reload preserve purposes. Scoped producer/consumer controls and rendered native observation establish the changed behavior. |
 | 2 | Mousecat A28: project/repository bulletin | Hosts capture source-linked propositions during work. Revisioned records persist across restart, retain project ownership and correction history, and support disposition and pruning. A spatial graphical workspace meets the continuity graph's visual standard and works in the installed app. |
+Under DR-058, each mentioned source is repurposed into project mechanics and art. Every outcome includes the relevant packaged runtime, definitions, support and assets, source attribution, conflict handling and actual player/NPC effects. Existing externally activated trials remain evidence for their stated scopes.
+
 | 3 | SAO D2: leisure | Assess the installed native and modded repertoire of recreation, hobbies, music, games, art, exploration and social participation. Personally understood opportunities, interests, accessible objects, places, companions and current pressures produce planned or impromptu choices and authentic native participation. Physical and social consequences feed private experience and persistence; interruption, failure and resumption retain exact custody and source provenance. An instrument is one example within this outcome. |
 | 4 | SAO D3: construction and repair | Assess the installed building, crafting, maintenance, repair and utility mechanics as a coherent material-work outcome. Person-known needs, damaged objects and useful improvements produce permitted work through the existing procedure owners, with actual tools, materials, skill, access, labor and current structural conditions. Native effects, material conservation, interruption, failure, unfinished work and reload feed individual or coordinated replanning and persistence. Window and furniture joins are examples within the larger installed repertoire. |
-| 5 | SAO D4: food | Comprehensively assess the installed native and modded food repertoire: finding and acquiring food and water, cultivation and harvest where available, preparation and cooking, preservation including dry aging, storage and refrigeration/coolers, spoilage, nutrition and consumption. Person-private knowledge, preferences, health, skill, permission, actual equipment/materials and available utilities govern feasible work and choices. Loaded and dormant item clocks, temperature/power conditions, inventory authority, quantity and nutritional conservation, interruption, partial failure and reload retain authentic consequences. Cooler integration is one existing dependency within the food outcome. |
+| 5 | SAO D4: food | Comprehensively assess the installed native and modded food repertoire: finding and acquiring food and water, cultivation and harvest where available, preparation and cooking, preservation including dry aging, storage and refrigeration/coolers, spoilage, nutrition and consumption. Person-private knowledge, preferences, health, skill, permission, actual equipment/materials and available utilities govern feasible work and choices. Loaded and dormant item clocks, temperature/power conditions, inventory authority, quantity and nutritional conservation, interruption, partial failure and reload retain authentic consequences. Cooler mechanics are one existing integration within the food outcome. |
 | 6 | SAO D5: animal care | First assess every available native and modded animal and its actual supported needs, affordances and actions. Care covers feasible feeding and watering, shelter and handling, health and treatment, companionship, training or breeding where supported, and livestock work such as milk, wool and eggs. Species-specific conditions, relationships, permission, actual animal/item identity, authentic materials and native completion govern effects; distress, interruption, failure, ownership and loaded/dormant continuity persist. The operator intends to add dogs; admit their actual installed source and capabilities when available rather than assuming they are already present. |
 | 7 | SAO D6 with Speakeasy: education and learning | Build the coherent acquisition, understanding and continuing-learning outcome around the literal kindergarten-through-college educational and cultural corpus, with edition, rights, chronology and exposure provenance. Individual background, interests, aptitude, accessible sources, reading, study, practice and teaching produce assessed comprehension, retained knowledge and skills, correction, forgetting and later transfer into feasible decisions and action. Source ingestion, a score and mastery remain distinct; authentic producer/consumer effects and persistence establish usable learning. Corpus coverage, unobserved comprehension and model limitations remain explicit. |
 
@@ -196,16 +200,18 @@ preserve successor queues and shared flags after exact old-owner acknowledgement
 
 The next window work joins native approach, nested-bag transfer and actual pane
 acquisition or crafting to that same purpose and result owner. Headless dormant
-physical work, multiplayer authority and loaded-game acceptance remain open.
+physical work, multiplayer authority and
 DR-053 continues whole-collection and later-source discovery and curated effect
 ownership; this batch adds no trait catalogue and completes no unrelated
 clinical, growth, exercise or utility producer.
 
-## Border compression and private unified project
+## Border compression and Project More Life
 
 DR-041 sets the immediate continuation after C56: compress the mod's borders,
-following the A/B/C consolidation precedent, then work toward one private
-unified mod/project across SAO, ZAO and Speakeasy's runtime artifacts.
+following the A/B/C consolidation precedent, then assemble Project More Life
+as a private compiled mod or mod set across SAO, ZAO and Speakeasy's runtime
+artifacts. Post Latent participates as a supporting project with broader uses;
+its relationship and source ownership are recorded in PROJECTS.md.
 The existing R contracts remain the implementation obligations.
 
 DR-042 selects whole-mod runtime restructuring. The
@@ -334,9 +340,8 @@ R1's [evidence record](artifacts/audits/20260919-0735Z-0035PST-r1-return-evidenc
 names the implemented mechanisms, controls, native-source continuation and the
 selected critical-but-injured recovery rule. C53's Border 168 and the retained
 Border 160 close current substep time, unit conversion, native pacing and
-partial catch-up/reload. Neither batch is a loaded-world play receipt. Remaining
-technical investigations have named outputs below; they are part of the work,
-rather than indefinite deferrals.
+partial catch-up/reload. Remaining technical investigations have named
+implementation and model outputs below.
 
 | Work and owner | Depends on | Implementation and completion evidence |
 |---|---|---|
@@ -351,7 +356,7 @@ rather than indefinite deferrals.
 | **R8. Repair audited actions â€” SAO + ZAO callers** | R5-R7 as used | C70 repairs the open-wound aid/CPR composition: the critical-care gesture follows effective native treatment instead of competing with its busy action. Repair driving routes/progress/passengers/steering, ordinary homeward activity, child health/play, robbery/raid response, animal approach and optional event consumers. Each path must reach a world consequence or a reasoned refusal. The contract table in SUBSTRATE names the counterexamples and retained working pieces. |
 | **R9. Complete life-simulation producers â€” SAO + ZAO domain owners** | R5-R8 and C61's R10a ground, incrementally by concern | Implement the producer rows in SUBSTRATE: provisioning and places, exploration, affiliation, care, learning, culture, rest, governance, communication and conflict. C62-C73 supply bounded source, material, relationship, care, inventory, rest and communication slices. C79 closes the first bounded governance/coordination slice with actual individual responses and completed work. C90-C92 add durable procedures, person-private projections, capability-bounded role claims, strategic movement/action vocabulary, multi-actor synchronization, natural material/tactical formation, same-actor continuity, exact Locomotion/Cooking/Posture joins and explicit failure revision. C80/A39 close the shared ZAO living-driver boundary, Afflicted fear/gathering/arrival and state-evidenced settlement formation. A39 keeps Afflicted water, protein/alternative and conditional human-origin consequences separate from Crossed retained human physiology, ordinary/human-origin sustenance, predatory pressure, human butchery and selective finite blood-contaminated weapon hits. These are producers, not a complete Afflicted or Crossed life. Election/deliberation/succession, physical separation, broader food composition and precedent, wider medical/material/development actions, retained tools, broader autonomous tactical doctrine, remaining action owners, use of the dead and variable leisure still require their own producers and results. Each concern first produces the bounded mechanism inventory below. Connect candidates to executors; prove conservation, private knowledge and socially grounded recognition in every supported state. |
 | **R10b. Historical integration and population â€” SAO + ZAO** | R2, R4, R8-R9, R10a | Exercise grounded dormant opportunity and observable later changes across the integrated county. Account separately for initial people, arrivals, births, deaths and exits. Resolve the existing refill policy against the prohibition on target-seeking outcomes. Compare actual cohorts and open populations correctly; fixtures and target counts cannot establish fidelity. |
-| **R11. Decision capture and joins â€” SAO + Speakeasy (envelope/join integrity C64; source-choice C65; enacted coordination C79/Record 63; reference source C81; causal episodes C84/Record 68)** | Start now; final eligibility follows R2, R6-R10 | C64 freezes person/situation evidence, namespaces runs/events, records provenance and refuses incomplete publication. Speakeasy v3 protects exact joins. C65 exposes private food/water source options, preserves the current selector, revalidates the exact choice and links capture to its immediate native action result. C66 captures acquire/store choices and Speakeasy supplies knowledge views and separate unratified proposals. C79 emits the recipient's acquired proposal, source-owned current activity/priorities/capabilities, feasible responses and choice from the production appraisal boundary; native response delivery and work receipts remain a separate later horizon. C81 runs twenty pre-partitioned situations through that production boundary and records four each of accept, qualify, counter-propose, defer and contest across survivor, Afflicted and Crossed execution owners. C84 captures that boundary inside a complete one-prefix county episode, exact-replays the whole result and retains episodes with no decision. Record 63 requires the exact five-field v3 namespace and rejects wrong actors, stale revisions, impossible options, hidden truth and outcome leakage. Record 66 independently reviews and admits the exact C81 synthetic family; Record 68 performs candidate intake only. Decline, withdrawal, broader natural action coverage and loaded-world consequence sampling remain open. |
+| **R11. Decision capture and joins â€” SAO + Speakeasy (envelope/join integrity C64; source-choice C65; enacted coordination C79/Record 63; reference source C81; causal episodes C84/Record 68)** | Start now; final eligibility follows R2, R6-R10 | C64 freezes person/situation evidence, namespaces runs/events, records provenance and refuses incomplete publication. Speakeasy v3 protects exact joins. C65 exposes private food/water source options, preserves the current selector, revalidates the exact choice and links capture to its immediate native action result. C66 captures acquire/store choices and Speakeasy supplies knowledge views and separate unratified proposals. C79 emits the recipient's acquired proposal, source-owned current activity/priorities/capabilities, feasible responses and choice from the production appraisal boundary; native response delivery and work receipts remain a separate later horizon. C81 runs twenty pre-partitioned situations through that production boundary and records four each of accept, qualify, counter-propose, defer and contest across survivor, Afflicted and Crossed execution owners. C84 captures that boundary inside a complete one-prefix county episode, exact-replays the whole result and retains episodes with no decision. Record 63 requires the exact five-field v3 namespace and rejects wrong actors, stale revisions, impossible options, hidden truth and outcome leakage. Record 66 independently reviews and admits the exact C81 synthetic family; Record 68 performs candidate intake only. Decline, withdrawal and broader natural action coverage remain model-data work. |
 | **R12. Approved data and world knowledge â€” Speakeasy; SAO knowledge reader (protection/audit closed C64; acquisition corrected C77; historical reference superseded Record 55)** | Start now; R11 for new captures | Speakeasy v3 hash-protects 190 approved choices, four historical derivatives and nine approved world documents. C64 audits conditioning independently: future state contaminates most legacy rows and all options are bare strings, so none are training-eligible. C66/Speakeasy implements versioned decision-time views and unratified proposal authoring. C77 retains C74 calendar/presence provenance while replacing unsupported lived grants with exact native reading receipts and reported knowledge. Record 55 revokes the old acquisition basis and preserves historical bytes; zero training rows exist. C75 compiles the current SAO knowledge surface into deterministic snapshot-local references and restricts the factual fence to selected references. Expand reviewed claim coverage and compile eligible task inputs without future facts, LOW claims or lineage leakage; historical corrections remain append-only. |
 | **R13. Training and export â€” Speakeasy** | R11-R12; eligible R8-R10b coverage | Records 66-67 close one bounded coordination reference/export slice: exact review and admission, lineage-separated 10/5/5 training, deterministic evaluation, frozen byte-BPE, versioned FP32 bundle and parity vectors. Apply the same independent-target discipline to broader situations and the understander/retriever/speaker tasks. Preserve actual approval status and report behavioral/grounding measures separately; the synthetic coordination family does not complete general training readiness. |
 | **R14. Learned execution and exchange â€” SAO Java/Lua + Speakeasy artifacts** | R7, R9, R13 | C82 closes the first mechanical shadow slice: the packaged Java consumer loads the exact Record 67 artifact, one bounded worker evaluates immutable post-appraisal snapshots, and Lua withholds stale, foreign, malformed or execution-owner-changed results. The output is observational and cannot select a response or create work. Complete understanding and constrained expression through existing belief, standing and command channels, then separately review behavior activation. A changed approved model output must eventually change an actual action or exchange; false claim recombination, stale options and failed inference cannot manufacture success. |
@@ -366,10 +371,10 @@ exact native export plus non-authoritative consumption. R11 still requires
 decline/withdraw observations, broader action coverage and loaded-world sampling;
 the tracked source does not establish those claims.
 
-R9 closes only when every producer row has its own evidence. R8 similarly
-accounts for every audited action family. A thin demonstration in one family
-does not discharge the rest of the row. Historical and learned runs declare
-their supported coverage explicitly.
+R8/R9 work closes as coherent products within the agreed mechanic's scope,
+using sufficient accumulated implementation, check, simulation and play evidence.
+Unfinished producers keep their owning outcomes; later improvements link back
+to completed products.
 
 Corpus work, protected exports, capture mechanics, evaluation design and model
 format experiments can advance while producers are repaired. Final training
@@ -386,7 +391,7 @@ datasets retain their limitations; they do not establish full-scope readiness.
 | Per-concern producer mechanisms | SAO/ZAO domain owner: for each R9 concern, classify existing producer/consumer as supported, defective or missing; specify trigger/pressure, private opportunity, actor decision, executor, durable result, interruption/reload and a discriminating test. Produce separate contracts for childcare, art/ceremony/burial, overlapping/local/federated authority, retained turned behaviors and animal companionship/ownership. Surface any missing substantive ruling before implementing it. | R8-R9 |
 | Brain-health integration | Closed in C56/A37: ZAO owns the persisted history when installed, SAO supplies current physical observations and standalone storage, exact interval integration has numerical tolerances, and the same history drives medical/inspect graphs plus cognitive, memory, motor and affective effects. | R5 closed |
 | Population policy | SAO: reconcile ratified delayed refill with the no-target-seeking generation contract. Document admissions and demographic sources, distinguish simulation rules from diagnostic population controls, and surface any real conflicting policy ruling. | R10 |
-| Model architecture and interchange | Record 67/C82 close the first coordination candidate: exact export, Python/Java/tokenizer parity, packaged resource, bounded worker, execution-owner revalidation and headless latency/primitive-payload measurement. Extend the same contract to the shared understander/retriever/speaker bundle; measure full loaded-game memory and latency before activation. Loaded-game acceptance remains distinct from offline evidence. | R13-R14 |
+| Model architecture and interchange | Record 67/C82 close the first coordination candidate: exact export, Python/Java/tokenizer parity, packaged resource, bounded worker, execution-owner revalidation and headless latency/primitive-payload measurement. Extend the same contract to the shared understander/retriever/speaker bundle; measure full runtime memory and latency for the proposed activation. | R13-R14 |
 | Accelerator suitability | SAO + Speakeasy: matched causal baseline, explicit equivalence measures and candidate error/performance results. A failed comparison leaves the causal stepper authoritative. | R15 |
 
 Consumable production and synthesis mechanics remain outside the authorized
@@ -431,8 +436,7 @@ Diagnostic samples remain observations within their documented limitations.
 
 Grounded-dead calibration, early Knox ratio interpretation and destructive
 relationship pruning remain operator decisions. Existing ratified mechanics
-continue without waiting on them. Play acceptance is distinct from mechanical
-verification; no new play-session prerequisite is introduced here.
+continue without waiting on them.
 
 
 ### Continuation after C77

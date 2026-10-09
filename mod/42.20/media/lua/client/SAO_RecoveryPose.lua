@@ -1,10 +1,11 @@
--- SAO custody around installed LeanAndLie animation contracts. No source action or media is carried.
+-- SAO-owned recovery over packaged source-derived ground nodes and native game clips.
+-- Lean & Lie 1.27 mechanics provenance: tools/recovery_source_manifest.json.
 SAO = SAO or {}
 SAO.RecoveryPose = SAO.RecoveryPose or {}
 local P = SAO.RecoveryPose
 P.verbose = false
 P.leanCorrection = 0.40
-P.stateVariableOnGround = "SleepStateOnGround"
+P.stateVariableOnGround = "SAORecoveryGround"
 P.appliedOffset = P.appliedOffset or {}
 P.bedUsers = P.bedUsers or {}
 P.pendingExits = P.pendingExits or {}
@@ -58,10 +59,9 @@ local function atAppliedPosition(body, receipt)
 end
 function P.available()
     local ok, available = pcall(function()
-        local mods = getActivatedMods()
-        return not isClient() and not isServer() and mods:contains("LeanAndLie")
-            and mods:contains("TchernoLib") and type(TchAL) == "table"
-            and TchAL.stateVariableOnGround == P.stateVariableOnGround
+        -- Package-owned namespace; actual queue/pose observations admit recovery.
+        return not isClient() and not isServer()
+            and P.stateVariableOnGround == "SAORecoveryGround"
     end)
     return ok and available == true
 end
@@ -458,7 +458,7 @@ function P.begin(body, kind, id, place)
         if not work.bed then return nil,"native-bed-unavailable" end
         if P.bedUsers[work.bed] and not P.bedUsers[work.bed].retired then return nil,"native-bed-entry-occupied" end
         P.bedUsers[work.bed]=work
-    elseif not P.available() then return nil,"installed-ground-source-unavailable"
+    elseif not P.available() then return nil,"owned-ground-source-unavailable"
     elseif place.kind~="ground" or type(place.x)~="number" or type(place.y)~="number"
         or math.abs(body:getZ()-(place.z or -99))>.1
         or (body:getX()-place.x)^2+(body:getY()-place.y)^2>.35^2

@@ -279,7 +279,10 @@ def main(root):
         if order['shared/SAO_' + producer + '.lua'] >= order['shared/SAO_' + consumer + '.lua']:
             faults.append('personal binding load order reversed: ' + producer + '/' + consumer)
     for owner in ('SourceUse', 'ResourceProduction', 'ModMechanics', 'WindowRepair',
-                  'ConflictResponse'):
+                  'ConflictResponse', 'CompanionExecution', 'Leisure',
+                  'LeisureAcquisition', 'LeisureArt', 'LeisureExercise',
+                  'LeisureGames', 'LeisureLifestyle', 'LeisureMusic',
+                  'LeisureRadio', 'WeekOneContinuity', 'WeekOneEvents'):
         if owner in loaded:
             faults.append('dormant county silently acquired loaded executor: ' + owner)
         undeclared = dict(Sweep.NOT_DORMANT)

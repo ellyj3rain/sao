@@ -1,0 +1,12 @@
+{
+    "IGUI_BenchPress": "Banco de Pesas",
+    "IGUI_BenchPress_Tooltip": "Entrenar en Banco de Pesas",
+    "IGUI_Treadmill": "Cinta de Correr",
+    "IGUI_Treadmill_Tooltip": "Correr en Cinta de Correr",
+    "IGUI_need_barbell": "Necesito una barra o dos mancuernas para hacer este ejercicio",
+    "IGUI_low_endurance": "Estoy demasiado cansado",
+    "IGUI_pain": "Tengo mucho dolor",
+    "IGUI_heavy": "Es demasiado pesada para usarla ahora",
+    "IGUI_treadmill_needs_electricity": "La cinta de correr necesita electricidad para funcionar",
+    "IGUI_bench_rotate_bug": "Error: ¡gira y/o mueve el banco!"
+}

@@ -10,7 +10,7 @@ def run():
     control=[
         ('missing-drop',controller,'SAO.Cognition.interrupt(id, "controller-drop")','-- omitted','successful_drop_censors'),
         ('premature-drop',controller,'function Ctl.drop(id)\n    id = tostring(id)','function Ctl.drop(id)\n    id = tostring(id)\n    SAO.Cognition.interrupt(id,"bad-early-drop")','refused_drop_retains_episode'),
-        ('missing-adoption',controller,'if not Ctl.agents[rec.id] then closeUnownedCognitionOnAdoption(rec.id) end','-- omitted','fresh_adoption_closes_orphan'),
+        ('missing-adoption',controller,'if not Ctl.agents[rec.id] then\n        closeUnownedCognitionOnAdoption(rec.id)','if not Ctl.agents[rec.id] then\n        -- omitted cognition adoption','fresh_adoption_closes_orphan'),
         ('ignore-source-owner',controller,'if not ok or sourceOwner then return end','if not ok then return end','adoption_retains_source_owner'),
         ('missing-death',identity,'SAO.Cognition.interrupt(rec.id, "death")','-- omitted','canonical_death_censors_after_dead'),
         ('premature-death',identity,'if rec.returnTransition then return false end','SAO.Cognition.interrupt(rec.id,"death")\n    if rec.returnTransition then return false end','refused_death_retains_episode'),

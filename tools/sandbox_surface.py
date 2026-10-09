@@ -123,9 +123,10 @@ def requested_keys():
     reading it as a lookup would invent a request that is not there.
     """
     import re as _re
+    from menu_reach import strip_lua
     out = []
     for path in LUA.rglob("*.lua"):
-        src = path.read_text(encoding="utf-8", errors="ignore")
+        src = strip_lua(path.read_text(encoding="utf-8", errors="ignore"), strings=False)
         for m in _re.finditer(
                 r"\bgetText(?:OrNull)?\s*\(\s*[\"']([^\"']+)[\"']",
                 src):
@@ -148,6 +149,10 @@ def shape_faults(trans_text):
     except ValueError as e:
         return [f"the translation file is not valid JSON: {e}"]
 
+    # This layout contract belongs to the county's authored screen. Imported
+    # source screens retain their own native locale and source UI contract.
+    # Their exact keys/bytes are checked by source inventory/registration.
+    d = {k: v for k, v in d.items() if k.startswith('Sandbox_' + PREFIX + '_')}
     for k, v in d.items():
         if not str(v).strip():
             faults.append(f"{k} has an empty value")
@@ -207,6 +212,33 @@ def shape_faults(trans_text):
     return faults
 
 
+def captured_native_keys():
+    """Portable identifiers captured from the actual admitted native locale."""
+    import json
+    data = json.loads((ROOT / 'tools/native_locale_keys.json').read_text(encoding='utf-8'))
+    if data.get('schema') != 'sao.native-locale-keys/1' or data.get('engineBuild') != '42.20':
+        raise ValueError('native locale key capture has an incompatible authority')
+    keys, lookups = set(), set()
+    for row in data['lookups']:
+        lookup = row['lookup']
+        if lookup in lookups or not row['files']:
+            raise ValueError('duplicate or unqualified native locale lookup: ' + lookup)
+        lookups.add(lookup)
+        for declaration in row['files']:
+            path = declaration['path']
+            if (not path.startswith('media/lua/shared/Translate/EN/')
+                    or '..' in pathlib.PurePosixPath(path).parts
+                    or not re.fullmatch('[0-9a-f]{64}', declaration['sha256'])):
+                raise ValueError('native locale declaration lacks a source pin')
+            for key in declaration['declaredKeys']:
+                if not key.startswith(lookup):
+                    raise ValueError('native locale declaration does not own its lookup')
+                keys.add(key)
+    if not keys or 'SAO_Unregistered_Control' in keys:
+        raise ValueError('native locale capture is empty or admits an unknown authored key')
+    return keys
+
+
 def main():
     if not OPTS.exists() or not TRANS.exists():
         print("16) sandbox surface: SKIPPED (no options file)")
@@ -246,12 +278,11 @@ def main():
     # as the raw identifier on screen - the jankiest outcome there is.
     import json as _json
     declared_keys = set()
-    for path in TRANS_DIR.glob("*.json"):
-        try:
-            declared_keys.update(_json.loads(path.read_text(
-                encoding="utf-8", errors="ignore")))
-        except ValueError:
-            pass
+    from scanner_inventory import current, locale_keys, source_literal_label, GAME
+    inventory = current()
+    declared_keys.update(locale_keys(TRANS_DIR))
+    native_keys = locale_keys(GAME / 'media/lua/shared/Translate/EN')
+    declared_keys.update(native_keys if native_keys else captured_native_keys())
     # These are native context-menu words the owned Horse interaction
     # surface reuses. They remain engine-owned and are present in every
     # admitted Build 42 runtime; duplicating them in SAO translations
@@ -263,7 +294,8 @@ def main():
     unresolved = [f"{f}:{n} asks for {k}, which nothing declares"
                   for f, n, k in requested_keys()
                   if k not in declared_keys
-                  and not any(item.startswith(k) for item in declared_keys)]
+                  and not any(item.startswith(k) for item in declared_keys)
+                  and not source_literal_label(inventory, ROOT / f, k)]
 
     shape = shape_faults(trans)
 

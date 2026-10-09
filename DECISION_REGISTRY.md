@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `3.8.0.0-pre-alpha` |
+| Version | `3.8.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -2080,3 +2080,93 @@ unconfirmed. Slack message `1791145564.769829` gives Pico the manifest and
 materialization instructions. The newer successful reading trial is separate
 evidence and does not correct the retained native failure. The operator is
 awake and directs continued work; no logoff message is sent.
+
+## DR-058 | 2026-10-06 04:52 UTC / 21:52 PST | Repurposed source mechanics and assets
+
+**Status.** RATIFIED by the operator.
+
+**Decision.** The operator confirms that every mentioned mod and mechanic is a
+source integration: its relevant mechanics and assets are repurposed into the
+project's implementation and art. This applies across the whole programme,
+including past mentions. SAO owns the integrated runtime and package alongside
+its person, private knowledge, decision, Standing and persistence services.
+Source identities, revisions, attribution and applicable terms remain recorded.
+External installation, activation and optional API invocation are evidence of
+those narrower paths; they do not complete this requested source integration.
+Removing a hard requirement without incorporating the mechanic and its needed
+assets is insufficient. The admitted repertoire shares physical mechanics
+between players and NPCs, with one effective producer for each effect and
+explicit handling of overlapping registrations and existing saves.
+
+**Application.** D2 incorporates the complete relevant Leisure repertoire. D3 through D6 retain their established substantive scope and FIFO. Historical API-only records and failed trials keep their original evidence boundaries. Current records identify incorporation, attribution, native activation and remaining work separately. This correction grants no unperformed integration, native trial, publication or version credit.
+
+## DR-059 | 2026-10-07 19:35 UTC / 12:35 PDT | Week One continuity and player-owned beginning
+
+**Status.** RATIFIED by the operator's direct 2026-10-07 continuation.
+
+**Decision.** Bandits Week One is a functional part of the player-led beginning and the continuing SAO world. Its NPCs acquire durable person identity and carry their lives, relationships, conditions and consequences into the proposed mid game. SAO's private perception, Standing, decisions, execution and persistence govern its people; a loaded engine body has one effective owner. The transition out of Week One preserves those people and their lived changes. Week One's NPC work is also a sustained source and runtime optimization stress case.
+
+The Nuke remains an optional, player-owned world choice. The game's normal save, character, scenario and sandbox choices stay in the native flow, and one physical strike producer is effective for a selected world. The current main menu keeps its present appearance. The advanced owned creator joins the current modded start flow and may take the richer inZOI/Sims-like visual treatment necessary for character creation.
+
+**Application.** This direct direction supersedes DR-034's exclusion of Week One runtime integration; DR-034's author permission, credit and source-provenance requirements for copied art continue to apply. Existing bounded menu patches, an installed mod selection, a Week One proxy body or a source inventory do not establish durable NPC continuity, optional strike authority, creator completion or native acceptance. D1 remains closed. D2 remains the chief main line, with D3 construction/repair, D4 food, D5 animal care and D6 assessed learning in order. Complete the current implementation and evidence work before using early or mid-game playtesting as an acceptance claim.
+
+**Origin.** Operator message `msg_01a117dd-6858-76a2-9118-324f782a080e` in the current Codex session at 2026-10-07 19:35:48.568 UTC; the sole liaison's governed bulletin amendment and Week One record retain its source and peer route.
+
+## DR-060 | 2026-10-07 20:22 UTC / 13:22 PDT | Integration transformation under SAO ownership
+
+**Status.** RATIFIED by the operator's direct correction.
+
+**Decision.** This is a permanent rule for every integration unless the
+operator explicitly changes it. Every integrated mod mechanic is adapted into
+SAO's coherent framework. Installed source supplies useful scaffolding,
+mechanisms and ideas;
+SAO owns the resulting implementation, decisions, person state, physical
+authority and continuity. Each source behavior is changed as needed to work
+with the project rather than retained merely because it is the original
+callback. The rule applies across the whole programme, including earlier
+integrations, Week One NPCs, the beginning and midgame transition, leisure and
+the other source families through D6. Source identity,
+revisions, rights and attribution remain recorded for what is used.
+
+**Application.** A compatibility wrapper, pass-through callback, source pin or
+original-mod installation qualifies its narrow bridge only. It does not close
+functional integration. Source-derived actions must enter SAO's ordinary
+person, cognition, Standing, purpose, work and result paths while preserving
+the player's save, chosen character, start and sandbox settings. One effective
+physical producer remains responsible for each live effect. DR-058 and DR-059
+continue to govern scope; this correction makes their permanent integration
+standard explicit. D1 remains closed; D2 remains the
+chief main line and the established FIFO through D6 persists.
+
+**Origin.** Operator corrections
+`msg_01a11807-f791-7602-8299-50f044e602b6` at 2026-10-07 20:22:17.745 UTC
+and `msg_01a11808-72fe-7012-9c33-ace20d52c1d8` at
+2026-10-07 20:22:49.342 UTC. The sole liaison verified the durable bulletin
+revision and routed the permanent rule to the existing council.
+
+## DR-061 | 2026-10-07 21:06 UTC / 14:06 PDT | Owned integration packaging and controls
+
+**Status.** RATIFIED by the operator's direct clarification.
+
+**Decision.** Pertinent mechanics and controls from integrated mods belong in
+SAO or ZAO as organized owned modules and sandbox subcategories. Their
+continuity and cooperation with the existing person, world, Standing,
+decision, execution and persistence framework are explicit. The destination
+installation can use the owned SAO and ZAO packages without requiring each
+borrowed standalone mod to remain installed. Distinct controls remain
+available and understandable under the owning package.
+
+**Application.** Source pins and temporary interoperation support migration;
+they are not the destination architecture. Move each relevant behavior,
+setting, source asset and saved choice into an owned module with a qualified
+native and save migration. Keep one effective physical producer, preserve the
+player's actual save, character, scenario and sandbox choices, and distinguish
+local source integration from the separate rights and publication boundary.
+Do not remove a currently installed source until its replacement and saved
+world continuity are verified. DR-060's permanent transformation rule and
+DR-059's Week One scope remain in force. D1 remains closed, D2 the chief main
+line, and FIFO through D6 remains intact.
+
+**Origin.** Operator's direct clarification in the current Codex session at
+2026-10-07 21:06 UTC; the sole liaison retains the governed bulletin and peer
+route.

@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
+import java.lang.reflect.Method;
 import java.util.HexFormat;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -47,17 +48,119 @@ public final class StudyViewCapture {
         return worker;
     });
     private static ByteBuffer captureBuffer;
+    /** An immutable game-thread sample; the owner object is never serialized. */
+    record CaptureContext(Object owner, String sessionId, long pid, int attempt, long captureEpoch,
+                          String saveMode, String save, boolean bodyObserved, boolean persisted,
+                          Double worldHours, int playerIndex, int playerSqlId) {
+        boolean sameSource(CaptureContext other) {
+            return other != null && owner == other.owner && java.util.Objects.equals(sessionId, other.sessionId)
+                && pid == other.pid && attempt == other.attempt && captureEpoch == other.captureEpoch
+                && java.util.Objects.equals(saveMode, other.saveMode) && java.util.Objects.equals(save, other.save)
+                && bodyObserved == other.bodyObserved && persisted == other.persisted
+                && playerIndex == other.playerIndex && playerSqlId == other.playerSqlId;
+        }
+
+        String json(String streamId) {
+            StringBuilder value = new StringBuilder("{\"schema\":\"sao.native-capture-context/1\",\"namespace\":\"native-play\"")
+                .append(",\"sessionId\":").append(quoteContext(sessionId))
+                .append(",\"pid\":").append(pid).append(",\"attempt\":").append(attempt)
+                .append(",\"captureEpoch\":").append(captureEpoch)
+                .append(",\"saveMode\":").append(saveMode == null ? "null" : quoteContext(saveMode))
+                .append(",\"save\":").append(save == null ? "null" : quoteContext(save))
+                .append(",\"bodyObserved\":").append(bodyObserved)
+                .append(",\"binding\":").append(quoteContext(persisted ? "persisted" : "unbound"))
+                .append(",\"worldClock\":").append(quoteContext(worldHours == null ? "unavailable" : "observed"))
+                .append(",\"worldHours\":").append(worldHours == null ? "null" : Double.toString(worldHours));
+            if (persisted) value.append(",\"playerIndex\":").append(playerIndex)
+                .append(",\"playerSqlId\":").append(playerSqlId);
+            if (streamId != null) value.append(",\"streamId\":").append(quoteContext(streamId));
+            return value.append('}').toString();
+        }
+    }
+    private static String quoteContext(String text) {
+        StringBuilder out = new StringBuilder("\"");
+        for (int at = 0; at < text.length(); at++) {
+            char value = text.charAt(at);
+            if (value == '\\' || value == '"') out.append('\\').append(value);
+            else if (value < 0x20) out.append(String.format("\\u%04x", (int) value));
+            else out.append(value);
+        }
+        return out.append('"').toString();
+    }
+    record ParticipantFrame(String json, Object body, String save, int playerIndex, int playerSqlId, int attempt,
+                            CaptureContext capture) {
+        ParticipantFrame(String json, Object body, String save, int playerIndex, int playerSqlId, int attempt) {
+            this(json, body, save, playerIndex, playerSqlId, attempt, null);
+        }
+    }
+    record FrameCamera(String mode, boolean ready) {
+        FrameCamera {
+            if (!java.util.Set.of("isometric", "viewpoint-first", "viewpoint-third",
+                    "viewpoint-free", "unavailable").contains(mode) || ready == "unavailable".equals(mode))
+                throw new IllegalArgumentException("native frame camera differs");
+        }
+
+        String json() {
+            return "{\"schema\":\"sao.native-frame-camera/1\",\"mode\":" + quoteContext(mode)
+                + ",\"ready\":" + ready + "}";
+        }
+    }
     record FrameStamp(long observerSequence, double hours, StudyObserver.SiteFrame[] sites,
-                      StudyVideoCapture.Site[] videoSites) {
+                      StudyVideoCapture.Site[] videoSites, ParticipantFrame participant, FrameCamera camera) {
+        FrameStamp(long observerSequence, double hours, StudyObserver.SiteFrame[] sites,
+                   StudyVideoCapture.Site[] videoSites, ParticipantFrame participant) {
+            this(observerSequence, hours, sites, videoSites, participant, null);
+        }
+        FrameStamp(long observerSequence, double hours, StudyObserver.SiteFrame[] sites, StudyVideoCapture.Site[] videoSites) {
+            this(observerSequence, hours, sites, videoSites, null);
+        }
         FrameStamp(long observerSequence, double hours) { this(observerSequence, hours, new StudyObserver.SiteFrame[0]); }
         FrameStamp(long observerSequence, double hours, StudyObserver.SiteFrame[] sites) {
             this(observerSequence, hours, sites, new StudyVideoCapture.Site[0]);
         }
+        FrameStamp withCamera(FrameCamera result) {
+            return new FrameStamp(observerSequence, hours, sites, videoSites, participant, result);
+        }
     }
     private static final Map<Object, FrameStamp> FRAMES = Collections.synchronizedMap(new IdentityHashMap<>());
     private static final ThreadLocal<FrameStamp> RENDERED = new ThreadLocal<>();
+    private static final ThreadLocal<Boolean> TELEMETRY_STARTED = new ThreadLocal<>();
+    private static final Method TELEMETRY_START = telemetryMethod("frameStarted");
+    private static final Method TELEMETRY_END = telemetryMethod("frameCompleted");
     private static volatile FrameStamp pendingFrame;
     private static volatile long pendingCapturedAt;
+
+    private static Method telemetryMethod(String name) {
+        try {
+            return Class.forName("com.sao.agent.SAOViewpointFrameTelemetry").getMethod(name);
+        } catch (ReflectiveOperationException | LinkageError unavailable) {
+            return null;
+        }
+    }
+
+    private static boolean telemetryStart() {
+        if (TELEMETRY_START == null || TELEMETRY_END == null) return false;
+        try {
+            TELEMETRY_START.invoke(null);
+            return true;
+        } catch (ReflectiveOperationException | LinkageError unavailable) {
+            return false;
+        }
+    }
+
+    private static FrameCamera telemetryEnd(FrameStamp frame) {
+        if (!Boolean.TRUE.equals(TELEMETRY_STARTED.get()) || frame == null) return null;
+        try {
+            String mode = (String) TELEMETRY_END.invoke(null);
+            if (mode == null) return null;
+            // A menu may draw a native framebuffer with no game-world camera.
+            if (frame.participant() != null && frame.participant().body() == null)
+                mode = "unavailable";
+            return new FrameCamera(mode, !"unavailable".equals(mode));
+        } catch (ReflectiveOperationException | LinkageError | IllegalArgumentException unavailable) {
+            return null;
+        }
+    }
 
     public static void install(Instrumentation instrumentation) {
         if (System.getProperty("study.viewDirectory") == null) return;
@@ -94,6 +197,15 @@ public final class StudyViewCapture {
 
     public static void frameReady(Object frame) {
         FRAMES.remove(frame);
+        if (participantMode()) {
+            try {
+                FrameStamp value = (FrameStamp) Class.forName("StudyParticipant").getMethod("frame").invoke(null);
+                if (value != null) FRAMES.put(frame, value);
+            } catch (ReflectiveOperationException unavailable) {
+                System.err.println("[StudyView] participant frame unavailable: " + unavailable);
+            }
+            return;
+        }
         zombie.characters.IsoPlayer anchor = zombie.characters.IsoPlayer.players[0];
         if (anchor == null || !Boolean.TRUE.equals(anchor.getModData().rawget("SAO_ObserverAnchor"))
                 || !Boolean.TRUE.equals(anchor.getModData().rawget("SAO_ObserverStarted"))) return;
@@ -105,21 +217,30 @@ public final class StudyViewCapture {
     }
 
     public static void rendering() {
+        TELEMETRY_STARTED.set(telemetryStart());
         var state = zombie.core.SpriteRenderer.instance.getRenderingState();
         FrameStamp frame = FRAMES.remove(state);
         RENDERED.set(state.numSprites > 0 ? frame : null);
     }
 
     public static void rendered(Throwable failure) {
+        FrameStamp frame = RENDERED.get();
+        FrameCamera camera = telemetryEnd(frame);
+        TELEMETRY_STARTED.remove();
         if (failure != null) RENDERED.remove();
+        else if (frame != null && camera != null) RENDERED.set(frame.withCamera(camera));
     }
 
     public static void swapped(Throwable failure) {
         FrameStamp frame = RENDERED.get();
         RENDERED.remove();
-        if (failure != null || frame == null) return;
+        if (failure != null || frame == null) {
+            StudyVideoCapture.nativeSwap(frame != null, failure != null);
+            return;
+        }
         StudyVideoCapture.swapped(frame);
-        if (StudyVideoCapture.pngDue()) request(frame);
+        StudyVideoCapture.nativeSwap(true, false);
+        if (!StudyVideoCapture.sharesPng() && StudyVideoCapture.pngDue()) request(frame);
     }
 
     private static void request(FrameStamp frame) {
@@ -129,16 +250,32 @@ public final class StudyViewCapture {
         // thread. Only pixel readback belongs here. One pending frame bounds
         // background work; a busy publisher drops captures before GPU readback.
         try {
-            readPixels();
+            long readbackStarted=System.nanoTime();
+            try { readPixels(); }
+            finally { StudyVideoCapture.pngReadbackDuration(System.nanoTime()-readbackStarted); }
         } catch (RuntimeException failure) {
             pendingFrame = null; pendingCapturedAt = 0; pending = null;
             System.err.println("[StudyView] capture request failed: " + failure);
         }
     }
 
+    static boolean participantMode() {
+        return Boolean.parseBoolean(System.getProperty("study.participantInput", "false"))
+            && !Boolean.getBoolean("study.observer");
+    }
+
+    static boolean frameCurrent(FrameStamp frame) {
+        if (frame == null) return false;
+        if (frame.participant() == null) return !participantMode() && frame.observerSequence() == StudyObserver.commandSequence();
+        if (!participantMode() || frame.observerSequence() != 0) return false;
+        try {
+            return Boolean.TRUE.equals(Class.forName("StudyParticipant").getMethod("isCurrent", ParticipantFrame.class)
+                .invoke(null, frame.participant()));
+        } catch (ReflectiveOperationException unavailable) { return false; }
+    }
+
     static boolean beginCapture(FrameStamp frame) {
-        if (pending != null || zombie.GameWindow.closeRequested
-                || frame.observerSequence() != StudyObserver.commandSequence()) return false;
+        if (pending != null || zombie.GameWindow.closeRequested || !frameCurrent(frame)) return false;
         pendingFrame = frame;
         pending = PREFIX + String.format("%016d", ++sequence) + ".png";
         return true;
@@ -170,14 +307,24 @@ public final class StudyViewCapture {
     }
 
     static void submitPixels(int width, int height, byte[] pixels) {
-        pendingCapturedAt = System.currentTimeMillis();
+        submitPixels(width, height, pixels, System.currentTimeMillis());
+    }
+
+    static boolean sharedPixels(FrameStamp frame, int width, int height, byte[] pixels, long capturedAt) {
+        if (!beginCapture(frame)) return false;
+        submitPixels(width, height, pixels, capturedAt);
+        return true;
+    }
+
+    private static void submitPixels(int width, int height, byte[] pixels, long capturedAt) {
+        pendingCapturedAt = capturedAt;
         String filename = pending;
         PUBLICATION.execute(() -> publishPixels(filename, width, height, pixels));
     }
 
     static void publishPixels(String filename, int width, int height, byte[] pixels) {
         try {
-            if (pendingFrame == null || pendingFrame.observerSequence() != StudyObserver.commandSequence()) return;
+            if (!frameCurrent(pendingFrame)) return;
             BufferedImage image = encodePixels(width, height, pixels);
             Path source = Path.of(zombie.ZomboidFileSystem.instance.getScreenshotDir(), filename);
             Files.createDirectories(source.getParent());
@@ -231,7 +378,7 @@ public final class StudyViewCapture {
         try {
             Path source = Path.of(zombie.ZomboidFileSystem.instance.getScreenshotDir(), filename);
             FrameStamp frame = pendingFrame;
-            if (frame == null || frame.observerSequence() != StudyObserver.commandSequence()) {
+            if (!frameCurrent(frame)) {
                 Files.deleteIfExists(source);
                 return;
             }
@@ -252,13 +399,16 @@ public final class StudyViewCapture {
                 + ",\"hours\":" + frame.hours()
                 + ",\"image\":{\"file\":\"" + filename + "\",\"sha256\":\"" + sha
                 + "\",\"width\":" + width + ",\"height\":" + height + "}"
-                + siteImages(root, filename, bytes, frame, width, height) + "}\n";
+                + siteImages(root, filename, bytes, frame, width, height)
+                + (frame.camera() == null ? "" : ",\"nativeCamera\":" + frame.camera().json())
+                + (frame.participant() == null || frame.participant().capture() == null ? "" : ",\"captureContext\":" + frame.participant().capture().json(null))
+                + (frame.participant() == null ? "" : ",\"participant\":" + frame.participant().json()) + "}\n";
             Path temporary = root.resolve("native.json.tmp");
             // Pair with the observer command's commit monitor. A command that
             // changed during rendering, readback or decoding cannot relabel the
             // captured pixels, or replace the last accepted native frame.
             synchronized (StudyObserver.class) {
-                if (frame.observerSequence() != StudyObserver.commandSequence()) {
+                if (!frameCurrent(frame)) {
                     Files.deleteIfExists(source);
                     for (var site : frame.sites()) Files.deleteIfExists(root.resolve(filename.replace(".png", "-site" + site.slot() + ".png")));
                     return;

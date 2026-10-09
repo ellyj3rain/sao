@@ -1,0 +1,78 @@
+module NewMusic
+{
+    imports
+    {
+        Base
+    }
+
+    model Vinyl1
+    {
+        mesh = WorldItems/NM_Vinyl,
+        texture = WorldItems/Vinyl/World_NM_Vinyl1,
+        scale = 0.12,
+    }
+
+    model Vinyl2
+    {
+        mesh = WorldItems/NM_Vinyl,
+        texture = WorldItems/Vinyl/World_NM_Vinyl2,
+        scale = 0.12,
+    }
+
+    model Vinyl3
+    {
+        mesh = WorldItems/NM_Vinyl,
+        texture = WorldItems/Vinyl/World_NM_Vinyl3,
+        scale = 0.12,
+    }
+
+    model Vinyl4
+    {
+        mesh = WorldItems/NM_Vinyl,
+        texture = WorldItems/Vinyl/World_NM_Vinyl4,
+        scale = 0.12,
+    }
+
+    model Vinyl5
+    {
+        mesh = WorldItems/NM_Vinyl,
+        texture = WorldItems/Vinyl/World_NM_Vinyl5,
+        scale = 0.12,
+    }
+
+    model Vinyl6
+    {
+        mesh = WorldItems/NM_Vinyl,
+        texture = WorldItems/Vinyl/World_NM_Vinyl6,
+        scale = 0.12,
+    }
+
+    model Vinyl7
+    {
+        mesh = WorldItems/NM_Vinyl,
+        texture = WorldItems/Vinyl/World_NM_Vinyl7,
+        scale = 0.12,
+    }
+
+    model Vinyl8
+    {
+        mesh = WorldItems/NM_Vinyl,
+        texture = WorldItems/Vinyl/World_NM_Vinyl8,
+        scale = 0.12,
+    }
+
+    model Vinyl9
+    {
+        mesh = WorldItems/NM_Vinyl,
+        texture = WorldItems/Vinyl/World_NM_Vinyl9,
+        scale = 0.12,
+    }
+
+    model Vinyl10
+    {
+        mesh = WorldItems/NM_Vinyl,
+        texture = WorldItems/Vinyl/World_NM_Vinyl10,
+        scale = 0.12,
+    }
+}
+

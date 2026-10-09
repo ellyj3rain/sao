@@ -43,6 +43,13 @@ local PRIORS = {
     {"coercion", "supports", "imposed-compliance"},
     {"concession", "supports", "possible-agreement"},
     {"reading", "supports", "understanding"},
+    {"reading", "supports", "recreation"},
+    {"music", "supports", "recreation"},
+    {"art", "supports", "recreation"},
+    {"games", "supports", "recreation"},
+    {"exercise", "supports", "physical-practice"},
+    {"exercise", "may-cause", "relief-from-stress"},
+    {"exploration", "supports", "discovery"},
 }
 local function finite(n) return type(n)=="number" and n==n and math.abs(n)<1000000000 end
 local function word(s) return type(s)=="string" and #s>0 and #s<=96 and s:match("^[%w_:%-%.]+$")~=nil end

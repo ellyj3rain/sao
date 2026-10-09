@@ -1,0 +1,139 @@
+module NewMusic
+{
+    imports
+    {
+        Base
+    }
+
+    item CassettePZOSTA
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.02,
+        Icon = NM_Cassette_Zomboid,
+        DisplayName = Project Zomboid OST (Cassette A-side),
+        WorldStaticModel = NewMusic.CassetteZomboid,
+        CanSpawn = true,
+    }
+
+    item CassettePZOSTB
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.02,
+        Icon = NM_Cassette_Zomboid,
+        DisplayName = Project Zomboid OST (Cassette B-side),
+        WorldStaticModel = NewMusic.CassetteZomboid,
+        CanSpawn = true,
+    }
+
+    item CassettePZOSTCaseEmpty
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.10,
+        Icon = NM_Case_Zomboid,
+        DisplayName = Project Zomboid OST Cassette Case (Empty),
+        WorldStaticModel = NewMusic.CassetteCoverZomboid,
+        CanSpawn = true,
+    }
+
+    item CassettePZOSTCaseFull
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.10,
+        Icon = NM_Case_Zomboid,
+        DisplayName = Project Zomboid OST Cassette Case (Full),
+        WorldStaticModel = NewMusic.CassetteCoverZomboid,
+        CanSpawn = true,
+    }
+
+    item CDPZOSTA
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.03,
+        Icon = NM_CD,
+        DisplayName = Project Zomboid OST (CD A-side),
+        WorldStaticModel = NewMusic.CD,
+        CanSpawn = true,
+    }
+
+    item CDPZOSTB
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.03,
+        Icon = NM_CD,
+        DisplayName = Project Zomboid OST (CD B-side),
+        WorldStaticModel = NewMusic.CD,
+        CanSpawn = true,
+    }
+
+    item CDPZOSTCoverEmpty
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.10,
+        Icon = NM_CDCover_Zomboid,
+        DisplayName = Project Zomboid OST CD Cover (Empty),
+        WorldStaticModel = NewMusic.CDCoverZomboid,
+        CanSpawn = true,
+    }
+
+    item CDPZOSTCoverFull
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.10,
+        Icon = NM_CDCover_Zomboid,
+        DisplayName = Project Zomboid OST CD Cover (Full),
+        WorldStaticModel = NewMusic.CDCoverZomboid,
+        CanSpawn = true,
+    }
+
+    item VinylPZOSTA
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.03,
+        Icon = NM_Vinyl4,
+        DisplayName = Project Zomboid OST (Vinyl A-side),
+        WorldStaticModel = NewMusic.Vinyl4,
+        CanSpawn = true,
+    }
+
+    item VinylPZOSTB
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.03,
+        Icon = NM_Vinyl4,
+        DisplayName = Project Zomboid OST (Vinyl B-side),
+        WorldStaticModel = NewMusic.Vinyl4,
+        CanSpawn = true,
+    }
+
+    item JacketPZOSTEmpty
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.12,
+        Icon = NM_Jacket_Zomboid_Empty,
+        DisplayName = Project Zomboid OST Jacket (Empty),
+        WorldStaticModel = NewMusic.JacketZomboidEmpty,
+        CanSpawn = true,
+    }
+
+    item JacketPZOSTFull
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.12,
+        Icon = NM_Jacket_Zomboid,
+        DisplayName = Project Zomboid OST Jacket (Full),
+        WorldStaticModel = NewMusic.JacketZomboid,
+        CanSpawn = true,
+    }
+}

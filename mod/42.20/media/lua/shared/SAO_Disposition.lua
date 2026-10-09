@@ -54,7 +54,7 @@ end
 function D.traitEvidence(id)
     local out = {}
     for _, name in ipairs({ "nerve", "discipline", "aggression", "initiative",
-            "selfPreservation", "compassion", "appetite", "talkativeness" }) do
+            "selfPreservation", "compassion", "appetite", "talkativeness", "curiosity" }) do
         out[name] = trait(id, name, true)
     end
     return out
@@ -85,7 +85,14 @@ function D.traits(id)
         compassion = trait(id, "compassion"),             -- gives to the suffering
         appetite = trait(id, "appetite"),                 -- eats early vs waits
         talkativeness = trait(id, "talkativeness"),       -- voices the day
+        curiosity = trait(id, "curiosity"),              -- tests unfamiliar accessible means
     }
+end
+function D.curiosity(id)
+    if not SAO.Identity or not SAO.Identity.get(id) then return nil end
+    local ok,evidence=pcall(trait,id,"curiosity",true)
+    if not ok then return nil end
+    return evidence
 end
 
 -- [C31] The child's fear (Growing Up's model, CREDITS.md; the numbers

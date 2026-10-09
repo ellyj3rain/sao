@@ -6,7 +6,7 @@ these children cannot execute native physics or recursively run proof controls.
 """
 import hashlib
 import os
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import subprocess
 import sys
 import tempfile
@@ -29,19 +29,31 @@ def presence(owned, installed, required, label):
     return None
 
 
-def installed_presence(inputs, game, jdk, label):
+def installed_path(value):
+    """Keep a Windows installation's path components meaningful on other hosts."""
+    path = Path(value)
+    windows = PureWindowsPath(str(value))
+    if os.name != "nt" and windows.is_absolute():
+        return Path(windows.as_posix())
+    return path
+
+
+def installed_presence(inputs, game, jdk, label, *, installed_roots=()):
     """Classify a native driver's exact input inventory before hashing it.
 
-    Game/JDK descendants are installed dependencies. Repository inputs remain
+    Game/JDK, sibling Steam Workshop and declared source roots are installed dependencies. Repository inputs remain
     mandatory even when the engine is absent. This function never exits during
     import, so importing a native fixture cannot suppress portable checks.
     """
-    game, jdk = Path(game).resolve(), Path(jdk).resolve()
+    game, jdk = installed_path(game).resolve(), installed_path(jdk).resolve()
+    dependency_roots = [game, jdk, *[installed_path(root).resolve() for root in installed_roots]]
+    if game.parent.name.lower() == "common":
+        dependency_roots.append(game.parent.parent / "workshop" / "content" / "108600")
     owned, installed = [Path(__file__)], [game / 'projectzomboid.jar',
                                         jdk / 'java.exe', jdk / 'javac.exe']
     for value in inputs:
-        path = Path(value).resolve()
-        (installed if path.is_relative_to(game) or path.is_relative_to(jdk) else owned).append(path)
+        path = installed_path(value).resolve()
+        (installed if any(path.is_relative_to(root) for root in dependency_roots) else owned).append(path)
     return presence(owned, installed, False, label)
 
 

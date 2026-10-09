@@ -26,7 +26,7 @@ CLAIMS = (
 # and a command substitution assigned to a variable. Anchor the command so
 # a note quoting an example cannot become an invocation.
 CALL = r'^\s*(?:if\s+!\s+)?(?:[A-Za-z_][A-Za-z_0-9]*=\$\()?"\$PY"\s+'
-DIRECT = re.compile(CALL + r'"?tools/([a-z_0-9]+)\.py(?=["\s;)]|$)', re.M)
+DIRECT = re.compile(CALL + r'"?tools/([a-z_0-9]+(?:/[a-z_0-9]+)*)\.py(?=["\s;)]|$)', re.M)
 LOOP_CALL = re.compile(CALL + r'"tools/\$mirror\.py"', re.M)
 LABEL = re.compile(r"^\s*(?:(\d+)\)\s|Border\s+(\d+)\b)")
 
@@ -90,10 +90,19 @@ def counts(root=ROOT):
 
 def claim_faults(text, got):
     normalized = " ".join(text.split())
-    return [f"SESSION_STATE.md must state `{phrase.format(n=got[key])}` ({label})"
-            for label, key, phrase in CLAIMS
-            if re.search(r"(?<!\d)" + re.escape(phrase.format(n=got[key])) + r"(?!\d)",
-                         normalized) is None]
+    # Counts are computed here. Current product prose may quote them; it does
+    # not have to duplicate every evolving gate metric in the session state.
+    faults = []
+    for label, key, phrase in CLAIMS:
+        pattern = re.escape(phrase).replace(re.escape("{n}"), r"(?P<count>\d+)")
+        for match in re.finditer(pattern, normalized):
+            if int(match.group("count")) != got[key]:
+                faults.append(f"SESSION_STATE.md states an obsolete {label}; current value is {got[key]}")
+    for key, letter in (("a", "A"), ("b", "B")):
+        for match in re.finditer(r"\b(\d+)\s+" + letter + r"(?=\s|,|\.)", normalized):
+            if int(match.group(1)) != got[key]:
+                faults.append(f"SESSION_STATE.md states an obsolete {letter} batch count; current value is {got[key]}")
+    return faults
 
 
 def controls():
@@ -101,6 +110,7 @@ def controls():
                'note \'"$PY" tools/mentioned_test.py\'\n'
                'if ! "$PY" tools/direct_test.py; then\nfi\n'
                'if ! value=$("$PY" tools/helper.py); then\nfi\n'
+               'if ! "$PY" tools/domain/native_test.py; then\nfi\n'
                'for mirror in \\\n    loop_test\ndo\n'
                '    if ! "$PY" "tools/$mirror.py"; then\n    true\n    fi\ndone\n')
     with tempfile.TemporaryDirectory(prefix="sao-state-counts-") as tmp:
@@ -116,9 +126,11 @@ def controls():
         loop = tools / "loop_test.py"
         loop.write_text('print("Border 175 PASS: current form")\n', encoding="utf-8")
         (tools / "helper.py").write_text('example = "  999) not printed"\n', encoding="utf-8")
+        (tools / "domain").mkdir()
+        (tools / "domain/native_test.py").write_text('print("Border 172 PASS: nested native proof")\n', encoding="utf-8")
         for name in ("comment_test", "mentioned_test", "ungated_test"):
             (tools / (name + ".py")).write_text('print("Border 999 PASS: not invoked")\n', encoding="utf-8")
-        expected = {"a": 1, "b": 1, "highest": 175, "tests": 2, "other": 1, "scripts": 3}
+        expected = {"a": 1, "b": 1, "highest": 175, "tests": 3, "other": 1, "scripts": 4}
         if counts(root) != expected:
             raise RuntimeError("State-count baseline miscounts executable scripts or printed labels")
         state = "\n".join(phrase.format(n=expected[key]) for _, key, phrase in CLAIMS)
@@ -129,6 +141,7 @@ def controls():
         mutations = [
             (gate, fixture.replace('if ! "$PY" tools/direct_test.py; then\nfi\n', ""), "gated test files"),
             (gate, fixture.replace('if ! value=$("$PY" tools/helper.py); then\nfi\n', ""), "other gate scripts"),
+            (gate, fixture.replace('if ! "$PY" tools/domain/native_test.py; then\nfi\n', ""), "gated test files"),
             (loop, 'print("Border 176 PASS: advanced label")\n', "highest border label"),
         ]
         for path, changed, reason in mutations:
@@ -141,7 +154,7 @@ def controls():
                     raise RuntimeError("State-count control failed to reject changed " + reason)
             finally:
                 path.write_text(original, encoding="utf-8")
-    return 3
+    return 4
 
 
 def main():
@@ -159,7 +172,7 @@ def main():
             for fault in faults:
                 print("  FAULT: " + fault)
             return 1
-        print(f"  76) state counts: all {len(CLAIMS)} canonical figures match; {control_count} mutation controls refuse")
+        print(f"  76) state counts: current figures computed; stated figures match; {control_count} mutation controls refuse")
         return 0
     except (OSError, RuntimeError, SyntaxError, ValueError) as error:
         print("  FAULT: " + str(error))

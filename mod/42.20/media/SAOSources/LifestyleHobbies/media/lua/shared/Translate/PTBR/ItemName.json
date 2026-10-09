@@ -1,0 +1,84 @@
+{
+	"Lifestyle.PasteGrub": "Pasta de Nutrientes",
+	"Lifestyle.PasteBurger": "Hambúrguer de Pasta",
+	"Lifestyle.UmbrellaHat": "Chapéu Guarda-chuva",
+	"Lifestyle.ToothpasteCurio": "NutriPasta Sintética",
+	"Lifestyle.ScrapBushSeed": "Semente de Arbusto-Sucata",
+	"Lifestyle.DemonCore": "Núcleo do Demônio",
+
+	"Lifestyle.Harvester": "Colheitadeira",
+	"Lifestyle.PowerAxe": "Machado Explosivo",
+	"Lifestyle.NeuralHat": "Touca Pensante",
+
+	"Lifestyle.upgradeElectric": "Peças de Melhoria (elétrica)",
+	"Lifestyle.upgradeElectricRare": "Peças Raras de Melhoria (elétrica)",
+	"Lifestyle.upgradeMechanical": "Peças de Melhoria (mecânica)",
+	"Lifestyle.upgradeMechanicalRare": "Peças Raras de Melhoria (mecânica)",
+	"Lifestyle.upgradePlumbing": "Peças de Melhoria (encanamento)",
+	"Lifestyle.upgradePlumbingRare": "Peças Raras de Melhoria (encanamento)",
+	"Lifestyle.upgradeWood": "Peças de Melhoria (madeira)",
+	"Lifestyle.upgradeWoodRare": "Peças Raras de Melhoria (madeira)",
+
+	"Lifestyle.BloodSausage": "Morcela",
+
+	"Lifestyle.oldPaintBrush": "Pincel de Artista",
+	"Lifestyle.paintPaletteEmpty": "Paleta de Arte (vazia)",
+	"Lifestyle.paintPalette": "Paleta de Arte",
+	"Lifestyle.paintTubs": "Suprimentos de Arte",
+	"Lifestyle.Mov_ArtEasel": "Cavalete",
+	"Lifestyle.Mov_SculptingStation": "Estação de Escultura",
+
+	"Lifestyle.LSMagazineEdition1": "HomeStyle: DISCO Edição Especial",
+	"Lifestyle.LSMagazineEdition2": "HomeStyle: Segredos do Atelier",
+
+	"Lifestyle.Harmonica": "Gaita",
+	"Lifestyle.SheetMusicBook": "Caderno de Música",
+	"Lifestyle.BucketBleachFull": "Balde de Água e Alvejante",
+
+	"Lifestyle.LS_Discoball": "Bola de Disco",
+	"Lifestyle.LS_DJBooth01": "Cabine de DJ",
+
+	"Lifestyle.BookArtSet": "Conjunto de Livros de Arte",
+	"Lifestyle.BookCleaningSet": "Conjunto de Livros de Limpeza",
+	"Lifestyle.BookDancingSet": "Conjunto de Livros de Dança",
+	"Lifestyle.BookMusicSet": "Conjunto de Livros de Música",
+
+	"Lifestyle.BookArt1": "Art I: \"Básicos da Pintura a Dedo\"",
+	"Lifestyle.BookArt2": "Art II: \"Teoria das Cores\"",
+	"Lifestyle.BookArt3": "Art III: \"Anatomia e Perspectiva\"",
+	"Lifestyle.BookArt4": "Art IV: \"Do urinal de Duchamp à coroa de Basquiat: A Estética do Absurdo\"",
+	"Lifestyle.BookArt5": "Art V: \"Ars Longa, Vita Brevis: Os Princípios Imortais da Maestria\"",
+
+	"Lifestyle.BookCleaning1": "Limpeza Vol. 1",
+	"Lifestyle.BookCleaning2": "Limpeza Vol. 2",
+	"Lifestyle.BookCleaning3": "Limpeza Vol. 3",
+	"Lifestyle.BookCleaning4": "Limpeza Vol. 4",
+	"Lifestyle.BookCleaning5": "Limpeza Vol. 5",
+
+	"Lifestyle.BookMusic1": "Música Vol. 1",
+	"Lifestyle.BookMusic2": "Música Vol. 2",
+	"Lifestyle.BookMusic3": "Música Vol. 3",
+	"Lifestyle.BookMusic4": "Música Vol. 4",
+	"Lifestyle.BookMusic5": "Música Vol. 5",
+
+	"Lifestyle.BookDancing1": "Dança Vol. 1",
+	"Lifestyle.BookDancing2": "Dança Vol. 2",
+	"Lifestyle.BookDancing3": "Dança Vol. 3",
+	"Lifestyle.BookDancing4": "Dança Vol. 4",
+	"Lifestyle.BookDancing5": "Dança Vol. 5",
+
+	"Lifestyle.ToyChicken": "Galinha de Borracha",
+	"Lifestyle.MetalToyRocket": "Foguete de Brinquedo",
+	"Lifestyle.WoodenToyPlane": "Avião de Brinquedo",
+	"Lifestyle.WoodToyPlane": "Avião de Brinquedo",
+	"Lifestyle.WoodToyTrain": "Trenzinho",
+	"Lifestyle.WoodToyTank": "Tanque de Brinquedo",
+	"Lifestyle.WoodToyHorse": "Cavalinho",
+	"Lifestyle.WoodToyHelicopter": "Helicóptero de Brinquedo",
+	"Lifestyle.WoodToyRabbit": "Coelho na Cartola",
+	"Lifestyle.WoodToyShip": "Réplica de Navio",
+	"Lifestyle.ToyNewtonCradle": "Berço de Newton",
+	"Lifestyle.ClothToyPenguin": "Penguim de Pelúcia",
+	"Lifestyle.MetalToyRobot": "Robozinho de Brinquedo",
+	"Lifestyle.MetalToyDog": "Cão de Latão"
+}

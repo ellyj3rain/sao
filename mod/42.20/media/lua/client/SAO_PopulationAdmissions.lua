@@ -12,6 +12,7 @@ end
 
 local regionPoints = nil
 local regionPointsByProfession = nil
+local regionWorkPoints = nil
 local lastHighwayLogAt = -9
 local initialCohort = nil
 local awarenessProviderBound = false
@@ -420,7 +421,7 @@ local function loadRegionPoints()
     -- The engine's spawn points are keyed BY PROFESSION ([A18]): the
     -- vanilla spawnpoints tables are literally a per-profession map of
     -- where such a life would have been when it started. Keep the key.
-    local byProfession = {}
+    local byProfession, byWorkRegion = {}, {}
     for _, region in ipairs(regions) do
         if region.name and type(region.points) == "table" then
             for professionKey, list in pairs(region.points) do
@@ -438,6 +439,9 @@ local function loadRegionPoints()
                             local key = p.profession
                             byProfession[key] = byProfession[key] or {}
                             table.insert(byProfession[key], p)
+                            byWorkRegion[key] = byWorkRegion[key] or {}
+                            byWorkRegion[key][p.region] = byWorkRegion[key][p.region] or {}
+                            table.insert(byWorkRegion[key][p.region], p)
                         end
                     end
                 end
@@ -445,6 +449,7 @@ local function loadRegionPoints()
         end
     end
     regionPointsByProfession = byProfession
+    regionWorkPoints = byWorkRegion
     if #flat == 0 then
         log("spawn regions carried no usable points; genesis deferred")
         return nil
@@ -611,6 +616,34 @@ local function pickOriginFor(enginePath, siteId)
     return list[SAO.Rand.int(#list) + 1]
 end
 
+-- A person's first ordinary workplace comes from their own saved origin
+-- region and native profession points. The saved coordinate pair survives
+-- reloads and source-table changes; a region without this trade has no work
+-- destination to invent.
+function A.workplaceFor(rec, enginePath)
+    if type(rec) ~= "table" then return nil end
+    if rec.workX ~= nil or rec.workY ~= nil then
+        if type(rec.workX) == "number" and type(rec.workY) == "number"
+            and rec.workX == rec.workX and rec.workY == rec.workY
+            and rec.workX ~= math.huge and rec.workX ~= -math.huge
+            and rec.workY ~= math.huge and rec.workY ~= -math.huge then
+            return { x = rec.workX, y = rec.workY }
+        end
+        return nil
+    end
+    if type(enginePath) ~= "string" or enginePath == ""
+        or type(rec.originRegion) ~= "string" or rec.originRegion == "" then
+        return nil
+    end
+    loadRegionPoints()
+    local byRegion = regionWorkPoints and regionWorkPoints[enginePath]
+    local points = byRegion and byRegion[rec.originRegion]
+    if not points or #points == 0 then return nil end
+    local work = points[SAO.Rand.int(#points) + 1]
+    rec.workX, rec.workY = work.x, work.y
+    return work
+end
+
 local function pickInitialOrigin(siteId)
     local points, localPoints = loadRegionPoints(), {}
     if not points then return nil end
@@ -659,6 +692,13 @@ end
 -- lines apart were the same rule written twice.
 local PACE_PER_PASS = 6
 local PACE_MATES = 2
+
+local function generatedBirthEligible(id)
+    if not SAO.History or type(SAO.History.generatedPresentAtCountyTime) ~= "function" then
+        return nil, "generated-birth-calendar-unavailable"
+    end
+    return SAO.History.generatedPresentAtCountyTime(id)
+end
 
 -- Has this save's county ever been settled? One flag, in the store
 -- the county already keeps, written only once the target is
@@ -928,9 +968,14 @@ local function ensurePopulation(conf, tickCounter)
             if cohort then cohort.status, cohort.reason = "deferred", "native-origin-unavailable:" .. siteId end
             return
         end
-        local rec = SAO.Identity.create(nil, nil, origin.x, origin.y, origin.z)
+        local rec, creationReason = SAO.Identity.create(nil, nil,
+            origin.x, origin.y, origin.z, generatedBirthEligible)
         if not rec then
-            if cohort then cohort.status, cohort.reason = "deferred", "native-identity-creation-refused:" .. siteId end
+            if cohort then
+                cohort.status, cohort.reason = "deferred",
+                    "native-identity-creation-refused:" .. siteId
+                        .. ":" .. tostring(creationReason or "unknown")
+            end
             return
         end
         pcall(function() SAO.History.generate(rec.id, rec) end)
@@ -1023,14 +1068,11 @@ local function ensurePopulation(conf, tickCounter)
         local size, kind = rollUnit()
         if siteId then size = math.min(size, remaining) end
         local unitId = (size > 1) and (rec.id .. "-u") or nil
-        if unitId then
-            rec.unitId, rec.unitKind = unitId, kind
-        end
         local mates = { rec }
         for _ = 2, size do
             if count >= capNow or bornThisPass >= budget + PACE_MATES then break end
             local mate = SAO.Identity.create(nil, nil,
-                origin.x, origin.y, origin.z)
+                origin.x, origin.y, origin.z, generatedBirthEligible)
             if not mate then break end
             bornThisPass = bornThisPass + 1
             pcall(function() SAO.History.generate(mate.id, mate) end)
@@ -1058,6 +1100,10 @@ local function ensurePopulation(conf, tickCounter)
             count = count + 1
         end
         if #mates > 1 then
+            -- The intended unit becomes a fact only after another person
+            -- was actually admitted. An unavailable birth/calendar answer
+            -- can defer a mate without making this person a false unit.
+            rec.unitId, rec.unitKind = unitId, kind
             local trust = UNIT_TRUST[kind] or 0.6
             for a = 1, #mates do
                 for b = a + 1, #mates do
@@ -1124,7 +1170,7 @@ function A.rebindWorld()
     if SAO.EducationRegistry and type(SAO.EducationRegistry.clear)=="function" then
         pcall(SAO.EducationRegistry.clear)
     end
-    regionPoints, regionPointsByProfession, derivedTarget = nil, nil, nil
+    regionPoints, regionPointsByProfession, regionWorkPoints, derivedTarget = nil, nil, nil, nil
     initialCohort = nil
     memorySourcePins = nil
     lastHighwayLogAt = -9

@@ -151,9 +151,11 @@ def default_video_checks(args):
                 ('cli', 'parser.add_argument("--video-fps", type=int, default=120,',
                  'parser.add_argument("--video-fps", type=int, default=60,')]
     for label, before, after in controls:
-        check(original.count(before) == 1, 'session default source control target differs')
+        target = (original[original.index('def runner_command('):original.index('def participant_command(')]
+                  if label == 'api' else original)
+        check(target.count(before) == 1, 'observer session default source control target differs')
         module = types.ModuleType('session_default_control_' + label); module.__dict__['__file__'] = str(path)
-        exec(compile(original.replace(before, after), '<session-default-control>', 'exec'), module.__dict__)
+        exec(compile(original.replace(before, after, 1), '<session-default-control>', 'exec'), module.__dict__)
         try:
             if label == 'api':
                 command = module.runner_command(missing, True, 120)

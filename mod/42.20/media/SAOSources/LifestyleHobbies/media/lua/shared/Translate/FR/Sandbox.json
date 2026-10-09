@@ -1,0 +1,294 @@
+{
+
+    "Sandbox_Lifestyle": "Lifestyle: Loisirs - Réglages Principaux",
+    "Sandbox_LifestyleMD": "LS:HB - Musique et Danse",
+    "Sandbox_LifestyleMY": "LS:HB - Méditation et Yoga",
+    "Sandbox_LifestyleHC": "LS:HB - Hygiène et Nettoyage",
+    "Sandbox_LifestyleAA": "LS:HB - Art et Ambitions",
+    "Sandbox_LifestyleServer": "LS:HB - Serveur",
+    "Sandbox_LifestyleMisc": "LS:HB - Autre",
+
+    "Sandbox_Divider_Music": "Musique - Activer/Désactiver",
+    "Sandbox_Divider_Music_tooltip": "Active/Désactive toutes les mécaniques liées à la musique (moodles, traits, intéractions, ...).",
+    "Sandbox_Divider_Dancing": "Danse - Activer/Désactiver",
+    "Sandbox_Divider_Dancing_tooltip": "Active/Désactive toutes les mécaniques liées à la danse (moodles, traits, intéractions, ...).",
+    "Sandbox_Divider_Meditation": "Méditation et Yoga - Activer/Désactiver",
+    "Sandbox_Divider_Meditation_tooltip": "Active/Désactive toutes les mécaniques liées à la méditation et au yoga (moodles, traits, intéractions, ...).",
+    "Sandbox_Divider_Hygiene": "Hygiène et Nettoyage - Activer/Désactiver",
+    "Sandbox_Divider_Hygiene_tooltip": "Active/Désactive toutes les mécaniques liées à l'hygiène et au nettoyage (moodles, traits, intéractions, ...).",
+    "Sandbox_Divider_Art": "Art - Activer/Désactiver",
+    "Sandbox_Divider_Art_tooltip": "Active/Désactive toutes les mécaniques liées à l'art (moodles, traits, intéractions, ...).",
+    "Sandbox_LS_Ambt_Toggle": "Ambitions - Activer/Désactiver",
+    "Sandbox_LS_Ambt_Toggle_tooltip": "Active/Désactive le système d'ambitions. Attention : Désactiver ceci réinistialisera la progression actuelle de tous les joueurs.",
+
+    "Sandbox_Music_StrengthMultiplier": "Musique - Efficacité (Jouer)",
+    "Sandbox_Music_StrengthMultiplier_tooltip": "Contôrle l'efficacité des activités musicales. Une valeur plus élevée augmentera leur efficacité.",
+    "Sandbox_Music_StrengthMultiplier_option1": "Basse",
+    "Sandbox_Music_StrengthMultiplier_option2": "Normale",
+    "Sandbox_Music_StrengthMultiplier_option3": "Haute",
+    "Sandbox_Music_StrengthMultiplier_option4": "Très élevée",
+
+    "Sandbox_Music_ListeningStrengthMultiplier": "Musique - Efficacité (Écoute)",
+    "Sandbox_Music_ListeningStrengthMultiplier_tooltip": "Contôrle l'efficacité de l'écoute de musique. Une valeur plus élevée augmentera leur efficacité sur l'humeur.",
+    "Sandbox_Music_ListeningStrengthMultiplier_option1": "Basse",
+    "Sandbox_Music_ListeningStrengthMultiplier_option2": "Normale",
+    "Sandbox_Music_ListeningStrengthMultiplier_option3": "Élevée",
+    "Sandbox_Music_ListeningStrengthMultiplier_option4": "Très élevée",
+
+    "Sandbox_Music_LearningChance": "Musique - Chance d'apprentissage des chansons",
+    "Sandbox_Music_LearningChance_tooltip": "Les chances d'apprendre de nouvelles chansons lorsque vous vous entrainez avec un instrument. Le niveau 2 de musique est requis pour commencer à apprendre des chansons.",
+    "Sandbox_Music_LearningChance_option1": "Très difficile",
+    "Sandbox_Music_LearningChance_option2": "Difficile",
+    "Sandbox_Music_LearningChance_option3": "Normal",
+    "Sandbox_Music_LearningChance_option4": "Facile",
+    "Sandbox_Music_LearningChance_option5": "Très facile",
+
+    "Sandbox_Music_Metabolics": "Musique - Épuisement",
+    "Sandbox_Music_Metabolics_tooltip": "Défini si jouer de la musique est physiquement épuisant.",
+    "Sandbox_Music_Metabolics_option1": "Activé",
+    "Sandbox_Music_Metabolics_option2": "En s'entraînant uniquement",
+    "Sandbox_Music_Metabolics_option3": "Désactivé",
+
+    "Sandbox_Dancing_StrengthMultiplier": "Danse - Efficacité",
+    "Sandbox_Dancing_StrengthMultiplier_tooltip": "Contôrle l'efficacité des activités de danse. Une valeur plus élevée augmentera leur efficacité.",
+    "Sandbox_Dancing_StrengthMultiplier_option1": "Basse",
+    "Sandbox_Dancing_StrengthMultiplier_option2": "Normale",
+    "Sandbox_Dancing_StrengthMultiplier_option3": "Haute",
+    "Sandbox_Dancing_StrengthMultiplier_option4": "Très élevée",
+
+    "Sandbox_Meditation_StrengthMultiplier": "Méditation - Efficacité",
+    "Sandbox_Meditation_StrengthMultiplier_tooltip": "Contrôle l'efficacité des activités de méditation. Une valeur plus élevée augmentera leur efficacité.",
+    "Sandbox_Meditation_StrengthMultiplier_option1": "Basse",
+    "Sandbox_Meditation_StrengthMultiplier_option2": "Normale",
+    "Sandbox_Meditation_StrengthMultiplier_option3": "Haute",
+    "Sandbox_Meditation_StrengthMultiplier_option4": "Très élevée",
+
+    "Sandbox_Meditation_MindfulnessDuration": "Méditation - États de conscience",
+    "Sandbox_Meditation_MindfulnessDuration_tooltip": "Contrôle la durée des états de conscience liés à la méditation.",
+    "Sandbox_Meditation_MindfulnessDuration_option1": "Courte",
+    "Sandbox_Meditation_MindfulnessDuration_option2": "Normale",
+    "Sandbox_Meditation_MindfulnessDuration_option3": "Longue",
+
+    "Sandbox_Meditation_HealFactor": "Facteur de soin de la conscience parfaite (méditation)",
+    "Sandbox_Meditation_HealFactor_tooltip": "Combien la guérison se produit lors de l'état de conscience parfaite.<br>Le montant varie en fonction de l'état de santé général du personnage et des réglages du temps en jeu.",
+
+    "Sandbox_Meditation_EffectMultiplier": "Efficacité des effets d'états de conscience de méditation",
+    "Sandbox_Meditation_EffectMultiplier_tooltip": "Contrôle l'efficacité des bonus liés aux états de conscience (stress, douleur, panique, etc...).",
+    "Sandbox_Meditation_EffectMultiplier_option1": "Faible",
+    "Sandbox_Meditation_EffectMultiplier_option2": "Normale",
+    "Sandbox_Meditation_EffectMultiplier_option3": "Forte",
+
+    "Sandbox_LS_Meditation_RemoveLevitation": "Retirer la lévitation",
+    "Sandbox_LS_Meditation_RemoveLevitation_tooltip": "Cochez cette case pour retirer la lévitation aux levels élevés de méditation.",
+
+    "Sandbox_Meditation_KeepBags": "Méditation - Garder le sac à bas niveau",
+    "Sandbox_Meditation_KeepBags_tooltip": "Active/Désactive le fait de garder le sac à dos lors de la pratique de la méditation à bas niveau.",
+
+    "Sandbox_Yoga_StrengthMultiplier": "Yoga - Efficacité",
+    "Sandbox_Yoga_StrengthMultiplier_tooltip": "Défini à quel point le yoga est efficace. Des valeurs plus élevées augmentes l'efficacté de ses bénéfices.",
+    "Sandbox_Yoga_StrengthMultiplier_option1": "Faible",
+    "Sandbox_Yoga_StrengthMultiplier_option2": "Normale",
+    "Sandbox_Yoga_StrengthMultiplier_option3": "Élevée",
+    "Sandbox_Yoga_StrengthMultiplier_option4": "Très élevée",
+
+    "Sandbox_Yoga_Exhaustion": "Yoga - Seuil de fatigue",
+    "Sandbox_Yoga_Exhaustion_tooltip": "Défini à quel point le personnage doit être fatigué pour ne plus être capable de faire du yoga.",
+    "Sandbox_Yoga_Exhaustion_option1": "Désactivé",
+    "Sandbox_Yoga_Exhaustion_option2": "Faible fatigue",
+    "Sandbox_Yoga_Exhaustion_option3": "Fatigue moyenne (par défaut)",
+    "Sandbox_Yoga_Exhaustion_option4": "Fatigue élevée",
+
+    "Sandbox_Yoga_Embarrassment": "Yoga - Seuil d'embarras",
+    "Sandbox_Yoga_Embarrassment_tooltip": "Défini à quel point le personnage doit être embarrassé pour ne plus être capable de faire du yoga.",
+    "Sandbox_Yoga_Embarrassment_option1": "Désactivé",
+    "Sandbox_Yoga_Embarrassment_option2": "Faible embarras (par défaut)",
+    "Sandbox_Yoga_Embarrassment_option3": "Embarras moyen",
+    "Sandbox_Yoga_Embarrassment_option4": "Embarras élevé",
+
+    "Sandbox_Yoga_AidObjects": "Yoga - Tapis et encens",
+    "Sandbox_Yoga_AidObjects_tooltip": "Active/Désactive les tapis et encens qui améliorent la pratique du yoga.",
+
+    "Sandbox_Yoga_RequiresMat": "Yoga - Nécessite le tapis",
+    "Sandbox_Yoga_RequiresMat_tooltip": "Active/Désactive la necessité du tapis de yoga pour pratiquer.",
+
+    "Sandbox_Yoga_KeepBags": "Yoga - Garder le sac à dos",
+    "Sandbox_Yoga_KeepBags_tooltip": "Active/Désactive le fait de garder le sac à dos pendant le yoga.",
+
+    "Sandbox_Yoga_FailChance": "Yoga - Chance de réussite",
+    "Sandbox_Yoga_FailChance_tooltip": "Défini la fréquence à laquelle le personnage perd l'équilibre et tombe pendant les poses compliqué de Yoga (dépend de la compétence).",
+    "Sandbox_Yoga_FailChance_option1": "Jamais",
+    "Sandbox_Yoga_FailChance_option2": "Rarement",
+    "Sandbox_Yoga_FailChance_option3": "Parfois",
+    "Sandbox_Yoga_FailChance_option4": "Souvent (default)",
+    "Sandbox_Yoga_FailChance_option5": "Très souvent",
+    "Sandbox_Yoga_FailChance_option6": "À deux pieds gauches (presque tout le temps)",
+
+    "Sandbox_LS_Yoga_YogaXPMultiplier": "Yoga - Multiplicateur d'XP",
+    "Sandbox_LS_Yoga_YogaXPMultiplier_tooltip": "Yoga. Les valeurs inférieures à 1.0 diminuent le fain d'XP.",
+
+    "Sandbox_LS_Yoga_FitnessXPMultiplier": "Yoga - Multiplicateur d'XP de fitness",
+    "Sandbox_LS_Yoga_FitnessXPMultiplier_tooltip": "Fitness. Les valeurs inférieures à 1.0 diminuent le fain d'XP.",
+
+    "Sandbox_LS_Yoga_NimbleXPMultiplier": "Yoga - Multiplicateur d'XP de vivacité",
+    "Sandbox_LS_Yoga_NimbleXPMultiplier_tooltip": "Vivacité. Les valeurs inférieures à 1.0 diminuent le fain d'XP.",
+
+    "Sandbox_LS_Hygiene_HygieneNeedMultiplier": "Multiplicateur du besoin d'hygiène",
+    "Sandbox_LS_Hygiene_HygieneNeedMultiplier_tooltip": "Les valeurs inférieures à 1.0 diminuent le taux, réglez le sur 0 pour retirer ce besoin.",
+
+    "Sandbox_LS_Hygiene_BladderNeedMultiplier": "Multiplicateur du besoin de la vessie",
+    "Sandbox_LS_Hygiene_BladderNeedMultiplier_tooltip": "Les valeurs inférieures à 1.0 diminuent le taux, réglez le sur 0 pour retirer ce besoin.",
+
+    "Sandbox_LS_Hygiene_HygieneNeedExpectationTime": "Temps d'attente pour l'hygiène",
+    "Sandbox_LS_Hygiene_HygieneNeedExpectationTime_tooltip": "À partir de combien de jours de survie le survivant se souciera de l'hygiène.",
+    "Sandbox_LS_Hygiene_HygieneNeedExpectationTime_option1": "1-3 jours",
+    "Sandbox_LS_Hygiene_HygieneNeedExpectationTime_option2": "4-12 jours",
+    "Sandbox_LS_Hygiene_HygieneNeedExpectationTime_option3": "2-4 semaines",
+    "Sandbox_LS_Hygiene_HygieneNeedExpectationTime_option4": "1-3 mois",
+
+    "Sandbox_LS_Hygiene_CleansMakeup": "Douches/Bains retirent le maquillage",
+    "Sandbox_LS_Hygiene_CleansMakeup_tooltip": "Défini si prendre un bain ou une douche retire le maquillage facial et corporel.",
+
+    "Sandbox_LS_Hygiene_NotEmbarrassed": "Hygiène - Pas d'embarras de la part des autres",
+    "Sandbox_LS_Hygiene_NotEmbarrassed_tooltip": "Les personnages ne seront pas embarrassés s'ils se baignent ou vont aux toilettes si quelqu'un d'autre est présent.",
+
+    "Sandbox_LS_Hygiene_ColdSeverity": "Maladie liée à l'hygiène",
+    "Sandbox_LS_Hygiene_ColdSeverity_tooltip": "Défini la sévérité de la maladie lié à une mauvaise hygiène.",
+    "Sandbox_LS_Hygiene_ColdSeverity_option1": "Faible",
+    "Sandbox_LS_Hygiene_ColdSeverity_option2": "Moyenne",
+    "Sandbox_LS_Hygiene_ColdSeverity_option3": "Élevée",
+    "Sandbox_LS_Hygiene_ColdSeverity_option4": "Mortelle",
+
+    "Sandbox_LS_Hygiene_ColdChanceMultiplier": "Chances de maladie liée à l'hygiène",
+    "Sandbox_LS_Hygiene_ColdChanceMultiplier_tooltip": "Les valeurs inférieures à 1.0 diminueront les chances, définir sur 0 pour désactiver cette mécanique.",
+
+    "Sandbox_LS_Hygiene_CleaningExpectationTime": "Temps d'attente pour le nettoyage",
+    "Sandbox_LS_Hygiene_CleaningExpectationTime_tooltip": "À partir de combien de jours de survie le survivant se souciera de la propreté de son environnement.",
+    "Sandbox_LS_Hygiene_CleaningExpectationTime_option1": "1-3 jours",
+    "Sandbox_LS_Hygiene_CleaningExpectationTime_option2": "4-12 jours",
+    "Sandbox_LS_Hygiene_CleaningExpectationTime_option3": "2-4 semaines",
+    "Sandbox_LS_Hygiene_CleaningExpectationTime_option4": "1-3 mois",
+
+    "Sandbox_LS_Hygiene_CleaningLitterChance": "Chance de générer des déchets",
+    "Sandbox_LS_Hygiene_CleaningLitterChance_tooltip": "La chance pour qu'un personnage avec peu de niveau de compétence génère des déchets lorsqu'il fait une activité liée à une compétence (ex: des détritus de nourriture lorsqu'il a un faible niveau en cuisine).",
+    "Sandbox_LS_Hygiene_CleaningLitterChance_option1": "Très basse",
+    "Sandbox_LS_Hygiene_CleaningLitterChance_option2": "Basse",
+    "Sandbox_LS_Hygiene_CleaningLitterChance_option3": "Normale",
+    "Sandbox_LS_Hygiene_CleaningLitterChance_option4": "Élevée",
+
+    "Sandbox_LS_Art_BeautyOutdoors": "Beauté en extérieur",
+    "Sandbox_LS_Art_BeautyOutdoors_tooltip": "Défini si le besoin de beauté diminue lorsque l'on se trouve à l'extérieur.",
+
+    "Sandbox_LS_Art_BeautyShowNegative": "Afficher les scores négatifs en extérieur",
+    "Sandbox_LS_Art_BeautyShowNegative_tooltip": "Défini si oui ou non le score de beauté négatif apparaît sur les tiles d'extérieur (apparaîtra toujours si 'Beauté en extérieur' est activé).",
+
+    "Sandbox_LS_Art_BeautyNeedDecayRate": "Taux de dégradation de besoin de beauté",
+    "Sandbox_LS_Art_BeautyNeedDecayRate_tooltip": "Le taux auquel le besoin de beauté diminue lorsque vous êtes à proximité d'environnements laids ou neutres.",
+    "Sandbox_LS_Art_BeautyNeedDecayRate_option1": "Très lente",
+    "Sandbox_LS_Art_BeautyNeedDecayRate_option2": "Lente",
+    "Sandbox_LS_Art_BeautyNeedDecayRate_option3": "Normale",
+    "Sandbox_LS_Art_BeautyNeedDecayRate_option4": "Rapide",
+    "Sandbox_LS_Art_BeautyNeedDecayRate_option5": "Très rapide",
+
+    "Sandbox_LS_Art_BeautyNeedStrength": "Efficacité du besoin de beauté",
+    "Sandbox_LS_Art_BeautyNeedStrength_tooltip": "Défini à quel point le fait de satisfaire ou de négliger le besoin de beauté d'un personnage influence son humeur.",
+    "Sandbox_LS_Art_BeautyNeedStrength_option1": "Très basse",
+    "Sandbox_LS_Art_BeautyNeedStrength_option2": "Basse",
+    "Sandbox_LS_Art_BeautyNeedStrength_option3": "Normale",
+    "Sandbox_LS_Art_BeautyNeedStrength_option4": "Forte",
+    "Sandbox_LS_Art_BeautyNeedStrength_option5": "Très forte",
+
+    "Sandbox_LS_Art_ArtworkBeautyMultiplier": "Multiplicateur de beauté artistique",
+    "Sandbox_LS_Art_ArtworkBeautyMultiplier_tooltip": "Les valeurs en dessous de 1.0 diminueront l'effet des oeuvre artistiques sur le score de beauté.",
+	
+	"Sandbox_LS_Art_GeneralBeautyMultiplier": "Score de beauté - Multiplicateur",
+	"Sandbox_LS_Art_GeneralBeautyMultiplier_tooltip": "Modifie la valeur de base de la beauté de toutes les tiles, sauf les arts des joueurs.",
+
+	"Sandbox_LS_Comfort_ComfortNoImpact": "Désactiver l'impact du confort sur l'inconfort",
+	"Sandbox_LS_Comfort_ComfortNoImpact_tooltip": "À cocher pour empêche le confort de Lifestyle d'impacter le moodle d'inconfort Vanilla.",
+
+    "Sandbox_LS_Ambt_Cooldown": "Ambitions - Délai de récupération de l'activation",
+    "Sandbox_LS_Ambt_Cooldown_tooltip": "Le nombre d'heures en jeu qui doivent s'écouler avant que le joueur puisse activer/désactiver une ambitions qui a récemment été activée/désactivée.",
+
+    "Sandbox_LS_Ambt_MaxInProgress": "Ambitions - Limite de progression",
+    "Sandbox_LS_Ambt_MaxInProgress_tooltip": "Le nombre maximum d'ambitions non complétées qu'un joueur peut activer et continuer. Les ambitions passives sont exclues.",
+
+    "Sandbox_LS_Ambt_MaxTotal": "Ambitions - Limite active totale",
+    "Sandbox_LS_Ambt_MaxTotal_tooltip": "Le nombre maximum d'ambition qu'un joueur peut activer au maximum, incluant les ambitions en cours et terminées.",
+
+    "Sandbox_LS_Ambt_ResetException": "Ambitions - La réinitialisation ignore les actifs",
+    "Sandbox_LS_Ambt_ResetException_tooltip": "Défini si oui ou non la réinitialisation s'appliquent aux joueur qui progressent activement dessus. Les réinitialisations forcées s'appliquent toujours à tout le monde.",
+
+    "Sandbox_LS_Ambt_HideTips": "Ambitions - Cacher les indices",
+    "Sandbox_LS_Ambt_HideTips_tooltip": "Les ambitions cachées ne donnent aucun indice sur la façon de les révéler.",
+
+    "Sandbox_LSDivider_Other": "_______________ Autres réglages ______________",
+    "Sandbox_LSDivider_Other_tooltip": "Ceci est uniquement une ligne de séparation, la cocher n'a aucune incidence.",
+
+    "Sandbox_LS_DynamicTraits": "Dynamic Lifestyle Traits (DLT)",
+    "Sandbox_LS_DynamicTraits_tooltip": "Défini si les traits peuvent être gagnés ou perdus de manière dynamique.",
+    "Sandbox_LS_DynamicTraitsReverse": "DLT - Peut perdre des traits positifs",
+    "Sandbox_LS_DynamicTraitsReverse_tooltip": "Défini si les traits positifs peuvent être perdus si DLT est activé. <br> - Non : impossible de perdre des traits positifs <br> - Oui : peut perdre n'importe quel trait positif de Lifestyle <br> - Dynamique seulement : peut perdre uniquement les traits gagnés de manière dynamique, ne perdra jamais les traits positifs sélectionnés lors de la création de personnage",
+    "Sandbox_LS_DynamicTraitsReverse_option1": "Non",
+    "Sandbox_LS_DynamicTraitsReverse_option2": "Oui",
+    "Sandbox_LS_DynamicTraitsReverse_option3": "Dynamique seulement",
+
+    "Sandbox_LS_Comfort_ComfortNeedMultiplier": "Multiplicateur du besoin de confort",
+    "Sandbox_LS_Comfort_ComfortNeedMultiplier_tooltip": "Les valeurs inférieures à 1.0 diminuent le taux, réglez le sur 0 pour retirer ce besoin.",
+
+    "Sandbox_LS_Comfort_ComfortToggle": "Désactive le confort positif",
+    "Sandbox_LS_Comfort_ComfortToggle_tooltip": "Cocher pour désactiver le fait que les fauteuils et les lits donnent du confort positif.",
+
+    "Sandbox_LS_Divider_Server": "__________________ Serveur _________________",
+    "Sandbox_LS_Divider_Server_tooltip": "Ceci est uniquement une ligne de séparation, la cocher n'a aucune incidence.",
+
+    "Sandbox_LS_Server_ModdataUpdate": "Fréquence de mise à jour des données du joueur (Temps en jeu)",
+    "Sandbox_LS_Server_ModdataUpdate_tooltip": "Défini la fréquence de mise à jour des données de modification des joueurs en temps en jeu. Ne modifiez pas ceci si vous ne savez pas ce que c'est.",
+    "Sandbox_LS_Server_ModdataUpdate_option1": "Défini par la durée d'une journée (par défaut)",
+    "Sandbox_LS_Server_ModdataUpdate_option2": "Une fois par minute",
+    "Sandbox_LS_Server_ModdataUpdate_option3": "Toutes les 2 minutes",
+    "Sandbox_LS_Server_ModdataUpdate_option4": "Toutes les 5 minutes",
+    "Sandbox_LS_Server_ModdataUpdate_option5": "Toutes les 10 minutes",
+    "Sandbox_LS_Server_ModdataUpdate_option6": "Toutes les 15 minutes",
+    "Sandbox_LS_Server_ModdataUpdate_option7": "Toutes les 30 minutes",
+    "Sandbox_LS_Server_ModdataUpdate_option8": "Une fois par heure",
+    "Sandbox_LS_Server_ModdataUpdate_option9": "Toutes les 2 heures",
+    "Sandbox_LS_Server_ModdataUpdate_option10": "Toutes les 6 heures",
+    "Sandbox_LS_Server_ModdataUpdate_option11": "Toutes les 12 heures",
+    "Sandbox_LS_Server_ModdataUpdate_option12": "Une fois par jour",
+
+    "Sandbox_LS_Server_MoodUpdate": "Fréquence de mise à jour de l'humeur du joueur (Temps en jeu)",
+    "Sandbox_LS_Server_MoodUpdate_tooltip": "Défini la fréquence des changements d'humeur en temps en jeu. N'affecte que les gains/pertes d'humeur passifs (et non les actions dans le temps).",
+    "Sandbox_LS_Server_MoodUpdate_option1": "Défini par la durée d'une journée (par défaut)",
+    "Sandbox_LS_Server_MoodUpdate_option2": "Une fois par minute",
+    "Sandbox_LS_Server_MoodUpdate_option3": "Toutes les 2 minutes",
+    "Sandbox_LS_Server_MoodUpdate_option4": "Toutes les 5 minutes",
+    "Sandbox_LS_Server_MoodUpdate_option5": "Toutes les 10 minutes",
+    "Sandbox_LS_Server_MoodUpdate_option6": "Toutes les 15 minutes",
+    "Sandbox_LS_Server_MoodUpdate_option7": "Toutes les 30 minutes",
+    "Sandbox_LS_Server_MoodUpdate_option8": "Une fois par heure",
+    "Sandbox_LS_Server_MoodUpdate_option9": "Toutes les 2 heures",
+
+    "Sandbox_Divider_Debug": "__________________ Debug _________________",
+    "Sandbox_Divider_Debug_tooltip": "Ceci est uniquement une ligne de séparation, la cocher n'a aucune incidence.",
+
+    "Sandbox_Debug_MoodlePriority": "Déboggage de Inversion des Moodles Y",
+    "Sandbox_Debug_MoodlePriority_tooltip": "Activer ceci fera apparaître les autres moodles moddés au dessus des Moodles liés à Lifestyle.",
+    "Sandbox_Debug_Expressions": "Déboggage de Expressions",
+    "Sandbox_Debug_Expressions_tooltip": "Active les expressions manuelles dans le menu contextuel admin",
+    "Sandbox_Debug_DanceAnim": "Noms Debug",
+    "Sandbox_Debug_DanceAnim_tooltip": "Activer ceci fera apparaître le nom de l'animation au dessus de certaines nouvelles animations",
+    "Sandbox_Debug_LSVerbose": "Déboggage de Logs",
+    "Sandbox_Debug_LSVerbose_tooltip": "Imprime les textes. Pour du déboggage uniquement.",
+
+    "Sandbox_Art": "Multiplicateur d'EXP d'art",
+    "Sandbox_Art_tooltip": "Vitesse de gain d'expérience pour l'art.",
+    "Sandbox_Cleaning": "Multiplicateur d'EXP de nettoyage",
+    "Sandbox_Cleaning_tooltip": "Vitesse de gain d'expérience pour le nettoyage.",
+    "Sandbox_Dancing": "Multiplicateur d'EXP de danse",
+    "Sandbox_Dancing_tooltip": "Vitesse de gain d'expérience pour la danse.",
+    "Sandbox_Meditation": "Multiplicateur d'EXP de méditation",
+    "Sandbox_Meditation_tooltip": "Vitesse de gain d'expérience pour la méditation",
+    "Sandbox_Music": "Multiplicateur d'EXP de musique",
+    "Sandbox_Music_tooltip": "Vitesse de gain d'expérience pour la musique."
+
+}

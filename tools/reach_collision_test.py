@@ -75,6 +75,22 @@ FLAT_VAL = re.compile(r"\b\w*[Dd]ist\w*\s*<=\s*([0-9][0-9.]*)")
 # other. A sentence that would not survive being read aloud to someone
 # holding both sites is not an argument and does not belong here.
 ALLOWED = {
+    ("SAO_PlayerObjectives.lua", 5.0, "AFFLICTED_GROUND_ARRIVAL"):
+        "player command delivery additionally requires current reciprocal conversation; Afflicted route arrival is an execution completion tolerance",
+    ("SAO_PlayerObjectives.lua", 6.0, "MAX_DISTANCE"):
+        "recipient destination separation is a minimum displacement; the Handover/Treatment six-tile maximum limits native item or medical contact",
+    ("SAO_PlayerObjectives.lua", 6.0, "TALK_REACH"):
+        "a requested destination must lie away from the recipient; TALK_REACH limits conversation delivery, which already happened before this destination check",
+    ("SAO_WeekOneContinuity.lua", 3.0, "ARRIVAL_REACH"):
+        "the tactical candidate annulus starts three tiles away from the actor; route arrival measures remaining distance to a selected destination",
+    ("SAO_WeekOneContinuity.lua", 3.0, "ENCOUNTER_RANGE"):
+        "the tactical displacement annulus chooses ground ahead of the actor; a carrier encounter measures contact between two people",
+    ("SAO_WeekOneContinuity.lua", 3.0, "MEET_RANGE"):
+        "the tactical displacement annulus chooses a move; MEET_RANGE admits a social meeting between current bodies",
+    ("SAO_WeekOneContinuity.lua", 6.0, "MAX_DISTANCE"):
+        "the tactical annulus ends six tiles from its current actor; the Handover/Treatment six-tile maximum limits native item or medical contact",
+    ("SAO_WeekOneContinuity.lua", 6.0, "TALK_REACH"):
+        "tactical destination search is independent of current hearing/conversation; sharing its scale must not make a movement search follow a conversation rule",
     ("SAO_Controller.lua", 10.0, "FOLLOW_TRAVERSE_REACH"):
         "[C4] The bare tens that predate the name - the war-party "
         "fellow-armed check among them - are rules about company at "
@@ -152,6 +168,8 @@ ALLOWED = {
 
 
 def main():
+    from source_scanner_baseline import Baseline
+    baseline = Baseline()
     faults = []
     print("=" * 74)
     print("A NUMBER THAT ALREADY HAS A NAME")
@@ -162,12 +180,12 @@ def main():
             for p in sorted(LUA.rglob("*.lua"))}
 
     declared, used_as_reach = {}, set()
-    for src in srcs.values():
-        for m in DECL.finditer(src):
+    for path, src in srcs.items():
+        for m in baseline.authored_matches(path, src, DECL):
             declared[m.group(1)] = float(m.group(2))
-        for m in SQ_NAME.finditer(src):
+        for m in baseline.authored_matches(path, src, SQ_NAME):
             used_as_reach.add(m.group(3))
-        for m in FLAT_NAME.finditer(src):
+        for m in baseline.authored_matches(path, src, FLAT_NAME):
             used_as_reach.add(m.group(1))
     reaches = {n: declared[n] for n in sorted(used_as_reach) if n in declared}
 
@@ -177,6 +195,8 @@ def main():
     seen = set()
     for path, src in srcs.items():
         for off, tiles, _spelling in bare_reaches(src):
+            if baseline.preserved(path, src.count("\n", 0, off) + 1):
+                continue
             for name, value in reaches.items():
                 if abs(tiles - value) > 1e-6:
                     continue

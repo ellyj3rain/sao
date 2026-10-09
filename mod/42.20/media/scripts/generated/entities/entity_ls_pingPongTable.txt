@@ -1,0 +1,48 @@
+module Base
+{
+    entity LS_PingPongTable
+    {
+        component UiConfig
+        {
+            xuiSkin = default,
+            entityStyle = ES_LS_PingPongTable,
+            uiEnabled = false,
+        }
+        component SpriteConfig
+        {
+            face S
+            {
+                layer
+                {
+                    row = LS_Recreation_0 LS_Recreation_1,
+                }
+            }
+            face E
+            {
+                layer
+                {
+                    row = LS_Recreation_2,
+					row = LS_Recreation_3,
+                }
+            }
+        }
+        component CraftRecipe
+        {
+            timedAction = BuildWoodenStructureMedium,
+            time = 450,
+            NeedToBeLearn = true,
+            SkillRequired = Woodwork:4,
+            xpAward = Woodwork:40,
+            category = Carpentry,
+            Tags = Carpentry,
+            Tooltip = Tooltip_craft_EaselDesc,
+            inputs
+            {
+                item 1 tags[base:hammer] mode:keep flags[Prop1;MayDegradeVeryLight],
+                item 4 [Base.Plank],
+                item 8 [Base.Nails],
+                item 4 [Base.Woodglue] flags[DontRecordInput],
+            }
+        }
+    }
+}

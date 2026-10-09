@@ -79,6 +79,8 @@ ALLOWED = {
 
 
 def main():
+    from source_scanner_baseline import Baseline
+    baseline = Baseline()
     faults = []
     print("=" * 74)
     print("TWO REACHES LESS THAN A TILE APART")
@@ -89,12 +91,12 @@ def main():
             for p in sorted(LUA.rglob("*.lua"))}
 
     declared, used = {}, set()
-    for src in srcs.values():
-        for m in DECL.finditer(src):
+    for path, src in srcs.items():
+        for m in baseline.authored_matches(path, src, DECL):
             declared[m.group(1)] = float(m.group(2))
-        for m in SQ_NAME.finditer(src):
+        for m in baseline.authored_matches(path, src, SQ_NAME):
             used.add(m.group(3))
-        for m in FLAT_NAME.finditer(src):
+        for m in baseline.authored_matches(path, src, FLAT_NAME):
             used.add(m.group(1))
 
     where = {}
@@ -103,6 +105,8 @@ def main():
             where.setdefault(round(declared[name], 2), []).append(name)
     for path, src in srcs.items():
         for off, tiles, _spell in bare_reaches(src):
+            if baseline.preserved(path, src.count("\n", 0, off) + 1):
+                continue
             where.setdefault(round(tiles, 2), []).append(
                 f"{path.name}:{line_of(src, off)}")
 

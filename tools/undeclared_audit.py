@@ -20,6 +20,8 @@ when the bug appears.
 """
 import re
 import pathlib
+from scanner_inventory import lexical_context
+from pcall_audit import strip_lua
 
 lroot = (pathlib.Path(__file__).resolve().parent.parent
          / "mod/42.20/media/lua")
@@ -113,7 +115,7 @@ def used_before_declared(path):
     a parameter - disqualifies it, because then the earlier use may
     legitimately be a different binding.
     """
-    stripped = strip_noise(path.read_text(encoding="utf-8")).split("\n")
+    stripped = strip_lua(path.read_text(encoding="utf-8")).split("\n")
     file_level = {}
     disqualified = set()
     for i, line in enumerate(stripped):
@@ -134,6 +136,12 @@ def used_before_declared(path):
         use = re.compile(r"(?<![\w.:])" + re.escape(name) + r"\s*[.:(\[]")
         for i in range(declared_at):
             if use.search(stripped[i]):
+                # An earlier function parameter owns the identifier inside
+                # that function. It does not make a later file-local visible
+                # in other earlier closures. Strip noise preserves line order.
+                prefix = '\n'.join(stripped[:i]) + '\n' + stripped[i][:use.search(stripped[i]).start()]
+                if name in lexical_context(prefix)[0]:
+                    continue
                 found.append((name, i + 1, declared_at + 1))
                 break
     return found

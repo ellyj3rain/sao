@@ -1,0 +1,52 @@
+module NewMusic
+{
+    item VinylplayerEbony
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.8,
+        Icon = NM_VinylplayerEbony,
+        DisplayName = Vinyl Player (Ebony),
+        ConditionMax = 100,
+        Tooltip = Tooltip_item_Vinyl,
+        WorldStaticModel = NewMusic.VinylplayerEbony,
+        UseWorldItem = TRUE,
+    }
+    item VinylplayerOak
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.8,
+        Icon = NM_VinylplayerOak,
+        DisplayName = Vinyl Player (Oak),
+        ConditionMax = 100,
+        Tooltip = Tooltip_item_Vinyl,
+        WorldStaticModel = NewMusic.VinylplayerOak,
+        UseWorldItem = TRUE,
+    }
+    item VinylplayerRosewood
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.8,
+        Icon = NM_VinylplayerRosewood,
+        DisplayName = Vinyl Player (Rosewood),
+        ConditionMax = 100,
+        Tooltip = Tooltip_item_Vinyl,
+        WorldStaticModel = NewMusic.VinylplayerRosewood,
+        UseWorldItem = TRUE,
+    }
+    item VinylplayerMetal
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.8,
+        Icon = NM_VinylplayerMetal,
+        DisplayName = Vinyl Player (Metal),
+        ConditionMax = 100,
+        Tooltip = Tooltip_item_Vinyl,
+        WorldStaticModel = NewMusic.VinylplayerMetal,
+        UseWorldItem = TRUE,
+    }
+}
+

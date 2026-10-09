@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Governance |
 |---|---|
-| Version | `3.8.0.0-pre-alpha` |
+| Version | `3.8.1.0-pre-alpha` |
 | Design authority | ellyj3rain |
 | Repository | `GOVERNANCE.md` |
 | Status | ACTIVE - operating discipline for this repository. |
@@ -13,6 +13,49 @@ and states the batch and commit shape; this file states the judgement rules.
 
 The operator (ellyj3rain) is the design authority and the judge of how the
 game looks and plays. Code-level verification never settles that question.
+
+## Objective alignment stewardship
+
+The chief implementer holds the standing Objective Alignment Steward role for
+SAO through D2-D6 and every handoff. A bounded reviewer may inspect alignment,
+but the chief owns the resulting implementation and record. At each material
+integration, batch closure or transition, reconcile the live Mousecat bulletin,
+linked cross-project propositions, current canonical SAO records and the latest
+operator correction against the proposed behavior. Record source provenance,
+the SAO owner and changed behavior, tests or observation, and remaining drift in
+the existing batch or session record. An older bulletin statement never
+overrides the operator's later direction.
+
+Judge the usefulness of an integration across its downstream consumers as
+well as SAO. For example, an embodied explosive act can affect ZAO bodies and
+infection, Speakeasy observations and explanations, and Post Latent's
+downstream work.
+Record the actual contract and evidence for each affected consumer; do not
+discard a useful physical mechanism merely because the imported callback or
+name confers the wrong authority.
+
+The steward exchanges findings and downstream implications with other project
+liaisons through the existing sole-writer liaison and respects their file
+ownership. It does not assign peer work or add
+an approval or perfection gate. When the bulletin is unavailable, continue from
+canonical records and identify the unresolved comparison for later recovery.
+
+Before an SAO agent uses, changes, integrates, presents or claims another
+department's shared asset or implementation, the chief contacts its owner and
+the lead already coordinating that line through the established liaison or
+project channel. An actual two-way reply establishes the current selected
+source and revision, ownership boundary, integration contract and known gaps;
+the owning work receipt records the exchange. A registry default, old handoff,
+unanswered message or local technical fixture does not substitute for contact.
+Pending contact holds that cross-department action while independent authorized
+SAO work continues. Material source changes and operator corrections require
+reconfirmation. Contact does not transfer ownership or command peers.
+
+GZDS `Projects/gz-development-system/constitutional/OPERATOR_CONCEPT_LAW.md`
+preserves the operator's distinct concepts and words. The chief compares
+actual SAO behavior, Week One continuity, source integration and user-owned
+game flow against the relevant statements and latest corrections, then
+repairs observed drift. The record supports the work; actual behavior proves it.
 
 `README.md` is the human entry point. The canonical doc-pack is `MEMORY.md`,
 `CORE.md`, `ARCHITECTURE.md`, `GOVERNANCE.md`, `DECISION_REGISTRY.md`,
@@ -43,12 +86,23 @@ regulatory, append-only, or historical.
 - **Declarations are promises.** Settings copy and in-game text match shipped
   behavior exactly.
 - **Concepts are not copy.** Design terminology directs the work; it reaches
-  the UI only when supplied or approved as player-facing text. No free-text or
-  dictated speech - `SPEECH.md` is direction only.
-- **Owned source integration.** SAO's canonical services own person identity,
-  private knowledge, decisions, Standing, attribution and persistence. Approved
-  source integration retains its license, revision and attribution. Installed
-  modules may own shared native physical mechanics under DR-053.
+  the UI only when supplied or approved as player-facing text. Typed and
+  dictated speech are player-authored communication. Their native and Mousecat
+  routes bind the actual speaker, save, session, mode and source clocks;
+  drafts, hearing, understanding, acknowledgement and action remain distinct.
+  `SPEECH.md` supplies direction for this behavior.
+- **Owned source integration.** DR-058 and DR-060 establish a permanent rule
+  for every integration unless the operator changes it. Installed mods provide
+  useful scaffolding, mechanics and ideas. Start from SAO's person, world and
+  action ontology, map each useful source part into it, and replace source
+  behavior where it conflicts. SAO's canonical services own person identity,
+  private knowledge, decisions, Standing, execution, attribution and
+  persistence. Integrated mechanics retain source provenance, revision and
+  applicable terms, and share native physical effects between players and NPCs
+  through one effective producer. Integration includes the required runtime and
+  assets in the delivered package. An external installation, pass-through
+  callback, compatibility wrapper or API adapter qualifies only its bridge and
+  does not complete the integration.
 - **Source identifiers.** Compatibility adapters retain the exact installed
   API identifiers they invoke. Source names and revisions belong in provenance,
   metadata and attribution; product copy uses the canonical mechanic's name.
@@ -87,8 +141,9 @@ regulatory, append-only, or historical.
   needed to deliver it. Delegate bounded tasks within that batch; agent boundaries
   do not determine the product's chronology. Ancillary work and individual fixes
   remain inside the outcome they support. Closure requires a changed production
-  path and evidence appropriate to the stated outcome. A new general simulation
-  pass follows meaningful NPC behavior changes and a specific observation question.
+  path and evidence appropriate to the stated outcome. Select a general simulation
+  pass when changed interactions or a specific observation question warrant it;
+  reuse applicable simulation and play evidence.
 - **Project history and forge history are separate things.** The batch
   records, decision registry, findings ledger, and this doc-pack are the
   portable project history; they do not depend on a particular Git host. A
@@ -162,6 +217,13 @@ Once the uncertainties necessary to establish the requested outcome are resolved
 proceed. Additional checks require a specific reason grounded in changed inputs,
 an observed failure, uncovered behavior or material risk. Test volume, repeated
 clean runs and procedural activity are not completion criteria.
+
+Neo maintains the current product assessment from accumulated implementation,
+simulation results, native records and ordinary operator feedback, using
+`neo-verification-assessment`. The operator plays the aggregate build. Delivered
+mechanics close their coherent batches; subsequent improvements link back to
+them. Playtest sessions, graphical acceptance and exhaustive one-to-one static
+and dynamic comparisons are not general batch completion requirements.
 
 Report briefly what ran, which valid evidence was reused and why it applies,
 why any broader run was necessary, and what remains unverified. An existing

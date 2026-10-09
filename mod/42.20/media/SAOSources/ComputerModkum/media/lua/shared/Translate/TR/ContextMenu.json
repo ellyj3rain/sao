@@ -1,0 +1,12 @@
+{
+    "ContextMenu_ComputerMod_Computer": "Bilgisayar",
+    "ContextMenu_ComputerMod_InsertCD": "CD Tak",
+    "ContextMenu_ComputerMod_NetworkTerminal": "Ag Terminali",
+    "ContextMenu_ComputerMod_RemoveCD": "CD Cikar",
+    "ContextMenu_ComputerMod_ResumeSession": "Oturumu Surdur",
+    "ContextMenu_ComputerMod_TurnOn": "Aç",
+    "ContextMenu_ComputerMod_Components": "Bileşenler",
+    "ContextMenu_ComputerMod_InstallComponent": "Yerleştir",
+    "ContextMenu_ComputerMod_RepairComponent": "Tamir Et",
+    "ContextMenu_ComputerMod_RemoveComponent": "Çıkart"
+}

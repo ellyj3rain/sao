@@ -1,0 +1,484 @@
+module NewMusic
+{
+    imports
+    {
+        Base
+    }
+    model BoomboxGrey
+    {
+        mesh = WorldItems/NM_Boombox,
+        texture = WorldItems/Boombox/World_NM_BoomboxGrey,
+        scale = 0.00115,
+        attachment world
+        {
+            offset = 0.0 0.0 -0.205,
+            rotate = 0.0 90.0 90.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.04 0.0,
+            rotate = 0.0 0.0 180.0,
+        }
+        attachment big_w_back
+        {
+            offset = -0.03 0.11 -0.09,
+            rotate = 155.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment big_w_back_bag
+        {
+            offset = 0.0 0.28 -0.12,
+            rotate = 90.0 0.0 0.0,
+            scale = 1.0,
+        }
+    }
+    model BoomboxBlue
+    {
+        mesh = WorldItems/NM_Boombox,
+        texture = WorldItems/Boombox/World_NM_BoomboxBlue,
+        scale = 0.00115,
+        attachment world
+        {
+            offset = 0.0 0.0 -0.205,
+            rotate = 0.0 90.0 90.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.04 0.0,
+            rotate = 0.0 0.0 180.0,
+        }
+        attachment big_w_back
+        {
+            offset = -0.03 0.11 -0.09,
+            rotate = 155.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment big_w_back_bag
+        {
+            offset = 0.0 0.28 -0.12,
+            rotate = 90.0 0.0 0.0,
+            scale = 1.0,
+        }
+    }
+    model BoomboxCamo
+    {
+        mesh = WorldItems/NM_Boombox,
+        texture = WorldItems/Boombox/World_NM_BoomboxCamo,
+        scale = 0.00115,
+        attachment world
+        {
+            offset = 0.0 0.0 -0.205,
+            rotate = 0.0 90.0 90.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.04 0.0,
+            rotate = 0.0 0.0 180.0,
+        }
+        attachment big_w_back
+        {
+            offset = -0.03 0.11 -0.09,
+            rotate = 155.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment big_w_back_bag
+        {
+            offset = 0.0 0.28 -0.12,
+            rotate = 90.0 0.0 0.0,
+            scale = 1.0,
+        }
+    }
+    model BoomboxBlack
+    {
+        mesh = WorldItems/NM_Boombox,
+        texture = WorldItems/Boombox/World_NM_BoomboxBlack,
+        scale = 0.00115,
+        attachment world
+        {
+            offset = 0.0 0.0 -0.205,
+            rotate = 0.0 90.0 90.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.04 0.0,
+            rotate = 0.0 0.0 180.0,
+        }
+        attachment big_w_back
+        {
+            offset = -0.03 0.11 -0.09,
+            rotate = 155.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment big_w_back_bag
+        {
+            offset = 0.0 0.28 -0.12,
+            rotate = 90.0 0.0 0.0,
+            scale = 1.0,
+        }
+    }
+    model BoomboxGreen
+    {
+        mesh = WorldItems/NM_Boombox,
+        texture = WorldItems/Boombox/World_NM_BoomboxGreen,
+        scale = 0.00115,
+        attachment world
+        {
+            offset = 0.0 0.0 -0.205,
+            rotate = 0.0 90.0 90.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.04 0.0,
+            rotate = 0.0 0.0 180.0,
+        }
+        attachment big_w_back
+        {
+            offset = -0.03 0.11 -0.09,
+            rotate = 155.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment big_w_back_bag
+        {
+            offset = 0.0 0.28 -0.12,
+            rotate = 90.0 0.0 0.0,
+            scale = 1.0,
+        }
+    }
+    model BoomboxPink
+    {
+        mesh = WorldItems/NM_Boombox,
+        texture = WorldItems/Boombox/World_NM_BoomboxPink,
+        scale = 0.00115,
+        attachment world
+        {
+            offset = 0.0 0.0 -0.205,
+            rotate = 0.0 90.0 90.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.04 0.0,
+            rotate = 0.0 0.0 180.0,
+        }
+        attachment big_w_back
+        {
+            offset = -0.03 0.11 -0.09,
+            rotate = 155.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment big_w_back_bag
+        {
+            offset = 0.0 0.28 -0.12,
+            rotate = 90.0 0.0 0.0,
+            scale = 1.0,
+        }
+    }
+    model BoomboxRed
+    {
+        mesh = WorldItems/NM_Boombox,
+        texture = WorldItems/Boombox/World_NM_BoomboxRed,
+        scale = 0.00115,
+        attachment world
+        {
+            offset = 0.0 0.0 -0.205,
+            rotate = 0.0 90.0 90.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.04 0.0,
+            rotate = 0.0 0.0 180.0,
+        }
+        attachment big_w_back
+        {
+            offset = -0.03 0.11 -0.09,
+            rotate = 155.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment big_w_back_bag
+        {
+            offset = 0.0 0.28 -0.12,
+            rotate = 90.0 0.0 0.0,
+            scale = 1.0,
+        }
+    }
+    model BoomboxWhite
+    {
+        mesh = WorldItems/NM_Boombox,
+        texture = WorldItems/Boombox/World_NM_BoomboxWhite,
+        scale = 0.00115,
+        attachment world
+        {
+            offset = 0.0 0.0 -0.205,
+            rotate = 0.0 90.0 90.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.04 0.0,
+            rotate = 0.0 0.0 180.0,
+        }
+        attachment big_w_back
+        {
+            offset = -0.03 0.11 -0.09,
+            rotate = 155.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment big_w_back_bag
+        {
+            offset = 0.0 0.28 -0.12,
+            rotate = 90.0 0.0 0.0,
+            scale = 1.0,
+        }
+    }
+    model BoomboxOrange
+    {
+        mesh = WorldItems/NM_Boombox,
+        texture = WorldItems/Boombox/World_NM_BoomboxOrange,
+        scale = 0.00115,
+        attachment world
+        {
+            offset = 0.0 0.0 -0.205,
+            rotate = 0.0 90.0 90.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.04 0.0,
+            rotate = 0.0 0.0 180.0,
+        }
+        attachment big_w_back
+        {
+            offset = -0.03 0.11 -0.09,
+            rotate = 155.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment big_w_back_bag
+        {
+            offset = 0.0 0.28 -0.12,
+            rotate = 90.0 0.0 0.0,
+            scale = 1.0,
+        }
+    }
+    model BoomboxYellow
+    {
+        mesh = WorldItems/NM_Boombox,
+        texture = WorldItems/Boombox/World_NM_BoomboxYellow,
+        scale = 0.00115,
+        attachment world
+        {
+            offset = 0.0 0.0 -0.205,
+            rotate = 0.0 90.0 90.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.04 0.0,
+            rotate = 0.0 0.0 180.0,
+        }
+        attachment big_w_back
+        {
+            offset = -0.03 0.11 -0.09,
+            rotate = 155.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment big_w_back_bag
+        {
+            offset = 0.0 0.28 -0.12,
+            rotate = 90.0 0.0 0.0,
+            scale = 1.0,
+        }
+    }
+    model BoomboxCyan
+    {
+        mesh = WorldItems/NM_Boombox,
+        texture = WorldItems/Boombox/World_NM_BoomboxCyan,
+        scale = 0.00115,
+        attachment world
+        {
+            offset = 0.0 0.0 -0.205,
+            rotate = 0.0 90.0 90.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.04 0.0,
+            rotate = 0.0 0.0 180.0,
+        }
+        attachment big_w_back
+        {
+            offset = -0.03 0.11 -0.09,
+            rotate = 155.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment big_w_back_bag
+        {
+            offset = 0.0 0.28 -0.12,
+            rotate = 90.0 0.0 0.0,
+            scale = 1.0,
+        }
+    }
+    model BoomboxMagenta
+    {
+        mesh = WorldItems/NM_Boombox,
+        texture = WorldItems/Boombox/World_NM_BoomboxMagenta,
+        scale = 0.00115,
+        attachment world
+        {
+            offset = 0.0 0.0 -0.205,
+            rotate = 0.0 90.0 90.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.04 0.0,
+            rotate = 0.0 0.0 180.0,
+        }
+        attachment big_w_back
+        {
+            offset = -0.03 0.11 -0.09,
+            rotate = 155.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment big_w_back_bag
+        {
+            offset = 0.0 0.28 -0.12,
+            rotate = 90.0 0.0 0.0,
+            scale = 1.0,
+        }
+    }
+    model BoomboxPurple
+    {
+        mesh = WorldItems/NM_Boombox,
+        texture = WorldItems/Boombox/World_NM_BoomboxPurple,
+        scale = 0.00115,
+        attachment world
+        {
+            offset = 0.0 0.0 -0.205,
+            rotate = 0.0 90.0 90.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.04 0.0,
+            rotate = 0.0 0.0 180.0,
+        }
+        attachment big_w_back
+        {
+            offset = -0.03 0.11 -0.09,
+            rotate = 155.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment big_w_back_bag
+        {
+            offset = 0.0 0.28 -0.12,
+            rotate = 90.0 0.0 0.0,
+            scale = 1.0,
+        }
+    }
+    model BoomboxOddbolt
+    {
+        mesh = WorldItems/NM_Boombox_Oddbolt,
+        texture = WorldItems/Boombox/World_NM_BoomboxOddbolt,
+        scale = 0.00115,
+        attachment world
+        {
+            offset = 0.0 0.0 -0.205,
+            rotate = 0.0 90.0 90.0,
+            scale = 1.0,
+        }
+        attachment Bip01_Prop1
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = 0.0 0.04 0.0,
+            rotate = 0.0 0.0 180.0,
+        }
+        attachment big_w_back
+        {
+            offset = -0.03 0.11 -0.09,
+            rotate = 155.0 0.0 0.0,
+            scale = 1.0,
+        }
+        attachment big_w_back_bag
+        {
+            offset = 0.0 0.28 -0.12,
+            rotate = 90.0 0.0 0.0,
+            scale = 1.0,
+        }
+    }
+}
+

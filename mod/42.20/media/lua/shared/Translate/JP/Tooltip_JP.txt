@@ -1,0 +1,6 @@
+Tooltip_JP = {
+    Tooltip_item_Walkman = "外出先で音楽を楽しめるポータブルカセットプレーヤー。",
+    Tooltip_item_Boombox = "カセットテープと電池を収納できるスペースを備えた、大音量のポータブルステレオ。",
+    Tooltip_item_CDPlayer = "ヘッドホンでのリスニングに適した、コンパクトなポータブルCDプレーヤー。",
+    Tooltip_item_Vinyl = "ビニールレコードを再生するためのレコードプレーヤー。",
+}

@@ -1,0 +1,7 @@
+{
+    "Assemble486Motherboard": "Собрать материнскую плату 486",
+    "Assemble486DX2Processor": "Собрать процессор 486DX2",
+    "Assemble72PinRAM": "Соберите 72-контактный разъем RAM.",
+    "AssembleVLBGraphicsCard": "Соберите видеокарту VLB",
+    "Assemble340MBIDEHardDrive": "Соберите жесткий диск IDE емкостью 340 МБ."
+}

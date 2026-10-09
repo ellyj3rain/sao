@@ -1,0 +1,161 @@
+module NewMusic
+{
+    imports
+    {
+        Base
+    }
+
+    item LootRepMediaTape
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.0,
+        Icon = NM_Cassette_Zomboid,
+        DisplayName = ZZ Loot Rep Media Tape,
+        hidden = true,
+        CanSpawn = true,
+    }
+
+    item LootRepMediaTapeStoreTopUp
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.0,
+        Icon = NM_Cassette_Zomboid,
+        DisplayName = ZZ Loot Rep Media Tape Store Top Up,
+        hidden = true,
+        CanSpawn = true,
+    }
+
+    item LootRepMediaWax
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.0,
+        Icon = NM_Vinyl4,
+        DisplayName = ZZ Loot Rep Media Wax,
+        hidden = true,
+        CanSpawn = true,
+    }
+
+    item LootRepMediaWaxStoreTopUp
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.0,
+        Icon = NM_Vinyl4,
+        DisplayName = ZZ Loot Rep Media Wax Store Top Up,
+        hidden = true,
+        CanSpawn = true,
+    }
+
+    item LootRepMediaDisc
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.0,
+        Icon = NM_CD,
+        DisplayName = ZZ Loot Rep Media Disc,
+        hidden = true,
+        CanSpawn = true,
+    }
+
+    item LootRepMediaDiscStoreTopUp
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.0,
+        Icon = NM_CD,
+        DisplayName = ZZ Loot Rep Media Disc Store Top Up,
+        hidden = true,
+        CanSpawn = true,
+    }
+
+    item LootRepDeviceWalkman
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.0,
+        Icon = NM_WalkmanBlue,
+        DisplayName = ZZ Loot Rep Device Walkman,
+        hidden = true,
+        CanSpawn = true,
+    }
+
+    item LootRepDeviceWalkmanStoreTopUp
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.0,
+        Icon = NM_WalkmanBlue,
+        DisplayName = ZZ Loot Rep Device Walkman Store Top Up,
+        hidden = true,
+        CanSpawn = true,
+    }
+
+    item LootRepDeviceBoombox
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.0,
+        Icon = NM_BoomboxGrey,
+        DisplayName = ZZ Loot Rep Device Boombox,
+        hidden = true,
+        CanSpawn = true,
+    }
+
+    item LootRepDeviceBoomboxStoreTopUp
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.0,
+        Icon = NM_BoomboxGrey,
+        DisplayName = ZZ Loot Rep Device Boombox Store Top Up,
+        hidden = true,
+        CanSpawn = true,
+    }
+
+    item LootRepDeviceCDPlayer
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.0,
+        Icon = NM_CDPlayerBlue,
+        DisplayName = ZZ Loot Rep Device CD Player,
+        hidden = true,
+        CanSpawn = true,
+    }
+
+    item LootRepDeviceCDPlayerStoreTopUp
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.0,
+        Icon = NM_CDPlayerBlue,
+        DisplayName = ZZ Loot Rep Device CD Player Store Top Up,
+        hidden = true,
+        CanSpawn = true,
+    }
+
+    item LootRepDeviceRecordPlayer
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.0,
+        Icon = NM_VinylplayerOak,
+        DisplayName = ZZ Loot Rep Device Record Player,
+        hidden = true,
+        CanSpawn = true,
+    }
+
+    item LootRepDeviceRecordPlayerStoreTopUp
+    {
+        ItemType = base:normal,
+        DisplayCategory = Entertainment,
+        Weight = 0.0,
+        Icon = NM_VinylplayerOak,
+        DisplayName = ZZ Loot Rep Device Record Player Store Top Up,
+        hidden = true,
+        CanSpawn = true,
+    }
+}

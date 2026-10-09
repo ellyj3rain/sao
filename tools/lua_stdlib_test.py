@@ -72,7 +72,11 @@ LIBS = ("se.krka.kahlua.stdlib.BaseLib",
         # engine has no `require` while 1213 vanilla call sites and the
         # first line of ISPanel.lua say otherwise. The list below is
         # why KNOWN_PRESENT exists.
-        "se.krka.kahlua.require.Require")
+        "se.krka.kahlua.require.Require",
+        # J2SEPlatform.setupEnvironment registers the compiler separately.
+        # Its name table provides loadstring and loadstream; reading only the
+        # stdlib and Require classes falsely reports compiled source absent.
+        "se.krka.kahlua.luaj.compiler.LuaCompiler")
 
 # Names proven callable by the engine's own shipped Lua, not by memory.
 # If the registry read above cannot see one of these, this border is
@@ -82,7 +86,7 @@ LIBS = ("se.krka.kahlua.stdlib.BaseLib",
 KNOWN_PRESENT = ("require", "pairs", "pcall", "print", "tostring",
                  # [B50] Defined in stdlib.lua, not in a Java class -
                  # this border called it absent until it read that file.
-                 "assert")
+                 "assert", "loadstring")
 
 # What a Lua author types without thinking. Each is checked against the
 # engine's own registry rather than assumed present OR absent - that is

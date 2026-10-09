@@ -1,0 +1,14 @@
+module SAO
+{
+    item SAO_NeoHead12
+    {
+        DisplayCategory = Accessory,
+        ItemType = base:clothing,
+        Weight = 0.1,
+        Icon = GlassesAviator,
+        BodyLocation = base:eyes,
+        ChanceToFall = 0,
+        ClothingItem = SAO_NeoHead12,
+        Cosmetic = true,
+    }
+}

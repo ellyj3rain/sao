@@ -1,0 +1,39 @@
+{
+  "ContextMenu_PlayArcade": "Jugar a la máquina arcade",
+  "ContextMenu_ArcadeWin": "¡Conseguiste un nuevo récord!",
+  "ContextMenu_ArcadeLose": "¡Perdiste!",
+  "ContextMenu_StepInFront": "Parate frente al gabinete.",
+  "ContextMenu_PlayPinball": "Jugar a la máquina de pinball",
+
+  "ContextMenu_ProjectArcade_TryStrength": "Probar mi fuerza",
+  "ContextMenu_ProjectArcade_ViewHighScore": "Ver puntaje más alto",
+  "ContextMenu_ProjectArcade_NewRecordMale": "¡Récord mundial masculino!",
+  "ContextMenu_ProjectArcade_HighScoreMale": "Récord mundial masculino: %1 (%2)",
+  "ContextMenu_ProjectArcade_HighScoreMale_NoName": "Aún no hay record mundial masculino.",
+  "ContextMenu_ProjectArcade_NewRecordFemale": "¡Récord mundial femenino!",
+  "ContextMenu_ProjectArcade_HighScoreFemale": "Récord mundial femenino: %1 (%2)",
+  "ContextMenu_ProjectArcade_HighScoreFemale_NoName": "Aún no hay record mundial femenino.",
+  "ContextMenu_ProjectArcade_PunchScore": "Puntaje: %1",
+  "ContextMenu_ProjectArcade_None": "Nadie aún",
+  "ContextMenu_ProjectArcade_ResetHighScores": "Borrar récords",
+  "ContextMenu_ProjectArcade_PunchScoresReset": "Los récords de la Punching Machine fueron borrados.",
+  "ContextMenu_ProjectArcade_AdminOnly": "Solo administradores.",
+
+  "ContextMenu_ProjectArcade_PlayClawMachine": "Jugar CLAWpocalypse",
+  "ContextMenu_ProjectArcade_NotEnoughCoins": "Necesito una moneda para esto.",
+  "ContextMenu_ProjectArcade_ClawPrizeWon": "¡Conseguí algo!",
+  "ContextMenu_ProjectArcade_NoPrizeRegistered": "No hay premios registrados.",
+  "ContextMenu_ProjectArcade_NamePrize": "Obtuviste de premio: ",
+  "ContextMenu_ProjectArcade_PrizeFailed": "Fallo el premio: ",
+
+  "ContextMenu_ProjectArcade_Mood_BoredomDown": "Divertido",
+  "ContextMenu_ProjectArcade_Mood_BoredomUp": "Aburrimiento",
+  "ContextMenu_ProjectArcade_Mood_UnhappinessDown": "Felicidad",
+  "ContextMenu_ProjectArcade_Mood_UnhappinessUp": "Infelicidad",
+  "ContextMenu_ProjectArcade_Mood_StressDown": "Desestresado",
+  "ContextMenu_ProjectArcade_Mood_StressUp": "Estrés",
+
+  "ContextMenu_ProjectArcade_PlayCoinPusher": "Jugar Coin Galaxy",
+  
+  "ContextMenu_ProjectArcade_NeedPower": "Esta máquina no está conectada a la red eléctrica.",
+}

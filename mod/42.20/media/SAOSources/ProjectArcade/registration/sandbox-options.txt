@@ -1,0 +1,83 @@
+VERSION = 1,
+
+
+option ProjectArcade.DisableDefaultPrizePool {
+    page = ProjectArcade,
+    translation = ProjectArcade_DisableDefaultPrizePool,
+    type = boolean,
+    default = false,
+}
+
+option ProjectArcade.ReplaceVanillaArcadesOnLoad {
+    page = ProjectArcade,
+    translation = ProjectArcade_ReplaceVanillaArcadesOnLoad,
+    type = boolean,
+    default = false,
+}
+
+option ProjectArcade.ReplaceVanillaPinballsOnLoad {
+    page = ProjectArcade,
+    translation = ProjectArcade_ReplaceVanillaPinballsOnLoad,
+    type = boolean,
+    default = false,
+}
+
+option ProjectArcade.SfxVolumePct {
+    page = ProjectArcade,
+    translation = ProjectArcade_SfxVolumePct,
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 100,
+}
+
+option ProjectArcade.DisableArcadeAmbientSound {
+    page = ProjectArcade,
+    translation = ProjectArcade_DisableArcadeAmbientSound,
+    type = boolean,
+    default = false,
+}
+
+option ProjectArcade.AnnouncementLanguage {
+    page = ProjectArcade,
+    translation = ProjectArcade_AnnouncementLanguage,
+    type = enum,
+	numValues = 3,
+    default = 1,
+    valueTranslation = ProjectArcade_AnnouncementLanguage,
+}
+
+option ProjectArcade.CurrencyFullType {
+    page = ProjectArcade,
+    translation = ProjectArcade_CurrencyFullType,
+    type = string,
+    default = Base.SilverCoin,
+}
+
+option ProjectArcade.CoinDistContainersPct {
+    page = ProjectArcade,
+    translation = ProjectArcade_CoinDistContainersPct,
+    type = integer,
+    min = 0,
+    max = 300,
+    default = 100,
+}
+
+option ProjectArcade.CoinDistZombiesPct {
+    page = ProjectArcade,
+    translation = ProjectArcade_CoinDistZombiesPct,
+    type = integer,
+    min = 0,
+    max = 300,
+    default = 100,
+}
+
+option ProjectArcade.ROMDistPct {
+    page = ProjectArcade,
+    translation = ProjectArcade_ROMDistPct,
+    type = integer,
+    min = 0,
+    max = 300,
+    default = 100,
+}
+

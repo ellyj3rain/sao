@@ -1,0 +1,288 @@
+module Base
+{
+    sound NM_ButtonClick
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/NM_ButtonClick.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_ButtonClick2
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/NM_ButtonClick2.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_BatteryIn
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/NM_BatteryIn.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_BatteryOut
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/NM_BatteryOut.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Walkman_Power_On
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/NM_Walkman_Button_On.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Walkman_Power_Off
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/NM_Walkman_Button_Off.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Walkman_Lid_Open
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/NM_Walkman_Lid_Open.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Walkman_Lid_Close
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/NM_Walkman_Lid_Close.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Walkman_Volume_Click
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/NM_Walkman_Volume_Click.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_CD_Lid_Open
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/cd/NM_CD_Lid_Open.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_CD_Lid_Close
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/cd/NM_CD_Lid_Close.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_CD_In
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/cd/NM_CD_In.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_CD_Out
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/cd/NM_CD_Out.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_CD_Play
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/cd/NM_CD_Play.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Boombox_Button_In
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/boombox/NM_Boombox_Button_In.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Boombox_Button_Out
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/boombox/NM_Boombox_Button_Out.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Boombox_Button_Pop
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/boombox/NM_Boombox_Button_Pop.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Boombox_Button_Mode
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/boombox/NM_Boombox_Button_Mode.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Boombox_Play
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/boombox/NM_Boombox_Play.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Boombox_Oddbolt
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/boombox/NM_Boombox_Oddbolt.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Beep_01
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/beeps/NM_Beep_01.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Beep_02
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/beeps/NM_Beep_02.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Beep_03
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/beeps/NM_Beep_03.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Beep_04
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/beeps/NM_Beep_04.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Beep_05
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/beeps/NM_Beep_05.ogg,
+            volume = 0.8,
+        }
+    }
+
+    sound NM_Beep_06
+    {
+        category = UI,
+        is3D = false,
+        clip
+        {
+            file = media/sound/beeps/NM_Beep_06.ogg,
+            volume = 0.8,
+        }
+    }
+}

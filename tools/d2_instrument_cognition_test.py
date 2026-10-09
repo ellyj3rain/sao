@@ -61,7 +61,7 @@ def main(argv=None):
     controls=[
       ('interrupted-sound-credit','cognition','x.actionKind,x.succeeded=receipt.verb,receipt.status=="completed"',
        'x.actionKind,x.succeeded=receipt.verb,receipt.soundEmitted and receipt.worldSoundEmitted','partial_sound_not_success'),
-      ('generic-authority','cognition',' or supplied.kind=="instrument-use")',')','generic_authority_refused'),
+      ('generic-authority','cognition',' or supplied.kind=="instrument-use"','','generic_authority_refused'),
       ('canonical-actor','cognition','receipt.actorId~=id or receipt.sequence~=sequence','false or receipt.sequence~=sequence','refuses_foreign_actor'),
       ('canonical-work','cognition','receipt.workId~="instrument:"..id..":"..tostring(sequence)','false','refuses_missing_work'),
       ('known-generation-token','cognition','or receipt.bodyGenerationKnown and not text(receipt.bodyToken,160)','or false','refuses_missing_body'),
@@ -73,10 +73,10 @@ def main(argv=None):
       ('evicted-cursor','cognition','if prior and position <= prior then','if prior and position <= prior and #s.experiences < MAX_EXPERIENCES then','evicted_cursor_refuses_replay'),
       ('model-position','models','if previousPosition and position<=previousPosition then','if false then','model_cursor_refuses_replay'),
       ('model-exact-source','models','and e.sourceId=="native:sound:BlowHarmonica" and e.actionKind=="blow-harmonica"','and true and e.actionKind=="blow-harmonica"','model_refuses_wrong_source'),
-      ('model-negative','models','retain("recreate", "leisure", e.succeeded)','retain("recreate", "leisure", true)','failed_attempt_counterevidence'),
+      ('model-negative','models','elseif e.kind == "instrument-use" then retain("recreate", "leisure", e.succeeded)','elseif e.kind == "instrument-use" then retain("recreate", "leisure", true)','failed_attempt_counterevidence'),
       ('model-forgets-sound','models','elseif e.kind == "instrument-use" then retain("recreate", "leisure", e.succeeded)','elseif e.kind == "instrument-use" then -- sound evidence dropped','shared_sound_expectation_changes_choice'),
-      ('plan-source-forgery','models','c.category ~= "leisure" or c.sourceId ~= "native:sound:BlowHarmonica"','c.category ~= "leisure" or false','forged_plan_source_refused'),
-      ('category-leak','models','if e.category=="leisure" and e.kind~="instrument-use" then return false end','-- restored category leak','legacy_cannot_claim_leisure'),
+      ('plan-source-forgery','models','c.category ~= "leisure" or (c.sourceId ~= "native:sound:BlowHarmonica"\n                and c.sourceId ~= "native:literature:ISReadABook" and c.sourceId ~= "native:literature:customPages")','c.category ~= "leisure" or false','forged_plan_source_refused'),
+      ('category-leak','models','if e.category=="leisure" and e.kind~="instrument-use" and e.kind~="leisure-reading" and e.kind~="weekone-instrument-performance" and not HOBBY_KINDS[e.kind] then return false end','-- restored category leak','legacy_cannot_claim_leisure'),
       ('unsupported-fields','models','if not plainKeys(e, EVENT_KEYS) or not text(e.id,128)','if not text(e.id,128)','model_refuses_unsupported_mastery'),
     ]
     if args.controller:
@@ -88,8 +88,15 @@ def main(argv=None):
         work=out/name;work.mkdir(exist_ok=True)
         texts=dict(sources)
         if target:
-            assert texts[target].count(before)==1,(name,texts[target].count(before))
-            texts[target]=texts[target].replace(before,after,1)
+            if target=='cognition' and 'receipt.' in before:
+                start=texts[target].index('function C.instrumentOutcome(')
+                end=texts[target].index('function C.leisureReadingOutcome(',start)
+                scope=texts[target][start:end]
+                assert scope.count(before)==1,(name,scope.count(before))
+                texts[target]=texts[target][:start]+scope.replace(before,after,1)+texts[target][end:]
+            else:
+                assert texts[target].count(before)==1,(name,texts[target].count(before))
+                texts[target]=texts[target].replace(before,after,1)
         paths=[out/'prelude.lua']
         for key in ['models','cognition']:
             path=work/(key+'.lua');path.write_text(texts[key],encoding='utf-8');paths.append(path)

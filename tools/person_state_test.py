@@ -48,6 +48,8 @@ def main():
     (out/'prelude.lua').write_text(fixture.PRELUDE+'\nrequire=function()end\nSandboxVars={SurvivorAwareness={Neuroinflammation=true}}\nISInventoryTransferAction={derive=function()return {}end}\n',encoding='utf-8')
     original={k:p.read_text(encoding='utf-8') for k,p in FILES.items()}
     controls=[
+        ('omit-weekone-source','person','audit.weekOneSource=copy(rec.weekOne.sourceEvent)',
+         'audit.weekOneSource=nil','weekone_source_provenance_export'),
         ('ignore-moodle-metadata','person','receipt.status=="available" and receipt.source=="native-moodles"','true','missing_health_not_healthy'),
         ('ignore-brain-metadata','person','brain and brain.status=="available"','true','missing_brain_history_not_healthy'),
         ('expose-private-health','person','situation.psychology=nil','-- private health leaked','model_view_omits_diagnoses'),

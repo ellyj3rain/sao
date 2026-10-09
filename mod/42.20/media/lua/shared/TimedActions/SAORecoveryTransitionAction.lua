@@ -1,4 +1,5 @@
--- Native queue lifecycle over an installed animation variable. No source action callbacks.
+-- SAO-owned native queue lifecycle over packaged source-derived ground animation.
+-- Source mechanics: Lean & Lie 1.27; original callbacks/UI are outside this exact actor owner.
 require "TimedActions/ISBaseTimedAction"
 SAORecoveryTransitionAction = ISBaseTimedAction:derive("SAORecoveryTransitionAction")
 local Action = SAORecoveryTransitionAction

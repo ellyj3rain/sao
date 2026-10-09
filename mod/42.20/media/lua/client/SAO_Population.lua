@@ -507,6 +507,11 @@ local function dailyCounty()
     -- Persisting that baseline also prevents a reload from ageing twice.
     if previousDay and day > previousDay then
         for id, rec in pairs(SAO.Identity.all()) do
+            -- Historical catch-up and live play share this county day. A
+            -- generated child reaches school and later adulthood here;
+            -- the transition is based on attained age. Source-owned lives
+            -- and independently held adult jobs keep their own authority.
+            pcall(function() SAO.History.advanceLifeStage(rec) end)
             pcall(function() SAO.Age.dailyRoll(rec, day, tickCounter) end)
             pcall(function() SAO.Age.settleHabits(rec, day) end)
         end
@@ -562,6 +567,11 @@ local function dailyCounty()
     -- a struck county exactly as the live one does, the [C65] law.
     pcall(function()
         if SAO.Nuke and SAO.Nuke.onDay then SAO.Nuke.onDay() end
+    end)
+    pcall(function()
+        if SAO.WeekOneEvents and SAO.WeekOneEvents.onDay then
+            SAO.WeekOneEvents.onDay(day)
+        end
     end)
     pcall(function() SAO.WorldGenesis.applyDay(day) end)
 end
@@ -737,6 +747,12 @@ local function populationTick()
                 .. " will be built until that changes")
         end
     end
+
+    runSub("week-one-impact", function()
+        if SAO.WeekOneEvents and SAO.WeekOneEvents.pollLoadedImpact then
+            SAO.WeekOneEvents.pollLoadedImpact()
+        end
+    end)
 
     -- Native representation gets first admission at the saved position.
     -- A resumed nearby person must not take a coarse dormant step before the

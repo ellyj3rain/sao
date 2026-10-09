@@ -1,0 +1,12 @@
+{
+    "ContextMenu_ComputerMod_Computer": "Calcolatore",
+    "ContextMenu_ComputerMod_InsertCD": "Inserire il CD",
+    "ContextMenu_ComputerMod_NetworkTerminal": "Terminale di rete",
+    "ContextMenu_ComputerMod_RemoveCD": "Rimuovere il CD",
+    "ContextMenu_ComputerMod_ResumeSession": "Riprendi la sessione",
+    "ContextMenu_ComputerMod_TurnOn": "Accendi",
+    "ContextMenu_ComputerMod_Components": "Componenti",
+    "ContextMenu_ComputerMod_InstallComponent": "Installa",
+    "ContextMenu_ComputerMod_RepairComponent": "Riparazione",
+    "ContextMenu_ComputerMod_RemoveComponent": "Rimuovi"
+}

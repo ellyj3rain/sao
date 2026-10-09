@@ -46,7 +46,7 @@ import pathlib
 import re
 import sys
 
-from catalogue import (CatalogueError, MANIFEST, index_rows, load_catalogue,
+from catalogue import (CatalogueError, MANIFEST, index_rows,
                        validate_catalogue, PRODUCT_MANIFEST, load_product_catalogue,
                        validate_product_catalogue)
 
@@ -162,8 +162,9 @@ TIER_MEANINGS = [
 # Land this delivered unit only with D1's actual closure record and index row.
 POST_C_UNITS = [
     ("D1", "minor", "Shared person-specific conceptual reasoning and source-bound prior-history admission establish a live authoring/runtime contract."),
+    ("D2", "kohai", "Leisure integrates personally acquired recreation, music, games, art and social participation with native action ownership, interruption, durable purposes and consequential private experience."),
 ]
-NEXT_BATCH = "D2"
+NEXT_BATCH = "D3"
 
 
 def parse_version(text):
@@ -299,9 +300,10 @@ def render(inputs=None):
         "their original replay. Current C products partition the retained source",
         "chronology into adjacent capability units. The separate 35-contract",
         "ownership map preserves shared boundaries without version credit. Delivered D units",
-        "follow C in chronological order. Delivered means",
-        "implemented: publication, rendered acceptance and remaining D work",
-        "retain their separate component states. The",
+        "follow C in chronological order. A delivered unit implements its coherent",
+        "product outcome with sufficient applicable checks. Neo maintains its",
+        "current assessment from accumulated simulation and operator feedback.",
+        "Later improvements link back to that unit. The",
         "version is a machine (DR-013): nobody picks the number - to disagree",
         "with the coordinate, disagree with the applicable A/B tier in",
         "[`tools/version_replay.py`](tools/version_replay.py), including its",
@@ -342,23 +344,21 @@ def render(inputs=None):
         date, name, _threads = rows[batch]
         lines.append(f"| `{batch}` | {date} | {tier} | `{version}` | {name} | {rationale} |")
     lines += [
-        "", "## Current C products and retained source status", "",
+        "", "## Current C products and retained source history", "",
         "Each C product tier credits its coherent capability once. Each retained",
         "source belongs to one chronological product; shared contract edges grant",
-        "no additional version credit. Source labels below belong to the archived",
-        "120-record generation; they are not current C identifiers.", "",
+        "no additional version credit. Retained sources link to the archived",
+        "120-record generation. SESSION_STATE and PLAYABILITY describe current",
+        "delivered behavior and continuing work.", "",
         "| Current product | Classification | Retained chronological sources |",
         "|---|---|---|",
     ]
-    shared = load_catalogue(ROOT)
     for unit in manifest["units"]:
         scopes = unit["rationale"].replace("|", "\\|")
         credited = []
         for contribution in unit["sourceContributions"]:
             source = contribution["sourceId"]
-            status = shared["sources"][source]
-            credited.append(f"`{source}` ({status['implementation']}; "
-                            f"{status['verification']}; {status['publication']})".replace("|", "\\|"))
+            credited.append(f"[{source}]({contribution['path']})")
         lines.append(f"| [{unit['id']}]({unit['recordPath']}) | {scopes} | {'; '.join(credited)} |")
     lines += [
         "",
@@ -375,9 +375,9 @@ def render(inputs=None):
         "",
         "## Maturity",
         "",
-        "`pre-alpha` throughout. Individual play receipts remain scoped to their",
-        "observed surfaces. Neither catalog arithmetic nor offline checks",
-        "establish release maturity.",
+        "The maturity coordinate remains `pre-alpha`. Neo maintains the current",
+        "product assessment from delivered behavior, accumulated simulation",
+        "and operator feedback.",
         "",
         "## Next movement",
         "",

@@ -27,21 +27,21 @@ def check(value, message):
         raise AssertionError(message)
 
 
-def fixture(root, attempt=1, stream=None):
+def fixture(root, attempt=1, stream=None, run_name="native-run"):
     stream = stream or str(uuid.uuid4())
-    source = root / "native-run/attempts" / f"{attempt:04d}" / "native-view"
+    source = root / run_name / "attempts" / f"{attempt:04d}" / "native-view"
     source.mkdir(parents=True, exist_ok=True)
     init = {"file": f"video-{stream}-init.mp4", "sha256": Archive.sha(b"init")}
     (source / init["file"]).write_bytes(b"init")
     value = {"schema": "sao-study-video/1", "streamId": stream, "state": "active", "init": init,
              "segments": [], "stats": {"capturedFrames": 0, "encodedFrames": 0, "droppedFrames": 0}}
     session = str(uuid.uuid4())
-    receipt_path = root / "native-run/run.json"
+    receipt_path = root / run_name / "run.json"
     if receipt_path.exists():
         existing = json.loads(receipt_path.read_text())
         if existing.get("launchNumber") == attempt:
             session = existing["sessionId"]
-    Archive.atomic(root / "native-run/run.json", {"schema": "sao-study-run/1", "sessionId": session,
+    Archive.atomic(root / run_name / "run.json", {"schema": "sao-study-run/1", "sessionId": session,
         "launchNumber": attempt, "status": "running", "packageSha256": "package", "definitionSha256": "definition"})
     return source, value, session
 
@@ -419,6 +419,109 @@ def contention_cases(module=Archive):
         else: raise AssertionError('retained failure tampering admitted')
 
 
+def retired_publish(source, value, sequences, state="running", closed=False):
+    """Controlled raw-byte protocol fixture, never native/encoded-media proof."""
+    publish(source,value,sequences,state)
+    for row in value["segments"]:row.update(observerSequence=0,sites=[],crops=[])
+    value["stats"].update(capturedFrames=max(sequences,default=0)*10,encodedFrames=max(sequences,default=0)*10)
+    name=(f"video-{value['streamId']}-closed.json" if closed else
+          f"video-{value['streamId']}-tail-{max(sequences,default=1):016d}.json")
+    Archive.atomic(source/name,value);(source/"latest-video.json").unlink()
+    return source/name
+
+
+def participant_retired_cases(module=Archive):
+    with tempfile.TemporaryDirectory(prefix="participant-retired-protocol-") as directory:
+        root=Path(directory);owner=module.Archive(root,"study",min_free_bytes=0,run_name="participant-run")
+        owner.initialize();source,value,session=fixture(root,run_name="participant-run")
+        for start in (1,5,9):retired_publish(source,value,list(range(start,start+4)))
+        retired_publish(source,value,[9,10,11,12],"ended",True)
+        receipt=json.loads((root/"participant-run/run.json").read_text());receipt.update(status="completed")
+        Archive.atomic(root/"participant-run/run.json",receipt)
+        before={p.name:Archive.sha(p.read_bytes()) for p in source.iterdir() if p.is_file()}
+        owner.poll();retained=owner.root/"0001"/value["streamId"]
+        check((retained/"stream.json").is_file(),"participant retirement stream unavailable")
+        state=report(owner,value)
+        check(state["retainedSegments"]==12,"participant retirement lost more than8 total rows")
+        check(state["coverage"]=="complete-published-segments" and state["tailConfirmed"],"closed participant retirement was not complete")
+        check(state["missingSequences"]==[] and state["ptsGaps"]==[] and not state["lateAttachment"],"participant retirement hid opening or gaps")
+        check(state["firstSegment"]["sequence"]==1 and state["lastSegment"]["sequence"]==12,"participant retirement reordered endpoints")
+        check(state["manifestCount"]==4,"participant retirement lost immutable bounded manifests")
+        check(state["nativeProvenance"]["sessionId"]==session,"participant retirement changed native owner")
+        check(before=={p.name:Archive.sha(p.read_bytes()) for p in source.iterdir() if p.is_file()},"retired discovery mutated producer source")
+        for seq in range(1,13):
+            p=retained/f"video-{value['streamId']}-{seq:016d}.m4s"
+            check(p.read_bytes()==("native-fragment-"+str(seq)).encode(),"participant retired source bytes changed")
+        def immutable():
+            return {str(p.relative_to(retained)):Archive.sha(p.read_bytes()) for p in retained.rglob("*")
+                    if p.is_file() and (p.suffix in (".m4s",".mp4") or p.parent.name=="manifests")}
+        retained_before=immutable()
+        # Retire only owned synthetic producer files after acknowledged retention.
+        for p in list(source.iterdir()):
+            if p.is_file():p.unlink()
+        owner.finished=True;owner.publish()
+        restarted=module.Archive(root,"study",min_free_bytes=0,run_name="participant-run")
+        restarted.initialize();restarted.poll()
+        check(report(restarted,value)["retainedSegments"]==12,"participant restart lost existing retired rows")
+        check(report(restarted,value)["coverage"]=="complete-published-segments","participant restart changed terminal coverage")
+        check(retained_before==immutable(),"participant restart changed immutable bytes")
+
+    for defect in ("foreign-tail-name","wrong-tail-sequence","short-tail-sequence","ended-tail",
+                   "running-closed","empty-tail","oversized-tail","malformed-json","foreign-closed-name"):
+        with tempfile.TemporaryDirectory(prefix="participant-retired-refusal-") as directory:
+            root=Path(directory);owner=module.Archive(root,"study",min_free_bytes=0,run_name="participant-run")
+            owner.initialize();source,value,_=fixture(root,run_name="participant-run")
+            rows=list(range(1,10)) if defect=="oversized-tail" else [] if defect=="empty-tail" else [1]
+            closed=defect in ("running-closed","foreign-closed-name")
+            state="running" if defect=="running-closed" else "ended" if defect in ("ended-tail","foreign-closed-name") else "running"
+            p=retired_publish(source,value,rows,state,closed)
+            if defect=="foreign-tail-name":p=p.rename(source/f"video-{uuid.uuid4()}-tail-0000000000000001.json")
+            elif defect=="wrong-tail-sequence":p=p.rename(source/f"video-{value['streamId']}-tail-0000000000000002.json")
+            elif defect=="short-tail-sequence":p=p.rename(source/f"video-{value['streamId']}-tail-1.json")
+            elif defect=="foreign-closed-name":p=p.rename(source/f"video-{uuid.uuid4()}-closed.json")
+            elif defect=="malformed-json":p.write_bytes(b"{controlled-malformed-json")
+            try:owner.poll()
+            except ValueError:pass
+            else:raise AssertionError("participant retired malformed admission: "+defect)
+            check(not list(owner.root.rglob("*.m4s")),"malformed retired manifest admitted bytes")
+
+    for closed in (False,True):
+        with tempfile.TemporaryDirectory(prefix="participant-retired-missing-") as directory:
+            root=Path(directory);owner=module.Archive(root,"study",min_free_bytes=0,run_name="participant-run")
+            owner.initialize();source,value,_=fixture(root,run_name="participant-run")
+            retired_publish(source,value,[1],"ended" if closed else "running",closed)
+            (source/value["segments"][0]["file"]).unlink()
+            try:owner.poll()
+            except FileNotFoundError:pass
+            else:raise AssertionError("missing retired asset was silently skipped")
+            check(not list(owner.root.rglob("*.m4s")),"missing retired asset received false bytes")
+
+    with tempfile.TemporaryDirectory(prefix="participant-restore-missing-") as directory:
+        root=Path(directory);owner=module.Archive(root,"study",min_free_bytes=0,run_name="participant-run")
+        owner.initialize();source,value,_=fixture(root,run_name="participant-run")
+        retired_publish(source,value,[1],"ended",True);owner.poll()
+        retained=owner.root/"0001"/value["streamId"]/value["segments"][0]["file"];retained.unlink()
+        try:module.Archive(root,"study",min_free_bytes=0,run_name="participant-run").initialize()
+        except ValueError as error:check("missing video bytes" in str(error),"missing retained asset failed elsewhere")
+        else:raise AssertionError("participant restart salvaged missing immutable media")
+
+    with tempfile.TemporaryDirectory(prefix="participant-retired-failed-") as directory:
+        root=Path(directory);owner=module.Archive(root,"study",min_free_bytes=0,run_name="participant-run")
+        owner.initialize();source,value,_=fixture(root,run_name="participant-run")
+        retired_publish(source,value,[1],"failed",True);owner.poll()
+        check(report(owner,value)["coverage"]=="partial","failed retired epoch claimed complete")
+
+    with tempfile.TemporaryDirectory(prefix="observer-retired-boundary-") as directory:
+        root=Path(directory);owner=module.Archive(root,"study",min_free_bytes=0)
+        owner.initialize();source,value,_=fixture(root);publish(source,value,[1])
+        retired=[source/f"video-{value['streamId']}-tail-0000000000000002.json",source/f"video-{value['streamId']}-closed.json"]
+        for p in retired:p.write_bytes(b"{intentionally-invalid-participant-retirement")
+        try:owner.poll()
+        except ValueError as error:raise AssertionError("observer discovered participant retired metadata") from error
+        check(report(owner,value)["retainedSegments"]==1 and report(owner,value)["manifestCount"]==1,"observer default admitted participant retirement")
+        check(all(p.read_bytes()==b"{intentionally-invalid-participant-retirement" for p in retired),"observer default changed ignored files")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--out', type=Path)
@@ -426,6 +529,9 @@ def main():
     paths = [Path(__file__), Path(Archive.__file__), Path(Session.__file__)]
     pins = {str(p.resolve()): Archive.sha(p.read_bytes()) for p in paths}
     cases();host_checks();contention_cases()
+    original_baseline = CHECKS
+    participant_retired_cases()
+    participant_checks = CHECKS-original_baseline
     baseline = CHECKS
     source = Path(Archive.__file__).read_text()
     controls = [
@@ -486,10 +592,30 @@ def main():
         try:rolling_lifecycle(altered,retention_timeout=.2)
         except AssertionError as error:check(marker in str(error),'control failed elsewhere: '+str(error))
         else:raise AssertionError('lifecycle defect survived: '+label)
+    participant_controls = [
+        ('missing-participant-discovery','if self.run_name == "participant-run" else []',
+         'if False else []','participant retirement stream unavailable'),
+        ('retired-name-admission','if not (closed or tail):','if False:',
+         'participant retired malformed admission'),
+        ('observer-discovery-boundary','if self.run_name == "participant-run" else []',
+         'if True else []','observer discovered participant retired metadata'),
+        ('missing-retired-refusal','                    if current != manifest:\n                        raise',
+         '                    if False:\n                        raise','missing retired asset was silently skipped')]
+    for label,before,after,marker in participant_controls:
+        check(source.count(before)==1,'control target differs: '+label)
+        altered=types.ModuleType(label);altered.__file__=Archive.__file__
+        exec(compile(source.replace(before,after),'<participant-retirement-control>','exec'),altered.__dict__)
+        try:participant_retired_cases(altered)
+        except AssertionError as error:check(marker in str(error),'control failed elsewhere: '+str(error))
+        else:raise AssertionError('participant retirement defect survived: '+label)
     after = {str(p.resolve()): Archive.sha(p.read_bytes()) for p in paths}
     check(pins==after,'proof inputs changed')
     receipt={'schema':'sao.native-video-archive-proof/1','status':'PASS','baselineChecks':baseline,
-             'defectControls':7+len(contention_controls)+len(lifecycle_controls),'inputs':pins,'changedInputs':[],
+             'originalBaselineChecks':original_baseline,'participantRetiredChecks':participant_checks,
+             'defectControls':7+len(contention_controls)+len(lifecycle_controls)+len(participant_controls),
+             'participantDefectControls':len(participant_controls),'inputs':pins,
+             'changedInputs':[str(Path(__file__).resolve()),str(Path(Archive.__file__).resolve())],
+             'scope':'Controlled raw-byte protocol fixtures and collector/restore/Windows-sharing code; no native game or encoded-media acceptance',
              'sharingRetry':{'attempts':Archive.READ_ATTEMPTS,'delaySeconds':Archive.READ_RETRY_SECONDS,
                              'realWindowsSharingViolation':sys.platform=='win32'}}
     if args.out:

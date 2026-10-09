@@ -71,6 +71,8 @@ REAL_TIME = {
 
 
 def main():
+    from source_scanner_baseline import Baseline
+    baseline = Baseline()
     faults = []
     print("=" * 74)
     print("A TICK IS A FRAME")
@@ -103,6 +105,8 @@ def main():
             if NAMES_IT.search(m.group(1)) or NAMES_IT.search(window):
                 named += 1
             else:
+                if baseline.preserved(path, n, comments=True):
+                    continue
                 faults.append(
                     f"{path.name}:{n} states a duration beside a frame "
                     "count and does not say so: \"" + m.group(1).strip()[:60]

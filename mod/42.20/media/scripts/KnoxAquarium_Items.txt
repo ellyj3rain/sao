@@ -1,0 +1,29 @@
+module KnoxAquarium
+{
+    item TankKit
+    {
+        DisplayName = Empty Aquarium,
+        DisplayCategory = Furniture,
+        ItemType = base:normal,
+        Weight = 8.0,
+        Icon = KA_TankKit,
+    }
+
+    item DisplayTankKit
+    {
+        DisplayName = Empty Display Aquarium,
+        DisplayCategory = Furniture,
+        ItemType = base:normal,
+        Weight = 30.0,
+        Icon = KA_DisplayTankKit,
+    }
+
+    item LargeTankKit
+    {
+        DisplayName = Empty Large Aquarium,
+        DisplayCategory = Furniture,
+        ItemType = base:normal,
+        Weight = 22.0,
+        Icon = KA_LargeTankKit,
+    }
+}

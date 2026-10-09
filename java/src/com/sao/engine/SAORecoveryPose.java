@@ -1,6 +1,6 @@
 package com.sao.engine;
 
-/** Pure observation of the installed ground-recovery animation, never a pose request. */
+/** Pure observation of the packaged ground-recovery animation, never a pose request. */
 public final class SAORecoveryPose {
     private SAORecoveryPose() {}
 
@@ -8,10 +8,10 @@ public final class SAORecoveryPose {
         String nodeName;
         String clipName;
         if ("sleep".equals(kind)) {
-            nodeName = "sit_loop_Sleep";
+            nodeName = "SAORecovery_sleep";
             clipName = "Bob_Asleep";
         } else if ("rest".equals(kind)) {
-            nodeName = "sit_loop_Awake";
+            nodeName = "SAORecovery_awake";
             clipName = "Bob_Awake";
         } else return false;
         try {

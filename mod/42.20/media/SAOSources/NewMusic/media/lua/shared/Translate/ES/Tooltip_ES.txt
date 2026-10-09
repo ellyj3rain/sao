@@ -1,0 +1,6 @@
+Tooltip_ES = {
+    Tooltip_item_Walkman = "Un reproductor de casetes portátil para escuchar música en cualquier lugar.",
+    Tooltip_item_Boombox = "Un potente equipo de música portátil con espacio para un casete y una batería.",
+    Tooltip_item_CDPlayer = "Un reproductor de CD portátil y compacto para escuchar con auriculares.",
+    Tooltip_item_Vinyl = "Un tocadiscos para hacer girar discos de vinilo.",
+}

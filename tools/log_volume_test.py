@@ -100,6 +100,8 @@ def early_logger_faults(srcs):
 
 
 def main():
+    from source_scanner_baseline import Baseline
+    baseline = Baseline()
     faults = []
     print("=" * 74)
     print("ONE DOOR OUT TO THE CONSOLE")
@@ -122,8 +124,9 @@ def main():
             "before [B47] and nothing could put a ceiling on any of it")
         logger = ""
 
-    doors = {p.name: len(PRINT.findall(s)) for p, s in srcs.items()
-             if PRINT.search(s) and p.name != LOGGER}
+    doors = {p.name: len(list(baseline.authored_matches(p, s, PRINT)))
+             for p, s in srcs.items() if p.name != LOGGER}
+    doors = {name: count for name, count in doors.items() if count}
     tallies = sum(len(TALLY.findall(s)) for p, s in srcs.items()
                   if p.name != LOGGER)
     inside = len(PRINT.findall(logger))

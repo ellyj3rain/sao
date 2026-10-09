@@ -1,0 +1,12 @@
+{
+    "ContextMenu_ComputerMod_Computer": "คอมพิวเตอร์",
+    "ContextMenu_ComputerMod_InsertCD": "ใส่ซีดี",
+    "ContextMenu_ComputerMod_NetworkTerminal": "เทอร์มินัลเครือข่าย",
+    "ContextMenu_ComputerMod_RemoveCD": "นำซีดีออก",
+    "ContextMenu_ComputerMod_ResumeSession": "ดำเนินการต่อเซสชัน",
+    "ContextMenu_ComputerMod_TurnOn": "เปิดเครื่อง",
+    "ContextMenu_ComputerMod_Components": "ส่วนประกอบ",
+    "ContextMenu_ComputerMod_InstallComponent": "ติดตั้ง",
+    "ContextMenu_ComputerMod_RepairComponent": "ซ่อม",
+    "ContextMenu_ComputerMod_RemoveComponent": "ลบ"
+}

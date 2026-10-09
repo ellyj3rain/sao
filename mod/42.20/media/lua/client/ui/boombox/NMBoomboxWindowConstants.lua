@@ -1,0 +1,165 @@
+-- Integrated source: NewMusic; original revision and terms in SAOSources manifest.
+require "SAO_SourceIntegration"
+if not SAO.SourceIntegration.active("NewMusic") then return end
+local env = _G.NMBoomboxWindowEnv
+setfenv(1, env)
+
+local function S(value)
+    if NMFancyDeviceUiScale and NMFancyDeviceUiScale.scaleValue then
+        return NMFancyDeviceUiScale.scaleValue(value)
+    end
+    return math.floor((tonumber(value) or 0) + 0.5)
+end
+
+function refreshBoomboxLayoutMetrics()
+    PANEL_W = S(416)
+    PANEL_H = S(326)
+    CANVAS_TOP_PAD_Y = S(12)
+    HEADER_X = 0
+    HEADER_Y = CANVAS_TOP_PAD_Y
+    HEADER_W = PANEL_W
+    HEADER_H = S(12)
+    HEADER_SIDE_STRIP_W = S(48)
+    DEFAULT_RIGHT_MARGIN = S(24)
+    EXPANDED_BOTTOM_MARGIN = S(10)
+    DRAG_THRESHOLD_X = S(6)
+    ANIMATION_DURATION_MS = ANIMATION_DURATION_MS or 300
+    DEFAULT_BUTTON_ANIM_MS = DEFAULT_BUTTON_ANIM_MS or 120
+    PLAY_BUTTON_ANIM_MS = PLAY_BUTTON_ANIM_MS or 180
+    TOP_BUTTON_POP_ANIM_MS = TOP_BUTTON_POP_ANIM_MS or 180
+    LID_ANIMATION_DURATION_MS = LID_ANIMATION_DURATION_MS or 420
+    VOLUME_DRAG_DISPATCH_MIN_MS = VOLUME_DRAG_DISPATCH_MIN_MS or 80
+    VOLUME_CLICK_SOUND_MIN_MS = VOLUME_CLICK_SOUND_MIN_MS or 35
+    VOLUME_LABEL_HIDE_DELAY_MS = VOLUME_LABEL_HIDE_DELAY_MS or 3000
+    VOLUME_DRAG_SPAN_PX = S(180)
+    VOLUME_MIN_ANGLE = VOLUME_MIN_ANGLE or 6
+    VOLUME_MAX_ANGLE = VOLUME_MAX_ANGLE or 300
+    VOLUME_GAP_HYSTERESIS_DEGREES = VOLUME_GAP_HYSTERESIS_DEGREES or 18
+    VOLUME_BG_X = S(85)
+    VOLUME_BG_Y = S(177) + CANVAS_TOP_PAD_Y
+    VOLUME_BG_W = S(84)
+    VOLUME_BG_H = S(84)
+    VOLUME_KNOB_X = S(100)
+    VOLUME_KNOB_Y = S(192) + CANVAS_TOP_PAD_Y
+    VOLUME_KNOB_W = S(54)
+    VOLUME_KNOB_H = S(54)
+    VOLUME_LABEL_GAP_Y = S(8)
+    SLOT_SIZE = S(40)
+    SLOT_X = S(180)
+    SLOT_Y = S(197) + CANVAS_TOP_PAD_Y
+    SLOT_GAP_X = S(12)
+    BASE_X = 0
+    BASE_Y = CANVAS_TOP_PAD_Y
+    BASE_W = PANEL_W
+    BASE_H = S(314)
+    FRONT_X = 0
+    FRONT_Y = CANVAS_TOP_PAD_Y
+    FRONT_W = PANEL_W
+    FRONT_H = S(314)
+    LID_X = S(50)
+    LID_Y = S(12) + CANVAS_TOP_PAD_Y
+    LID_W = S(316)
+    LID_H = S(186)
+    LID_OPEN_H = S(116)
+    LID_OPEN_Y = LID_Y + (LID_H - LID_OPEN_H)
+    LID_EDGE_W = LID_W
+    LID_EDGE_H = S(14)
+    LID_ARROW_W = LID_W
+    LID_ARROW_H = S(75)
+    LID_INGRESS_X = LID_X
+    LID_INGRESS_Y = LID_Y
+    LID_INGRESS_W = S(317)
+    LID_INGRESS_H = S(57)
+    LID_INGRESS_BORDER = LID_INGRESS_BORDER or { a = 1.0, r = 1.0, g = 1.0, b = 1.0 }
+    CASSETTE_X = S(80)
+    CASSETTE_Y = S(23) + CANVAS_TOP_PAD_Y
+    CASSETTE_W = S(256)
+    CASSETTE_H = S(156)
+    CASSETTE_SPOOL_A_X = CASSETTE_X + S(62)
+    CASSETTE_SPOOL_A_Y = CASSETTE_Y + S(55)
+    CASSETTE_SPOOL_B_X = CASSETTE_X + S(163)
+    CASSETTE_SPOOL_B_Y = CASSETTE_Y + S(55)
+    CASSETTE_SPOOL_W = S(30)
+    CASSETTE_SPOOL_H = S(30)
+    CASSETTE_SPOOL_DEGREES_PER_SECOND = CASSETTE_SPOOL_DEGREES_PER_SECOND or 72
+    CASSETTE_LABEL_X = CASSETTE_X + S(20)
+    CASSETTE_LABEL_Y = CASSETTE_Y + S(26)
+    CASSETTE_LABEL_W = S(216)
+    CASSETTE_LABEL_H = S(21)
+    CASSETTE_LABEL_TEXT_PAD_X = S(5)
+    CASSETTE_LABEL_TEXT_COLOR = CASSETTE_LABEL_TEXT_COLOR or { a = 1.0, r = 0.08, g = 0.08, b = 0.08 }
+    CASSETTE_LABEL_BG = CASSETTE_LABEL_BG or { a = 1.0, r = 1.0, g = 1.0, b = 1.0 }
+    CLOSE_X = S(18)
+    CLOSE_Y = S(20) + CANVAS_TOP_PAD_Y
+    CLOSE_W = S(10)
+    CLOSE_H = S(10)
+    SETTINGS_GAP_Y = S(8)
+    POWER_BG_X = S(16)
+    POWER_BG_Y = CANVAS_TOP_PAD_Y + S(200)
+    POWER_BG_W = S(20)
+    POWER_BG_H = S(58)
+    POWER_SLIDE_OFFSET_X = S(5)
+    POWER_SLIDE_OFFSET_Y = S(36)
+    POWER_SLIDE_W = S(10)
+    POWER_SLIDE_H = S(5)
+    POWER_SLIDE_TRAVEL_Y = S(24)
+    POWER_SWITCH_PENDING_MS = POWER_SWITCH_PENDING_MS or 1200
+    MAIN_BUTTON_X = S(74)
+    MAIN_BUTTON_Y = S(257) + CANVAS_TOP_PAD_Y
+    MAIN_BUTTON_W = S(52)
+    MAIN_BUTTON_TOP_H = S(15)
+    MAIN_BUTTON_MID_H = S(33)
+    MAIN_BUTTON_MID_PRESSED_H = S(42)
+    MAIN_BUTTON_BOTTOM_H = S(9)
+    MAIN_BUTTON_H = S(57)
+    MAIN_BUTTON_GAP_X = S(2)
+    TOP_BUTTON_W = S(52)
+    TOP_BUTTON_H = S(28)
+    TOP_BUTTON_X = S(51)
+    TOP_BUTTON_CANVAS_INSET_Y = S(14)
+    TOP_BUTTON_GAP_X = S(2)
+    TOP_BUTTON_RETRACT_Y = -S(26)
+    TOP_BUTTON_POP_Y = -S(27)
+    TOP_BUTTON_PEEK_EXPOSE = S(27)
+    TOP_BUTTON_PRESS_OFFSET = S(12)
+    TOP_BUTTON_MIN_HIT_H = S(18)
+    MODE_X = S(378)
+    MODE_Y = S(158) + CANVAS_TOP_PAD_Y
+    MODE_W = S(26)
+    MODE_H = S(26)
+    MODE_GAP_Y = S(10)
+    MODE_BUTTON_SELECTED_TINT = MODE_BUTTON_SELECTED_TINT or 0.74
+    MODE_ICON_ALPHA = MODE_ICON_ALPHA or 0.4
+    CLOSE_TINT = CLOSE_TINT or { r = 0.12, g = 0.12, b = 0.12 }
+    PERSISTED_UI_STATE_KEY = PERSISTED_UI_STATE_KEY or "NMBoomboxUIState"
+    RESTORE_RETRY_WINDOW_MS = RESTORE_RETRY_WINDOW_MS or 8000
+    BASE_TEXTURE_PATH = BASE_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Base.png"
+    FRONT_TEXTURE_PREFIX = FRONT_TEXTURE_PREFIX or "media/textures/UI/Boombox/NM_UI_Boombox_Front_"
+    LID_TEXTURE_PREFIX = LID_TEXTURE_PREFIX or "media/textures/UI/Boombox/NM_UI_Boombox_Lid_"
+    LID_EDGE_TEXTURE_PATH = LID_EDGE_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Lid_Edge.png"
+    CLOSE_TEXTURE_PATH = CLOSE_TEXTURE_PATH or "media/textures/UI/Walkman/NM_UI_Walkman_Close.png"
+    POWER_BG_TEXTURE_PATH = POWER_BG_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Power_BG.png"
+    POWER_SLIDE_TEXTURE_PATH = POWER_SLIDE_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Power_Slide.png"
+    BUTTON_TOP_TEXTURE_PATH = BUTTON_TOP_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Button_Top.png"
+    BUTTON_BOTTOM_TEXTURE_PATH = BUTTON_BOTTOM_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Button_Bottom.png"
+    BUTTON_TOP_PLAY_TEXTURE_PATH = BUTTON_TOP_PLAY_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Button_Top_Play.png"
+    BUTTON_TOP_STOP_TEXTURE_PATH = BUTTON_TOP_STOP_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Button_Top_Stop.png"
+    BUTTON_TOP_PREV_TEXTURE_PATH = BUTTON_TOP_PREV_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Button_Top_Prev.png"
+    BUTTON_TOP_NEXT_TEXTURE_PATH = BUTTON_TOP_NEXT_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Button_Top_Next.png"
+    BUTTON_PLAY_TEXTURE_PATH = BUTTON_PLAY_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Button_Play.png"
+    BUTTON_STOP_TEXTURE_PATH = BUTTON_STOP_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Button_Stop.png"
+    BUTTON_PREV_TEXTURE_PATH = BUTTON_PREV_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Button_Prev.png"
+    BUTTON_NEXT_TEXTURE_PATH = BUTTON_NEXT_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Button_Next.png"
+    BUTTON_EJECT_TEXTURE_PATH = BUTTON_EJECT_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Button_Eject.png"
+    VOLUME_BG_TEXTURE_PATH = VOLUME_BG_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Volume_BG.png"
+    VOLUME_KNOB_TEXTURE_PATH = VOLUME_KNOB_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Volume_Knob.png"
+    MODE_BG_TEXTURE_PATH = MODE_BG_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Button_Mode_BG.png"
+    MODE_BUTTON_TEXTURE_PATH = MODE_BUTTON_TEXTURE_PATH or "media/textures/UI/Boombox/NM_UI_Boombox_Button_Mode.png"
+    SPOOL_TEXTURE_PATH = SPOOL_TEXTURE_PATH or "media/textures/UI/Walkman/NM_UI_Walkman_Spool.png"
+    MODE_ICON_REPEAT_SONG = MODE_ICON_REPEAT_SONG or "media/textures/UI/UI_NM_RepeatSong.png"
+    MODE_ICON_REPEAT_ALBUM = MODE_ICON_REPEAT_ALBUM or "media/textures/UI/UI_NM_RepeatAlbum.png"
+    MODE_ICON_SHUFFLE = MODE_ICON_SHUFFLE or "media/textures/UI/UI_NM_Shuffle.png"
+    BOOMBOX_UI_VARIANT_FALLBACK = BOOMBOX_UI_VARIANT_FALLBACK or "Grey"
+end
+
+refreshBoomboxLayoutMetrics()

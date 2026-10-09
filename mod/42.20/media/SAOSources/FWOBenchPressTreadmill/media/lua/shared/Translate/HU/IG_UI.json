@@ -1,0 +1,12 @@
+{
+    "IGUI_BenchPress": "Fekvenyomás",
+    "IGUI_BenchPress_Tooltip": "Edzés fekvenyomáson",
+    "IGUI_Treadmill": "Futópad",
+    "IGUI_Treadmill_Tooltip": "Futás futópadon",
+    "IGUI_need_barbell": "Ehhez a gyakorlathoz egy súlyzórúdra vagy két kézisúlyzóra van szükségem",
+    "IGUI_low_endurance": "Túl kimerült vagyok",
+    "IGUI_pain": "Túl nagy a fájdalom",
+    "IGUI_heavy": "Túl nehéz most használni",
+    "IGUI_treadmill_needs_electricity": "A futópadnak áramra van szüksége a működéshez",
+    "IGUI_bench_rotate_bug": "Hiba: kérlek forgasd el és/vagy mozgasd el a padot!"
+}

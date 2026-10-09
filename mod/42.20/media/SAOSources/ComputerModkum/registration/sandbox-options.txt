@@ -1,0 +1,157 @@
+VERSION = 1,
+
+option ComputerMod.DiscSpawnChance
+{
+	type = integer, min = 0, max = 100, default = 14,
+	page = ComputerMod_Hardware, translation = ComputerMod_DiscSpawnChance,
+}
+option ComputerMod.GameDiscWeightPercent
+{
+	type = integer, min = 0, max = 300, default = 100,
+	page = ComputerMod_Hardware, translation = ComputerMod_GameDiscWeightPercent,
+}
+option ComputerMod.SystemDiscWeightPercent
+{
+	type = integer, min = 0, max = 300, default = 100,
+	page = ComputerMod_Hardware, translation = ComputerMod_SystemDiscWeightPercent,
+}
+option ComputerMod.BlankDiscWeightPercent
+{
+	type = integer, min = 0, max = 300, default = 100,
+	page = ComputerMod_Hardware, translation = ComputerMod_BlankDiscWeightPercent,
+}
+option ComputerMod.HackDiscWeightPercent
+{
+	type = integer, min = 0, max = 300, default = 100,
+	page = ComputerMod_Hardware, translation = ComputerMod_HackDiscWeightPercent,
+}
+option ComputerMod.PreinstalledGameChance
+{
+	type = integer, min = 0, max = 100, default = 60,
+	page = ComputerMod_Hardware, translation = ComputerMod_PreinstalledGameChance,
+}
+option ComputerMod.PasswordChance
+{
+	type = integer, min = 0, max = 100, default = 34,
+	page = ComputerMod_Hardware, translation = ComputerMod_PasswordChance,
+}
+option ComputerMod.FramePasswordNoteChance
+{
+	type = integer, min = 0, max = 100, default = 12,
+	page = ComputerMod_Hardware, translation = ComputerMod_FramePasswordNoteChance,
+}
+option ComputerMod.NearbyPasswordNoteChance
+{
+	type = integer, min = 0, max = 100, default = 18,
+	page = ComputerMod_Hardware, translation = ComputerMod_NearbyPasswordNoteChance,
+}
+option ComputerMod.HackRequiredElectricalLevel
+{
+	type = integer, min = 0, max = 10, default = 1,
+	page = ComputerMod_Hardware, translation = ComputerMod_HackRequiredElectricalLevel,
+}
+option ComputerMod.EmptyFolderChance
+{
+	type = integer, min = 0, max = 100, default = 28,
+	page = ComputerMod_Hardware, translation = ComputerMod_EmptyFolderChance,
+}
+option ComputerMod.FolderMagazineChance
+{
+	type = integer, min = 0, max = 100, default = 12,
+	page = ComputerMod_Hardware, translation = ComputerMod_FolderMagazineChance,
+}
+option ComputerMod.FolderNewspaperChance
+{
+	type = integer, min = 0, max = 100, default = 18,
+	page = ComputerMod_Hardware, translation = ComputerMod_FolderNewspaperChance,
+}
+option ComputerMod.FolderVideoChance
+{
+	type = integer, min = 0, max = 100, default = 9,
+	page = ComputerMod_Hardware, translation = ComputerMod_FolderVideoChance,
+}
+option ComputerMod.PaintFileChance
+{
+	type = integer, min = 0, max = 100, default = 10,
+	page = ComputerMod_Hardware, translation = ComputerMod_PaintFileChance,
+}
+option ComputerMod.ComponentSpawnChance
+{
+	type = integer, min = 0, max = 100, default = 6,
+	page = ComputerMod_Hardware, translation = ComputerMod_ComponentSpawnChance,
+}
+option ComputerMod.FoundComputerBadPartChance
+{
+	type = integer, min = 0, max = 100, default = 18,
+	page = ComputerMod_Hardware, translation = ComputerMod_FoundComputerBadPartChance,
+}
+option ComputerMod.FoundComputerBrokenPartChance
+{
+	type = integer, min = 0, max = 100, default = 1,
+	page = ComputerMod_Hardware, translation = ComputerMod_FoundComputerBrokenPartChance,
+}
+option ComputerMod.ComponentWearRate
+{
+	type = integer, min = 0, max = 300, default = 100,
+	page = ComputerMod_Hardware, translation = ComputerMod_ComponentWearRate,
+}
+option ComputerMod.EnableGameInstallVirus
+{
+	type = boolean, default = true,
+	page = ComputerMod_Network, translation = ComputerMod_EnableGameInstallVirus,
+}
+option ComputerMod.GameInstallVirusChance
+{
+	type = integer, min = 0, max = 100, default = 8,
+	page = ComputerMod_Network, translation = ComputerMod_GameInstallVirusChance,
+}
+option ComputerMod.EnableBoardApp
+{
+	type = boolean, default = true,
+	page = ComputerMod_Network, translation = ComputerMod_EnableBoardApp,
+}
+option ComputerMod.EnableChatApp
+{
+	type = boolean, default = true,
+	page = ComputerMod_Network, translation = ComputerMod_EnableChatApp,
+}
+option ComputerMod.EnableCommerceApp
+{
+	type = boolean, default = true,
+	page = ComputerMod_Network, translation = ComputerMod_EnableCommerceApp,
+}
+option ComputerMod.NetworkOutageOnPowerLoss
+{
+	type = boolean, default = true,
+	page = ComputerMod_Network, translation = ComputerMod_NetworkOutageOnPowerLoss,
+}
+option ComputerMod.NetworkTerminalNeedsPower
+{
+	type = boolean, default = true,
+	page = ComputerMod_Network, translation = ComputerMod_NetworkTerminalNeedsPower,
+}
+option ComputerMod.MarketShopRefreshHours
+{
+	type = integer, min = 1, max = 168, default = 24,
+	page = ComputerMod_Network, translation = ComputerMod_MarketShopRefreshHours,
+}
+option ComputerMod.MarketJobRefreshHours
+{
+	type = integer, min = 1, max = 168, default = 24,
+	page = ComputerMod_Network, translation = ComputerMod_MarketJobRefreshHours,
+}
+option ComputerMod.MailAccountChance
+{
+	type = integer, min = 0, max = 100, default = 42,
+	page = ComputerMod_Network, translation = ComputerMod_MailAccountChance,
+}
+option ComputerMod.MailLoggedInChance
+{
+	type = integer, min = 0, max = 100, default = 55,
+	page = ComputerMod_Network, translation = ComputerMod_MailLoggedInChance,
+}
+option ComputerMod.SecretSiteHintChance
+{
+	type = integer, min = 0, max = 100, default = 28,
+	page = ComputerMod_Network, translation = ComputerMod_SecretSiteHintChance,
+}

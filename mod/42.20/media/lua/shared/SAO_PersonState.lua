@@ -76,6 +76,9 @@ function P.query(id,body,tick)
         or {actorId=id,status="unavailable",reason="body-unavailable",questions={}}
     local audit={traitEvidence=safe(SAO.Disposition,"traitEvidence",id),
         retainedMemory=safe(SAO.PersonalMemory,"snapshot",id),rawSituation=copy(situation)}
+    if type(rec.weekOne)=="table" and type(rec.weekOne.sourceEvent)=="table" then
+        audit.weekOneSource=copy(rec.weekOne.sourceEvent)
+    end
     local affect={}
     if type(situation.psychology)=="table" then
         local psychology=situation.psychology

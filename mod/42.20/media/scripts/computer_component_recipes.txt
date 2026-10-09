@@ -1,0 +1,124 @@
+module ComputerMod
+{
+    craftRecipe Assemble486Motherboard
+    {
+        timedAction = MakingElectrical,
+        time = 900,
+        NeedToBeLearn = false,
+        SkillRequired = Electricity:8;MetalWelding:3,
+        Tags = AnySurfaceCraft,
+        category = Electrical,
+        xpAward = Electricity:45;MetalWelding:10,
+        inputs
+        {
+            item 1 tags[base:screwdriver] mode:keep flags[Prop1],
+            item 1 tags[base:pliers] mode:keep flags[MayDegradeVeryLight],
+            item 8 [Base.ElectronicsScrap],
+            item 3 [Base.ElectricWire],
+            item 2 [Base.RadioReceiver],
+            item 1 [Base.SmallSheetMetal],
+            item 6 [Base.Screws],
+        }
+        outputs
+        {
+            item 1 ComputerMod.Motherboard486,
+        }
+    }
+
+    craftRecipe Assemble486DX2Processor
+    {
+        timedAction = MakingElectrical,
+        time = 1200,
+        NeedToBeLearn = false,
+        SkillRequired = Electricity:10,
+        Tags = AnySurfaceCraft,
+        category = Electrical,
+        xpAward = Electricity:60,
+        inputs
+        {
+            item 1 tags[base:screwdriver] mode:keep flags[Prop1],
+            item 1 tags[base:pliers] mode:keep flags[MayDegradeVeryLight],
+            item 12 [Base.ElectronicsScrap],
+            item 2 [Base.RadioReceiver],
+            item 1 [Base.RadioTransmitter],
+            item 1 [Base.AluminumScrap;Base.SmallSheetMetal],
+        }
+        outputs
+        {
+            item 1 ComputerMod.CPU486DX2,
+        }
+    }
+
+    craftRecipe Assemble72PinRAM
+    {
+        timedAction = MakingElectrical,
+        time = 650,
+        NeedToBeLearn = false,
+        SkillRequired = Electricity:7,
+        Tags = AnySurfaceCraft,
+        category = Electrical,
+        xpAward = Electricity:35,
+        inputs
+        {
+            item 1 tags[base:screwdriver] mode:keep flags[Prop1],
+            item 1 tags[base:pliers] mode:keep flags[MayDegradeVeryLight],
+            item 6 [Base.ElectronicsScrap],
+            item 1 [Base.RadioReceiver],
+            item 1 [Base.ElectricWire],
+        }
+        outputs
+        {
+            item 1 ComputerMod.RAM72Pin,
+        }
+    }
+
+    craftRecipe AssembleVLBGraphicsCard
+    {
+        timedAction = MakingElectrical,
+        time = 1000,
+        NeedToBeLearn = false,
+        SkillRequired = Electricity:9;MetalWelding:2,
+        Tags = AnySurfaceCraft,
+        category = Electrical,
+        xpAward = Electricity:50;MetalWelding:5,
+        inputs
+        {
+            item 1 tags[base:screwdriver] mode:keep flags[Prop1],
+            item 1 tags[base:pliers] mode:keep flags[MayDegradeVeryLight],
+            item 10 [Base.ElectronicsScrap],
+            item 2 [Base.RadioReceiver],
+            item 1 [Base.Amplifier],
+            item 2 [Base.ElectricWire],
+            item 1 [Base.SmallSheetMetal],
+        }
+        outputs
+        {
+            item 1 ComputerMod.GPUVLBSVGA,
+        }
+    }
+
+    craftRecipe Assemble340MBIDEHardDrive
+    {
+        timedAction = MakingElectrical,
+        time = 900,
+        NeedToBeLearn = false,
+        SkillRequired = Electricity:8;MetalWelding:3,
+        Tags = AnySurfaceCraft,
+        category = Electrical,
+        xpAward = Electricity:45;MetalWelding:10,
+        inputs
+        {
+            item 1 tags[base:screwdriver] mode:keep flags[Prop1],
+            item 1 tags[base:pliers] mode:keep flags[MayDegradeVeryLight],
+            item 7 [Base.ElectronicsScrap],
+            item 1 [Base.RadioReceiver],
+            item 2 [Base.ElectricWire],
+            item 2 [Base.SmallSheetMetal],
+            item 4 [Base.Screws],
+        }
+        outputs
+        {
+            item 1 ComputerMod.HDDIDE340MB,
+        }
+    }
+}

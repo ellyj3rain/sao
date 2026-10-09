@@ -32,9 +32,14 @@ import zombie.characters.skills.PerkFactory;
 import zombie.core.skinnedmodel.population.Outfit;
 import zombie.core.skinnedmodel.population.OutfitManager;
 import zombie.core.skinnedmodel.visual.HumanVisual;
+import zombie.core.skinnedmodel.visual.ItemVisual;
 import zombie.inventory.InventoryItem;
+import zombie.inventory.InventoryItemFactory;
 import zombie.inventory.ItemContainer;
 import zombie.inventory.types.InventoryContainer;
+import zombie.inventory.types.Clothing;
+import zombie.inventory.types.Food;
+import zombie.inventory.types.HandWeapon;
 import zombie.iso.IsoWorld;
 import zombie.scripting.objects.ItemBodyLocation;
 import zombie.scripting.objects.ResourceLocation;
@@ -91,6 +96,7 @@ public final class SAONativeSnapshot {
                                  Map<String, Integer> readBooks, List<String> completedBooks,
                                  Map<String, Integer> literature, List<String> printMedia,
                                  Map<String, Integer> boosts) { }
+    private record WeekOneAssets(List<InventoryItem> items, Set<String> proxyTypes) { }
 
     /** A failed capture throws; callers retain the live person's ownership. */
     public static String capture(IsoPlayer shell) throws IOException {
@@ -151,6 +157,534 @@ public final class SAONativeSnapshot {
             writeVisual(humanVisual(source), source),
             writeCharacterModData(living),
         });
+    }
+
+    /**
+     * Bandits2 displays Week One clothing as ItemVisuals without owned worn
+     * InventoryItems. At the one-way controller handoff, make those visible
+     * clothes into physical items in the detached destination snapshot. The
+     * source and its inventory are never changed by this capture.
+     */
+    public static String captureWeekOne(IsoGameCharacter source, IsoPlayer destination)
+            throws IOException {
+        return captureWeekOne(source, destination, null);
+    }
+
+    /** Materialize the selected Bandits brain on a detached inventory view. */
+    public static String captureWeekOne(IsoGameCharacter source, IsoPlayer destination,
+            KahluaTable brain) throws IOException {
+        requireShell(destination);
+        if (source == null || !source.isAlive() || source.getInventory() == null) {
+            throw new IOException("Missing living Week One source");
+        }
+        WeekOneAssets virtual = weekOneAssets(brain, source);
+        if (brain != null) weekOneHealth(source, destination, brain);
+        if (source.isUsingWornItems() && !source.getItemVisuals().isEmpty()) {
+            throw new IOException("Mixed physical and visual clothing ownership");
+        }
+        ItemContainer current = new ItemContainer();
+        current.getItems().addAll(source.getInventory().getItems());
+        ArrayList<InventoryItem> equipped = new ArrayList<>();
+        equipped.add(source.getPrimaryHandItem());
+        equipped.add(source.getSecondaryHandItem());
+        for (int i = 0; i < source.getWornItems().size(); i++) {
+            equipped.add(source.getWornItems().get(i).getItem());
+        }
+        for (int i = 0; i < source.getAttachedItems().size(); i++) {
+            equipped.add(source.getAttachedItems().get(i).getItem());
+        }
+        Map<Integer, InventoryItem> owned = new LinkedHashMap<>();
+        inventoryFacts(current, owned);
+        for (InventoryItem item : equipped) {
+            if (item == null || owned.get(item.id) == item) continue;
+            // Bandits equips a disposable model item for a brain weapon. The
+            // brain is the source of its rounds and supplies one real item.
+            if (item.getContainer() == null
+                    && virtual.proxyTypes().contains(item.getFullType())) continue;
+            if (owned.containsKey(item.id) || item.getContainer() != null
+                    && item.getContainer() != source.getInventory()) {
+                throw new IOException("Week One equipment has another owner");
+            }
+            current.getItems().add(item);
+            owned.clear();
+            inventoryFacts(current, owned);
+        }
+        Equipment actual = weekOneEquipment(source, owned, virtual.proxyTypes());
+        for (InventoryItem item : virtual.items()) current.getItems().add(item);
+        owned.clear();
+        inventoryFacts(current, owned);
+        List<Slot> worn = new ArrayList<>(actual.worn());
+        if (!source.isUsingWornItems()) {
+            for (int index = 0; index < source.getItemVisuals().size(); index++) {
+                ItemVisual visual = source.getItemVisuals().get(index);
+                if (visual == null || visual.getItemType() == null) {
+                    throw new IOException("Week One clothing has no item type");
+                }
+                InventoryItem item = InventoryItemFactory.CreateItem(visual.getItemType());
+                ItemBodyLocation bodyLocation = item == null || item.getScriptItem() == null
+                    ? null : item.getScriptItem().getBodyLocation();
+                if (bodyLocation == null || item.getVisual() == null) {
+                    throw new IOException("Week One clothing item unavailable: " + visual.getItemType());
+                }
+                item.getVisual().copyFrom(visual);
+                String location = bodyLocation.toString();
+                for (Slot slot : worn) {
+                    if (slot.location().equals(location)) {
+                        throw new IOException("Week One clothing location is occupied: " + location);
+                    }
+                }
+                current.getItems().add(item);
+                owned.clear();
+                inventoryFacts(current, owned);
+                worn.add(new Slot(location, item.id));
+            }
+        }
+        worn.sort(java.util.Comparator.comparing(Slot::location).thenComparingInt(Slot::item));
+        Integer primary = actual.primary();
+        if (primary == null && source.getPrimaryHandItem() != null) {
+            String type = source.getPrimaryHandItem().getFullType();
+            InventoryItem match = null;
+            for (InventoryItem item : virtual.items()) {
+                if (type.equals(item.getFullType())) {
+                    if (match != null) { match = null; break; }
+                    match = item;
+                }
+            }
+            if (match != null) primary = match.id;
+        }
+        Equipment physical = new Equipment(primary, actual.secondary(), worn, actual.attached());
+        Map<Integer, InventoryItem> items = new LinkedHashMap<>();
+        Map<Integer, ItemFact> facts = inventoryFacts(current, items);
+        String packed = encode(4, new byte[][] {
+            serialize(buffer -> current.save(buffer)),
+            serialize(buffer -> destination.getStats().save(buffer)),
+            serialize(buffer -> destination.getBodyDamage().save(buffer)),
+            serialize(buffer -> destination.getXp().save(buffer)),
+            writeManifest(facts, physical, fluidFacts(items)),
+            writeNutrition(destination.getNutrition()),
+            serialize(buffer -> destination.getFitness().save(buffer)),
+            writeLearning(destination),
+            writeVisual(humanVisual(source), source),
+            writeCharacterModData(destination),
+        });
+        if (!validate(packed)) throw new IOException("Week One snapshot validation failed");
+        return packed;
+    }
+
+    private static Equipment weekOneEquipment(IsoGameCharacter source,
+            Map<Integer, InventoryItem> owned, Set<String> proxyTypes) throws IOException {
+        Integer primary = weekOneReference(owned, proxyTypes, source.getPrimaryHandItem());
+        Integer secondary = weekOneReference(owned, proxyTypes, source.getSecondaryHandItem());
+        List<Slot> worn = new ArrayList<>(), attached = new ArrayList<>();
+        for (int i = 0; i < source.getWornItems().size(); i++) {
+            var entry = source.getWornItems().get(i);
+            worn.add(new Slot(entry.getLocation().toString(), reference(owned, entry.getItem())));
+        }
+        for (int i = 0; i < source.getAttachedItems().size(); i++) {
+            var entry = source.getAttachedItems().get(i);
+            Integer id = weekOneReference(owned, proxyTypes, entry.getItem());
+            if (id != null) attached.add(new Slot(entry.getLocation(), id));
+        }
+        worn.sort(java.util.Comparator.comparing(Slot::location).thenComparingInt(Slot::item));
+        attached.sort(java.util.Comparator.comparing(Slot::location).thenComparingInt(Slot::item));
+        return new Equipment(primary, secondary, worn, attached);
+    }
+
+    private static Integer weekOneReference(Map<Integer, InventoryItem> owned,
+            Set<String> proxyTypes, InventoryItem item) throws IOException {
+        if (item == null) return null;
+        if (owned.get(item.id) == item) return item.id;
+        if (item.getContainer() == null && proxyTypes.contains(item.getFullType())) return null;
+        throw new IOException("Week One equipment has another owner");
+    }
+
+    private static KahluaTable weekOneTable(Object value, String field) throws IOException {
+        if (value == null) return null;
+        if (value instanceof KahluaTable table) return table;
+        throw new IOException("Unsupported Week One " + field);
+    }
+
+    private static String weekOneName(Object value, String field) throws IOException {
+        if (value instanceof String name && name.matches("[A-Za-z0-9_]+\\.[A-Za-z0-9_]+")) {
+            return name;
+        }
+        throw new IOException("Unsupported Week One " + field);
+    }
+
+    private static int weekOneInt(Object value, String field, int max) throws IOException {
+        if (!(value instanceof Number n)) throw new IOException("Missing Week One " + field);
+        double number = n.doubleValue();
+        if (!Double.isFinite(number) || number < 0 || number > max
+                || Math.floor(number) != number) throw new IOException("Invalid Week One " + field);
+        return (int) number;
+    }
+
+    private static int weekOneBrainId(Object value) throws IOException {
+        if (!(value instanceof Number number)) throw new IOException("Missing Week One brain id");
+        double id = number.doubleValue();
+        if (!Double.isFinite(id) || id < Integer.MIN_VALUE || id > Integer.MAX_VALUE
+                || Math.floor(id) != id) throw new IOException("Invalid Week One brain id");
+        return (int) id;
+    }
+
+    private static int weekOneCount(KahluaTable table, String field, int max) throws IOException {
+        Object value = table.rawget(field);
+        return value == null ? 0 : weekOneInt(value, field, max);
+    }
+
+    private static float weekOneFloat(Object value, String field) throws IOException {
+        if (!(value instanceof Number number)) throw new IOException("Invalid Week One " + field);
+        double amount = number.doubleValue();
+        if (!Double.isFinite(amount) || Math.abs(amount) > 1000000) {
+            throw new IOException("Invalid Week One " + field);
+        }
+        return (float) amount;
+    }
+
+    private static boolean weekOneBool(KahluaTable table, String field) throws IOException {
+        Object value = table.rawget(field);
+        if (value == null) return false;
+        if (value instanceof Boolean bool) return bool;
+        throw new IOException("Invalid Week One " + field);
+    }
+
+    private static List<Object> weekOneValues(KahluaTable table, String field)
+            throws IOException {
+        List<Map.Entry<String, Object>> entries = new ArrayList<>();
+        if (table == null) return List.of();
+        var iterator = table.iterator();
+        while (iterator.advance()) {
+            Object key = iterator.getKey();
+            if (!(key instanceof String || key instanceof Number)
+                    || entries.size() >= 2048) {
+                throw new IOException("Unsupported Week One " + field + " key or count");
+            }
+            entries.add(Map.entry(String.valueOf(key), iterator.getValue()));
+        }
+        entries.sort(Map.Entry.comparingByKey());
+        List<Object> values = new ArrayList<>();
+        for (var entry : entries) values.add(entry.getValue());
+        return values;
+    }
+
+    private static void weekOneAllowed(KahluaTable table, Set<String> fields, String name)
+            throws IOException {
+        var iterator = table.iterator();
+        while (iterator.advance()) {
+            if (!(iterator.getKey() instanceof String key) || !fields.contains(key)) {
+                throw new IOException("Unsupported Week One " + name + " field");
+            }
+        }
+    }
+
+    private static InventoryItem weekOneItem(String type, String kind, KahluaTable brain)
+            throws IOException {
+        InventoryItem item = InventoryItemFactory.CreateItem(type);
+        if (item == null || !type.equals(item.getFullType()) || item.getScriptItem() == null) {
+            throw new IOException("Unavailable Week One item: " + type);
+        }
+        KahluaTable md = item.getModData();
+        md.rawset("SAOWeekOneMaterialSource", "BanditsWeekOne");
+        md.rawset("SAOWeekOneMaterialKind", kind);
+        md.rawset("SAOWeekOneBrainId", brain.rawget("id"));
+        md.rawset("SAOWeekOneBrainBorn", brain.rawget("born"));
+        return item;
+    }
+
+    private static void weekOneAdd(List<InventoryItem> items, InventoryItem item)
+            throws IOException {
+        if (items.size() >= 2048) throw new IOException("Excessive Week One virtual inventory");
+        items.add(item);
+    }
+
+    private static void weekOneGun(KahluaTable slot, String role, KahluaTable brain,
+            List<InventoryItem> items, Set<String> proxyTypes) throws IOException {
+        if (slot == null) return;
+        weekOneAllowed(slot, Set.of("name", "type", "clipIn", "racked", "magName",
+            "magSize", "magCount", "bulletsLeft", "ammoName", "ammoSize", "ammoCount"), role);
+        Object named = slot.rawget("name");
+        if (named == null) {
+            if (weekOneCount(slot, "bulletsLeft", 4096) != 0
+                    || weekOneCount(slot, "magCount", 2048) != 0
+                    || weekOneCount(slot, "ammoCount", 2048) != 0) {
+                throw new IOException("Unowned Week One ammunition in " + role);
+            }
+            return;
+        }
+        String name = weekOneName(named, role + " weapon");
+        InventoryItem created = weekOneItem(name, role, brain);
+        if (!(created instanceof HandWeapon gun)) {
+            throw new IOException("Week One " + role + " is not a weapon");
+        }
+        String mode = slot.rawget("type") instanceof String s ? s : "";
+        int loaded = weekOneCount(slot, "bulletsLeft", 4096);
+        if (loaded > gun.getMaxAmmo() || gun.getMaxAmmo() <= 0) {
+            throw new IOException("Week One loaded rounds exceed native weapon capacity");
+        }
+        boolean racked = weekOneBool(slot, "racked");
+        if (racked && loaded == 0) throw new IOException("Week One empty weapon marked racked");
+        if (racked && !gun.haveChamber()) {
+            throw new IOException("Week One racked weapon has no native chamber");
+        }
+        if (mode.equals("mag")) {
+            if (!gun.usesExternalMagazine()) throw new IOException("Week One magazine weapon mismatch");
+            String magName = weekOneName(slot.rawget("magName"), role + " magazine");
+            String nativeMagazine = gun.getMagazineType();
+            if (nativeMagazine == null || !(nativeMagazine.equals(magName)
+                    || nativeMagazine.equals(magName.substring(magName.indexOf('.') + 1)))) {
+                throw new IOException("Week One magazine type mismatch");
+            }
+            int capacity = weekOneInt(slot.rawget("magSize"), role + " magazine size", 4096);
+            if (capacity <= 0 || capacity != gun.getMaxAmmo()) {
+                throw new IOException("Week One magazine capacity mismatch");
+            }
+            boolean inserted = weekOneBool(slot, "clipIn");
+            if (!inserted && loaded > 0) {
+                throw new IOException("Week One ejected magazine has unowned rounds");
+            }
+            int spare = weekOneCount(slot, "magCount", 2048);
+            gun.setContainsClip(inserted);
+            gun.setCurrentAmmoCount(loaded - (racked ? 1 : 0));
+            gun.setRoundChambered(racked);
+            for (int index = 0; index < spare; index++) {
+                InventoryItem mag = weekOneItem(magName, role + "-spare-magazine", brain);
+                mag.setMaxAmmo(capacity);
+                mag.setCurrentAmmoCount(capacity);
+                weekOneAdd(items, mag);
+            }
+        } else if (mode.equals("nomag")) {
+            if (gun.usesExternalMagazine() || gun.getAmmoType() == null) {
+                throw new IOException("Week One loose-ammo weapon mismatch");
+            }
+            String ammoName = weekOneName(slot.rawget("ammoName"), role + " ammunition");
+            if (!ammoName.equals(gun.getAmmoType().getItemKey())) {
+                throw new IOException("Week One ammunition type mismatch");
+            }
+            int capacity = weekOneInt(slot.rawget("ammoSize"), role + " ammo size", 4096);
+            if (capacity != gun.getMaxAmmo()) throw new IOException("Week One ammo capacity mismatch");
+            int spare = weekOneCount(slot, "ammoCount", 2048);
+            gun.setCurrentAmmoCount(loaded - (racked ? 1 : 0));
+            gun.setRoundChambered(racked);
+            for (int index = 0; index < spare; index++) {
+                weekOneAdd(items, weekOneItem(ammoName, role + "-spare-round", brain));
+            }
+        } else throw new IOException("Unsupported Week One weapon mode: " + mode);
+        weekOneAdd(items, gun);
+        proxyTypes.add(name);
+    }
+
+    private static void weekOnePermaItem(KahluaTable data, KahluaTable brain,
+            List<InventoryItem> items) throws IOException {
+        weekOneAllowed(data, Set.of("fullType", "weight", "calories", "lipids",
+            "proteins", "carbohydrates", "hungerChange", "baseHunger", "thirstChange",
+            "unhappyChange", "boredomChange", "extraItems", "cooked", "dirty",
+            "blood", "wet", "BWO"), "permanent item");
+        InventoryItem item = weekOneItem(weekOneName(data.rawget("fullType"),
+            "permanent item"), "permanent", brain);
+        if (data.rawget("weight") != null) {
+            float weight = weekOneFloat(data.rawget("weight"), "weight");
+            if (weight <= 0) throw new IOException("Invalid Week One item weight");
+            item.setActualWeight(weight);
+        }
+        for (String field : List.of("calories", "lipids", "proteins", "carbohydrates",
+                "hungerChange", "baseHunger", "thirstChange")) {
+            Object value = data.rawget(field);
+            if (value == null) continue;
+            if (!(item instanceof Food food)) throw new IOException("Week One food field on non-food");
+            float amount = weekOneFloat(value, field);
+            switch (field) {
+                case "calories" -> food.setCalories(amount);
+                case "lipids" -> food.setLipids(amount);
+                case "proteins" -> food.setProteins(amount);
+                case "carbohydrates" -> food.setCarbohydrates(amount);
+                case "hungerChange" -> food.setHungChange(amount);
+                case "baseHunger" -> food.setBaseHunger(amount);
+                case "thirstChange" -> food.setThirstChange(amount);
+            }
+        }
+        for (String field : List.of("unhappyChange", "boredomChange")) {
+            Object value = data.rawget(field);
+            if (value == null) continue;
+            float amount = weekOneFloat(value, field);
+            if (field.equals("unhappyChange")) item.setUnhappyChange(amount);
+            else item.setBoredomChange(amount);
+        }
+        for (Object extra : weekOneValues(weekOneTable(data.rawget("extraItems"),
+                "extraItems"), "extraItems")) {
+            item.addExtraItem(weekOneName(extra, "extra item"));
+            item.setIsCookable(true);
+        }
+        if (data.rawget("cooked") != null) {
+            if (!(data.rawget("cooked") instanceof Boolean cooked)) {
+                throw new IOException("Invalid Week One cooked state");
+            }
+            if (cooked) {
+                if (!(item instanceof Food food)) throw new IOException("Cooked non-food Week One item");
+                food.setCooked(true);
+                food.setHeat(2.5f);
+            }
+        }
+        for (String field : List.of("dirty", "blood", "wet")) {
+            Object value = data.rawget(field);
+            if (value == null) continue;
+            if (!(item instanceof Clothing clothes)) {
+                throw new IOException("Week One clothing state on non-clothing");
+            }
+            float amount = weekOneFloat(value, field);
+            if (amount < 0 || amount > 100) throw new IOException("Invalid Week One clothing state");
+            switch (field) {
+                case "dirty" -> clothes.setDirtiness(amount);
+                case "blood" -> clothes.setBloodLevel(amount);
+                case "wet" -> clothes.setWetness(amount);
+            }
+        }
+        KahluaTable bwo = weekOneTable(data.rawget("BWO"), "permanent item BWO state");
+        if (bwo != null) {
+            KahluaTableImpl copied = copyDurableTable(bwo, 0, new IdentityHashMap<>(), false);
+            item.getModData().rawset("BWO", copied);
+            Object custom = copied.rawget("name");
+            if (custom != null) {
+                if (!(custom instanceof String text) || text.length() > 256) {
+                    throw new IOException("Invalid Week One permanent item name");
+                }
+                item.setName(text);
+            }
+        }
+        weekOneAdd(items, item);
+    }
+
+    private static WeekOneAssets weekOneAssets(KahluaTable brain, IsoGameCharacter source)
+            throws IOException {
+        if (brain == null) return new WeekOneAssets(List.of(), Set.of());
+        if (!"BanditsWeekOne".equals(brain.rawget("saoWeekOneOrigin"))) {
+            throw new IOException("Foreign Week One gear source");
+        }
+        if (weekOneBrainId(brain.rawget("id")) != source.getPersistentOutfitID()) {
+            throw new IOException("Week One source body id mismatch");
+        }
+        if (!(brain.rawget("born") instanceof Number birth)
+                || !Double.isFinite(birth.doubleValue())) {
+            throw new IOException("Invalid Week One birth marker");
+        }
+        Object infection = brain.rawget("infection");
+        if (infection != null) {
+            float progress = weekOneFloat(infection, "infection");
+            if (progress < 0 || progress > 0) {
+                throw new IOException("Week One infection progression needs a native owner");
+            }
+        }
+        for (String field : List.of("inventory", "loot")) {
+            if (!weekOneValues(weekOneTable(brain.rawget(field), field), field).isEmpty()) {
+                throw new IOException("Unsupported Week One virtual " + field);
+            }
+        }
+        Map<Integer, InventoryItem> physical = new LinkedHashMap<>();
+        inventoryFacts(source.getInventory(), physical);
+        List<InventoryItem> items = new ArrayList<>();
+        Set<String> proxyTypes = new HashSet<>();
+        KahluaTable weapons = weekOneTable(brain.rawget("weapons"), "weapons");
+        if (weapons == null) throw new IOException("Missing Week One weapons");
+        Object melee = weapons.rawget("melee");
+        if (melee != null && !"Base.BareHands".equals(melee)) {
+            String name = weekOneName(melee, "melee weapon");
+            InventoryItem created = weekOneItem(name, "melee", brain);
+            if (!(created instanceof HandWeapon)) throw new IOException("Invalid Week One melee weapon");
+            weekOneAdd(items, created);
+            proxyTypes.add(name);
+        }
+        weekOneGun(weekOneTable(weapons.rawget("primary"), "primary"),
+            "primary", brain, items, proxyTypes);
+        weekOneGun(weekOneTable(weapons.rawget("secondary"), "secondary"),
+            "secondary", brain, items, proxyTypes);
+        for (Object value : weekOneValues(weekOneTable(brain.rawget("keys"), "keys"), "keys")) {
+            int id = weekOneInt(value, "key id", Integer.MAX_VALUE);
+            boolean alreadyCarried = false;
+            for (InventoryItem owned : physical.values()) {
+                if ("Base.Key1".equals(owned.getFullType()) && owned.getKeyId() == id) {
+                    alreadyCarried = true;
+                    break;
+                }
+            }
+            if (alreadyCarried) continue;
+            InventoryItem key = weekOneItem("Base.Key1", "key", brain);
+            key.setKeyId(id);
+            key.setName("Unknown Key");
+            weekOneAdd(items, key);
+        }
+        for (Object value : weekOneValues(weekOneTable(brain.rawget("permaInv"),
+                "permaInv"), "permaInv")) {
+            if (!(value instanceof KahluaTable data)) {
+                throw new IOException("Unsupported Week One permanent item");
+            }
+            weekOnePermaItem(data, brain, items);
+        }
+        Object bagField = brain.rawget("bag");
+        String bagName = null;
+        if (bagField instanceof KahluaTable bag) {
+            weekOneAllowed(bag, Set.of("name"), "bag");
+            if (bag.rawget("name") != null) bagName = weekOneName(bag.rawget("name"), "bag");
+        } else if ("Briefcase".equals(bagField)) {
+            bagName = "Base.Briefcase";
+        } else if (bagField != null) throw new IOException("Unsupported Week One bag");
+        if (bagName != null) {
+            boolean visible = false;
+            for (int index = 0; index < source.getItemVisuals().size(); index++) {
+                ItemVisual visual = source.getItemVisuals().get(index);
+                if (visual != null && bagName.equals(visual.getItemType())) visible = true;
+            }
+            boolean alreadyCarried = false;
+            for (InventoryItem owned : physical.values()) {
+                if (bagName.equals(owned.getFullType())) {
+                    alreadyCarried = true;
+                    break;
+                }
+            }
+            if (!visible && !alreadyCarried) {
+                InventoryItem bag = weekOneItem(bagName, "bag", brain);
+                if (!(bag instanceof InventoryContainer)) {
+                    throw new IOException("Week One bag is not a container");
+                }
+                weekOneAdd(items, bag);
+            }
+            proxyTypes.add(bagName);
+        }
+        return new WeekOneAssets(items, proxyTypes);
+    }
+
+    private static void weekOneHealth(IsoGameCharacter source, IsoPlayer destination,
+            KahluaTable brain) throws IOException {
+        float baseline = weekOneFloat(brain.rawget("health"), "baseline health");
+        float current = source.getHealth();
+        if (baseline <= 0 || !Float.isFinite(current) || current <= 0
+                || destination.getBodyDamage() == null) {
+            throw new IOException("Invalid living Week One health");
+        }
+        // Vanilla IsoZombie has no BodyDamage object in the installed engine.
+        // If a provider adds one, copy its native state; otherwise the live
+        // source health scalar and visual are the only available evidence.
+        if (source.getBodyDamage() != null) {
+            byte[] body = serialize(buffer -> source.getBodyDamage().save(buffer));
+            ByteBuffer input = ByteBuffer.wrap(body);
+            destination.getBodyDamage().load(input, VERIFIED_WORLD_VERSION);
+            consumed(input, "Week One body damage");
+        }
+        float sourceOverall = destination.getBodyDamage().getOverallBodyHealth();
+        if (!Float.isFinite(sourceOverall) || sourceOverall <= 0) {
+            throw new IOException("Invalid Week One native body health");
+        }
+        float fraction = Math.min(1f, current / baseline);
+        float target = Math.min(sourceOverall, Math.max(.01f, fraction * 100f));
+        if (target < sourceOverall) {
+            // The installed loader recalculates overall health from body parts.
+            // Native general damage distributes a scalar reduction without
+            // assigning a wound to an invented body site.
+            destination.getBodyDamage().ReduceGeneralHealth(sourceOverall - target);
+            destination.getBodyDamage().calculateOverallHealth();
+        }
+        KahluaTable retained = destination.getModData();
+        retained.rawset("SAOWeekOneSourceHealth", (double) current);
+        retained.rawset("SAOWeekOneBaselineHealth", (double) baseline);
+        retained.rawset("SAOWeekOneHealthFraction", (double) fraction);
     }
 
     /** Compare all serialized item state before committing a held source. */

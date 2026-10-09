@@ -64,6 +64,18 @@ function C.configure(share, rate, depth)
     data.configuredAt = now
     return true
 end
+
+-- Normal worlds use the existing bounded two-contestant budget. A saved
+-- setting, including an explicit disabled or malformed one, remains the
+-- operator's setting and is never repaired implicitly at load.
+function C.ensureGameDefaults()
+    if not ModData or type(ModData.get)~="function" then return false,"storage-unavailable" end
+    local ok,data=pcall(function()return ModData.get(STORE)end)
+    if not ok or data~=nil and type(data)~="table" then return false,"storage-unavailable" end
+    if data and data.settings~=nil then return true,"saved-settings" end
+    if not C.configure(0.5,12,3) then return false,"clock-or-storage-unavailable" end
+    return true,"initialized"
+end
 local function record(id, allowDead)
     if not text(id, 128) then return nil end
     local rec = SAO.Identity and SAO.Identity.get(id)
@@ -340,8 +352,14 @@ function C.attempted(id, token)
     return true
 end
 local KINDS = { inspection = true, acquire = true, store = true, consume = true }
+local HOBBY_KINDS={ ["leisure-meditation"]=true,["leisure-exercise"]=true,
+    ["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
+    ["leisure-duet"]=true,["leisure-dance"]=true }
 local EXTENDED = { ["medication-use"] = true, ["physical-change"] = true, preparation = true,
-    ["animal-care"] = true, ["window-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true }
+    ["animal-care"] = true, ["window-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
+    ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
+    ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
+    ["weekone-performance-hearing"]=true }
 local STATUSES = { completed = true, ["no-effect"] = true, interrupted = true, unavailable = true }
 local EXPERIENCE_KEYS = { id = true, actorId = true, observerId = true, worldHours = true,
     kind = true, category = true, perspective = true, status = true, sourceId = true,
@@ -414,7 +432,7 @@ local function sameData(a, b)
 end
 local BEHAVIOR_RESULT = {}
 function C.experience(id, supplied, authority)
-    if type(supplied)=="table" and (supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use")
+    if type(supplied)=="table" and (supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
         and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
     local now = clock()
     if not C.settings().enabled or not now then return false, "disabled" end
@@ -493,7 +511,7 @@ function C.publish(id, token, values)
     return C.experience(id, x)
 end
 -- Producer callbacks use their existing monotonic durable positions. These
--- three scalar cursors prevent replay after the bounded experience log evicts
+-- scalar cursors prevent replay after the bounded experience log evicts
 -- the original event. They are not exposure-to-effect attribution links.
 local function nativeExperience(id, producer, position, x)
     if not finite(position, 0, 9007199254740991) or position ~= math.floor(position) then
@@ -525,6 +543,64 @@ local function nativeExperience(id, producer, position, x)
         s.nativeExperienceCursors[producer] = math.max(prior or 0, position)
     end
     return ok, reason
+end
+-- A paired source result may become shareable after a newer work sequence:
+-- the other performer owns the final callback. Give the acquired fact its own
+-- monotonic delivery position while keeping the native work sequence inside
+-- the fact. Claims remain only while their Organization process is retained.
+local MAX_PAIRED_CLAIMS=1024
+local function pairedSourceExperience(id,receipt,producer,kind,x)
+    if not C.settings().enabled then return false,"disabled" end
+    local s=state(id,true)
+    if not s then return false,"person-unavailable" end
+    local claims=s.pairedSourceClaims or {}
+    local order=s.pairedSourceClaimOrder or {}
+    if type(claims)~="table" or type(order)~="table" or #order>MAX_PAIRED_CLAIMS then
+        return false,"invalid-paired-claims" end
+    local key=producer..":"..tostring(#receipt.processId)..":"..receipt.processId..":"..tostring(receipt.revision)
+    local prior=claims[key]
+    if prior then
+        if type(prior)~="table" or prior.processId~=receipt.processId
+            or prior.revision~=receipt.revision or prior.workId~=receipt.workId
+            or prior.sourceSequence~=receipt.sequence or prior.partnerId~=receipt.partnerId
+            or prior.partnerResultId~=receipt.coPerformance.partnerResultId
+            or prior.atHours~=receipt.atHours or prior.musicKey~=receipt.musicKey
+            or prior.role~=receipt.role then return false,"conflicting-paired-receipt" end
+        return true,"duplicate"
+    end
+    if #order>=MAX_PAIRED_CLAIMS then
+        local processes=SAO.Organization and SAO.Organization.processes
+        if type(processes)~="table" then return false,"process-map-unavailable" end
+        local held={}
+        for _,claimKey in ipairs(order) do
+            local row=claims[claimKey]
+            if type(row)~="table" or not text(row.processId,160) then
+                return false,"invalid-paired-claims" end
+            if processes[row.processId] then held[#held+1]=claimKey
+            else claims[claimKey]=nil end
+        end
+        order=held
+        s.pairedSourceClaimOrder=order
+        if #order>=MAX_PAIRED_CLAIMS then return false,"paired-claim-capacity" end
+    end
+    local cursors=s.nativeExperienceCursors
+    if cursors~=nil and type(cursors)~="table" then return false,"invalid-native-cursors" end
+    local position=cursors and cursors[producer] or 0
+    if not finite(position,0,9007199254740990) or position~=math.floor(position) then
+        return false,"invalid-native-cursor" end
+    position=position+1
+    x.id=kind.."/"..id.."/"..tostring(position)
+    x.sourceWorkSequence=receipt.sequence
+    local ok,reason=nativeExperience(id,producer,position,x)
+    if not ok then return false,reason end
+    claims[key]={processId=receipt.processId,revision=receipt.revision,
+        workId=receipt.workId,sourceSequence=receipt.sequence,
+        partnerId=receipt.partnerId,partnerResultId=receipt.coPerformance.partnerResultId,
+        atHours=receipt.atHours,musicKey=receipt.musicKey,role=receipt.role,
+        deliveryPosition=position}
+    order[#order+1]=key
+    s.pairedSourceClaims,s.pairedSourceClaimOrder=claims,order
+    return true,reason
 end
 local function privateFact(id, kind, category, eventId, acquired, occurred)
     return { id = eventId, actorId = id, observerId = id, worldHours = acquired,
@@ -623,10 +699,336 @@ function C.instrumentOutcome(id,sequence)
     x.actionKind,x.succeeded=receipt.verb,receipt.status=="completed"
     return nativeExperience(id,"instrument",sequence,x)
 end
+
+-- The Week One source action completes on its own body. Its terminal journal
+-- is read back before the performed fact enters this person's private models.
+function C.weekOnePerformanceOutcome(id, sequence)
+    local now = clock()
+    local okNative, nativeNow = pcall(function()
+        return getGameTime():getWorldAgeHours() end)
+    if not okNative or not finite(nativeNow, 0, 1000000000) then
+        nativeNow = now end
+    if not now or not finite(sequence, 1, 9007199254740991)
+        or sequence ~= math.floor(sequence) then return false, "unqualified-weekone-performance" end
+    local owner = SAO.WeekOneContinuity
+    local r = owner and owner.performanceOutcome and owner.performanceOutcome(id, sequence)
+    if type(r) ~= "table" or r.actorId ~= id or r.sequence ~= sequence
+        or r.sourceId ~= "BanditsWeekOne:SAOPerform" or r.sourceAction ~= "SAOPerform"
+        or r.claimOwner ~= "BanditsWeekOne" or r.purpose ~= "perform-with-physical-instrument"
+        or r.status ~= "completed" or not text(r.sourceProgram, 96)
+        or not text(r.sourceStage, 96)
+        or not finite(r.brainId, -2147483648, 2147483647)
+        or r.brainId ~= math.floor(r.brainId) or r.bodyId ~= r.brainId
+        or not finite(r.born, -1000000000000, 1000000000000)
+        or not finite(r.decisionAtTick, 0, 9007199254740991)
+        or r.decisionAtTick ~= math.floor(r.decisionAtTick)
+        or not finite(r.itemId, -2147483648, 2147483647)
+        or r.itemId ~= math.floor(r.itemId)
+        or not finite(r.startedAtHours, 0, nativeNow)
+        or not finite(r.atHours, r.startedAtHours, nativeNow)
+        or r.countyAtHours ~= nil
+            and not finite(r.countyAtHours, 0, now) then
+        return false, "weekone-performance-owner-unavailable"
+    end
+    local sounds = {
+        ["Base.GuitarElectric"] = "BWOInstrumentBassGuitar1",
+        ["Base.Violin"] = "BWOInstrumentViolinPaganini",
+        ["Base.Saxophone"] = "BWOInstrumentSax1",
+    }
+    if sounds[r.itemType] ~= r.soundId then return false, "weekone-performance-sound-mismatch" end
+    local x = privateFact(id, "weekone-instrument-performance", "leisure",
+        "weekone-instrument-performance/"..id.."/"..tostring(sequence),
+        now, r.countyAtHours or r.atHours)
+    x.sourceId, x.itemId, x.itemType = r.sourceId, r.itemId, r.itemType
+    x.actionKind, x.succeeded, x.soundId = "perform-instrument", true, r.soundId
+    x.sourceBrainId, x.sourceBorn, x.sourceBodyId = r.brainId, r.born, r.bodyId
+    x.decisionAtTick, x.claimOwner = r.decisionAtTick, r.claimOwner
+    x.sourceProgram, x.sourceStage, x.startedAtHours = r.sourceProgram, r.sourceStage, r.startedAtHours
+    -- The source receipt keeps native world age. Only a completion stamped
+    -- at the physical action can establish its place in county chronology;
+    -- older receipts remain valid facts without invented ordering.
+    x.nativeCompletedAtHours = r.countyAtHours and r.atHours or nil
+    return nativeExperience(id, "weekone-instrument-performance", sequence, x)
+end
+-- A listener's physical hearing is an observed acoustic encounter. The
+-- Perception journal owns the native acquisition; cognition reads its current
+-- validated copy and retains exact source/pulse identity without granting a
+-- performance, enjoyment, agreement or hobby-success outcome to the listener.
+function C.weekOnePerformanceHearings(id)
+    local now, rec = clock(), record(id)
+    if not C.settings().enabled then return false, "disabled" end
+    if not now or not rec or not SAO.Perception
+        or type(SAO.Perception.weekOnePerformanceHearings) ~= "function" then
+        return false, "hearing-owner-unavailable" end
+    local journal = rec.weekOnePerformanceHearings
+    if journal == nil or type(journal) == "table" and #journal == 0 then
+        return true, "unchanged" end
+    local omitted = rec.weekOnePerformanceHearingsOmitted or 0
+    if type(journal) ~= "table" or #journal > 16
+        or not finite(omitted, 0, 9007199254740991)
+        or omitted ~= math.floor(omitted) then return false, "invalid-hearing-journal" end
+    local ok, validated = pcall(SAO.Perception.weekOnePerformanceHearings, id)
+    if not ok or type(validated) ~= "table" then return false, "hearing-owner-unavailable" end
+    local current = state(id, false)
+    if rec.cognition ~= nil and not current then return false, "invalid-model-state" end
+    local cursors = current and current.nativeExperienceCursors
+    if cursors ~= nil and type(cursors) ~= "table" then return false, "invalid-native-cursors" end
+    local prior = cursors and cursors["weekone-performance-hearing"] or 0
+    if not finite(prior, 0, 9007199254740991) or prior ~= math.floor(prior) then
+        return false, "invalid-native-cursor" end
+    local seenPulses, acquired = {}, 0
+    for index, stored in ipairs(journal) do
+        local position = omitted + index
+        if not finite(position, 1, 9007199254740991) then
+            return false, "invalid-hearing-position" end
+        local pulse = type(stored) == "table" and stored.pulseId
+        if type(pulse) == "string" and not seenPulses[pulse] then
+            seenPulses[pulse] = true
+            if position > prior then
+                local row
+                for _, candidate in ipairs(validated) do
+                    if candidate.pulseId == pulse and sameData(candidate, stored) then
+                        row = candidate; break end
+                end
+                if row then
+                    local x = { id = "weekone-heard/"..tostring(position),
+                        actorId = row.actorId, observerId = id, worldHours = now,
+                        occurredAtHours = row.acquiredAtCountyHours,
+                        kind = "weekone-performance-hearing", category = "leisure",
+                        perspective = "observed", status = "completed",
+                        sourceId = "BanditsWeekOne:SAOPerform",
+                        sourceBrainId = row.brainId, sourceBorn = row.born,
+                        observerBrainId = row.observerBrainId,
+                        observerBorn = row.observerBorn,
+                        soundId = row.soundId, soundHandle = row.soundHandle,
+                        pulseId = row.pulseId, sourceEpoch = row.epoch,
+                        sourceSequence = row.sequence, nativeClock = row.clock,
+                        nativeEmittedAtHours = row.emittedAtHours,
+                        nativeHeardAtHours = row.heardAtHours,
+                        nativeWitnessedAtHours = row.witnessedAtHours,
+                        nativeClaimedAtHours = row.atHours }
+                    local accepted, reason = nativeExperience(id,
+                        "weekone-performance-hearing", position, x)
+                    if not accepted then return false, reason end
+                    acquired = acquired + 1
+                end
+            end
+        end
+    end
+    return true, acquired > 0 and acquired or "unchanged"
+end
+-- Repetition alone is familiarity. A small exploratory music signal requires
+-- two different, time-separated heard performances and this listener's own
+-- later completed music action. The latest own attempt may also counter it.
+-- This is a planning curiosity signal, not mood, pleasure or social assent.
+function C.weekOneMusicInterest(id)
+    local out = { schema = "sao-private-weekone-music-interest/1", actorId = id,
+        status = "unobserved", informationGain = 0, evidenceIds = {} }
+    local s = state(id, false)
+    if not s or not SAO.CognitiveModels then return out end
+    local heard, latestOwn = {}, nil
+    for _, x in ipairs(s.experiences) do
+        if type(x) == "table" and SAO.CognitiveModels.acceptsExperience(x) then
+            if x.kind == "weekone-performance-hearing"
+                and x.observerId == id and x.actorId ~= id then
+                heard[#heard + 1] = x
+            elseif (x.kind == "instrument-use" or x.kind == "leisure-music"
+                    or x.kind == "weekone-instrument-performance"
+                        and x.nativeCompletedAtHours ~= nil)
+                and x.actorId == id and x.observerId == id
+                and x.perspective == "performed" and x.status == "completed"
+                and (not latestOwn or x.occurredAtHours >= latestOwn.occurredAtHours) then
+                latestOwn = x
+            end
+        end
+    end
+    if #heard == 0 then return out end
+    out.status = "single-hearing"
+    local first, second
+    for a = 1, #heard do
+        for b = a + 1, #heard do
+            local earlier, later = heard[a], heard[b]
+            if earlier.nativeEmittedAtHours > later.nativeEmittedAtHours then
+                earlier, later = later, earlier
+            end
+            if earlier.pulseId ~= later.pulseId
+                and later.nativeEmittedAtHours - earlier.nativeEmittedAtHours >= 0.05 then
+                first, second = earlier, later
+                break
+            end
+        end
+        if first then break end
+    end
+    if not first then return out end
+    out.status = "familiarity-only"
+    out.evidenceIds = { first.id, second.id }
+    if latestOwn and latestOwn.occurredAtHours > first.occurredAtHours then
+        out.evidenceIds[3] = latestOwn.id
+        if latestOwn.succeeded == true then
+            out.status = "supported-exploration"
+            out.informationGain = 0.2
+        else
+            out.status = "mixed-evidence"
+        end
+    end
+    return out
+end
+-- Canonical terminal reading is a private attempted fact. Completion certifies
+-- page use or exact text exposure, never understanding, skill or content claims.
+function C.leisureReadingOutcome(id, sequence)
+    local now = clock()
+    if not now or not finite(sequence, 1, 9007199254740991) or sequence ~= math.floor(sequence) then
+        return false, "unqualified-leisure-reading"
+    end
+    local owner = SAO.Study
+    local r = owner and owner.leisureOutcome and owner.leisureOutcome(id, sequence)
+    if type(r) ~= "table" or r.actorId ~= id or r.sequence ~= sequence
+        or r.workId ~= "study/"..tostring(sequence) or not text(r.purposeId, 160)
+        or not text(r.itemId, 32) or not text(r.itemType, 160)
+        or type(r.bodyGenerationKnown) ~= "boolean"
+        or r.bodyGenerationKnown and not text(r.bodyToken, 160)
+        or not r.bodyGenerationKnown and r.bodyToken ~= nil
+        or (r.status ~= "completed" and r.status ~= "interrupted")
+        or type(r.nativeStarted) ~= "boolean" or type(r.nativeCompleted) ~= "boolean"
+        or type(r.custodyVerified) ~= "boolean" or not finite(r.atHours, 0, now)
+        or not finite(r.beganAt, 0, r.atHours) or not finite(r.progress, 0, 1)
+        or r.nativeStarted and not finite(r.startedAt, r.beganAt, r.atHours)
+        or not r.nativeStarted and r.startedAt ~= nil then return false, "reading-owner-unavailable" end
+    local note = r.actionKind == "read-note"
+    if note then
+        if r.sourceId ~= "native:literature:customPages" or r.nativeOwner ~= "SAONoteReadAction/ISBaseTimedAction"
+            or r.token ~= "note:text-exposed" or r.contentBinding ~= r.workId
+            or not finite(r.contentPages, 1, 32) or r.contentPages ~= math.floor(r.contentPages)
+            or not finite(r.contentBytes, 1, 65536) or r.contentBytes ~= math.floor(r.contentBytes)
+            or r.pagesBefore ~= nil or r.pagesAfter ~= nil or r.totalPages ~= nil or r.mood ~= nil then
+            return false, "unqualified-note-exposure"
+        end
+    elseif r.actionKind ~= "read-book" or r.sourceId ~= "native:literature:ISReadABook"
+        or r.nativeOwner ~= "ISReadABook.complete" or r.token ~= "leisure:performed"
+        or not finite(r.totalPages, -1000000000, 1000000000) or r.totalPages == 0
+        or not finite(r.pagesBefore, 0, 1000000000) or not finite(r.pagesAfter, 0, 1000000000)
+        or r.contentBinding ~= nil or r.contentPages ~= nil or r.contentBytes ~= nil then
+        return false, "unqualified-native-reading"
+    end
+    if r.status == "completed" and (not r.nativeStarted or not r.nativeCompleted
+        or not r.custodyVerified or r.progress <= 0
+        or not note and r.totalPages > 0 and (r.pagesAfter <= r.pagesBefore or r.pagesAfter < r.totalPages)) then
+        return false, "unmeasured-reading-completion"
+    end
+    if r.mood ~= nil and (r.status ~= "completed" or r.moodMeasurement ~= "immediate-native-completion")
+        or r.mood == nil and r.moodMeasurement ~= nil then return false, "unmeasured-reading-mood" end
+    local itemId = tonumber(r.itemId)
+    if not finite(itemId, -2147483648, 2147483647) or itemId ~= math.floor(itemId) then
+        return false, "invalid-reading-item"
+    end
+    local x = privateFact(id, "leisure-reading", "leisure", "leisure-reading/"..id.."/"..tostring(sequence), now, r.atHours)
+    x.sourceId, x.itemId, x.itemType, x.actionKind = r.sourceId, itemId, r.itemType, r.actionKind
+    x.succeeded, x.stats = r.status == "completed", detached(r.mood)
+    if r.mood ~= nil and x.stats == nil then return false, "invalid-reading-mood" end
+    return nativeExperience(id, "leisure-reading", sequence, x)
+end
+-- Native participation is a private execution fact. Pleasure and mastery need
+-- their own measured source evidence; interval effects may have other causes.
+function C.hobbyOutcome(id,ownerName,sequence)
+    local kinds={ ["SAO.Leisure"]="leisure-meditation",["SAO.LeisureExercise"]="leisure-exercise",
+        ["SAO.LeisureArt"]="leisure-art",["SAO.LeisureMusic"]="leisure-music",["SAO.LeisureGames"]="leisure-games",["SAO.LeisureRadio"]="leisure-radio",["SAO.LeisureLifestyle"]="leisure-lifestyle" }
+    local owners={ ["SAO.Leisure"]=SAO.Leisure,["SAO.LeisureExercise"]=SAO.LeisureExercise,
+        ["SAO.LeisureArt"]=SAO.LeisureArt,["SAO.LeisureMusic"]=SAO.LeisureMusic,["SAO.LeisureGames"]=SAO.LeisureGames,["SAO.LeisureRadio"]=SAO.LeisureRadio,["SAO.LeisureLifestyle"]=SAO.LeisureLifestyle }
+    local kind,owner,now=kinds[ownerName],owners[ownerName],clock()
+    if not now or not kind or not owner or not owner.outcome or not finite(sequence,1,9007199254740991)
+        or sequence~=math.floor(sequence) then return false,"hobby-owner-unavailable" end
+    local receipt=owner.outcome(id,sequence)
+    if type(receipt)~="table" or receipt.actorId~=id or receipt.sequence~=sequence
+        or not text(receipt.workId,160) or not text(receipt.purposeId,160)
+        or not text(receipt.sourceId,160) or not text(receipt.revision,160)
+        or not text(receipt.activity,96) or not finite(receipt.atHours,0,now)
+        or not finite(receipt.admittedAtHours,0,receipt.atHours)
+        or (receipt.status~="completed" and receipt.status~="interrupted") then return false,"unqualified-hobby" end
+    local binding=SAO.ProceduralPlanning and SAO.ProceduralPlanning.hobbyAdmission
+        and SAO.ProceduralPlanning.hobbyAdmission(id,receipt.purposeId,receipt.workId,true)
+    if not binding or binding.ownerName~=ownerName then return false,"hobby-admission-unavailable" end
+    for _,key in ipairs({"actorId","sequence","workId","purposeId","sourceId","revision","activity",
+        "itemKey","itemType","bodyGenerationKnown","bodyToken","admittedAtHours","nativeOwner"}) do
+        if binding[key]~=receipt[key] then return false,"hobby-binding-changed" end
+    end
+    local x=privateFact(id,kind,"leisure",kind.."/"..id.."/"..tostring(sequence),now,receipt.atHours)
+    x.sourceId,x.itemType,x.actionKind,x.succeeded=receipt.sourceId,receipt.itemType,receipt.activity,receipt.status=="completed"
+    x.detail="Native attempt; interval effects have concurrent causes; source revision "..receipt.revision
+    return nativeExperience(id,kind,sequence,x)
+end
+
+-- A duet is acquired by each performer only after Organization holds both
+-- exact committed native outcomes. The private model learns that this pairing
+-- happened; measured mood remains in that person's source receipt and is not
+-- interpreted as pleasure, trust or a change in their relationship.
+function C.duetOutcome(id,processId)
+    local now=clock()
+    local O=SAO.Organization
+    local receipt=O and O.duetParticipationFor and O.duetParticipationFor(id,processId)
+    local shared=receipt and receipt.coPerformance
+    if not now or type(receipt)~="table" or receipt.actorId~=id
+        or receipt.processId~=processId or not text(receipt.processId,160)
+        or not text(receipt.partnerId,128) or receipt.partnerId==id
+        or not finite(receipt.revision,1,9007199254740991)
+        or receipt.revision~=math.floor(receipt.revision)
+        or receipt.sourceId~="LifestyleHobbies"
+        or not finite(receipt.sequence,1,9007199254740991)
+        or receipt.sequence~=math.floor(receipt.sequence)
+        or not finite(receipt.atHours,0,now)
+        or receipt.measurementAuthority~="actual-source-interval; concurrent-effects-not-isolated"
+        or type(receipt.before)~="table" or type(receipt.after)~="table"
+        or type(shared)~="table" or shared.status~="completed"
+        or shared.basis~="two-committed-native-source-duet-results"
+        or shared.ownResultId~=receipt.workId
+        or not text(shared.partnerResultId,160) then
+        return false,"duet-source-unavailable" end
+    local x=privateFact(id,"leisure-duet","leisure","",now,receipt.atHours)
+    x.sourceId,x.actionKind,x.succeeded="LifestyleHobbies","duet",true
+    x.partnerId,x.processId,x.processRevision=receipt.partnerId,
+        receipt.processId,receipt.revision
+    x.detail="Two committed native performances; own interval effects have concurrent causes."
+    return pairedSourceExperience(id,receipt,"duet","leisure-duet",x)
+end
+
+-- Source partner dance reaches memory only after both exact native cycles
+-- have completed and Organization has frozen each actor's own measurements.
+-- This supports a later feasibility estimate, not an enjoyment or trust claim.
+function C.danceOutcome(id,processId)
+    local now=clock()
+    local O=SAO.Organization
+    local receipt=O and O.danceParticipationFor and O.danceParticipationFor(id,processId)
+    local shared=receipt and receipt.coPerformance
+    if not now or type(receipt)~="table" or receipt.actorId~=id
+        or receipt.processId~=processId or not text(receipt.processId,160)
+        or not text(receipt.partnerId,128) or receipt.partnerId==id
+        or not finite(receipt.revision,1,9007199254740991)
+        or receipt.revision~=math.floor(receipt.revision)
+        or receipt.sourceId~="LifestyleHobbies"
+        or not text(receipt.musicKey,160)
+        or (receipt.role~="source" and receipt.role~="target")
+        or not finite(receipt.sequence,1,9007199254740991)
+        or receipt.sequence~=math.floor(receipt.sequence)
+        or not finite(receipt.atHours,0,now)
+        or receipt.measurementAuthority~="actual-source-interval; concurrent-effects-not-isolated"
+        or type(receipt.before)~="table" or type(receipt.after)~="table"
+        or type(shared)~="table" or shared.status~="completed"
+        or shared.basis~="two-committed-native-source-dance-results"
+        or shared.ownResultId~=receipt.workId
+        or not text(shared.partnerResultId,160) then
+        return false,"dance-source-unavailable" end
+    local x=privateFact(id,"leisure-dance","leisure","",now,receipt.atHours)
+    x.sourceId,x.actionKind,x.succeeded="LifestyleHobbies","dance",true
+    x.partnerId,x.processId,x.processRevision=receipt.partnerId,
+        receipt.processId,receipt.revision
+    x.musicKey,x.role=receipt.musicKey,receipt.role
+    x.detail="Two committed native dance cycles; own interval effects have concurrent causes."
+    return pairedSourceExperience(id,receipt,"dance","leisure-dance",x)
+end
 function C.commitmentOutcome(id,receipt)
     local now=clock()
     if not now or type(receipt)~="table" or receipt.actorId~=id or receipt.status~="completed"
-        or (receipt.workKind~="prepare" and receipt.workKind~="deliver")
+        or (receipt.workKind~="prepare" and receipt.workKind~="deliver"
+            and receipt.workKind~="watch-return")
         or not text(receipt.commitmentId,160) or not text(receipt.nativeReceiptId,160)
         or not finite(receipt.sequence,1,9007199254740991) or receipt.sequence~=math.floor(receipt.sequence)
         or not finite(receipt.atHours,0,now) or not finite(receipt.acceptedAt,0,receipt.atHours) then return false,"unqualified-commitment-work" end
@@ -921,10 +1323,37 @@ function C.interpretPlans(id, candidates, context)
     local s, offered = state(id, false), detached(candidates)
     if not offered then return nil end
     if record(id).cognition ~= nil and not s then return nil end
-    if not C.settings().enabled then s = nil end
+    -- An existing private scanner receipt may be learned before this person's
+    -- next plan. A malformed or unavailable journal cannot block urgent plans.
+    if C.settings().enabled then
+        pcall(C.weekOnePerformanceHearings, id)
+        s = state(id, false)
+        if record(id).cognition ~= nil and not s then return nil end
+    end
+    local enabled = C.settings().enabled
+    if not enabled then s = nil end
+    local interest
+    if enabled and frame.domain == "leisure-action" then
+        interest = C.weekOneMusicInterest(id)
+        if interest.informationGain > 0 then
+            for _, candidate in ipairs(offered) do
+                if candidate.kind == "instrument"
+                    and finite(candidate.informationGain, 0, 1)
+                    and candidate.utility == nil then
+                    candidate.informationGain = math.min(1,
+                        candidate.informationGain + interest.informationGain)
+                end
+            end
+        end
+    end
     local out = { models = {}, selectedModelId = planModel(id, frame),
         selectionPolicy = "deterministic-private-interval", atHours = frame.atHours,
-        purposes = frame.purposes }
+        purposes = frame.purposes,
+        decisionPersonState = decisionPersonState(id, {id = "plan:"..tostring(frame.domain or "activity"),
+            worldHours = frame.atHours}, frame.atHours) }
+    if interest and interest.status ~= "unobserved" then
+        out.heardMusicInterest = detached(interest)
+    end
     for _, name in ipairs(MODEL_IDS) do
         local own = s and detached(s.models[name]) or SAO.CognitiveModels.newState(name)
         if not own then return nil end
@@ -938,6 +1367,107 @@ function C.interpretPlans(id, candidates, context)
     return out
 end
 -- Ordinary inquiry and contact appraisal share acquired person evidence.
+-- Input exploration uses the source's presented scene and valid controls.
+-- A later visual change is an observation after input, not a causal win label.
+function C.chooseGameInput(id,body)
+    local r,now=record(id),clock()
+    local G,P=SAO.LeisureGames,SAO.ProceduralPlanning
+    if not r or not now or not G or not G.context or not G.inputOffers or not G.submitInput
+        or not SAO.Needs.ownsRecoveryBody(id,body) or not P or not P.hobbyAdmission then return false end
+    local scene=G.context(id,body)
+    if not scene or scene.actorId~=id or scene.status~="presented-source-scene" or scene.atHours~=now
+        or not text(scene.workId,160) or not text(scene.sourceId,160) or not text(scene.revision,160)
+        or not finite(scene.frameId,1,9007199254740991) or type(scene.commands)~="table" then return false end
+    local work=G.work and G.work(id)
+    local admission=work and P.hobbyAdmission(id,work.purposeId,scene.workId)
+    if not admission or admission.ownerName~="SAO.LeisureGames" or work.actorId~=id
+        or work.sequence~=scene.workSequence or work.sourceId~=scene.sourceId or work.revision~=scene.revision then return false end
+    local value=SAO.Disposition and SAO.Disposition.curiosity and SAO.Disposition.curiosity(id)
+    if not value or not finite(value.effective,0,1) then return false end
+    local memory=r.gameInputExperience
+    if memory and (memory.actorId~=id or type(memory.sources)~="table" or type(memory.order)~="table") then return false end
+    memory=memory or {actorId=id,sources={},order={},observations={},omittedSources=0,omittedObservations=0}
+    local sourceKey=scene.sourceId..":"..scene.revision
+    local own=memory.sources[sourceKey] or {counts={},lastInput=nil}
+    if own.workId==scene.workId and own.frameId==scene.frameId then return false end
+    local textRows={}
+    for i,command in ipairs(scene.commands) do
+        if i>256 then break end
+        if command.kind=="text" and type(command.args)=="table" and type(command.args[1])=="string" then
+            textRows[#textRows+1]=command.args[1]:sub(1,256)
+        end
+    end
+    local offered={}
+    for i,input in ipairs(G.inputOffers(id,body)) do
+        if i>128 then return false end
+        if input.actorId~=id or input.workId~=scene.workId or input.workSequence~=scene.workSequence
+            or input.frameId~=scene.frameId or input.sourceId~=scene.sourceId or input.revision~=scene.revision
+            or not text(input.id,256) or type(input.keys)~="table" or #input.keys>2 then return false end
+        local keys=table.concat(input.keys,"+")
+        local tries=own.counts[keys] or 0
+        if not finite(tries,0,9007199254740991) then return false end
+        offered[#offered+1]={input=input,key=keys,tries=tries,novelty=#input.keys>0 and 1/(1+tries) or 0}
+    end
+    if #offered==0 then return false end
+    table.sort(offered,function(a,b)
+        if a.novelty~=b.novelty then return a.novelty>b.novelty end
+        if #a.input.keys~=#b.input.keys then return #a.input.keys<#b.input.keys end
+        return a.key<b.key
+    end)
+    local candidates,receivers={},{}
+    for i,row in ipairs(offered) do
+        if i>16 then break end
+        local instruction=0
+        if SAO.History.literacyOf and SAO.History.literacyOf(id)=="reads" and type(scene.labels)=="table" then
+            for _,key in ipairs(row.input.keys) do
+                local label=scene.labels[key]
+                if text(label,80) then for _,line in ipairs(textRows) do
+                    local words=line:upper()
+                    local start,ending=words:find(label:upper(),1,true)
+                    while start do
+                        local before,after=words:sub(start-1,start-1),words:sub(ending+1,ending+1)
+                        if not before:match("[%w_]") and not after:match("[%w_]")
+                            and (words:find("START",1,true) or words:find("CONTINUE",1,true)) then instruction=0.2 end
+                        start,ending=words:find(label:upper(),ending+1,true)
+                    end
+                end end
+            end
+        end
+        candidates[#candidates+1]={id=row.input.id,evidence=1,continuity=own.lastInput==row.key and 1 or 0,
+            novelty=row.novelty,informationGain=row.novelty,blockers=0,consequences={},
+            utility=0.05+value.effective*0.3*row.novelty
+                +(own.lastInput==row.key and 0.1*(1-value.effective) or 0)+instruction,
+            displayedInstruction=instruction>0 and "presented label with start or continue instruction" or nil,
+            curiosityBasis="uncalibrated exploration of source-valid controls"}
+        receivers[row.input.id]=row
+    end
+    local view=C.interpretPlans(id,candidates,{domain="game-input",atHours=now,pressure=0})
+    local selected=view and receivers[view.selected]
+    local fresh=G.context(id,body)
+    if not selected or not fresh or fresh.actorId~=id or fresh.workId~=scene.workId
+        or fresh.frameId~=scene.frameId or fresh.sourceId~=scene.sourceId or fresh.revision~=scene.revision
+        or not P.hobbyAdmission(id,work.purposeId,scene.workId) or not G.submitInput(id,body,selected.input) then return false end
+    if not memory.sources[sourceKey] then
+        if #memory.order>=32 then memory.sources[table.remove(memory.order,1)]=nil;memory.omittedSources=memory.omittedSources+1 end
+        memory.order[#memory.order+1]=sourceKey;memory.sources[sourceKey]=own
+    end
+    if own.pending and own.pending.workId==scene.workId then
+        if #memory.observations>=32 then table.remove(memory.observations,1);memory.omittedObservations=memory.omittedObservations+1 end
+        memory.observations[#memory.observations+1]={actorId=id,workId=scene.workId,sourceId=scene.sourceId,
+            revision=scene.revision,previousInput=own.pending.keys,previousFrameId=own.pending.frameId,
+            frameId=scene.frameId,previousText=own.pending.text,presentedText=detached(textRows),atHours=now,
+            interpretation="presented after own input; causal effect remains uncertain"}
+    end
+    own.counts[selected.key]=selected.tries+1;own.lastInput=selected.key;own.workId=scene.workId;own.frameId=scene.frameId
+    own.pending={workId=scene.workId,keys=detached(selected.input.keys),frameId=scene.frameId,text=detached(textRows)}
+    r.gameInputExperience=memory
+    r.gameInputDecision={actorId=id,workId=scene.workId,sourceId=scene.sourceId,revision=scene.revision,
+        frameId=scene.frameId,atHours=now,selected=selected.input.id,keys=detached(selected.input.keys),
+        curiosity=detached(value),presentedText=detached(textRows),viewport=detached(scene.viewport),
+        interpretations=view,alternatives=detached(candidates),omittedAlternatives=math.max(0,#offered-16),
+        status="source-input-accepted",completionCredit=false,skillCredit=false}
+    return true
+end
 -- This query neither spends an opportunity nor admits an investigation.
 function C.appraiseSituation(id,body,tick)
     if not SAO.SituationAppraisal or not SAO.SituationAppraisal.query then return nil end
@@ -1080,7 +1610,10 @@ function C.rebindWorld()
 end
 if Events and Events.OnGameStart then
     if C.onGameStart then Events.OnGameStart.Remove(C.onGameStart) end
-    C.onGameStart = function() C.rebindWorld() end
+    C.onGameStart = function()
+        C.ensureGameDefaults()
+        C.rebindWorld()
+    end
     Events.OnGameStart.Add(C.onGameStart)
 end
 return C

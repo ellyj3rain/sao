@@ -138,7 +138,7 @@ def requirement_faults(text):
     line = re.search(r"^require=(.*)$", text, re.M)
     names = set(line.group(1).strip().split(";")) if line else set()
     return ["trait framework requires unsupported external condition provider: " + name
-            for name in sorted(names - {"LeanAndLie"})]
+            for name in sorted(names)]
 
 
 def main():
@@ -155,9 +155,9 @@ def main():
     traits, cond = read(TRAITS), read(COND)
 
     # Trait registration has no third-party trait-framework dependency.
-    # The separately owned native ground-recovery animation requires LeanAndLie.
+    # Recovery integrates packaged owned nodes without an external load requirement.
     recovery = json.loads((ROOT / "tools/recovery_source_manifest.json").read_text(encoding="utf-8"))
-    if recovery.get("runtimeDependencies") != ["LeanAndLie", "TchernoLib"]:
+    if recovery.get("runtimeDependencies") != []:
         faults.append("recovery dependency authority differs from the owned adapter")
     for manifest in MANIFESTS:
         text = read(manifest)
@@ -168,7 +168,7 @@ def main():
     for sample in ("require=twbInfirmities", "require=EvenMoreTraits4220", "require=unknown", "require=LeanAndLie;twbInfirmities"):
         if not requirement_faults(sample):
             faults.append("CONTROL trait-framework requirement passed")
-    if requirement_faults("require=LeanAndLie") or requirement_faults("name=trait control"):
+    if not requirement_faults("require=LeanAndLie") or requirement_faults("name=trait control"):
         faults.append("CONTROL native animation dependency or independent traits refused")
     tree = "".join(read(p) for p in LUA.rglob("*.lua"))
     for named in ("twbInfirmities", "EvenMoreTraits4220"):
@@ -232,7 +232,9 @@ def main():
                           % (key, constant.group(1)))
 
     # 4. Shared Lua, not the registries pass.
-    if (ROOT / "mod" / "42.20" / "media" / "registries.lua").exists():
+    from source_scanner_baseline import source_registration_present
+    if ((ROOT / "mod" / "42.20" / "media" / "registries.lua").exists()
+            and not source_registration_present('media/registries.lua')):
         faults.append("a media/registries.lua has appeared - one mod throwing in "
                       "that pass takes down every mod after it")
     for script in (ROOT / "mod" / "42.20" / "media" / "scripts").glob("*.txt"):

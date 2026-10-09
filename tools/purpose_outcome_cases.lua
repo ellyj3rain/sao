@@ -123,6 +123,15 @@ rec=__nativeRoundtrip(rec);agent={rec=rec,state="IDLE"};SAO.Controller.agents.ru
 check("performed_responsibility_survives_native_reload",act()=="commitment" and capturedOptions.commitmentId=="c/1")
 workChoice();receipt=performed("deliver")
 check("delivery_success_does_not_teach_preparation",SAO.Cognition.commitmentOutcome("runner",receipt)==true and act()=="study")
+workChoice();receipt=performed("watch-return")
+check("returned_objective_enters_private_experience",
+    SAO.Cognition.commitmentOutcome("runner",receipt)==true
+    and rec.cognition.experiences[1].actionKind=="watch-return"
+    and rec.cognition.experiences[1].sourceId=="prior-accepted-work"
+    and act()=="study")
+check("returned_objective_learning_is_exact_once",
+    SAO.Cognition.commitmentOutcome("runner",receipt)==true
+    and #rec.cognition.experiences==1)
 workChoice();receipt=performed();receipt.actorId="other"
 check("foreign_completed_work_does_not_teach",not SAO.Cognition.commitmentOutcome("runner",receipt) and act()=="study")
 workChoice();receipt=performed();workReceipts={}

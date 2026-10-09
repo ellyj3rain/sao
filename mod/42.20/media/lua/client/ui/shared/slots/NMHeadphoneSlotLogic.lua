@@ -1,0 +1,53 @@
+-- Integrated source: NewMusic; original revision and terms in SAOSources manifest.
+require "SAO_SourceIntegration"
+if not SAO.SourceIntegration.active("NewMusic") then return end
+local env = _G.NMHeadphoneSlotEnv
+setfenv(1, env)
+
+require "ui/shared/slots/headphone_slot/NMHeadphoneSlotContext"
+require "ui/shared/slots/headphone_slot/NMHeadphoneSlotAuthority"
+require "ui/shared/slots/headphone_slot/NMHeadphoneSlotItems"
+require "ui/shared/slots/headphone_slot/NMHeadphoneSlotTextures"
+require "ui/shared/slots/headphone_slot/NMHeadphoneSlotActions"
+require "ui/shared/slots/headphone_slot/NMHeadphoneSlotWearSync"
+require "ui/shared/slots/headphone_slot/NMHeadphoneSlotPolling"
+require "ui/shared/slots/headphone_slot/NMHeadphoneSlotRenderState"
+
+resolveWindowContext = NMHeadphoneSlotContext.resolveWindowContext
+resolveDraggedItems = NMHeadphoneSlotContext.resolveDraggedItems
+resolveGroundContext = NMHeadphoneSlotContext.resolveGroundContext
+
+markAwaitingAuthoritativeHeadphoneEject = NMHeadphoneSlotAuthority.markAwaitingAuthoritativeHeadphoneEject
+clearAwaitingAuthoritativeHeadphoneEject = NMHeadphoneSlotAuthority.clearAwaitingAuthoritativeHeadphoneEject
+getAwaitingAuthoritativeHeadphoneEject = NMHeadphoneSlotAuthority.getAwaitingAuthoritativeHeadphoneEject
+isAwaitingAuthoritativeHeadphoneEject = NMHeadphoneSlotAuthority.isAwaitingAuthoritativeHeadphoneEject
+isDuplicateHeadphoneEjectBlocked = NMHeadphoneSlotAuthority.isDuplicateHeadphoneEjectBlocked
+
+isAllowedHeadphoneType = NMHeadphoneSlotItems.isAllowedHeadphoneType
+isGroundInsertionBlocked = NMHeadphoneSlotItems.isGroundInsertionBlocked
+isAllowedHeadphoneTypeForContext = NMHeadphoneSlotItems.isAllowedHeadphoneTypeForContext
+collectEligibleHeadphoneItems = NMHeadphoneSlotItems.collectEligibleHeadphoneItems
+isCompatibleHeadphoneItem = NMHeadphoneSlotItems.isCompatibleHeadphoneItem
+isCompatibleHeadphoneDrag = NMHeadphoneSlotItems.isCompatibleHeadphoneDrag
+pickFirstCompatibleHeadphone = NMHeadphoneSlotItems.pickFirstCompatibleHeadphone
+normalizeHeadphoneIngressItem = NMHeadphoneSlotItems.normalizeHeadphoneIngressItem
+
+resolveTextureByFullType = NMHeadphoneSlotTextures.resolveTextureByFullType
+resolveItemTextureForFullType = NMHeadphoneSlotTextures.resolveItemTextureForFullType
+resolveInsertedHeadphoneTooltip = NMHeadphoneSlotTextures.resolveInsertedHeadphoneTooltip
+drawEmptyPlaceholder = NMHeadphoneSlotTextures.drawEmptyPlaceholder
+
+queueHeadphoneSlotAction = NMHeadphoneSlotActions.queueHeadphoneSlotAction
+getContextMenuPoint = NMHeadphoneSlotActions.getContextMenuPoint
+
+resolveHeadphoneSlotFullType = NMHeadphoneSlotWearSync.resolveHeadphoneSlotFullType
+NMHeadphoneSlot.tickWearSync = NMHeadphoneSlotWearSync.tickWearSync
+NMHeadphoneSlot.tickWearSyncWindow = NMHeadphoneSlotPolling.tickWearSyncWindow
+
+isMouseOverButton = NMHeadphoneSlotRenderState.isMouseOverButton
+resolveSlotStyle = NMHeadphoneSlotRenderState.resolveSlotStyle
+NMHeadphoneSlot.buildContentState = NMHeadphoneSlotRenderState.buildContentState
+NMHeadphoneSlot.buildInteractionState = NMHeadphoneSlotRenderState.buildInteractionState
+NMHeadphoneSlot.buildRenderState = NMHeadphoneSlotRenderState.buildRenderState
+
+return NMHeadphoneSlot

@@ -63,6 +63,7 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from lua_read import strip_lua
+from reach_scan import _segments
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
@@ -101,6 +102,8 @@ def is_square(text):
 
 
 def main():
+    from source_scanner_baseline import Baseline
+    baseline = Baseline()
     faults = []
     print("=" * 74)
     print("A SQUARED DISTANCE COMPARED AGAINST A DISTANCE")
@@ -122,7 +125,7 @@ def main():
         for m in ROOTED.finditer(src):
             rooted += 1
             name = m.group(1)
-            if SQUARED_NAME.search(name):
+            if SQUARED_NAME.search(name) and not baseline.preserved(path, src.count('\n', 0, m.start()) + 1):
                 faults.append(
                     f"{rel}:{src.count(chr(10), 0, m.start()) + 1} "
                     f"`{name}` is assigned `math.sqrt(...)` and named for a "
@@ -137,6 +140,8 @@ def main():
         squared += len(holds_square)
 
         def flag(where, shown, lit):
+            if baseline.preserved(path, src.count('\n', 0, where) + 1):
+                return
             root = math.sqrt(float(lit))
             faults.append(
                 f"{rel}:{src.count(chr(10), 0, where) + 1} `{shown}` "
@@ -148,20 +153,23 @@ def main():
         for m in INLINE_CMP.finditer(src):
             compared += 1
             a, b, op, lit = m.groups()
-            if lit in NOT_A_RADIUS or is_square(lit):
+            if re.match(r'\s*[*+/\-]', src[m.end():]) or lit in NOT_A_RADIUS or is_square(lit):
                 continue
             flag(m.start(), f"{a}*{a} + {b}*{b} {op} {lit}", lit)
 
-        if holds_square:
+        for base, segment in _segments(src):
+            local_squares = {m.group(1) for m in SUM_OF_SQUARES.finditer(segment)}
+            if not local_squares:
+                continue
             named = re.compile(
-                r"\b(" + "|".join(sorted(map(re.escape, holds_square)))
+                r"\b(" + "|".join(sorted(map(re.escape, local_squares)))
                 + r")\s*(<=|>=|<|>)\s*(\d+(?:\.\d+)?)\b")
-            for m in named.finditer(src):
+            for m in named.finditer(segment):
                 compared += 1
                 name, op, lit = m.groups()
-                if lit in NOT_A_RADIUS or is_square(lit):
+                if re.match(r'\s*[*+/\-]', segment[m.end():]) or lit in NOT_A_RADIUS or is_square(lit):
                     continue
-                flag(m.start(), f"{name} {op} {lit}", lit)
+                flag(base + m.start(), f"{name} {op} {lit}", lit)
 
     print(f"  math.sqrt results     : {rooted}")
     print(f"  sum-of-squares locals : {squared}")

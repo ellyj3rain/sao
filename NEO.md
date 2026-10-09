@@ -34,8 +34,10 @@ and remain inside the human behavioral envelope regardless of skill.
   with all 120 source contributions preserved. The separate 35-contract map
   retains shared ownership and D dependencies. D1 acceptance is CLOSED with
   controlled person-specific reasoning and bounded native recovery; actual
-  protected publication has its own receipt. D2 leisure is next, after the
-  established separately owned Mousecat A28 sequence.
+  protected publication has its own receipt. D2 Leisure is closed as the
+  integrated recreation product. D3 construction/crafting/repair/utilities is
+  next in FIFO; the established separately owned Mousecat sequence retains
+  its own product history.
   `BATCH_LOG.md` indexes delivered scope and names the active batch separately.
 - **Batch shape.** A batch is a coherent development unit, closed when the
   work is done, not when a message ends. Closing a batch means the record, the
@@ -50,8 +52,13 @@ and remain inside the human behavioral envelope regardless of skill.
   establish the promised behavior. Supporting repairs stay with the outcome they
   serve. Preserve existing batch history; a catalogue reorganization needs its
   own explicit operator direction.
+  Later improvements link back to the completed product. Continuing project
+  goals retain their own outcomes and do not enlarge the active batch's closure
+  requirements. Neo reconstructs accumulated verification and keeps the current
+  description accurate using `neo-verification-assessment`. The operator plays
+  the aggregate build and supplies ordinary feedback.
 - **Scope refinement.** Product outcomes cover their whole relevant installed
-  native/modded domain and adjacent dependencies. Examples guide discovery;
+  native/modded domain and adjacent mechanics. Examples guide discovery;
   substantive scope becomes clearer through implementation. Shared-contract
   catalogue consolidation preserves prior era records and does not prescribe
   future batch size. Keep the active batch on the main line while bounded
@@ -95,6 +102,14 @@ and remain inside the human behavioral envelope regardless of skill.
   catalogue, version replay and provenance through the established additive
   publication procedure; retained local-only implementation stays explicit.
   A question's wording does not replace a clarified operator instruction.
+- **Repurposed sources (DR-058).** Every mod and mechanic mentioned by the
+  operator is source material for integration into the project's implementation
+  and art. The delivered package carries the needed runtime, definitions and
+  assets with source provenance and attribution. Existing API-only paths retain
+  their measured evidence while incorporation is completed. Runtime and package
+  ownership, source conflicts, player/NPC effects and save continuity are part
+  of the integration outcome. D2 through D6 keep their established FIFO and
+  substantive domains; peer communication proceeds alongside the active batch.
 - **Verified APIs only.** Ground truth is the installed game
   (`projectzomboid.jar`, the shipped `media/lua` and `media/scripts` trees).
   Never assert engine behavior from memory; an unsupported statement is a

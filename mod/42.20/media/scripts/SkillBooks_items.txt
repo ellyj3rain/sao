@@ -1,0 +1,395 @@
+module Lifestyle {
+
+	imports {
+		Base
+	}
+
+	/* -------------------------------- Cleaning -------------------------------- */
+
+	item BookCleaning1 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    220,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Cleaning Vol. 1,
+		Icon =             Book2,
+		SkillTrained =     Cleaning,
+		LvlSkillTrained =  1,
+		NumLevelsTrained = 2,
+		StaticModel =      Book,
+		WorldStaticModel = BookLightBlue_Ground,
+	}
+
+	item BookCleaning2 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    260,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Cleaning Vol. 2,
+		Icon =             Book2,
+		SkillTrained =     Cleaning,
+		LvlSkillTrained =  3,
+		NumLevelsTrained = 2,
+		StaticModel =      Book,
+		WorldStaticModel = BookLightBlue_Ground,
+	}
+
+	item BookCleaning3 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    300,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Cleaning Vol. 3,
+		Icon =             Book2,
+		SkillTrained =     Cleaning,
+		LvlSkillTrained =  5,
+		NumLevelsTrained = 2,
+		StaticModel =      Book,
+		WorldStaticModel = BookLightBlue_Ground,
+	}
+
+	item BookCleaning4 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    340,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Cleaning Vol. 4,
+		Icon =             Book2,
+		SkillTrained =     Cleaning,
+		LvlSkillTrained =  7,
+		NumLevelsTrained = 2,
+		StaticModel =      Book,
+		WorldStaticModel = BookLightBlue_Ground,
+	}
+
+	item BookCleaning5 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    380,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Cleaning Vol. 5,
+		Icon =             Book2,
+		SkillTrained =     Cleaning,
+		LvlSkillTrained =  9,
+		NumLevelsTrained = 2,
+		StaticModel =      Book,
+		WorldStaticModel = BookLightBlue_Ground,
+	}
+
+    item BookCleaningSet
+    {
+        DisplayCategory = SkillBook,
+        ItemType = base:normal,
+        Weight = 4.0,
+        Icon = BookSlipcase,
+        IconColorMask = BookSlipcase_Mask,
+        WorldStaticModel = BookSlipcase,
+        Tags = base:ignorezombiedensity,
+        ColorBlue = 210,
+        ColorGreen = 50,
+        ColorRed = 50,
+        DoubleClickRecipe = Lifestyle.UnpackSetOfBooks,
+    }
+
+	/* -------------------------------- Music -------------------------------- */
+
+	item BookMusic1 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    220,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Music Vol. 1,
+		Icon =             Book5,
+		SkillTrained =     Music,
+		LvlSkillTrained =  1,
+		NumLevelsTrained = 2,
+		StaticModel =      Book,
+		WorldStaticModel = BookPurple_Ground,
+	}
+
+	item BookMusic2 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    260,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Music Vol. 2,
+		Icon =             Book5,
+		SkillTrained =     Music,
+		LvlSkillTrained =  3,
+		NumLevelsTrained = 2,
+		StaticModel =      Book,
+		WorldStaticModel = BookPurple_Ground,
+	}
+
+	item BookMusic3 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    300,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Music Vol. 3,
+		Icon =             Book5,
+		SkillTrained =     Music,
+		LvlSkillTrained =  5,
+		NumLevelsTrained = 2,
+		StaticModel =      Book,
+		WorldStaticModel = BookPurple_Ground,
+	}
+
+	item BookMusic4 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    340,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Music Vol. 4,
+		Icon =             Book5,
+		SkillTrained =     Music,
+		LvlSkillTrained =  7,
+		NumLevelsTrained = 2,
+		StaticModel =      Book,
+		WorldStaticModel = BookClosedPurple_Ground,
+	}
+
+	item BookMusic5 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    380,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Music Vol. 5,
+		Icon =             Book5,
+		SkillTrained =     Music,
+		LvlSkillTrained =  9,
+		NumLevelsTrained = 2,
+		StaticModel =      Book,
+		WorldStaticModel = BookClosedPurple_Ground,
+	}
+
+    item BookMusicSet
+    {
+        DisplayCategory = SkillBook,
+        ItemType = base:normal,
+        Weight = 4.0,
+        Icon = BookSlipcase,
+        IconColorMask = BookSlipcase_Mask,
+        WorldStaticModel = BookSlipcase,
+        Tags = base:ignorezombiedensity,
+        ColorBlue = 210,
+        ColorGreen = 50,
+        ColorRed = 50,
+        DoubleClickRecipe = Lifestyle.UnpackSetOfBooks,
+    }
+
+	/* -------------------------------- Dancing -------------------------------- */
+
+	item BookDancing1 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    220,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Dancing Vol. 1,
+        Icon = Book_Generic,
+        IconColorMask = Book_Generic_Mask,
+		SkillTrained =     Dancing,
+		LvlSkillTrained =  1,
+		NumLevelsTrained = 2,
+        StaticModel = BookOpenTINT,
+        WorldStaticModel = BookClosedTINT,
+        ColorRed = 181,
+        ColorGreen = 81,
+        ColorBlue = 177,
+	}
+
+	item BookDancing2 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    260,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Dancing Vol. 2,
+        Icon = Book_Generic,
+        IconColorMask = Book_Generic_Mask,
+		SkillTrained =     Dancing,
+		LvlSkillTrained =  3,
+		NumLevelsTrained = 2,
+        StaticModel = BookOpenTINT,
+        WorldStaticModel = BookClosedTINT,
+        ColorRed = 181,
+        ColorGreen = 81,
+        ColorBlue = 177,
+	}
+
+	item BookDancing3 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    300,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Dancing Vol. 3,
+        Icon = Book_Generic,
+        IconColorMask = Book_Generic_Mask,
+		SkillTrained =     Dancing,
+		LvlSkillTrained =  5,
+		NumLevelsTrained = 2,
+        StaticModel = BookOpenTINT,
+        WorldStaticModel = BookClosedTINT,
+        ColorRed = 181,
+        ColorGreen = 81,
+        ColorBlue = 177,
+	}
+
+	item BookDancing4 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    340,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Dancing Vol. 4,
+        Icon = Book_Generic,
+        IconColorMask = Book_Generic_Mask,
+		SkillTrained =     Dancing,
+		LvlSkillTrained =  7,
+		NumLevelsTrained = 2,
+        StaticModel = BookOpenTINT,
+        WorldStaticModel = BookClosedTINT,
+        ColorRed = 181,
+        ColorGreen = 81,
+        ColorBlue = 177,
+	}
+
+	item BookDancing5 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    380,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Dancing Vol. 5,
+        Icon = Book_Generic,
+        IconColorMask = Book_Generic_Mask,
+		SkillTrained =     Dancing,
+		LvlSkillTrained =  9,
+		NumLevelsTrained = 2,
+        StaticModel = BookOpenTINT,
+        WorldStaticModel = BookClosedTINT,
+        ColorRed = 181,
+        ColorGreen = 81,
+        ColorBlue = 177,
+	}
+
+    item BookDancingSet
+    {
+        DisplayCategory = SkillBook,
+        ItemType = base:normal,
+        Weight = 4.0,
+        Icon = BookSlipcase,
+        IconColorMask = BookSlipcase_Mask,
+        WorldStaticModel = BookSlipcase,
+        Tags = base:ignorezombiedensity,
+        ColorRed = 181,
+        ColorGreen = 81,
+        ColorBlue = 177,
+        DoubleClickRecipe = Lifestyle.UnpackSetOfBooks,
+    }
+
+	/* -------------------------------- Art -------------------------------- */
+
+	item BookArt1 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    220,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Art Vol. 1,
+        Icon = Book_Generic,
+        IconColorMask = Book_Generic_Mask,
+		SkillTrained =     Art,
+		LvlSkillTrained =  1,
+		NumLevelsTrained = 2,
+        StaticModel = BookOpenTINT,
+        WorldStaticModel = BookClosedTINT,
+        ColorRed = 64,
+        ColorGreen = 64,
+        ColorBlue = 64,
+	}
+
+	item BookArt2 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    260,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Art Vol. 2,
+        Icon = Book_Generic,
+        IconColorMask = Book_Generic_Mask,
+		SkillTrained =     Art,
+		LvlSkillTrained =  3,
+		NumLevelsTrained = 2,
+        StaticModel = BookOpenTINT,
+        WorldStaticModel = BookClosedTINT,
+        ColorRed = 64,
+        ColorGreen = 64,
+        ColorBlue = 64,
+	}
+
+	item BookArt3 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    300,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Art Vol. 3,
+        Icon = Book_Generic,
+        IconColorMask = Book_Generic_Mask,
+		SkillTrained =     Art,
+		LvlSkillTrained =  5,
+		NumLevelsTrained = 2,
+        StaticModel = BookOpenTINT,
+        WorldStaticModel = BookClosedTINT,
+        ColorRed = 64,
+        ColorGreen = 64,
+        ColorBlue = 64,
+	}
+
+	item BookArt4 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    340,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Art Vol. 4,
+        Icon = Book_Generic,
+        IconColorMask = Book_Generic_Mask,
+		SkillTrained =     Art,
+		LvlSkillTrained =  7,
+		NumLevelsTrained = 2,
+        StaticModel = BookOpenTINT,
+        WorldStaticModel = BookClosedTINT,
+        ColorRed = 64,
+        ColorGreen = 64,
+        ColorBlue = 64,
+	}
+
+	item BookArt5 {
+		DisplayCategory =  SkillBook,
+		NumberOfPages =    380,
+		Weight =           1.0,
+		ItemType = base:literature,
+		DisplayName =      Art Vol. 5,
+        Icon = Book_Generic,
+        IconColorMask = Book_Generic_Mask,
+		SkillTrained =     Art,
+		LvlSkillTrained =  9,
+		NumLevelsTrained = 2,
+        StaticModel = BookOpenTINT,
+        WorldStaticModel = BookClosedTINT,
+        ColorRed = 64,
+        ColorGreen = 64,
+        ColorBlue = 64,
+	}
+
+    item BookArtSet
+    {
+        DisplayCategory = SkillBook,
+        ItemType = base:normal,
+        Weight = 4.0,
+        Icon = BookSlipcase,
+        IconColorMask = BookSlipcase_Mask,
+        WorldStaticModel = BookSlipcase,
+        Tags = base:ignorezombiedensity,
+        ColorRed = 64,
+        ColorGreen = 64,
+        ColorBlue = 64,
+        DoubleClickRecipe = Lifestyle.UnpackSetOfBooks,
+    }
+
+}

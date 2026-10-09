@@ -9,6 +9,8 @@ SAO = SAO or {}
 SAO.Organization = SAO.Organization or {}
 local Org = SAO.Organization
 local PARTICIPATION = {}
+local DUET = {}
+local DANCE = {}
 local function participationTransport(processId, fromId, toId, kind)
     return SAO.Communication and SAO.Communication.participationTransport
         and SAO.Communication.participationTransport(processId, fromId, toId, kind) == true
@@ -1147,7 +1149,9 @@ function Org.succeed(organizationId, officeId, method)
 end
 
 function Org.raiseMatter(originatorId, kind, organizationId, proposal,
-                         addressedIds, privateEvidence)
+                         addressedIds, privateEvidence, authority)
+    if kind=="leisure-duet" and authority~=DUET then return nil end
+    if kind=="leisure-dance" and authority~=DANCE then return nil end
     if kind == "leisure-participation" and not (SAO.Coordination and SAO.Coordination.participationAuthority
         and SAO.Coordination.participationAuthority("proposal", originatorId, nil, proposal)) then return nil end
     originatorId, kind = identity(originatorId), identity(kind)
@@ -1450,6 +1454,7 @@ end
 
 function Org.reviseMatter(processId, originatorId, proposal, privateEvidence)
     local process = processOf(processId)
+    if process and process.kind=="leisure-dance" then return nil,"fresh-dance-proposal-required"end
     -- A new participation occurrence needs a new personal offer and assent.
     if process and process.kind == "leisure-participation" then return nil, "fresh-participation-proposal-required" end
     if not process or process.originatorId ~= originatorId
@@ -1543,7 +1548,7 @@ end
 function Org.recordReception(processId, personId, revision, channel,
                              fromId, evidence)
     local process = processOf(processId)
-    if process and process.kind == "leisure-participation"
+    if process and (process.kind == "leisure-participation" or process.kind=="leisure-duet" or process.kind=="leisure-dance")
         and not participationTransport(processId, fromId, personId, "proposal") then return false end
     personId = identity(personId)
     revision = math.floor(tonumber(revision) or 0)
@@ -1676,8 +1681,10 @@ end
 
 -- The caller supplies an actor-private snapshot. Feasible options and choice
 -- are frozen together; later outcomes remain a separate horizon.
-function Org.appraiseMatter(processId, personId, context)
+function Org.appraiseMatter(processId, personId, context, authority)
     local process = processOf(processId)
+    if process and process.kind=="leisure-duet" and authority~=DUET then return nil end
+    if process and process.kind=="leisure-dance" and authority~=DANCE then return nil end
     if process and process.kind == "leisure-participation" and not (SAO.Coordination
         and SAO.Coordination.participationAuthority
         and SAO.Coordination.participationAuthority("appraisal", personId, processId, context)) then return nil end
@@ -1812,7 +1819,7 @@ function Org.appraiseMatter(processId, personId, context)
         destinationKnown = context.destinationKnown == true,
         feasibleOptions = options, choice = selected,
         reconsider = context.reconsider == true, executor = executor,
-    })
+    },authority)
     -- [C82] The production rule above remains authoritative.  The learned
     -- candidate sees the same frozen private horizon only after that response
     -- exists, and any bridge/model failure is observationally inert.
@@ -1824,8 +1831,10 @@ function Org.appraiseMatter(processId, personId, context)
     return response
 end
 
-function Org.respond(processId, personId, response, terms, privateEvidence)
+function Org.respond(processId, personId, response, terms, privateEvidence, authority)
     local process = processOf(processId)
+    if process and process.kind=="leisure-duet" and authority~=DUET then return nil end
+    if process and process.kind=="leisure-dance" and authority~=DANCE then return nil end
     if process and process.kind == "leisure-participation" and not (SAO.Coordination
         and SAO.Coordination.participationAuthority
         and SAO.Coordination.participationAuthority("appraisal", personId, processId)) then return nil end
@@ -1863,7 +1872,7 @@ end
 -- originator over an admitted return channel. Replaying delivery is safe.
 function Org.deliverResponse(processId, personId, toId, channel, evidence)
     local process = processOf(processId)
-    if process and process.kind == "leisure-participation"
+    if process and (process.kind == "leisure-participation" or process.kind=="leisure-duet" or process.kind=="leisure-dance")
         and not participationTransport(processId, personId, toId, "response") then return false end
     personId, toId = identity(personId), identity(toId)
     if not process or TERMINAL_PROCESS[process.status]
@@ -1901,8 +1910,9 @@ end
 -- work they offered to perform, checked against the same private capability
 -- envelope and the same role capacity used for every recipient.  No other
 -- actor is assigned here.
-function Org.commitOriginator(processId, personId, context)
+function Org.commitOriginator(processId, personId, context, authority)
     local process = processOf(processId)
+    if process and process.kind=="leisure-dance" and authority~=DANCE then return nil,"typed-dance-originator-required"end
     personId = identity(personId)
     context = type(context) == "table" and context or {}
     if not process or process.status ~= "open" or not personId
@@ -2273,6 +2283,8 @@ end
 function Org.noteWorkAdmission(commitmentId, ownerKind, receiptId, detail, authority)
     local commitment, process = Org.commitment(commitmentId)
     if process and process.kind == "leisure-participation" and authority ~= PARTICIPATION then return false end
+    if process and process.kind == "leisure-duet" and authority ~= DUET then return false end
+    if process and process.kind == "leisure-dance" and authority ~= DANCE then return false end
     receiptId = identity(receiptId)
     if not commitment or TERMINAL_WORK[commitment.status] or not receiptId
         or (commitment.work.pendingReceiptId
@@ -2351,6 +2363,351 @@ function Org.fulfilledWorkOutcome(id,sequence)
     end
 end
 
+local function objectiveWorkReceipts(commitment, process)
+    if not commitment or not process or process.kind ~= "cooperative-action"
+        or commitment.status ~= "completed" then return nil end
+    local proposalRow = proposalAt(process, commitment.revision)
+    local proposal = proposalRow and proposalRow.proposal
+    local scope = proposal and proposal.scope
+    if not proposal or proposal.objective ~= "player-marked-watch-return"
+        or not scope or scope.recipientId ~= commitment.actorId then return nil end
+    local procedure = procedureAt(process, commitment.revision)
+    if not procedure or procedure.status ~= "completed" then return nil end
+    local receipts = {}
+    for _, stepId in ipairs({ "outbound", "watch", "return" }) do
+        local step = procedure.steps and procedure.steps[stepId]
+        local contribution = step and step.contributions
+            and step.contributions[commitment.actorId]
+        local receiptId = contribution and identity(contribution.receiptId)
+        if not step or step.status ~= "completed" or not receiptId then return nil end
+        local kind = stepId == "watch" and "procedure:" or "route:"
+        local receipt = Org.workReceipts[kind .. receiptId]
+        if not receipt or receipt.receiptId ~= receiptId
+            or receipt.commitmentId ~= commitment.id
+            or receipt.status ~= "completed" and receipt.status ~= "arrived"
+            or stepId == "watch" and (receipt.kind ~= "procedure"
+                or receipt.token ~= "posture:maintained"
+                or receipt.owner ~= "Posture" or receipt.status ~= "completed")
+            or stepId ~= "watch" and (receipt.kind ~= "route"
+                or receipt.status ~= "arrived") then return nil end
+        receipts[stepId] = receiptId
+    end
+    local routes = {}
+    for _, route in ipairs(commitment.work and commitment.work.routeAttempts or {}) do
+        if route.id == receipts.outbound or route.id == receipts["return"] then
+            routes[route.id] = route
+        end
+    end
+    local out, back = routes[receipts.outbound], routes[receipts["return"]]
+    local dest = proposal.destination
+    if not out or not back or not dest or out.phase ~= "travelling"
+        or back.phase ~= "travelling" or out.status ~= "arrived"
+        or back.status ~= "arrived" or out.x ~= dest.minX
+        or out.x ~= dest.maxX or out.y ~= dest.minY
+        or out.y ~= dest.maxY or out.z ~= dest.z
+        or back.x ~= scope.returnX or back.y ~= scope.returnY
+        or back.z ~= scope.returnZ then return nil end
+    return receipts, back.endedAt
+end
+
+local function rememberObjectiveWork(commitment, process)
+    if commitment.work.objectiveExperienceReceiptId then return true end
+    local receipts, at = objectiveWorkReceipts(commitment, process)
+    local person = receipts and SAO.Identity and SAO.Identity.get(commitment.actorId)
+    if not person or not finite(commitment.acceptedAt) or not finite(at)
+        or at < commitment.acceptedAt or at > nowHours() then return false end
+    person.fulfilledWorkSequence = (person.fulfilledWorkSequence or 0) + 1
+    local row = { actorId = commitment.actorId,
+        sequence = person.fulfilledWorkSequence,
+        commitmentId = commitment.id, workKind = "watch-return",
+        nativeReceiptId = receipts["return"],
+        acceptedAt = commitment.acceptedAt, atHours = at,
+        status = "completed" }
+    person.fulfilledWorkOutcomes = person.fulfilledWorkOutcomes or {}
+    person.fulfilledWorkOutcomes[#person.fulfilledWorkOutcomes + 1] = row
+    if #person.fulfilledWorkOutcomes > 32 then
+        table.remove(person.fulfilledWorkOutcomes, 1)
+    end
+    commitment.work.objectiveExperienceReceiptId = receipts["return"]
+    if SAO.Cognition and SAO.Cognition.commitmentOutcome then
+        SAO.Cognition.commitmentOutcome(commitment.actorId, row)
+    end
+    return true
+end
+
+local function objectiveCommitment(process, actorId)
+    if not process or process.kind ~= "cooperative-action" then return nil end
+    for _, commitment in pairs(process.commitments or {}) do
+        if commitment.actorId == actorId
+            and commitment.revision == process.revision then
+            return commitment
+        end
+    end
+end
+
+local function objectiveReviewScope(process, actorId, playerId)
+    if not process or process.originatorId ~= playerId then return nil end
+    local commitment = objectiveCommitment(process, actorId)
+    local proposalRow = commitment and proposalAt(process, commitment.revision)
+    local proposal = proposalRow and proposalRow.proposal
+    local scope = proposal and proposal.scope
+    if not proposal or proposal.objective ~= "player-marked-watch-return"
+        or type(scope) ~= "table"
+        or scope.recipientId ~= actorId then return nil end
+    return commitment, proposal, scope
+end
+
+-- An originator who meets the helper can inspect the attempts belonging to
+-- this exact commitment. Terminal routes need their native route receipt;
+-- a pending route is only an admitted attempt, never a completed result.
+function Org.objectiveAttemptEvidence(processId, actorId, playerId)
+    local process = processOf(processId)
+    local commitment, proposal, scope = objectiveReviewScope(process,
+        actorId, playerId)
+    if not commitment then return nil end
+    local destination = type(proposal.destination) == "table"
+        and proposal.destination or {}
+    local attempts, failed = {}, false
+    for _, route in ipairs(commitment.work
+            and commitment.work.routeAttempts or {}) do
+        local stepId = nil
+        if route.phase == "travelling" then
+            if route.x == destination.minX and route.x == destination.maxX
+                and route.y == destination.minY
+                and route.y == destination.maxY and route.z == destination.z then
+                stepId = "outbound"
+            elseif route.x == scope.returnX and route.y == scope.returnY
+                and route.z == scope.returnZ then
+                stepId = "return"
+            end
+        end
+        local status = tostring(route.status or "")
+        local receipt = route.id and Org.workReceipts["route:" .. route.id]
+        local proved = status == "pending" and receipt == nil
+            and finite(route.startedAt) or receipt
+            and receipt.kind == "route" and receipt.receiptId == route.id
+            and receipt.commitmentId == commitment.id
+            and receipt.status == status and finite(route.startedAt)
+            and finite(route.endedAt)
+            and route.endedAt >= route.startedAt
+        if stepId and identity(route.id) and proved
+            and (status == "pending" or status == "arrived"
+                or status == "failed" or status == "interrupted") then
+            attempts[#attempts + 1] = { id = route.id,
+                stepId = stepId, owner = tostring(route.owner or ""),
+                status = status, x = route.x, y = route.y, z = route.z,
+                startedAt = route.startedAt, endedAt = route.endedAt }
+            failed = failed or status == "failed" or status == "interrupted"
+        end
+    end
+    local procedure = procedureAt(process, commitment.revision)
+    local watch = procedure and procedure.steps and procedure.steps.watch
+    local contribution = watch and watch.contributions
+        and watch.contributions[actorId]
+    local watchReceiptId = contribution and identity(contribution.receiptId)
+    local watchReceipt = watchReceiptId
+        and Org.workReceipts["procedure:" .. watchReceiptId]
+    local watchCompleted = watch and watch.status == "completed"
+        and watchReceipt and watchReceipt.kind == "procedure"
+        and watchReceipt.commitmentId == commitment.id
+        and watchReceipt.receiptId == watchReceiptId
+        and watchReceipt.token == "posture:maintained"
+        and watchReceipt.owner == "Posture"
+        and watchReceipt.status == "completed" or false
+    local receipts = objectiveWorkReceipts(commitment, process)
+    local partial = watchCompleted
+    if not partial then
+        local outbound = procedure and procedure.steps
+            and procedure.steps.outbound
+        local outboundContribution = outbound and outbound.contributions
+            and outbound.contributions[actorId]
+        local outboundId = outboundContribution
+            and identity(outboundContribution.receiptId)
+        local outboundReceipt = outboundId
+            and Org.workReceipts["route:" .. outboundId]
+        partial = outbound and outbound.status == "completed"
+            and outboundReceipt and outboundReceipt.kind == "route"
+            and outboundReceipt.receiptId == outboundId
+            and outboundReceipt.commitmentId == commitment.id
+            and outboundReceipt.status == "arrived" or false
+    end
+    local outcome = receipts and "completed"
+        or partial and "partial"
+        or failed and "failed-attempt"
+        or #attempts > 0 and "in-progress" or "not-started"
+    return { processId = process.id, revision = commitment.revision,
+        actorId = actorId, playerId = playerId,
+        commitmentId = commitment.id,
+        commitmentStatus = commitment.status,
+        workOutcome = outcome, watchStatus = watchCompleted
+            and "completed" or nil,
+        watchReceiptId = watchCompleted and watchReceiptId or nil,
+        attempts = attempts }
+end
+
+function Org.objectiveWorkReady(processId, actorId, recipientId)
+    local process = processOf(processId)
+    if not process or process.originatorId ~= recipientId then return false end
+    local commitment = objectiveCommitment(process, actorId)
+    return objectiveWorkReceipts(commitment, process) ~= nil
+end
+
+local function boundObjectiveReport(process, actorId, recipientId)
+    local commitment = objectiveReviewScope(process, actorId, recipientId)
+    local receipts = objectiveWorkReceipts(commitment, process)
+    local key = commitment and actorId .. ":"
+        .. tostring(commitment.revision)
+    local report = key and type(process.objectiveWorkReports) == "table"
+        and process.objectiveWorkReports[key]
+    if not report or not receipts
+        or report.processId ~= process.id
+        or report.revision ~= commitment.revision
+        or report.actorId ~= actorId
+        or report.recipientId ~= recipientId
+        or report.status ~= "completed"
+        or report.channel ~= "spoken"
+        or report.outboundReceiptId ~= receipts.outbound
+        or report.watchReceiptId ~= receipts.watch
+        or report.returnReceiptId ~= receipts["return"]
+        or not finite(report.deliveredAt)
+        or not finite(commitment.acceptedAt)
+        or report.deliveredAt < commitment.acceptedAt
+        or report.deliveredAt > nowHours() then return nil end
+    return report, commitment, receipts
+end
+
+function Org.objectiveReportFor(processId, actorId, recipientId)
+    local process = processOf(processId)
+    local report = boundObjectiveReport(process, actorId, recipientId)
+    return report and dataCopy(report) or nil
+end
+
+function Org.recordObjectiveWorkReport(processId, actorId, recipientId)
+    if not (SAO.Communication and SAO.Communication.objectiveReportTransport
+        and SAO.Communication.objectiveReportTransport(processId, actorId,
+            recipientId) == true) then return nil, "report-transport-unavailable" end
+    local process = processOf(processId)
+    if not process or process.originatorId ~= recipientId then
+        return nil, "report-recipient-mismatch"
+    end
+    local commitment = objectiveCommitment(process, actorId)
+    local receipts = objectiveWorkReceipts(commitment, process)
+    if not receipts then return nil, "work-not-complete" end
+    local key = actorId .. ":" .. tostring(commitment.revision)
+    process.objectiveWorkReports = process.objectiveWorkReports or {}
+    local prior = process.objectiveWorkReports[key]
+    if prior then
+        if boundObjectiveReport(process, actorId, recipientId) == prior then
+            return dataCopy(prior), "duplicate"
+        end
+        return nil, "report-receipt-conflict"
+    end
+    local at = nowHours()
+    local report = { processId = process.id,
+        revision = commitment.revision, actorId = actorId,
+        recipientId = recipientId, status = "completed",
+        outboundReceiptId = receipts.outbound,
+        watchReceiptId = receipts.watch,
+        returnReceiptId = receipts["return"],
+        channel = "spoken", deliveredAt = at }
+    process.objectiveWorkReports[key] = report
+    appendBounded(process.events, { kind = "objective-work-report",
+        actorId = actorId, recipientId = recipientId,
+        receiptId = receipts["return"], at = at }, MAX_EVENTS)
+    return dataCopy(report), "delivered"
+end
+
+-- A player inspection is a durable source-bound fact in the same process as
+-- the helper's report. It does not create a training candidate or another
+-- person's experience. The native menu owner supplies the current player body.
+function Org.objectivePlayerReviewFor(processId, actorId, playerId)
+    local process = processOf(processId)
+    local report, commitment = boundObjectiveReport(process,
+        actorId, playerId)
+    local key = commitment and actorId .. ":"
+        .. tostring(commitment.revision)
+    local review = key and type(process.objectivePlayerReviews) == "table"
+        and process.objectivePlayerReviews[key]
+    if not report or not review
+        or review.processId ~= process.id
+        or review.revision ~= commitment.revision
+        or review.actorId ~= actorId or review.playerId ~= playerId
+        or review.commitmentId ~= commitment.id
+        or review.outboundReceiptId ~= report.outboundReceiptId
+        or review.watchReceiptId ~= report.watchReceiptId
+        or review.returnReceiptId ~= report.returnReceiptId
+        or review.reportDeliveredAt ~= report.deliveredAt
+        or not finite(review.reviewedAt)
+        or review.reviewedAt < report.deliveredAt
+        or review.reviewedAt > nowHours()
+        or review.status ~= "inspected"
+        or type(review.attempts) ~= "table" then return nil end
+    local current = Org.objectiveAttemptEvidence(processId,
+        actorId, playerId)
+    if not current or current.workOutcome ~= "completed"
+        or #current.attempts ~= #review.attempts then return nil end
+    for index, attempt in ipairs(current.attempts) do
+        local recorded = review.attempts[index]
+        if type(recorded) ~= "table" then return nil end
+        for _, field in ipairs({ "id", "stepId", "owner", "status",
+                "x", "y", "z", "startedAt", "endedAt" }) do
+            if attempt[field] ~= recorded[field] then return nil end
+        end
+    end
+    return dataCopy(review)
+end
+
+function Org.recordObjectivePlayerReview(processId, actorId, playerId,
+                                         returnReceiptId, playerObj)
+    if not playerObj or not (SAO.Standing and SAO.Standing.playerKey
+        and SAO.Communication and SAO.Communication.bodyFor
+        and SAO.Communication.canConverse) then
+        return nil, "review-player-unavailable"
+    end
+    local keyOk, key = pcall(SAO.Standing.playerKey, playerObj)
+    local bodyOk, body = pcall(SAO.Communication.bodyFor, playerId)
+    local hearingOk, canHear = pcall(SAO.Communication.canConverse,
+        playerId, actorId)
+    if not keyOk or key ~= playerId or not bodyOk or body ~= playerObj
+        or not hearingOk or canHear ~= true then
+        return nil, "review-conversation-unavailable"
+    end
+    local process = processOf(processId)
+    local report, commitment = boundObjectiveReport(process,
+        actorId, playerId)
+    if not report or identity(returnReceiptId) ~= report.returnReceiptId then
+        return nil, "review-report-unavailable"
+    end
+    process.objectivePlayerReviews = process.objectivePlayerReviews or {}
+    local reviewKey = actorId .. ":" .. tostring(commitment.revision)
+    if process.objectivePlayerReviews[reviewKey] then
+        local prior = Org.objectivePlayerReviewFor(processId,
+            actorId, playerId)
+        if prior then return prior, "duplicate" end
+        return nil, "review-binding-conflict"
+    end
+    local evidence = Org.objectiveAttemptEvidence(processId,
+        actorId, playerId)
+    if not evidence or evidence.workOutcome ~= "completed" then
+        return nil, "review-evidence-unavailable"
+    end
+    local at = nowHours()
+    local review = { processId = process.id,
+        revision = commitment.revision, actorId = actorId,
+        playerId = playerId, commitmentId = commitment.id,
+        outboundReceiptId = report.outboundReceiptId,
+        watchReceiptId = report.watchReceiptId,
+        returnReceiptId = report.returnReceiptId,
+        reportDeliveredAt = report.deliveredAt,
+        reviewedAt = at, status = "inspected",
+        attempts = dataCopy(evidence.attempts) }
+    process.objectivePlayerReviews[reviewKey] = review
+    event(process, "objective-player-reviewed", playerId, {
+        actorId = actorId, commitmentId = commitment.id,
+        returnReceiptId = report.returnReceiptId }, at)
+    return dataCopy(review), "recorded"
+end
+
 -- Registered native action owners use this boundary for procedure verbs that
 -- are not SourceUse or Handover. Admission and result identity are exact; a
 -- narration, state label or elapsed timer cannot complete a step.
@@ -2358,6 +2715,8 @@ function Org.consumeProcedureResult(result, authority)
     if type(result) ~= "table" then return false, "invalid-result" end
     local commitment, process = Org.commitment(result.commitmentId)
     if process and process.kind == "leisure-participation" and authority ~= PARTICIPATION then return false end
+    if process and process.kind == "leisure-duet" and authority ~= DUET then return false end
+    if process and process.kind == "leisure-dance" and authority ~= DANCE then return false end
     local receiptId = identity(result.id)
     local token = identity(result.token)
     local status = tostring(result.status or "")
@@ -2515,7 +2874,7 @@ function Org.noteRoute(commitmentId, owner, x, y, z, phase, evidence)
 end
 
 function Org.routeOutcome(commitmentId, status, detail)
-    local commitment = Org.commitment(commitmentId)
+    local commitment, process = Org.commitment(commitmentId)
     if not commitment or TERMINAL_WORK[commitment.status] then return false end
     local routes = commitment.work.routeAttempts or {}
     local route = routes[#routes]
@@ -2544,6 +2903,7 @@ function Org.routeOutcome(commitmentId, status, detail)
             route.id, { commitment.actorId }, {
                 owner = route.owner, status = route.status,
                 x = route.x, y = route.y, z = route.z })
+        if process then rememberObjectiveWork(commitment, process) end
     else
         local failures = equivalentRouteFailures(commitment,
             route.x, route.y, route.z, route.phase, route.retryEvidence)
@@ -3058,6 +3418,661 @@ function Org.reconcileParticipation(processId, id, purposeId)
     c.status, c.work.phase, c.work.pauseReason = "paused", "awaiting-revision", "native-performance-owner-lost"
     own.performance = { workId = own.workId, status = "unobservable", atHours = nowHours() }
     workEvent(c, "paused", { reason = "native-performance-owner-lost" })
+    return true
+end
+
+-- Duets retain exact source parts within the existing proposal/reception/
+-- response/claimed-commitment process. An invitation assigns no other actor.
+local DUET_CHOICE_FIELDS={"id","actorId","sourceId","revision","catalogueRevision","activity",
+    "instrumentType","itemKey","sound","length","trackLevel","songId","role","bodyToken"}
+local function duetChoiceEqual(a,b)
+    if type(a)~="table" or type(b)~="table" then return false end
+    for _,field in ipairs(DUET_CHOICE_FIELDS) do if a[field]~=b[field] then return false end end
+    return true
+end
+local function duetChoiceFor(id,choiceId)
+    local M=SAO.LeisureMusic;local body=SAO.Body and SAO.Body.get(id)
+    return body and M and M.duetChoice and M.duetChoice(id,body,choiceId)
+end
+local function duetRoleAllowed(choice,role)
+    for _,value in ipairs(choice and choice.partnerRoles or {}) do if value==role then return true end end
+    return false
+end
+local function duetTerms(processId)
+    local process=processOf(processId);local revision=process and proposalAt(process)
+    local proposal=revision and revision.proposal;local terms=proposal and proposal.duet
+    if not process or process.kind~="leisure-duet" or TERMINAL_PROCESS[process.status]
+        or not terms or proposal.cooperative~=true or terms.sourceId~="LifestyleHobbies"
+        or terms.originatorId~=process.originatorId or not identity(terms.partnerId)
+        or terms.partnerId==terms.originatorId or not identity(terms.songId)
+        or not finite(terms.expiresAtHours) or terms.expiresAtHours<nowHours() then return nil end
+    return process,terms
+end
+function Org.proposeDuet(id,partnerId,choiceId,partnerRole,expiresAtHours)
+    id,partnerId=identity(id),identity(partnerId)
+    local choice=id and duetChoiceFor(id,choiceId)
+    if not choice or not partnerId or partnerId==id or not duetRoleAllowed(choice,partnerRole)
+        or not finite(expiresAtHours) or expiresAtHours<=nowHours() or expiresAtHours>nowHours()+24 then return nil,"invalid-source-duet-invitation" end
+    local terms={sourceId=choice.sourceId,songId=choice.songId,originatorId=id,partnerId=partnerId,
+        originatorRole=choice.role,partnerRole=partnerRole,originatorChoice=dataCopy(choice),expiresAtHours=expiresAtHours}
+    local process,why=Org.raiseMatter(id,"leisure-duet",nil,{cooperative=true,
+        objective="perform-source-duet",responsePolicy="procedure-completion",duet=terms,
+        procedure={{id="perform-originator",verb="perform-duet",capability="perform-duet",owner="SAO.LeisureMusic",
+            role=choice.role,assignedTo=id,completesOn={"duet:performed"}},
+            {id="perform-partner",verb="perform-duet",capability="perform-duet",owner="SAO.LeisureMusic",
+            role=partnerRole,assignedTo=partnerId,completesOn={"duet:performed"}}}}, {partnerId},
+        {basis="personally-supported-source-part",choice=dataCopy(choice)},DUET)
+    if not process then return nil,why end
+    local commitment=Org.commitOriginator(process.id,id,{capabilities={["perform-duet"]=true},
+        stepIds={"perform-originator"},evidence={sourceChoiceId=choice.id,songId=choice.songId,role=choice.role}})
+    if not commitment then Org.withdrawMatter(process.id,id,"originator-part-not-claimed");return nil,"originator-part-not-claimed" end
+    return {processId=process.id,revision=process.revision,choiceId=choice.id,partnerId=partnerId,
+        role=choice.role,partnerRole=partnerRole,songId=choice.songId,expiresAtHours=expiresAtHours}
+end
+function Org.respondDuet(id,processId,choiceId,response,context)
+    local process,terms=duetTerms(processId)
+    if not process or id~=terms.partnerId then return nil,"not-invited-duet-performer" end
+    local acquired=Org.viewFor(id,processId,false)
+    if not acquired or not acquired.proposal or acquired.currentRevision~=process.revision then return nil,"duet-proposal-not-acquired" end
+    context=dataCopy(context or {}) or {};context.choice=response
+    if response=="accept" then
+        local choice=duetChoiceFor(id,choiceId);local author=duetChoiceFor(terms.originatorId,terms.originatorChoice.id)
+        if not choice or not duetChoiceEqual(author,terms.originatorChoice) or choice.sourceId~=terms.sourceId
+            or choice.songId~=terms.songId or choice.role~=terms.partnerRole
+            or not duetRoleAllowed(choice,terms.originatorRole) then return nil,"source-duet-part-incompatible" end
+        context.capabilities={["perform-duet"]=true};context.stepIds={"perform-partner"}
+        context.terms={stepIds={"perform-partner"},duetChoice=dataCopy(choice)}
+    end
+    return Org.appraiseMatter(processId,id,context,DUET)
+end
+local function duetCommitted(process,id,stepId)
+    local procedure=procedureAt(process);local step=procedure and procedure.steps[stepId]
+    for _,commitment in pairs(process.commitments or {}) do
+        local claim=step and step.claims and step.claims[id]
+        if commitment.actorId==id and commitment.revision==process.revision
+            and (commitment.status=="accepted" or commitment.status=="in-progress" or commitment.status=="completed")
+            and commitment.stepIds and commitment.stepIds[stepId] and claim and claim.commitmentId==commitment.id
+            and (claim.status=="claimed" or claim.status=="attempting" or claim.status=="completed")
+            and step.owner=="SAO.LeisureMusic" and step.assignedTo==id then return commitment end
+    end
+end
+function Org.duetOffer(id,processId)
+    local process,terms=duetTerms(processId)
+    if not process or (id~=terms.originatorId and id~=terms.partnerId) then return nil end
+    local view=Org.viewFor(id,processId,true)
+    if not view or not view.proposal or view.currentRevision~=process.revision then return nil end
+    local response=responseAt(process,terms.partnerId)
+    if not response or response.response~="accept" or response.delivered~=true
+        or response.revision~=process.revision or not finite(response.deliveredAt)
+        or response.deliveredAt>nowHours() then return nil end
+    local a=duetCommitted(process,terms.originatorId,"perform-originator")
+    local b=duetCommitted(process,terms.partnerId,"perform-partner")
+    local choiceA=duetChoiceFor(terms.originatorId,terms.originatorChoice.id)
+    local agreed=response.terms and response.terms.duetChoice
+    local choiceB=agreed and duetChoiceFor(terms.partnerId,agreed.id)
+    if not a or not b or not duetChoiceEqual(choiceA,terms.originatorChoice) or not duetChoiceEqual(choiceB,agreed)
+        or choiceB.songId~=terms.songId or choiceB.role~=terms.partnerRole
+        or not duetRoleAllowed(choiceA,choiceB.role) or not duetRoleAllowed(choiceB,choiceA.role) then return nil end
+    local own=id==terms.originatorId and a or b;local choice=id==terms.originatorId and choiceA or choiceB
+    return {actorId=id,processId=process.id,revision=process.revision,commitmentId=own.id,
+        partnerId=id==terms.originatorId and terms.partnerId or terms.originatorId,
+        role=choice.role,songId=terms.songId,sourceId=terms.sourceId,choiceId=choice.id,
+        choice=dataCopy(choice),acceptedAtHours=response.deliveredAt,expiresAtHours=terms.expiresAtHours}
+end
+function Org.duetOffers(id)
+    local out={}
+    for _,commitment in ipairs(Org.activeCommitments(id)) do
+        if commitment.matter=="leisure-duet" and commitment.status~="completed" then
+            local offer=Org.duetOffer(id,commitment.processId);if offer then out[#out+1]=offer end
+        end
+        if #out>=8 then break end
+    end
+    return out
+end
+local function duetWorkMatches(offer,work)
+    local bind=work and work.sourceOffer and work.sourceOffer.duet
+    return work and offer and bind and work.actorId==offer.actorId and work.sourceId==offer.sourceId
+        and work.sourceOffer.id==offer.choiceId and work.sourceOffer.songId==offer.songId
+        and bind.processId==offer.processId and bind.revision==offer.revision and bind.commitmentId==offer.commitmentId
+        and bind.partnerId==offer.partnerId and bind.role==offer.role and bind.songId==offer.songId
+        and work.admittedAtHours>=offer.acceptedAtHours and work.admittedAtHours<=nowHours()
+end
+function Org.admitDuet(id,processId,sequence)
+    local offer=Org.duetOffer(id,processId);local M=SAO.LeisureMusic
+    local work=M and M.work and M.work(id);local c=offer and Org.commitment(offer.commitmentId)
+    if not c or c.status=="completed" or not duetWorkMatches(offer,work) or work.sequence~=sequence
+        or work.status~="active" or not SAO.ProceduralPlanning.hobbyAdmission(id,work.purposeId,work.workId) then return false end
+    local process=processOf(processId);local key=revisionKey(process.revision)
+    process.privateInputs[id]=process.privateInputs[id] or {};local input=process.privateInputs[id][key] or {}
+    process.privateInputs[id][key]=input
+    if input.duetWork then return input.duetWork.workId==work.workId and input.duetWork.sequence==sequence end
+    local stepId=id==process.originatorId and "perform-originator" or "perform-partner"
+    if not Org.noteWorkAdmission(c.id,"SAO.LeisureMusic",work.workId,{stepId=stepId},DUET) then return false end
+    input.duetWork={actorId=id,workId=work.workId,sequence=sequence,purposeId=work.purposeId,
+        admittedAtHours=work.admittedAtHours,revision=process.revision,stepId=stepId,commitmentId=c.id}
+    return true
+end
+function Org.duetReady(id,processId)
+    local offer=Org.duetOffer(id,processId);local peer=offer and Org.duetOffer(offer.partnerId,processId)
+    if not offer or not peer then return nil end
+    local process=processOf(processId);local key=revisionKey(process.revision)
+    for _,binding in ipairs({offer,peer}) do
+        local input=process.privateInputs[binding.actorId] and process.privateInputs[binding.actorId][key]
+        local own=input and input.duetWork;local work=SAO.LeisureMusic.work(binding.actorId)
+        local admission=own and work and SAO.ProceduralPlanning.hobbyAdmission(binding.actorId,own.purposeId,own.workId)
+        if not own or not work or own.sequence~=work.sequence or not duetWorkMatches(binding,work) or work.status~="active"
+            or work.workId~=own.workId or not work.nativeProgress.started or not admission
+            or admission.ownerName~="SAO.LeisureMusic" or admission.sequence~=work.sequence then return nil end
+    end
+    return offer
+end
+local DUET_MEASURES={"Boredom","Stress","Unhappiness","Endurance","Fatigue","Pain"}
+local function duetMeasuredInterval(result)
+    if type(result.before)~="table" or type(result.after)~="table" then return nil end
+    local before,after,measured={},{},false
+    for _,name in ipairs(DUET_MEASURES) do
+        if finite(result.before[name]) and finite(result.after[name]) then
+            before[name],after[name]=result.before[name],result.after[name]
+            measured=true
+        end
+    end
+    if not measured then return nil end
+    return before,after
+end
+local function completedDuetPart(process,terms,id,partnerId,choice,stepId)
+    local key=revisionKey(process.revision)
+    local input=process.privateInputs[id] and process.privateInputs[id][key]
+    local own=input and input.duetWork
+    local stored=own and own.result
+    local commitment=own and Org.commitment(own.commitmentId)
+    local receipt=own and Org.workReceipts["procedure:"..own.workId]
+    local result=own and SAO.LeisureMusic and SAO.LeisureMusic.outcome
+        and SAO.LeisureMusic.outcome(id,own.sequence)
+    local bind=result and result.sourceOffer and result.sourceOffer.duet
+    local native=result and result.nativeProgress
+    local release=native and native.duetRelease
+    if not own or not stored or not result or not commitment or not receipt or not bind or not release
+        or own.actorId~=id or own.revision~=process.revision or own.stepId~=stepId
+        or commitment.processId~=process.id or commitment.actorId~=id
+        or commitment.revision~=process.revision or commitment.status~="completed"
+        or not commitment.stepIds or not commitment.stepIds[stepId]
+        or receipt.receiptId~=own.workId or receipt.commitmentId~=own.commitmentId
+        or receipt.owner~="SAO.LeisureMusic" or receipt.token~="duet:performed" or receipt.status~="completed"
+        or stored.actorId~=id or stored.workId~=own.workId or stored.sequence~=own.sequence
+        or stored.status~="completed" or stored.atHours~=result.atHours
+        or result.actorId~=id or result.workId~=own.workId or result.sequence~=own.sequence
+        or result.purposeId~=own.purposeId or result.status~="completed" or result.token~="leisure:performed"
+        or result.sourceId~=terms.sourceId or not duetChoiceEqual(result.sourceOffer,choice)
+        or bind.processId~=process.id or bind.revision~=process.revision
+        or bind.commitmentId~=own.commitmentId or bind.partnerId~=partnerId
+        or bind.role~=choice.role or bind.songId~=terms.songId
+        or result.admittedAtHours~=own.admittedAtHours
+        or not finite(result.atHours) or result.atHours<own.admittedAtHours
+        or result.atHours>terms.expiresAtHours or result.atHours>nowHours()
+        or result.afterCurrent~=true or result.cleanupSucceeded~=true
+        or result.measurementAuthority~="actual-source-interval; concurrent-effects-not-isolated"
+        or native.started~=true or not finite(native.observedUpdates) or native.observedUpdates<1
+        or native.duetReleased~=true or native.soundObserved~=true or native.sound~=choice.sound
+        or native.sourceSoundEnded~=true or native.sourcePerformReturned~=true
+        or release.processId~=process.id or release.revision~=process.revision
+        or release.partnerId~=partnerId or not finite(release.atHours)
+        or release.atHours<own.admittedAtHours or release.atHours>result.atHours then return nil end
+    local before,after=duetMeasuredInterval(result)
+    if not before then return nil end
+    return {input=input,work=own,result=result,release=release,choice=choice,before=before,after=after}
+end
+local function storedDuetParticipation(process,terms,id)
+    local partnerId=id==terms.originatorId and terms.partnerId or terms.originatorId
+    if id~=terms.originatorId and id~=terms.partnerId then return nil end
+    local key=revisionKey(process.revision)
+    local own=process.privateInputs[id] and process.privateInputs[id][key]
+    local peer=process.privateInputs[partnerId] and process.privateInputs[partnerId][key]
+    local row=own and own.duetParticipation
+    local other=peer and peer.duetParticipation
+    local ownResult=own and own.duetWork and own.duetWork.result
+    local peerResult=peer and peer.duetWork and peer.duetWork.result
+    if not row or not other or not ownResult or not peerResult
+        or ownResult.status~="completed" or peerResult.status~="completed"
+        or row.id~="duet:"..process.id..":"..process.revision..":"..id
+        or row.actorId~=id or row.processId~=process.id or row.revision~=process.revision
+        or row.partnerId~=partnerId or row.sourceId~=terms.sourceId or row.songId~=terms.songId
+        or row.workId~=ownResult.workId or row.sequence~=ownResult.sequence
+        or other.actorId~=partnerId or other.partnerId~=id or other.processId~=process.id
+        or other.revision~=process.revision or other.workId~=peerResult.workId
+        or type(row.coPerformance)~="table" or row.coPerformance.status~="completed"
+        or row.coPerformance.ownResultId~=ownResult.workId
+        or row.coPerformance.partnerResultId~=peerResult.workId then return nil end
+    return row
+end
+local function freezeDuetParticipation(processId)
+    local process=processOf(processId)
+    local proposal=process and proposalAt(process)
+    local terms=proposal and proposal.proposal and proposal.proposal.duet
+    if not process or process.kind~="leisure-duet" or not terms
+        or terms.originatorId~=process.originatorId or not identity(terms.partnerId)
+        or terms.partnerId==terms.originatorId or terms.sourceId~="LifestyleHobbies" then return false end
+    if storedDuetParticipation(process,terms,terms.originatorId)
+        and storedDuetParticipation(process,terms,terms.partnerId) then return true end
+    local response=responseAt(process,terms.partnerId)
+    local originChoice=terms.originatorChoice
+    local partnerChoice=response and response.terms and response.terms.duetChoice
+    if not response or response.response~="accept" or response.delivered~=true
+        or response.revision~=process.revision or not finite(response.deliveredAt)
+        or response.deliveredAt>nowHours() or not originChoice or not partnerChoice
+        or originChoice.actorId~=terms.originatorId or partnerChoice.actorId~=terms.partnerId
+        or originChoice.songId~=terms.songId or partnerChoice.songId~=terms.songId
+        or originChoice.role~=terms.originatorRole or partnerChoice.role~=terms.partnerRole then return false end
+    local a=completedDuetPart(process,terms,terms.originatorId,terms.partnerId,originChoice,"perform-originator")
+    local b=completedDuetPart(process,terms,terms.partnerId,terms.originatorId,partnerChoice,"perform-partner")
+    if not a or not b or a.release.partnerWorkId~=b.work.workId
+        or b.release.partnerWorkId~=a.work.workId or a.release.atHours~=b.release.atHours then return false end
+    -- Both source parts were admitted before the shared native release.
+    if a.work.admittedAtHours<response.deliveredAt or b.work.admittedAtHours<response.deliveredAt
+        or a.work.admittedAtHours>b.release.atHours or b.work.admittedAtHours>a.release.atHours then return false end
+    local function privateReceipt(part,other,id,partnerId)
+        return {id="duet:"..process.id..":"..process.revision..":"..id,
+            actorId=id,processId=process.id,revision=process.revision,partnerId=partnerId,
+            sourceId=terms.sourceId,songId=terms.songId,role=part.choice.role,
+            purposeId=part.work.purposeId,workId=part.work.workId,sequence=part.work.sequence,
+            atHours=math.max(part.result.atHours,other.result.atHours),
+            before=part.before,after=part.after,
+            measurementAuthority=part.result.measurementAuthority,
+            coPerformance={status="completed",basis="two-committed-native-source-duet-results",
+                ownResultId=part.work.workId,partnerResultId=other.work.workId}}
+    end
+    if a.input.duetParticipation or b.input.duetParticipation then return false end
+    a.input.duetParticipation=privateReceipt(a,b,terms.originatorId,terms.partnerId)
+    b.input.duetParticipation=privateReceipt(b,a,terms.partnerId,terms.originatorId)
+    return true
+end
+function Org.duetParticipationFor(id,processId)
+    local process=processOf(processId)
+    local proposal=process and proposalAt(process)
+    local terms=proposal and proposal.proposal and proposal.proposal.duet
+    if not process or process.kind~="leisure-duet" or not terms then return nil end
+    return dataCopy(storedDuetParticipation(process,terms,id))
+end
+local function deliverDuetParticipation(processId)
+    local process=processOf(processId)
+    local proposal=process and proposalAt(process)
+    local terms=proposal and proposal.proposal and proposal.proposal.duet
+    local cognition=SAO.Cognition and SAO.Cognition.duetOutcome
+    if not terms or not cognition then return end
+    for _,id in ipairs({terms.originatorId,terms.partnerId}) do
+        if Org.duetParticipationFor(id,processId) then pcall(cognition,id,processId) end
+    end
+end
+function Org.consumeDuet(id,processId,sequence)
+    local process=processOf(processId);local key=process and revisionKey(process.revision)
+    local input=process and process.privateInputs[id] and process.privateInputs[id][key]
+    local own=input and input.duetWork;local result=own and SAO.LeisureMusic.outcome(id,sequence)
+    if not process or process.kind~="leisure-duet" or not own or own.sequence~=sequence or not result
+        or result.actorId~=id or result.workId~=own.workId or result.purposeId~=own.purposeId
+        or not result.sourceOffer.duet or result.sourceOffer.duet.processId~=processId
+        or result.sourceOffer.duet.revision~=own.revision or result.atHours<own.admittedAtHours
+        or result.atHours>nowHours() then return false end
+    if own.result then
+        local duplicate=own.result.workId==result.workId and own.result.sequence==sequence
+            and own.result.status==result.status and own.result.atHours==result.atHours
+        if duplicate and freezeDuetParticipation(processId) then deliverDuetParticipation(processId) end
+        return duplicate
+    end
+    local terms=proposalAt(process).proposal.duet
+    if result.status=="completed" and (not result.nativeProgress.duetReleased
+        or not result.nativeProgress.soundObserved or result.atHours>terms.expiresAtHours) then return false end
+    if not Org.consumeProcedureResult({commitmentId=own.commitmentId,actorId=id,id=own.workId,
+        token="duet:performed",stepId=own.stepId,owner="SAO.LeisureMusic",status=result.status,at=result.atHours},DUET) then return false end
+    own.result={actorId=id,workId=own.workId,sequence=sequence,status=result.status,atHours=result.atHours}
+    if freezeDuetParticipation(processId) then deliverDuetParticipation(processId) end
+    return true
+end
+
+-- Personally heard-source dance consent has its own typed authority.
+local DANCE_CHOICE_FIELDS={"id","actorId","sourceId","revision","danceEffectsRevision","activity",
+    "itemKey","musicKey","role","bodyToken"}
+local function danceChoiceEqual(a,b)
+    if type(a)~="table" or type(b)~="table" then return false end
+    for _,field in ipairs(DANCE_CHOICE_FIELDS) do if a[field]~=b[field] then return false end end
+    for field,value in pairs(a.heardMusic or {})do if not b.heardMusic or b.heardMusic[field]~=value then return false end end
+    for field,value in pairs(b.heardMusic or {})do if not a.heardMusic or a.heardMusic[field]~=value then return false end end
+    return a.heardMusic~=nil and b.heardMusic~=nil
+end
+local function danceSameMusic(a,b)
+    if type(a)~="table"or type(b)~="table"then return false end
+    for field,value in pairs(a)do if b[field]~=value then return false end end
+    for field,value in pairs(b)do if a[field]~=value then return false end end
+    return true
+end
+local function danceChoiceFor(id,choiceId)
+    local M=SAO.LeisureMusic;local body=SAO.Body and SAO.Body.get(id)
+    return body and M and M.danceChoice and M.danceChoice(id,body,choiceId)
+end
+local function danceRoleAllowed(choice,role)
+    for _,value in ipairs(choice and choice.partnerRoles or {}) do if value==role then return true end end
+    return false
+end
+local function danceTerms(processId)
+    local process=processOf(processId);local revision=process and proposalAt(process)
+    local proposal=revision and revision.proposal;local terms=proposal and proposal.dance
+    if not process or process.kind~="leisure-dance" or TERMINAL_PROCESS[process.status]
+        or not terms or proposal.cooperative~=true or terms.sourceId~="LifestyleHobbies"
+        or terms.originatorId~=process.originatorId or not identity(terms.partnerId)
+        or terms.partnerId==terms.originatorId or not identity(terms.musicKey)
+        or not finite(terms.expiresAtHours) or terms.expiresAtHours<nowHours() then return nil end
+    return process,terms
+end
+function Org.proposeDance(id,partnerId,choiceId,partnerRole,expiresAtHours)
+    id,partnerId=identity(id),identity(partnerId)
+    local choice=id and danceChoiceFor(id,choiceId)
+    if not choice or not partnerId or partnerId==id or not danceRoleAllowed(choice,partnerRole)
+        or not finite(expiresAtHours) or expiresAtHours<=nowHours() or expiresAtHours>nowHours()+24 then return nil,"invalid-source-dance-invitation" end
+    local terms={sourceId=choice.sourceId,musicKey=choice.musicKey,originatorId=id,partnerId=partnerId,
+        originatorRole=choice.role,partnerRole=partnerRole,originatorChoice=dataCopy(choice),heardMusic=dataCopy(choice.heardMusic),expiresAtHours=expiresAtHours}
+    local process,why=Org.raiseMatter(id,"leisure-dance",nil,{cooperative=true,
+        objective="perform-source-dance",responsePolicy="procedure-completion",dance=terms,
+        procedure={{id="perform-originator",verb="perform-dance",capability="perform-dance",owner="SAO.LeisureMusic",
+            role=choice.role,assignedTo=id,completesOn={"dance:performed"}},
+            {id="perform-partner",verb="perform-dance",capability="perform-dance",owner="SAO.LeisureMusic",
+            role=partnerRole,assignedTo=partnerId,completesOn={"dance:performed"}}}}, {partnerId},
+        {basis="personally-supported-source-part",choice=dataCopy(choice)},DANCE)
+    if not process then return nil,why end
+    local commitment=Org.commitOriginator(process.id,id,{capabilities={["perform-dance"]=true},
+        stepIds={"perform-originator"},evidence={sourceChoiceId=choice.id,musicKey=choice.musicKey,role=choice.role}},DANCE)
+    if not commitment then Org.withdrawMatter(process.id,id,"originator-part-not-claimed");return nil,"originator-part-not-claimed" end
+    return {processId=process.id,revision=process.revision,choiceId=choice.id,partnerId=partnerId,
+        role=choice.role,partnerRole=partnerRole,musicKey=choice.musicKey,expiresAtHours=expiresAtHours}
+end
+function Org.respondDance(id,processId,choiceId,response,context)
+    local process,terms=danceTerms(processId)
+    if not process or id~=terms.partnerId then return nil,"not-invited-dance-performer" end
+    local acquired=Org.viewFor(id,processId,false)
+    if not acquired or not acquired.proposal or acquired.currentRevision~=process.revision then return nil,"dance-proposal-not-acquired" end
+    context=dataCopy(context or {}) or {};context.choice=response
+    if response=="accept" then
+        local choice=danceChoiceFor(id,choiceId);local author=danceChoiceFor(terms.originatorId,terms.originatorChoice.id)
+        if not choice or not danceChoiceEqual(author,terms.originatorChoice) or choice.sourceId~=terms.sourceId
+            or choice.musicKey~=terms.musicKey or choice.role~=terms.partnerRole
+            or not danceSameMusic(choice.heardMusic,terms.heardMusic)
+            or not danceRoleAllowed(choice,terms.originatorRole) then return nil,"source-dance-part-incompatible" end
+        context.capabilities={["perform-dance"]=true};context.stepIds={"perform-partner"}
+        context.terms={stepIds={"perform-partner"},danceChoice=dataCopy(choice)}
+    end
+    return Org.appraiseMatter(processId,id,context,DANCE)
+end
+local function danceCommitted(process,id,stepId)
+    local procedure=procedureAt(process);local step=procedure and procedure.steps[stepId]
+    for _,commitment in pairs(process.commitments or {}) do
+        local claim=step and step.claims and step.claims[id]
+        if commitment.actorId==id and commitment.revision==process.revision
+            and (commitment.status=="accepted" or commitment.status=="in-progress" or commitment.status=="completed")
+            and commitment.stepIds and commitment.stepIds[stepId] and claim and claim.commitmentId==commitment.id
+            and (claim.status=="claimed" or claim.status=="attempting" or claim.status=="completed")
+            and step.owner=="SAO.LeisureMusic" and step.assignedTo==id then return commitment end
+    end
+end
+function Org.danceOffer(id,processId)
+    local process,terms=danceTerms(processId)
+    if not process or (id~=terms.originatorId and id~=terms.partnerId) then return nil end
+    local view=Org.viewFor(id,processId,true)
+    if not view or not view.proposal or view.currentRevision~=process.revision then return nil end
+    local response=responseAt(process,terms.partnerId)
+    if not response or response.response~="accept" or response.delivered~=true
+        or response.revision~=process.revision or not finite(response.deliveredAt)
+        or response.deliveredAt>nowHours() then return nil end
+    local a=danceCommitted(process,terms.originatorId,"perform-originator")
+    local b=danceCommitted(process,terms.partnerId,"perform-partner")
+    local choiceA=danceChoiceFor(terms.originatorId,terms.originatorChoice.id)
+    local agreed=response.terms and response.terms.danceChoice
+    local choiceB=agreed and danceChoiceFor(terms.partnerId,agreed.id)
+    if not a or not b or not danceChoiceEqual(choiceA,terms.originatorChoice) or not danceChoiceEqual(choiceB,agreed)
+        or choiceB.musicKey~=terms.musicKey or choiceB.role~=terms.partnerRole
+        or not danceSameMusic(choiceA.heardMusic,choiceB.heardMusic)
+        or not danceRoleAllowed(choiceA,choiceB.role) or not danceRoleAllowed(choiceB,choiceA.role) then return nil end
+    local own=id==terms.originatorId and a or b;local choice=id==terms.originatorId and choiceA or choiceB
+    return {actorId=id,processId=process.id,revision=process.revision,commitmentId=own.id,
+        partnerId=id==terms.originatorId and terms.partnerId or terms.originatorId,
+        role=choice.role,musicKey=terms.musicKey,sourceId=terms.sourceId,choiceId=choice.id,
+        choice=dataCopy(choice),acceptedAtHours=response.deliveredAt,expiresAtHours=terms.expiresAtHours}
+end
+function Org.danceOffers(id)
+    local out={}
+    for _,commitment in ipairs(Org.activeCommitments(id)) do
+        if commitment.matter=="leisure-dance" and commitment.status~="completed" then
+            local offer=Org.danceOffer(id,commitment.processId);if offer then out[#out+1]=offer end
+        end
+        if #out>=8 then break end
+    end
+    return out
+end
+local function danceWorkMatches(offer,work)
+    local bind=work and work.sourceOffer and work.sourceOffer.dance
+    return work and offer and bind and work.actorId==offer.actorId and work.sourceId==offer.sourceId
+        and work.sourceOffer.id==offer.choiceId and work.sourceOffer.musicKey==offer.musicKey
+        and bind.processId==offer.processId and bind.revision==offer.revision and bind.commitmentId==offer.commitmentId
+        and bind.partnerId==offer.partnerId and bind.role==offer.role and bind.musicKey==offer.musicKey
+        and work.admittedAtHours>=offer.acceptedAtHours and work.admittedAtHours<=nowHours()
+end
+function Org.admitDance(id,processId,sequence)
+    local offer=Org.danceOffer(id,processId);local M=SAO.LeisureMusic
+    local work=M and M.work and M.work(id);local c=offer and Org.commitment(offer.commitmentId)
+    if not c or c.status=="completed" or not danceWorkMatches(offer,work) or work.sequence~=sequence
+        or work.status~="active" or not SAO.ProceduralPlanning.hobbyAdmission(id,work.purposeId,work.workId) then return false end
+    local process=processOf(processId);local key=revisionKey(process.revision)
+    process.privateInputs[id]=process.privateInputs[id] or {};local input=process.privateInputs[id][key] or {}
+    process.privateInputs[id][key]=input
+    if input.danceWork then return input.danceWork.workId==work.workId and input.danceWork.sequence==sequence end
+    local stepId=id==process.originatorId and "perform-originator" or "perform-partner"
+    if not Org.noteWorkAdmission(c.id,"SAO.LeisureMusic",work.workId,{stepId=stepId},DANCE) then return false end
+    input.danceWork={actorId=id,workId=work.workId,sequence=sequence,purposeId=work.purposeId,
+        admittedAtHours=work.admittedAtHours,revision=process.revision,stepId=stepId,commitmentId=c.id}
+    return true
+end
+function Org.danceReady(id,processId)
+    local offer=Org.danceOffer(id,processId);local peer=offer and Org.danceOffer(offer.partnerId,processId)
+    if not offer or not peer then return nil end
+    local process=processOf(processId);local key=revisionKey(process.revision)
+    for _,binding in ipairs({offer,peer}) do
+        local input=process.privateInputs[binding.actorId] and process.privateInputs[binding.actorId][key]
+        local own=input and input.danceWork;local work=SAO.LeisureMusic.work(binding.actorId)
+        local admission=own and work and SAO.ProceduralPlanning.hobbyAdmission(binding.actorId,own.purposeId,own.workId)
+        if not own or not work or own.sequence~=work.sequence or not danceWorkMatches(binding,work) or work.status~="active"
+            or work.workId~=own.workId or not work.nativeProgress.started or not admission
+            or admission.ownerName~="SAO.LeisureMusic" or admission.sequence~=work.sequence then return nil end
+    end
+    return offer
+end
+local DANCE_MEASURES={"Boredom","Stress","Unhappiness","Endurance","Fatigue","Pain"}
+local function danceMeasuredInterval(result)
+    if type(result.before)~="table" or type(result.after)~="table" then return nil end
+    local before,after,measured={},{},false
+    for _,name in ipairs(DANCE_MEASURES) do
+        if finite(result.before[name]) and finite(result.after[name]) then
+            before[name],after[name]=result.before[name],result.after[name]
+            measured=true
+        end
+    end
+    if not measured then return nil end
+    return before,after
+end
+local function completedDancePart(process,terms,id,partnerId,choice,stepId)
+    local key=revisionKey(process.revision)
+    local input=process.privateInputs[id] and process.privateInputs[id][key]
+    local own=input and input.danceWork
+    local stored=own and own.result
+    local commitment=own and Org.commitment(own.commitmentId)
+    local receipt=own and Org.workReceipts["procedure:"..own.workId]
+    local result=own and SAO.LeisureMusic and SAO.LeisureMusic.outcome
+        and SAO.LeisureMusic.outcome(id,own.sequence)
+    local bind=result and result.sourceOffer and result.sourceOffer.dance
+    local native=result and result.nativeProgress
+    local setup=native and native.sourcePartnerSetup
+    local cycle=native and native.sourcePartnerCycle
+    local cleanup=native and native.sourcePartnerCleanup
+    if not own or not stored or not result or not commitment or not receipt or not bind
+        or not setup or not cycle or not cleanup
+        or own.actorId~=id or own.revision~=process.revision or own.stepId~=stepId
+        or commitment.processId~=process.id or commitment.actorId~=id
+        or commitment.revision~=process.revision or commitment.status~="completed"
+        or not commitment.stepIds or not commitment.stepIds[stepId]
+        or receipt.receiptId~=own.workId or receipt.commitmentId~=own.commitmentId
+        or receipt.owner~="SAO.LeisureMusic" or receipt.token~="dance:performed" or receipt.status~="completed"
+        or stored.actorId~=id or stored.workId~=own.workId or stored.sequence~=own.sequence
+        or stored.status~="completed" or stored.atHours~=result.atHours
+        or result.actorId~=id or result.workId~=own.workId or result.sequence~=own.sequence
+        or result.purposeId~=own.purposeId or result.status~="completed" or result.token~="leisure:performed"
+        or result.sourceId~=terms.sourceId or not danceChoiceEqual(result.sourceOffer,choice)
+        or result.bodyToken~=choice.bodyToken or bind.processId~=process.id
+        or bind.revision~=process.revision or bind.commitmentId~=own.commitmentId
+        or bind.partnerId~=partnerId or bind.role~=choice.role or bind.musicKey~=terms.musicKey
+        or result.admittedAtHours~=own.admittedAtHours
+        or not finite(result.atHours) or result.atHours<own.admittedAtHours
+        or result.atHours>terms.expiresAtHours or result.atHours>nowHours()
+        or result.afterCurrent~=true or result.cleanupSucceeded~=true
+        or result.measurementAuthority~="actual-source-interval; concurrent-effects-not-isolated"
+        or native.started~=true or not finite(native.observedUpdates) or native.observedUpdates<1
+        or native.danceReleased~=true or native.sourcePerformReturned~=true
+        or setup.sourceId~="LifestyleHobbies" or setup.processId~=process.id
+        or setup.role~=choice.role or setup.partnerId~=partnerId
+        or setup.revision~=choice.danceEffectsRevision
+        or setup.choiceProducerRevision~=choice.choiceProducerRevision
+        or not finite(setup.atHours) or setup.atHours<own.admittedAtHours
+        or setup.atHours>result.atHours or type(setup.before)~="table"
+        or cycle.actorId~=id or cycle.bodyToken~=result.bodyToken
+        or cycle.workId~=own.workId or cycle.clip~=choice.roleAnimation
+        or cycle.authority~="native-current-owned-source-animation-loop"
+        or not finite(cycle.sequence) or cycle.sequence<1 or cycle.sequence%1~=0
+        or not finite(cycle.engineAtHours) or not finite(cycle.observedAtCountyHours)
+        or cycle.observedAtCountyHours<setup.atHours or cycle.observedAtCountyHours>result.atHours
+        or cleanup.succeeded~=true or cleanup.nativeListenerRetirement~="confirmed" then return nil end
+    local before,after=danceMeasuredInterval(result)
+    if not before then return nil end
+    return {input=input,work=own,result=result,setup=setup,choice=choice,before=before,after=after}
+end
+local function storedDanceParticipation(process,terms,id)
+    local partnerId=id==terms.originatorId and terms.partnerId or terms.originatorId
+    if id~=terms.originatorId and id~=terms.partnerId then return nil end
+    local key=revisionKey(process.revision)
+    local own=process.privateInputs[id] and process.privateInputs[id][key]
+    local peer=process.privateInputs[partnerId] and process.privateInputs[partnerId][key]
+    local row=own and own.danceParticipation
+    local other=peer and peer.danceParticipation
+    local ownResult=own and own.danceWork and own.danceWork.result
+    local peerResult=peer and peer.danceWork and peer.danceWork.result
+    if not row or not other or not ownResult or not peerResult
+        or ownResult.status~="completed" or peerResult.status~="completed"
+        or row.id~="dance:"..process.id..":"..process.revision..":"..id
+        or row.actorId~=id or row.processId~=process.id or row.revision~=process.revision
+        or row.partnerId~=partnerId or row.sourceId~=terms.sourceId or row.musicKey~=terms.musicKey
+        or row.workId~=ownResult.workId or row.sequence~=ownResult.sequence
+        or row.purposeId~=own.danceWork.purposeId
+        or row.role~=(id==terms.originatorId and terms.originatorRole or terms.partnerRole)
+        or row.atHours~=math.max(ownResult.atHours,peerResult.atHours)
+        or row.measurementAuthority~="actual-source-interval; concurrent-effects-not-isolated"
+        or other.actorId~=partnerId or other.partnerId~=id or other.processId~=process.id
+        or other.revision~=process.revision or other.workId~=peerResult.workId
+        or type(row.coPerformance)~="table" or row.coPerformance.status~="completed"
+        or row.coPerformance.basis~="two-committed-native-source-dance-results"
+        or row.coPerformance.ownResultId~=ownResult.workId
+        or row.coPerformance.partnerResultId~=peerResult.workId then return nil end
+    return row
+end
+local function sameDancePairStart(left,right)
+    if type(left)~="table" or type(right)~="table" then return false end
+    for _,role in ipairs({"source","target"}) do
+        local a,b=left[role],right[role]
+        if type(a)~="table" or type(b)~="table"
+            or not finite(a.x) or not finite(a.y) or not finite(a.z)
+            or a.x~=b.x or a.y~=b.y or a.z~=b.z then return false end
+    end
+    return true
+end
+local function freezeDanceParticipation(processId)
+    local process=processOf(processId)
+    local proposal=process and proposalAt(process)
+    local terms=proposal and proposal.proposal and proposal.proposal.dance
+    if not process or process.kind~="leisure-dance" or not terms
+        or terms.originatorId~=process.originatorId or not identity(terms.partnerId)
+        or terms.partnerId==terms.originatorId or terms.sourceId~="LifestyleHobbies" then return false end
+    if storedDanceParticipation(process,terms,terms.originatorId)
+        and storedDanceParticipation(process,terms,terms.partnerId) then return true end
+    local response=responseAt(process,terms.partnerId)
+    local originChoice=terms.originatorChoice
+    local partnerChoice=response and response.terms and response.terms.danceChoice
+    if not response or response.response~="accept" or response.delivered~=true
+        or response.revision~=process.revision or not finite(response.deliveredAt)
+        or response.deliveredAt>nowHours() or not originChoice or not partnerChoice
+        or originChoice.actorId~=terms.originatorId or partnerChoice.actorId~=terms.partnerId
+        or originChoice.musicKey~=terms.musicKey or partnerChoice.musicKey~=terms.musicKey
+        or originChoice.role~=terms.originatorRole or partnerChoice.role~=terms.partnerRole
+        or not danceSameMusic(originChoice.heardMusic,partnerChoice.heardMusic) then return false end
+    local a=completedDancePart(process,terms,terms.originatorId,terms.partnerId,originChoice,"perform-originator")
+    local b=completedDancePart(process,terms,terms.partnerId,terms.originatorId,partnerChoice,"perform-partner")
+    if not a or not b or not sameDancePairStart(a.setup.before,b.setup.before) then return false end
+    if a.work.admittedAtHours<response.deliveredAt or b.work.admittedAtHours<response.deliveredAt
+        or a.work.admittedAtHours>b.setup.atHours or b.work.admittedAtHours>a.setup.atHours then return false end
+    local function privateReceipt(part,other,id,partnerId)
+        return {id="dance:"..process.id..":"..process.revision..":"..id,
+            actorId=id,processId=process.id,revision=process.revision,partnerId=partnerId,
+            sourceId=terms.sourceId,musicKey=terms.musicKey,role=part.choice.role,
+            purposeId=part.work.purposeId,workId=part.work.workId,sequence=part.work.sequence,
+            atHours=math.max(part.result.atHours,other.result.atHours),
+            before=part.before,after=part.after,
+            measurementAuthority=part.result.measurementAuthority,
+            coPerformance={status="completed",basis="two-committed-native-source-dance-results",
+                ownResultId=part.work.workId,partnerResultId=other.work.workId}}
+    end
+    if a.input.danceParticipation or b.input.danceParticipation then return false end
+    a.input.danceParticipation=privateReceipt(a,b,terms.originatorId,terms.partnerId)
+    b.input.danceParticipation=privateReceipt(b,a,terms.partnerId,terms.originatorId)
+    return true
+end
+function Org.danceParticipationFor(id,processId)
+    local process=processOf(processId)
+    local proposal=process and proposalAt(process)
+    local terms=proposal and proposal.proposal and proposal.proposal.dance
+    if not process or process.kind~="leisure-dance" or not terms then return nil end
+    return dataCopy(storedDanceParticipation(process,terms,id))
+end
+local function deliverDanceParticipation(processId)
+    local process=processOf(processId)
+    local proposal=process and proposalAt(process)
+    local terms=proposal and proposal.proposal and proposal.proposal.dance
+    local cognition=SAO.Cognition and SAO.Cognition.danceOutcome
+    if not terms or not cognition then return end
+    for _,id in ipairs({terms.originatorId,terms.partnerId}) do
+        if Org.danceParticipationFor(id,processId) then pcall(cognition,id,processId) end
+    end
+end
+function Org.consumeDance(id,processId,sequence)
+    local process=processOf(processId);local key=process and revisionKey(process.revision)
+    local input=process and process.privateInputs[id] and process.privateInputs[id][key]
+    local own=input and input.danceWork;local result=own and SAO.LeisureMusic.outcome(id,sequence)
+    if own and own.result and own.sequence==sequence and not result then
+        local proposal=proposalAt(process)
+        local terms=proposal and proposal.proposal and proposal.proposal.dance
+        if terms and storedDanceParticipation(process,terms,id) then
+            deliverDanceParticipation(processId);return true
+        end
+        return false
+    end
+    if not process or process.kind~="leisure-dance" or not own or own.sequence~=sequence or not result
+        or result.actorId~=id or result.workId~=own.workId or result.purposeId~=own.purposeId
+        or not result.sourceOffer or not result.sourceOffer.dance or result.sourceOffer.dance.processId~=processId
+        or result.sourceOffer.dance.revision~=own.revision or result.atHours<own.admittedAtHours
+        or result.atHours>nowHours() then return false end
+    if own.result then
+        local duplicate=own.result.workId==result.workId and own.result.sequence==sequence
+            and own.result.status==result.status and own.result.atHours==result.atHours
+        if duplicate and freezeDanceParticipation(processId) then deliverDanceParticipation(processId) end
+        return duplicate
+    end
+    local terms=proposalAt(process).proposal.dance
+    if result.status=="completed" and (not result.nativeProgress.danceReleased
+        or not result.nativeProgress.sourcePartnerCycle or result.atHours>terms.expiresAtHours) then return false end
+    if not Org.consumeProcedureResult({commitmentId=own.commitmentId,actorId=id,id=own.workId,
+        token="dance:performed",stepId=own.stepId,owner="SAO.LeisureMusic",status=result.status,at=result.atHours},DANCE) then return false end
+    own.result={actorId=id,workId=own.workId,sequence=sequence,status=result.status,atHours=result.atHours}
+    if freezeDanceParticipation(processId) then deliverDanceParticipation(processId) end
     return true
 end
 

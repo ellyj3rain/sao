@@ -1,0 +1,3 @@
+IG_UI_JP = {
+    IGUI_NM_NewMusic = "新曲",
+}

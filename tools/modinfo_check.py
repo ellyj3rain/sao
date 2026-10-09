@@ -56,24 +56,51 @@ FILE_KEYS = {"poster", "icon", "javajarfile"}
 
 # Supported, absent, and worth saying so.
 WORTH_HAVING = {"poster", "icon"}
+ADDITIVE = {"pack", "tiledef"}
 
 
-def parse(path):
-    """key(lowercased) -> (original key, value, line number)."""
+def parse_text(text):
+    """Keep each loader entry; packs and tile definitions are additive."""
     out = {}
-    for n, line in enumerate(
-            path.read_text(encoding="utf-8", errors="ignore")
-            .splitlines(), 1):
+    for n, line in enumerate(text.splitlines(), 1):
         s = line.strip()
         if not s or s.startswith("#") or "=" not in s:
             continue
         k, v = s.split("=", 1)
-        out[k.strip().lower()] = (k.strip(), v.strip(), n)
+        out.setdefault(k.strip().lower(), []).append((k.strip(), v.strip(), n))
     return out
 
 
+def parse(path):
+    return parse_text(path.read_text(encoding="utf-8", errors="ignore"))
+
+
+def shared_value_agrees(key, root, version):
+    # ChooseGameInfo's loop calls Mod.addPack/addTileDef for every line.
+    # A version directory can register additional material while preserving
+    # every common root registration. Scalar metadata must still agree.
+    if key in ADDITIVE:
+        return {entry[1] for entry in root} <= {entry[1] for entry in version}
+    return root[-1][1] == version[-1][1]
+
+
+def reader_controls():
+    root = parse_text('id=SAO\npack=Horse\ntiledef=Horse 2026\n')
+    version = parse_text('id=SAO\npack=Horse\npack=Arcade\ntiledef=Horse 2026\ntiledef=Arcade 1337\n')
+    assert len(version['pack']) == 2
+    assert shared_value_agrees('pack', root['pack'], version['pack'])
+    assert not shared_value_agrees('pack', root['pack'], version['pack'][1:])
+    assert not shared_value_agrees('tiledef', root['tiledef'], [('tiledef', 'Horse 2027', 1)])
+    assert not shared_value_agrees('id', root['id'], [('id', 'other', 1)])
+    return 5
+
+
 def main():
-    infos = sorted(MOD.rglob("mod.info"))
+    reader_controls()
+    # The loader reads the mod root and selected version directory. Captured
+    # source manifests under media are retained provenance, not mod entries.
+    infos = sorted(p for p in [MOD / "mod.info", *(d / "mod.info" for d in MOD.iterdir() if d.is_dir())]
+                   if p.is_file())
     if not infos:
         print("19) mod.info: MISSING - the game would not list the mod")
         return 1
@@ -85,7 +112,8 @@ def main():
         rel = str(path.relative_to(ROOT)).replace("\\", "/")
         keys = parse(path)
         parsed[rel] = keys
-        for low, (orig, val, n) in keys.items():
+        for low, entries in keys.items():
+          for orig, val, n in entries:
             if low not in VALID:
                 unknown.append(f"{rel}:{n}  {orig}= is read by neither "
                                "parser and is silently ignored")
@@ -102,14 +130,17 @@ def main():
                         "does not exist in the shipped tree")
 
     if len(parsed) > 1:
-        names = sorted(parsed)
-        base = parsed[names[0]]
-        for other in names[1:]:
-            for low, (orig, val, n) in parsed[other].items():
-                if low in base and base[low][1] != val:
+        base_name = 'mod/mod.info' if 'mod/mod.info' in parsed else sorted(parsed)[0]
+        base = parsed[base_name]
+        for other in sorted(set(parsed) - {base_name}):
+            for key in ADDITIVE & set(base) - set(parsed[other]):
+                disagree.append(f"{other} omits the root {key} registrations")
+            for low, entries in parsed[other].items():
+                orig, val, n = entries[-1]
+                if low in base and not shared_value_agrees(low, base[low], entries):
                     disagree.append(
-                        f"{orig}: {names[0]} says {base[low][1]!r}, "
-                        f"{other} says {val!r}")
+                        f"{orig}: {base_name} says {[v[1] for v in base[low]]!r}, "
+                        f"{other} says {[v[1] for v in entries]!r}")
 
     bad = unknown or absent_files or disagree
     if bad:

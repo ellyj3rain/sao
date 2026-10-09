@@ -1,0 +1,12 @@
+{
+    "IGUI_BenchPress": "BenchPress",
+    "IGUI_BenchPress_Tooltip": "Делать жим лежа",
+    "IGUI_Treadmill": "Treadmill",
+    "IGUI_Treadmill_Tooltip": "Тренироваться на беговой дорожке",
+    "IGUI_need_barbell": "Мне нужна штанга или две гантели, чтобы сделать это упражнение",
+    "IGUI_low_endurance": "Я слишком измотан",
+    "IGUI_pain": "Мне слишком больно",
+    "IGUI_heavy": "Слишком тяжелая, чтобы использовать ее прямо сейчас",
+    "IGUI_treadmill_needs_electricity": "Беговой дорожке нужно электричество, чтобы работать",
+    "IGUI_bench_rotate_bug": "Баг: пожалуйста, поверните и/или переместите скамью!"
+}

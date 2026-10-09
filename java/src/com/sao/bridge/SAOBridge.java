@@ -9,6 +9,9 @@ import com.sao.engine.SAOMovement;
 import com.sao.engine.SAORouteState;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import se.krka.kahlua.vm.LuaClosure;
 import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
 import zombie.characters.SurvivorDesc;
@@ -53,6 +56,156 @@ public final class SAOBridge {
     private final com.sao.engine.SAOCoordinationWorker coordinationWorker =
         new com.sao.engine.SAOCoordinationWorker();
 
+    /** Private save-local Week One transaction state; callable by checked server Lua. */
+    public String weekOneRetirementPrepare(String token, String personId,
+            double id, double born, String accountKey, String playerKey,
+            double descriptorId, String forename, String surname,
+            String world, String gameMode) {
+        return com.sao.engine.SAOWeekOnePrivateStore.retirement("prepare",
+            token, personId, id, born, accountKey, playerKey, descriptorId,
+            forename, surname, world, gameMode);
+    }
+
+    public String weekOneRetirementFinish(String token, String personId,
+            double id, double born, String accountKey, String playerKey,
+            double descriptorId, String forename, String surname,
+            String world, String gameMode) {
+        return com.sao.engine.SAOWeekOnePrivateStore.retirement("finish",
+            token, personId, id, born, accountKey, playerKey, descriptorId,
+            forename, surname, world, gameMode);
+    }
+
+    public String weekOneRetirementStatus(String token, String personId,
+            double id, double born, String accountKey, String playerKey,
+            double descriptorId, String forename, String surname,
+            String world, String gameMode) {
+        return com.sao.engine.SAOWeekOnePrivateStore.retirement("status",
+            token, personId, id, born, accountKey, playerKey, descriptorId,
+            forename, surname, world, gameMode);
+    }
+
+    public String weekOneReinforcementReserve(String source, String cohort,
+            double count, String accountKey, String playerKey,
+            double descriptorId, String forename, String surname,
+            String world, String gameMode) {
+        return com.sao.engine.SAOWeekOnePrivateStore.reinforcement("reserve",
+            source, cohort, count, accountKey, playerKey, descriptorId,
+            forename, surname, world, gameMode);
+    }
+
+    public String weekOneReinforcementStatus(String source, String cohort,
+            double count, String accountKey, String playerKey,
+            double descriptorId, String forename, String surname,
+            String world, String gameMode) {
+        return com.sao.engine.SAOWeekOnePrivateStore.reinforcement("status",
+            source, cohort, count, accountKey, playerKey, descriptorId,
+            forename, surname, world, gameMode);
+    }
+
+    public String weekOneReinforcementRelease(String source, String cohort,
+            double count, String accountKey, String playerKey,
+            double descriptorId, String forename, String surname,
+            String world, String gameMode) {
+        return com.sao.engine.SAOWeekOnePrivateStore.reinforcement("release",
+            source, cohort, count, accountKey, playerKey, descriptorId,
+            forename, surname, world, gameMode);
+    }
+
+    public String weekOneScenarioReserve(String source, String cohort,
+            double ordinal, String accountKey, String playerKey,
+            double descriptorId, String forename, String surname,
+            String world, String gameMode) {
+        return com.sao.engine.SAOWeekOnePrivateStore.scenario("reserve",
+            source, cohort, ordinal, accountKey, playerKey, descriptorId,
+            forename, surname, world, gameMode);
+    }
+
+    public String weekOneScenarioStatus(String source, String cohort,
+            double ordinal, String accountKey, String playerKey,
+            double descriptorId, String forename, String surname,
+            String world, String gameMode) {
+        return com.sao.engine.SAOWeekOnePrivateStore.scenario("status",
+            source, cohort, ordinal, accountKey, playerKey, descriptorId,
+            forename, surname, world, gameMode);
+    }
+
+    public String weekOneScenarioRelease(String source, String cohort,
+            double ordinal, String accountKey, String playerKey,
+            double descriptorId, String forename, String surname,
+            String world, String gameMode) {
+        return com.sao.engine.SAOWeekOnePrivateStore.scenario("release",
+            source, cohort, ordinal, accountKey, playerKey, descriptorId,
+            forename, surname, world, gameMode);
+    }
+
+    /** Server-verified source body to private owner, returning an opaque public ref. */
+    public String weekOneOwnerReceiptPut(String source, double brainId,
+            double born, String accountKey, String playerKey,
+            double descriptorId, String forename, String surname,
+            String world, String gameMode) {
+        return com.sao.engine.SAOWeekOnePrivateStore.ownerReceipt("put",
+            source, brainId, born, accountKey, playerKey, descriptorId,
+            forename, surname, world, gameMode);
+    }
+
+    public String weekOneOwnerReceiptGet(String source, double brainId,
+            double born, String accountKey, String playerKey,
+            double descriptorId, String forename, String surname,
+            String world, String gameMode) {
+        return com.sao.engine.SAOWeekOnePrivateStore.ownerReceipt("get",
+            source, brainId, born, accountKey, playerKey, descriptorId,
+            forename, surname, world, gameMode);
+    }
+
+    /** Bounded source-table keys; Lua resolves each key against the current table. */
+    public se.krka.kahlua.vm.KahluaTable weekOnePollEntries(Object table,
+            String stream, int limit) {
+        try {
+            return com.sao.engine.SAOWeekOnePollCursor.entries(table, stream, limit);
+        } catch (Throwable error) {
+            SAOAgent.log("weekOnePollEntries refused: " + error);
+            return null;
+        }
+    }
+
+    public boolean weekOnePollReset(String stream) {
+        try { return com.sao.engine.SAOWeekOnePollCursor.reset(stream); }
+        catch (Throwable error) { return false; }
+    }
+
+    /**
+     * Find the one installed Week One hit listener that still owns the
+     * unqualified Shahid explosion.  Lua deliberately cannot introspect a
+     * closure's prototype, so the compatibility patch asks this bridge for
+     * the exact callback object before removing it from OnHitZombie.  The
+     * patch pins BWOPlayer.lua's bytes; this runtime check refuses a changed
+     * callback shape or any ambiguous registration.
+     */
+    public LuaClosure weekOneSourceHitCallback() {
+        try {
+            var events = new ArrayList<zombie.Lua.Event>();
+            var byName = new HashMap<String, zombie.Lua.Event>();
+            zombie.Lua.LuaEventManager.getEvents(events, byName);
+            var event = byName.get("OnHitZombie");
+            if (event == null || event.callbacks == null) return null;
+            LuaClosure found = null;
+            for (var callback : event.callbacks) {
+                if (callback == null || callback.prototype == null) continue;
+                var source = callback.prototype;
+                if (!"onHitZombie".equals(source.name) || source.lines == null
+                        || source.lines.length == 0 || source.lines[0] != 319) continue;
+                if (source.filename != null && !source.filename.replace('\\', '/')
+                        .endsWith("/BanditsWeekOne/42.20/media/lua/client/BWOPlayer.lua")) continue;
+                if (found != null) return null;
+                found = callback;
+            }
+            return found;
+        } catch (Throwable error) {
+            SAOAgent.log("weekOneSourceHitCallback refused: " + error);
+            return null;
+        }
+    }
+
     /**
      * Drop projections owned by the Lua/world environment that just ended.
      * Durable person records and transaction journals live in ModData; none of
@@ -64,12 +217,17 @@ public final class SAOBridge {
         drives.clear();
         crossedDrives.clear();
         coordinationWorker.resetRuntimeForWorld();
+        com.sao.engine.SAOWeekOnePrivateStore.resetRuntimeForWorld();
+        com.sao.engine.SAOWeekOnePollCursor.resetRuntimeForWorld();
         com.sao.engine.SAONeeds.resetRuntimeForWorld();
         com.sao.engine.SAOCooking.reset();
         com.sao.engine.SAOReturnBody.resetRuntimeForWorld();
         com.sao.engine.SAOWorldSources.resetRuntimeForWorld();
         com.sao.engine.SAOPerceptionScanner.resetRuntimeForWorld();
         com.sao.engine.SAOAnimalCare.resetRuntimeForWorld();
+        com.sao.engine.SAOTabletop.resetRuntimeForWorld();
+        com.sao.engine.SAORadioPlayback.resetRuntimeForWorld();
+        com.sao.engine.SAODanceCycle.resetRuntimeForWorld();
     }
 
     /** Exact native-bundle standing.  Lua refuses any hash other than C82's
@@ -1912,6 +2070,15 @@ public final class SAOBridge {
         catch (Throwable error) { SAOAgent.log("return capture refused: " + error); return ""; }
     }
 
+    public Object captureWeekOne(Object source, Object destination, Object brain) {
+        if (!(source instanceof zombie.characters.IsoZombie zombie)
+                || !(destination instanceof SAOIsoPlayerShell shell)
+                || !(brain instanceof se.krka.kahlua.vm.KahluaTable sourceBrain)) return "";
+        try { return SAODurableText.pack(com.sao.engine.SAONativeSnapshot.captureWeekOne(
+            zombie, shell, sourceBrain)); }
+        catch (Throwable error) { SAOAgent.log("Week One capture refused: " + error); return ""; }
+    }
+
     public Object captureReturnLiving(Object object) {
         if (!(object instanceof SAOIsoPlayerShell shell)) return "";
         try { return SAODurableText.pack(com.sao.engine.SAONativeSnapshot.captureReturnLiving(shell)); }
@@ -2546,16 +2713,244 @@ public final class SAOBridge {
         }
     }
 
+    /** Native audible rows only, acquired on the person's observation call. */
+    public String perceiveAudibleSounds(Object object) {
+        try {
+            if (!(object instanceof zombie.characters.IsoGameCharacter who)) return "";
+            return com.sao.engine.SAOPerceptionScanner.scanAudibleSounds(who);
+        } catch (Throwable throwable) {
+            SAOAgent.log("perceiveAudibleSounds threw: " + throwable);
+            return "";
+        }
+    }
+
     /** Exact native emission, called by Gesture's currently owned instrument action. */
     public se.krka.kahlua.vm.KahluaTable bindInstrumentOccurrence(Object body, Object sound, String workId) {
         try { return com.sao.engine.SAOWorldSoundPulses.bindInstrument(body, sound, workId); }
         catch (Throwable error) { return null; }
     }
 
+    /** BanditsWeekOne keeps the performance actuator; this binds its exact audible occurrence. */
+    public se.krka.kahlua.vm.KahluaTable bindWeekOnePerformanceOccurrence(Object body,
+            Object sound, String actorId, double brainId, double born,
+            String soundId, double soundHandle) {
+        try { return com.sao.engine.SAOWorldSoundPulses.bindWeekOnePerformance(
+            body, sound, actorId, brainId, born, soundId, soundHandle); }
+        catch (Throwable error) { return null; }
+    }
+
+    public boolean renewWeekOnePerformanceOccurrence(Object body, String pulseId) {
+        try { return com.sao.engine.SAOWorldSoundPulses.renewWeekOnePerformance(body, pulseId); }
+        catch (Throwable error) { return false; }
+    }
+
+    public boolean revokeWeekOnePerformanceOccurrence(Object body, String pulseId) {
+        try { return com.sao.engine.SAOWorldSoundPulses.revokeWeekOnePerformance(body, pulseId); }
+        catch (Throwable error) { return false; }
+    }
+
+    /** Week One reads an exact, freshly visible private sight referent. */
+    public String weekOneObservedTarget(Object object, String kind, String key) {
+        try {
+            return object instanceof zombie.characters.IsoZombie zombie
+                ? com.sao.engine.SAOPerceptionScanner.weekOneObservedTarget(zombie, kind, key)
+                : "REFUSED\tbody";
+        } catch (Throwable error) {
+            SAOAgent.log("weekOneObservedTarget threw: " + error);
+            return "REFUSED\tnative";
+        }
+    }
+
+    /**
+     * A hit callback supplies a native attacker object. Match that same
+     * object against this person's own last scan and current line of sight;
+     * two actors standing on one tile may never borrow one another's belief.
+     */
+    public boolean weekOneObservedAttacker(Object observerObject,
+            Object attackerObject, String kind, String key) {
+        try {
+            return observerObject instanceof zombie.characters.IsoZombie observer
+                && attackerObject instanceof IsoGameCharacter attacker
+                && ("person".equals(kind) || "zombie".equals(kind))
+                && com.sao.engine.SAOPerceptionScanner.observedCombatTarget(
+                    observer, kind, key) == attacker;
+        } catch (Throwable error) {
+            SAOAgent.log("weekOneObservedAttacker refused: " + error);
+            return false;
+        }
+    }
+
+    /** Current native hearing for one exact stamped Week One proxy listening
+     * to the actual player. Lua retains person judgment and speech delivery. */
+    public boolean weekOneCanHearPlayer(Object playerObject, Object bodyObject,
+            String personId, Object brainId, Object born) {
+        try {
+            return playerObject instanceof zombie.characters.IsoPlayer player
+                && bodyObject instanceof zombie.characters.IsoZombie body
+                && com.sao.engine.SAOPerceptionScanner.weekOneCanHearPlayer(
+                    player, body, personId, brainId, born);
+        } catch (Throwable error) {
+            SAOAgent.log("weekOneCanHearPlayer refused: " + error);
+            return false;
+        }
+    }
+
+    /** Read the native action state after the game's shout/horn handler ran.
+     * Source chat's quiet tokens and key codes are not occurrence evidence. */
+    public boolean weekOneNativeSignalActive(Object playerObject, String kind) {
+        try {
+            if (!(playerObject instanceof IsoPlayer player)
+                    || player.isDead() || player.isAsleep()) return false;
+            boolean current = false;
+            for (IsoPlayer slot : IsoPlayer.players) {
+                if (slot == player) { current = true; break; }
+            }
+            if (!current) return false;
+            if ("callout".equals(kind)) return player.callOut;
+            if (!"horn".equals(kind)) return false;
+            var vehicle = player.getVehicle();
+            return vehicle != null && vehicle.isDriver(player)
+                && vehicle.getScript() != null
+                && vehicle.getScript().getSounds() != null
+                && vehicle.getScript().getSounds().hornEnable
+                && vehicle.isHornSounding();
+        } catch (Throwable error) {
+            return false;
+        }
+    }
+
+    /** Pulse emitted by the installed Callout() invocation. A held callOut
+     * boolean or a same-source sound emitted elsewhere has no identifier. */
+    public String weekOneNativeCalloutOccurrence(Object playerObject) {
+        try {
+            return playerObject instanceof IsoPlayer player
+                && weekOneNativeSignalActive(player, "callout")
+                ? com.sao.engine.SAOWorldSoundPulses.nativeCalloutId(player) : null;
+        } catch (Throwable error) {
+            return null;
+        }
+    }
+
+    /** One current native sound from the actual player or driven vehicle,
+     * heard by the exact still-stamped Week One body. This establishes sound
+     * contact only; neither a word nor a request is inferred from it. */
+    public boolean weekOneNativeSignalHeard(Object playerObject, Object bodyObject,
+            String personId, Object brainId, Object born, String kind) {
+        try {
+            if (!(playerObject instanceof IsoPlayer player)
+                    || !(bodyObject instanceof zombie.characters.IsoZombie body)
+                    || !weekOneNativeSignalActive(player, kind)
+                    || personId == null || !personId.startsWith("bwo-")
+                    || !(brainId instanceof Number brainNumber)
+                    || !(born instanceof Number bornNumber)
+                    || !Double.isFinite(brainNumber.doubleValue())
+                    || brainNumber.doubleValue() % 1.0 != 0.0
+                    || !Double.isFinite(bornNumber.doubleValue())
+                    || body.getPersistentOutfitID() != brainNumber.longValue()
+                    || !body.getVariableBoolean("Bandit") || body.isDead()
+                    || body.isAsleep() || body.hasTrait(zombie.scripting.objects.CharacterTrait.DEAF)
+                    || body.getModData() == null
+                    || !"BanditsWeekOne".equals(body.getModData().rawget("SAOWeekOneOrigin"))
+                    || !personId.equals(body.getModData().rawget("SAOWeekOnePersonId"))
+                    || !(body.getModData().rawget("SAOWeekOneBrainId") instanceof Number markedBrain)
+                    || markedBrain.doubleValue() != brainNumber.doubleValue()
+                    || !(body.getModData().rawget("SAOWeekOneBorn") instanceof Number markedBorn)
+                    || Double.compare(markedBorn.doubleValue(), bornNumber.doubleValue()) != 0
+                    || player.getCell() == null || body.getCell() != player.getCell()
+                    || player.getCurrentSquare() == null || body.getCurrentSquare() == null
+                    || player.getCell().getGridSquare(body.getCurrentSquare().getX(),
+                        body.getCurrentSquare().getY(), body.getCurrentSquare().getZ())
+                        != body.getCurrentSquare()) return false;
+            float distanceModifier = body.getHearDistanceModifier();
+            float weather = body.getWeatherHearingMultiplier();
+            if (!Float.isFinite(distanceModifier) || distanceModifier <= 0
+                    || !Float.isFinite(weather) || weather <= 0) return false;
+            float hearing = Math.min(1, 1 / distanceModifier) * Math.min(1, weather);
+            if (!Float.isFinite(hearing) || hearing <= 0) return false;
+            var manager = zombie.WorldSoundManager.instance;
+            if (manager == null || manager.soundList == null) return false;
+            var vehicle = "horn".equals(kind) ? player.getVehicle() : null;
+            var calloutSound = "callout".equals(kind)
+                ? com.sao.engine.SAOWorldSoundPulses.nativeCalloutSound(player) : null;
+            if ("callout".equals(kind) && calloutSound == null) return false;
+            for (var sound : manager.soundList) {
+                if (sound == null || sound.life <= 0) continue;
+                if (vehicle != null) {
+                    if (sound.source != vehicle || sound.radius != 150) continue;
+                } else if ("callout".equals(kind)) {
+                    if (sound != calloutSound || sound.source != player || sound.radius != 6
+                            && sound.radius != 18 && sound.radius != 30
+                            && sound.radius != 90) continue;
+                } else return false;
+                if (Math.abs(body.getZ() - sound.z) >= .5f) continue;
+                double dx = body.getX() - (sound.x + .5);
+                double dy = body.getY() - (sound.y + .5);
+                double reach = sound.radius * hearing;
+                if (dx * dx + dy * dy > reach * reach) continue;
+                var origin = player.getCell().getGridSquare(sound.x, sound.y, sound.z);
+                if (origin == null) continue;
+                var path = zombie.iso.LosUtil.lineClear(player.getCell(),
+                    origin.getX(), origin.getY(), origin.getZ(),
+                    body.getCurrentSquare().getX(), body.getCurrentSquare().getY(),
+                    body.getCurrentSquare().getZ(), false);
+                if (path == zombie.iso.LosUtil.TestResults.Clear
+                        || path == zombie.iso.LosUtil.TestResults.ClearThroughOpenDoor) return true;
+            }
+            return false;
+        } catch (Throwable error) {
+            return false;
+        }
+    }
+
+    /** Use-time read of an actual local feature for an SAO-owned Week One role. */
+    public boolean weekOneObservedFeature(Object observerObject,
+            Object candidate, String kind) {
+        try {
+            return observerObject instanceof zombie.characters.IsoZombie observer
+                && com.sao.engine.SAOPerceptionScanner.weekOneObservedFeature(
+                    observer, candidate, kind);
+        } catch (Throwable error) {
+            SAOAgent.log("weekOneObservedFeature threw: " + error);
+            return false;
+        }
+    }
+
+    public String weekOneObservedCareTarget(Object observerObject, String name) {
+        try {
+            return observerObject instanceof zombie.characters.IsoZombie observer
+                ? com.sao.engine.SAOPerceptionScanner.weekOneObservedCareTarget(observer, name)
+                : "REFUSED\tbody";
+        } catch (Throwable error) {
+            SAOAgent.log("weekOneObservedCareTarget threw: " + error);
+            return "REFUSED\tnative";
+        }
+    }
+
+    /** Complete one physically supplied bandage after current native sight. */
+    public String weekOneBandageObservedPatient(Object observerObject, String name) {
+        try {
+            return observerObject instanceof zombie.characters.IsoZombie observer
+                ? com.sao.engine.SAOPerceptionScanner.weekOneBandageObservedPatient(
+                    observer, name)
+                : "REFUSED\tbody";
+        } catch (Throwable error) {
+            SAOAgent.log("weekOneBandageObservedPatient threw: " + error);
+            return "REFUSED\tnative";
+        }
+    }
+
     /** Hearing and visible-emitter acquisition; never lists other people's listeners. */
     public se.krka.kahlua.vm.KahluaTable claimInstrumentHearing(Object observer, Object performer,
             String workId, String pulseId) {
         try { return com.sao.engine.SAOWorldSoundPulses.claimInstrument(observer, performer, workId, pulseId); }
+        catch (Throwable error) { return null; }
+    }
+
+    /** One exact Week One sound enters this observer's private hearing only. */
+    public se.krka.kahlua.vm.KahluaTable claimWeekOnePerformanceHearing(Object observer,
+            Object performer, String actorId, double brainId, double born, String pulseId) {
+        try { return com.sao.engine.SAOWorldSoundPulses.claimWeekOnePerformance(
+            observer, performer, actorId, brainId, born, pulseId); }
         catch (Throwable error) { return null; }
     }
 
@@ -3706,6 +4101,136 @@ public final class SAOBridge {
             SAOAgent.log("visibleGroundSources threw: " + throwable);
             return null;
         }
+    }
+
+    public Object leisureMaterialRequirements(Object object,String itemType) {
+        try { return object instanceof SAOIsoPlayerShell body
+            ? com.sao.engine.SAOLeisureMaterials.requirements(body,itemType) : null;
+        } catch(Throwable unavailable) { return null; }
+    }
+
+    public Object resolveObservedObject(Object object, String key, String runtimeInstance) {
+        try { return object instanceof SAOIsoPlayerShell body
+            ? com.sao.engine.SAOConceptObservation.resolveVisibleObject(body,key,runtimeInstance) : null;
+        } catch (Throwable error) { return null; }
+    }
+    public Object resolveLeisureAudioSource(Object object,String key,String runtimeInstance) {
+        try { return object instanceof SAOIsoPlayerShell body
+            ? com.sao.engine.SAOLeisureAudioAccess.resolve(body,key,runtimeInstance) : null;
+        } catch(Throwable unavailable) { return null; }
+    }
+    public boolean canHearLeisureObject(Object object,String key,String runtimeInstance,double range) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell body)||!Double.isFinite(range)||range<=0) return false;
+            var target=com.sao.engine.SAOConceptObservation.resolveVisibleObject(body,key,runtimeInstance);
+            return target!=null&&com.sao.engine.SAOPerceptionScanner.canHearSourceNow(body,target.getSquare(),(float)range);
+        } catch(Throwable unavailable) { return false; }
+    }
+    public boolean canHearLeisureSource(Object object,String key,String runtimeInstance,double range) {
+        try { return object instanceof SAOIsoPlayerShell body && Double.isFinite(range)
+            && com.sao.engine.SAOLeisureAudioAccess.canHear(body,key,runtimeInstance,(float)range);
+        } catch(Throwable unavailable) { return false; }
+    }
+    public boolean registerNativeRadioWork(Object object,String workId,Object source,String sourceKey){
+        try { return com.sao.agent.SAORadioPlaybackWeave.ready()&&object instanceof SAOIsoPlayerShell body
+            &&com.sao.engine.SAORadioPlayback.register(body,workId,source,sourceKey);
+        } catch (Throwable unavailable) {
+            SAOAgent.log("registerNativeRadioWork threw: " + unavailable);
+            return false;
+        }
+    }
+    public boolean registerNativeDanceCycle(Object object,String workId,Object action,String clip){
+        try {return com.sao.agent.SAODanceCycleWeave.ready()&&object instanceof SAOIsoPlayerShell body
+            &&com.sao.engine.SAODanceCycle.register(body,workId,action,clip);
+        }catch(Throwable unavailable){return false;}
+    }
+    public boolean nativeDanceCycleCompletionReady(){return com.sao.agent.SAODanceCycleWeave.ready();}
+    public Object observeNativeDanceCycle(Object object,String workId){
+        try {return object instanceof SAOIsoPlayerShell body
+            ?com.sao.engine.SAODanceCycle.observe(body,workId):null;
+        }catch(Throwable unavailable){return null;}
+    }
+    public boolean nativeDanceCycleCurrent(Object object,String workId,double sequence){
+        try {return object instanceof SAOIsoPlayerShell body&&Double.isFinite(sequence)
+            &&sequence>0&&sequence==Math.rint(sequence)
+            &&com.sao.engine.SAODanceCycle.eventCurrent(body,workId,(long)sequence);
+        }catch(Throwable unavailable){return false;}
+    }
+    public boolean unregisterNativeDanceCycle(Object object,String workId){
+        try {return object instanceof SAOIsoPlayerShell body
+            &&com.sao.engine.SAODanceCycle.unregister(body,workId);
+        }catch(Throwable unavailable){return false;}
+    }
+    public boolean nativeDanceCycleCompletionCurrent(Object object,String workId,double sequence){
+        try {return object instanceof SAOIsoPlayerShell body&&Double.isFinite(sequence)
+            &&sequence>0&&sequence==Math.rint(sequence)
+            &&com.sao.engine.SAODanceCycle.completionCurrent(body,workId,(long)sequence);
+        }catch(Throwable unavailable){return false;}
+    }
+    public boolean sameNativeLuaSourceFunction(Object loaded,Object audited){
+        return com.sao.engine.SAOLuaSourceIdentity.same(loaded,audited);
+    }
+    public boolean nativeLuaSourceFunctionUsesEnvironment(Object loaded,Object expected){
+        return com.sao.engine.SAOLuaSourceIdentity.usesEnvironment(loaded,expected);
+    }
+    public boolean registerNativeRadioWork(Object object,String workId,Object source,String sourceKey,double countyHours){
+        try { return Double.isFinite(countyHours)&&com.sao.agent.SAORadioPlaybackWeave.ready()
+            &&object instanceof SAOIsoPlayerShell body
+            &&com.sao.engine.SAORadioPlayback.register(body,workId,source,sourceKey,countyHours);
+        } catch (Throwable unavailable) {
+            SAOAgent.log("registerNativeRadioWork threw: " + unavailable);
+            return false;
+        }
+    }
+    public Object tickNativeRadioWork(Object object,String workId){
+        try {return com.sao.agent.SAORadioPlaybackWeave.ready()&&object instanceof SAOIsoPlayerShell body
+            ?com.sao.engine.SAORadioPlayback.tick(body,workId):null;
+        }catch(Throwable unavailable){return null;}
+    }
+    public boolean nativeRadioPlaybackEventCurrent(Object object,String workId,double sequence,Object source){
+        try {return object instanceof SAOIsoPlayerShell body&&Double.isFinite(sequence)
+            &&sequence>0&&sequence==Math.rint(sequence)
+            &&com.sao.engine.SAORadioPlayback.eventCurrent(body,workId,(long)sequence,source);
+        }catch(Throwable unavailable){return false;}
+    }
+    public boolean unregisterNativeRadioWork(Object object,String workId){
+        return object instanceof SAOIsoPlayerShell body
+            &&com.sao.engine.SAORadioPlayback.unregister(body,workId);
+    }
+    public Object nativeRadioPlaybackEvents(Object object,String workId,double afterSequence){
+        try {return object instanceof SAOIsoPlayerShell body&&Double.isFinite(afterSequence)
+            &&afterSequence>=0&&afterSequence==Math.rint(afterSequence)
+            ?com.sao.engine.SAORadioPlayback.events(body,workId,(long)afterSequence):null;
+        }catch(Throwable unavailable){return null;}
+    }
+    public String initFitnessExerciseDefinitions(Object object,Object definitions) {
+        try { return object instanceof SAOIsoPlayerShell body
+            ? com.sao.engine.SAOFitnessDefinitions.initialize(body,definitions) : "unavailable";
+        } catch (Throwable error) { return "unavailable"; }
+    }
+    public Object nativeLeisureActionSource(String name) {
+        try { return com.sao.engine.SAOLeisureActionSource.read(name); }
+        catch (Throwable error) { return null; }
+    }
+    public Object nativeTabletopAffordance(Object object,Object item,String kind) {
+        try { return object instanceof SAOIsoPlayerShell body && item instanceof zombie.inventory.InventoryItem owned
+            ? com.sao.engine.SAOTabletop.affordance(body,owned,kind) : null;
+        } catch (Throwable error) { return null; }
+    }
+    public Object nativeTabletopComplete(Object object,Object item,String kind,String workId) {
+        try { return object instanceof SAOIsoPlayerShell body && item instanceof zombie.inventory.InventoryItem owned
+            ? com.sao.engine.SAOTabletop.complete(body,owned,kind,workId) : null;
+        } catch (Throwable error) { return null; }
+    }
+    public boolean fitnessDefinitionsInitialized(Object object) {
+        try { return object instanceof SAOIsoPlayerShell body
+            && com.sao.engine.SAOFitnessDefinitions.initialized(body);
+        } catch (Throwable error) { return false; }
+    }
+    public double fitnessExerciseXpModifier(Object object,String name) {
+        try { return object instanceof SAOIsoPlayerShell body
+            ? com.sao.engine.SAOFitnessDefinitions.xpModifier(body,name) : Double.NaN;
+        } catch (Throwable error) { return Double.NaN; }
     }
 
     /** Visible holder identities, with contents left private until inspection. */

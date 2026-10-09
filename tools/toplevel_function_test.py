@@ -37,37 +37,81 @@ TOK = re.compile(r"\b(?:function|then|do|repeat|end|until|elseif)\b")
 
 
 def strip(src):
-    src = LONGSTR.sub('""', src)
-    out = []
-    for line in src.splitlines():
-        line = STR1.sub('""', line)
-        line = STR2.sub("''", line)
-        out.append(COMMENT.sub("", line))
-    return out
+    # Preserve line positions while removing every Lua comment/string form,
+    # including --[=[ ... ]=] and escaped quotes inside short strings.
+    from lua_read import strip_lua
+    return strip_lua(src).splitlines()
+
+
+def function_sites(source, source_factories=()):
+    blocks, sites, swallow_do = [], [], False
+    for number, line in enumerate(strip(source), 1):
+        if re.match(r'function\s', line):
+            sites.append((number, len(blocks), len(blocks) == 1 and blocks[0] in ('iife', 'source-factory')))
+        for match in re.finditer(r'\b(function|if|for|while|do|repeat|end|until)\b', line):
+            word = match.group()
+            if word in ('for', 'while'):
+                blocks.append(word)
+                swallow_do = True
+            elif word == 'do':
+                if swallow_do:
+                    swallow_do = False
+                else:
+                    blocks.append(word)
+            elif word == 'function':
+                # An explicit immediately invoked constructor intentionally
+                # declares its source-derived methods inside its factory.
+                factory = re.search(r'local\s+\w+\s*=\s*\(\s*$', line[:match.start()])
+                named = re.search(r'local\s+function\s+(\w+)\s*\(', line)
+                source_factory = named and named.group(1) in source_factories
+                blocks.append('iife' if factory else 'source-factory' if source_factory else word)
+            elif word in ('if', 'repeat'):
+                # elseif is a whole token and does not match this branch.
+                blocks.append(word)
+            elif blocks:
+                blocks.pop()
+            else:
+                blocks.append('unmatched-end')
+    return sites, len(blocks)
+
+
+def reader_controls():
+    # The motivating missing end must still swallow the next module function.
+    sites, depth = function_sites('function P.tell()\nfunction P.report()\nend\n')
+    assert (2, 1, False) in sites and depth == 1
+    good = 'local Core = (function()\nfunction Core:run()\nend\nreturn Core\nend)()\n'
+    assert function_sites(good) == ([(2, 1, True)], 0)
+    broken = good.replace('function Core:run()\nend', 'function Core:run()\n')
+    assert function_sites(broken)[1] == 1
+    commented = '--[=[ function P.bad() ]=]\nfunction P.good()\nend\n'
+    assert function_sites(commented) == ([(2, 0, False)], 0)
+    return 4
 
 
 def main():
+    from source_scanner_baseline import Baseline
+    baseline = Baseline()
+    reader_controls()
     faults = []
     checked = 0
     for path in sorted(LUA.rglob("*.lua")):
-        depth = 0
         checked += 1
-        for number, line in enumerate(strip(
-                path.read_text(encoding="utf-8", errors="ignore")), 1):
-            if depth == 0 and re.match(r"function\s", line) is None:
-                pass
-            if re.match(r"function\s", line) and depth > 0:
+        raw = path.read_text(encoding="utf-8", errors="ignore")
+        # The qualified Yoga adapter instantiates its renamed source class
+        # through a named factory. Its methods deliberately live in that body.
+        factories = ()
+        consumer = baseline._consumers.get(str(path.relative_to(ROOT)).replace('\\', '/'), {})
+        if path.name == 'SAO_LeisureExercise.lua' and consumer:
+            from scanner_inventory import sha
+            if sha(path.read_bytes()) == consumer.get('sha256') and 'return SAONpcYogaCore' in raw:
+                factories = ('buildYogaSource',)
+        sites, depth = function_sites(raw, factories)
+        for number, site_depth, factory in sites:
+            if site_depth > 0 and not factory and not baseline.preserved(path, number):
                 faults.append(
                     f"{path.name}:{number} declares a column-zero "
-                    f"function at block depth {depth} - an unclosed "
+                    f"function at block depth {site_depth} - an unclosed "
                     "block above it has swallowed everything since")
-            for tok in TOK.findall(line):
-                if tok in ("function", "then", "do", "repeat"):
-                    depth += 1
-                elif tok in ("end", "until"):
-                    depth -= 1
-                elif tok == "elseif":
-                    depth -= 1  # cancel the then it adds on this line
         if depth != 0:
             faults.append(f"{path.name} ends at block depth {depth} - "
                           "the file's blocks do not balance")

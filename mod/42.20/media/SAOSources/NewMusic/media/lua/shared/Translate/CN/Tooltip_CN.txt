@@ -1,0 +1,6 @@
+Tooltip_CN = {
+    Tooltip_item_Walkman = "一款方便携带的卡带播放器，让您随时随地享受音乐。",
+    Tooltip_item_Boombox = "一款音量很大的便携式立体声音响，带有磁带播放器和电池仓。",
+    Tooltip_item_CDPlayer = "一款小巧便携的CD播放器，可搭配耳机使用。",
+    Tooltip_item_Vinyl = "用于播放黑胶唱片的唱片机。",
+}

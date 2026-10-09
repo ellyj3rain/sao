@@ -7,6 +7,8 @@ click and suppresses window show/focus in this process. Gameplay owners are inta
 from __future__ import annotations
 
 import argparse
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing, contextmanager
 import hashlib
 import json
@@ -30,6 +32,12 @@ import world_lab_education as EducationSource
 
 OBSERVER_SOURCES = ("StudyLoadingAgent.java", "StudyObserver.java", "StudyViewCapture.java",
                     "StudyExport.java", "StudyVideoCapture.java")
+# Compiled only for fresh --host player runs that enable participant input.
+# Never merge StudyParticipantInput into OBSERVER_SOURCES: verify_observer_adapter
+# derives its legacy inventory from that tuple and would reject every prior receipt.
+PARTICIPANT_SOURCES = ("StudyLoadingAgent.java", "StudyParticipantInput.java", "StudyParticipant.java", "StudyStartContext.java", "StudyNativeInteraction.java", "StudyObserver.java",
+                       "StudyViewCapture.java", "StudyExport.java", "StudyVideoCapture.java")
+PARTICIPANT_LEASE_SCHEMA = "sao.participant-input-lease/1"
 OBSERVATION_RECONCILIATION = "run-observation-reconciliation.json"
 OBSERVATION_ARRAY_ERROR = "initial awareness permits0..8 reports"
 RECONCILIATION_SOURCES = ("world_lab_run.py", "world_lab.py", "world_lab_definition.py",
@@ -49,7 +57,8 @@ def video_options(args):
     Lab.integer(fps, 30, 120, "video capture ceiling")
     if encoder is None:
         return {}
-    Lab.require(args.host == "observer", "native video requires observer host")
+    Lab.require(args.host == "observer" or (args.host == "player" and getattr(args, "participant_input", False)),
+                "native video requires a captured observer or participant host")
     path = Path(encoder).resolve()
     Lab.require(path.is_file() and not path.is_symlink(), "video encoder must be a local executable file")
     Lab.require(path.suffix.lower() == ".exe", "video encoder must be a local Windows executable")
@@ -125,6 +134,26 @@ def build_observer_adapter(destination, game, jdk, source=None):
     agent = destination / "StudyLoadingAgent.jar"
     subprocess.run([str(jdk / "jar.exe"), "cfm", str(agent), str(manifest), "-C", str(classes), "."], check=True)
     return agent
+
+
+def build_participant_adapter(destination, game, jdk, source=None):
+    """Compile the participant source cohort without altering OBSERVER_SOURCES."""
+    destination, game, jdk = Path(destination), Path(game), Path(jdk)
+    source = Path(source) if source is not None else Lab.ROOT / "tools/world_lab"
+    classes = destination / "classes"
+    classes.mkdir()
+    subprocess.run([str(jdk / "javac.exe"), "-cp", os.pathsep.join(str(game / n)
+                    for n in ("ZombieBuddy.jar", "projectzomboid.jar")), "-d", str(classes),
+                    *(str(source / name) for name in PARTICIPANT_SOURCES)], check=True)
+    manifest = destination / "agent.mf"
+    manifest.write_text("Manifest-Version: 1.0\nPremain-Class: StudyLoadingAgent\nCan-Retransform-Classes: true\n\n", encoding="utf-8")
+    agent = destination / "StudyLoadingAgent.jar"
+    subprocess.run([str(jdk / "jar.exe"), "cfm", str(agent), str(manifest), "-C", str(classes), "."], check=True)
+    return agent
+
+
+def participant_lease_path(destination):
+    return Path(destination) / "participant-input-lease.json"
 
 
 def refresh_observer_adapter(destination, attempt, game, jdk, previous, receipt):
@@ -223,7 +252,32 @@ def observer_resume_transaction(destination, previous):
         raise
 
 
-def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None):
+def copy_mod_tree(source, target):
+    """Copy and hash each actual destination with bounded parallel file I/O."""
+    pending, inventory = deque(), {}
+
+    def copy_file(original, copied):
+        shutil.copy2(original, copied)
+        return Path(copied).relative_to(target).as_posix(), digest(Path(copied))
+
+    def collect():
+        name, value = pending.popleft().result()
+        inventory[name] = value
+
+    with ThreadPoolExecutor(max_workers=8) as workers:
+        def submit(original, copied):
+            pending.append(workers.submit(copy_file, original, copied))
+            if len(pending) >= 64:
+                collect()
+            return copied
+
+        shutil.copytree(source, target, copy_function=submit)
+        while pending:
+            collect()
+    return dict(sorted(inventory.items()))
+
+
+def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None, participant_input=False):
     manifest, definition = Lab.verify_package(package)
     game, jdk = Path(game).resolve(), Path(jdk).resolve()
     destination = Path(destination).resolve()
@@ -248,15 +302,14 @@ def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None)
         mod_id = metadata["id"]
         Lab.require(Lab.re.fullmatch(r"[A-Za-z0-9_.-]+", mod_id) and mod_id not in ids, "invalid or duplicate mod id")
         target = mods / mod_id
-        shutil.copytree(source, target)
+        copied_inventory = copy_mod_tree(source, target)
         metadata_root = target / metadata_path.parent.relative_to(source)
         ids.append(mod_id)
         if "javaJarFile" in metadata:
             jar = (metadata_root / metadata["javaJarFile"]).resolve()
             Lab.require(jar.is_relative_to(target) and jar.is_file(), "mod jar leaves copied source")
             approvals.append({"id": mod_id, "jar_hash": digest(jar), "decision": True})
-        inventory[mod_id] = {p.relative_to(target).as_posix(): digest(p)
-                             for p in sorted(target.rglob("*")) if p.is_file()}
+        inventory[mod_id] = copied_inventory
     Lab.require("SurvivorAwareness" in ids and "ZombieBuddy" in ids, "SAO and ZombieBuddy are required")
     (user / ".zombie_buddy/mod_approvals.json").write_bytes(
         Lab.canonical({"formatVersion": 2, "mods": approvals}))
@@ -270,7 +323,10 @@ def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None)
         "borderless=false\nlanguage=EN\ntermsOfServiceVersion=1\nsoundVolume=0\nmusicVolume=0\n"
         "ambientVolume=0\nvehicleEngineVolume=0\nvsync=false\nuncappedFPS=false\nframeRate=120\n"
         "showSurvivalGuide=false\n", encoding="utf-8")
-    agent = build_observer_adapter(destination, game, jdk)
+    if participant_input:
+        agent = build_participant_adapter(destination, game, jdk)
+    else:
+        agent = build_observer_adapter(destination, game, jdk)
     receipt = {"schema": "sao-study-run/1", "packageSha256": Lab.seal(manifest),
                "definitionSha256": manifest["definitionSha256"], "mapName": manifest["mapName"],
                "engineJarSha256": digest(game / "projectzomboid.jar"),
@@ -416,6 +472,34 @@ def runtime_errors(log, errors):
     return found
 
 
+def participant_player_identity(cache, receipt):
+    """Bind the last actual positive native body identity to its saved SQL row."""
+    from world_lab_participant_lease import read
+    from world_lab_participant_feed import validate_body
+    attempt = receipt["launchNumber"]
+    Lab.integer(attempt, 1, 2**31 - 1, "participant saved attempt")
+    path = Path(cache).parent / "attempts" / f"{attempt:04d}" / "participant-identity.json"
+    state = read(path)
+    validate_body(state, receipt)
+    Lab.require(state["ready"] is True and state["save"] == receipt["save"],
+                "saved participant has no matching native identity")
+    player_id = state["playerSqlId"]
+    Lab.integer(player_id, 1, 2**31 - 1, "native participant SQL id")
+    evidence = {"file": path.relative_to(Path(cache).parent).as_posix(), "sha256": digest(path),
+                "playerIndex": state["playerIndex"], "playerSqlId": player_id,
+                "capturedAtUnixMs": state["capturedAtUnixMs"], "save": state["save"]}
+    previous = receipt.get("participantIdentityEvidence")
+    Lab.require(previous is None or previous == evidence, "saved participant identity evidence changed")
+    receipt["participantIdentityEvidence"] = evidence
+    return player_id
+
+
+def saved_player_record(database, player_id):
+    player = database.execute("SELECT isDead,length(data) FROM localPlayers WHERE id=?", (player_id,)).fetchone()
+    Lab.require(player is not None and player[1] > 0, "native player store is empty")
+    return {"id": player_id, "alive": player[0] == 0}
+
+
 def saved_state(cache, receipt, definition):
     root = cache / "Saves/Sandbox" / receipt["save"]
     Lab.require(root.resolve().parent == (cache / "Saves/Sandbox").resolve(), "unsafe native save")
@@ -449,9 +533,8 @@ def saved_state(cache, receipt, definition):
             count = database.execute("SELECT count(*) FROM localPlayers").fetchone()[0]
             Lab.require(count == 0, "observer host persisted a participating player")
             return {"count": count, "observerPersisted": False}
-        player = database.execute("SELECT isDead,length(data) FROM localPlayers WHERE id=1").fetchone()
-        Lab.require(player is not None and player[1] > 0, "native player store is empty")
-        return {"id": 1, "alive": player[0] == 0}
+        player_id = participant_player_identity(cache, receipt) if receipt.get("participantInput") is True else 1
+        return saved_player_record(database, player_id)
 
 
 def verify_inputs(cache, agent, receipt):
@@ -951,6 +1034,13 @@ def _run(args, custody=None):
     refresh_adapter = getattr(args, "refresh_observer_adapter", False)
     Lab.require(not refresh_adapter or (args.resume and args.host == "observer"),
                 "observer adapter refresh requires an observer continuation")
+    participant_input = bool(getattr(args, "participant_input", False))
+    if participant_input:
+        Lab.require(args.host == "player", "participant input requires --host player")
+        Lab.require(args.window == "visible", "participant input refuses a hidden window")
+        Lab.require(not args.resume, "participant input requires a fresh player run (no --resume)")
+        Lab.require(not refresh_adapter, "participant input refuses observer adapter refresh")
+        Lab.require(getattr(args, "observer_layout", None) is None, "participant input refuses observer layout")
     layout_manifest, layout_definition = Lab.verify_package(args.package)
     if not args.resume:
         # Refuse malformed or independently mismatched inputs before cache creation.
@@ -1029,7 +1119,8 @@ def _run(args, custody=None):
                 args.profile, args.catalog, args.workshop_root,
                 args.mod, args.enable_mod, args.disable_mod)
         cache, user, agent, manifest, definition = prepare(
-            args.package, args.out, args.game, args.jdk, mod_paths, simulation_profile)
+            args.package, args.out, args.game, args.jdk, mod_paths, simulation_profile,
+            participant_input=participant_input)
         receipt = Lab.load(destination / "run.json")
         receipt["launchNumber"] = 1
     with observer_resume_transaction(destination, previous):
@@ -1075,6 +1166,8 @@ def _run(args, custody=None):
         (attempt / "launch.lua").write_bytes(launch.encode("utf-8"))
         sao_jars = list((cache / "mods").glob("*/42.20/media/java/SAO.jar"))
         Lab.require(len(sao_jars) == 1, "expected one copied SAO jar")
+        session_id = str(uuid.uuid4())
+        lease_file = participant_lease_path(destination) if participant_input else None
         command = [str(game / "jre64/bin/java.exe"),
                    f"-Duser.home={user}", f"-Dstudy.attempt={receipt['launchNumber']}",
                    "-Dstudy.activeMods=" + ",".join(receipt["mods"]),
@@ -1110,13 +1203,27 @@ def _run(args, custody=None):
                         observer[f"site.{index}.{key}"] = site[key]
             observer.update(video)
             command[1:1] = [f"-Dstudy.{key}={value}" for key, value in observer.items()]
+        if participant_input:
+            Lab.require(lease_file is not None, "participant lease path required")
+            command[1:1] = [
+                "-Dstudy.participantInput=true",
+                f"-Dstudy.participantSession={session_id}",
+                f"-Dstudy.participantLease={lease_file}",
+                f"-Dstudy.participantState={attempt / 'participant-state.json'}",
+                f"-Dstudy.viewDirectory={attempt / 'native-view'}",
+                *(f"-Dstudy.{key}={value}" for key, value in video.items()),
+            ]
         if args.trace_native:
             native_dump = attempt / "native-classes"
             native_dump.mkdir()
             command.insert(1, f"-Dnet.bytebuddy.dump={native_dump}")
         receipt.update(hours=args.hours, launchSha256=hashlib.sha256(launch.encode("utf-8")).hexdigest(),
                        window=args.window, status="starting", host=args.host, watch=args.watch,
-                       sessionId=str(uuid.uuid4()), observerDirectory=attempt.relative_to(destination).as_posix())
+                       sessionId=session_id, observerDirectory=attempt.relative_to(destination).as_posix(),
+                       participantInput=participant_input)
+        if participant_input:
+            receipt["participantLease"] = lease_file.relative_to(destination).as_posix()
+            receipt["participantLeaseSchema"] = PARTICIPANT_LEASE_SCHEMA
         publish(destination / "run.json", receipt)
     startup = None
     if args.window == "hidden" and hasattr(subprocess, "STARTUPINFO"):
@@ -1234,6 +1341,8 @@ def main():
                         help="with --resume, preserve the deceased database and create a native replacement character")
     parser.add_argument("--hours", type=float, default=1)
     parser.add_argument("--host", choices=("observer", "player"), default="observer")
+    parser.add_argument("--participant-input", action="store_true",
+                        help="fresh visible player host with StudyParticipantInput lease hooks; never touches OBSERVER_SOURCES")
     parser.add_argument("--watch", action="store_true", help="observe until a native stop command or the wall-time limit")
     parser.add_argument("--window", choices=("visible", "hidden"), default="visible",
                         help="use the native game renderer visibly, or keep its window hidden for batch runs")

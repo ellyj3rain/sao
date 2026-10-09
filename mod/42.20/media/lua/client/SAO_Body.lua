@@ -25,6 +25,9 @@ Body.discarding = Body.discarding or {}
 Body.unloaded = Body.unloaded or {}
 -- Return shells are detached and paused until the turned source is removed.
 Body.returning = Body.returning or {}
+-- Age ownership belongs to each live shell; a replacement starts from its
+-- native defaults and the persistent person supplies the current age again.
+local ageVisualByBody = setmetatable({}, { __mode = "k" })
 
 -- [B47] One door out: everything this module says goes
 -- through the shared logger.
@@ -169,6 +172,8 @@ function Body.materialize(rec, externalOwner, externalToken, physicalPosition)
         return nil
     end
     if rec.dead then return nil, "dead-record" end
+    if not rec.bodyOwner and (rec.zaoTransferPending or rec.crossedTransferPending)
+        and externalOwner == nil then return nil, "zao-transfer-pending" end
     if rec.bodyOwner ~= nil then
         if tostring(externalOwner or "") ~= tostring(rec.bodyOwner)
             or tostring(externalToken or "") ~= tostring(rec.bodyOwnerToken or "") then
@@ -486,34 +491,6 @@ function Body.materialize(rec, externalOwner, externalToken, physicalPosition)
         wornReport = okE and tostring(rep) or ("threw:" .. tostring(rep))
     end
 
-    -- [C29] The body's size, from the age. The woven advice reads it on
-    -- the render path from the next frame; an adult answers 1 and the
-    -- call is skipped, so nothing changes for anyone grown. The bridge
-    -- reports the value it held, which is what the log carries.
-    if SAOJavaBridge and SAO.History and SAO.History.heightScaleOf then
-        local okS, scale = pcall(SAO.History.heightScaleOf, rec.id)
-        if okS and type(scale) == "number" and math.abs(scale - 1.0) > 0.001 then
-            local okB, held = pcall(function()
-                return SAOJavaBridge:setBodyScale(body, scale)
-            end)
-            log(rec.id .. " sized " .. tostring(okB and held
-                or ("threw:" .. tostring(held))) .. " (age "
-                .. tostring(SAO.History.ageOf(rec.id)) .. ")")
-        end
-    end
-
-    -- [C30] The pace of the age: short legs and old ones both walk
-    -- slower than a grown adult's. The engine's own speed modifier,
-    -- read from the age once; an adult answers 1 and nothing is set.
-    if SAO.History and SAO.History.speedModOf then
-        local okP, pace = pcall(SAO.History.speedModOf, rec.id)
-        if okP and type(pace) == "number" and math.abs(pace - 1.0) > 0.001 then
-            local okM = pcall(function() body:setSpeedMod(pace) end)
-            log(rec.id .. " paced " .. string.format("%.2f", pace)
-                .. (okM and "" or " (setSpeedMod threw)"))
-        end
-    end
-
     -- [C31] The child's day: the strength and fitness of the age
     -- (Growing Up's birthday floors, CREDITS.md), the kit a child
     -- carries, and the pace they learn at - the last held on the shell
@@ -718,7 +695,113 @@ function Body.materialize(rec, externalOwner, externalToken, physicalPosition)
             return nil, "pharmacology-restore-failed"
         end
     end
+    -- The native snapshot has finished restoring before age-owned presentation
+    -- is set. A long dormant interval can cross a child's growth boundary.
+    if Body.refreshAge then pcall(Body.refreshAge, rec, body) end
     return body
+end
+
+local function near(a, b)
+    return finite(a) and finite(b) and math.abs(a - b) < 0.001
+end
+
+-- Refresh the same shell when county years pass. Only values still matching
+-- SAO's previous write are changed; another body's scale or pace is left alone.
+function Body.refreshAge(rec, body)
+    if not rec or not rec.id or rec.dead or not body
+        or (Body.active[rec.id] ~= body and Body.foreign[rec.id] ~= body)
+        or not SAO.AgeVisual then return false, "age-body-unavailable" end
+    local view, reason = SAO.AgeVisual.resolve(rec)
+    if not view then return false, reason end
+    local previous = ageVisualByBody[body]
+    if previous and previous.personId ~= rec.id then
+        return false, "age-body-identity-changed"
+    end
+    if previous and view.asOfCountyHours < previous.asOfCountyHours then
+        return false, "age-clock-rewound"
+    end
+    if previous and previous.age == view.age and previous.appearanceDone
+        and not previous.pendingMetrics then
+        previous.asOfCountyHours = view.asOfCountyHours
+        return false, "current"
+    end
+    local changed = false
+    local ownedScale = previous and previous.ownedScale or false
+    local ownedPace = previous and previous.ownedPace or false
+    local okScale, currentScale = pcall(function()
+        return SAOJavaBridge and SAOJavaBridge:getBodyScale(body) or nil
+    end)
+    local scale = view.scale
+    if okScale and finite(currentScale) then
+        if ownedScale and not near(currentScale, previous.scale) then
+            ownedScale = false
+        end
+        if near(currentScale, scale) and ownedScale then
+            -- Already held by this shell.
+        elseif (ownedScale and near(currentScale, previous.scale))
+            or (not ownedScale and near(currentScale, 1.0)
+                and not near(scale, 1.0)) then
+            local okSet, held = pcall(function()
+                return SAOJavaBridge:setBodyScale(body, scale)
+            end)
+            local okRead, actual = pcall(function()
+                return SAOJavaBridge:getBodyScale(body)
+            end)
+            if okSet and type(held) == "string" and held:sub(1, 6) == "scale="
+                and okRead and near(actual, scale) then
+                currentScale = actual
+                ownedScale, changed = true, true
+                log(rec.id .. " sized " .. held .. " (age " .. view.age .. ")")
+            end
+        end
+    end
+    local okPace, currentPace = pcall(function() return body:getSpeedMod() end)
+    local pace = view.pace
+    if okPace and finite(currentPace) then
+        if ownedPace and not near(currentPace, previous.pace) then
+            ownedPace = false
+        end
+        if near(currentPace, pace) and ownedPace then
+            -- Already held by this shell.
+        elseif (ownedPace and near(currentPace, previous.pace))
+            or (not ownedPace and near(currentPace, 1.0)
+                and not near(pace, 1.0)) then
+            local okSet = pcall(function() body:setSpeedMod(pace) end)
+            local okRead, actual = pcall(function() return body:getSpeedMod() end)
+            if okSet and okRead and near(actual, pace) then
+                currentPace = actual
+                ownedPace, changed = true, true
+                log(rec.id .. " paced " .. string.format("%.2f", pace)
+                    .. " (age " .. view.age .. ")")
+            end
+        end
+    end
+    local appearanceDone = previous and previous.age == view.age
+        and previous.appearanceDone or false
+    if not appearanceDone and SAO.Appearance and SAO.Appearance.applyAge then
+        local okVisual, visual = pcall(function() return body:getHumanVisual() end)
+        if okVisual and visual then
+            local ok, applied = pcall(SAO.Appearance.applyAge, rec, body)
+            if ok then
+                appearanceDone = true
+                changed = changed or applied == true
+            end
+        end
+    end
+    local pendingScale = (ownedScale and not near(currentScale, scale))
+        or (not ownedScale and not near(scale, 1.0)
+            and (not finite(currentScale) or near(currentScale, 1.0)))
+    local pendingPace = (ownedPace and not near(currentPace, pace))
+        or (not ownedPace and not near(pace, 1.0)
+            and (not finite(currentPace) or near(currentPace, 1.0)))
+    ageVisualByBody[body] = {
+        personId = rec.id, asOfCountyHours = view.asOfCountyHours,
+        age = view.age, scale = scale, pace = pace,
+        ownedScale = ownedScale, ownedPace = ownedPace,
+        appearanceDone = appearanceDone,
+        pendingMetrics = pendingScale or pendingPace,
+    }
+    return changed, "current"
 end
 
 function Body.materializeExternal(rec, owner, token)
@@ -835,7 +918,7 @@ local function readyToRemove(body)
         readinessReasons[body] = reason
         log("release waiting " .. ownerId .. " reason=" .. tostring(reason))
     end
-    return ok and ready == true
+    return ok and ready == true, reason
 end
 
 local function dropOwner(rec)
@@ -845,7 +928,8 @@ local function dropOwner(rec)
 end
 
 function Body.canTransfer(body)
-    return body ~= nil and readyToRemove(body)
+    if not body then return false, "missing-body" end
+    return readyToRemove(body)
 end
 
 -- Capture first, then publish the ownership change.  The captured journal is
@@ -978,6 +1062,55 @@ function Body.hibernateExternal(rec, body, owner, token)
     return true, "external-dormant"
 end
 
+-- A companion returns through a validated checkpoint. The external shell is
+-- removed before its lease is cleared, so normal population materialization
+-- cannot race a still driven native body. A held ZAO journal survives release.
+function Body.returnExternal(rec, owner, token)
+    if not rec or not rec.id then return false, "missing-person" end
+    owner, token = tostring(owner or ""), tostring(token or "")
+    if owner:sub(1, 10) ~= "companion:" or token == ""
+        or rec.bodyOwner ~= owner or rec.bodyOwnerToken ~= token then
+        return false, "external-owner-mismatch"
+    end
+    if type(rec.companionReturn) ~= "table"
+        or rec.companionReturn.version ~= 1
+        or rec.companionReturn.owner ~= owner then
+        return false, "return-not-requested"
+    end
+    if rec.dead then return false, "person-dead" end
+    if rec.bodyTransfer or rec.returnTransition or Body.failedRestore[rec.id]
+        or Body.discarding[rec.id] then return false, "transition-pending" end
+    if rec.cookingWork or rec.studyWork and rec.studyWork.status == "reading" then
+        return false, "work-pending"
+    end
+    local body = Body.foreign[rec.id]
+    if body then
+        local live, dead = pcall(function() return body:isDead() end)
+        if not live or dead then return false, "death-observation-pending" end
+        local ready, reason = Body.canTransfer(body)
+        if not ready then return false, reason or "body-busy" end
+        local ok, why = Body.hibernateExternal(rec, body, owner, token)
+        if not ok then return false, why end
+    elseif rec.bodyRelease then
+        local ok, why = Body.hibernateExternal(rec, nil, owner, token)
+        if not ok then return false, why end
+    end
+    if Body.active[rec.id] or Body.foreign[rec.id] or Body.unloaded[rec.id]
+        or rec.bodyRelease or rec.bodyTransfer then
+        return false, "body-still-owned"
+    end
+    if rec.bodyCheckpointFailure then return false, "checkpoint-state-unavailable" end
+    if not rec.hibernation or not SAOJavaBridge then
+        return false, "missing-dormant-snapshot"
+    end
+    local ok, valid = pcall(function()
+        return SAOJavaBridge:validateHibernation(rec.hibernation) == true
+    end)
+    if not ok or not valid then return false, "invalid-dormant-snapshot" end
+    rec.bodyOwner, rec.bodyOwnerToken, rec.companionReturn = nil, nil, nil
+    return true, "returned"
+end
+
 local function hasTransitionJournal(rec)
     return rec and (rec.returnTransition ~= nil or rec.bodyRelease ~= nil or Body.failedRestore[rec.id]
         or rec.bodyTransfer ~= nil or Body.discarding[rec.id]) or false
@@ -1038,7 +1171,10 @@ function Body.checkpointActive()
     -- envelope.  Capture it without taking control back.
     for id, body in pairs(Body.foreign) do
         local rec = SAO.Identity.get(id)
-        if rec and rec.bodyOwner == "ZAO" and body and not rec.dead
+        if rec and (rec.bodyOwner == "ZAO"
+            or type(rec.bodyOwner) == "string"
+                and rec.bodyOwner:sub(1, 10) == "companion:")
+            and body and not rec.dead
             and not hasTransitionJournal(rec) then
             local ok, captured, reason = pcall(function()
                 if not SAOJavaBridge or not SAOJavaBridge:isShell(body) then
@@ -1161,6 +1297,25 @@ function Body.recover(rec)
         end)
         if ok and unloaded then Body.unloaded[rec.id] = true end
         if Body.unloaded[rec.id] then
+            if type(rec.bodyOwner) == "string"
+                and rec.bodyOwner:sub(1, 10) == "companion:" then
+                -- Companion work owns only its recorded route. The external
+                -- lease may checkpoint an unloaded shell only when every
+                -- unrelated action has already reached readiness itself.
+                if rec.dead then return false, "person-dead" end
+                local checked, dead = pcall(function() return body:isDead() end)
+                if not checked or dead then return false, "death-observation-pending" end
+                if rec.cookingWork or rec.studyWork
+                    and rec.studyWork.status == "reading" then
+                    return false, "work-pending"
+                end
+                reconciledUnload[body] = true
+                local ok, released, reason = pcall(Body.hibernateExternal,
+                    rec, body, rec.bodyOwner, rec.bodyOwnerToken)
+                reconciledUnload[body] = nil
+                if not ok then return false, "companion-unloaded-release-exception" end
+                return released, reason
+            end
             -- Native removal stopped ticking these actions. Their real stop
             -- callbacks settle interruption; no perform/completion is inferred.
             local stopped = pcall(function()
@@ -1312,5 +1467,37 @@ end
 if Body.onSaveCheckpoint then Events.OnSave.Remove(Body.onSaveCheckpoint) end
 Body.onSaveCheckpoint = function() Body.checkpointActive() end
 Events.OnSave.Add(Body.onSaveCheckpoint)
+
+-- A shell can remain loaded across a birthday. The same ten-minute county
+-- cadence that drives age physiology checks its presentation without creating
+-- bodies or touching the player's character.
+if Events and Events.EveryTenMinutes then
+    if Body.onAgePass then Events.EveryTenMinutes.Remove(Body.onAgePass) end
+    Body.onAgePass = function()
+        local date = nil
+        pcall(function()
+            local instant = SAO.History.countyInstant(SAO.History.countyHours())
+            if type(instant) == "string"
+                and instant:match("^%d%d%d%d%-%d%d%-%d%d") then
+                date = instant:sub(1, 10)
+            end
+        end)
+        local refreshAll = date == nil or Body.lastAgeVisualDate ~= date
+        Body.lastAgeVisualDate = date
+        for id, body in pairs(Body.active) do
+            local rec = SAO.Identity.get(id)
+            local held = ageVisualByBody[body]
+            if rec and not Body.isTransitioning(rec)
+                and (refreshAll or not held or not held.appearanceDone
+                    or held.pendingMetrics) then
+                local ok, _, status = pcall(Body.refreshAge, rec, body)
+                if held and (not ok or status ~= "current") then
+                    held.pendingMetrics = true
+                end
+            end
+        end
+    end
+    Events.EveryTenMinutes.Add(Body.onAgePass)
+end
 
 return Body

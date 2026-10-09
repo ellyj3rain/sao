@@ -47,6 +47,11 @@ The other four things it holds:
 An optional argv[1] points the checker at another tree root, which is
 how its control runs: the pre-batch tree has no module and
 forty-two direct calls to the engine.
+
+The source boundary covers county replay producers SAO_History,
+SAO_Standing, SAO_Population and SAO_DormantPopulation. Their draws use
+SAO_Rand. Native playback, lifecycle, presentation and transport
+owners retain the randomness required by their source or engine.
 """
 import pathlib
 import re
@@ -54,6 +59,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from lua_read import strip_lua
 
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
@@ -61,6 +67,10 @@ HERE = pathlib.Path(__file__).resolve().parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 RAND = LUA / "shared" / "SAO_Rand.lua"
 HASH = LUA / "shared" / "SAO_Hash.lua"
+COUNTY_MODELS = (LUA / "shared" / "SAO_History.lua",
+                LUA / "shared" / "SAO_Standing.lua",
+                LUA / "client" / "SAO_Population.lua",
+                LUA / "client" / "SAO_DormantPopulation.lua")
 CHECK = ROOT / "tools" / "check.sh"
 SRC = HERE / "luacheck" / "LuaRun.java"
 OUT = ROOT / "java" / "out" / "luacheck"
@@ -205,6 +215,12 @@ OFFLINE = ("(function() __freshSave('SaveA') _G.__noWorld = true "
            "return 'engineAsked=' .. _G.__engineAsked .. ' value=' .. v end)()")
 
 
+def county_engine_draws(paths=COUNTY_MODELS):
+    """County replay producers use Rand; native mechanisms retain source RNG."""
+    return [path for path in paths
+            if re.search(r"\bZombRand(?:Float)?\s*\(", strip_lua(read(path)))]
+
+
 def main():
     faults = []
     print("=" * 74)
@@ -214,15 +230,14 @@ def main():
         print("  FAULT: SAO_Rand.lua does not exist, so the county's "
               "randomness is the engine's and no save can be run twice")
         return 1
+    missing = [path for path in (HASH, *COUNTY_MODELS, SRC) if not path.is_file()]
+    if missing:
+        print("  FAULT: owned county model input absent: " + ", ".join(map(str, missing)))
+        return 1
 
-    # Nothing but the module itself asks the engine.
-    strays = []
-    for path in sorted(LUA.rglob("*.lua")):
-        if path.name == "SAO_Rand.lua":
-            continue
-        if "ZombRand" in read(path):
-            strays.append(path.relative_to(LUA).as_posix())
-    print("  modules still drawing from the engine: %d" % len(strays))
+    # County replay producers draw from the saved SAO generator.
+    strays = [path.relative_to(LUA).as_posix() for path in county_engine_draws()]
+    print("  county replay producers drawing from the engine: %d" % len(strays))
     for name in strays[:6]:
         print("      " + name)
 
@@ -241,14 +256,14 @@ def main():
             "s.randCount" in read(RAND),
         "the run can say what to feed back":
             "function R.state()" in read(RAND),
-        "SAO_Rand is the only module asking the engine":
+        "county replay producers use SAO_Rand for their draws":
             not strays,
         "the gate runs this border":
             "tools/county_draw_test.py" in read(CHECK),
     }
 
-    if not (JDK.exists() and PZ.exists() and STDLIB.exists() and SRC.exists()):
-        print("  SKIPPED the VM - no JDK, engine jar, stdlib or runner")
+    if not (JDK.exists() and PZ.exists() and STDLIB.exists()):
+        print("  SKIPPED the VM - no JDK, engine jar or stdlib")
         print()
         for k, v in seams.items():
             print(f"  {'yes' if v else 'NO '}  {k}")

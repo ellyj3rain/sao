@@ -1,0 +1,254 @@
+module NewMusic
+{
+    item BoomboxGrey
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = NM_BoomboxGrey,
+        DisplayName = Boombox (Grey),
+        ConditionMax = 100,
+        CanBeEquipped = BothHands,
+        AttachmentType = BigWeapon,
+        primaryAnimMask = holdingbagright,
+        secondaryAnimMask = holdingbagleft,
+        Tooltip = Tooltip_item_Boombox,
+        StaticModel = NewMusic.BoomboxGrey,
+        WorldStaticModel = NewMusic.BoomboxGrey,
+        UseWorldItem = TRUE,
+    }
+
+    item BoomboxBlue
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = NM_BoomboxBlue,
+        DisplayName = Boombox (Blue),
+        ConditionMax = 100,
+        CanBeEquipped = BothHands,
+        AttachmentType = BigWeapon,
+        primaryAnimMask = holdingbagright,
+        secondaryAnimMask = holdingbagleft,
+        Tooltip = Tooltip_item_Boombox,
+        StaticModel = NewMusic.BoomboxBlue,
+        WorldStaticModel = NewMusic.BoomboxBlue,
+        UseWorldItem = TRUE,
+    }
+
+    item BoomboxCamo
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = NM_BoomboxCamo,
+        DisplayName = Boombox (Camo),
+        ConditionMax = 100,
+        CanBeEquipped = BothHands,
+        AttachmentType = BigWeapon,
+        primaryAnimMask = holdingbagright,
+        secondaryAnimMask = holdingbagleft,
+        Tooltip = Tooltip_item_Boombox,
+        StaticModel = NewMusic.BoomboxCamo,
+        WorldStaticModel = NewMusic.BoomboxCamo,
+        UseWorldItem = TRUE,
+    }
+
+    item BoomboxBlack
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = NM_BoomboxBlack,
+        DisplayName = Boombox (Black),
+        ConditionMax = 100,
+        CanBeEquipped = BothHands,
+        AttachmentType = BigWeapon,
+        primaryAnimMask = holdingbagright,
+        secondaryAnimMask = holdingbagleft,
+        Tooltip = Tooltip_item_Boombox,
+        StaticModel = NewMusic.BoomboxBlack,
+        WorldStaticModel = NewMusic.BoomboxBlack,
+        UseWorldItem = TRUE,
+    }
+
+    item BoomboxGreen
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = NM_BoomboxGreen,
+        DisplayName = Boombox (Green),
+        ConditionMax = 100,
+        CanBeEquipped = BothHands,
+        AttachmentType = BigWeapon,
+        primaryAnimMask = holdingbagright,
+        secondaryAnimMask = holdingbagleft,
+        Tooltip = Tooltip_item_Boombox,
+        StaticModel = NewMusic.BoomboxGreen,
+        WorldStaticModel = NewMusic.BoomboxGreen,
+        UseWorldItem = TRUE,
+    }
+
+    item BoomboxPink
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = NM_BoomboxPink,
+        DisplayName = Boombox (Pink),
+        ConditionMax = 100,
+        CanBeEquipped = BothHands,
+        AttachmentType = BigWeapon,
+        primaryAnimMask = holdingbagright,
+        secondaryAnimMask = holdingbagleft,
+        Tooltip = Tooltip_item_Boombox,
+        StaticModel = NewMusic.BoomboxPink,
+        WorldStaticModel = NewMusic.BoomboxPink,
+        UseWorldItem = TRUE,
+    }
+
+    item BoomboxRed
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = NM_BoomboxRed,
+        DisplayName = Boombox (Red),
+        ConditionMax = 100,
+        CanBeEquipped = BothHands,
+        AttachmentType = BigWeapon,
+        primaryAnimMask = holdingbagright,
+        secondaryAnimMask = holdingbagleft,
+        Tooltip = Tooltip_item_Boombox,
+        StaticModel = NewMusic.BoomboxRed,
+        WorldStaticModel = NewMusic.BoomboxRed,
+        UseWorldItem = TRUE,
+    }
+
+    item BoomboxWhite
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = NM_BoomboxWhite,
+        DisplayName = Boombox (White),
+        ConditionMax = 100,
+        CanBeEquipped = BothHands,
+        AttachmentType = BigWeapon,
+        primaryAnimMask = holdingbagright,
+        secondaryAnimMask = holdingbagleft,
+        Tooltip = Tooltip_item_Boombox,
+        StaticModel = NewMusic.BoomboxWhite,
+        WorldStaticModel = NewMusic.BoomboxWhite,
+        UseWorldItem = TRUE,
+    }
+
+    item BoomboxOrange
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = NM_BoomboxOrange,
+        DisplayName = Boombox (Orange),
+        ConditionMax = 100,
+        CanBeEquipped = BothHands,
+        AttachmentType = BigWeapon,
+        primaryAnimMask = holdingbagright,
+        secondaryAnimMask = holdingbagleft,
+        Tooltip = Tooltip_item_Boombox,
+        StaticModel = NewMusic.BoomboxOrange,
+        WorldStaticModel = NewMusic.BoomboxOrange,
+        UseWorldItem = TRUE,
+    }
+
+    item BoomboxYellow
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = NM_BoomboxYellow,
+        DisplayName = Boombox (Yellow),
+        ConditionMax = 100,
+        CanBeEquipped = BothHands,
+        AttachmentType = BigWeapon,
+        primaryAnimMask = holdingbagright,
+        secondaryAnimMask = holdingbagleft,
+        Tooltip = Tooltip_item_Boombox,
+        StaticModel = NewMusic.BoomboxYellow,
+        WorldStaticModel = NewMusic.BoomboxYellow,
+        UseWorldItem = TRUE,
+    }
+
+    item BoomboxCyan
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = NM_BoomboxCyan,
+        DisplayName = Boombox (Cyan),
+        ConditionMax = 100,
+        CanBeEquipped = BothHands,
+        AttachmentType = BigWeapon,
+        primaryAnimMask = holdingbagright,
+        secondaryAnimMask = holdingbagleft,
+        Tooltip = Tooltip_item_Boombox,
+        StaticModel = NewMusic.BoomboxCyan,
+        WorldStaticModel = NewMusic.BoomboxCyan,
+        UseWorldItem = TRUE,
+    }
+
+    item BoomboxMagenta
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = NM_BoomboxMagenta,
+        DisplayName = Boombox (Magenta),
+        ConditionMax = 100,
+        CanBeEquipped = BothHands,
+        AttachmentType = BigWeapon,
+        primaryAnimMask = holdingbagright,
+        secondaryAnimMask = holdingbagleft,
+        Tooltip = Tooltip_item_Boombox,
+        StaticModel = NewMusic.BoomboxMagenta,
+        WorldStaticModel = NewMusic.BoomboxMagenta,
+        UseWorldItem = TRUE,
+    }
+
+    item BoomboxPurple
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = NM_BoomboxPurple,
+        DisplayName = Boombox (Purple),
+        ConditionMax = 100,
+        CanBeEquipped = BothHands,
+        AttachmentType = BigWeapon,
+        primaryAnimMask = holdingbagright,
+        secondaryAnimMask = holdingbagleft,
+        Tooltip = Tooltip_item_Boombox,
+        StaticModel = NewMusic.BoomboxPurple,
+        WorldStaticModel = NewMusic.BoomboxPurple,
+        UseWorldItem = TRUE,
+    }
+
+    item BoomboxOddbolt
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 2.0,
+        Icon = NM_BoomboxOddbolt,
+        DisplayName = Boombox (Oddbolt),
+        ConditionMax = 100,
+        CanBeEquipped = BothHands,
+        AttachmentType = BigWeapon,
+        primaryAnimMask = holdingbagright,
+        secondaryAnimMask = holdingbagleft,
+        Tooltip = Tooltip_item_Boombox,
+        StaticModel = NewMusic.BoomboxOddbolt,
+        WorldStaticModel = NewMusic.BoomboxOddbolt,
+        UseWorldItem = TRUE,
+    }
+}

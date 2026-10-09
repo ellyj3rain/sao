@@ -75,6 +75,187 @@ function Find-SelectionToggle($Root) {
                 [System.Windows.Automation.AutomationElement]::IsTogglePatternAvailableProperty,$true)))
 }
 
+function Read-SelectionUiState($Root, $Request) {
+    $selector=Find-SelectionElement $Root 'Simulation session'
+    $value=$null;$label=$null
+    if($null -ne $selector -and $selector.TryGetCurrentPattern(
+        [System.Windows.Automation.ValuePattern]::Pattern,[ref]$value)){$label=$value.Current.Value}
+    $heading=Find-SelectionHeading $Root $Request.Label
+    $currentHeading=$null
+    if($label){$currentHeading=Find-SelectionHeading $Root $label}
+    return @{selector=$selector;value=$label;
+        selectorVisible=($null -ne $selector -and -not $selector.Current.IsOffscreen);
+        headingVisible=($null -ne $heading -and -not $heading.Current.IsOffscreen);
+        currentHeadingVisible=($null -ne $currentHeading -and -not $currentHeading.Current.IsOffscreen)}
+}
+
+function Test-SelectionOption($Option, $Request, $Owners, [switch]$IncludeOffscreen) {
+    return $Option.Current.Name -ceq $Request.Label -and $Owners.Contains([int]$Option.Current.ProcessId) -and
+        ($IncludeOffscreen -or -not $Option.Current.IsOffscreen) -and $Option.Current.IsEnabled -and
+        ($Option.GetCurrentPropertyValue([System.Windows.Automation.AutomationElement]::IsInvokePatternAvailableProperty) -eq $true -or
+            ($IncludeOffscreen -and $Option.GetCurrentPropertyValue(
+                [System.Windows.Automation.AutomationElement]::IsSelectionItemPatternAvailableProperty) -eq $true))
+}
+
+function Read-SelectionOptions($Request, $Owners, [switch]$IncludeOffscreen) {
+    return @([System.Windows.Automation.AutomationElement]::RootElement.FindAll(
+        [System.Windows.Automation.TreeScope]::Descendants,
+        [System.Windows.Automation.PropertyCondition]::new(
+            [System.Windows.Automation.AutomationElement]::ControlTypeProperty,
+            [System.Windows.Automation.ControlType]::ListItem)) |
+        Where-Object {Test-SelectionOption $_ $Request $Owners -IncludeOffscreen:$IncludeOffscreen})
+}
+
+function Open-SelectionPopup($Selector) {
+    $Selector.SetFocus()
+    $expand=[System.Windows.Automation.ExpandCollapsePattern]$Selector.GetCurrentPattern(
+        [System.Windows.Automation.ExpandCollapsePattern]::Pattern)
+    if($expand.Current.ExpandCollapseState -eq [System.Windows.Automation.ExpandCollapseState]::Collapsed){$expand.Expand()}
+    return $expand
+}
+
+function Close-SelectionPopup($Expand) {
+    if($null -ne $Expand -and $Expand.Current.ExpandCollapseState -eq
+        [System.Windows.Automation.ExpandCollapseState]::Expanded){$Expand.Collapse()}
+}
+
+function Test-SelectionTypedOption($Option, $Request, $Owners) {
+    return (Test-SelectionOption $Option $Request $Owners -IncludeOffscreen) -and
+        $Option.Current.ControlType -eq [System.Windows.Automation.ControlType]::ListItem -and
+        $Option.GetCurrentPropertyValue([System.Windows.Automation.AutomationElement]::IsSelectionItemPatternAvailableProperty) -eq $true
+}
+
+function Confirm-SelectionSource($Request) {
+    $desktop=Get-SelectionDesktop
+    if($null -eq $desktop -or $desktop.Id -ne $Request.SelectionDesktopPid -or
+        [long]$desktop.MainWindowHandle -ne $Request.SelectionDesktopHwnd){throw 'Original Mousecat desktop changed before typed selection'}
+    $null=Read-SelectionBinding $Request
+    $fresh=Read-SelectionSnapshot $Request
+    if(-not (Test-SelectionSnapshot $Request $fresh) -or
+        $fresh.binding.bindingId -cne $Request.SelectionBindingId){throw 'Exact live source changed before typed selection'}
+}
+
+function Apply-SelectionItem($Option) {
+    ([System.Windows.Automation.SelectionItemPattern]$Option.GetCurrentPattern(
+        [System.Windows.Automation.SelectionItemPattern]::Pattern)).Select()
+}
+
+function Scroll-SelectionOption($Option, $Request, $Owners) {
+    if(-not (Test-SelectionOption $Option $Request $Owners -IncludeOffscreen) -or
+        -not $Option.Current.IsOffscreen -or
+        $Option.GetCurrentPropertyValue([System.Windows.Automation.AutomationElement]::IsScrollItemPatternAvailableProperty) -ne $true){
+        return $false
+    }
+    ([System.Windows.Automation.ScrollItemPattern]$Option.GetCurrentPattern(
+        [System.Windows.Automation.ScrollItemPattern]::Pattern)).ScrollIntoView()
+    return $true
+}
+
+function Invoke-SelectionOption($Option) {
+    ([System.Windows.Automation.InvokePattern]$Option.GetCurrentPattern(
+        [System.Windows.Automation.InvokePattern]::Pattern)).Invoke()
+}
+
+function Complete-DesktopSelection($Root, $Request, $Owners) {
+    $initial=Read-SelectionUiState $Root $Request
+    if(-not $initial.selectorVisible){throw 'Simulation selector unavailable'}
+    $initialValue=$initial.value;$targetSeen=($initial.value -ceq $Request.Label)
+    $expand=$null;$invoked=$false;$optionCount=0;$scrollAttempted=$false;$scrolled=$false;$selectionMethod=$null
+    try {
+        for($attempt=0;$attempt -lt 20;$attempt++){
+            $state=Read-SelectionUiState $Root $Request
+            if(-not $state.selectorVisible){throw 'Simulation navigation changed; selection was not repeated'}
+            if(-not $Owners.Contains([int]$state.selector.Current.ProcessId)){throw 'Simulation selector process changed'}
+            if($state.value -ceq $Request.Label){
+                $targetSeen=$true
+                if($state.headingVisible){return @{visible=$true;selected=$invoked;readinessPolls=($attempt+1);popupMatches=$optionCount;scrollAttempted=$scrollAttempted;scrolled=$scrolled;selectionMethod=$selectionMethod}}
+            } elseif(($targetSeen -and $state.value) -or
+                ($state.value -and $initialValue -and $state.value -cne $initialValue)){
+                throw 'Simulation choice changed during readiness; selection was not repeated'
+            }
+            # Selection and heading update asynchronously. A source already
+            # chosen by Mousecat needs readiness verification, not invocation.
+            if(-not $invoked -and -not $targetSeen){
+                if($null -eq $expand){$expand=Open-SelectionPopup $state.selector}
+                $candidates=@(Read-SelectionOptions $Request $Owners -IncludeOffscreen)
+                if($candidates.Count -gt 1){throw 'Requested simulation is ambiguously available in this desktop'}
+                $options=@($candidates | Where-Object {Test-SelectionOption $_ $Request $Owners});$optionCount=$options.Count
+                if($options.Count -eq 0 -and $candidates.Count -eq 1 -and -not $scrollAttempted){
+                    $beforeScroll=Read-SelectionUiState $Root $Request
+                    if(-not $beforeScroll.selectorVisible -or -not $Owners.Contains([int]$beforeScroll.selector.Current.ProcessId) -or
+                        ($beforeScroll.value -and $beforeScroll.value -cne $Request.Label -and -not $beforeScroll.currentHeadingVisible)){
+                        throw 'Simulation navigation changed; selection was not repeated'
+                    }
+                    if($beforeScroll.value -ceq $Request.Label){$targetSeen=$true}
+                    elseif($beforeScroll.value -and $initialValue -and $beforeScroll.value -cne $initialValue){
+                        throw 'Simulation choice changed during readiness; selection was not repeated'
+                    } else {
+                        if(Test-SelectionTypedOption $candidates[0] $Request $Owners){
+                            Confirm-SelectionSource $Request
+                            $typedReady=Read-SelectionUiState $Root $Request
+                            if(-not $typedReady.selectorVisible -or -not $Owners.Contains([int]$typedReady.selector.Current.ProcessId) -or
+                                ($typedReady.value -and $typedReady.value -cne $Request.Label -and -not $typedReady.currentHeadingVisible)){
+                                throw 'Simulation navigation changed; selection was not repeated'
+                            }
+                            if($typedReady.value -ceq $Request.Label){$targetSeen=$true}
+                            elseif($typedReady.value -and $initialValue -and $typedReady.value -cne $initialValue){
+                                throw 'Simulation choice changed during readiness; selection was not repeated'
+                            } else {
+                                $typedCandidates=@(Read-SelectionOptions $Request $Owners -IncludeOffscreen)
+                                if($typedCandidates.Count -gt 1){throw 'Requested simulation is ambiguously available in this desktop'}
+                                if($typedCandidates.Count -ne 1 -or -not (Test-SelectionTypedOption $typedCandidates[0] $Request $Owners)){throw 'Typed selection option changed'}
+                                Apply-SelectionItem $typedCandidates[0]
+                                $invoked=$true;$selectionMethod='SelectionItem'
+                                Close-SelectionPopup $expand;$expand=$null
+                            }
+                        } else {
+                            $scrollAttempted=$true
+                            $scrolled=Scroll-SelectionOption $candidates[0] $Request $Owners
+                        }
+                    }
+                    # One source-specific scroll only; requery its current UI row
+                    # and navigation on the next bounded readiness iteration.
+                }
+                if($options.Count -eq 1){
+                    # Requery after the popup scan: auto-follow may have selected
+                    # the exact source while its option subtree was changing.
+                    $ready=Read-SelectionUiState $Root $Request
+                    if(-not $ready.selectorVisible -or -not $Owners.Contains([int]$ready.selector.Current.ProcessId)){
+                        throw 'Simulation navigation changed; selection was not repeated'
+                    }
+                    if($ready.value -ceq $Request.Label){$targetSeen=$true}
+                    elseif($ready.value -and $initialValue -and $ready.value -cne $initialValue){
+                        throw 'Simulation choice changed during readiness; selection was not repeated'
+                    } else {
+                        Confirm-SelectionSource $Request
+                        $invokeReady=Read-SelectionUiState $Root $Request
+                        if(-not $invokeReady.selectorVisible -or -not $Owners.Contains([int]$invokeReady.selector.Current.ProcessId) -or
+                            ($invokeReady.value -and $invokeReady.value -cne $Request.Label -and -not $invokeReady.currentHeadingVisible)){
+                            throw 'Simulation navigation changed; selection was not repeated'
+                        }
+                        if($invokeReady.value -ceq $Request.Label){$targetSeen=$true}
+                        elseif($invokeReady.value -and $initialValue -and $invokeReady.value -cne $initialValue){
+                            throw 'Simulation choice changed during readiness; selection was not repeated'
+                        } else {
+                            $invokeCandidates=@(Read-SelectionOptions $Request $Owners -IncludeOffscreen)
+                            if($invokeCandidates.Count -gt 1){throw 'Requested simulation is ambiguously available in this desktop'}
+                            if($invokeCandidates.Count -ne 1 -or -not (Test-SelectionOption $invokeCandidates[0] $Request $Owners)){
+                                throw 'Visible selection option changed'
+                            }
+                            Invoke-SelectionOption $invokeCandidates[0]
+                            $invoked=$true;$selectionMethod='Invoke'
+                            Close-SelectionPopup $expand;$expand=$null
+                        }
+                    }
+                }
+            }
+            Start-Sleep -Milliseconds 250
+        }
+        if($invoked -or $targetSeen){throw 'Selected observation heading was not visible; selection was not repeated'}
+        throw ('Requested simulation is not uniquely available in this desktop; visible invokable matches='+$optionCount)
+    } finally {Close-SelectionPopup $expand}
+}
+
 function Select-DesktopView($App, $Request) {
     Add-Type -AssemblyName UIAutomationClient
     Add-Type -AssemblyName UIAutomationTypes
@@ -96,12 +277,6 @@ function Select-DesktopView($App, $Request) {
         }
     }
     if($null -eq $selector -or $selector.Current.IsOffscreen){throw 'Simulation selector unavailable'}
-    $value=$null
-    $heading=Find-SelectionHeading $root $Request.Label
-    if($selector.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern,[ref]$value) -and
-        $value.Current.Value -ceq $Request.Label -and $null -ne $heading -and -not $heading.Current.IsOffscreen){
-        return @{visible=$true;selected=$false}
-    }
     # The native select popup is a separate UIA subtree. Restrict it to this app's
     # process family, including WebView children, before matching the unique label.
     $processes=@(Get-CimInstance Win32_Process)
@@ -115,37 +290,7 @@ function Select-DesktopView($App, $Request) {
             }
         }
     } while($added)
-    $selector.SetFocus()
-    $expand=[System.Windows.Automation.ExpandCollapsePattern]$selector.GetCurrentPattern([System.Windows.Automation.ExpandCollapsePattern]::Pattern)
-    if($expand.Current.ExpandCollapseState -eq [System.Windows.Automation.ExpandCollapseState]::Collapsed){$expand.Expand()}
-    try {
-        $options=@()
-        for($attempt=0;$attempt -lt 20;$attempt++){
-            $options=@([System.Windows.Automation.AutomationElement]::RootElement.FindAll(
-                [System.Windows.Automation.TreeScope]::Descendants,
-                [System.Windows.Automation.PropertyCondition]::new(
-                    [System.Windows.Automation.AutomationElement]::ControlTypeProperty,
-                    [System.Windows.Automation.ControlType]::ListItem)) |
-                Where-Object {$_.Current.Name -ceq $Request.Label -and $owners.Contains($_.Current.ProcessId)})
-            if($options.Count -eq 1){break}
-            Start-Sleep -Milliseconds 250
-        }
-        if($options.Count -ne 1){throw 'Requested simulation is not uniquely available in this desktop'}
-        # A single invocation. Verification below never reselects after operator navigation.
-        ([System.Windows.Automation.InvokePattern]$options[0].GetCurrentPattern(
-            [System.Windows.Automation.InvokePattern]::Pattern)).Invoke()
-    } finally {
-        if($expand.Current.ExpandCollapseState -eq [System.Windows.Automation.ExpandCollapseState]::Expanded){$expand.Collapse()}
-    }
-    for($attempt=0;$attempt -lt 20;$attempt++){
-        $heading=Find-SelectionHeading $root $Request.Label
-        $value=$null
-        if($null -ne $heading -and -not $heading.Current.IsOffscreen -and
-            $selector.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern,[ref]$value) -and
-            $value.Current.Value -ceq $Request.Label){return @{visible=$true;selected=$true}}
-        Start-Sleep -Milliseconds 250
-    }
-    throw 'Selected observation heading was not visible; selection was not repeated'
+    return Complete-DesktopSelection $root $Request $owners
 }
 
 function Invoke-OpenMousecat($Request) {
@@ -175,12 +320,19 @@ function Invoke-OpenMousecat($Request) {
         if($null -eq $snapshot){Save-SelectionReceipt $Request @{status='unavailable';reason=$reason;desktopPid=$app.Id};return}
         $currentApp=Get-SelectionDesktop
         if($null -eq $currentApp -or $currentApp.Id -ne $app.Id){throw 'Original Mousecat desktop is no longer available'}
+        $Request.SelectionBindingId=$snapshot.binding.bindingId
+        $Request.SelectionDesktopPid=$app.Id
+        $Request.SelectionDesktopHwnd=[long]$app.MainWindowHandle
         $selection=Select-DesktopView $currentApp $Request
+        $verifiedApp=Get-SelectionDesktop
+        if($null -eq $verifiedApp -or $verifiedApp.Id -ne $app.Id){throw 'Original Mousecat desktop changed during verification'}
         $null=Read-SelectionBinding $Request
         $after=Read-SelectionSnapshot $Request
         if($selection.visible -ne $true -or -not (Test-SelectionSnapshot $Request $after) -or
             $after.binding.bindingId -cne $snapshot.binding.bindingId){throw 'Selected source changed during verification'}
         Save-SelectionReceipt $Request @{status='PASS';desktopPid=$app.Id;visible=$true;selectionPerformed=$selection.selected;
+            selectionReadinessPolls=$selection.readinessPolls;selectionPopupMatches=$selection.popupMatches;selectionMethod=$selection.selectionMethod;
+            selectionScrollAttempted=$selection.scrollAttempted;selectionScrolled=$selection.scrolled;
             bindingId=$after.binding.bindingId;connection=$after.connection;
             sourceSequence=$after.view.sequence;sourceCapturedAtUnixMs=$after.view.capturedAtUnixMs;
             sourceVideoState=$after.view.video.state;sourceEncodedFrames=$after.view.video.stats.encodedFrames;

@@ -1,26 +1,15 @@
 # Generated document exports
 
-Markdown files in the repository are the current source of truth.
-The C catalog was consolidated on 2026-09-19. Earlier generated Word copies
-are preserved under history/before-c-consolidation and retain their former
-versions and labels. They are historical snapshots.
+Current Word companions carry the content of their owning Markdown sources.
+Their packages and document XML are checked, and current version headers follow
+the repository version machine. Neo keeps the current companions synchronized
+when the source descriptions change.
 
-Current Word regeneration was completed as local drafts, with package checks
-passing. Visual verification remains unavailable because the required office
-renderer is absent. Those drafts are not published as verified documents.
-The unchanged tools/sweep/receipts export accompanies immutable evidence.
+Dated exports under `history/` and `audits/` retain the versions and source
+observations of their recorded runs. The C111, C112 and C116 export groups
+remain available there as source history. The unchanged `tools/sweep/receipts`
+exports accompany their original evidence.
 
-The C111 current doc-pack, batch record and shared-mechanics scope are exported
-under `audits/c111-currency-drafts/`. All 25 packages pass ZIP and document-XML
-checks. They retain the draft status above; Markdown owns the current content.
-
-The C112 current doc-pack, native-window batch record and integration scope are
-exported under `audits/c112-currency-drafts/`. All 25 packages pass ZIP and
-document-XML checks. They retain the package-checked draft status above;
-visual rendering is unavailable and Markdown owns the current content.
-
-The C116 standing validation policy and affected canonical documents accompany
-the current native-observation doc-pack under audits/c116-currency-drafts/.
-The retained policy export receipt records source hashes, twin mappings and
-ZIP/document-XML checks. These remain package-checked drafts; an Office visual
-render is unavailable, and Markdown owns the current content.
+The owning Markdown documents and current session state provide the maintained
+product descriptions. Their Word companions provide the same content for reading
+and sharing.

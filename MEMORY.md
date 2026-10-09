@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `3.8.0.0-pre-alpha` |
+| Version | `3.8.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -85,3 +85,43 @@ current. Nothing at the root is unclassified.
 
 `artifacts/docx/` holds generated readable exports and historical snapshots.
 Its README states export currency; corresponding Markdown is the current source.
+
+
+### 2026-10-09 10:17 UTC / 03:17 PST — observed restored-body inquiry recovery and connected asset library
+
+Current proof: `_scratch/d2-leisure-01/source-inquiry-body-recovery-20261009/inquiry-proof.json`, `installed-receipt.json` and `checkpoint-receipt.json`. Source tests and installed-byte custody retain their separate scopes. Private library canonical documents and exact assets live at `Projects/neo-library`; native delivery provenance is source-owned in that repository.
+
+The full inherited 35-contract/shared-goal mandate and FIFO continue: D3 construction/crafting/repair/utilities, D4 whole food/preservation, D5 comprehensive installed animal care, and D6 assessed K-through-college learning. Mousecat’s custom Zomboid engine fork playtest architecture under the universal permission mandate and controlled testing with new models when ready remain continuing outcomes. The normal user-owned save, character and scenario flow continues. Logical liaison04 is carried by the distinct sole-writer successor322; SEAL321 is the preserved predecessor, not the active claim.
+
+Current verification assessment is Neo-owned through `neo-verification-assessment`. The D2-preclosure session snapshot under `Batches/history/d2-before-closure/` is dated history; SESSION_STATE is the current concise source.
+
+## Generated current DOCX companions
+
+Markdown owns the current text; these are generated human-readable companions.
+
+| File | Status | Role |
+|---|---|---|
+| `ARCHITECTURE.docx` | GENERATED | Current named Markdown companion. |
+| `BATCH_LOG.docx` | GENERATED | Current named Markdown companion. |
+| `BRANCHING.docx` | GENERATED | Current named Markdown companion. |
+| `CORE.docx` | GENERATED | Current named Markdown companion. |
+| `DECISION_REGISTRY.docx` | GENERATED | Current named Markdown companion. |
+| `ENGINE_CONTRACT.docx` | GENERATED | Current named Markdown companion. |
+| `FINDINGS.docx` | GENERATED | Current named Markdown companion. |
+| `GOVERNANCE.docx` | GENERATED | Current named Markdown companion. |
+| `GROUNDED_DEAD_PROPOSAL.docx` | GENERATED | Current named Markdown companion. |
+| `KNOX_SOCIAL_AUDIT.docx` | GENERATED | Current named Markdown companion. |
+| `MAPS.docx` | GENERATED | Current named Markdown companion. |
+| `MEMORY.docx` | GENERATED | Current named Markdown companion. |
+| `NEO.docx` | GENERATED | Current named Markdown companion. |
+| `ORGANIZATION.docx` | GENERATED | Current named Markdown companion. |
+| `PLAYABILITY.docx` | GENERATED | Current named Markdown companion. |
+| `POSITION.docx` | GENERATED | Current named Markdown companion. |
+| `PROJECTS.docx` | GENERATED | Current named Markdown companion. |
+| `README.docx` | GENERATED | Current named Markdown companion. |
+| `RECEIPTS.docx` | GENERATED | Current named Markdown companion. |
+| `REPRESENTATION.docx` | GENERATED | Current named Markdown companion. |
+| `ROADMAP.docx` | GENERATED | Current named Markdown companion. |
+| `SESSION_STATE.docx` | GENERATED | Current named Markdown companion. |
+| `SUBSTRATE.docx` | GENERATED | Current named Markdown companion. |
+| `VERSION_MAP.docx` | GENERATED | Current named Markdown companion. |

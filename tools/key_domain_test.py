@@ -79,6 +79,8 @@ def strip_lua(src):
 
 
 def main():
+    from source_scanner_baseline import Baseline
+    baseline = Baseline()
     findings, checked = [], 0
     for path in sorted(LUA.rglob("*.lua")):
         raw = path.read_text(encoding="utf-8", errors="ignore")
@@ -186,6 +188,8 @@ def main():
             if line.strip().startswith("--"):
                 continue
             for m in pattern.finditer(line):
+                if baseline.preserved(path, i):
+                    continue
                 token = m.group(2) or m.group(4)
                 # A one-tile expansion is geometry, not policy: it
                 # widens a rectangle to test adjacency, and there is

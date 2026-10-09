@@ -185,8 +185,8 @@ def main():
         "the absorption's door reads the switch":
             "sv.%s == true" % SWITCH in absorb,
         "the menu prediction asks first":
-            "function Nb.willSuperimpose(recId, worldobjects)\n    if not Nb.bridgeOpen() then return false end"
-            in neighbours,
+            re.search(r"function\s+Nb\.willSuperimpose\([^)]*\)\s*"
+                      r"if not Nb\.bridgeOpen\(\) then return false end", neighbours),
         "the menu rewrite asks first":
             "local function superimposePersonRoot(playerNum, context, worldobjects)\n    if not Nb.bridgeOpen() then return end"
             in neighbours,
@@ -201,50 +201,31 @@ def main():
     gates["and reads their marks through the engine"] = (
         "getVariableBoolean" in knox and "getModData" in knox)
 
-    # 4. The approved external animation dependency is distinct from survivor
-    # framework absorption. Exact metadata, reviewed provenance and the actual
-    # availability gate must agree; this grants no arbitrary dependency.
+    # 4. Recovery is a packaged, source-attributed SAO owner.
     pose = strip_comments(read(LUA / "client" / "SAO_RecoveryPose.lua"))
     at = pose.find("function P.available()")
     stop = pose.find("function P.", at + 1)
     available = pose[at:stop] if at >= 0 and stop > at else ""
-    for witness in ('mods:contains("LeanAndLie")', 'mods:contains("TchernoLib")',
-                    'type(TchAL) == "table"',
-                    'TchAL.stateVariableOnGround == P.stateVariableOnGround',
-                    'return ok and available == true'):
-        gates["installed animation availability: " + witness] = witness in available
+    gates["owned ground namespace"] = 'P.stateVariableOnGround == "SAORecoveryGround"' in available
+    gates["recovery does not query foreign activation"] = all(name not in available for name in ("getActivatedMods", "TchAL", "LeanAndLie", "TchernoLib"))
     try:
         source = json.loads(read(ROOT / "tools" / "recovery_source_manifest.json"))
     except (ValueError, TypeError):
         source = {}
-    gates["external animation source contract is declared"] = (
-        source.get("schema") == "sao-installed-recovery-adapter/1"
-        and source.get("runtimeDependencies") == ["LeanAndLie", "TchernoLib"])
-    gates["credits disclose installed animation dependency"] = (
-        "## Lean & Lie (Tchernobill)" in read(CREDITS)
-        and "externally installed Lean & Lie" in read(CREDITS))
-    # The manifests and their player-facing descriptions.
+    gates["owned recovery integration declares exact source custody"] = source.get("schema") == "sao-owned-recovery-integration/2" and source.get("runtimeDependencies") == [] and len(source.get("reviewedOriginalSources", {})) == 12
+    gates["recovery nodes are packaged"] = len(source.get("packagedGroundNodes", [])) == 6 and all((ROOT / p).is_file() for p in source.get("packagedGroundNodes", []))
+    gates["credits disclose source integration and permission boundary"] = "## Lean & Lie (Tchernobill)" in read(CREDITS) and "upstream redistribution grant" in read(CREDITS)
     for manifest in MANIFESTS:
         text = read(manifest)
         requirements = re.findall(r"^require=(.*)$", text, re.M)
-        if [value.strip() for value in requirements] != ["LeanAndLie"]:
-            faults.append("%s must require exactly the approved LeanAndLie animation dependency; found %r"
-                          % (manifest.parent.name, requirements))
+        if any(value.strip() for value in requirements):
+            faults.append("%s has an external integration load requirement: %r" % (manifest.parent.name, requirements))
         description = re.search(r"^description=(.*)$", text, re.M)
         body = description.group(1) if description else ""
-        for claimed in ("Infirmities", "Even More Traits", "twbInfirmities",
-                        "EvenMoreTraits"):
-            if claimed in body:
-                faults.append(
-                    "%s's description tells the player the mod requires '%s' "
-                    "and the manifest requires nothing. A description is read "
-                    "by every player and by no border until this one"
-                    % (manifest.parent.name, claimed))
-        if "Ground recovery requires installed Lean & Lie" not in body or "TchernoLib dependency" not in body:
-            faults.append("%s's description omits its installed animation dependency" % manifest.parent.name)
+        if "SAO-owned animation nodes" not in body:
+            faults.append("%s description omits the owned recovery integration" % manifest.parent.name)
         if "ZombieBuddy" not in body:
-            faults.append("%s's description does not name the one requirement "
-                          "for the Java loader" % manifest.parent.name)
+            faults.append("%s description omits native Java loader" % manifest.parent.name)
 
     gates["the credits say nothing of ours runs through theirs"] = (
         "nothing of this county's runs through it" in read(CREDITS))
@@ -266,7 +247,7 @@ def main():
         return 1
     print("  114) the county stands on its own: one door, closed by default; "
           "survivor-framework protection calls none of their code; the loader "
-          "and approved installed animation dependency are disclosed")
+          "and packaged source-derived recovery integration are disclosed")
     return 0
 
 

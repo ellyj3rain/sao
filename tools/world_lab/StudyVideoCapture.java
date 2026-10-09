@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.ReentrantLock;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
@@ -35,21 +36,104 @@ public final class StudyVideoCapture {
     static final int MAX_PENDING_METADATA = 512;
     static final int RETAIN_SEGMENTS = 8;
     private static final Slot[] SLOTS = {new Slot(), new Slot(), new Slot()};
-    private static Producer producer;
+    private static volatile Producer producer;
     private static Readback readback = new OpenGlReadback();
     private static boolean initialized;
     private static long nextCapture;
     private static long pngAt;
+    private static final ReentrantLock PUBLICATION_LOCK = new ReentrantLock();
+    private static final Object LIFECYCLE_LOCK = new Object();
+    private static Producer publicationOwner;
+    private static volatile Thread retirementWorker;
+    private static volatile boolean captureStopped;
+    private static boolean geometryPending, shutdownHookInstalled;
+    private static int pendingWidth, pendingHeight;
+    private static long geometryChangedAt;
+    private static Object nativeBody;
+    private static String nativeSave;
+    private static int nativeSqlId;
+    private static double nativeHours;
+    private static StudyViewCapture.CaptureContext nativeContext;
+    private static boolean nativeSourceSeen;
+    static final long GEOMETRY_STABLE_NS = TimeUnit.MILLISECONDS.toNanos(350);
+
+    /** Construction seam controls workers in native lifecycle tests. */
+    interface ProducerFactory {
+        Producer create(Path root, Path executable, int width, int height, int fps) throws IOException;
+    }
+    private static ProducerFactory producerFactory = Producer::new;
 
     public record Site(String id, String label, int slot, float x, float y, float z,
                        int left, int top, int width, int height, float zoom, float targetZoom) { }
     record Crop(String id, int slot, int left, int top, int width, int height) { }
     record Frame(long sequence, long capturedAtUnixMs, long observerSequence, double worldHours,
-                 Site[] sites, int width, int height, byte[] pixels) { }
+                 Site[] sites, int width, int height, byte[] pixels,
+                 StudyViewCapture.FrameCamera camera) {
+        Frame(long sequence, long capturedAtUnixMs, long observerSequence, double worldHours,
+              Site[] sites, int width, int height, byte[] pixels) {
+            this(sequence, capturedAtUnixMs, observerSequence, worldHours,
+                sites, width, height, pixels, null);
+        }
+    }
     private static final class Slot {
         int buffer;
         long fence;
+        long submittedAtNs;
         Frame frame;
+        StudyViewCapture.FrameStamp stamp;
+    }
+
+    /** Diagnostics are separate from video/admitted-frame accounting. */
+    static final class Diagnostics {
+        static final String[] COUNTERS = {"nativeSwapCallbacks", "missingStampSwaps", "failedSwaps",
+            "stampedCaptureAttempts", "ceilingSkips", "pboBusySkips", "handoffBusySkips",
+            "captureAdmissions", "fenceNotReady", "readbackTransfers", "pipeWrites", "sidecarWriteFailures", "sharedPngAdmissions"};
+        static final String[] TIMERS = {"captureCallback", "pboSubmit", "fenceAge", "pboMapCopy", "pipeWriteFlush", "pngReadback"};
+        static final long[] BOUNDS = {100_000, 1_000_000, 4_000_000, 16_000_000, 64_000_000, 250_000_000, 1_000_000_000};
+        final AtomicLong[] counts = atoms(COUNTERS.length);
+        final AtomicLong[][] timings = new AtomicLong[TIMERS.length][];
+        final long startedAtNs = System.nanoTime();
+        Diagnostics() { for (int i=0;i<timings.length;i++) timings[i]=atoms(3+BOUNDS.length+1); }
+        static AtomicLong[] atoms(int count) {
+            AtomicLong[] values=new AtomicLong[count]; for(int i=0;i<count;i++) values[i]=new AtomicLong(); return values;
+        }
+        void count(int index) { counts[index].incrementAndGet(); }
+        void duration(int index, long elapsed) {
+            elapsed=Math.max(0,elapsed); var row=timings[index];
+            row[0].incrementAndGet(); row[1].addAndGet(elapsed); row[2].accumulateAndGet(elapsed,Math::max);
+            int bucket=0; while(bucket<BOUNDS.length && elapsed>=BOUNDS[bucket]) bucket++;
+            row[3+bucket].incrementAndGet();
+        }
+        String json(String streamId) {
+            StringBuilder out=new StringBuilder("{\"schema\":\"sao-native-capture-diagnostics/1\",\"streamId\":\"")
+                .append(streamId).append("\",\"updatedAtUnixMs\":").append(System.currentTimeMillis())
+                .append(",\"elapsedNs\":").append(Math.max(0,System.nanoTime()-startedAtNs))
+                .append(",\"counterBoundary\":\"native swaps counted after producer initialization; pre-admission skips remain outside video droppedFrames\",\"counts\":{");
+            for(int i=0;i<COUNTERS.length;i++) { if(i>0)out.append(','); out.append('"').append(COUNTERS[i]).append("\":").append(counts[i].get()); }
+            out.append("},\"histogramUpperBoundsNs\":[");
+            for(int i=0;i<BOUNDS.length;i++){if(i>0)out.append(',');out.append(BOUNDS[i]);}
+            out.append("],\"timings\":{");
+            for(int i=0;i<TIMERS.length;i++) {
+                if(i>0)out.append(','); var row=timings[i];
+                out.append('"').append(TIMERS[i]).append("\":{\"calls\":").append(row[0].get())
+                    .append(",\"totalNs\":").append(row[1].get()).append(",\"maximumNs\":").append(row[2].get()).append(",\"histogram\":[");
+                for(int j=3;j<row.length;j++){if(j>3)out.append(',');out.append(row[j].get());} out.append("]}");
+            }
+            return out.append("}}\n").toString();
+        }
+    }
+
+    static void nativeSwap(boolean stamped, boolean failed) {
+        Producer owner=producer;
+        if (!enabled() || owner==null) return;
+        owner.diagnostics.count(0);
+        if (!stamped) owner.diagnostics.count(1);
+        if (failed) owner.diagnostics.count(2);
+    }
+
+    static void pngReadbackDuration(long elapsedNs) {
+        Producer owner=producer;
+        if (enabled() && owner!=null) owner.diagnostics.duration(5,elapsedNs);
     }
 
     /** Native lifecycle seam; tests substitute GPU operations, not accounting. */
@@ -76,11 +160,14 @@ public final class StudyVideoCapture {
         }
         public int createBuffer(int width, int height) {
             int previous = GL11.glGetInteger(GL21.GL_PIXEL_PACK_BUFFER_BINDING);
+            int buffer = GL15.glGenBuffers();
             try {
-                int buffer = GL15.glGenBuffers();
                 GL15.glBindBuffer(GL21.GL_PIXEL_PACK_BUFFER, buffer);
                 GL15.glBufferData(GL21.GL_PIXEL_PACK_BUFFER, (long) width * height * 3, GL15.GL_STREAM_READ);
                 return buffer;
+            } catch (RuntimeException | LinkageError failure) {
+                GL15.glDeleteBuffers(buffer);
+                throw failure;
             } finally { GL15.glBindBuffer(GL21.GL_PIXEL_PACK_BUFFER, previous); }
         }
         public long capture(int buffer, int width, int height) throws IOException {
@@ -155,32 +242,63 @@ public final class StudyVideoCapture {
         return true;
     }
 
+    static boolean sharesPng() {
+        return Boolean.getBoolean("study.nativePlay") && enabled() && (producer == null || !producer.failed());
+    }
+
     /** Render thread: never waits for an encoder, worker, or GPU fence. */
     static void swapped(StudyViewCapture.FrameStamp stamp) {
-        if (!enabled()) return;
+        if (!enabled() || captureStopped) return;
+        long callbackStarted=System.nanoTime();
         try {
             int width = readback.width(), height = readback.height();
             if (!initialized) initialize(width, height);
-            if (producer == null || producer.failed()) return;
+            if (producer == null) return;
+            producer.diagnostics.count(3);
             if (zombie.GameWindow.closeRequested) {
+                captureStopped = true;
                 releaseSlots();
                 producer.requestClose();
                 return;
             }
-            if (width != producer.width || height != producer.height)
-                throw new IOException("native framebuffer dimensions changed during video");
+            if (Boolean.getBoolean("study.nativePlay") && StudyViewCapture.participantMode()
+                    && !StudyViewCapture.frameCurrent(stamp)) return;
+            var participant = stamp.participant();
+            var context = participant == null ? null : participant.capture();
+            boolean nativeBoundary = Boolean.getBoolean("study.nativePlay") && nativeSourceSeen
+                && (participant == null || participant.body() != nativeBody
+                    || !java.util.Objects.equals(participant.save(), nativeSave)
+                    || participant.playerSqlId() != nativeSqlId || stamp.hours() < nativeHours
+                    || (context != null && nativeContext != null && !context.sameSource(nativeContext)));
+            if (geometryPending || nativeBoundary || width != producer.width || height != producer.height) {
+                if (!StudyViewCapture.participantMode())
+                    throw new IOException("native framebuffer dimensions changed during video");
+                if (!rollover(width, height)) return;
+            }
+            if (producer.failed() || producer.closing) return;
             pollReady();
             long now = System.nanoTime();
-            if (now < nextCapture) return;
+            if (now < nextCapture) { producer.diagnostics.count(4); return; }
             nextCapture = now + TimeUnit.SECONDS.toNanos(1) / producer.fps;
             Slot free = null;
             for (Slot slot : SLOTS) if (slot.fence == 0) { free = slot; break; }
             // Busy slots and encoder backpressure skip an opportunity before
             // native pixels are admitted; they are not lost captured frames.
-            if (free == null || producer.latest.get() != null) return;
-            free.fence = readback.capture(free.buffer, width, height);
+            if (free == null) { producer.diagnostics.count(5); return; }
+            if (producer.latest.get() != null) { producer.diagnostics.count(6); return; }
+            free.submittedAtNs=System.nanoTime();
+            try { free.fence = readback.capture(free.buffer, width, height); }
+            finally { producer.diagnostics.duration(1,System.nanoTime()-free.submittedAtNs); }
             free.frame = new Frame(producer.admitCapture(), System.currentTimeMillis(), stamp.observerSequence(),
-                stamp.hours(), stamp.videoSites(), width, height, null);
+                stamp.hours(), stamp.videoSites(), width, height, null, stamp.camera());
+            free.stamp = stamp;
+            if (Boolean.getBoolean("study.nativePlay")) {
+                nativeBody = participant == null ? null : participant.body();
+                nativeSave = participant == null ? null : participant.save();
+                nativeSqlId = participant == null ? -1 : participant.playerSqlId();
+                nativeHours = stamp.hours(); nativeContext = context; nativeSourceSeen = true;
+            }
+            producer.diagnostics.count(7);
         } catch (Exception | LinkageError failure) {
             if (producer != null) {
                 try { releaseSlots(); }
@@ -188,17 +306,86 @@ public final class StudyVideoCapture {
                 producer.fail("Native video capture unavailable");
             }
             System.out.println("[StudyVideo] native capture unavailable: " + failure);
+        } finally {
+            if (producer!=null) producer.diagnostics.duration(0,System.nanoTime()-callbackStarted);
         }
     }
 
     private static void initialize(int width, int height) throws IOException {
-        initialized = true;
-        producer = new Producer(Path.of(System.getProperty("study.viewDirectory")),
-            Path.of(System.getProperty("study.videoEncoder")), width, height,
-            Integer.parseInt(System.getProperty("study.videoFps", "120")));
-        Runtime.getRuntime().addShutdownHook(new Thread(producer::close, "StudyVideoShutdown"));
-        readback.verifyContext();
-        for (Slot slot : SLOTS) slot.buffer = readback.createBuffer(width, height);
+        synchronized (LIFECYCLE_LOCK) {
+            if (captureStopped) return;
+            initialized = true;
+            producer = producerFactory.create(Path.of(System.getProperty("study.viewDirectory")),
+                Path.of(System.getProperty("study.videoEncoder")), width, height,
+                Integer.parseInt(System.getProperty("study.videoFps", "120")));
+            if (!shutdownHookInstalled) {
+                shutdownHookInstalled = true;
+                Runtime.getRuntime().addShutdownHook(new Thread(StudyVideoCapture::shutdown, "StudyVideoShutdown"));
+            }
+            readback.verifyContext();
+            for (Slot slot : SLOTS) slot.buffer = readback.createBuffer(width, height);
+            nextCapture = 0;
+        }
+    }
+
+    /** A resize cancels old GPU admissions, then coalesces until both the native
+     * geometry and the single retiring encoder are ready. Never waits here. */
+    private static boolean rollover(int width, int height) throws IOException {
+        long now = System.nanoTime();
+        if (!geometryPending) {
+            releaseSlots();
+            geometryPending = true;
+            pendingWidth = width; pendingHeight = height; geometryChangedAt = now;
+        }
+        if (retirementWorker == null) {
+            // Atomic file publication can be temporarily busy. Defer authority
+            // transfer to another swap rather than wait on its worker here.
+            if (!PUBLICATION_LOCK.tryLock()) return false;
+            Producer prior = producer;
+            try {
+                if (publicationOwner == prior) publicationOwner = null;
+                prior.retired = true;
+            } finally { PUBLICATION_LOCK.unlock(); }
+            prior.requestClose();
+            retirementWorker = new Thread(() -> {
+                try { prior.writeManifest(); }
+                catch (IOException failure) { prior.fail("Native video retirement receipt unavailable"); }
+                prior.close();
+                if (prior.failed()) {
+                    // A failed retirement blocks further epochs. Its failure
+                    // remains the current truth while no successor exists.
+                    PUBLICATION_LOCK.lock();
+                    try {
+                        if (publicationOwner == null) publicationOwner = prior;
+                    } finally { PUBLICATION_LOCK.unlock(); }
+                    try { prior.writeManifest(); }
+                    catch (IOException failure) { System.out.println("[StudyVideo] retirement failure receipt unavailable: " + failure); }
+                }
+            }, "StudyVideoGeometryRetirement");
+            retirementWorker.setDaemon(true); retirementWorker.start();
+            return false;
+        }
+        if (pendingWidth != width || pendingHeight != height) {
+            pendingWidth = width; pendingHeight = height; geometryChangedAt = now;
+        }
+        if (producer.failed() || retirementWorker.isAlive() || now - geometryChangedAt < GEOMETRY_STABLE_NS)
+            return false;
+        if (!producer.quiescent()) throw new IOException("retiring native video resources remain live");
+        initialize(width, height);
+        geometryPending = false;
+        retirementWorker = null;
+        return true;
+    }
+
+    private static void shutdown() {
+        Producer current;
+        synchronized (LIFECYCLE_LOCK) { captureStopped = true; current = producer; }
+        if (current != null) current.close();
+        Thread retiring = retirementWorker;
+        if (retiring != null && retiring != Thread.currentThread()) {
+            try { retiring.join(10000); }
+            catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); }
+        }
     }
 
     private static void pollReady() throws IOException {
@@ -208,14 +395,35 @@ public final class StudyVideoCapture {
             for (Slot slot : SLOTS) if (slot.fence != 0
                     && (oldest == null || slot.frame.sequence() < oldest.frame.sequence())) oldest = slot;
             if (oldest == null) return;
-            if (!readback.ready(oldest.fence)) return;
+            if (!readback.ready(oldest.fence)) { producer.diagnostics.count(8); return; }
+            if (Boolean.getBoolean("study.nativePlay") && StudyViewCapture.participantMode()
+                    && !StudyViewCapture.frameCurrent(oldest.stamp)) {
+                producer.dropped.incrementAndGet();
+                discardSlot(oldest, false);
+                continue;
+            }
+            producer.diagnostics.duration(2,System.nanoTime()-oldest.submittedAtNs);
             boolean transferred = false;
             try {
-                byte[] bytes = readback.pixels(oldest.buffer, producer.width, producer.height);
+                byte[] bytes;
+                long mappingStarted=System.nanoTime();
+                try { bytes = readback.pixels(oldest.buffer, producer.width, producer.height); }
+                finally { producer.diagnostics.duration(3,System.nanoTime()-mappingStarted); }
+                if (Boolean.getBoolean("study.nativePlay") && StudyViewCapture.participantMode()
+                        && !StudyViewCapture.frameCurrent(oldest.stamp)) continue;
                 Frame frame = oldest.frame;
+                if (Boolean.getBoolean("study.nativePlay") && oldest.stamp.participant() != null)
+                    producer.offerNativeContext(oldest.stamp.participant().capture());
                 producer.acceptCaptured(new Frame(frame.sequence(), frame.capturedAtUnixMs(), frame.observerSequence(),
-                    frame.worldHours(), frame.sites(), producer.width, producer.height, bytes));
+                    frame.worldHours(), frame.sites(), producer.width, producer.height, bytes, frame.camera()));
+                // One admitted native readback supplies both lossless PNG and
+                // video. Metadata stays with that exact admission; no second
+                // synchronous GL_FRONT read is needed for interactive play.
+                if (sharesPng() && pngDue() && StudyViewCapture.sharedPixels(oldest.stamp,
+                        producer.width, producer.height, bytes, frame.capturedAtUnixMs()))
+                    producer.diagnostics.count(12);
                 transferred = true;
+                producer.diagnostics.count(9);
             } finally {
                 if (!transferred) producer.dropped.incrementAndGet();
                 discardSlot(oldest, false);
@@ -224,7 +432,15 @@ public final class StudyVideoCapture {
     }
 
     private static void releaseSlots() {
-        for (Slot slot : SLOTS) discardSlot(slot, true);
+        Throwable first = null;
+        for (Slot slot : SLOTS) {
+            try { discardSlot(slot, true); }
+            catch (RuntimeException | LinkageError failure) {
+                if (first == null) first = failure; else first.addSuppressed(failure);
+            }
+        }
+        if (first instanceof RuntimeException failure) throw failure;
+        if (first instanceof LinkageError failure) throw failure;
     }
 
     private static void discardSlot(Slot slot, boolean releaseBuffer) {
@@ -233,11 +449,11 @@ public final class StudyVideoCapture {
         boolean pending = slot.frame != null;
         // Clear ownership before native disposal, so an exceptional cleanup
         // cannot count or release the same admitted capture twice.
-        slot.fence = 0; slot.frame = null;
+        slot.fence = 0; slot.frame = null; slot.stamp = null; slot.submittedAtNs=0;
         if (releaseBuffer) slot.buffer = 0;
         if (releaseBuffer && pending) producer.dropped.incrementAndGet();
-        if (fence != 0) readback.releaseFence(fence);
-        if (releaseBuffer && buffer != 0) readback.releaseBuffer(buffer);
+        try { if (fence != 0) readback.releaseFence(fence); }
+        finally { if (releaseBuffer && buffer != 0) readback.releaseBuffer(buffer); }
     }
 
     /** Workers consume only immutable captured bytes and metadata. */
@@ -246,15 +462,26 @@ public final class StudyVideoCapture {
         final Path executable;
         final String streamId = UUID.randomUUID().toString();
         final int width, height, fps;
+        final boolean participantEpoch;
         final AtomicLong captured = new AtomicLong(), encoded = new AtomicLong(), dropped = new AtomicLong();
         final AtomicReference<Frame> latest = new AtomicReference<>();
+        final AtomicReference<StudyViewCapture.CaptureContext> nativeCaptureContext = new AtomicReference<>();
+        final Diagnostics diagnostics = new Diagnostics();
         final AtomicReference<String> failureReason = new AtomicReference<>();
         final ArrayBlockingQueue<Frame> submitted = new ArrayBlockingQueue<>(MAX_PENDING_METADATA);
         final ArrayDeque<Segment> segments = new ArrayDeque<>();
         final Thread writer;
+        final Thread diagnosticWriter;
+        final Object diagnosticLock = new Object();
+        final Object closeLock = new Object();
+        volatile boolean diagnosticsStopped;
         volatile Thread reader;
+        volatile Thread failureWriter;
         volatile Process process;
         volatile boolean closing;
+        volatile boolean retired;
+        boolean closedManifestWritten;
+        boolean nativeContextWritten;
         volatile String state = "starting";
         volatile String message = "Waiting for native video frames";
         String initFile, initSha, codecs;
@@ -270,8 +497,45 @@ public final class StudyVideoCapture {
             if (width < 2 || width > 4096 || height < 2 || height > 2160 || (width & 1) != 0 || (height & 1) != 0
                     || fps < 30 || fps > 120) throw new IOException("video dimensions or rate invalid");
             this.root = root; this.executable = executable; this.width = width; this.height = height; this.fps = fps;
+            participantEpoch = StudyViewCapture.participantMode();
             writer = new Thread(this::encode, "StudyVideoEncoder"); writer.setDaemon(true);
-            if (startWriter) writer.start();
+            diagnosticWriter = new Thread(this::publishDiagnostics, "StudyCaptureDiagnostics"); diagnosticWriter.setDaemon(true);
+            if (participantEpoch) {
+                PUBLICATION_LOCK.lock();
+                try { publicationOwner = this; }
+                finally { PUBLICATION_LOCK.unlock(); }
+            }
+            if (startWriter) { diagnosticWriter.start(); writer.start(); }
+        }
+
+        private void publishDiagnostics() {
+            while (!diagnosticsStopped) {
+                try { writeDiagnostics(); }
+                catch (IOException | RuntimeException failure) { diagnostics.count(11); }
+                LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(1));
+            }
+            try { writeDiagnostics(); }
+            catch (IOException | RuntimeException failure) { diagnostics.count(11); }
+        }
+
+        void writeDiagnostics() throws IOException {
+            synchronized (diagnosticLock) {
+                Files.createDirectories(root);
+                String json = diagnostics.json(streamId);
+                if (participantEpoch) {
+                    replace("video-" + streamId + "-capture-diagnostics.json", json);
+                    PUBLICATION_LOCK.lock();
+                    try {
+                        if (publicationOwner == this) replace("capture-diagnostics.json", json);
+                    } finally { PUBLICATION_LOCK.unlock(); }
+                } else replace("capture-diagnostics.json", json);
+            }
+        }
+
+        void writePixels(OutputStream input, Frame frame) throws IOException {
+            long started=System.nanoTime();
+            try { input.write(frame.pixels()); input.flush(); diagnostics.count(10); }
+            finally { diagnostics.duration(4,System.nanoTime()-started); }
         }
 
         boolean failed() { return failureReason.get() != null; }
@@ -283,6 +547,25 @@ public final class StudyVideoCapture {
         }
 
         long admitCapture() { return captured.incrementAndGet(); }
+
+        void offerNativeContext(StudyViewCapture.CaptureContext context) throws IOException {
+            if (!participantEpoch || context == null) return;
+            StudyViewCapture.CaptureContext prior = nativeCaptureContext.get();
+            if (prior == null) {
+                if (nativeCaptureContext.compareAndSet(null, context)) return;
+                prior = nativeCaptureContext.get();
+            }
+            if (!prior.sameSource(context)) throw new IOException("native capture context changed within stream");
+        }
+
+        /** Writer-owned immutable receipt, created before its first encoded frame. */
+        void writeNativeContext() throws IOException {
+            StudyViewCapture.CaptureContext context = nativeCaptureContext.get();
+            if (!participantEpoch || context == null || nativeContextWritten) return;
+            commit("video-" + streamId + "-native-context.json",
+                (context.json(streamId) + "\n").getBytes(StandardCharsets.UTF_8));
+            nativeContextWritten = true;
+        }
 
         void acceptCaptured(Frame frame) {
             validateFrame(frame);
@@ -350,6 +633,7 @@ public final class StudyVideoCapture {
                         if (failed()) break;
                         Frame frame = latest.getAndSet(null);
                         if (frame == null) { LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(10)); continue; }
+                        writeNativeContext();
                         if (prior != null && (frame.sequence() <= prior.sequence()
                                 || frame.capturedAtUnixMs() < prior.capturedAtUnixMs() || frame.worldHours() < prior.worldHours()))
                             throw new IOException("native video source clocks regressed");
@@ -359,8 +643,7 @@ public final class StudyVideoCapture {
                         while (System.nanoTime() < nextSubmission)
                             LockSupport.parkNanos(nextSubmission - System.nanoTime());
                         if (!submitted.offer(frameWithoutPixels(frame))) throw new IOException("video metadata backlog exceeded bound");
-                        input.write(frame.pixels());
-                        input.flush();
+                        writePixels(input, frame);
                         nextSubmission = System.nanoTime() + TimeUnit.SECONDS.toNanos(1) / fps;
                         prior = frameWithoutPixels(frame);
                     }
@@ -386,6 +669,8 @@ public final class StudyVideoCapture {
                     catch (IOException failure) { System.out.println("[StudyVideo] failure receipt unavailable: " + failure); }
                 }
                 if (process != null && process.isAlive()) process.destroy();
+                diagnosticsStopped=true;
+                LockSupport.unpark(diagnosticWriter);
             }
         }
 
@@ -434,7 +719,12 @@ public final class StudyVideoCapture {
             Site[] sites = sameView ? first.sites() : new Site[0];
             Crop[] firstCrops = cropsOf(first.sites());
             boolean sameCrop = frames.stream().allMatch(frame -> Arrays.equals(cropsOf(frame.sites()), firstCrops));
-            Crop[] crops = sameCrop ? firstCrops : new Crop[0];
+            // Participant pixels are the actual whole native front buffer.
+            // This viewport identity describes geometry, never a body/camera
+            // association; empty source sites remain empty and unaligned.
+            Crop[] crops = participantEpoch
+                ? new Crop[]{new Crop("participant-viewport", 0, 0, 0, width, height)}
+                : sameCrop ? firstCrops : new Crop[0];
             synchronized (this) {
                 if (failed()) return;
                 if (fragment.pts < lastPtsEnd) throw new IOException("video fragment clock regressed");
@@ -442,14 +732,18 @@ public final class StudyVideoCapture {
                 String file = "video-" + streamId + "-" + String.format("%016d", ++fragmentSequence) + ".m4s";
                 String sha = commit(file, bytes);
                 Segment segment = new Segment(fragmentSequence, file, sha, fragment.pts * 1000.0 / timeScale,
-                    fragment.duration * 1000.0 / timeScale, first, last, sites, crops);
+                    fragment.duration * 1000.0 / timeScale, first, last, sites, crops,
+                    cameraFramesJson(frames));
                 segments.addLast(segment);
                 List<Segment> expired = new ArrayList<>();
                 while (segments.size() > RETAIN_SEGMENTS) expired.add(segments.removeFirst());
                 encoded.addAndGet(frames.size());
                 state = "running"; message = "";
                 writeManifest();
-                for (Segment old : expired) Files.deleteIfExists(root.resolve(old.file));
+                // Retired encoders have at most the bounded admitted backlog.
+                // Keep original drain bytes for the immutable tail snapshots;
+                // each manifest still contains at most RETAIN_SEGMENTS entries.
+                if (!retired) for (Segment old : expired) Files.deleteIfExists(root.resolve(old.file));
             }
         }
 
@@ -459,7 +753,7 @@ public final class StudyVideoCapture {
             Frame unsubmitted = latest.getAndSet(null);
             if (unsubmitted != null) dropped.incrementAndGet();
             LockSupport.unpark(writer);
-            Thread failureWriter = new Thread(() -> {
+            failureWriter = new Thread(() -> {
                 try { writeManifest(); }
                 catch (IOException failure) { System.out.println("[StudyVideo] failure receipt unavailable: " + failure); }
                 Process child = process;
@@ -473,18 +767,58 @@ public final class StudyVideoCapture {
         void requestClose() { closing = true; LockSupport.unpark(writer); }
 
         @Override public void close() {
-            requestClose();
-            try { writer.join(6000); }
-            catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); }
-            if (writer.isAlive()) {
-                fail("Native video encoder did not finish before shutdown");
+            synchronized (closeLock) {
+                requestClose();
+                joinWorker(writer, 6000);
                 Process child = process;
-                if (child != null && child.isAlive()) {
-                    child.destroy();
-                    try { if (!child.waitFor(500, TimeUnit.MILLISECONDS)) child.destroyForcibly(); }
-                    catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); }
+                if (writer.isAlive() || (child != null && child.isAlive())) {
+                    fail("Native video encoder did not finish before shutdown");
+                    if (child != null && child.isAlive()) {
+                        child.destroy();
+                        try {
+                            if (!child.waitFor(500, TimeUnit.MILLISECONDS)) {
+                                child.destroyForcibly(); child.waitFor(1000, TimeUnit.MILLISECONDS);
+                            }
+                        } catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); }
+                    }
+                }
+                joinWorker(writer, 1000); joinWorker(reader, 1000);
+                diagnosticsStopped=true; LockSupport.unpark(diagnosticWriter);
+                joinWorker(diagnosticWriter, 1000); joinWorker(failureWriter, 1000);
+                if (!quiescent()) {
+                    fail("Native video shutdown retained live resources");
+                    return;
+                }
+                if (participantEpoch && !closedManifestWritten) {
+                    synchronized (this) {
+                        if (!failed() && !state.equals("ended")) {
+                            state = "ended";
+                            message = encoded.get() == 0 ? "Native video ended before initialization" : "Native video ended";
+                        }
+                        try {
+                            String json = manifestJson();
+                            commit("video-" + streamId + "-closed.json", json.getBytes(StandardCharsets.UTF_8));
+                            closedManifestWritten = true;
+                            writeManifest();
+                        } catch (IOException failure) {
+                            fail("Native video terminal receipt unavailable");
+                            System.out.println("[StudyVideo] terminal receipt unavailable: " + failure);
+                        }
+                    }
                 }
             }
+        }
+
+        private static void joinWorker(Thread worker, long milliseconds) {
+            if (worker == null || worker == Thread.currentThread()) return;
+            try { worker.join(milliseconds); }
+            catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); }
+        }
+
+        boolean quiescent() {
+            return !writer.isAlive() && (reader == null || !reader.isAlive())
+                && (failureWriter == null || !failureWriter.isAlive()) && !diagnosticWriter.isAlive()
+                && (process == null || !process.isAlive());
         }
 
         private String commit(String name, byte[] bytes) throws IOException {
@@ -495,6 +829,21 @@ public final class StudyVideoCapture {
         }
 
         synchronized void writeManifest() throws IOException {
+            String json = manifestJson();
+            if (participantEpoch) {
+                if (retired && !segments.isEmpty() && !failed()
+                        && (state.equals("starting") || state.equals("running"))) {
+                    String tail = "video-" + streamId + "-tail-" + String.format("%016d", segments.getLast().sequence()) + ".json";
+                    if (!Files.exists(root.resolve(tail))) commit(tail, json.getBytes(StandardCharsets.UTF_8));
+                }
+                PUBLICATION_LOCK.lock();
+                try {
+                    if (publicationOwner == this) replace("latest-video.json", json);
+                } finally { PUBLICATION_LOCK.unlock(); }
+            } else replace("latest-video.json", json);
+        }
+
+        private String manifestJson() {
             // Counts only increase. Sampling completed/lost frames before the
             // admitted count prevents a concurrent capture from publishing a
             // stale denominator with a newer completion or loss numerator.
@@ -513,11 +862,16 @@ public final class StudyVideoCapture {
             json.append("],\"stats\":{\"capturedFrames\":").append(capturedFrames)
                 .append(",\"encodedFrames\":").append(encodedFrames).append(",\"droppedFrames\":").append(droppedFrames)
                 .append("},\"message\":").append(quote(failed() ? failureReason.get() : message)).append("}\n");
-            Path temporary = root.resolve("latest-video-" + streamId + ".json.tmp");
+            return json.toString();
+        }
+
+        private void replace(String name, String json) throws IOException {
+            Files.createDirectories(root);
+            Path temporary = root.resolve(name + "-" + streamId + ".tmp");
             Files.writeString(temporary, json, StandardCharsets.UTF_8);
             for (int retry = 0;; retry++) {
                 try {
-                    Files.move(temporary, root.resolve("latest-video.json"), StandardCopyOption.ATOMIC_MOVE,
+                    Files.move(temporary, root.resolve(name), StandardCopyOption.ATOMIC_MOVE,
                         StandardCopyOption.REPLACE_EXISTING);
                     return;
                 } catch (java.nio.file.AccessDeniedException inUse) {
@@ -529,7 +883,7 @@ public final class StudyVideoCapture {
     }
 
     record Segment(long sequence, String file, String sha, double ptsStartMs, double durationMs,
-                   Frame first, Frame last, Site[] sites, Crop[] crops) {
+                   Frame first, Frame last, Site[] sites, Crop[] crops, String cameraFramesJson) {
         String json() {
             StringBuilder value = new StringBuilder("{\"sequence\":").append(sequence)
                 .append(",\"file\":").append(quote(file)).append(",\"sha256\":").append(quote(sha))
@@ -557,8 +911,23 @@ public final class StudyVideoCapture {
                     .append(",\"left\":").append(crop.left()).append(",\"top\":").append(crop.top())
                     .append(",\"width\":").append(crop.width()).append(",\"height\":").append(crop.height()).append('}');
             }
-            return value.append("]}").toString();
+            value.append(']');
+            if (cameraFramesJson != null) value.append(",\"cameraFrames\":").append(cameraFramesJson);
+            return value.append('}').toString();
         }
+    }
+
+    static String cameraFramesJson(List<Frame> frames) {
+        if (frames.isEmpty() || frames.stream().anyMatch(frame -> frame.camera() == null))
+            return null;
+        StringBuilder value = new StringBuilder("[");
+        for (int index = 0; index < frames.size(); index++) {
+            if (index > 0) value.append(',');
+            Frame frame = frames.get(index);
+            value.append("{\"frameSequence\":").append(frame.sequence())
+                .append(",\"camera\":").append(frame.camera().json()).append('}');
+        }
+        return value.append(']').toString();
     }
 
     static Crop[] cropsOf(Site[] sites) {
@@ -568,7 +937,7 @@ public final class StudyVideoCapture {
 
     static Frame frameWithoutPixels(Frame frame) {
         return new Frame(frame.sequence(), frame.capturedAtUnixMs(), frame.observerSequence(), frame.worldHours(),
-            frame.sites(), frame.width(), frame.height(), null);
+            frame.sites(), frame.width(), frame.height(), null, frame.camera());
     }
     record Box(String type, byte[] bytes) { }
     record Init(String codecs, long timeScale) { }

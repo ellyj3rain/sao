@@ -9,14 +9,14 @@ started as they know it - their own first horror with its date and
 what it taught, county news evidenced by personal reception, their first
 actual radio reception - every fact with its provenance
 and, where the calendar answers, the county's date in a person's
-words. The chronicle reads its days through the same calendar.
+words. The chronicle reads its days through History's same calendar.
 
 Driven in the engine's own VM (tools/luacheck/LuaRun) against Border
 101's stub county with a history, a chronicle, a radio and a calendar
-installed over it; then with no calendar, so the day count stands
+installed over it; then with no calendar, so the knowledge day count stands
 alone; then with nothing learned, so innocence is said. By text: the
 topics, the Standing accessor, the chronicle's one calendar, the
-bridge, the record class and its check. An optional
+History, the bridge, the record class and its check. An optional
 argv[1] points the checker at another tree root, which is how its
 control runs: the pre-batch tree faults at every seam.
 """
@@ -64,8 +64,8 @@ STUB = (
     "{kind = 'outbreak'}, {kind = 'turned'}, {kind = 'tapsDry'} } }} end "
     "SAO.Lessons.hasAny = function(id) return true end ")
 CALENDAR = (
-    "SAOJavaBridge = { countyDate = function(self, h) return 'July ' .. (1 + math.floor(h / 24)) .. ', 1993' end, "
-    "recordDayZero = function(self) return 'July 9, 1993' end } ")
+    "SAO.History.countyDate = function(h) return 'July ' .. (1 + math.floor(h / 24)) .. ', 1993' end "
+    "SAOJavaBridge = { recordDayZero = function(self) return 'July 9, 1993' end } ")
 
 
 def build():
@@ -182,9 +182,9 @@ def main():
     bare = numbers(value(probe(facts("started"))))
     print("     no calendar: " + " ".join("%s=%s" % kv for kv in bare.items()))
     if bare.get("mine") != "3/nil" or bare.get("county") != "8/nil":
-        faults.append("with no bridge the day count should stand alone: %r" % bare)
+        faults.append("with no calendar the knowledge day count should stand alone: %r" % bare)
     if bare.get("news") != "8":
-        faults.append("with no bridge the received-news day should stand alone: %r" % bare)
+        faults.append("with no calendar the received-news day should stand alone: %r" % bare)
 
     ktext, st, ui = read(K), read(STANDING), read(UI)
     br, rc, chk = read(BRIDGE), read(RECORD), read(RECORD_CHECK)
@@ -195,13 +195,14 @@ def main():
             "ModData.getOrCreate(" not in ktext and "ModData.get(" not in ktext,
         "Standing hands the stamps over":
             "function S.chronicle()" in st and "outbreakAtHours = s.outbreakAtHours" in st,
-        "the chronicle reads one calendar and no day count of its own":
+        "the chronicle reads History and exposes unavailable dates":
             "local function dayWord(hours)" in ui
-            and "SAOJavaBridge:countyDate(hours or 0)" in ui
+            and "SAO.History.countyDate(hours)" in ui
             # C79 retired the automatic chair/pact/schism Chronicle branches.
             # The surviving eight writers still share this one calendar owner.
             and ui.count("dayWord(") >= 8
-            and ui.count('return "day " .. math.max') == 1,
+            and ui.count('return "date unavailable"') == 2
+            and "SAO.History.countyDate(hours)" in ktext,
         "the bridge gives the county's date and the record's first day":
             "public String countyDate(double hours)" in br and "public String recordDayZero()" in br,
         "the record class holds the words":

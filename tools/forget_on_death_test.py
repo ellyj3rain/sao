@@ -53,9 +53,15 @@ import io
 import pathlib
 import re
 import sys
+from functools import lru_cache
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from lua_read import function_body, strip_lua
+from lua_read import function_body as read_function_body, strip_lua
+
+# Controls replace one exact source text at a time. Reading unchanged modules
+# again does not add evidence; source text is the cache key, so a mutation can
+# never borrow the original module's body or cache-index census.
+function_body = lru_cache(maxsize=512)(read_function_body)
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
@@ -284,6 +290,14 @@ CACHES = {
 # because the rule that catches them is the same rule that catches the
 # real ones and loosening it would cost more than it saves.
 NOT_A_SURVIVOR_ID = {
+    ("SAO_Sandbox.lua", "SOURCE_PAGES"):
+        "keyed by exact source sandbox page id; registerSourcePage stores one renderer rule per installed source page",
+    ("SAO_SourceIntegration.lua", "S.loadReport"):
+        "keyed by installed source family id, not a person; available verifies that source family's sentinel",
+    ("SAO_SourceIntegration.lua", "verified"):
+        "keyed by installed source family id and its sealed package SHA; one current source verification per family",
+    ("ProjectArcade_PaymentServer.lua", "clawAttempts"):
+        "keyed by a source-owned player network attempt id; native claw payment/result correlation is independent of SAO survivor death",
     ("MountedDirection.lua", "visualAngles"): (
         "keyed by an IsoAnimal body, not a survivor id; dismount and animal "
         "removal clear the physical interpolation entry"),
@@ -442,7 +456,58 @@ def namespace_of(src, alias):
     return m.group(1) if m else None
 
 
-def check_files(files):
+LEISURE_ROUTES = {
+    'SAO_Leisure.lua': ('Leisure', 'L.detach'),
+    'SAO_LeisureArt.lua': ('LeisureArt', 'A.detach'),
+    'SAO_LeisureExercise.lua': ('LeisureExercise', 'E.detach'),
+    'SAO_LeisureGames.lua': ('LeisureGames', 'G.interrupt'),
+    'SAO_LeisureMusic.lua': ('LeisureMusic', 'M.interrupt'),
+    'SAO_LeisureLifestyle.lua': ('LeisureLifestyle', 'L.interrupt'),
+    'SAO_LeisureRadio.lua': ('LeisureRadio', 'R.interrupt'),
+    'SAO_LeisureMusicSupply.lua': ('LeisureMusicSupply', 'S.interrupt'),
+    'SAO_LeisurePreparation.lua': ('LeisurePreparation', 'Q.interrupt'),
+    'SAO_LeisureSeating.lua': ('LeisureSeating', 'S.interrupt'),
+}
+for filename in LEISURE_ROUTES:
+    CACHES[(filename, 'runtime')] = (
+        'finish', 'leisure-retirement',
+        'exact native hobby handles end through the existing controller detach/death route and captured source terminal owner')
+CACHES.update({
+    ('SAO_Perception.lua', 'conceptObservers'): ('P.forget', 'named', 'current native conceptual observation body owner'),
+    ('SAO_Perception.lua', 'weekOneNativeSignals'): ('P.forgetSoundCues', 'named', 'listener-private current source native sound witnesses'),
+    ('SAO_LeisureRadio.lua', 'sources'): ('R.onNativeTick', 'native-radio-sweep', 'live native radio source callbacks expire with their exact body/token'),
+    ('SAO_LeisureSkill.lua', 'inFlight'): ('S.consume', 'synchronous-guard', 'non-reentrant native XP application guard cleared after the protected call'),
+    ('SAO_WeekOneContinuity.lua', 'sourceInquiryBodies'): ('W.observePendingSourceInquiries', 'source-inquiry-retirement', 'pending exact source execution receiver retained only until acknowledged terminal settlement'),
+    ('SAO_WeekOneContinuity.lua', 'fastSoundObserved'): ('W.poll', 'tick-ephemeral', 'one county tick of exact native sound observation, reset before the next tick and removed on dead/source-owner-ended polls'),
+    ('SAO_WeekOneContinuity.lua', 'staged'): ('clearStage', 'source-stage', 'a native return destination retained until acknowledged discard, with independent retries continuing after death'),
+})
+
+
+@lru_cache(maxsize=256)
+def cache_body(source, name):
+    body = function_body(source, name)
+    if body is None:
+        # Several captured action terminal owners are forward-declared locals
+        # assigned a function later; the same block reader reads that body.
+        transformed = re.sub(r'^(\s*)(?:local\s+)?' + re.escape(name) + r'\s*=\s*function\s*\(',
+                             r'\1function ' + name + '(', source, flags=re.M)
+        body = function_body(transformed, name)
+    return body
+
+
+@lru_cache(maxsize=2048)
+def cache_index_sites(source):
+    sites = []
+    for name in {a or b for a, b in DECL.findall(source)}:
+        lines = tuple(source.count('\n', 0, match.start()) + 1
+                      for match in re.finditer(indexed(name) + r'\s*([^\][]+?)\s*\]', source)
+                      if ID_INDEX.match(match.group(1)))
+        if lines:
+            sites.append((name, lines))
+    return tuple(sites)
+
+
+def check_files(files, preserved=None):
     faults = []
     print("=" * 74)
     print("A PER-ID CACHE THAT OUTLIVES THE ID")
@@ -474,11 +539,9 @@ def check_files(files):
     # THE CENSUS: module-scope tables actually indexed by an id.
     found = set()
     for fname, src in sorted(files.items()):
-        names = {a or b for a, b in DECL.findall(src)}
-        for name in names:
-            short = name.split(".")[-1]
-            hits = re.findall(indexed(name) + r"\s*([^\][]+?)\s*\]", src)
-            if any(ID_INDEX.match(h) for h in hits):
+        for name, lines in cache_index_sites(src):
+            known = (fname, name) in CACHES or (fname, name) in NOT_A_SURVIVOR_ID
+            if any(known or preserved is None or not preserved(fname, src, line) for line in lines):
                 found.add((fname, name))
 
     print(f"  Lua files read      : {len(files)}")
@@ -533,7 +596,7 @@ def check_files(files):
                     f"{table}'s forget is declared to live in {where} and "
                     "no such file exists")
                 continue
-        fbody = function_body(home, fname_fn)
+        fbody = cache_body(home, fname_fn)
         if fbody is None:
             faults.append(
                 f"{fname} has no `{forget}`, and it is what was supposed to "
@@ -547,7 +610,59 @@ def check_files(files):
                 "clearing or the entry names the wrong function")
             continue
 
-        if how == "named":
+        if how == 'leisure-retirement':
+            controller = files.get('SAO_Controller.lua', '')
+            retire = function_body(controller, 'Ctl.retireLeisureWork') or ''
+            death = function_body(controller, 'retireDeadBodyWork') or ''
+            module, method = LEISURE_ROUTES[fname]
+            entry = function_body(src, method) or ''
+            if module == 'LeisureMusicSupply':
+                owner = function_body(files.get('SAO_LeisureMusic.lua', ''), 'M.interrupt') or ''
+                reached = 'SAO.LeisureMusicSupply.interrupt' in owner
+            elif module in ('LeisurePreparation', 'LeisureSeating'):
+                reached = '"' + module + '"' in retire
+            else:
+                reached = 'module="' + module + '"' in re.sub(r'\s+', '', controller)
+            if not reached or not re.search(r'\bfinish\s*\(', entry):
+                faults.append(fname + ': controller retirement no longer reaches its captured finish owner')
+            if (not re.search(r'Ctl\.retireLeisureWork\s*\(\s*id\s*,\s*Ctl\.agents\[id\]\s*,\s*body\s*,\s*"death"\s*\)', death)
+                    or 'owner.detach or owner.interrupt' not in retire
+                    or 'pcall(close,id,body,reason)' not in retire):
+                faults.append('native death no longer reaches exact leisure retirement')
+        elif how == 'native-radio-sweep':
+            if not all(token in fbody for token in ('not live(id,body)', 'SAOExternalToken~=source.bodyToken', 'sources[id]=nil')):
+                faults.append('native radio source liveness/token sweep is incomplete')
+            compact = re.sub(r'\s+', '', src)
+            if ('R.eventCallback=function()R.onNativeTick()end;Events.OnTick.Add(R.eventCallback)' not in compact
+                    or 'sources={}' not in re.sub(r'\s+', '', function_body(src, 'R.reset') or '')):
+                faults.append('native radio source sweep/reset is unreachable')
+        elif how == 'synchronous-guard':
+            if not re.search(r'inFlight\[id\]\s*=\s*true\s+local\s+\w+\s*=\s*pcall\(function\(\).*?end\)\s+inFlight\[id\]\s*=\s*nil',
+                             strip_lua(fbody, strings=False), re.S):
+                faults.append('native XP application guard is not cleared immediately after its protected call')
+        elif how == 'source-inquiry-retirement':
+            if not all(token in fbody for token in ('rec.dead', 'result = "interrupted"', 'planner.finishSourceSituationInquiry', 'if ok and recorded == true then', 'sourceInquiryBodies[personId] = nil')):
+                faults.append('source inquiry retirement no longer acknowledges and clears ended native execution')
+            compact = re.sub(r'\s+', '', src)
+            if not re.search(r'W\.onTick=function\(\).*?W\.observePendingSourceInquiries\(\).*?endEvents\.OnTick\.Add\(W\.onTick\)', compact):
+                faults.append('source inquiry retirement is unreachable from the independent poll')
+        elif how == 'tick-ephemeral':
+            tick = function_body(src, 'W.onBudgetTick') or ''
+            reset = tick.find('fastSoundObserved = {}')
+            short = tick.find('if queuedCount == 0')
+            if not (0 <= reset < short and 'if budgetTick ~= tick then' in tick
+                    and 'rec.dead or rec.weekOne.status ~= "external"' in fbody
+                    and 'W.onBudgetTick()' in src and 'Events.OnTick.Add(W.onTick)' in src):
+                faults.append('native sound sampling does not expire independently of the scan queue and dead actors')
+        elif how == 'source-stage':
+            poll = function_body(src, 'W.poll') or ''
+            retry = poll.find('if rec.weekOne.stageToken then clearStage(rec) end')
+            living = poll.find('if rec and rec.weekOne and not rec.dead then')
+            if not (0 <= retry < living
+                    and 'discardReturnBody(body) ~= true then return false end' in fbody
+                    and 'not rec.weekOne.stageToken' in poll):
+                faults.append('source staged-body discard does not retain acknowledgement and retry after death')
+        elif how == "named":
             alias, _, fn = fname_fn.partition(".")
             ns = namespace_of(home, alias) if fn else None
             if ns is None:
@@ -790,12 +905,22 @@ def check_files(files):
 
 
 def main():
-    files = {p.name: p.read_text(encoding="utf-8", errors="ignore")
-             for p in LUA.rglob("*.lua")}
-    status = check_files(files)
+    from source_scanner_baseline import Baseline
+    baseline = Baseline()
+    paths = {p.name: p for p in baseline.inventory.structural_lua()}
+    files = {name: p.read_text(encoding="utf-8", errors="ignore") for name, p in paths.items()}
+    def preserved(name, source, line):
+        return source == files.get(name) and baseline.preserved(paths[name], line)
+    status = check_files(files, preserved)
     if status:
         return status
     controls = [
+        ('SAO_Leisure.lua', 'runtime[id] = nil', 'runtime[id] = runtime[id]', 'nothing in it sets an entry to nil'),
+        ('SAO_Controller.lua', 'Ctl.retireLeisureWork(id,Ctl.agents[id],body,"death")', 'do end', 'native death no longer reaches exact leisure retirement'),
+        ('SAO_LeisureSkill.lua', 'inFlight[id]=nil', 'inFlight[id]=true', 'nothing in it sets an entry to nil'),
+        ('SAO_LeisureRadio.lua', 'sources[id]=nil', 'sources[id]=source', 'nothing in it sets an entry to nil'),
+        ('SAO_WeekOneContinuity.lua', 'budgetTick, budgetUsed = tick, 0\n        fastSoundObserved = {}', 'budgetTick, budgetUsed = tick, 0\n        do end', 'native sound sampling does not expire'),
+        ('SAO_WeekOneContinuity.lua', 'if rec.weekOne.stageToken then clearStage(rec) end', 'do end', 'source staged-body discard does not retain acknowledgement'),
         ("SAO_WindowRepair.lua", "q.current == self and q:indexOf(self) == 1", "true",
          "window stop preserves current successor custody"),
         ("SAO_WindowRepair.lua", "if ownsCurrent then\n            b.body:setIsFarming(false)", "if true then\n            b.body:setIsFarming(false)",
@@ -899,7 +1024,7 @@ def main():
         mutated[filename] = source.replace(before, after, 1)
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
-            exit_code = check_files(mutated)
+            exit_code = check_files(mutated, preserved)
         if exit_code != 1 or "  FAULT: " not in output.getvalue() or expected not in output.getvalue():
             print(f"  FAULT: recovery control did not reject its defect: {expected}")
             return 1

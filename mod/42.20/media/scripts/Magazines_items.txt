@@ -1,0 +1,43 @@
+module Lifestyle
+{
+    imports
+    {
+        Base,
+    }
+
+    /* -------------------------------- Recipes -------------------------------- */
+	item LSMagazineEdition1
+    {
+	DisplayCategory = RecipeResource,
+        Weight	=	0.1,
+        ItemType = base:literature,
+        DisplayName	=	HomeStyle: DISCO Special Edition,
+        Icon	=	LSMagazineEdition1,
+        LearnedRecipes = LS_DiscoBall;LS_DJBooth;LS_Microphone;LS_DiscoFloor,
+        ReplaceOnUse    =   LSMagazineEdition1,
+	StaticModel = Magazine,
+	WorldStaticModel = Lifestyle.LSMagazineEdition1Model,
+		Tooltip = Tooltip_ItemLSMagazineEdition1,
+        BoredomChange = -20,
+        StressChange = -15,
+		Tags = base:magazine,
+    }
+
+	item LSMagazineEdition2
+    {
+	DisplayCategory = RecipeResource,
+        Weight	=	0.1,
+        ItemType = base:literature,
+        DisplayName	=	HomeStyle: Secrets of the Atelier,
+        Icon	=	LSMagazineEdition2,
+        LearnedRecipes = Carve_Art_Paintbrush;Carve_Art_Palette;LS_Easel;LS_SculptingStation;LS_InvWorkbench,
+        ReplaceOnUse    =   LSMagazineEdition2,
+		StaticModel = Magazine,
+		WorldStaticModel = Lifestyle.LSMagazineEdition2Model,
+		Tooltip = Tooltip_ItemLSMagazineEdition2,
+        BoredomChange = -20,
+        StressChange = -15,
+		Tags = base:magazine,
+    }
+
+}

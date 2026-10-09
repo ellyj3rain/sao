@@ -10,15 +10,19 @@ import java.util.WeakHashMap;
 import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
 import zombie.characters.IsoZombie;
+import zombie.characters.BodyDamage.BodyPart;
 import zombie.characters.animals.IsoAnimal;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoGridSquare;
 import zombie.iso.LosUtil;
 import zombie.iso.IsoObject;
+import zombie.iso.SpriteDetails.IsoFlagType;
 import zombie.iso.objects.IsoDoor;
+import zombie.iso.objects.IsoBarbecue;
 import zombie.iso.objects.IsoWindow;
 import zombie.iso.weather.ClimateManager;
 import zombie.inventory.ItemContainer;
+import zombie.inventory.InventoryItem;
 import zombie.scripting.objects.CharacterTrait;
 
 /**
@@ -157,6 +161,29 @@ public final class SAOPerceptionScanner {
         return s.replace('|', '_').replace(':', '_');
     }
 
+    /** An already admitted Week One brain keeps this zombie proxy as its
+     * single BWO-owned body. The client bridge writes these exact marks only
+     * after checking the stamped brain, native ID and SAO person claim. */
+    private static String weekOnePersonName(IsoZombie body) {
+        try {
+            if (!body.getVariableBoolean("Bandit")) return null;
+            var md = body.getModData();
+            if (md == null || !"BanditsWeekOne".equals(md.rawget("SAOWeekOneOrigin"))) return null;
+            Object personId = md.rawget("SAOWeekOnePersonId");
+            Object brainId = md.rawget("SAOWeekOneBrainId");
+            Object born = md.rawget("SAOWeekOneBorn");
+            Object name = md.rawget("SAOWeekOneName");
+            if (!(personId instanceof String id) || !id.startsWith("bwo-")
+                    || !(brainId instanceof Number bid)
+                    || bid.longValue() != body.getPersistentOutfitID()
+                    || !(born instanceof Number b) || !Double.isFinite(b.doubleValue())
+                    || !(name instanceof String label) || label.isBlank()) return null;
+            return clean(label);
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
     /** [B41] Any character with a body, not only a survivor
      *  shell. Every member below is an IsoGameCharacter surface
      *  and SAOIsoPlayerShell extends IsoPlayer extends
@@ -201,7 +228,7 @@ public final class SAOPerceptionScanner {
         var zombies = cell.getZombieList();
         for (int index = 0; index < zombies.size(); index++) {
             IsoZombie zombie = zombies.get(index);
-            if (zombie == null || zombie.isDead()) {
+            if (zombie == null || zombie == shell || zombie.isDead()) {
                 continue;
             }
             SightTile tile = new SightTile((int) Math.floor(zombie.getX()),
@@ -227,6 +254,13 @@ public final class SAOPerceptionScanner {
                     eye, sx, sy, sz, faceX, faceY, zombie);
                 String knoxLabel = SAOKnox.knoxName(zombie);
                 if (inSight && knoxLabel != null) tracks.persons.put(zombie, clean(knoxLabel));
+                continue;
+            }
+            String weekOneName = weekOnePersonName(zombie);
+            if (weekOneName != null) {
+                appendIfVisible(out, "P", weekOneName,
+                    eye, sx, sy, sz, faceX, faceY, zombie);
+                if (inSight) tracks.persons.put(zombie, weekOneName);
                 continue;
             }
             if (inSight && !visible.containsKey(zombie)) {
@@ -295,6 +329,24 @@ public final class SAOPerceptionScanner {
             }
         }
 
+        appendAudibleSounds(out, shell);
+        return out.toString();
+    }
+
+    /** Hear on the caller's observation callback without repeating the much
+     * larger sight, ground, and object scan. A native WorldSound can expire
+     * between two county-time sight scans. The same native custody and S row
+     * format apply to both paths. */
+    public static synchronized String scanAudibleSounds(IsoGameCharacter shell) {
+        if (shell == null || shell.getCell() == null || shell.getCurrentSquare() == null)
+            return "";
+        StringBuilder out = new StringBuilder(64);
+        appendAudibleSounds(out, shell);
+        return out.toString();
+    }
+
+    private static void appendAudibleSounds(StringBuilder out, IsoGameCharacter shell) {
+        float sx = shell.getX(), sy = shell.getY();
         // Hearing: world sounds whose own radius reaches this survivor.
         // Omnidirectional, no occlusion (walls muffle, they rarely silence) —
         // and inherently imprecise: the report is the sound's origin tile,
@@ -303,7 +355,7 @@ public final class SAOPerceptionScanner {
         // sound is known to them, including footsteps behind their new tile.
         var sounds = zombie.WorldSoundManager.instance == null
             ? null : zombie.WorldSoundManager.instance.soundList;
-        float hearing = SAOSenses.hearing(shell, true);
+        float hearing = hearingForScan(shell);
         if (sounds != null && hearing > 0) {
             for (int index = 0; index < sounds.size(); index++) {
                 var sound = sounds.get(index);
@@ -331,11 +383,18 @@ public final class SAOPerceptionScanner {
                 if (cue != null) out.append(":cue:").append(cue);
             }
         }
-        return out.toString();
     }
 
     public static String scan(IsoGameCharacter shell) {
         return scan(shell, "");
+    }
+
+    /** Only an exact admitted Week One proxy takes the native human hearing
+     * path. Other zombies retain the ordinary scanner's zero-hearing result. */
+    static float hearingForScan(IsoGameCharacter shell) {
+        if (shell instanceof IsoZombie zombie && weekOnePersonName(zombie) != null)
+            return SAOSenses.weekOneHearing(zombie);
+        return SAOSenses.hearing(shell, true);
     }
 
     /** Personal exterior evidence. The approach is the seen, standable outside
@@ -444,6 +503,234 @@ public final class SAOPerceptionScanner {
                 || !canSeePersonNow(observer, found, RANGE)) return null;
         if (found instanceof IsoZombie zombie && zombie.isUseless()) return null;
         return found;
+    }
+
+    /** Read-only Week One action admission. The selected body comes only from
+     * this proxy's last sight scan, with its current native visibility checked
+     * again. Lua receives scalars; BWO remains the physical task executor. */
+    public static String weekOneObservedTarget(IsoZombie observer, String kind, String key) {
+        if (observer == null || weekOnePersonName(observer) == null)
+            return "REFUSED\towner";
+        IsoGameCharacter found = observedCombatTarget(observer, kind, key);
+        if (found == null || found == observer) return "REFUSED\tsight";
+        boolean livingProxy = found instanceof IsoZombie zombie
+            && (SAOKnox.isKnoxHuman(zombie) || weekOnePersonName(zombie) != null);
+        if ("zombie".equals(kind) && (!(found instanceof IsoZombie) || livingProxy)
+            || "person".equals(kind) && found instanceof IsoZombie && !livingProxy)
+            return "REFUSED\tclassification";
+        if (observer.getCurrentSquare() == null || found.getCurrentSquare() == null
+            || observer.getCurrentSquare().getZ() != found.getCurrentSquare().getZ())
+            return "REFUSED\tfloor";
+        float dx = found.getX() - observer.getX();
+        float dy = found.getY() - observer.getY();
+        float distance = (float) Math.sqrt(dx * dx + dy * dy);
+        if (!Float.isFinite(distance) || distance > RANGE || distance < .1f)
+            return "REFUSED\tdistance";
+        return "TARGET\t" + found.getX() + "\t" + found.getY() + "\t"
+            + found.getZ() + "\t" + distance;
+    }
+
+    /** Current visible living injury. No health is inferred from a source
+     * program, dead body registry or an unseen person's old position. */
+    public static String weekOneObservedCareTarget(IsoZombie observer, String name) {
+        if (observer == null || weekOnePersonName(observer) == null)
+            return "REFUSED\towner";
+        IsoGameCharacter found = observedCombatTarget(observer, "person", name);
+        if (found == null || found == observer || found.isDead()
+                || !Float.isFinite(found.getHealth())
+                || bleedingPart(found) == null) return "REFUSED\tpatient";
+        if (observer.getCurrentSquare() == null || found.getCurrentSquare() == null
+                || observer.getCurrentSquare().getZ() != found.getCurrentSquare().getZ())
+            return "REFUSED\tfloor";
+        float dx = found.getX() - observer.getX();
+        float dy = found.getY() - observer.getY();
+        float distance = (float) Math.sqrt(dx * dx + dy * dy);
+        if (!Float.isFinite(distance) || distance > RANGE || distance < .1f)
+            return "REFUSED\tdistance";
+        return "CARE\t" + found.getX() + "\t" + found.getY() + "\t"
+            + found.getZ() + "\t" + distance + "\t" + found.getHealth();
+    }
+
+    private static BodyPart bleedingPart(IsoGameCharacter patient) {
+        try {
+            var damage = patient.getBodyDamage();
+            if (damage == null || damage.getBodyParts() == null) return null;
+            BodyPart selected = null;
+            float severity = -1.0f;
+            for (BodyPart part : damage.getBodyParts()) {
+                if (part == null || !part.bleeding() || part.bandaged()) continue;
+                float amount = part.getBleedingTime();
+                if (Float.isFinite(amount) && amount > severity) {
+                    selected = part;
+                    severity = amount;
+                }
+            }
+            return selected;
+        } catch (Throwable unavailable) { return null; }
+    }
+
+    private static InventoryItem carriedBandage(IsoZombie doctor) {
+        try {
+            ItemContainer inventory = doctor.getInventory();
+            if (inventory == null || inventory.getItems() == null) return null;
+            int count = Math.min(inventory.getItems().size(), 128);
+            for (int index = 0; index < count; index++) {
+                InventoryItem item = inventory.getItems().get(index);
+                if (item != null && inventory.contains(item)
+                        && item.isCanBandage() && item.getBandagePower() > 0.0f
+                        && !item.isInfected()
+                        && !item.getType().contains("Dirty")) return item;
+            }
+        } catch (Throwable unavailable) { /* no verified physical supply */ }
+        return null;
+    }
+
+    /** Treat one currently observed living bleeding person with one actual
+     * carried bandage. This is a body-part action with native item removal,
+     * not CPR on a corpse or a generic increase to overall health. */
+    public static String weekOneBandageObservedPatient(IsoZombie observer, String name) {
+        if (observer == null || weekOnePersonName(observer) == null
+                || observer.isDead() || observer.isAsleep()) return "REFUSED\towner";
+        IsoGameCharacter patient = observedCombatTarget(observer, "person", name);
+        if (patient == null || patient == observer || patient.isDead()
+                || observer.getCurrentSquare() == null
+                || patient.getCurrentSquare() == null
+                || observer.getCurrentSquare().getZ() != patient.getCurrentSquare().getZ())
+            return "REFUSED\tpatient";
+        float dx = patient.getX() - observer.getX();
+        float dy = patient.getY() - observer.getY();
+        float distance = (float) Math.sqrt(dx * dx + dy * dy);
+        if (!Float.isFinite(distance) || distance > 2.25f || distance < .1f)
+            return "REFUSED\tdistance";
+        BodyPart part = bleedingPart(patient);
+        InventoryItem bandage = carriedBandage(observer);
+        ItemContainer inventory = observer.getInventory();
+        if (part == null || bandage == null || inventory == null)
+            return "REFUSED\twound-or-bandage";
+        int itemId = bandage.getID();
+        String itemType = bandage.getFullType();
+        float power = bandage.getBandagePower();
+        try {
+            // Vanilla ISApplyBandage.complete applies SetBandaged and removes
+            // the exact item. Removal first lets a failed dressing put it back.
+            inventory.Remove(bandage);
+            if (inventory.contains(bandage)) return "REFUSED\titem-removal";
+            patient.getBodyDamage().SetBandaged(part.getIndex(), true,
+                power, bandage.isAlcoholic(), itemType);
+            if (!part.bandaged()) {
+                inventory.AddItem(bandage);
+                return "REFUSED\tbandage-postcondition";
+            }
+            return "TREATED\t" + part.getIndex() + "\t" + itemId + "\t"
+                + itemType + "\t" + patient.getHealth();
+        } catch (Throwable unavailable) {
+            if (part.bandaged() && !inventory.contains(bandage)) {
+                return "TREATED\t" + part.getIndex() + "\t" + itemId + "\t"
+                    + itemType + "\t" + patient.getHealth();
+            }
+            if (!inventory.contains(bandage)) {
+                try { inventory.AddItem(bandage); } catch (Throwable ignored) { }
+            }
+            return "REFUSED\tbandage-action";
+        }
+    }
+
+    /** A Week One role may use only an exact, loaded feature it can see now.
+     * The caller supplies an actual square or its current physical object;
+     * world metadata and remote coordinates never become task authority. */
+    public static boolean weekOneObservedFeature(IsoZombie observer,
+            Object candidate, String kind) {
+        try {
+            if (observer == null || weekOnePersonName(observer) == null
+                    || observer.isDead() || observer.isAsleep()
+                    || observer.getCurrentSquare() == null || kind == null)
+                return false;
+            IsoObject object = candidate instanceof IsoObject feature ? feature : null;
+            IsoGridSquare square = object != null ? object.getSquare()
+                : candidate instanceof IsoGridSquare target ? target : null;
+            if (square == null || square.getCell() != observer.getCell()
+                    || observer.getCell().getGridSquare(square.getX(), square.getY(),
+                        square.getZ()) != square
+                    || object != null && !containsFeatureObject(square, object)
+                    || !Float.isFinite(SAOSenses.gazeX(observer))
+                    || !Float.isFinite(SAOSenses.gazeY(observer))
+                    || !visibleWorldPoint(observer, square, 10.0f)) return false;
+            if (object == null) {
+                return switch (kind) {
+                    case "fire" -> square.haveFire();
+                    case "corpse" -> square.getDeadBody() != null;
+                    case "ground" -> square.isFree(false);
+                    case "road" -> square.isFree(false) && hasRoadSurface(square);
+                    default -> hasFeatureObject(square, kind);
+                };
+            }
+            return matchesFeatureObject(square, object, kind);
+        } catch (Throwable unavailable) {
+            return false;
+        }
+    }
+
+    private static boolean hasFeatureObject(IsoGridSquare square, String kind) {
+        var objects = square.getObjects();
+        for (int index = 0; index < Math.min(objects.size(), 24); index++) {
+            if (matchesFeatureObject(square, objects.get(index), kind)) return true;
+        }
+        return false;
+    }
+
+    private static boolean containsFeatureObject(IsoGridSquare square, IsoObject object) {
+        var objects = square.getObjects();
+        for (int index = 0; index < Math.min(objects.size(), 24); index++) {
+            if (objects.get(index) == object) return true;
+        }
+        return false;
+    }
+
+    private static boolean matchesFeatureObject(IsoGridSquare square,
+            IsoObject object, String kind) {
+        if (object == null) return false;
+        if ("barbecue".equals(kind)) return object instanceof IsoBarbecue;
+        if ("door".equals(kind)) return object instanceof IsoDoor;
+        if ("wall".equals(kind)) {
+            if (square.getWall(true) != object && square.getWall(false) != object)
+                return false;
+            var sprite = object.getSprite();
+            if (sprite == null || sprite.getProperties() == null) return false;
+            var flags = sprite.getProperties();
+            return !flags.has(IsoFlagType.WallNTrans)
+                && !flags.has(IsoFlagType.WallWTrans)
+                && !flags.has(IsoFlagType.WindowN)
+                && !flags.has(IsoFlagType.WindowW)
+                && !flags.has(IsoFlagType.DoorWallN)
+                && !flags.has(IsoFlagType.DoorWallW)
+                && !flags.has(IsoFlagType.WallSE);
+        }
+        var sprite = object.getSprite();
+        if (sprite == null) return false;
+        String spriteName = sprite.getName();
+        if ("mailbox".equals(kind)) return spriteName != null
+            && (spriteName.equals("street_decoration_01_18")
+                || spriteName.equals("street_decoration_01_19")
+                || spriteName.equals("street_decoration_01_20")
+                || spriteName.equals("street_decoration_01_21"));
+        var properties = sprite.getProperties();
+        String customName = properties == null ? null
+            : properties.get("CustomName");
+        return "flowerbed".equals(kind) && "Flowerbed".equals(customName)
+            || "trash".equals(kind) && "Trash".equals(customName)
+            || "chair".equals(kind) && "Chair".equals(customName);
+    }
+
+    private static boolean hasRoadSurface(IsoGridSquare square) {
+        var objects = square.getObjects();
+        for (int index = 0; index < Math.min(objects.size(), 24); index++) {
+            IsoObject object = objects.get(index);
+            var sprite = object == null ? null : object.getSprite();
+            String name = sprite == null ? null : sprite.getName();
+            if (name != null && (name.contains("street")
+                    || name.contains("tilesandstone"))) return true;
+        }
+        return false;
     }
 
     private static boolean wholeTileVisible(IsoGameCharacter observer, IsoGridSquare square) {
@@ -608,6 +895,61 @@ public final class SAOPerceptionScanner {
         } catch (Throwable unavailable) {
             return false;
         }
+    }
+
+    /** Directed player speech to one exact Week One person still embodied by
+     * BWO. A zombie proxy cannot use the ordinary human-type admission, but
+     * neither a nearby Bandit nor a recycled persistent outfit ID can borrow
+     * this person's hearing. This reports physical access, not reception. */
+    public static boolean weekOneCanHearPlayer(IsoPlayer speaker, IsoZombie listener,
+            String personId, Object brainId, Object born) {
+        try {
+            if (speaker == null || listener == null || !awakeHuman(speaker)
+                    || weekOnePersonName(listener) == null
+                    || personId == null || !personId.startsWith("bwo-")
+                    || !(brainId instanceof Number brainNumber)
+                    || !(born instanceof Number bornNumber)
+                    || !sameLoadedCell(speaker, listener)) return false;
+            boolean currentPlayer = false;
+            for (IsoPlayer player : IsoPlayer.players) {
+                if (player == speaker) { currentPlayer = true; break; }
+            }
+            if (!currentPlayer) return false;
+            double nativeBrain = brainNumber.doubleValue();
+            double nativeBorn = bornNumber.doubleValue();
+            var md = listener.getModData();
+            if (!Double.isFinite(nativeBrain) || nativeBrain % 1.0 != 0.0
+                    || nativeBrain != (double) brainNumber.longValue()
+                    || !Double.isFinite(nativeBorn)
+                    || !personId.equals(md.rawget("SAOWeekOnePersonId"))
+                    || !(md.rawget("SAOWeekOneBrainId") instanceof Number markedBrain)
+                    || markedBrain.doubleValue() != nativeBrain
+                    || listener.getPersistentOutfitID() != brainNumber.longValue()
+                    || !(md.rawget("SAOWeekOneBorn") instanceof Number markedBorn)
+                    || Double.compare(markedBorn.doubleValue(), nativeBorn) != 0) return false;
+            float hearing = SAOSenses.weekOneHearing(listener);
+            if (!Float.isFinite(hearing) || hearing <= 0.0f) return false;
+            float reach = 8.0f * Math.min(1.0f, hearing);
+            return withinSameFloorRange(speaker.getX(), speaker.getY(),
+                speaker.getZ(), listener.getX(), listener.getY(), listener.getZ(),
+                reach) && clearPath(speaker.getCurrentSquare(),
+                    listener.getCurrentSquare(), false);
+        } catch (Throwable unavailable) {
+            return false;
+        }
+    }
+
+    /** Source playback reach joins the same native hearing and barrier access as speech. */
+    public static boolean canHearSourceNow(SAOIsoPlayerShell listener,IsoGridSquare source,float range) {
+        try {
+            if(SAOConceptObservation.actor(listener)==null||source==null||!Float.isFinite(range)
+                    ||range<=0||range>1000||source.getCell()!=listener.getCell()
+                    ||listener.getCell().getGridSquare(source.getX(),source.getY(),source.getZ())!=source)return false;
+            float hearing=SAOSenses.hearing(listener,true);
+            return hearing>0&&withinSameFloorRange(listener.getX(),listener.getY(),listener.getZ(),
+                source.getX()+0.5f,source.getY()+0.5f,source.getZ(),range*hearing)
+                &&clearPath(listener.getCurrentSquare(),source,false);
+        } catch(Throwable unavailable) { return false; }
     }
 
     /** A radio removes distance and weather, but not death, sleep or deafness. */
