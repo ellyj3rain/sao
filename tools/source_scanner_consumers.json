@@ -86,5 +86,353 @@
       ],
       "reason": "Qualified D2 actor-owned source adapter; exact original block identity only, full consumer revision pinned. Source mechanics and private custody remain checked by native/source owner qualification."
     }
+  },
+  "integratedRepetitionBasis": {
+    "product": "D2 Leisure",
+    "reason": "Retained source mechanics and their already qualified native API, namespace and actor-owned adaptations. Preserve their current repetitions under the source owner; subsequent authored copies and changed revisions retain the border.",
+    "scope": "Exact current byte revisions and recorded fifteen-line occurrences only. This record changes no runtime and grants no path-wide imported-source exception.",
+    "manifestSha256": "d80bd1969731f86cc7547be7dd663b1c332f904c44abda0b9b1fa415dd3cc3c9",
+    "sourceContract": "Source package seals and existing consumer qualification records",
+    "fieldPurpose": "Duplicate-block policy only; original-site classification in other scanners is unchanged."
+  },
+  "integratedRepetitions": {
+    "mod/42.20/media/lua/client/ComputerMod_ContextMenu.lua": {
+      "sha256": "daaf86cb7203464bb2d530fad6b83b07247bead3dc3e4a3b18a3e12197bbceb4",
+      "sourceIds": [
+        "ComputerModkum"
+      ],
+      "windows": {
+        "125": "cf0c21a67f9c5aaa085b2363118ff5012d3aee8eaf15a19ce03f853e09783f9c",
+        "126": "a9657b9f18db45805b415bed2185fe8f1d117c50d1e22688d767955614577733",
+        "128": "89c2a2093b91cf1abc6e4ce733cf04b61f5fd9462c45a59e02995fc108503887",
+        "129": "3d751e129928846978762a95e8158ab1b94eb56f707bfc0443222f0f18ce4a34",
+        "131": "386142286fb26164f6bbce3b11682700e6daf0083fcacfc61686379e3c00caa3",
+        "132": "5361d7b9bedd0300fab173ba2699b3645faf246653836fce4fca71fc902485d3",
+        "133": "6bd5ab6da2719642a6794fab2152f2304d6e32a1a5d94912ead6af1f7cee76cf",
+        "134": "a0fa4fa9a6144d951dfdea3517a0785b179c2dd89017131c73eacbe2262e7122",
+        "135": "f7fba89046331c726e2cc096642c8cb128ac6d14e1dc9d714c39c20486e0ef17"
+      },
+      "sourceSha256": "58d0c0692626cbcdb193a569a2806b8e89a65802ff741e83555e0c89831a918c"
+    },
+    "mod/42.20/media/lua/client/ComputerMod_UI.lua": {
+      "sha256": "35ea7feed25a2113fa9aca10b91e22d9e3f9685b788dab9326f643153e85e624",
+      "sourceIds": [
+        "ComputerModkum"
+      ],
+      "windows": {
+        "613": "cf0c21a67f9c5aaa085b2363118ff5012d3aee8eaf15a19ce03f853e09783f9c",
+        "614": "a9657b9f18db45805b415bed2185fe8f1d117c50d1e22688d767955614577733",
+        "615": "89c2a2093b91cf1abc6e4ce733cf04b61f5fd9462c45a59e02995fc108503887",
+        "616": "3d751e129928846978762a95e8158ab1b94eb56f707bfc0443222f0f18ce4a34",
+        "618": "386142286fb26164f6bbce3b11682700e6daf0083fcacfc61686379e3c00caa3",
+        "619": "5361d7b9bedd0300fab173ba2699b3645faf246653836fce4fca71fc902485d3",
+        "620": "6bd5ab6da2719642a6794fab2152f2304d6e32a1a5d94912ead6af1f7cee76cf",
+        "621": "a0fa4fa9a6144d951dfdea3517a0785b179c2dd89017131c73eacbe2262e7122",
+        "622": "f7fba89046331c726e2cc096642c8cb128ac6d14e1dc9d714c39c20486e0ef17"
+      },
+      "sourceSha256": "911c4316a24075eb68464991f23885234078994bd3d99daa8abe19d24d208298"
+    },
+    "mod/42.20/media/lua/client/Hygiene/BathContextMenu.lua": {
+      "sha256": "99a7ff8fdb7e9aa5f678df03ebffe54271879529914cd31c020744d4f3514332",
+      "sourceIds": [
+        "LifestyleHobbies"
+      ],
+      "windows": {
+        "381": "ea531bc8cb5ffe0f0a60c872ebd4626ae065594ceb265eb99991243bd7b6bcab"
+      },
+      "sourceSha256": "89729cd7b6e8584f737870ef86fed1846727a0ea18825dcab59f78d5cd47f61f"
+    },
+    "mod/42.20/media/lua/client/Hygiene/ShowerContextMenu.lua": {
+      "sha256": "e9df65e1a50d42116c1a048618a16326aa0f02c07cf6825a616edae852507c52",
+      "sourceIds": [
+        "LifestyleHobbies"
+      ],
+      "windows": {
+        "228": "ea531bc8cb5ffe0f0a60c872ebd4626ae065594ceb265eb99991243bd7b6bcab"
+      },
+      "sourceSha256": "59556f6069d5cbe56e52f114ffc8939ad459ca7246323730d636a1282363993f"
+    },
+    "mod/42.20/media/lua/client/ISMeditation/ZenWellnessContextMenu.lua": {
+      "sha256": "9f5a06ab6bb5035abdeb39503f020da4f9a2c90bd6c828fd27aef2125e0a9e33",
+      "sourceIds": [
+        "LifestyleHobbies"
+      ],
+      "windows": {
+        "128": "739984ec15d944a0117b516c59795002846b2239a14cd26031a177d495609f4c",
+        "129": "074cb1754bf920be624b58a7d1ebcd3c89df9859434474cc44a89b1ce60b34f5",
+        "130": "600cf845eae7dbf68cbadbecdb2c1ec35f54291c22f4051a1b27bf2bd040943f",
+        "131": "871b61a9dbac080eaf96a0c3cbe0a422ab923144f6cc26abe9a7a8c2bc5ece0b",
+        "132": "87c48ba293b7701027655e4fbfdf9601c809e2ea8c5509b4f5f5becfe9019afc",
+        "133": "63cdbc7e26d6650835d64b366fac7075e6b1f6a92911246e8c6b4f663e4e22c8",
+        "134": "44ff80c57cca4ef9ba258959a20849edb4facccd0b135d2ae52a63c855716f30",
+        "135": "141b674768e0e585e38e2f7ba518b2e7bd8b996748d83fb2abb50db8ffa6e089",
+        "136": "d699c5ff9ab4dd2d86fed6bb7c2928afa117df1638da49e649a5d42e0e8932bd",
+        "137": "3c7d0ca21bcd71d35574ed7fb61a8ff4e34aa455c4e1fb14d837fb219006bcde",
+        "138": "623f09cad1186f918f524f582d7174120f71ea19129d2003b2005727447f76f9",
+        "139": "e5e55f4277a3c8081d74541dd7171230fadb08a1e36ab4622b6d4ea77ecd98f7"
+      },
+      "sourceSha256": "8510da30c9c59ddc6e7275e6d23019d78fe7cf42d6608dfc7c77bfad01daa2f6"
+    },
+    "mod/42.20/media/lua/client/Instruments/NewInstrumentsContextMenu.lua": {
+      "sha256": "f5bfb86c7f94397a54a51d927913d280e6849b25f833bb6d1b6a67d2b55b0df7",
+      "sourceIds": [
+        "LifestyleHobbies"
+      ],
+      "windows": {
+        "69": "4cfd740acc98978b18771730154a13d9f624282bce969406b83730d82b1cdc09",
+        "114": "798f3571cdf169177509b48a4fb2a94a071fcbbc6404fbf7c9aeadcdb55ccef2",
+        "115": "794bae8bb95495542c062255cf1ef48aacc2da41a803761a1b65b384cbdd0cc7",
+        "116": "f06ca12e384d49cff28c9b18adae8e626015b7b15c6752b960706168571a00fe",
+        "117": "2d657b86c828f9f4e30f3b3cc12c1172f10b4fc06e581010bd616df19ca20920",
+        "118": "f0cd824a4a94296d57f9dcfaa6139401bca0bab9ac232fa83d8080b106316f59",
+        "119": "9e51e309faea8b52e3a2eea336cec854d335f29988ef1b57f681bfec79a71e31",
+        "120": "ce924a758dfea5af7fcb17e6cb77f69a106a59770e294fcb179161679d4080d5",
+        "121": "0d217472a28f06772487531f294e39d2bbd2ba0a189e560cca764d56c38a28c4",
+        "122": "74b0e92d7fac8e18ba0b55a007bbf6bcd90bdf8c182e87e79d9c3b2f2b5f84d1",
+        "123": "257b985508e39b6d736b1a8fcdfb54c4f4fec8f6d51cf0976ef55a8e822ac8c7",
+        "124": "ad769a729b585b2e036a2cba68914099ea71caaad88cab62630c138af4503725",
+        "125": "fa711b98a258738c53fdd74965c9e0f3f591dd212a161e6b4202d4dc971a7bd0",
+        "127": "874d20147500b38cb9c8abf10e3cb1353bd70a930f2507279700be2138b815b6",
+        "129": "d3a1a5752f8e5569358a33cc53fee1a3de30e607b942faa23f944d594fb2cd11",
+        "130": "7bec338b4e059f295dd22536991ac57794e3f2999895d3c77680636ee8da7c7c",
+        "132": "5b827e368b0bbde3d0d598d3207a402a25e833dc255361e4f623d17c2490e76e",
+        "134": "5d3fa3759af00de917f7cff3aa4a2c0a8227e868159a259471f3ea05570e2e3e",
+        "135": "935203332c2b7c5ac02d8609b9d8e1ec85898007edc8b18a7e7ccceac1fcb747",
+        "189": "370e8a5aadf63e6fa9497f55f97be823c6b3c383ac5f0eca9c7b77871934f311",
+        "190": "3a277b992c7843f5876fb941b023de40a1260662435c9e85025d434e994472ed",
+        "192": "9b945826174ea2f3e9dbaad1903faa480cbcbc1999928edce5d66b937919fdaa",
+        "194": "960b21b40b39d128bd25abefbbb68fa4975fd5760c149d827c93f8a863336c4a",
+        "195": "7f512fd9e9111f8cb39f4e8b5692bd7387d0ea9595cbe9fa7855607551447123",
+        "196": "4b1af77d89afff32215b24551da051cdb4ddc438d4637d4911a73cf44a80fda6",
+        "198": "f90a2b0069bb2199a3f08b670218a05874851b1d3e18c9b0175106fde30cf79c",
+        "200": "625ec57c9d7cca035e2a3259f4fe602ab1d37934c20ce14b0b1852cbd04fb21b",
+        "201": "fae6934a99d51a443683259c489b8be34a1207917edaf8b29f34fca194805eb1",
+        "270": "2993979db207fce8f030561ceb4b7d9fd242303c6b53ed46e01906c479532062",
+        "271": "0bc6acd8b1e206e274fa4258d58e4eaed72535d0908515349e996b03cf974079",
+        "272": "459dfa099517953c0316166f4b4651484729bc5db5334a926f809f6c55b24899",
+        "273": "a6a17ad985798a9bf826ffa0874d9f0578d01a259392b768b4816e4c5fea50ef",
+        "274": "ad3539aaa3b6942deea9163e9b9b1d91d9f2bd11cd69a8b712274f4bfff8cefb",
+        "275": "110f5e6ebc5a510fa6882e9f152f7a405889b40ec9c1c54c511ff3a792ddd511",
+        "276": "9ea4e7741610675887224053c888c22a529870e20052b17a503b6741db66468b",
+        "280": "89030b34b229cef8566047450e73c45c620c78c8b2e02c47f12541c3888de679",
+        "281": "1582c1ee857e85580b63f76d017eb370cbd970641262ae0e2cfd722a6e5a9d50",
+        "282": "aa15a0bc634c17339e4ab6f6fc1a241f63396387429ea443d1f85b777f623e18",
+        "283": "047147c0a69e7950f7bf2f436e3ffdd72afb84da703dcfe324b0556e6859e013",
+        "284": "fc915c0796f724fd1c4b7da1e2c8b6bfe96d9269b21406a184484d5a208d50c5",
+        "288": "ab6dfd5338074e98c5b192281de69600a02213c0d9e3c2a3c763c4e741517df7",
+        "290": "f2470ce55b45fae7124e4cbb5d805a742fb845c358b4108d6c614179f6ca8d84",
+        "291": "78e2e853ab872c80ed50c3d87a9705b9a71e2d8d8e217ba774142175fedfac02"
+      },
+      "sourceSha256": "b1eaf4e926789462f3640a48ad14df6884c4471fc3ce5eb478d2dd4c0b70db80"
+    },
+    "mod/42.20/media/lua/client/Instruments/VanillaInstrumentsContextMenu.lua": {
+      "sha256": "b79540b62ea50753945665c399fe3c84b2f9c2a1e3cb54e50e922149fce7c0b4",
+      "sourceIds": [
+        "LifestyleHobbies"
+      ],
+      "windows": {
+        "89": "4cfd740acc98978b18771730154a13d9f624282bce969406b83730d82b1cdc09",
+        "133": "798f3571cdf169177509b48a4fb2a94a071fcbbc6404fbf7c9aeadcdb55ccef2",
+        "134": "794bae8bb95495542c062255cf1ef48aacc2da41a803761a1b65b384cbdd0cc7",
+        "135": "f06ca12e384d49cff28c9b18adae8e626015b7b15c6752b960706168571a00fe",
+        "136": "2d657b86c828f9f4e30f3b3cc12c1172f10b4fc06e581010bd616df19ca20920",
+        "137": "f0cd824a4a94296d57f9dcfaa6139401bca0bab9ac232fa83d8080b106316f59",
+        "138": "9e51e309faea8b52e3a2eea336cec854d335f29988ef1b57f681bfec79a71e31",
+        "139": "ce924a758dfea5af7fcb17e6cb77f69a106a59770e294fcb179161679d4080d5",
+        "140": "0d217472a28f06772487531f294e39d2bbd2ba0a189e560cca764d56c38a28c4",
+        "141": "74b0e92d7fac8e18ba0b55a007bbf6bcd90bdf8c182e87e79d9c3b2f2b5f84d1",
+        "142": "257b985508e39b6d736b1a8fcdfb54c4f4fec8f6d51cf0976ef55a8e822ac8c7",
+        "143": "ad769a729b585b2e036a2cba68914099ea71caaad88cab62630c138af4503725",
+        "144": "fa711b98a258738c53fdd74965c9e0f3f591dd212a161e6b4202d4dc971a7bd0",
+        "148": "874d20147500b38cb9c8abf10e3cb1353bd70a930f2507279700be2138b815b6",
+        "150": "d3a1a5752f8e5569358a33cc53fee1a3de30e607b942faa23f944d594fb2cd11",
+        "151": "7bec338b4e059f295dd22536991ac57794e3f2999895d3c77680636ee8da7c7c",
+        "153": "5b827e368b0bbde3d0d598d3207a402a25e833dc255361e4f623d17c2490e76e",
+        "155": "5d3fa3759af00de917f7cff3aa4a2c0a8227e868159a259471f3ea05570e2e3e",
+        "156": "935203332c2b7c5ac02d8609b9d8e1ec85898007edc8b18a7e7ccceac1fcb747",
+        "199": "370e8a5aadf63e6fa9497f55f97be823c6b3c383ac5f0eca9c7b77871934f311",
+        "200": "3a277b992c7843f5876fb941b023de40a1260662435c9e85025d434e994472ed",
+        "202": "9b945826174ea2f3e9dbaad1903faa480cbcbc1999928edce5d66b937919fdaa",
+        "204": "960b21b40b39d128bd25abefbbb68fa4975fd5760c149d827c93f8a863336c4a",
+        "205": "7f512fd9e9111f8cb39f4e8b5692bd7387d0ea9595cbe9fa7855607551447123",
+        "206": "4b1af77d89afff32215b24551da051cdb4ddc438d4637d4911a73cf44a80fda6",
+        "208": "f90a2b0069bb2199a3f08b670218a05874851b1d3e18c9b0175106fde30cf79c",
+        "210": "625ec57c9d7cca035e2a3259f4fe602ab1d37934c20ce14b0b1852cbd04fb21b",
+        "211": "fae6934a99d51a443683259c489b8be34a1207917edaf8b29f34fca194805eb1",
+        "280": "2993979db207fce8f030561ceb4b7d9fd242303c6b53ed46e01906c479532062",
+        "281": "0bc6acd8b1e206e274fa4258d58e4eaed72535d0908515349e996b03cf974079",
+        "282": "459dfa099517953c0316166f4b4651484729bc5db5334a926f809f6c55b24899",
+        "283": "a6a17ad985798a9bf826ffa0874d9f0578d01a259392b768b4816e4c5fea50ef",
+        "284": "ad3539aaa3b6942deea9163e9b9b1d91d9f2bd11cd69a8b712274f4bfff8cefb",
+        "285": "110f5e6ebc5a510fa6882e9f152f7a405889b40ec9c1c54c511ff3a792ddd511",
+        "286": "9ea4e7741610675887224053c888c22a529870e20052b17a503b6741db66468b",
+        "290": "89030b34b229cef8566047450e73c45c620c78c8b2e02c47f12541c3888de679",
+        "291": "1582c1ee857e85580b63f76d017eb370cbd970641262ae0e2cfd722a6e5a9d50",
+        "292": "aa15a0bc634c17339e4ab6f6fc1a241f63396387429ea443d1f85b777f623e18",
+        "293": "047147c0a69e7950f7bf2f436e3ffdd72afb84da703dcfe324b0556e6859e013",
+        "294": "fc915c0796f724fd1c4b7da1e2c8b6bfe96d9269b21406a184484d5a208d50c5",
+        "298": "ab6dfd5338074e98c5b192281de69600a02213c0d9e3c2a3c763c4e741517df7",
+        "300": "f2470ce55b45fae7124e4cbb5d805a742fb845c358b4108d6c614179f6ca8d84",
+        "301": "78e2e853ab872c80ed50c3d87a9705b9a71e2d8d8e217ba774142175fedfac02",
+        "653": "109441f3d855a8eba8854b1e4b5f3f62fa8b80cc497ce7aa757017b667cb061f",
+        "722": "109441f3d855a8eba8854b1e4b5f3f62fa8b80cc497ce7aa757017b667cb061f",
+        "657": "1cd6b3d5cd212585514179b2762a91ff6875281cd175c49145d04a36d1d03176",
+        "725": "1cd6b3d5cd212585514179b2762a91ff6875281cd175c49145d04a36d1d03176",
+        "659": "bf89877949439e9b5f2dc2cf8239ce9392ebbe01dfd6d10e8d030f482eb5ffb3",
+        "727": "bf89877949439e9b5f2dc2cf8239ce9392ebbe01dfd6d10e8d030f482eb5ffb3",
+        "660": "320c48a55687341407e43ce46d0e46e313cff4e568a0f888ee3e848426ce51e3",
+        "728": "320c48a55687341407e43ce46d0e46e313cff4e568a0f888ee3e848426ce51e3"
+      },
+      "sourceSha256": "5bfb958df27e6f9e2c3d70d9a46acb3d2f3c881858c99c85f4e24deabf158e87"
+    },
+    "mod/42.20/media/lua/client/ProjectArcade_Currency.lua": {
+      "sha256": "5e1a49f76b3d70ad5c153a6a2ea6b94dd8c8800f32ca1da41b9d63811c6393aa",
+      "sourceIds": [
+        "ProjectArcade"
+      ],
+      "windows": {
+        "45": "079afbf69baf64493077f2f67f6f72fc799d92f013fccca7f26823ce50c68cff"
+      },
+      "sourceSha256": "86a0c4d9e8ded991057986f23b162f94a6a48dbc87a6bc721f074df50ce77c20"
+    },
+    "mod/42.20/media/lua/client/ProjectArcade_PunchingMachine.lua": {
+      "sha256": "e4dc8ce777caa6ecadb9ca68ac9293ace6d79bd6b0ca4248ec671e7e613471bd",
+      "sourceIds": [
+        "ProjectArcade"
+      ],
+      "windows": {
+        "8": "eb877d82f204037eb9c31397a574e5d32b3f05191493ee10240caba146275da9",
+        "9": "986adeac97bafffa71f13b99e3953101b5a4136a6765d75547290cd80219f419",
+        "10": "687bbfd2284dbbd7994f01a064aeb47d82785eb3521d54c875a839ffed574324",
+        "11": "dd428753485c8ff57f39fe2153a4b42318fd8b498fd33bf34b148c327f12ad99",
+        "12": "d528c171e0111cf06a4447e10613d0b19cf4f8c3dbf532e29d580046edd4aaa1",
+        "13": "31154c3af81b49eb2319dd040a42e26a2fc3cea7e4ade840f70187e40d55dd4c",
+        "14": "6b46c9875419c8dfbf8087036435c4362af7774ee307d756a327c09fe8292434",
+        "15": "a792590b690d80b44838ec5b307ff9a71dea92ff4330909825219ace4fa8510f",
+        "16": "80b208b05a892260f0df1e1b72878b7a4528f5baa312681b37fc86b1c120db64",
+        "18": "5887e755ef6dac5bfbf86901fac80cbdf491f3943b230f931f45e15afafd2f53"
+      },
+      "sourceSha256": "3eace9386907b2971e8a9f385c9e154e5dd9b04029d27f96d5a17b7492bc5a94"
+    },
+    "mod/42.20/media/lua/client/SAO_LeisureArt.lua": {
+      "sha256": "3850a469f0ac67c81a4e7af91a400410f8bf363e101e4ab0ed914b304a7a25b4",
+      "sourceIds": [
+        "LifestyleHobbies"
+      ],
+      "windows": {
+        "841": "67aab21489ad0f2f2244507a5d1a48394215e8888f6c68fcde8cf6ddd3577f68",
+        "842": "e7020b23cd2e53e41d36cf5b312d807293fd1a1b591b8f011b96c49fbfbecfb9",
+        "843": "4f42653187f76523b92c34efa5b7b721d85ce788f0dac47fa3e3c929e5920910",
+        "844": "cdc9a08fea4e20e8059ba5ce4348fd0c6dd2acbfaca00139dc0a635b67aad903",
+        "845": "709f79e209e51e11e90bda030e01ba160b5057e67450c9565b2f68f8fca62ba7",
+        "847": "4ae7cfe0fb47f2ebd07be0013bd7e0234adecff7b5ab843c4343ffc5e616e75e",
+        "848": "32a57569834f51f8ee5a84e25bc1ea733cdb42f9ba2d1249f86eedd425e7f766",
+        "849": "78a8c2d54e3d6dcdff29ff6698f5323f8c96f399789c8886903a3f76f1099a89",
+        "850": "b0007630ebe1e9e66375a340343b26d4ec3e2df2c351507b4371fe404254d640",
+        "851": "460f6cc5bb4b8c7b1548429b3161ec01c25ebb0a1946b9f754c74b2f004059ff",
+        "852": "c22e7a1c8e8cbcac86635a2962032253d0df049be98c1ec0e95d44227b26898f"
+      }
+    },
+    "mod/42.20/media/lua/client/SAO_LeisureGames.lua": {
+      "sha256": "a68f90f73f1d3ac4e6c0d21978bbc2e7c75c3e648489ed4c80494ef476779814",
+      "sourceIds": [
+        "ComputerModkum",
+        "ProjectArcade",
+        "LifestyleHobbies"
+      ],
+      "windows": {
+        "1086": "079afbf69baf64493077f2f67f6f72fc799d92f013fccca7f26823ce50c68cff"
+      }
+    },
+    "mod/42.20/media/lua/client/TimedActions/ProjectArcade_PunchingTimedAction.lua": {
+      "sha256": "54997f056739695b247e648510d7a90c351d6a035f098b76dc04c94eddd5bd3a",
+      "sourceIds": [
+        "ProjectArcade"
+      ],
+      "windows": {
+        "42": "eb877d82f204037eb9c31397a574e5d32b3f05191493ee10240caba146275da9",
+        "43": "986adeac97bafffa71f13b99e3953101b5a4136a6765d75547290cd80219f419",
+        "44": "687bbfd2284dbbd7994f01a064aeb47d82785eb3521d54c875a839ffed574324",
+        "45": "dd428753485c8ff57f39fe2153a4b42318fd8b498fd33bf34b148c327f12ad99",
+        "46": "d528c171e0111cf06a4447e10613d0b19cf4f8c3dbf532e29d580046edd4aaa1",
+        "47": "31154c3af81b49eb2319dd040a42e26a2fc3cea7e4ade840f70187e40d55dd4c",
+        "48": "6b46c9875419c8dfbf8087036435c4362af7774ee307d756a327c09fe8292434",
+        "49": "a792590b690d80b44838ec5b307ff9a71dea92ff4330909825219ace4fa8510f",
+        "50": "80b208b05a892260f0df1e1b72878b7a4528f5baa312681b37fc86b1c120db64",
+        "52": "5887e755ef6dac5bfbf86901fac80cbdf491f3943b230f931f45e15afafd2f53"
+      },
+      "sourceSha256": "67bc5157c3aaff7fe551d06d8a9fd9ed5f093c133298b1124b3b9c0756014c07"
+    },
+    "mod/42.20/media/lua/server/ProjectArcade_PaymentServer.lua": {
+      "sha256": "ef66f1b368bd559b8374ed2935c25aa23667521d9045e4f2b18a96f847da410b",
+      "sourceIds": [
+        "ProjectArcade"
+      ],
+      "windows": {
+        "215": "079afbf69baf64493077f2f67f6f72fc799d92f013fccca7f26823ce50c68cff"
+      },
+      "sourceSha256": "caba90e2d8720f5aabc60e9bdd568bfdac2cde29335fbba5454809f210c53a48"
+    },
+    "mod/42.20/media/lua/shared/TimedActions/LSCanvasAppraiseAction.lua": {
+      "sha256": "c2461fe725681ed9b02826c3c8d9e9269e6960cdee9231db8de1ff13f634562b",
+      "sourceIds": [
+        "LifestyleHobbies"
+      ],
+      "windows": {
+        "163": "67aab21489ad0f2f2244507a5d1a48394215e8888f6c68fcde8cf6ddd3577f68",
+        "164": "e7020b23cd2e53e41d36cf5b312d807293fd1a1b591b8f011b96c49fbfbecfb9",
+        "165": "4f42653187f76523b92c34efa5b7b721d85ce788f0dac47fa3e3c929e5920910",
+        "166": "cdc9a08fea4e20e8059ba5ce4348fd0c6dd2acbfaca00139dc0a635b67aad903",
+        "167": "709f79e209e51e11e90bda030e01ba160b5057e67450c9565b2f68f8fca62ba7",
+        "169": "4ae7cfe0fb47f2ebd07be0013bd7e0234adecff7b5ab843c4343ffc5e616e75e",
+        "170": "32a57569834f51f8ee5a84e25bc1ea733cdb42f9ba2d1249f86eedd425e7f766",
+        "171": "78a8c2d54e3d6dcdff29ff6698f5323f8c96f399789c8886903a3f76f1099a89",
+        "172": "b0007630ebe1e9e66375a340343b26d4ec3e2df2c351507b4371fe404254d640",
+        "173": "460f6cc5bb4b8c7b1548429b3161ec01c25ebb0a1946b9f754c74b2f004059ff",
+        "174": "c22e7a1c8e8cbcac86635a2962032253d0df049be98c1ec0e95d44227b26898f"
+      },
+      "sourceSha256": "654574b6512ae39efab3658f781d6150b2f9a02259ee6235e9f7d84f185139d9"
+    },
+    "mod/42.20/media/lua/shared/TimedActions/LSCheckYourself.lua": {
+      "sha256": "5687cc72f8c2762492e630efd40bfa7c90c24caae3c4bcc7573b1856b197148e",
+      "sourceIds": [
+        "LifestyleHobbies"
+      ],
+      "windows": {
+        "176": "67aab21489ad0f2f2244507a5d1a48394215e8888f6c68fcde8cf6ddd3577f68",
+        "177": "e7020b23cd2e53e41d36cf5b312d807293fd1a1b591b8f011b96c49fbfbecfb9",
+        "178": "4f42653187f76523b92c34efa5b7b721d85ce788f0dac47fa3e3c929e5920910",
+        "179": "cdc9a08fea4e20e8059ba5ce4348fd0c6dd2acbfaca00139dc0a635b67aad903",
+        "180": "709f79e209e51e11e90bda030e01ba160b5057e67450c9565b2f68f8fca62ba7",
+        "182": "4ae7cfe0fb47f2ebd07be0013bd7e0234adecff7b5ab843c4343ffc5e616e75e",
+        "183": "32a57569834f51f8ee5a84e25bc1ea733cdb42f9ba2d1249f86eedd425e7f766",
+        "184": "78a8c2d54e3d6dcdff29ff6698f5323f8c96f399789c8886903a3f76f1099a89",
+        "185": "b0007630ebe1e9e66375a340343b26d4ec3e2df2c351507b4371fe404254d640",
+        "186": "460f6cc5bb4b8c7b1548429b3161ec01c25ebb0a1946b9f754c74b2f004059ff",
+        "187": "c22e7a1c8e8cbcac86635a2962032253d0df049be98c1ec0e95d44227b26898f"
+      },
+      "sourceSha256": "d63099f67316639c896c317b051b4d6b47a0cfaa31c6e6f528de785ed249a2fe"
+    },
+    "mod/42.20/media/lua/shared/TimedActions/LSYogaAction.lua": {
+      "sha256": "c38b92d842b6e9426fd69272a47cf1cbd57058c5a73633e6fce1f5b80a93cc65",
+      "sourceIds": [
+        "LifestyleHobbies"
+      ],
+      "windows": {
+        "42": "739984ec15d944a0117b516c59795002846b2239a14cd26031a177d495609f4c",
+        "43": "074cb1754bf920be624b58a7d1ebcd3c89df9859434474cc44a89b1ce60b34f5",
+        "45": "600cf845eae7dbf68cbadbecdb2c1ec35f54291c22f4051a1b27bf2bd040943f",
+        "46": "871b61a9dbac080eaf96a0c3cbe0a422ab923144f6cc26abe9a7a8c2bc5ece0b",
+        "47": "87c48ba293b7701027655e4fbfdf9601c809e2ea8c5509b4f5f5becfe9019afc",
+        "48": "63cdbc7e26d6650835d64b366fac7075e6b1f6a92911246e8c6b4f663e4e22c8",
+        "50": "44ff80c57cca4ef9ba258959a20849edb4facccd0b135d2ae52a63c855716f30",
+        "51": "141b674768e0e585e38e2f7ba518b2e7bd8b996748d83fb2abb50db8ffa6e089",
+        "53": "d699c5ff9ab4dd2d86fed6bb7c2928afa117df1638da49e649a5d42e0e8932bd",
+        "54": "3c7d0ca21bcd71d35574ed7fb61a8ff4e34aa455c4e1fb14d837fb219006bcde",
+        "55": "623f09cad1186f918f524f582d7174120f71ea19129d2003b2005727447f76f9",
+        "56": "e5e55f4277a3c8081d74541dd7171230fadb08a1e36ab4622b6d4ea77ecd98f7"
+      },
+      "sourceSha256": "00430eadeba1d79ee592697de1a6ccec3de1e9f5b6f5a3de423d3fe410102e32"
+    }
   }
 }

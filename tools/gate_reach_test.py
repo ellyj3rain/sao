@@ -36,11 +36,17 @@ WHAT THIS REQUIRES
    current ownership.
 """
 import ast
+import argparse
+import hashlib
 import itertools
+import json
+import os
 import shlex
 import pathlib
 import re
+import subprocess
 import sys
+import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 TOOLS = ROOT / "tools"
@@ -601,5 +607,379 @@ def main():
     return 0
 
 
+# These standing scans measure repository maintenance across historical records
+# or the whole tree. Their findings remain visible without becoming a product
+# publication veto. The standing shell commands and their verdicts remain intact.
+CI_MAINTENANCE = frozenset("""
+scope_split_audit.py invariant_sweep.py engine_literals.py duplicate_blocks.py
+pcall_audit.py undeclared_audit.py placeholder_test.py squared_scale_test.py
+toplevel_function_test.py sort_bound_test.py tick_literal_test.py
+reach_census_test.py reach_collision_test.py key_domain_test.py copy_ratified_test.py
+receipts_test.py era_test.py version_replay.py version_stamp_test.py
+development_graph_test.py session_state_test.py operator_speech_test.py
+doc_currency_test.py source_integration_gate.py skips_cleanly_test.py
+gate_reach_test.py scanner_boundary_controls_test.py vacuous_pass_test.py
+catalogue_test.py claim_catalogue_test.py globals_census_test.py state_counts_test.py
+""".split())
+CI_PACKAGE = frozenset("""
+scanner_inventory.py shipped_jar.py modinfo_check.py self_contained_test.py
+mod_integration_inventory_test.py
+""".split())
+CI_FULL_SUITE_ONLY = frozenset("""
+skips_cleanly_test.py vacuous_pass_test.py development_graph_test.py
+catalogue_test.py claim_catalogue_test.py
+""".split())
+CI_RUNTIME_SCANS = frozenset("""
+scope_split_audit.py invariant_sweep.py engine_literals.py duplicate_blocks.py
+pcall_audit.py undeclared_audit.py placeholder_test.py
+""".split())
+CI_SHARED = frozenset("""
+SAO_Bridge.lua SAO_Controller.lua SAO_Body.lua SAO_Integration.lua
+SAO_Cognition.lua SAO_Persistence.lua SAOBridge.java SAOAgent.java
+""".split())
+
+
+def ci_standing(root):
+    """Reuse primary shell invocations, including each declared flag variant."""
+    source = (root / "tools/check.sh").read_text(encoding="utf-8")
+    lines = source.replace("\\\n", " ").splitlines()
+    rows, seen = [], set()
+    # Redirection descriptors are shell syntax, not Python arguments. The
+    # original census only needs command names; CI must preserve exact argv.
+    commands = re.sub(r"(?<![\w'\"])\d+(?=[<>])", "", source)
+    for row in shell_invocations(commands):
+        line = lines[row["line"] - 1].lstrip()
+        if not (line.startswith("if ") or re.search(r"=\$\(", line)):
+            continue  # The shell's diagnostic retry is not another qualification.
+        if row["path"] == "tools/scanner_inventory.py" and row["args"]:
+            continue  # Inventory/filter helper roles are invoked with their inputs below.
+        key = (row["path"], tuple(row["args"]))
+        if key not in seen:
+            seen.add(key)
+            rows.append(row)
+    return rows
+
+
+def ci_imports(path, root):
+    """Resolve repository imports without executing a module's top-level code."""
+    tree = ast.parse(path.read_text(encoding="utf-8-sig"), filename=str(path))
+    found = set()
+    for node in ast.walk(tree):
+        names = []
+        if isinstance(node, ast.Import):
+            names = [alias.name for alias in node.names]
+        elif isinstance(node, ast.ImportFrom):
+            names = [node.module or ""]
+            names += [(node.module + "." if node.module else "") + alias.name
+                      for alias in node.names]
+        for name in names:
+            relative = pathlib.Path(*name.split("."))
+            parents = [path.parent, root / "tools", root]
+            if isinstance(node, ast.ImportFrom) and node.level:
+                parent = path.parent
+                for _ in range(node.level - 1):
+                    parent = parent.parent
+                parents.insert(0, parent)
+            for parent in parents:
+                for candidate in (parent / relative.with_suffix(".py"),
+                                  parent / relative / "__init__.py"):
+                    if candidate.is_file() and candidate.resolve().is_relative_to(root.resolve()):
+                        found.add(candidate.relative_to(root).as_posix())
+                        break
+    return found, tree
+
+
+def ci_footprint(name, root, cache):
+    if name in cache:
+        return cache[name]
+    files, tokens, import_tokens, queue = set(), set(), set(), [name]
+    while queue:
+        item = queue.pop()
+        if item in files or not (root / item).is_file():
+            continue
+        files.add(item)
+        direct = ("direct", item)
+        if direct not in cache:
+            try:
+                imports, tree = ci_imports(root / item, root)
+            except (SyntaxError, UnicodeError):
+                continue  # The selected command/changed-Python parse reports it.
+            own_tokens, own_imports = set(), set()
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                    own_tokens.update(re.findall(r"[\w.-]+\.(?:lua|java|json|txt|info|jar|py|sh)", node.value))
+                    own_tokens.update(re.findall(r"\bSAO[A-Za-z_0-9]+\b", node.value))
+                elif isinstance(node, ast.Import):
+                    own_imports.update(alias.name.rsplit(".", 1)[-1] + ".py" for alias in node.names)
+                elif isinstance(node, ast.ImportFrom) and node.module:
+                    own_imports.add(node.module.rsplit(".", 1)[-1] + ".py")
+            cache[direct] = (imports, own_tokens, own_imports)
+        imports, own_tokens, own_imports = cache[direct]
+        tokens.update(own_tokens)
+        import_tokens.update(own_imports)
+        queue.extend(imports - files)
+    cache[name] = (files, tokens, import_tokens)
+    return cache[name]
+
+
+def ci_security_changed(changes):
+    return any(path.endswith((".py", ".sh")) or path.startswith(".github/") or
+               pathlib.PurePosixPath(path).name in {
+                   "requirements.txt", "pyproject.toml", "poetry.lock", "uv.lock",
+                   "Pipfile", "Pipfile.lock", "setup.cfg", "setup.py", "SECURITY.md"}
+               for path in changes)
+
+
+def ci_plan(changes, root=ROOT):
+    """Select from the standing registry and its actual source/import inputs."""
+    changes = sorted(set(path.replace("\\", "/") for path in changes))
+    rows = ci_standing(root)
+    required, advisory, cache = [], [], {}
+    production = [p for p in changes if p.startswith(("mod/", "java/", "world/"))]
+    python = [p for p in changes if p.endswith(".py") and (root / p).is_file()]
+    shared = any(pathlib.PurePosixPath(p).name in CI_SHARED for p in production)
+    package = bool(production) or any(
+        p in {".gitattributes", "tools/scanner_inventory.py"} or
+        p.startswith("data/source_") for p in changes)
+    native_code = [p for p in production if p.endswith((".lua", ".java", ".json", ".txt", ".xml", ".properties", ".jar"))]
+    matched = set()
+    selected = []
+    for row in rows:
+        name = pathlib.PurePosixPath(row["path"]).name
+        if name in CI_FULL_SUITE_ONLY:
+            continue  # Full graph/catalogue/absence censuses remain manual/scheduled.
+        if name == "lua_check.py":
+            continue  # Its standing $files loop receives changed Lua below.
+        files, tokens, import_tokens = ci_footprint(row["path"], root, cache)
+        inputs = []
+        for path in changes:
+            basename = pathlib.PurePosixPath(path).name
+            if path in files or (path.endswith(".py") and basename in import_tokens):
+                inputs.append(path)
+            elif not path.startswith("tools/") or not path.endswith((".py", ".sh")):
+                if basename in tokens or pathlib.PurePosixPath(path).stem in tokens:
+                    inputs.append(path)
+            # A test mentioning check.sh for its historical registration is
+            # not a changed product dependency. CI routing has its own controls.
+        matched.update(p for p in inputs if p in native_code)
+        reasons = []
+        if inputs:
+            reasons.append("source/import input: " + ", ".join(inputs))
+        if production and name in CI_RUNTIME_SCANS:
+            reasons.append("affected repository maintenance scan")
+        if package and name in CI_PACKAGE:
+            reasons.append("changed package/source-ownership contract")
+        if shared and name not in CI_MAINTENANCE:
+            reasons.append("shared native runtime interface")
+        if reasons:
+            selected.append({**row, "reasons": reasons})
+    unknown = sorted(set(native_code) - matched)
+    if unknown:
+        # An unresolved production dependency expands product checks. It never
+        # promotes the historical/whole-tree maintenance scans into a veto.
+        selected_paths = {(r["path"], tuple(r["args"])) for r in selected}
+        for row in rows:
+            name = pathlib.PurePosixPath(row["path"]).name
+            key = (row["path"], tuple(row["args"]))
+            if name not in CI_MAINTENANCE and name != "lua_check.py" and key not in selected_paths:
+                selected.append({**row, "reasons": ["unresolved native dependency: " + ", ".join(unknown)]})
+    for row in selected:
+        (advisory if pathlib.PurePosixPath(row["path"]).name in CI_MAINTENANCE else required).append(row)
+    lua = [p for p in production if p.endswith(".lua") and (root / p).is_file()]
+    controls = any(p in {"tools/check.sh", "tools/gate_reach_test.py"} or
+                   p.startswith(".github/workflows/") for p in changes)
+    if controls:
+        required.insert(0, {"path": "tools/gate_reach_test.py", "args": ["--ci-controls"],
+                            "reasons": ["changed executable CI routing contract"]})
+    return {"schema": 1, "comparison": "full base...HEAD", "changedInputs": changes,
+            "pythonParse": python, "changedLua": lua, "required": required,
+            "advisory": advisory, "unresolvedNativeDependencies": unknown,
+            "securityAnalysis": ci_security_changed(changes),
+            "reuse": "none; each required run qualifies the complete PR diff"}
+
+
+def ci_changed(base, root=ROOT):
+    result = subprocess.run(["git", "diff", "--name-only", "-z", "--no-renames",
+                             base + "...HEAD"], cwd=root, capture_output=True, check=True)
+    return [name for name in result.stdout.decode("utf-8").split("\0") if name]
+
+
+def ci_verdict(path, code, stdout):
+    if code:
+        return False
+    name = pathlib.PurePosixPath(path).name
+    if name in {"duplicate_blocks.py", "engine_literals.py"}:
+        return all("none" in line or "SKIPPED" in line for line in stdout.splitlines())
+    if name == "invariant_sweep.py":
+        labels = ("MOVEMENT keys missing", "tick states not in MOVEMENT", "takePurpose written but never handled",
+                  "verbs missing in SAOBridge", "voice events used but undefined", "TAKE states entered with no queued work",
+                  "sensor scale disagreement", "states with no exit dispatcher", "claim fields read but never written",
+                  "news kinds written but rendered by nobody", "designation literals nothing can ever be",
+                  "wants Lua asks for that Java cannot answer")
+        return not any(any(label in line for label in labels) and "none" not in line
+                       for line in stdout.splitlines())
+    if name == "protocol_arity.py":
+        return all("none" in line or "SKIPPED" in line for line in stdout.splitlines() if line.startswith("15)"))
+    return True
+
+
+def ci_argv(row, output):
+    args = list(row["args"])
+    for index, arg in enumerate(args):
+        if index and args[index - 1] in {"--output", "--out", "--output-dir"}:
+            args[index] = str(output / ("proofs/" + str(row["id"])))
+        elif "$" in arg:
+            raise ValueError("unresolved standing command argument: " + arg)
+    if row.get("unittestDiscovery"):
+        path = pathlib.PurePosixPath(row["path"])
+        return [sys.executable, "-m", "unittest", "discover", "-s", str(path.parent), "-p", path.name]
+    return [sys.executable, row["path"], *args]
+
+
+def ci_execute(plan, lane, output, root=ROOT):
+    output.mkdir(parents=True, exist_ok=True)
+    (output / "proofs").mkdir(exist_ok=True)
+    results = []
+    env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    def run(row, argv):
+        result = subprocess.run(argv, cwd=root, env=env, text=True, errors="replace", capture_output=True)
+        text = result.stdout + result.stderr
+        log = output / (str(row["id"]) + ".log")
+        log.write_text(text, encoding="utf-8")
+        ok = ci_verdict(row["path"], result.returncode, text)
+        results.append({**row, "argv": argv, "exitCode": result.returncode, "passed": ok,
+                        "observedSkip": "SKIP" in text, "log": log.name,
+                        "sha256": hashlib.sha256(text.encode()).hexdigest()})
+        print(("PASS " if ok else "FAIL ") + row["path"] + " -> " + str(log), flush=True)
+    if lane == "required":
+        faults = []
+        for path in plan["pythonParse"]:
+            try:
+                ci_imports(root / path, root)
+            except (SyntaxError, UnicodeError) as error:
+                faults.append(str(error))
+        results.append({"path": "changed Python parse/import resolution", "passed": not faults,
+                        "files": plan["pythonParse"], "faults": faults})
+        if plan["changedLua"]:
+            # The existing source inventory distinguishes executable Lua from
+            # original evidence; location alone cannot waive structural checks.
+            inventory = subprocess.run([sys.executable, "tools/scanner_inventory.py", "--filter"],
+                                       cwd=root, env=env, input="\n".join(plan["changedLua"]),
+                                       text=True, capture_output=True)
+            (output / "lua-inventory.log").write_text(inventory.stderr, encoding="utf-8")
+            results.append({"path": "changed Lua source qualification", "passed": inventory.returncode == 0,
+                            "exitCode": inventory.returncode})
+            if inventory.returncode == 0:
+                for index, path in enumerate(inventory.stdout.splitlines()):
+                    row = {"id": "lua-" + str(index), "path": "tools/lua_check.py", "args": [path],
+                           "reasons": ["changed executable Lua"]}
+                    run(row, ci_argv(row, output))
+    for index, original in enumerate(plan[lane]):
+        row = {**original, "id": lane + "-" + str(index)}
+        run(row, ci_argv(row, output))
+    report = {"lane": lane, "blocking": lane == "required", "passed": all(r["passed"] for r in results),
+              "results": results, "plan": plan}
+    (output / "results.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    summary = ["### " + lane + " affected checks", "", str(len(plan["changedInputs"])) +
+               " changed inputs from the full PR diff; " + str(len(results)) + " results.", "",
+               "| Check | Result |", "| --- | --- |"]
+    summary += ["| " + r["path"] + " | " + ("failed" if not r["passed"] else
+                "skipped native input reported" if r.get("observedSkip") else "passed") + " |" for r in results]
+    if os.environ.get("GITHUB_STEP_SUMMARY"):
+        with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as stream:
+            stream.write("\n".join(summary) + "\n")
+    return 0 if report["passed"] else 1
+
+
+def ci_controls():
+    """Focused executable controls for the routing contract, without game input."""
+    with tempfile.TemporaryDirectory(prefix="sao-ci-control-") as folder:
+        root = pathlib.Path(folder)
+        def write(name, text):
+            path = root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+        write("tools/check.sh", 'if ! "$PY" tools/product_test.py --mode contract; then\nfi\n'
+              'dups=$("$PY" tools/duplicate_blocks.py 2>&1)\n')
+        write("tools/helper.py", "VALUE = 1\n")
+        write("tools/product_test.py", 'from helper import VALUE\nfrom pathlib import Path\n'
+              'assert VALUE == 1\nassert Path("tools/check.sh").exists()\n'
+              'assert Path("mod/runtime.lua").read_text() == "good"\n')
+        write("tools/duplicate_blocks.py", 'print("unrelated repeated block")\n')
+        write("mod/runtime.lua", "good")
+        docs = ci_plan(["README.md"], root)
+        assert not docs["required"] and not docs["advisory"] and not docs["securityAnalysis"]
+        tool = ci_plan(["tools/helper.py"], root)
+        assert [r["path"] for r in tool["required"]] == ["tools/product_test.py"]
+        assert not tool["changedLua"] and tool["securityAnalysis"]
+        routing = ci_plan(["tools/check.sh"], root)
+        assert [(r["path"], r["args"]) for r in routing["required"]] == [
+            ("tools/gate_reach_test.py", ["--ci-controls"])]
+        (root / "tools/helper.py").unlink()
+        removed = ci_plan(["tools/helper.py"], root)
+        assert [r["path"] for r in removed["required"]] == ["tools/product_test.py"]
+        write("tools/helper.py", "VALUE = 1\n")
+        native = ci_plan(["mod/runtime.lua"], root)
+        assert native["required"][0]["args"] == ["--mode", "contract"]
+        assert native["advisory"][0]["path"] == "tools/duplicate_blocks.py"
+        assert native["advisory"][0]["args"] == []
+        unknown = ci_plan(["mod/new-interface.java"], root)
+        assert unknown["unresolvedNativeDependencies"] and unknown["required"]
+        assert all(pathlib.PurePosixPath(r["path"]).name not in CI_MAINTENANCE for r in unknown["required"])
+        shared = ci_plan(["mod/SAO_Bridge.lua"], root)
+        assert any("shared native runtime interface" in r["reasons"] for r in shared["required"])
+        assert ci_security_changed([".github/workflows/codeql.yml"])
+        # Execute the same selected commands/runner: a product fault blocks, an
+        # unrelated maintenance finding is preserved in its own result lane.
+        executable = {**tool, "changedLua": []}
+        assert ci_execute(executable, "required", root / "pass", root) == 0
+        maintenance = {**native, "changedLua": []}
+        assert ci_execute(maintenance, "advisory", root / "advisory", root) == 1
+        write("mod/runtime.lua", "bad")
+        assert ci_execute(executable, "required", root / "fail", root) == 1
+        # A later documentation commit does not erase an earlier failed input.
+        def git(*args):
+            return subprocess.run(["git", *args], cwd=root, check=True, capture_output=True, text=True).stdout.strip()
+        git("init", "-q")
+        git("config", "user.email", "ci-control@example.invalid")
+        git("config", "user.name", "CI routing control")
+        git("add", "tools", "mod")
+        git("commit", "-qm", "base")
+        base = git("rev-parse", "HEAD")
+        write("mod/runtime.lua", "earlier fault")
+        git("add", "mod/runtime.lua")
+        git("commit", "-qm", "earlier changed runtime")
+        write("README.md", "later documentation")
+        git("add", "README.md")
+        git("commit", "-qm", "later documentation")
+        assert ci_changed(base, root) == ["README.md", "mod/runtime.lua"]
+    print("PASS CI controls: docs, tooling/imports, native/shared/unknown inputs, security, "
+          "required failure, advisory finding, and full PR base comparison")
+    return 0
+
+
+def cli():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ci-controls", action="store_true")
+    parser.add_argument("--ci-plan", action="store_true")
+    parser.add_argument("--ci-run", choices=("required", "advisory"))
+    parser.add_argument("--base")
+    parser.add_argument("--output", type=pathlib.Path)
+    args = parser.parse_args()
+    if args.ci_controls:
+        return ci_controls()
+    if args.ci_plan or args.ci_run:
+        if not args.base or not args.output:
+            parser.error("CI routing requires --base and --output")
+        plan = ci_plan(ci_changed(args.base))
+        args.output.mkdir(parents=True, exist_ok=True)
+        (args.output / "plan.json").write_text(json.dumps(plan, indent=2) + "\n", encoding="utf-8")
+        if os.environ.get("GITHUB_OUTPUT"):
+            with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as stream:
+                stream.write("security=" + str(plan["securityAnalysis"]).lower() + "\n")
+        return ci_execute(plan, args.ci_run, args.output.resolve()) if args.ci_run else 0
+    return main()
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(cli())
