@@ -1,0 +1,19 @@
+{
+    "Sandbox_FWOWorkingTreadmill": "FWO Treadmill & Bench-Press",
+    "Sandbox_FWOWorkingTreadmill_FitnessXPMultiply": "Treadmill Fitness XP Multiplier",
+    "Sandbox_FWOWorkingTreadmill_FitnessXPMultiply_tooltip": "Multiplier for the Fitness XP earned from treadmill exercise. 1.0 = normal. Requires a game/server restart to take effect for characters who have already exercised this session.",
+    "Sandbox_FWOWorkingTreadmill_StrengthXPMultiply": "Strength XP Multiplier",
+    "Sandbox_FWOWorkingTreadmill_StrengthXPMultiply_tooltip": "Multiplier for the Strength XP earned from weighted treadmill training and benchpress reps. 1.0 = normal.",
+    "Sandbox_FWOWorkingTreadmill_SprintingXPMultiply": "Sprinting XP Multiplier",
+    "Sandbox_FWOWorkingTreadmill_SprintingXPMultiply_tooltip": "Multiplier for the Sprinting XP earned from treadmill cardio sessions. 1.0 = normal.",
+    "Sandbox_FWOWorkingTreadmill_HeatMultiplier": "Heat Generation Multiplier",
+    "Sandbox_FWOWorkingTreadmill_HeatMultiplier_tooltip": "Multiplier for the body heat you generate while exercising (0 = no heat gain, 1 = normal, 2 = double heat gain).",
+    "Sandbox_FWOWorkingTreadmill_ThirstMultiplier": "Thirst Generation Multiplier",
+    "Sandbox_FWOWorkingTreadmill_ThirstMultiplier_tooltip": "Multiplier for the thirst you build up while exercising (0 = no thirst gain, 1 = normal, 2 = double thirst gain).",
+    "Sandbox_FWOWorkingTreadmill_TreadmillDropBags": "Treadmill: Drop Bags on Floor",
+    "Sandbox_FWOWorkingTreadmill_TreadmillDropBags_tooltip": "When a bag is automatically removed before using the treadmill, drop it on the floor instead of keeping it in your inventory. Has no effect if Keep Bags Equipped is on.",
+    "Sandbox_FWOWorkingTreadmill_BenchpressDropBags": "Bench-Press: Drop Bags on Floor",
+    "Sandbox_FWOWorkingTreadmill_BenchpressDropBags_tooltip": "When a bag is automatically removed before using the benchpress, drop it on the floor instead of keeping it in your inventory. Has no effect if Keep Bags Equipped is on.",
+    "Sandbox_FWOWorkingTreadmill_BenchTreadKeepBagsOn": "Keep Bags Equipped",
+    "Sandbox_FWOWorkingTreadmill_BenchTreadKeepBagsOn_tooltip": "Keep worn backpacks and bags equipped during treadmill and benchpress exercise instead of automatically removing them first."
+}

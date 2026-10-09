@@ -1,0 +1,12 @@
+{
+  "IGUI_BenchPress": "Bench Press",
+  "IGUI_BenchPress_Tooltip": "Antrenează-te la bench press",
+  "IGUI_Treadmill": "Bandă de Alergat",
+  "IGUI_Treadmill_Tooltip": "Aleargă pe banda de alergat",
+  "IGUI_need_barbell": "Am nevoie de o halteră sau două gantere pentru acest exercițiu",
+  "IGUI_low_endurance": "Sunt prea epuizat",
+  "IGUI_pain": "Am prea multă durere",
+  "IGUI_heavy": "Prea greu de folosit acum",
+  "IGUI_treadmill_needs_electricity": "Banda de alergat are nevoie de electricitate pentru a funcționa",
+  "IGUI_bench_rotate_bug": "Eroare: te rog rotește și/sau mută banca!"
+}

@@ -232,26 +232,6 @@ function H.ticks()
     return H.ticksFromHours(H.countyHours()) or 0
 end
 
--- The county's calendar month, numbered 0 to 11 the way the engine
--- numbers them. The engine's own month is right whenever the game
--- clock is running and wrong for the whole of the years, so this
--- asks the record which month the county's hours have reached and
--- falls back to the engine where the record cannot answer.
-function H.countyMonth()
-    local month = nil
-    pcall(function()
-        month = SAOJavaBridge:countyMonth(H.countyHours(), dayZeroAsked())
-    end)
-    if type(month) == "number" and month >= 0 and month <= 11 then
-        return month
-    end
-    pcall(function() month = GameTime.getInstance():getMonth() end)
-    if type(month) == "number" and month >= 0 and month <= 11 then
-        return month
-    end
-    return nil
-end
-
 -- The elapsed calendar days contain the same twenty-four hours as live
 -- play. DayLength changes wall time, never the number of hours in a day.
 function H.countyTimeOfDay()
@@ -263,18 +243,107 @@ function H.countyTimeOfDay()
     return nil
 end
 
--- [C74] A complete local calendar instant for one durable county-hour
--- coordinate. Empty off the engine rather than reconstructing a date from a
--- year or from prose. The bridge uses the same history offset as countyHours.
-function H.countyInstant(hours)
+-- A saved county hour and a civil hour have different origins in live play.
+-- Build 42's world age starts at 07:00, while the years pass advances from
+-- 00:00. Rest replay may cross that join, so its caller needs the civil hour
+-- at each interval and the first hour at which that mapping changes. The
+-- county-hour axis and every persisted stamp remain exactly as they were.
+function H.civilTimeAtCountyHours(atHours)
+    if type(atHours) ~= "number" or atHours ~= atHours or atHours < 0
+        or atHours == math.huge then return nil end
+    local current = H.countyHours()
+    if type(current) ~= "number" or current ~= current
+        or current == math.huge or current < atHours - 0.000001 then
+        return nil
+    end
+    local s = yearsState()
+    local join = nil
+    if s and s.yearsAsked then
+        local owed = tonumber(s.yearsOwed)
+        if not owed or owed ~= owed or owed == math.huge
+            or owed < 0 or owed ~= math.floor(owed) then return nil end
+        join = owed * HOURS_PER_DAY
+        if atHours < join then return atHours % HOURS_PER_DAY, join end
+        -- The final historical step can publish its last tick before the
+        -- years owner closes. It still belongs to that owner's clock.
+        if livingDay() ~= nil then
+            if atHours <= join + 0.000001 then
+                return atHours % HOURS_PER_DAY
+            end
+            return nil
+        end
+    end
+    local civil = H.countyTimeOfDay()
+    if type(civil) ~= "number" or civil ~= civil or civil < 0
+        or civil >= HOURS_PER_DAY or civil == math.huge then return nil end
+    return (atHours + civil - (current % HOURS_PER_DAY)
+        + HOURS_PER_DAY) % HOURS_PER_DAY
+end
+
+-- The historical calendar advances from midnight. Once native play begins,
+-- world age keeps the saved county-hour coordinate but its civil day starts
+-- at the native time of day. One conversion serves dates, months and ages.
+-- A negative record hour remains on the historical midnight calendar.
+local function calendarHours(hours)
     hours = tonumber(hours)
     if not hours or hours ~= hours or hours == math.huge
         or hours == -math.huge then return nil end
+    if hours < 0 then return hours end
+    local civil = H.civilTimeAtCountyHours(hours)
+    if type(civil) ~= "number" or civil ~= civil or civil < 0
+        or civil >= HOURS_PER_DAY or civil == math.huge then return nil end
+    return hours + ((civil - (hours % HOURS_PER_DAY) + HOURS_PER_DAY)
+        % HOURS_PER_DAY)
+end
+
+-- The county's calendar month, numbered 0 to 11 as in the engine. A live
+-- engine month is a valid fallback only after the historical pass has ended.
+function H.countyMonth()
+    local projected = calendarHours(H.countyHours())
+    local month = nil
+    if projected then
+        pcall(function()
+            month = SAOJavaBridge:countyMonth(projected, dayZeroAsked())
+        end)
+    end
+    if type(month) == "number" and month >= 0 and month <= 11 then
+        return month
+    end
+    if livingDay() ~= nil then return nil end
+    pcall(function() month = GameTime.getInstance():getMonth() end)
+    if type(month) == "number" and month >= 0 and month <= 11 then
+        return month
+    end
+    return nil
+end
+
+-- [C74] A complete local calendar instant for one durable county-hour
+-- coordinate. The bridge supplies the saved start and history offset;
+-- calendarHours supplies the segment's civil phase. The exact history/live
+-- join is the one coordinate whose phase depends on which clock owns it.
+function H.countyInstant(hours)
+    local projected = calendarHours(hours)
+    if not projected then return nil end
     local instant = nil
     pcall(function()
-        instant = SAOJavaBridge:countyInstant(hours, dayZeroAsked())
+        instant = SAOJavaBridge:countyInstant(projected, dayZeroAsked())
     end)
     return (type(instant) == "string" and instant ~= "") and instant or nil
+end
+
+local MONTH_WORDS = { "January", "February", "March", "April", "May",
+    "June", "July", "August", "September", "October", "November",
+    "December" }
+
+-- Human-readable dates derive from the exact calendar instant used by ages.
+function H.countyDate(hours)
+    local instant = H.countyInstant(hours)
+    if type(instant) ~= "string" then return nil end
+    local year, month, day = instant:match("^(%d%d%d%d)%-(%d%d)%-(%d%d)T")
+    local word = month and MONTH_WORDS[tonumber(month)] or nil
+    local number = day and tonumber(day) or nil
+    if not word or not number or number < 1 or number > 31 then return nil end
+    return word .. " " .. number .. ", " .. year
 end
 
 -- One dated day from the shipped record on the same coordinate as
@@ -458,6 +527,139 @@ local AGE_BANDS = {
 local AGE_TOTAL = 0
 for _, band in ipairs(AGE_BANDS) do AGE_TOTAL = AGE_TOTAL + band.weight end
 
+-- A native default-scale source proxy carries no verified biological age.
+-- SAO allocates an adult age once at admission from its census bands, then
+-- saves the draw on the person. A source spawn timestamp is never a birthday.
+local ADULT_AGE_TOTAL = 0
+for i = 3, 7 do ADULT_AGE_TOTAL = ADULT_AGE_TOTAL + AGE_BANDS[i].weight end
+
+local EXTERNAL_ADULT_SCHEMA = "sao-external-adult-chronology/3"
+local SAVED_PRIOR_SCHEMA = "sao-saved-person-chronology/1"
+local PRIOR_EXTERNAL_ADULT_SCHEMA = "sao-external-adult-chronology/2"
+local LEGACY_EXTERNAL_ADULT_SCHEMA = "sao-external-adult-chronology/1"
+local EXTERNAL_ADULT_ALLOCATION = "SAO.History.adult-census-draw/1"
+local SAVED_PRIOR_ALLOCATION = "SAO.History.retained-person-prior/1"
+local calendarYear
+
+local function adultBandAt(roll)
+    if type(roll) ~= "number" or roll ~= math.floor(roll)
+        or roll < 0 or roll >= ADULT_AGE_TOTAL then return nil end
+    local seen = 0
+    for i = 3, 7 do
+        local band = AGE_BANDS[i]
+        seen = seen + band.weight
+        if roll < seen then return band end
+    end
+    return nil
+end
+
+local function validAdultAllocation(value, age)
+    if type(value) ~= "table" or value.method ~= EXTERNAL_ADULT_ALLOCATION then
+        return false
+    end
+    local band = adultBandAt(value.bandRoll)
+    return band ~= nil and type(value.yearRoll) == "number"
+        and value.yearRoll == math.floor(value.yearRoll)
+        and value.yearRoll >= 0 and value.yearRoll <= band.to - band.from
+        and age == band.from + value.yearRoll
+end
+
+local function validExternalAdult(value)
+    return type(value) == "table"
+        and (value.schema == LEGACY_EXTERNAL_ADULT_SCHEMA
+            or value.schema == PRIOR_EXTERNAL_ADULT_SCHEMA
+                and validAdultAllocation(value.allocation, value.ageAtAdmission)
+            or value.schema == EXTERNAL_ADULT_SCHEMA
+                and validAdultAllocation(value.allocation, value.ageAtAdmission)
+                and value.ageTransitionPolicy == "admission-anniversary"
+                and (value.evidence == "native-default-scale-source-proxy"
+                    and value.allocation.reason == "source-admission"
+                    or value.evidence == "saved-weekone-person"
+                        and value.allocation.reason == "saved-weekone-migration"))
+        and value.ageAuthorship == "SAO"
+        and (value.evidence == "native-default-scale-source-proxy"
+            or value.schema == EXTERNAL_ADULT_SCHEMA
+                and value.evidence == "saved-weekone-person")
+        and type(value.source) == "string" and value.source ~= ""
+        and type(value.sourceKey) == "string" and value.sourceKey ~= ""
+        and type(value.ageAtAdmission) == "number"
+        and value.ageAtAdmission == math.floor(value.ageAtAdmission)
+        and value.ageAtAdmission >= 18 and value.ageAtAdmission <= 59
+        and type(value.birthYear) == "number"
+        and value.birthYear == math.floor(value.birthYear)
+        and value.birthYear >= 1
+        and type(value.admissionYear) == "number"
+        and value.admissionYear == math.floor(value.admissionYear)
+        and value.birthYear == value.admissionYear - value.ageAtAdmission
+        and type(value.admittedAtHours) == "number"
+        and value.admittedAtHours == value.admittedAtHours
+        and value.admittedAtHours ~= math.huge
+        and value.admittedAtHours ~= -math.huge
+end
+
+local function validSavedPrior(value)
+    return type(value) == "table" and value.schema == SAVED_PRIOR_SCHEMA
+        and value.ageAuthorship == "SAO"
+        and value.evidence == "saved-weekone-prior"
+        and value.source == "BanditsWeekOne"
+        and type(value.sourceKey) == "string" and value.sourceKey ~= ""
+        and type(value.ageAtAdmission) == "number"
+        and value.ageAtAdmission == math.floor(value.ageAtAdmission)
+        and value.ageAtAdmission >= 0 and value.ageAtAdmission <= 120
+        and type(value.birthYear) == "number"
+        and value.birthYear == math.floor(value.birthYear)
+        and value.birthYear >= 1
+        and type(value.admissionYear) == "number"
+        and value.admissionYear == math.floor(value.admissionYear)
+        and type(value.admittedAtHours) == "number"
+        and value.admittedAtHours == value.admittedAtHours
+        and value.admittedAtHours ~= math.huge
+        and value.admittedAtHours ~= -math.huge
+        and value.ageTransitionPolicy == "admission-anniversary"
+        and type(value.allocation) == "table"
+        and value.allocation.method == SAVED_PRIOR_ALLOCATION
+        and (value.allocation.reason == "saved-birth-prior"
+                and value.ageAtAdmission == value.admissionYear
+                    - value.birthYear
+            or value.allocation.reason == "saved-generated-prior"
+                and (value.ageAtAdmission == value.admissionYear
+                        - value.birthYear
+                    or value.ageAtAdmission == value.admissionYear
+                        - value.birthYear - 1))
+end
+
+local function validExternalChronology(value)
+    return validExternalAdult(value) or validSavedPrior(value)
+end
+
+local function chronologyFor(id)
+    if type(id) ~= "string" or not (SAO.Identity
+        and type(SAO.Identity.get) == "function") then return nil end
+    local rec = SAO.Identity.get(id)
+    if not rec then return nil end
+    if rec.chronology == nil then
+        local weekOne = rec.weekOne
+        if type(weekOne) == "table"
+            and weekOne.source == "BanditsWeekOne" then
+            local ok, why = H.admitExternalAdult(rec, {
+                source = "BanditsWeekOne",
+                sourceKey = tostring(weekOne.brainId) .. "@" .. tostring(weekOne.born),
+                savedWeekOnePerson = true,
+            })
+            if not ok then
+                error("external-adult-chronology-unavailable:" .. id
+                    .. ":" .. tostring(why))
+            end
+        else
+            return nil
+        end
+    end
+    if id ~= rec.id or not validExternalChronology(rec.chronology) then
+        error("invalid-external-adult-chronology:" .. id)
+    end
+    return rec.chronology
+end
+
 -- The bands as declared, for the border that checks the county
 -- against them.
 function H.bands()
@@ -468,7 +670,7 @@ function H.bands()
     return out
 end
 
-function H.ageOf(id)
+local function generatedAgeAtStart(id)
     local roll = hashOf(id, "age") % AGE_TOTAL
     local seen = 0
     for _, band in ipairs(AGE_BANDS) do
@@ -482,27 +684,207 @@ function H.ageOf(id)
     return 34
 end
 
--- The year they were born, against the world's OWN start year - so a
--- sandbox that begins in 1997 moves everybody four years without a
--- second table.
-function H.birthYearOf(id)
+local function saveStartYear()
     local start = 1993
     pcall(function()
         local y = GameTime.getInstance():getStartYear()
         if y and y > 1900 then start = y end
     end)
-    return start - H.ageOf(id)
+    return start
+end
+
+local function commonYearOrdinal(month, day)
+    local days = {31,28,31,30,31,30,31,31,30,31,30,31}
+    local ordinal = day
+    for i = 1, month - 1 do ordinal = ordinal + days[i] end
+    -- February 29 shares February 28's policy day; no birth date is asserted.
+    return month == 2 and day == 29 and 59 or ordinal
+end
+
+local function generatedCalendarYear(id, baseline)
+    local year, month, day = calendarYear(H.countyInstant(H.countyHours()))
+    if not year then return nil, nil, nil, "calendar-unavailable" end
+    if year < saveStartYear() - baseline then
+        return nil, nil, nil, "not-yet-born"
+    end
+    return year, month, day
+end
+
+-- Identity.create owns this namespace and writes only positive ordinals.
+-- KnoxSurvivors and other source people have their own IDs even before a
+-- source chronology can be established; an absent chronology is not proof
+-- that SAO authored their childhood.
+local function generatedId(id)
+    return type(id) == "string"
+        and id:match("^sao%-[1-9]%d*$") ~= nil
+end
+
+-- Genesis checks an ID before Identity writes its record. False means its
+-- generated birth year lies ahead; nil means the calendar cannot establish
+-- that answer. An existing imported person is not a generated candidate.
+function H.generatedPresentAtCountyTime(id)
+    if type(id) ~= "string" or id == "" then return nil, "invalid-id" end
+    if not generatedId(id) then return nil, "not-generated" end
+    if SAO.Identity and type(SAO.Identity.get) == "function" then
+        local ok, rec = pcall(SAO.Identity.get, id)
+        if not ok then return nil, "identity-unavailable" end
+        if rec ~= nil and (type(rec) ~= "table" or rec.id ~= id) then
+            return nil, "identity-unavailable"
+        end
+        if rec and (rec.chronology ~= nil or rec.weekOne ~= nil) then
+            return nil, "not-generated"
+        end
+    end
+    local okAge, baseline = pcall(generatedAgeAtStart, id)
+    if not okAge or type(baseline) ~= "number" then
+        return nil, "age-source-unavailable"
+    end
+    local ok, _, _, _, why = pcall(generatedCalendarYear, id, baseline)
+    if not ok then return nil, "calendar-unavailable" end
+    if why == "not-yet-born" then return false, why end
+    if why then return nil, why end
+    return true
+end
+
+local function generatedAttainedAge(id)
+    local baseline = generatedAgeAtStart(id)
+    local year, month, day, why = generatedCalendarYear(id, baseline)
+    if why == "not-yet-born" then return nil end
+    local start = saveStartYear()
+    if not year then return baseline end
+    if year < start then return year - (start - baseline) end
+    if year == start then return baseline end
+    local transition = (hashOf(id, "age-transition") % 365) + 1
+    local years = year - start - 1
+    if commonYearOrdinal(month, day) >= transition then years = years + 1 end
+    return baseline + years
+end
+
+-- Imported adults advance on the anniversary of SAO's admission, which is a
+-- saved age-transition policy rather than an asserted biological birthday.
+-- Older saved chronology uses this policy without rewriting its saved fields.
+local function externalAttainedAge(id, chronology)
+    local hours = H.countyHours()
+    if hours < chronology.admittedAtHours then
+        error("external-adult-before-admission:" .. id)
+    end
+    local year, month, day = calendarYear(H.countyInstant(hours))
+    local admittedYear, admittedMonth, admittedDay =
+        calendarYear(H.countyInstant(chronology.admittedAtHours))
+    if not year or not admittedYear then
+        error("external-adult-county-calendar-unavailable:" .. id)
+    end
+    if admittedYear ~= chronology.admissionYear or year < admittedYear then
+        error("external-adult-calendar-before-admission:" .. id)
+    end
+    local years = year - admittedYear
+    if years > 0 and (month < admittedMonth
+        or month == admittedMonth and day < admittedDay) then
+        years = years - 1
+    end
+    return chronology.ageAtAdmission + years
+end
+
+function H.ageOf(id)
+    local chronology = chronologyFor(id)
+    if chronology then return externalAttainedAge(id, chronology) end
+    return generatedAttainedAge(id)
+end
+
+-- A generated child's school status belongs to their present age, not to a
+-- future profession. The marker distinguishes that temporary designation
+-- from an adult who independently studies. Daily county time and initial
+-- history settlement both use this same transition; no job is chosen here.
+function H.advanceLifeStage(rec)
+    if type(rec) ~= "table" or type(rec.id) ~= "string" or rec.id == "" then
+        return nil, "person-unavailable"
+    end
+    if rec.dead then return false, "dead" end
+    if not generatedId(rec.id) or rec.chronology ~= nil
+        or rec.weekOne ~= nil then
+        return false, "source-owned"
+    end
+    local marker = rec.ageBoundOccupation
+    if marker ~= nil and marker ~= "early-childhood" and marker ~= "school" then
+        return nil, "age-stage-invalid"
+    end
+    local okCalendar, _, _, _, calendarReason = pcall(function()
+        return generatedCalendarYear(rec.id, generatedAgeAtStart(rec.id))
+    end)
+    if not okCalendar then return nil, "age-unavailable" end
+    if calendarReason then return nil, calendarReason end
+    local ok, age = pcall(H.ageOf, rec.id)
+    if not ok then return nil, "age-unavailable" end
+    if age == nil then return nil, "not-yet-born" end
+    if age < 6 then
+        local changed = rec.occupation ~= nil or marker ~= "early-childhood"
+            or rec.occupationPresumed ~= nil or rec.workX ~= nil
+            or rec.workY ~= nil
+        rec.occupation = nil
+        rec.occupationPresumed = nil
+        rec.workX, rec.workY = nil, nil
+        rec.ageBoundOccupation = "early-childhood"
+        return changed, "early-childhood"
+    end
+    if age < 18 then
+        local changed = rec.occupation ~= "student" or marker ~= "school"
+            or rec.occupationPresumed ~= nil or rec.workX ~= nil
+            or rec.workY ~= nil
+        rec.occupation = "student"
+        rec.occupationPresumed = nil
+        rec.workX, rec.workY = nil, nil
+        rec.ageBoundOccupation = "school"
+        return changed, "school"
+    end
+    if marker ~= nil then
+        rec.ageBoundOccupation = nil
+        if rec.occupation == "student" or rec.occupation == nil then
+            rec.occupation = nil
+            rec.occupationPresumed = nil
+            rec.workX, rec.workY = nil, nil
+            return true, marker == "school" and "school-ended"
+                or "age-bound-status-ended"
+        end
+        return true, "age-bound-status-ended"
+    end
+    return false, "adult-occupation-unchanged"
+end
+
+-- A generated person's unknown birth date permits an upper bound, not a
+-- fabricated birthday: January 1 of their birth year is the earliest they
+-- could have existed. A later historical birth cannot inherit all the
+-- county's elapsed apocalypse months as their own lived/contact months.
+local function generatedLifeMonthsCeiling(id)
+    local year, month, day = calendarYear(H.countyInstant(H.countyHours()))
+    if not year then return nil end
+    local birth = saveStartYear() - generatedAgeAtStart(id)
+    if year < birth then return nil end
+    local days = {31,28,31,30,31,30,31,31,30,31,30,31}
+    if year%4 == 0 and (year%100 ~= 0 or year%400 == 0) then
+        days[2] = 29
+    end
+    return (year - birth) * 12 + (month - 1)
+        + (day - 1) / days[month]
+end
+
+-- The year they were born, against the world's own start year. Age passage
+-- never changes the existing generated person's birth-year identity.
+function H.birthYearOf(id)
+    local chronology = chronologyFor(id)
+    if chronology then return chronology.birthYear end
+    return saveStartYear() - generatedAgeAtStart(id)
 end
 
 -- Calendar age is a detached projection of the owned clock and birth year.
--- The baseline age remains the deterministic identity fact. A birth year
--- bounds attained age; it supplies neither a birthday nor an eligibility rule.
+-- Its nominal age is the upper end of an unknown-birthday interval. H.ageOf
+-- is the simulation's attained age under the explicit transition policies
+-- above, while baselineAge remains the original generated or admitted age.
 local function ageFinite(value)
     return type(value) == "number" and value == value
         and value ~= math.huge and value ~= -math.huge
 end
 
-local function calendarYear(instant)
+calendarYear = function(instant)
     if type(instant) ~= "string" or #instant ~= 19 then return nil end
     local y,m,d,h,n,s = instant:match("^([0-9][0-9][0-9][0-9])%-([0-9][0-9])%-([0-9][0-9])T([0-9][0-9]):([0-9][0-9]):([0-9][0-9])$")
     y,m,d,h,n,s = tonumber(y),tonumber(m),tonumber(d),tonumber(h),tonumber(n),tonumber(s)
@@ -511,7 +893,142 @@ local function calendarYear(instant)
     local days = {31,28,31,30,31,30,31,31,30,31,30,31}
     if y%4 == 0 and (y%100 ~= 0 or y%400 == 0) then days[2] = 29 end
     if d > days[m] then return nil end
-    return y
+    return y,m,d
+end
+
+-- The caller binds a stable source identity and classifies its default-scale
+-- proxy as an imported adult. That representation supplies no biological age.
+-- `sourceKey` may contain a spawn timestamp; it is not a birth date. The
+-- person record is saved, so admission is idempotent across reloads.
+function H.admitExternalAdult(rec, evidence)
+    if type(rec) ~= "table" or type(rec.id) ~= "string" or rec.id == ""
+        or not (SAO.Identity and type(SAO.Identity.get) == "function")
+        or SAO.Identity.get(rec.id) ~= rec then
+        return false, "person-unavailable"
+    end
+    if type(evidence) ~= "table"
+        or evidence.nativeDefaultScaleBody ~= true
+            and evidence.savedWeekOnePerson ~= true
+        or type(evidence.source) ~= "string" or evidence.source == ""
+        or #evidence.source > 128
+        or type(evidence.sourceKey) ~= "string" or evidence.sourceKey == ""
+        or #evidence.sourceKey > 256 then
+        return false, "adult-source-evidence-unavailable"
+    end
+    local savedWeekOne = evidence.savedWeekOnePerson == true
+    if savedWeekOne then
+        local saved = rec.weekOne
+        if evidence.source ~= "BanditsWeekOne"
+            or type(saved) ~= "table" or saved.source ~= evidence.source
+            or not ageFinite(saved.brainId)
+            or saved.brainId ~= math.floor(saved.brainId)
+            or not ageFinite(saved.born)
+            or evidence.sourceKey ~= tostring(saved.brainId)
+                .. "@" .. tostring(saved.born) then
+            return false, "saved-source-evidence-unavailable"
+        end
+    end
+    if rec.chronology ~= nil then
+        if not validExternalChronology(rec.chronology)
+            or rec.chronology.source ~= evidence.source
+            or rec.chronology.sourceKey ~= evidence.sourceKey then
+            return false, "chronology-conflict"
+        end
+        return true, "already-admitted"
+    end
+    -- An ordinary external admission cannot overwrite an existing life.
+    if not savedWeekOne
+        and (rec.personalMemory ~= nil or rec.education ~= nil
+            or rec.epistemicMonths ~= nil or rec.birthYear ~= nil) then
+        return false, "existing-life-history"
+    end
+    local hours = H.countyHours()
+    local year = calendarYear(H.countyInstant(hours))
+    if not ageFinite(hours) or not year then
+        return false, "county-calendar-unavailable"
+    end
+    if savedWeekOne then
+        local priorBirth = rec.birthYear
+        if priorBirth ~= nil and (not ageFinite(priorBirth)
+            or priorBirth ~= math.floor(priorBirth)) then
+            return false, "saved-birth-prior-invalid"
+        end
+        local profile = nil
+        if SAO.EducationRegistry
+            and type(SAO.EducationRegistry.profile) == "function" then
+            local ok, value = pcall(SAO.EducationRegistry.profile, rec.id)
+            if not ok then return false, "saved-education-profile-unavailable" end
+            profile = value
+        end
+        if profile ~= nil then
+            if type(profile) ~= "table" or profile.personId ~= rec.id
+                or not ageFinite(profile.birthYear)
+                or profile.birthYear ~= math.floor(profile.birthYear)
+                or priorBirth ~= nil and priorBirth ~= profile.birthYear then
+                return false, "saved-birth-prior-conflict"
+            end
+            priorBirth = profile.birthYear
+        elseif rec.education ~= nil then
+            return false, "saved-education-profile-unavailable"
+        end
+        local priorAge = nil
+        local reason = "saved-birth-prior"
+        if priorBirth == nil and rec.personalMemory ~= nil then
+            priorBirth = saveStartYear() - generatedAgeAtStart(rec.id)
+            priorAge = generatedAttainedAge(rec.id)
+            reason = "saved-generated-prior"
+        end
+        if priorBirth ~= nil then
+            priorAge = priorAge or year - priorBirth
+            if priorBirth < 1 or not ageFinite(priorAge)
+                or priorAge ~= math.floor(priorAge)
+                or priorAge < 0 or priorAge > 120 then
+                return false, "saved-birth-prior-invalid"
+            end
+            rec.chronology = {
+                schema = SAVED_PRIOR_SCHEMA, ageAuthorship = "SAO",
+                evidence = "saved-weekone-prior", source = evidence.source,
+                sourceKey = evidence.sourceKey, ageAtAdmission = priorAge,
+                birthYear = priorBirth, admissionYear = year,
+                admittedAtHours = hours,
+                ageTransitionPolicy = "admission-anniversary",
+                allocation = { method = SAVED_PRIOR_ALLOCATION,
+                    reason = reason },
+            }
+            return true, "retained-prior"
+        end
+    end
+    -- The installed native draw is a live allocation, never a hash of the
+    -- source brain or SAO person ID. Both draws must succeed before mutation.
+    if type(ZombRand) ~= "function" then
+        return false, "adult-age-allocation-unavailable"
+    end
+    local okRoll, roll = pcall(ZombRand, ADULT_AGE_TOTAL)
+    local band = okRoll and adultBandAt(roll) or nil
+    if not band then return false, "adult-age-allocation-unavailable" end
+    local span = band.to - band.from + 1
+    local okYear, yearRoll = pcall(ZombRand, span)
+    if not okYear or type(yearRoll) ~= "number"
+        or yearRoll ~= math.floor(yearRoll)
+        or yearRoll < 0 or yearRoll >= span then
+        return false, "adult-age-allocation-unavailable"
+    end
+    local age = band.from + yearRoll
+    rec.chronology = {
+        schema = EXTERNAL_ADULT_SCHEMA,
+        ageAuthorship = "SAO",
+        evidence = savedWeekOne and "saved-weekone-person"
+            or "native-default-scale-source-proxy",
+        source = evidence.source, sourceKey = evidence.sourceKey,
+        ageAtAdmission = age, birthYear = year - age, admissionYear = year,
+        admittedAtHours = hours,
+        ageTransitionPolicy = "admission-anniversary",
+        allocation = { method = EXTERNAL_ADULT_ALLOCATION,
+            bandRoll = roll, yearRoll = yearRoll,
+            reason = savedWeekOne and "saved-weekone-migration"
+                or "source-admission" },
+    }
+    return true, "admitted"
 end
 
 function H.calendarAgeOf(id, optionalCountyHours)
@@ -538,7 +1055,14 @@ function H.calendarAgeOf(id, optionalCountyHours)
     if not year then out.reason = "calendar-unavailable"; return out end
     out.currentInstant = instant
     local birth,baseline = nil,nil
-    pcall(function() birth = H.birthYearOf(id); baseline = H.ageOf(id) end)
+    pcall(function()
+        birth = H.birthYearOf(id)
+        local chronology = chronologyFor(id)
+        baseline = chronology and chronology.ageAtAdmission
+            or generatedAgeAtStart(id)
+        out.simulationAgePolicy = chronology and "admission-anniversary"
+            or "generated-transition-day"
+    end)
     if not ageFinite(birth) or birth ~= math.floor(birth) or birth < 1
         or not ageFinite(baseline) or baseline ~= math.floor(baseline) or baseline < 0 then
         out.reason = "birth-year-unavailable"; return out
@@ -932,7 +1456,12 @@ end
 -- organized their life around), settled trait echoes scaled by how the
 -- claim was acquired, and at most one named cost on a lived claim.
 function H.generate(id, rec, monthsAliveOverride)
+    local stageChanged, stageReason = H.advanceLifeStage(rec)
+    if stageChanged == nil or stageReason == "dead" then
+        return false, stageReason
+    end
     if rec.epistemicMonths ~= nil then return end
+    local age = H.ageOf(id)
     -- The census seam ([A18], DR-010): every generated past begins with
     -- who this person WAS. One seam covers every caller - genesis,
     -- harness spawn, Knox adoption, and whatever comes later.
@@ -944,7 +1473,7 @@ function H.generate(id, rec, monthsAliveOverride)
     -- honest. The sentence is replaced rather than left standing,
     -- because a comment describing a path that no longer exists is the
     -- same defect one layer up from the code.
-    if not rec.occupation and SAO.Census then
+    if age >= 18 and not rec.occupation and SAO.Census then
         local row = SAO.Census.assign(id)
         if row then
             rec.occupation = row.key
@@ -956,21 +1485,21 @@ function H.generate(id, rec, monthsAliveOverride)
                 rec.occupationPresumed = true
             end
         end
-        -- [C30] The age decides the work before the draw does: a child
-        -- is a student whatever the census dealt, and past sixty-eight
-        -- a working life is over - a retiree, unless the draw already
-        -- kept them home. Both rows are the census's own (DR-011: a
-        -- retiree's day is not a student's), so everything downstream
-        -- that reads a row reads a real one.
-        local age = H.ageOf(id)
-        if age < 18 then
-            rec.occupation = "student"
-        elseif age > 68 and rec.occupation ~= "homemaker" then
+        -- [C30] Past sixty-eight a working life is over: a retiree,
+        -- unless the draw already kept them home. Children have no adult
+        -- census draw; advanceLifeStage sets their age-bound status.
+        if age > 68 and rec.occupation ~= "homemaker" then
             rec.occupation = "retiree"
         end
     end
     local worldMonths = H.clockMonths()
     local monthsAlive = monthsAliveOverride or worldMonths
+    if monthsAliveOverride == nil and generatedId(id)
+        and rec.chronology == nil
+        and rec.weekOne == nil then
+        local ceiling = generatedLifeMonthsCeiling(id)
+        if ceiling then monthsAlive = math.min(monthsAlive, ceiling) end
+    end
     local contact = monthsAlive * H.contactFactor(id)
     rec.monthsAlive = math.floor(monthsAlive * 10 + 0.5) / 10
     rec.contactMonths = math.floor(contact * 10 + 0.5) / 10

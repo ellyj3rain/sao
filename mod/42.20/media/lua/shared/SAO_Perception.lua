@@ -57,6 +57,8 @@ end
 -- store when it opens. Growth is bounded by the decay pass and the
 -- death funnel (P.forget), as before.
 P.beliefs = P.beliefs or {}
+-- Native body references are session authority and never enter saved beliefs.
+local conceptObservers = {}
 
 -- [C108] Counted whenever any belief record is written, dropped, or
 -- the whole store is swapped for a save's. Derived group answers
@@ -84,7 +86,10 @@ local SCANNER_SIGHT_RANGE = 14 -- SAOPerceptionScanner.RANGE, in tiles
 -- refreshed `at` field is not a new occurrence.
 local soundPulses = {}
 local SOUND_CUE_LIMIT = 64
+local weekOneNativeSignals = {}
+local WEEK_ONE_NATIVE_SIGNAL_LIMIT = 8
 P.SOUND_CUE_FRESH = 120 -- county ticks from the first personal acquisition
+P.WEEK_ONE_NATIVE_SIGNAL_FRESH = 120
 
 local function finiteSoundNumber(value)
     return type(value) == "number" and value == value
@@ -113,18 +118,30 @@ local function acquireSoundCue(id, body, entry, fields, x, y, distance, tick)
     end
     row.at = tick
     local token, count = fields[6], 0
+    local oldestToken, oldest
     for key, cue in pairs(row.cues) do
         if tick - cue.lastHeardAt > P.SOUND_CUE_FRESH then
             row.cues[key] = nil
         else
             count = count + 1
+            if not oldest or cue.heardAt < oldest.heardAt
+                or cue.heardAt == oldest.heardAt and cue.distance > oldest.distance
+                or cue.heardAt == oldest.heardAt and cue.distance == oldest.distance
+                    and key < oldestToken then
+                oldestToken, oldest = key, cue
+            end
         end
     end
     local cue = row.cues[token]
     if cue then
         -- The pulse's original origin and acquisition time stay fixed.
         if cue.x == x and cue.y == y then cue.lastHeardAt = tick end
-    elseif count < SOUND_CUE_LIMIT then
+    else
+        -- A full private cache cannot silence a newly heard pulse. Discard
+        -- its oldest occurrence; equal-age ties discard the farthest one.
+        if count >= SOUND_CUE_LIMIT and oldestToken then
+            row.cues[oldestToken] = nil
+        end
         row.cues[token] = { cueId = token, x = x, y = y,
             distance = distance, heardAt = tick, lastHeardAt = tick,
             source = "heard" }
@@ -144,12 +161,104 @@ function P.soundCues(id, body, tick)
                 lastHeardAt = cue.lastHeardAt, source = cue.source }
         end
     end
+    -- The appraisal reads a bounded prefix. Give each person the newest,
+    -- nearest personally heard occurrence first, independent of Lua's table
+    -- iteration order; no cause or source identity is inferred here.
+    table.sort(out, function(a, b)
+        if a.heardAt ~= b.heardAt then return a.heardAt > b.heardAt end
+        if a.distance ~= b.distance then return a.distance < b.distance end
+        return a.cueId < b.cueId
+    end)
     return out
 end
 
 function P.forgetSoundCues(id, body)
     local row = soundPulses[id]
     if row and (body == nil or row.body == body) then soundPulses[id] = nil end
+    row = weekOneNativeSignals[id]
+    if row and (body == nil or row.body == body) then weekOneNativeSignals[id] = nil end
+end
+
+local function nativeSignalCopy(cue)
+    return { kind = cue.kind, x = cue.x, y = cue.y, z = cue.z,
+        distance = cue.distance, heardAt = cue.heardAt,
+        heardAtHours = cue.heardAtHours, source = cue.source }
+end
+
+-- The source body's native action and WorldSound are checked by the bridge.
+-- A callout's origin is the current native player body; a horn's is the
+-- current driven vehicle. This private contact carries no words or speaker
+-- recognition. It is runtime-only because a saved cue cannot prove a current
+-- native occurrence or retain the old body as hearing authority.
+function P.acquireWeekOneNativeSignal(id, body, player, brain, kind)
+    if type(id) ~= "string" or type(brain) ~= "table"
+        or (kind ~= "callout" and kind ~= "horn")
+        or not (SAO.Identity and SAO.Identity.get and SAO.Claims
+            and SAO.Claims.heldBy and SAO.WeekOneContinuity
+            and SAO.WeekOneContinuity.sourceBodyFor and SAOJavaBridge
+            and SAOJavaBridge.weekOneNativeSignalHeard and SAO.History
+            and SAO.History.ticks) then return nil end
+    local rec = SAO.Identity.get(id)
+    local phase = rec and rec.weekOne
+    if not phase or rec.dead or phase.source ~= "BanditsWeekOne"
+        or phase.status ~= "external" or phase.pending
+        or SAO.Claims.heldBy(rec) ~= "BanditsWeekOne" then return nil end
+    local okSource, sourceBody, sourceBrain = pcall(
+        SAO.WeekOneContinuity.sourceBodyFor, id)
+    if not okSource or sourceBody ~= body or type(sourceBrain) ~= "table"
+        or sourceBrain.id ~= brain.id or sourceBrain.born ~= brain.born then return nil end
+    local okHeard, heard = pcall(function()
+        return SAOJavaBridge:weekOneNativeSignalHeard(player, body,
+            id, brain.id, brain.born, kind)
+    end)
+    if not okHeard or heard ~= true then return nil end
+    local okClock, tick, hours = pcall(function()
+        return SAO.History.ticks(), getGameTime():getWorldAgeHours()
+    end)
+    if not okClock or not finiteSoundNumber(tick) or tick < 0
+        or not finiteSoundNumber(hours) or hours < 0 then return nil end
+    local okLocation, x, y, z, distance = pcall(function()
+        local nativeSource = kind == "horn" and player:getVehicle() or player
+        if not nativeSource then return nil end
+        local sx, sy, sz = nativeSource:getX(), nativeSource:getY(), nativeSource:getZ()
+        local dx, dy = sx - body:getX(), sy - body:getY()
+        return sx, sy, sz, math.sqrt(dx * dx + dy * dy)
+    end)
+    if not okLocation or not finiteSoundNumber(x) or not finiteSoundNumber(y)
+        or not finiteSoundNumber(z) or not finiteSoundNumber(distance)
+        or distance < 0 then return nil end
+    local row = weekOneNativeSignals[id]
+    if not row or row.body ~= body or tick < row.at then
+        row = { body = body, at = tick, cues = {} }
+        weekOneNativeSignals[id] = row
+    end
+    row.at = tick
+    local cues = row.cues
+    for index = #cues, 1, -1 do
+        if tick - cues[index].heardAt > P.WEEK_ONE_NATIVE_SIGNAL_FRESH then
+            table.remove(cues, index)
+        end
+    end
+    if #cues >= WEEK_ONE_NATIVE_SIGNAL_LIMIT then table.remove(cues, 1) end
+    local cue = { kind = kind, x = x, y = y, z = z, distance = distance,
+        heardAt = tick, heardAtHours = hours, source = "native-sound" }
+    cues[#cues + 1] = cue
+    return nativeSignalCopy(cue)
+end
+
+-- The body and county tick must still match. Callers receive copies so an
+-- appraisal cannot mutate another person's private auditory history.
+function P.weekOneNativeSignals(id, body, tick)
+    local out, row = {}, weekOneNativeSignals[id]
+    if not row or row.body ~= body or not finiteSoundNumber(tick)
+        or tick < row.at then return out end
+    for _, cue in ipairs(row.cues) do
+        local age = tick - cue.heardAt
+        if age >= 0 and age <= P.WEEK_ONE_NATIVE_SIGNAL_FRESH then
+            out[#out + 1] = nativeSignalCopy(cue)
+        end
+    end
+    return out
 end
 
 local function hearingCopy(row)
@@ -225,6 +334,159 @@ function P.instrumentHearing(id, performerId, workId)
         end
     end
     return nil
+end
+
+local function validWeekOnePerformanceHearing(row, observerId, nativeNow, countyNow, observer)
+    return type(row) == "table" and row.schema == "sao.weekone-performance-hearing/1"
+        and row.observerId == observerId and type(row.actorId) == "string"
+        and string.match(row.actorId, "^bwo%-") ~= nil
+        and ((row.observerBrainId == nil and row.observerBorn == nil)
+            or (finiteSoundNumber(row.observerBrainId)
+                and row.observerBrainId == math.floor(row.observerBrainId)
+                and finiteSoundNumber(row.observerBorn)
+                and type(observer) == "table"
+                and type(observer.weekOne) == "table"
+                and observer.weekOne.source == "BanditsWeekOne"
+                and row.observerBrainId == observer.weekOne.brainId
+                and row.observerBorn == observer.weekOne.born))
+        and row.clock == "native-world-age-hours"
+        and row.basis == "native-scanner-acquired-occurrence"
+        and validSoundToken(row.pulseId) and type(row.epoch) == "string"
+        and finiteSoundNumber(row.sequence) and row.sequence > 0
+        and row.sequence == math.floor(row.sequence)
+        and row.pulseId == row.epoch .. "-" .. tostring(row.sequence)
+        and finiteSoundNumber(row.brainId) and row.brainId == math.floor(row.brainId)
+        and finiteSoundNumber(row.born) and type(row.soundId) == "string"
+        and #row.soundId > 0 and #row.soundId <= 96
+        and finiteSoundNumber(row.soundHandle) and row.soundHandle > 0
+        and row.soundHandle == math.floor(row.soundHandle)
+        and finiteSoundNumber(row.emittedAtHours) and row.emittedAtHours >= 0
+        and finiteSoundNumber(row.heardAtHours)
+        and row.heardAtHours >= row.emittedAtHours
+        and finiteSoundNumber(row.witnessedAtHours)
+        and row.witnessedAtHours >= row.heardAtHours
+        and finiteSoundNumber(row.atHours)
+        and row.atHours >= row.witnessedAtHours and row.atHours <= nativeNow
+        and finiteSoundNumber(row.acquiredAtCountyHours)
+        and row.acquiredAtCountyHours >= 0
+        and row.acquiredAtCountyHours <= countyNow
+end
+
+-- A Week One source proxy can hear while its exact generation remains loaded.
+-- This resolves an existing source-owned body; it does not transfer body control.
+local function weekOneHearingObserver(id, body, rec, needs, source)
+    if needs and needs.ownsRecoveryBody
+        and needs.ownsRecoveryBody(id, body) then return "recovery" end
+    local phase = rec and rec.weekOne
+    if not phase or phase.source ~= "BanditsWeekOne"
+        or phase.status ~= "external" or phase.pending
+        or not (SAO.Claims and SAO.Claims.heldBy)
+        or SAO.Claims.heldBy(rec) ~= "BanditsWeekOne"
+        or not source or type(source.sourceBodyFor) ~= "function" then return nil end
+    local ok, exactBody, brain = pcall(source.sourceBodyFor, id)
+    if not ok or exactBody ~= body or type(brain) ~= "table"
+        or brain.id ~= phase.brainId or brain.born ~= phase.born then return nil end
+    return "weekone", brain.id, brain.born
+end
+
+-- A current native scanner acquisition is a private heard performance, not
+-- an invitation, accepted collaboration, pleasure or instrumental skill.
+function P.acquireWeekOnePerformanceHearing(id, body, performerId)
+    local needs, source = SAO.Needs, SAO.WeekOneContinuity
+    local rec = SAO.Identity and SAO.Identity.get(id)
+    local performer = SAO.Identity and SAO.Identity.get(performerId)
+    if not rec or rec.dead or not performer or performer.dead or id == performerId
+        or not source or not source.livePerformance or not SAOJavaBridge
+        or not SAOJavaBridge.claimWeekOnePerformanceHearing then return nil end
+    local observerKind, observerBrainId, observerBorn =
+        weekOneHearingObserver(id, body, rec, needs, source)
+    if not observerKind then return nil end
+    local phase = performer.weekOne
+    if not phase or phase.source ~= "BanditsWeekOne" or phase.status ~= "external"
+        or phase.pending or not (SAO.Claims and SAO.Claims.heldBy)
+        or SAO.Claims.heldBy(performer) ~= "BanditsWeekOne" then return nil end
+    local okSource, sourceBody, occurrence = pcall(source.livePerformance, performerId)
+    if not okSource or not sourceBody or type(occurrence) ~= "table"
+        or occurrence.schema ~= "sao.weekone-performance-occurrence/1"
+        or occurrence.actorId ~= performerId or occurrence.brainId ~= phase.brainId
+        or occurrence.born ~= phase.born or occurrence.clock ~= "native-world-age-hours"
+        or not validSoundToken(occurrence.pulseId)
+        or not finiteSoundNumber(occurrence.emittedAtHours) then return nil end
+    -- A heard occurrence is private and exact-once. Once retained, another
+    -- frame needs no native claim for the same currently playing pulse.
+    local prior = rec.weekOnePerformanceHearings
+    if type(prior) == "table" then
+        for _, old in ipairs(prior) do
+            if type(old) == "table" and old.pulseId == occurrence.pulseId then
+                return nil
+            end
+        end
+    end
+    local good, row = pcall(function()
+        return SAOJavaBridge:claimWeekOnePerformanceHearing(body, sourceBody,
+            performerId, phase.brainId, phase.born, occurrence.pulseId)
+    end)
+    local countyNow = SAO.History and SAO.History.countyHours()
+    local clockOk, nativeNow = pcall(function()
+        return GameTime.getInstance():getWorldAgeHours()
+    end)
+    if type(row) == "table" and row.acquiredAtCountyHours == nil then
+        row.acquiredAtCountyHours = countyNow
+    end
+    local stillLive, currentBody, currentOccurrence = pcall(
+        source.livePerformance, performerId)
+    local currentObserverKind, currentObserverBrainId, currentObserverBorn =
+        weekOneHearingObserver(id, body, rec, needs, source)
+    if not good or not clockOk or not finiteSoundNumber(countyNow)
+        or not finiteSoundNumber(nativeNow)
+        or not validWeekOnePerformanceHearing(row, id, nativeNow, countyNow, rec)
+        or row.actorId ~= performerId or row.brainId ~= phase.brainId
+        or row.born ~= phase.born or row.soundId ~= occurrence.soundId
+        or row.soundHandle ~= occurrence.soundHandle
+        or row.pulseId ~= occurrence.pulseId or row.epoch ~= occurrence.epoch
+        or row.sequence ~= occurrence.sequence
+        or row.emittedAtHours ~= occurrence.emittedAtHours
+        or (observerKind == "weekone" and (row.observerBrainId ~= observerBrainId
+            or row.observerBorn ~= observerBorn))
+        or (observerKind == "recovery" and
+            (row.observerBrainId ~= nil or row.observerBorn ~= nil))
+        or currentObserverKind ~= observerKind
+        or currentObserverBrainId ~= observerBrainId
+        or currentObserverBorn ~= observerBorn
+        or not stillLive or currentBody ~= sourceBody
+        or type(currentOccurrence) ~= "table"
+        or currentOccurrence.pulseId ~= occurrence.pulseId then return nil end
+    local rows = type(rec.weekOnePerformanceHearings) == "table"
+        and rec.weekOnePerformanceHearings or {}
+    for _, old in ipairs(rows) do
+        if type(old) == "table" and old.pulseId == row.pulseId then return nil end
+    end
+    rows[#rows + 1] = hearingCopy(row)
+    while #rows > 16 do
+        table.remove(rows, 1)
+        rec.weekOnePerformanceHearingsOmitted =
+            (tonumber(rec.weekOnePerformanceHearingsOmitted) or 0) + 1
+    end
+    rec.weekOnePerformanceHearings = rows
+    return hearingCopy(row)
+end
+
+function P.weekOnePerformanceHearings(id)
+    local rec = SAO.Identity and SAO.Identity.get(id)
+    local rows = rec and rec.weekOnePerformanceHearings
+    local countyNow = SAO.History and SAO.History.countyHours()
+    local clockOk, nativeNow = pcall(function()
+        return GameTime.getInstance():getWorldAgeHours()
+    end)
+    local out = {}
+    if type(rows) ~= "table" or not finiteSoundNumber(countyNow)
+        or not clockOk or not finiteSoundNumber(nativeNow) then return out end
+    for _, row in ipairs(rows) do
+        if validWeekOnePerformanceHearing(row, id, nativeNow, countyNow, rec) then
+            out[#out + 1] = hearingCopy(row)
+        end
+    end
+    return out
 end
 -- [B20] How long a recognised cry keeps its tile from being read
 -- as a threat. ONE definition: the guard in the S-row path and
@@ -1454,9 +1716,72 @@ function P.noteEntryOutcome(id, body, job)
     end
     return false
 end
+local function rememberAudibleSound(id, body, b, entry, f, tick)
+    -- The native scanner supplies personal audibility and an imprecise origin.
+    -- Neither its quick path nor its full path identifies a cause or speaker.
+    local x, y, d = tonumber(f[2]), tonumber(f[3]), tonumber(f[4])
+    if not x or not y then return end
+    local key = x .. "," .. y
+    acquireSoundCue(id, body, entry, f, x, y, d, tick)
+    local recognised = b.criedTiles and b.criedTiles[key]
+    if not recognised or (tick - recognised) > CRY_RECOGNITION then
+        b.sounds[key] = { x = x, y = y, dist = d, at = tick,
+            source = "heard", kind = "unknown" }
+    end
+end
+
+local function observeWeekOnePerformances(id, body)
+    local source = SAO.WeekOneContinuity
+    if not source or not source.livePerformanceIds then return end
+    local listed, performers = pcall(source.livePerformanceIds)
+    if listed and type(performers) == "table" then
+        for _, performerId in ipairs(performers) do
+            pcall(P.acquireWeekOnePerformanceHearing, id, body, performerId)
+        end
+    end
+end
+
+local function observeAudible(id, body, b, tick, asleep)
+    -- Native sounds expire in engine updates, before the county-time sight
+    -- cadence may run. Acquire this person's sound first, on every awake
+    -- callback, including a callback that also performs a full sight scan.
+    -- A performance claim consumes that exact scanner acquisition; trying
+    -- the claim first can lose a pulse with only one live callback.
+    if not asleep and SAOJavaBridge and SAOJavaBridge.perceiveAudibleSounds then
+        local ok, heard = pcall(function()
+            return SAOJavaBridge:perceiveAudibleSounds(body)
+        end)
+        if ok and type(heard) == "string" and heard ~= "" then
+            for _, entry in ipairs(split(heard, "|")) do
+                local f = split(entry, ":")
+                if f[1] == "S" and #f >= 4 then
+                    rememberAudibleSound(id, body, b, entry, f, tick)
+                end
+            end
+        end
+    end
+    -- Source-owned performance audio and its WorldSound can end before the
+    -- next sight scan. The claim still requires exact live source custody.
+    if not asleep then observeWeekOnePerformances(id, body) end
+end
+
+function P.observeAudible(id, body, tick, asleep)
+    local b = store(id)
+    observeAudible(id, body, b, tick, asleep)
+end
+
 function P.observe(id, body, tick, asleep)
     local b = store(id)
-    if tick - b.lastScanAt < SCAN_INTERVAL then return end
+    observeAudible(id, body, b, tick, asleep)
+    if tick - b.lastScanAt < SCAN_INTERVAL then
+        -- A person can change exact body custody within one county tick. The
+        -- sight throttle may hold, but the new body cannot borrow old sight.
+        if not asleep and (not conceptObservers[id]
+            or conceptObservers[id].body ~= body) then
+            pcall(function() P.observeConcepts(id, body, tick) end)
+        end
+        return
+    end
     local priorScanAt = b.lastScanAt
     b.lastScanAt = tick
     b.scanCount = b.scanCount + 1
@@ -1598,26 +1923,7 @@ function P.observe(id, body, tick, asleep)
                 local x, y, z = tonumber(f[2]), tonumber(f[3]), tonumber(f[4])
                 if x and y and z then covered[zombieTile({ x = x, y = y, z = z })] = true end
             elseif f[1] == "S" and #f >= 4 then
-                -- The scanner supplies audibility and an imprecise origin,
-                -- without an acoustic category or speaker identity. Keep that
-                -- uncertainty rather than manufacturing a zombie or shooter.
-                local x, y, d = tonumber(f[2]), tonumber(f[3]), tonumber(f[4])
-                if x and y then
-                    local key = x .. "," .. y
-                    acquireSoundCue(id, body, entry, f, x, y, d, tick)
-                    -- [B20] You know what that was. A cry you
-                    -- recognised a moment ago is not a monster on the
-                    -- next scan - without this, the sound of a
-                    -- housemate calling for help would write a threat
-                    -- belief on the tile they are lying on.
-                    local recognised = b.criedTiles and b.criedTiles[key]
-                    if recognised and (tick - recognised) <= CRY_RECOGNITION then
-                        -- a voice, already understood
-                    else
-                        b.sounds[key] = { x = x, y = y, dist = d, at = tick,
-                            source = "heard", kind = "unknown" }
-                    end
-                end
+                rememberAudibleSound(id, body, b, entry, f, tick)
             elseif f[1] == "P" and #f >= 5 then
                 local name = f[2]
                 local x, y, d = tonumber(f[3]), tonumber(f[4]), tonumber(f[5])
@@ -3361,12 +3667,62 @@ end
 local function conceptCopy(row)
     local out={} for key,value in pairs(row) do if type(value)~="table" then out[key]=value end end return out
 end
+local SOURCE_GROUND_DIRECTIONS={
+    {-1,-1},{0,-1},{1,-1},{-1,0},{1,0},{-1,1},{0,1},{1,1}
+}
+local function sourceConceptView(id,body)
+    local source=SAO.WeekOneContinuity
+    if not source or type(source.sourceBodyFor)~="function"
+        or not SAOJavaBridge or not SAOJavaBridge.weekOneObservedFeature then return nil end
+    local exact,owned,brain=pcall(source.sourceBodyFor,id)
+    if not exact or owned~=body or type(brain)~="table"
+        or not finiteSoundNumber(brain.id) or not finiteSoundNumber(brain.born) then return nil end
+    local located,cell,x,y,z=pcall(function()
+        return body:getCell(),body:getX(),body:getY(),body:getZ() end)
+    if not located or not cell or not finiteSoundNumber(x) or not finiteSoundNumber(y)
+        or not finiteSoundNumber(z) or z~=math.floor(z) then return nil end
+    local okOutside,outside=pcall(function()
+        local square=body:getCurrentSquare()
+        return square and square:getRoom()==nil
+    end)
+    if not okOutside or outside~=true then return nil end
+    local approaches={}
+    for _,distance in ipairs({3,6}) do
+        for _,direction in ipairs(SOURCE_GROUND_DIRECTIONS) do
+            local gx=math.floor(x)+direction[1]*distance
+            local gy=math.floor(y)+direction[2]*distance
+            local okSquare,square=pcall(function()return cell:getGridSquare(gx,gy,z)end)
+            local okVisible,visible=pcall(function()
+                return square and SAOJavaBridge:weekOneObservedFeature(body,square,"ground")
+            end)
+            if okSquare and square and okVisible and visible==true then
+                local okPosition,sx,sy,sz,room=pcall(function()
+                    return square:getX(),square:getY(),square:getZ(),square:getRoom() end)
+                if okPosition and finiteSoundNumber(sx) and finiteSoundNumber(sy)
+                    and sz==z and sx==gx and sy==gy and room==nil then
+                    approaches[#approaches+1]={key="ground:"..gx..":"..gy..":"..z,
+                        kind="visible-ground",x=sx,y=sy,z=sz}
+                end
+            end
+        end
+    end
+    return {schema="sao.concept-observation/1",actorId=id,
+        status="available",coverage="source-current-visible-ground",
+        observations={},frontiers={},approaches=approaches},brain
+end
 function P.observeConcepts(id,body,tick)
-    if not SAO.Needs or not SAO.Needs.ownsRecoveryBody or not SAO.Needs.ownsRecoveryBody(id,body)
-        or not finiteSoundNumber(tick) then return false,"concept-observer-unavailable" end
-    local ok,view=pcall(function() return SAOJavaBridge:conceptObservations(body,8) end)
+    if not finiteSoundNumber(tick) then return false,"concept-observer-unavailable" end
+    local ordinary=SAO.Needs and SAO.Needs.ownsRecoveryBody
+        and SAO.Needs.ownsRecoveryBody(id,body)
+    local ok,view,sourceBrain
+    if ordinary then
+        ok,view=pcall(function() return SAOJavaBridge:conceptObservations(body,8) end)
+    else
+        ok,view,sourceBrain=pcall(sourceConceptView,id,body)
+    end
     if not ok or type(view)~="table" or view.schema~="sao.concept-observation/1" or view.actorId~=id
         or type(view.observations)~="table" or type(view.frontiers)~="table" then
+        conceptObservers[id]=nil
         local prior=P.beliefs[id] and P.beliefs[id].concepts
         if prior then prior.readerStatus="native-concept-observation-unavailable" end
         return false,"native-concept-observation-unavailable"
@@ -3374,12 +3730,18 @@ function P.observeConcepts(id,body,tick)
     local b=store(id)
     local concepts=b.concepts or {observations={},order={},frontiers={},frontierOrder={}}
     b.concepts=concepts
+    conceptObservers[id]={body=body,sourceBrainId=sourceBrain and sourceBrain.id,
+        sourceBorn=sourceBrain and sourceBrain.born}
     concepts.at,concepts.status,concepts.readerStatus=tick,"observed","available"
+    -- Source ground has its own exact body/visibility proof. A previous
+    -- ordinary scan in this same tick cannot lend it objects or doorways.
+    concepts.sourceGroundOnly=view.coverage=="source-current-visible-ground"
     concepts.currentRoomId,concepts.currentBuildingId=nil,nil
+    concepts.approaches={}
     local function accept(row,frontier)
         if type(row)~="table" or type(row.key)~="string" or #row.key>160
-            or not finiteSoundNumber(row.x) or not finiteSoundNumber(row.y) or not finiteSoundNumber(row.z)
-            or row.buildingId==nil or row.roomId==nil then return end
+            or not finiteSoundNumber(row.x) or not finiteSoundNumber(row.y) or not finiteSoundNumber(row.z) then return end
+        if (frontier or row.kind=="room") and (row.buildingId==nil or row.roomId==nil) then return end
         if frontier then
             if row.kind~="doorway" or not finiteSoundNumber(row.entryX)
                 or not finiteSoundNumber(row.entryY) or row.entryZ~=row.z
@@ -3390,7 +3752,8 @@ function P.observeConcepts(id,body,tick)
         copy.recoverySourceId=type(row.recoverySourceId)=="string" and #row.recoverySourceId<=256
             and row.recoverySourceId:sub(1,4)=="bed:" and row.recoverySourceId or nil
         copy.actorId,copy.at,copy.source=id,tick,"native-personal-visibility"
-        copy.buildingId,copy.roomId=tostring(row.buildingId),tostring(row.roomId)
+        copy.buildingId=row.buildingId~=nil and tostring(row.buildingId) or nil
+        copy.roomId=row.roomId~=nil and tostring(row.roomId) or nil
         local rows,order=frontier and concepts.frontiers or concepts.observations,
             frontier and concepts.frontierOrder or concepts.order
         if not rows[row.key] then
@@ -3404,7 +3767,24 @@ function P.observeConcepts(id,body,tick)
     end
     for index,row in ipairs(view.observations) do if index>64 then break end;accept(row,false) end
     for index,row in ipairs(view.frontiers) do if index>32 then break end;accept(row,true) end
-    if SAO.ConceptKnowledge then
+    if type(view.approaches)=="table" then
+        for index,row in ipairs(view.approaches) do
+            if index>16 then break end
+            local gx,gy,gz
+            if type(row)=="table" and type(row.key)=="string" then
+                gx,gy,gz=row.key:match("^ground:(%-?%d+):(%-?%d+):(%-?%d+)$")
+            end
+            if type(row)=="table" and row.kind=="visible-ground" and type(row.key)=="string"
+                and #row.key<=160 and gx and gy and gz
+                and finiteSoundNumber(row.x) and finiteSoundNumber(row.y)
+                and finiteSoundNumber(row.z) and tonumber(gx)==math.floor(row.x)
+                and tonumber(gy)==math.floor(row.y) and tonumber(gz)==row.z then
+                concepts.approaches[#concepts.approaches+1]={key=row.key,kind=row.kind,
+                    actorId=id,at=tick,source="native-personal-visibility",x=row.x,y=row.y,z=row.z}
+            end
+        end
+    end
+    if SAO.ConceptKnowledge and not concepts.sourceGroundOnly then
         for _,roomKey in ipairs(concepts.order) do
             local room=concepts.observations[roomKey]
             if room.kind=="room" and room.at==tick then
@@ -3418,12 +3798,127 @@ function P.observeConcepts(id,body,tick)
         end
     end
     P.beliefVersion=P.beliefVersion+1
+    -- Published only after the complete native concept read has succeeded.
+    -- A scan timestamp alone can precede a failed or partial native read.
+    if concepts.sourceGroundOnly then
+        local located,x,y,z=pcall(function()
+            return body:getX(),body:getY(),body:getZ()
+        end)
+        if not located or not finiteSoundNumber(x) or not finiteSoundNumber(y)
+            or not finiteSoundNumber(z) then
+            conceptObservers[id]=nil
+            concepts.readerStatus="native-concept-observation-unavailable"
+            return false,"source-position-unavailable"
+        end
+        conceptObservers[id].tileX=math.floor(x)
+        conceptObservers[id].tileY=math.floor(y)
+        conceptObservers[id].tileZ=z
+    end
+    conceptObservers[id].completedAt=tick
+    return true
+end
+function P.conceptObservationReceipt(id,body,tick)
+    local bound=conceptObservers[id]
+    if not bound or bound.body~=body or bound.completedAt~=tick
+        or P.conceptContext(id,tick,body).status~="observed" then return false end
+    if bound.sourceBrainId then
+        local located,x,y,z=pcall(function()
+            return body:getX(),body:getY(),body:getZ()
+        end)
+        if not located or not finiteSoundNumber(x) or not finiteSoundNumber(y)
+            or math.floor(x)~=bound.tileX or math.floor(y)~=bound.tileY
+            or z~=bound.tileZ then return false end
+    end
     return true
 end
 function P.conceptObservation(id,key)
     local concepts=P.beliefs[id] and P.beliefs[id].concepts
     local row=concepts and concepts.observations[key]
     return row and row.actorId==id and conceptCopy(row) or nil
+end
+function P.leisureObjects(id,body)
+    local ok,tick=pcall(function()return SAO.History.ticks()end)
+    if not ok or not SAO.Needs.ownsRecoveryBody(id,body) then return {} end
+    local context=P.conceptContext(id,tick)
+    local out={}
+    for _,row in ipairs(context.observations or {}) do
+        if row.actorId==id and row.kind=="object" and row.source=="native-personal-visibility"
+            and type(row.objectIndex)=="number" and row.objectIndex>=0 and row.objectIndex%1==0
+            and type(row.runtimeInstance)=="string" then out[#out+1]=conceptCopy(row) end
+    end
+    return out
+end
+function P.resolveLeisureObject(id,body,key)
+    local ok,tick=pcall(function()return SAO.History.ticks()end)
+    if not ok or not SAO.Needs.ownsRecoveryBody(id,body) then return nil end
+    local prior=P.conceptObservation(id,key)
+    if not prior or prior.actorId~=id or prior.source~="native-personal-visibility"
+        or prior.kind~="object" or type(prior.runtimeInstance)~="string" then return nil end
+    local refreshed=P.observeConcepts(id,body,tick)
+    local current=refreshed and P.conceptObservation(id,key)
+    if not current or current.at~=tick or current.runtimeInstance~=prior.runtimeInstance
+        or current.objectIndex~=prior.objectIndex or current.spriteName~=prior.spriteName then return nil end
+    local good,object=pcall(function()return SAOJavaBridge:resolveObservedObject(body,key,current.runtimeInstance)end)
+    return good and object or nil
+end
+function P.canHearLeisureObject(id,body,source,range)
+    if type(source)~="table" or source.actorId~=id or not finiteSoundNumber(range) or range<=0
+        or not P.resolveLeisureObject(id,body,source.key) then return false end
+    local current=P.conceptObservation(id,source.key)
+    for _,field in ipairs({"runtimeInstance","objectIndex","spriteName","concept","x","y","z"}) do
+        if current[field]~=source[field] then return false end
+    end
+    local ok,heard=pcall(function()
+        return SAOJavaBridge:canHearLeisureObject(body,current.key,current.runtimeInstance,range)
+    end)
+    return ok and heard==true
+end
+function P.leisureAudioSources(id,body)
+    if not SAO.Needs.ownsRecoveryBody(id,body) then return {} end
+    local ok,tick=pcall(function()return SAO.History.ticks()end)
+    if not ok then return {} end
+    local context=P.conceptContext(id,tick);local out={}
+    for _,row in ipairs(context.observations or {})do
+        if row.actorId==id and row.kind=="object" and row.source=="native-personal-visibility"
+            and type(row.runtimeInstance)=="string" then
+            local kind=row.objectCollection=="worldObjects" and "placed"
+                or row.objectCollection=="vehicle" and "vehicle" or nil
+            if kind then local copy=conceptCopy(row);copy.sourceKind=kind;out[#out+1]=copy end
+        end
+    end
+    return out
+end
+function P.resolveLeisureAudioSource(id,body,key)
+    if not SAO.Needs.ownsRecoveryBody(id,body) then return nil end
+    local prior=P.conceptObservation(id,key)
+    if not prior or prior.actorId~=id or prior.source~="native-personal-visibility"
+        or prior.kind~="object" or type(prior.runtimeInstance)~="string"
+        or (prior.objectCollection~="worldObjects" and prior.objectCollection~="vehicle")then return nil end
+    local ok,tick=pcall(function()return SAO.History.ticks()end)
+    if not ok or not P.observeConcepts(id,body,tick)then return nil end
+    local current=P.conceptObservation(id,key)
+    if not current or current.at~=tick then return nil end
+    for _,field in ipairs({"objectCollection","runtimeInstance","objectIndex","itemKey","itemType",
+        "vehicleId","vehicleSqlId","vehicleRuntimeInstance","partId","partRuntimeInstance"})do
+        if current[field]~=prior[field]then return nil end
+    end
+    local good,target=pcall(function()
+        return SAOJavaBridge:resolveLeisureAudioSource(body,key,current.runtimeInstance)
+    end)
+    return good and target or nil
+end
+function P.canHearLeisureSource(id,body,source,range)
+    if type(source)~="table" or source.actorId~=id or not finiteSoundNumber(range) or range<=0
+        or not P.resolveLeisureAudioSource(id,body,source.key)then return false end
+    local current=P.conceptObservation(id,source.key)
+    for _,field in ipairs({"runtimeInstance","objectCollection","itemKey","itemType","vehicleId",
+        "vehicleSqlId","vehicleRuntimeInstance","partId","partRuntimeInstance"})do
+        if current[field]~=source[field]then return false end
+    end
+    local ok,heard=pcall(function()
+        return SAOJavaBridge:canHearLeisureSource(body,current.key,current.runtimeInstance,range)
+    end)
+    return ok and heard==true
 end
 function P.conceptMemories(id,tick)
     local concepts=P.beliefs[id] and P.beliefs[id].concepts
@@ -3439,14 +3934,28 @@ function P.conceptMemories(id,tick)
     end
     return out
 end
-function P.conceptContext(id,tick)
+function P.conceptContext(id,tick,body)
     local concepts=P.beliefs[id] and P.beliefs[id].concepts
     if not concepts or concepts.readerStatus~="available" or not finiteSoundNumber(tick)
         or tick<concepts.at or tick-concepts.at>120 then
-        return {status="observation-unavailable",observations={},frontiers={}}
+        return {status="observation-unavailable",observations={},frontiers={},approaches={}}
+    end
+    if body then
+        local bound=conceptObservers[id]
+        if not bound or bound.body~=body then
+            return {status="observation-unavailable",observations={},frontiers={},approaches={}} end
+        if concepts.sourceGroundOnly then
+            local source=SAO.WeekOneContinuity
+            local ok,current,brain=pcall(function()
+                if source and source.sourceBodyFor then return source.sourceBodyFor(id) end
+            end)
+            if not ok or current~=body or type(brain)~="table"
+                or brain.id~=bound.sourceBrainId or brain.born~=bound.sourceBorn then
+                return {status="observation-unavailable",observations={},frontiers={},approaches={}} end
+        end
     end
     local out={status="observed",at=concepts.at,roomId=concepts.currentRoomId,
-        buildingId=concepts.currentBuildingId,observations={},frontiers={}}
+        buildingId=concepts.currentBuildingId,observations={},frontiers={},approaches={}}
     local rec=SAO.Identity and SAO.Identity.get(id)
     local known=P.knownPlaces(id)
     local home=out.buildingId and (known[out.buildingId] or known[tonumber(out.buildingId)])
@@ -3458,14 +3967,19 @@ function P.conceptContext(id,tick)
             actorId=id,buildingId=out.buildingId,roomId=out.roomId,at=concepts.at,
             source="personally-remembered-home",x=rec.homeX,y=rec.homeY,z=rec.homeZ or 0}
     end
-    for _,key in ipairs(concepts.order) do
-        local row=concepts.observations[key]
-        if row.actorId==id and row.at==concepts.at then out.observations[#out.observations+1]=conceptCopy(row) end
+    if not concepts.sourceGroundOnly then
+        for _,key in ipairs(concepts.order) do
+            local row=concepts.observations[key]
+            if row.actorId==id and row.at==concepts.at then out.observations[#out.observations+1]=conceptCopy(row) end
+        end
+        for _,key in ipairs(concepts.frontierOrder) do
+            local row=concepts.frontiers[key]
+            if row.actorId==id and row.at==concepts.at and row.roomId==out.roomId
+                and row.buildingId==out.buildingId then out.frontiers[#out.frontiers+1]=conceptCopy(row) end
+        end
     end
-    for _,key in ipairs(concepts.frontierOrder) do
-        local row=concepts.frontiers[key]
-        if row.actorId==id and row.at==concepts.at and row.roomId==out.roomId
-            and row.buildingId==out.buildingId then out.frontiers[#out.frontiers+1]=conceptCopy(row) end
+    for _,row in ipairs(concepts.approaches or {}) do
+        if row.actorId==id and row.at==concepts.at then out.approaches[#out.approaches+1]=conceptCopy(row) end
     end
     return out
 end
@@ -3510,6 +4024,7 @@ end
 
 function P.forget(id)
     P.forgetSoundCues(id)
+    conceptObservers[id] = nil
     if SAO.Orienting and SAO.Orienting.forget then SAO.Orienting.forget(id) end
     P.beliefs[id] = nil
     -- [C108] A dropped mind is a write; derived readers recompute.
@@ -3673,6 +4188,8 @@ end
 function P.bindPersistentStore()
     -- A world/load boundary never restores pulse or body authority.
     soundPulses = {}
+    weekOneNativeSignals = {}
+    conceptObservers = {}
     if SAO.Orienting and SAO.Orienting.reset then SAO.Orienting.reset() end
     local ok, persisted = pcall(function()
         return ModData.getOrCreate("SurvivorAwareness_Beliefs")

@@ -1,0 +1,12 @@
+{
+    "IGUI_BenchPress": "臥推架",
+    "IGUI_BenchPress_Tooltip": "使用臥推架鍛鍊",
+    "IGUI_Treadmill": "跑步機",
+    "IGUI_Treadmill_Tooltip": "在跑步機上鍛鍊",
+    "IGUI_need_barbell": "我需要一個槓鈴或兩個啞鈴來做這個練習",
+    "IGUI_low_endurance": "我太累了",
+    "IGUI_pain": "我太痛苦了",
+    "IGUI_heavy": "太重了，現在無法使用",
+    "IGUI_treadmill_needs_electricity": "跑步機需要電力才能運作",
+    "IGUI_bench_rotate_bug": "錯誤：請旋轉和/或移動臥推架！"
+}

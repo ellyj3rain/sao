@@ -1,7 +1,7 @@
 -- Controlled action scheduling around production RecoveryPose; native geometry/animator has a separate probe.
 local checks=0
 TchAL={stateVariableOnGround="SleepStateOnGround"}
-getActivatedMods=function()return {contains=function(_,id)return id=="LeanAndLie"or id=="TchernoLib"end}end
+getActivatedMods=function()error("foreign activation queried")end
 isClient=function()return false end;isServer=function()return false end
 local function check(name,value) if not value then error("RECOVERY_PLACE_LUA:"..name) end;checks=checks+1 end
 local nativeBedAction=ISGetOnBedAction

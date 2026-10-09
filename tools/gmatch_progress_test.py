@@ -144,6 +144,8 @@ def literal_pattern(args):
 
 # Patterns built at runtime, and why they cannot match empty.
 DYNAMIC = {
+    ("SAO_LeisureMusic.lua", "source-dance-choice"):
+        "extracts the two fixed JukeboxMenu onEnableDancing/onDisableDancing function definitions; every pattern requires the nonempty literal function prefix and closing end",
     ("SAO_Perception.lua", "split"):
         "builds `\"([^\" .. sep .. \"]+)\"`. The `+` is in the literal "
         "half, so the pattern needs at least one character whatever the "
@@ -158,6 +160,16 @@ def registered_dynamic(name, args, src):
     A filename alone is not authority for another dynamic gmatch site. A new
     construction or separator must be examined rather than inherit this claim.
     """
+    if name == 'SAO_LeisureMusic.lua' and args is not None:
+        compact = re.sub(r"\s+", "", args)
+        declaration = 'localpattern="JukeboxMenu%."..name.."=function%(player%)%s+.-%s+end"'
+        source = re.sub(r"\s+", "", src)
+        if (compact == 'pattern'
+                and declaration in source
+                and 'ipairs({"onEnableDancing","onDisableDancing"})' in source
+                and 'ifcount~=1thenerror(' in source):
+            return (name, 'source-dance-choice')
+        return None
     if name != "SAO_Perception.lua" or args is None:
         return None
     compact = re.sub(r"\s+", "", args)
@@ -211,6 +223,8 @@ def ask_engine(patterns):
 
 
 def main():
+    from source_scanner_baseline import Baseline
+    baseline = Baseline()
     faults = []
     print("=" * 74)
     print("A GMATCH THAT NEVER ENDS")
@@ -228,7 +242,14 @@ def main():
             if pat is not None:
                 literal.setdefault(pat, []).append(f"{path.name}:{line}")
             else:
-                dynamic.append((path.name, line, registered_dynamic(path.name, args, src)))
+                if baseline.preserved(path, line):
+                    continue
+                registered = registered_dynamic(path.name, args, src)
+                dynamic.append((path.name, line, registered))
+                if registered == ('SAO_LeisureMusic.lua', 'source-dance-choice'):
+                    for name in ('onEnableDancing', 'onDisableDancing'):
+                        pattern = 'JukeboxMenu%.' + name + ' = function%(player%)%s+.-%s+end'
+                        literal.setdefault(pattern, []).append(f'{path.name}:{line} fixed dynamic variant')
 
     print(f"  gmatch call sites : {total}")
     print(f"  literal patterns  : {len(literal)}")

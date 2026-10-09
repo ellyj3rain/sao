@@ -1857,6 +1857,7 @@ public final class SAOWorldSources {
             if (SAONeeds.wantsMaterial(item, "device")) out.add("device");
             if (SAONeeds.wantsMaterial(item, "smokes")) out.add("smokes");
             if (SAONeeds.wantsMaterial(item, "instrument")) out.add("instrument");
+            if (SAOLeisureMaterials.recognizes(item.getFullType())) out.add("leisure-material");
             if (SAONeeds.wantsMaterial(item, "memento")) out.add("memento");
             if (SAONeeds.wantsMaterial(item, "reading")) out.add("reading");
             if (SAONeeds.wantsMaterial(item, "plank")) out.add("plank");

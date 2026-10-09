@@ -1,0 +1,2377 @@
+tileGeometry
+{
+    VERSION = 2,
+
+    tileset
+    {
+        name = LS_Fog,
+
+        /* LS_Fog_0 */
+        tile
+        {
+            xy = 0x0,
+
+            box
+            {
+                translate = 0x0x0,
+                rotate = 0x0x0,
+                min = -5000x0x-5000,
+                max = 5000x24495x5000,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_1 */
+        tile
+        {
+            xy = 1x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_2 */
+        tile
+        {
+            xy = 2x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_3 */
+        tile
+        {
+            xy = 3x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_4 */
+        tile
+        {
+            xy = 4x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_5 */
+        tile
+        {
+            xy = 5x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_6 */
+        tile
+        {
+            xy = 6x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_7 */
+        tile
+        {
+            xy = 7x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_8 */
+        tile
+        {
+            xy = 0x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_9 */
+        tile
+        {
+            xy = 1x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_10 */
+        tile
+        {
+            xy = 2x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_11 */
+        tile
+        {
+            xy = 3x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_12 */
+        tile
+        {
+            xy = 4x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_13 */
+        tile
+        {
+            xy = 5x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_14 */
+        tile
+        {
+            xy = 6x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Fog_15 */
+        tile
+        {
+            xy = 7x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = LS_Bubbles,
+
+        /* LS_Bubbles_0 */
+        tile
+        {
+            xy = 0x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_1 */
+        tile
+        {
+            xy = 1x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_2 */
+        tile
+        {
+            xy = 2x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_3 */
+        tile
+        {
+            xy = 3x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_8 */
+        tile
+        {
+            xy = 0x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_9 */
+        tile
+        {
+            xy = 1x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_10 */
+        tile
+        {
+            xy = 2x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_11 */
+        tile
+        {
+            xy = 3x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_16 */
+        tile
+        {
+            xy = 0x2,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_17 */
+        tile
+        {
+            xy = 1x2,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_18 */
+        tile
+        {
+            xy = 2x2,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_19 */
+        tile
+        {
+            xy = 3x2,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_24 */
+        tile
+        {
+            xy = 0x3,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_25 */
+        tile
+        {
+            xy = 1x3,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_26 */
+        tile
+        {
+            xy = 2x3,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_27 */
+        tile
+        {
+            xy = 3x3,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_32 */
+        tile
+        {
+            xy = 0x4,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_33 */
+        tile
+        {
+            xy = 1x4,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_34 */
+        tile
+        {
+            xy = 2x4,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_35 */
+        tile
+        {
+            xy = 3x4,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_40 */
+        tile
+        {
+            xy = 0x5,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_41 */
+        tile
+        {
+            xy = 1x5,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_42 */
+        tile
+        {
+            xy = 2x5,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_43 */
+        tile
+        {
+            xy = 3x5,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_48 */
+        tile
+        {
+            xy = 0x6,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_49 */
+        tile
+        {
+            xy = 1x6,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_50 */
+        tile
+        {
+            xy = 2x6,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_51 */
+        tile
+        {
+            xy = 3x6,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_56 */
+        tile
+        {
+            xy = 0x7,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_57 */
+        tile
+        {
+            xy = 1x7,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_58 */
+        tile
+        {
+            xy = 2x7,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Bubbles_59 */
+        tile
+        {
+            xy = 3x7,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = LS_JukeboxLight,
+
+        /* LS_JukeboxLight_0 */
+        tile
+        {
+            xy = 0x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_JukeboxLight_1 */
+        tile
+        {
+            xy = 1x0,
+
+            polygon
+            {
+                translate = 5419x13172x6660,
+                rotate = 0x900000x0,
+                plane = YZ,
+                points = -5000x-5000 5000x-5000 5000x5000 -5000x5000,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_JukeboxLight_2 */
+        tile
+        {
+            xy = 2x0,
+
+            polygon
+            {
+                translate = 5240x12806x166,
+                rotate = 0x900000x0,
+                plane = YZ,
+                points = -5000x-5000 5000x-5000 5000x5000 -5000x5000,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_JukeboxLight_3 */
+        tile
+        {
+            xy = 3x0,
+
+            polygon
+            {
+                translate = 5574x8923x3826,
+                rotate = 0x900000x0,
+                plane = YZ,
+                points = -7828x-5995 8422x-6378 8422x13779 -8453x13779,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_JukeboxLight_4 */
+        tile
+        {
+            xy = 4x0,
+
+            polygon
+            {
+                translate = 3351x8771x5651,
+                rotate = 0x0x0,
+                plane = XY,
+                points = -7543x-5879 11051x-5943 11363x14093 -7543x14030,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_JukeboxLight_5 */
+        tile
+        {
+            xy = 5x0,
+
+            polygon
+            {
+                translate = 1255x12722x6053,
+                rotate = 0x0x0,
+                plane = XY,
+                points = -5000x-5000 5000x-5000 5000x5000 -5000x5000,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_JukeboxLight_6 */
+        tile
+        {
+            xy = 6x0,
+
+            polygon
+            {
+                translate = 6838x13510x6039,
+                rotate = 0x0x0,
+                plane = XY,
+                points = -5000x-5000 5000x-5000 5000x5000 -5000x5000,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_JukeboxLight_7 */
+        tile
+        {
+            xy = 7x0,
+
+            polygon
+            {
+                translate = 3456x10707x5821,
+                rotate = 0x0x0,
+                plane = XY,
+                points = -7478x-10355 10334x-10355 10178x13055 -7478x13119,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = LS_Painting_1,
+
+        /* LS_Painting_1_22 */
+        tile
+        {
+            xy = 6x2,
+
+            box
+            {
+                translate = -3730x9419x606,
+                rotate = 0x0x0,
+                min = -545x0x-3922,
+                max = 545x8372x3922,
+            }
+        }
+
+        /* LS_Painting_1_23 */
+        tile
+        {
+            xy = 7x2,
+
+            box
+            {
+                translate = 122x8766x-4595,
+                rotate = 0x0x0,
+                min = -4310x0x-575,
+                max = 4310x8387x575,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = LS_Painting,
+
+        /* LS_Painting_6 */
+        tile
+        {
+            xy = 6x0,
+
+            box
+            {
+                translate = -3563x9573x738,
+                rotate = 0x0x0,
+                min = -498x0x-3849,
+                max = 498x11346x3849,
+            }
+        }
+
+        /* LS_Painting_7 */
+        tile
+        {
+            xy = 7x0,
+
+            box
+            {
+                translate = 339x8860x-4279,
+                rotate = 0x0x0,
+                min = -4126x0x-351,
+                max = 4126x12150x351,
+            }
+        }
+
+        /* LS_Painting_52 */
+        tile
+        {
+            xy = 4x6,
+
+            box
+            {
+                translate = -4402x8776x-154,
+                rotate = 0x0x0,
+                min = -454x0x-5154,
+                max = 454x9883x5154,
+            }
+        }
+
+        /* LS_Painting_53 */
+        tile
+        {
+            xy = 5x6,
+
+            box
+            {
+                translate = -3292x9448x2059,
+                rotate = 0x0x0,
+                min = -188x0x-4241,
+                max = 188x10263x4241,
+            }
+        }
+
+        /* LS_Painting_54 */
+        tile
+        {
+            xy = 6x6,
+
+            box
+            {
+                translate = 415x9489x-3621,
+                rotate = 0x0x0,
+                min = -5162x0x-439,
+                max = 5162x9738x439,
+            }
+        }
+
+        /* LS_Painting_55 */
+        tile
+        {
+            xy = 7x6,
+
+            box
+            {
+                translate = 2283x9447x-3332,
+                rotate = 0x0x0,
+                min = -4074x0x-269,
+                max = 4074x10639x269,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = LS_Painting_Frames_Large_B,
+
+        /* LS_Painting_Frames_Large_B_0 */
+        tile
+        {
+            xy = 0x0,
+
+            polygon
+            {
+                translate = 354x14232x-2509,
+                rotate = 0x0x0,
+                plane = XY,
+                points = -2373x-5006 6690x-5134 6690x6476 -2217x6539,
+            }
+        }
+
+        /* LS_Painting_Frames_Large_B_1 */
+        tile
+        {
+            xy = 1x0,
+
+            polygon
+            {
+                translate = 1920x16329x-3082,
+                rotate = 0x0x0,
+                plane = XY,
+                points = -6096x-7683 4998x-7619 4998x3863 -5939x3735,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = LS_Painting_Frames_Large,
+
+        /* LS_Painting_Frames_Large_0 */
+        tile
+        {
+            xy = 0x0,
+
+            polygon
+            {
+                translate = -2964x15298x1251,
+                rotate = 0x900000x0,
+                plane = YZ,
+                points = -5628x-6428 4997x-6428 5000x5000 -5628x5054,
+            }
+        }
+
+        /* LS_Painting_Frames_Large_1 */
+        tile
+        {
+            xy = 1x0,
+
+            polygon
+            {
+                translate = -2914x14864x1347,
+                rotate = 0x900000x0,
+                plane = YZ,
+                points = -5270x-5952 3323x-6016 3323x5466 -5270x5402,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = LS_Painting_Frames_Medium,
+
+        /* LS_Painting_Frames_Medium_0 */
+        tile
+        {
+            xy = 0x0,
+
+            polygon
+            {
+                translate = -2947x15298x0,
+                rotate = 0x900000x0,
+                plane = YZ,
+                points = -5803x-6350 3104x-6414 3104x6599 -5803x6663,
+            }
+        }
+
+        /* LS_Painting_Frames_Medium_1 */
+        tile
+        {
+            xy = 1x0,
+
+            polygon
+            {
+                translate = 893x15539x-2800,
+                rotate = 0x0x0,
+                plane = XY,
+                points = -3849x-6534 5058x-6470 5058x6415 -3849x6479,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = LS_Painting_Frames_Small,
+
+        /* LS_Painting_Frames_Small_0 */
+        tile
+        {
+            xy = 0x0,
+
+            polygon
+            {
+                translate = -2777x13988x1479,
+                rotate = 0x900000x0,
+                plane = YZ,
+                points = -4494x-4901 4412x-4965 4412x5114 -4494x5050,
+            }
+        }
+
+        /* LS_Painting_Frames_Small_1 */
+        tile
+        {
+            xy = 1x0,
+
+            polygon
+            {
+                translate = 1186x14073x-2853,
+                rotate = 0x0x0,
+                plane = XY,
+                points = -4195x-5112 4711x-5048 4711x4903 -4195x4967,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = LS_Discoball,
+
+        /* LS_Discoball_0 */
+        tile
+        {
+            xy = 0x0,
+
+            box
+            {
+                translate = 487x0x424,
+                rotate = 0x0x0,
+                min = -1971x0x-2041,
+                max = 1971x2025x2041,
+            }
+
+            cylinder
+            {
+                translate = 0x3365x0,
+                rotate = 2700000x0x0,
+                radius1 = 2034,
+                radius2 = 2034,
+                height = 3363,
+            }
+        }
+
+        /* LS_Discoball_1 */
+        tile
+        {
+            xy = 1x0,
+
+            cylinder
+            {
+                translate = 0x4260x0,
+                rotate = 2700000x0x0,
+                radius1 = 7560,
+                radius2 = 7560,
+                height = 8519,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Discoball_2 */
+        tile
+        {
+            xy = 2x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Discoball_3 */
+        tile
+        {
+            xy = 3x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Discoball_4 */
+        tile
+        {
+            xy = 4x0,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = fixtures_bathroom_01,
+
+        /* fixtures_bathroom_01_0 */
+        tile
+        {
+            xy = 0x0,
+
+            box
+            {
+                translate = -5029x0x-5986,
+                rotate = 0x0x0,
+                min = -10029x0x-10986,
+                max = 10029x645x10986,
+            }
+
+            box
+            {
+                translate = -1565x0x-3585,
+                rotate = 0x0x0,
+                min = -3435x0x-1415,
+                max = 3435x10765x1415,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = LS_Sculptures,
+
+        /* LS_Sculptures_1 */
+        tile
+        {
+            xy = 1x0,
+
+            box
+            {
+                translate = 1997x0x1495,
+                rotate = 0x0x0,
+                min = -4158x0x-4510,
+                max = 4158x3417x4510,
+            }
+
+            box
+            {
+                translate = -3932x0x1246,
+                rotate = 0x0x0,
+                min = -1068x0x-4106,
+                max = 1068x28495x4106,
+            }
+
+            box
+            {
+                translate = 1331x0x-4041,
+                rotate = 0x0x0,
+                min = -4423x0x-959,
+                max = 4423x28550x959,
+            }
+        }
+
+        /* LS_Sculptures_25 */
+        tile
+        {
+            xy = 1x3,
+
+            box
+            {
+                translate = 0x-619x0,
+                rotate = 0x0x0,
+                min = -5000x0x-5000,
+                max = 5000x1235x5000,
+            }
+
+            box
+            {
+                translate = 0x0x-4530,
+                rotate = 0x0x0,
+                min = -5000x0x-470,
+                max = 5000x24495x470,
+            }
+
+            box
+            {
+                translate = -4606x0x0,
+                rotate = 0x0x0,
+                min = -394x0x-5000,
+                max = 394x24495x5000,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = LS_Inventions,
+
+        /* LS_Inventions_2 */
+        tile
+        {
+            xy = 2x0,
+
+            box
+            {
+                translate = 781x8992x790,
+                rotate = 0x0x0,
+                min = -2611x0x-2666,
+                max = 2611x12531x2666,
+            }
+
+            box
+            {
+                translate = 4930x10953x970,
+                rotate = 0x0x0,
+                min = -1612x0x-443,
+                max = 1612x1347x443,
+            }
+        }
+
+        /* LS_Inventions_3 */
+        tile
+        {
+            xy = 3x0,
+
+            box
+            {
+                translate = 829x8994x768,
+                rotate = 0x0x0,
+                min = -2628x0x-2643,
+                max = 2628x12427x2643,
+            }
+
+            box
+            {
+                translate = 1584x11134x5163,
+                rotate = 0x0x0,
+                min = -249x0x-1788,
+                max = 249x1634x1788,
+            }
+        }
+
+        /* LS_Inventions_4 */
+        tile
+        {
+            xy = 4x0,
+
+            box
+            {
+                translate = 93x0x-329,
+                rotate = 0x0x0,
+                min = -4393x0x-5329,
+                max = 4393x7058x5329,
+            }
+
+            box
+            {
+                translate = -3641x7054x0,
+                rotate = 0x0x0,
+                min = -660x0x-5000,
+                max = 660x8707x5000,
+            }
+
+            box
+            {
+                translate = -1368x15746x0,
+                rotate = 0x0x0,
+                min = -2892x0x-5000,
+                max = 2892x6482x5000,
+            }
+        }
+
+        /* LS_Inventions_5 */
+        tile
+        {
+            xy = 5x0,
+
+            box
+            {
+                translate = 0x0x257,
+                rotate = 0x0x0,
+                min = -5000x0x-4517,
+                max = 5000x7699x4517,
+            }
+
+            box
+            {
+                translate = 0x7642x-3590,
+                rotate = 0x0x0,
+                min = -5000x0x-629,
+                max = 5000x7447x629,
+            }
+
+            box
+            {
+                translate = 0x15116x-1255,
+                rotate = 0x0x0,
+                min = -5000x0x-2984,
+                max = 5000x7237x2984,
+            }
+        }
+
+        /* LS_Inventions_12 */
+        tile
+        {
+            xy = 4x1,
+
+            box
+            {
+                translate = 763x8990x135,
+                rotate = 0x0x0,
+                min = -1493x0x-2233,
+                max = 1493x7489x2233,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Inventions_13 */
+        tile
+        {
+            xy = 5x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Inventions_14 */
+        tile
+        {
+            xy = 6x1,
+
+            box
+            {
+                translate = 258x8999x755,
+                rotate = 0x0x0,
+                min = -2367x0x-1884,
+                max = 2367x7825x1884,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Inventions_15 */
+        tile
+        {
+            xy = 7x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Inventions_16 */
+        tile
+        {
+            xy = 0x2,
+
+            box
+            {
+                translate = 472x8206x-1507,
+                rotate = 0x0x0,
+                min = -4528x0x-2499,
+                max = 4528x4948x2499,
+            }
+
+            box
+            {
+                translate = -1936x13155x-1326,
+                rotate = 0x0x0,
+                min = -1619x0x-1754,
+                max = 1619x2310x1754,
+            }
+        }
+
+        /* LS_Inventions_17 */
+        tile
+        {
+            xy = 1x2,
+
+            box
+            {
+                translate = -2472x8020x485,
+                rotate = 0x0x0,
+                min = -2528x0x-4367,
+                max = 2528x4728x4367,
+            }
+
+            box
+            {
+                translate = -2179x12703x-1587,
+                rotate = 0x0x0,
+                min = -1929x0x-1811,
+                max = 1929x2480x1811,
+            }
+        }
+
+        /* LS_Inventions_32 */
+        tile
+        {
+            xy = 0x4,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Inventions_33 */
+        tile
+        {
+            xy = 1x4,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = LS_Gnomes,
+
+        /* LS_Gnomes_2 */
+        tile
+        {
+            xy = 2x0,
+
+            box
+            {
+                translate = 207x0x-1345,
+                rotate = 0x0x0,
+                min = -2215x0x-1877,
+                max = 2215x8665x1877,
+            }
+
+            box
+            {
+                translate = -607x0x2097,
+                rotate = 0x0x0,
+                min = -1470x0x-1607,
+                max = 1470x8681x1607,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Gnomes_3 */
+        tile
+        {
+            xy = 3x0,
+
+            box
+            {
+                translate = -1200x0x172,
+                rotate = 0x0x0,
+                min = -2022x0x-2208,
+                max = 2022x8654x2208,
+            }
+
+            box
+            {
+                translate = 2310x0x-731,
+                rotate = 0x0x0,
+                min = -1560x0x-1305,
+                max = 1560x8654x1305,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Gnomes_4 */
+        tile
+        {
+            xy = 4x0,
+
+            box
+            {
+                translate = -341x0x-135,
+                rotate = 0x0x0,
+                min = -1247x0x-2558,
+                max = 1247x327x2558,
+            }
+
+            box
+            {
+                translate = 1039x1126x1599,
+                rotate = 0x0x0,
+                min = -374x0x-408,
+                max = 374x5145x408,
+            }
+
+            box
+            {
+                translate = -695x5088x517,
+                rotate = 0x0x0,
+                min = -1005x0x-4483,
+                max = 1005x12278x4483,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Gnomes_5 */
+        tile
+        {
+            xy = 5x0,
+
+            box
+            {
+                translate = 119x0x-451,
+                rotate = 0x0x0,
+                min = -2443x0x-1162,
+                max = 2443x218x1162,
+            }
+
+            box
+            {
+                translate = 517x132x-355,
+                rotate = 0x0x0,
+                min = -324x0x-456,
+                max = 324x5081x456,
+            }
+
+            box
+            {
+                translate = 1650x6223x387,
+                rotate = 0x0x0,
+                min = -4692x0x-1009,
+                max = 4692x14810x1009,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Gnomes_6 */
+        tile
+        {
+            xy = 6x0,
+
+            box
+            {
+                translate = 324x0x-2337,
+                rotate = 0x0x0,
+                min = -3283x0x-2332,
+                max = 3283x8398x2332,
+            }
+
+            box
+            {
+                translate = -926x0x1868,
+                rotate = 0x0x0,
+                min = -1997x0x-1912,
+                max = 1997x7514x1912,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Gnomes_7 */
+        tile
+        {
+            xy = 7x0,
+
+            box
+            {
+                translate = -1501x0x999,
+                rotate = 0x0x0,
+                min = -1534x0x-4001,
+                max = 1534x8660x4001,
+            }
+
+            box
+            {
+                translate = 1998x0x-864,
+                rotate = 0x0x0,
+                min = -1974x0x-2161,
+                max = 1974x8660x2161,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Gnomes_8 */
+        tile
+        {
+            xy = 0x1,
+
+            cylinder
+            {
+                translate = 0x5494x0,
+                rotate = 2700000x0x0,
+                radius1 = 3566,
+                radius2 = 3566,
+                height = 10989,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Gnomes_9 */
+        tile
+        {
+            xy = 1x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Gnomes_10 */
+        tile
+        {
+            xy = 2x1,
+
+            cylinder
+            {
+                translate = 0x12058x0,
+                rotate = 2700000x0x0,
+                radius1 = 3535,
+                radius2 = 3535,
+                height = 8916,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Gnomes_11 */
+        tile
+        {
+            xy = 3x1,
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Gnomes_12 */
+        tile
+        {
+            xy = 4x1,
+
+            box
+            {
+                translate = 1639x9006x922,
+                rotate = 0x0x0,
+                min = -2677x0x-2035,
+                max = 2677x8729x2035,
+            }
+
+            box
+            {
+                translate = 793x9006x3784,
+                rotate = 0x0x0,
+                min = -1830x0x-867,
+                max = 1830x8729x867,
+            }
+
+            box
+            {
+                translate = -1787x15896x3784,
+                rotate = 0x0x0,
+                min = -820x0x-867,
+                max = 820x1862x867,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Gnomes_13 */
+        tile
+        {
+            xy = 5x1,
+
+            box
+            {
+                translate = 1061x8973x1411,
+                rotate = 0x0x0,
+                min = -2245x0x-2810,
+                max = 2245x9012x2810,
+            }
+
+            box
+            {
+                translate = 3968x8973x394,
+                rotate = 0x0x0,
+                min = -706x0x-1793,
+                max = 706x8974x1793,
+            }
+
+            box
+            {
+                translate = 3968x15954x-2084,
+                rotate = 0x0x0,
+                min = -706x0x-703,
+                max = 706x1972x703,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Gnomes_14 */
+        tile
+        {
+            xy = 6x1,
+
+            box
+            {
+                translate = 401x0x-102,
+                rotate = 0x0x0,
+                min = -2421x0x-4368,
+                max = 2421x10494x4368,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Gnomes_15 */
+        tile
+        {
+            xy = 7x1,
+
+            box
+            {
+                translate = 139x0x208,
+                rotate = 0x0x0,
+                min = -4307x0x-2380,
+                max = 4307x9193x2380,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = LS_Farming_01,
+
+        /* LS_Farming_01_0 */
+        tile
+        {
+            xy = 0x0,
+
+            box
+            {
+                translate = 143x0x18,
+                rotate = 0x0x0,
+                min = -2759x0x-2745,
+                max = 2759x124x2745,
+            }
+        }
+
+        /* LS_Farming_01_1 */
+        tile
+        {
+            xy = 1x0,
+
+            box
+            {
+                translate = 237x0x-124,
+                rotate = 0x0x0,
+                min = -2810x0x-2765,
+                max = 2810x175x2765,
+            }
+
+            box
+            {
+                translate = -342x174x-558,
+                rotate = 0x0x0,
+                min = -674x0x-891,
+                max = 674x2577x891,
+            }
+        }
+
+        /* LS_Farming_01_2 */
+        tile
+        {
+            xy = 2x0,
+
+            box
+            {
+                translate = 228x0x-69,
+                rotate = 0x0x0,
+                min = -2746x0x-2449,
+                max = 2746x241x2449,
+            }
+
+            box
+            {
+                translate = -76x225x-75,
+                rotate = 0x0x0,
+                min = -801x0x-1394,
+                max = 801x6544x1394,
+            }
+        }
+
+        /* LS_Farming_01_3 */
+        tile
+        {
+            xy = 3x0,
+
+            box
+            {
+                translate = 356x0x-856,
+                rotate = 0x0x0,
+                min = -2694x0x-3591,
+                max = 2694x136x3591,
+            }
+
+            box
+            {
+                translate = 275x134x728,
+                rotate = 0x0x0,
+                min = -757x0x-4023,
+                max = 757x11706x4023,
+            }
+        }
+
+        /* LS_Farming_01_4 */
+        tile
+        {
+            xy = 4x0,
+
+            box
+            {
+                translate = -575x0x-434,
+                rotate = 0x0x0,
+                min = -3767x0x-3302,
+                max = 3767x112x3302,
+            }
+
+            box
+            {
+                translate = -217x4645x-620,
+                rotate = 0x0x0,
+                min = -3036x0x-5620,
+                max = 3036x10804x5620,
+            }
+
+            box
+            {
+                translate = 388x117x-55,
+                rotate = 0x0x0,
+                min = -536x0x-942,
+                max = 536x4539x942,
+            }
+        }
+
+        /* LS_Farming_01_5 */
+        tile
+        {
+            xy = 5x0,
+
+            box
+            {
+                translate = -97x0x-929,
+                rotate = 0x0x0,
+                min = -3992x0x-4071,
+                max = 3992x106x4071,
+            }
+
+            box
+            {
+                translate = 341x107x-129,
+                rotate = 0x0x0,
+                min = -1201x0x-883,
+                max = 1201x1480x883,
+            }
+
+            box
+            {
+                translate = -269x1585x-148,
+                rotate = 0x0x0,
+                min = -1727x0x-925,
+                max = 1727x1034x925,
+            }
+
+            box
+            {
+                translate = 189x5476x-164,
+                rotate = 0x0x0,
+                min = -5000x0x-4673,
+                max = 5000x15635x4673,
+            }
+        }
+
+        /* LS_Farming_01_32 */
+        tile
+        {
+            xy = 0x4,
+
+            box
+            {
+                translate = 242x0x310,
+                rotate = 0x0x0,
+                min = -3010x0x-2631,
+                max = 3010x128x2631,
+            }
+        }
+
+        /* LS_Farming_01_34 */
+        tile
+        {
+            xy = 2x4,
+
+            box
+            {
+                translate = 582x0x598,
+                rotate = 0x0x0,
+                min = -4758x0x-3745,
+                max = 4758x153x3745,
+            }
+        }
+
+        /* LS_Farming_01_35 */
+        tile
+        {
+            xy = 3x4,
+
+            box
+            {
+                translate = -204x0x193,
+                rotate = 0x0x0,
+                min = -5204x0x-5488,
+                max = 5204x92x5488,
+            }
+        }
+
+        /* LS_Farming_01_36 */
+        tile
+        {
+            xy = 4x4,
+
+            box
+            {
+                translate = -1418x0x-1214,
+                rotate = 0x0x0,
+                min = -8674x0x-9870,
+                max = 8674x140x9870,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = LS_Sculptures_Seating_01,
+
+        /* LS_Sculptures_Seating_01_0 */
+        tile
+        {
+            xy = 0x0,
+
+            box
+            {
+                translate = 972x0x710,
+                rotate = 0x0x0,
+                min = -2387x0x-3463,
+                max = 2387x4135x3463,
+            }
+
+            box
+            {
+                translate = 1382x4131x4547,
+                rotate = 0x0x0,
+                min = -2796x0x-379,
+                max = 2796x3134x379,
+            }
+
+            box
+            {
+                translate = 397x4131x-3124,
+                rotate = 0x0x0,
+                min = -1784x0x-379,
+                max = 1784x3134x379,
+            }
+
+            box
+            {
+                translate = -1852x4056x710,
+                rotate = 0x0x0,
+                min = -441x0x-3463,
+                max = 441x7097x3463,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Sculptures_Seating_01_1 */
+        tile
+        {
+            xy = 1x0,
+
+            box
+            {
+                translate = 1462x-251x1326,
+                rotate = 0x0x0,
+                min = -3538x0x-2940,
+                max = 3538x4084x2940,
+            }
+
+            box
+            {
+                translate = -2492x3918x647,
+                rotate = 0x0x0,
+                min = -394x0x-2485,
+                max = 394x1889x2485,
+            }
+
+            box
+            {
+                translate = 3217x3505x460,
+                rotate = 0x0x0,
+                min = -394x0x-2298,
+                max = 394x2503x2298,
+            }
+
+            box
+            {
+                translate = 1549x4677x-1193,
+                rotate = 0x0x0,
+                min = -3451x0x-473,
+                max = 3451x7131x473,
+            }
+
+            box
+            {
+                translate = 259x-289x207,
+                rotate = 0x0x0,
+                min = -3538x0x-2940,
+                max = 3538x37x2940,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Sculptures_Seating_01_2 */
+        tile
+        {
+            xy = 2x0,
+
+            box
+            {
+                translate = 906x3747x250,
+                rotate = 0x0x0,
+                min = -2694x0x-3057,
+                max = 2694x152x3057,
+            }
+
+            box
+            {
+                translate = 1194x11x734,
+                rotate = 0x0x0,
+                min = -3025x0x-3484,
+                max = 3025x147x3484,
+            }
+
+            box
+            {
+                translate = 3122x14x3053,
+                rotate = 0x0x0,
+                min = -221x0x-177,
+                max = 221x1848x177,
+            }
+
+            box
+            {
+                translate = 3047x1853x2974,
+                rotate = 0x0x0,
+                min = -296x0x-256,
+                max = 296x961x256,
+            }
+
+            box
+            {
+                translate = 2808x2803x2655,
+                rotate = 0x0x0,
+                min = -534x0x-576,
+                max = 534x961x576,
+            }
+
+            box
+            {
+                translate = 2999x14x-1507,
+                rotate = 0x0x0,
+                min = -343x0x-197,
+                max = 343x1848x197,
+            }
+
+            box
+            {
+                translate = 2862x1845x-1507,
+                rotate = 0x0x0,
+                min = -480x0x-197,
+                max = 480x1915x197,
+            }
+
+            box
+            {
+                translate = -638x14x2910,
+                rotate = 0x0x0,
+                min = -275x0x-340,
+                max = 275x1848x340,
+            }
+
+            box
+            {
+                translate = -638x1850x2836,
+                rotate = 0x0x0,
+                min = -275x0x-414,
+                max = 275x1909x414,
+            }
+
+            box
+            {
+                translate = -1612x4407x581,
+                rotate = 0x0x0,
+                min = -454x0x-2725,
+                max = 454x6793x2725,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+
+        /* LS_Sculptures_Seating_01_3 */
+        tile
+        {
+            xy = 3x0,
+
+            box
+            {
+                translate = 533x3691x799,
+                rotate = 0x0x0,
+                min = -3157x0x-2745,
+                max = 3157x215x2745,
+            }
+
+            box
+            {
+                translate = 936x0x1075,
+                rotate = 0x0x0,
+                min = -3337x0x-2940,
+                max = 3337x152x2940,
+            }
+
+            box
+            {
+                translate = 3172x4x2935,
+                rotate = 0x0x0,
+                min = -157x0x-244,
+                max = 157x1819x244,
+            }
+
+            box
+            {
+                translate = 3091x1746x2858,
+                rotate = 0x0x0,
+                min = -238x0x-321,
+                max = 238x967x321,
+            }
+
+            box
+            {
+                translate = 2930x2689x2622,
+                rotate = 0x0x0,
+                min = -400x0x-557,
+                max = 400x1014x557,
+            }
+
+            box
+            {
+                translate = 3107x4x-946,
+                rotate = 0x0x0,
+                min = -223x0x-244,
+                max = 223x1188x244,
+            }
+
+            box
+            {
+                translate = 2943x1175x-886,
+                rotate = 0x0x0,
+                min = -390x0x-304,
+                max = 390x2527x304,
+            }
+
+            box
+            {
+                translate = -1384x4x2833,
+                rotate = 0x0x0,
+                min = -157x0x-319,
+                max = 157x972x319,
+            }
+
+            box
+            {
+                translate = -1270x959x2948,
+                rotate = 0x0x0,
+                min = -271x0x-204,
+                max = 271x972x204,
+            }
+
+            box
+            {
+                translate = -1270x1919x2707,
+                rotate = 0x0x0,
+                min = -271x0x-445,
+                max = 271x1784x445,
+            }
+
+            box
+            {
+                translate = 287x3886x-2219,
+                rotate = 0x0x0,
+                min = -2911x0x-279,
+                max = 2911x7077x279,
+            }
+
+            properties
+            {
+                Translucent = true,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = fixtures_bathroom_02,
+
+        /* fixtures_bathroom_02_4 */
+        tile
+        {
+            xy = 4x0,
+
+            box
+            {
+                translate = -305x0x-1477,
+                rotate = 0x0x0,
+                min = -5305x0x-3195,
+                max = 5305x3772x3195,
+            }
+
+            box
+            {
+                translate = 2990x3746x-4986,
+                rotate = 0x0x0,
+                min = -2010x0x-2250,
+                max = 2010x1600x2250,
+            }
+
+            box
+            {
+                translate = 744x3746x-5966,
+                rotate = 0x0x0,
+                min = -2010x0x-1271,
+                max = 2010x1600x1271,
+            }
+        }
+
+        /* fixtures_bathroom_02_5 */
+        tile
+        {
+            xy = 5x0,
+
+            box
+            {
+                translate = -1493x0x-300,
+                rotate = 0x0x0,
+                min = -3110x0x-5300,
+                max = 3110x3759x5300,
+            }
+
+            box
+            {
+                translate = -3325x3710x3176,
+                rotate = 0x0x0,
+                min = -984x0x-1757,
+                max = 984x1891x1757,
+            }
+
+            box
+            {
+                translate = -3984x5611x2820,
+                rotate = 0x0x0,
+                min = -1643x0x-2113,
+                max = 1643x537x2113,
+            }
+        }
+
+        /* fixtures_bathroom_02_14 */
+        tile
+        {
+            xy = 6x1,
+
+            box
+            {
+                translate = 1914x0x-1324,
+                rotate = 0x0x0,
+                min = -3086x0x-3676,
+                max = 3086x3951x3676,
+            }
+
+            box
+            {
+                translate = 3535x0x3677,
+                rotate = 0x0x0,
+                min = -1465x0x-1323,
+                max = 1465x6831x1323,
+            }
+        }
+
+        /* fixtures_bathroom_02_15 */
+        tile
+        {
+            xy = 7x1,
+
+            box
+            {
+                translate = -946x0x2283,
+                rotate = 0x0x0,
+                min = -3297x0x-2717,
+                max = 3297x4171x2717,
+            }
+
+            box
+            {
+                translate = 3674x0x3581,
+                rotate = 0x0x0,
+                min = -1326x0x-1419,
+                max = 1326x6872x1419,
+            }
+        }
+
+        /* fixtures_bathroom_02_24 */
+        tile
+        {
+            xy = 0x3,
+
+            box
+            {
+                translate = -1947x0x-248,
+                rotate = 0x0x0,
+                min = -2880x0x-5248,
+                max = 2880x5524x5248,
+            }
+        }
+
+        /* fixtures_bathroom_02_25 */
+        tile
+        {
+            xy = 1x3,
+
+            box
+            {
+                translate = -370x0x-2103,
+                rotate = 0x0x0,
+                min = -5370x0x-2897,
+                max = 5370x5439x2897,
+            }
+        }
+
+        /* fixtures_bathroom_02_26 */
+        tile
+        {
+            xy = 2x3,
+
+            box
+            {
+                translate = 1999x0x-299,
+                rotate = 0x0x0,
+                min = -3001x0x-5299,
+                max = 3001x5458x5299,
+            }
+        }
+
+        /* fixtures_bathroom_02_27 */
+        tile
+        {
+            xy = 3x3,
+
+            box
+            {
+                translate = -240x0x2191,
+                rotate = 0x0x0,
+                min = -5416x0x-2809,
+                max = 5416x5565x2809,
+            }
+        }
+    }
+}

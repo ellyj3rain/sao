@@ -20,14 +20,22 @@ import net.bytebuddy.jar.asm.Opcodes;
  */
 public final class StudyLoadingAgent {
     private static volatile boolean emptyBreakpointLookup;
+    private static java.lang.reflect.Method participantPollMethod;
+    private static java.lang.reflect.Method participantInputUpdateMethod;
+    private static java.lang.reflect.Method nativeInteractionPollMethod;
     public static boolean emptyBreakpointLookupInstalled() { return emptyBreakpointLookup; }
     public static void premain(String argument, Instrumentation instrumentation) {
-        if (!"isolated-study".equals(argument)) throw new IllegalArgumentException("study argument required");
+        boolean nativePlay = "native-play".equals(argument);
+        if (!nativePlay && !"isolated-study".equals(argument)) throw new IllegalArgumentException("explicit launch mode required");
+        if (nativePlay && (Boolean.getBoolean("study.observer") || !Boolean.getBoolean("study.participantInput")
+                || System.getProperty("study.activeMods") != null))
+            throw new IllegalArgumentException("native play requires visible participant capture and the native mod selector");
         // ClassGraph's concurrent scan reaches ConcurrentHashMap.fullAddCount.
         // Resolve its lazy bootstrap dependency before our transformers can be
         // entered during that first class load (native26: ClassCircularityError).
         java.util.concurrent.ThreadLocalRandom.current();
         if (Boolean.getBoolean("study.observer")) installObserver(instrumentation);
+        else if (System.getProperty("study.participantInput") != null) installParticipantInput(instrumentation);
         new AgentBuilder.Default()
             .disableClassFormatChanges()
             .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
@@ -37,7 +45,7 @@ public final class StudyLoadingAgent {
                 Advice.to(SaveReturn.class).on(ElementMatchers.named("save")
                     .and(ElementMatchers.takesArguments(boolean.class)))))
             .installOn(instrumentation);
-        new AgentBuilder.Default()
+        if (!nativePlay) new AgentBuilder.Default()
             .disableClassFormatChanges()
             .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
             .with(AgentBuilder.Listener.StreamWriting.toSystemError().withErrorsOnly())
@@ -46,7 +54,7 @@ public final class StudyLoadingAgent {
                 Advice.to(StudyMods.class).on(ElementMatchers.named("loadMods")
                     .and(ElementMatchers.takesArguments(String.class)))))
             .installOn(instrumentation);
-        new AgentBuilder.Default()
+        if (!nativePlay) new AgentBuilder.Default()
             .disableClassFormatChanges()
             .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
             .with(AgentBuilder.Listener.StreamWriting.toSystemError().withErrorsOnly())
@@ -66,7 +74,8 @@ public final class StudyLoadingAgent {
             .installOn(instrumentation);
         StudyViewCapture.install(instrumentation);
         finishHooks(instrumentation);
-        System.out.println("[StudyLaunch] loading click automation installed");
+        System.out.println(nativePlay ? "[NativePlay] native main menu, load, character and mod selection retained"
+            : "[StudyLaunch] loading click automation installed");
     }
 
     private static void finishHooks(Instrumentation instrumentation) {
@@ -86,6 +95,8 @@ public final class StudyLoadingAgent {
             "se.krka.kahlua.vm.KahluaThread");
         if (System.getProperty("study.viewDirectory") != null) java.util.Collections.addAll(names,
             "zombie.core.sprite.SpriteRenderState", "zombie.core.SpriteRenderer", "zombie.core.Core");
+        if (System.getProperty("study.participantInput") != null && !Boolean.getBoolean("study.observer"))
+            java.util.Collections.addAll(names, "zombie.input.GameKeyboard", "zombie.input.Mouse");
         try {
             Class<?>[] targets = new Class<?>[names.size()];
             int next = 0;
@@ -109,6 +120,96 @@ public final class StudyLoadingAgent {
         // signatures while one of those engine classes is being transformed.
         return TypePool.Default.of(StudyLoadingAgent.class.getClassLoader()).describe("StudyObserver")
             .resolve().getDeclaredMethods().filter(ElementMatchers.named(name)).getOnly();
+    }
+
+    private static MethodDescription participantMethod(String name) {
+        return TypePool.Default.of(StudyLoadingAgent.class.getClassLoader()).describe("StudyParticipantInput")
+            .resolve().getDeclaredMethods().filter(ElementMatchers.named(name)).getOnly();
+    }
+
+    /**
+     * Replace KeyboardState.isKeyDown inside GameKeyboard.update and
+     * MouseState.isButtonDown/getX/getY inside Mouse.update with native-or-leased
+     * StudyParticipantInput statics. Must run before AimingReticle and Lua key
+     * edges observe the frame. Observer host never installs these hooks.
+     */
+    private static void installParticipantInput(Instrumentation instrumentation) {
+        if (Boolean.getBoolean("study.observer"))
+            throw new IllegalStateException("participant input refuses the observer host");
+        if (!instrumentation.isRetransformClassesSupported())
+            throw new IllegalStateException("participant input agent requires Can-Retransform-Classes: true");
+        // Reflect so OBSERVER_SOURCES can still compile StudyLoadingAgent without
+        // listing StudyParticipantInput in that inventory tuple.
+        try {
+            Class.forName("StudyParticipantInput").getMethod("enableFromProperties").invoke(null);
+            participantInputUpdateMethod = Class.forName("StudyParticipantInput").getMethod("beginInputUpdate");
+            participantPollMethod = Class.forName("StudyParticipant").getMethod("poll");
+            if (System.getProperty("study.interactionDirectory") != null) {
+                Class<?> interaction = Class.forName("StudyNativeInteraction");
+                interaction.getMethod("configure").invoke(null);
+                nativeInteractionPollMethod = interaction.getMethod("poll");
+            }
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException("StudyParticipantInput unavailable for participant hooks", failure);
+        }
+        var keyDown = participantMethod("isKeyDown");
+        var buttonDown = participantMethod("isButtonDown");
+        var mouseX = participantMethod("getX");
+        var mouseY = participantMethod("getY");
+        observerBuilder().type(ElementMatchers.named("zombie.input.GameKeyboard"))
+            .transform((builder, type, loader, module, domain) -> builder
+                .visit(Advice.to(ParticipantInputUpdate.class).on(ElementMatchers.named("update").and(ElementMatchers.takesArguments(0))))
+                .visit(MemberSubstitution.relaxed().method(ElementMatchers.named("isKeyDown")
+                    .and(ElementMatchers.isDeclaredBy(ElementMatchers.named("zombie.input.KeyboardState")))
+                    .and(ElementMatchers.takesArguments(int.class)).and(ElementMatchers.returns(boolean.class)))
+                    .replaceWith(keyDown).on(ElementMatchers.named("update"))))
+            .installOn(instrumentation);
+        observerBuilder().type(ElementMatchers.named("zombie.input.Mouse"))
+            .transform((builder, type, loader, module, domain) -> builder
+                .visit(Advice.to(ParticipantInputUpdate.class).on(ElementMatchers.named("update").and(ElementMatchers.takesArguments(0))))
+                .visit(MemberSubstitution.relaxed().method(ElementMatchers.named("isButtonDown")
+                    .and(ElementMatchers.isDeclaredBy(ElementMatchers.named("zombie.input.MouseState")))
+                    .and(ElementMatchers.takesArguments(int.class)).and(ElementMatchers.returns(boolean.class)))
+                    .replaceWith(buttonDown).on(ElementMatchers.named("update")))
+                .visit(MemberSubstitution.relaxed().method(ElementMatchers.named("getX")
+                    .and(ElementMatchers.isDeclaredBy(ElementMatchers.named("zombie.input.MouseState")))
+                    .and(ElementMatchers.takesArguments(0)).and(ElementMatchers.returns(int.class)))
+                    .replaceWith(mouseX).on(ElementMatchers.named("update")))
+                .visit(MemberSubstitution.relaxed().method(ElementMatchers.named("getY")
+                    .and(ElementMatchers.isDeclaredBy(ElementMatchers.named("zombie.input.MouseState")))
+                    .and(ElementMatchers.takesArguments(0)).and(ElementMatchers.returns(int.class)))
+                    .replaceWith(mouseY).on(ElementMatchers.named("update"))))
+            .installOn(instrumentation);
+        observerBuilder().type(ElementMatchers.named("zombie.GameWindow"))
+            .transform((builder, type, loader, module, domain) -> builder.visit(
+                Advice.to(ParticipantPoll.class).on(ElementMatchers.named("logic"))))
+            .installOn(instrumentation);
+        System.out.println("[StudyParticipant] GameKeyboard/Mouse MemberSubstitution installed");
+    }
+
+    public static void participantPoll() {
+        try {
+            participantPollMethod.invoke(null);
+            if (nativeInteractionPollMethod != null) nativeInteractionPollMethod.invoke(null);
+        }
+        catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException("native participant state publisher unavailable", failure);
+        }
+    }
+
+    public static final class ParticipantPoll {
+        @Advice.OnMethodExit public static void exit() { StudyLoadingAgent.participantPoll(); }
+    }
+
+    public static void participantInputUpdate() {
+        try { participantInputUpdateMethod.invoke(null); }
+        catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException("native participant input update unavailable", failure);
+        }
+    }
+
+    public static final class ParticipantInputUpdate {
+        @Advice.OnMethodEnter public static void enter() { StudyLoadingAgent.participantInputUpdate(); }
     }
 
     private static void installObserver(Instrumentation instrumentation) {
@@ -389,7 +490,7 @@ public final class StudyLoadingAgent {
                 && Thread.currentThread() == zombie.GameWindow.gameThread
                 && !zombie.core.Core.getInstance().isNoSave()
                 && zombie.iso.IsoWorld.instance.currentCell != null
-                && "Sandbox".equals(zombie.core.Core.getInstance().getGameMode())
+                && (Boolean.getBoolean("study.nativePlay") || "Sandbox".equals(zombie.core.Core.getInstance().getGameMode()))
                 && !zombie.network.GameClient.client && !zombie.network.GameClient.clientSave
                 && !zombie.network.GameServer.server;
         }

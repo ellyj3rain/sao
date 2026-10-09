@@ -31,9 +31,9 @@ do not require a repeat of valid evidence.
 State how the code actually expresses the thing, before the pattern that
 matches it was written. A rule derived from one example is an example.
 
-## Operator boundary
+## Product result
 
-Describe the play evidence that remains outstanding. Mechanical closure and
-play acceptance are distinct. Borders establish only the behavior their
-instruments can observe; they do not settle how the game feels. Follow the
-ratified readiness sequence without introducing a play-session prerequisite.
+Describe the delivered mechanic and any concrete issue that affects it. Credit
+applicable implementation, simulation and operator feedback. Link later
+improvements to the completed batch. Neo maintains the current description
+from the accumulated records; the operator plays the aggregate build.

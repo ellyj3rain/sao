@@ -18,8 +18,7 @@ Two invariants, and the second matters more than it looks:
 
   2. **The natural colour is never written.** Only the displayed
      colour moves. What a person's hair actually was is still under
-     it, so this is undone by doing nothing - which is what makes it
-     safe to ship into two live saves.
+     it, so a later age pass or restore can use the same base.
 
 Every engine accessor it leans on is verified from the jar rather than
 remembered, and named here so a build that moves one fails loudly:
@@ -148,18 +147,23 @@ def main():
                                 src)
     ok["the natural colour is never written"] = not writes_natural
     print(f"  writes to the natural colour: "
-          f"{writes_natural or 'none'} - undone by doing nothing")
+          f"{writes_natural or 'none'} - original base retained")
 
     links = {
         "reads the person's own age": "SAO.History.ageOf(rec.id)" in src,
         "onset is a fact about them": 'hashOf(id, "grey")' in src,
-        "reaches the visual":
-            "body:getDescriptor():getHumanVisual()" in src,
-        "moves hair": '"getNaturalHairColor", "setHairColor"' in src,
-        "and beard": '"getNaturalBeardColor", "setBeardColor"' in src,
+        "reaches the body visual":
+            "pcall(function() visual = body:getHumanVisual() end)" in src,
+        "aligns descriptor hair and beard":
+            "body:getDescriptor():getHumanVisual()" in src
+            and "syncDisplay(body, visual)" in src,
+        "moves hair":
+            '"getNaturalHairColor", "getHairColor", "setHairColor"' in src,
+        "and beard":
+            '"getNaturalBeardColor", "getBeardColor", "setBeardColor"' in src,
         "builds a real colour": "ImmutableColor.new(nr, ng, nb)" in src,
         "asks the model to redraw": "body:resetModelNextFrame()" in src,
-        "applied once per person": "rec.greyApplied" in src,
+        "tracks age-owned colours": "rec.appearanceGrey" in src,
         "wired where a body first exists":
             "pcall(SAO.Appearance.applyAge, rec, body)" in psrc,
     }

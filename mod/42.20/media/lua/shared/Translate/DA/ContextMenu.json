@@ -1,0 +1,12 @@
+{
+  "ContextMenu_ComputerMod_Computer": "Computer",
+  "ContextMenu_ComputerMod_InsertCD": "Indsæt CD",
+  "ContextMenu_ComputerMod_NetworkTerminal": "Netværksterminal",
+  "ContextMenu_ComputerMod_RemoveCD": "Fjern cd'en",
+  "ContextMenu_ComputerMod_ResumeSession": "Genoptag session",
+  "ContextMenu_ComputerMod_TurnOn": "Tænd",
+  "ContextMenu_ComputerMod_Components": "Komponenter",
+  "ContextMenu_ComputerMod_InstallComponent": "Installer",
+  "ContextMenu_ComputerMod_RepairComponent": "Reparation",
+  "ContextMenu_ComputerMod_RemoveComponent": "Fjern"
+}

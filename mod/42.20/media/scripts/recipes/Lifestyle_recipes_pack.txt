@@ -1,0 +1,94 @@
+module Lifestyle
+{
+
+    imports
+        {
+             Base,
+        }
+
+	/* ---------------------------------- General -------------------------------- */
+
+
+    craftRecipe UnpackSetOfBooks
+    {
+        timedAction = UnPackBox,
+        time = 80,
+        Tags = InHandCraft;Packing;CanBeDoneInDark,
+        category = Packing,
+        inputs
+        {
+            item 1 [Lifestyle.BookArtSet;Lifestyle.BookCleaningSet;Lifestyle.BookDancingSet;Lifestyle.BookMusicSet] mappers[book1;book2;book3;book4;book5] flags[AllowFavorite;InheritFavorite],
+        }
+        outputs
+        {
+            item 1 mapper:book1,
+            item 1 mapper:book2,
+            item 1 mapper:book3,
+            item 1 mapper:book4,
+            item 1 mapper:book5,
+        }
+        itemMapper book1
+        {
+            Lifestyle.BookArt1 = Lifestyle.BookArtSet,
+            Lifestyle.BookCleaning1 = Lifestyle.BookCleaningSet,
+            Lifestyle.BookDancing1 = Lifestyle.BookDancingSet,
+            Lifestyle.BookMusic1 = Lifestyle.BookMusicSet,
+        }
+        itemMapper book2
+        {
+            Lifestyle.BookArt2 = Lifestyle.BookArtSet,
+            Lifestyle.BookCleaning2 = Lifestyle.BookCleaningSet,
+            Lifestyle.BookDancing2 = Lifestyle.BookDancingSet,
+            Lifestyle.BookMusic2 = Lifestyle.BookMusicSet,
+        }
+        itemMapper book3
+        {
+            Lifestyle.BookArt3 = Lifestyle.BookArtSet,
+            Lifestyle.BookCleaning3 = Lifestyle.BookCleaningSet,
+            Lifestyle.BookDancing3 = Lifestyle.BookDancingSet,
+            Lifestyle.BookMusic3 = Lifestyle.BookMusicSet,
+        }
+        itemMapper book4
+        {
+            Lifestyle.BookArt4 = Lifestyle.BookArtSet,
+            Lifestyle.BookCleaning4 = Lifestyle.BookCleaningSet,
+            Lifestyle.BookDancing4 = Lifestyle.BookDancingSet,
+            Lifestyle.BookMusic4 = Lifestyle.BookMusicSet,
+        }
+        itemMapper book5
+        {
+            Lifestyle.BookArt5 = Lifestyle.BookArtSet,
+            Lifestyle.BookCleaning5 = Lifestyle.BookCleaningSet,
+            Lifestyle.BookDancing5 = Lifestyle.BookDancingSet,
+            Lifestyle.BookMusic5 = Lifestyle.BookMusicSet,
+        }
+    }
+
+    craftRecipe PackSetOfBooks
+    {
+        timedAction = PackingBox,
+        time = 80,
+        Tags = InHandCraft;Packing,
+        category = Packing,
+        inputs
+        {
+            item 1 [Lifestyle.BookArt1;Lifestyle.BookCleaning1;Lifestyle.BookDancing1;Lifestyle.BookMusic1] mappers[bookType] flags[AllowFavorite;InheritFavorite],
+            item 1 [Lifestyle.BookArt2;Lifestyle.BookCleaning2;Lifestyle.BookDancing2;Lifestyle.BookMusic2] mappers[bookType] flags[AllowFavorite;InheritFavorite],
+            item 1 [Lifestyle.BookArt3;Lifestyle.BookCleaning3;Lifestyle.BookDancing3;Lifestyle.BookMusic3] mappers[bookType] flags[AllowFavorite;InheritFavorite],
+            item 1 [Lifestyle.BookArt4;Lifestyle.BookCleaning4;Lifestyle.BookDancing4;Lifestyle.BookMusic4] mappers[bookType] flags[AllowFavorite;InheritFavorite],
+            item 1 [Lifestyle.BookArt5;Lifestyle.BookCleaning5;Lifestyle.BookDancing5;Lifestyle.BookMusic5] mappers[bookType] flags[AllowFavorite;InheritFavorite],
+        }
+        outputs
+        {
+            item 1 mapper:bookType,
+        }
+        itemMapper bookType
+        {
+            Lifestyle.BookArtSet = Lifestyle.BookArt1;Lifestyle.BookArt2;Lifestyle.BookArt3;Lifestyle.BookArt4;Lifestyle.BookArt5,
+            Lifestyle.BookCleaningSet = Lifestyle.BookCleaning1;Lifestyle.BookCleaning2;Lifestyle.BookCleaning3;Lifestyle.BookCleaning4;Lifestyle.BookCleaning5,
+            Lifestyle.BookDancingSet = Lifestyle.BookDancing1;Lifestyle.BookDancing2;Lifestyle.BookDancing3;Lifestyle.BookDancing4;Lifestyle.BookDancing5,
+            Lifestyle.BookMusicSet = Lifestyle.BookMusic1;Lifestyle.BookMusic2;Lifestyle.BookMusic3;Lifestyle.BookMusic4;Lifestyle.BookMusic5,
+        }
+    }
+
+}

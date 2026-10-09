@@ -2,11 +2,15 @@
 
 A Project Zomboid Build 42 NPC framework.
 
+This repository is the living-survivor source module of **Project More Life**,
+the named compiled mod or mod set. Its source ownership and relationship to
+ZAO, Speakeasy and Post Latent are recorded in [PROJECTS.md](PROJECTS.md).
+
 The current implementation connects private observations, conceptual associations,
 individual expectations and native outcomes. Ordinary-life priors and personally
 acquired associations can now motivate an actual inquiry through a visible doorway.
-Resource, entry and recovery choices share an interpretation interface; broader
-learned competence and rendered acceptance retain their measured limits.
+Resource, entry and recovery choices share an interpretation interface.
+Broader learned competence, task assessment and calibration remain model work.
 
 Dated autobiography now supplies private premises to the same conceptual
 reasoner and inquiry dispatcher. Source-bound episodes retain participants,
@@ -43,10 +47,14 @@ inference is refused without truncation. Useful learned behavior remains open.
 Neo owns this integration across the participating repositories.
 
 [D1 — Shared person-specific reasoning](Batches/D1-20261004-0124Z-1824PST-shared-reasoning.md)
-has acceptance status CLOSED with controlled person-specific reasoning and bounded native recovery. It joins ordinary choices
+is CLOSED and published through [PR138](https://github.com/ellyj3rain/sao/pull/138).
+Controlled person-specific reasoning and bounded native recovery join ordinary choices
 among bodily needs, accepted commitments and personally valued activity; personal
 associations and authentic feedback guide alternatives and inquiry.
-Original failed08 continuation09e96a7d-a49f-460d-8117-6ea264f3efe5 completed and saved normally, exit0/errors[]/unforced, county2.2487840652 to4.5107564926. sao-2 reached its retained approach, reacquired the currently visible bed and entered owned native sleep. Nine current intent/key acknowledgments persist; fatigue0.7782769799 to0.3887803555 over1.75 sampled countyhours establishes ongoing physiological recovery. The later native image shows a horizontal body partly hidden by the right-bedroom wall. Full sleep completion, a completed recovery experience, and rendered ground sleep are unobserved.
+The saved native continuation completed normally without runtime errors. `sao-2`
+reacquired the visible bed and entered owned sleep; nine intent/key acknowledgements
+persisted, and fatigue fell from 0.7783 to 0.3888 over 1.75 sampled county hours.
+The D1 record retains the exact continuation, image and physiology observations.
 
 The January 1 native specimen admits the adult's first job and movie with a loved
 one, and the child's movie with a loved one, as explicitly authored synthetic
@@ -142,10 +150,11 @@ The current product correction reconciles the index and version replay while
 preserving that published history. [SESSION_STATE.md](SESSION_STATE.md) states
 actual implementation and acceptance.
 Protected branch/PR publication is prepared from the reviewed final public main as one logical commit. Required ci-verify and codeql-python results and the actual protected merge are recorded in the separate publication receipt; this candidate text grants no unperformed check or merge credit.
-Historical copied recovery candidates retain their private source-reuse boundary.
-The publishable recovery adapter independently owns exact-body queue/custody and
-requires external installed LeanAndLie 1.27 and TchernoLib 1.16 animation mechanics.
-It distributes no copied source actions or animation XML.
+Historical recovery candidates retain their recorded source provenance.
+The packaged recovery path owns exact-body queue/custody through SAO actions
+and namespaced ground-animation nodes derived from Lean & Lie 1.27 mechanics.
+It references the installed game's native clips and uses the SAORecoveryGround
+state variable. Source attribution is recorded in CREDITS.md.
 
 Historical source identifiers stay in the crosswalk rather than organizing current work.
 
@@ -175,15 +184,21 @@ currency with `python tools/development_graph.py --check`.
 
 ## Status
 
-`3.8.0.0-pre-alpha` - the coordinate is computed by the version machine
+`3.8.1.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
 The version coordinate follows the coherent product-batch replay. The ownership map retains dependency boundaries without duplicate credit. Historical C labels keep their preserved
-generation and original source verdicts. Current D1 acceptance is
-CLOSED with controlled person-specific reasoning and bounded native recovery; publication standing is recorded above.
-The installed recovery adapter's final native admission evidence is
-Original failed08 continuation09e96a7d-a49f-460d-8117-6ea264f3efe5 completed and saved normally, exit0/errors[]/unforced, county2.2487840652 to4.5107564926. sao-2 reached its retained approach, reacquired the currently visible bed and entered owned native sleep. Nine current intent/key acknowledgments persist; fatigue0.7782769799 to0.3887803555 over1.75 sampled countyhours establishes ongoing physiological recovery. The later native image shows a horizontal body partly hidden by the right-bedroom wall. Full sleep completion, a completed recovery experience, and rendered ground sleep are unobserved..
+generation and original source verdicts. D1 is CLOSED and merged through PR138;
+D2 Leisure is CLOSED, with its protected publication tracked in
+[PR139](https://github.com/ellyj3rain/sao/pull/139).
+
+Acquired opportunities, personal interests, accessible means and current pressures
+drive native reading, music, games, art, exercise and social participation. Authenticated outcomes, interruptions and private experience join
+acquisition, equipment, placement and preparation in the same product.
+[D2's record](Batches/D2-20261005-2341Z-1641PST-leisure.md) retains its applicable
+source, native-runtime and simulation evidence. D3 construction/crafting/repair/
+utilities is next in FIFO.
 
 ### Historical reasoning and source trials
 
@@ -248,23 +263,24 @@ travel. A survivor can pause a speculative search, return to a personally known
 permitted home and attempt existing native recovery. Native opening, smashing
 and climbing retain the body until a safe interruption point. The same unfinished
 purpose is reconsidered afterward. Focused production and native recovery proofs
-pass; loaded observation follows C120's personal-experience integration.
+pass; the D1 continuation demonstrates owned sleep and measured physiological
+recovery.
 
 C118 extends private entry decisions to observed windows. Survivors compare
 visible openings and personally encountered barriers through their existing
 residence purpose. Native movement opens and climbs; its exact failed edge
 updates the matching acquired entrance. Changed visible conditions permit
 reconsideration while independent retry deadlines discourage repeated failed
-approaches. Focused production and installed-engine proofs pass; the subsequent
-recovery and experience batches precede loaded behavioral observation.
+approaches. Focused production and installed-engine proofs pass; D1 integrates
+these entry owners with personal experience, inquiry and recovery.
 
 C117 integrates the installed single-player furniture push/pull path. Delayed
 pushes retain the exact actor, furniture and contents; relocation is measured
 before reporting a completed physical result. Native pickup and placement keep
 their existing utility callbacks, with separate WaterPipes registration and
 bathing-state guards. This shared physical slice uses the player's existing
-actions. NPC furniture planning and private learning remain further work;
-installed-source checks and loaded-game acceptance are distinct evidence.
+actions. Installed-source checks establish actor/object custody and measured
+relocation. NPC furniture planning and private learning remain further work.
 
 C113 separates native camera areas from saved study identity. A bounded sealed
 layout replaces a rotating single camera with simultaneous native areas while
@@ -286,7 +302,7 @@ Late stop and perform retain exact original current-queue custody, preserving
 successor queues and flags. The focused source-bound proof and version-stamped
 package pass. The complete normal closing gate has its own log and exit receipt. This measured slice uses panes in the
 main inventory; approach, pane acquisition, nested-bag transfer, dormant physical work, multiplayer authority
-and loaded acceptance remain open.
+and
 
 C111 observes completed native animal feeding as private experience and
 connects installed cooler physics to authenticated carried inventories and
@@ -312,19 +328,19 @@ uses measured physiology, and ordinary appetite or fatigue preserves work.
 Survivors maintain individual stay, search, departure and return decisions;
 native arrival changes their own residence and preserves the prior home.
 Observed exterior doorways support native entry attempts without hidden layout
-or stock. These mechanical checks do not establish loaded exploration,
-negotiated property, calibrated planning or survival quality.
+or stock. Negotiated property, calibrated planning and broader survival quality
+remain continuing development and assessment work.
 
 NPC movement uses the installed engine's rendered animation basis for strafe
 intent. The native human-input regression detects the former missing quarter
-turn. Actual route completion and rendering remain loaded verification.
+turn. The corrected native input preserves that quarter turn for movement.
 
 C107 routes known containers to native interaction squares, retires expired
 water approaches and preserves resolved outcomes through later death. Authored
 initial threats retain actual native admission and saved attempt receipts.
 Observer skips empty instruction breakpoint lookups while retaining native
-error locations and God-view. Loaded response and performance improvement
-require successor receipts.
+error locations and God-view. Its speed benefit remains an unmeasured
+performance question.
 
 C106 authors initial regional population coverage before native generation,
 retaining actual people and body counts as the realized result. It connects
@@ -372,16 +388,15 @@ native food preparation. A manual remains part of the same reading purpose;
 Cooking practice and interrupted preparation advance only from actual native
 results. Generic source transfers now admit the existing book, tool and
 material categories. Private observation and current permission remain required.
-The controlled checks pass; other practical domains and loaded behavior remain
-unverified.
+The controlled checks establish these acquisition and preparation joins.
+Other practical domains continue through their owning products.
 
 C102 connects maintained personal study to the game's actual timed reading.
 Survivors can select useful carried manuals without a work designation, resume
 interrupted pages, and retain a reading purpose while immediate danger and needs
 take priority. Mousecat exposes progress and interruption. Native reading
 changes the game's learning multiplier; it does not claim practical completion.
-The controlled action checks pass; autonomous loaded-world frequency remains
-unobserved.
+The controlled action checks pass; autonomous
 
 C101 closes the native study terminal-handoff defect. Exact supervisor receipts
 and bounded legacy revalidation restore the retained attempt as a saved session
@@ -459,7 +474,7 @@ and delivered acceptance creates only a revision-bound scoped commitment.
 Food-delivery commitments reuse native acquisition, movement and handover owners;
 interruption, partial work, failure and completion remain distinct. Automatic
 roster elections, inferred recognition and score-triggered schism no longer
-decide. Wider institutions, actions and gameplay acceptance remain open.
+decide. Wider institutions and additional action producers remain development work.
 
 C80 corrects the living ZAO ownership boundary. Authorized Afflicted return
 hands the retained human shell directly to ZAO instead of attaching SAO's
@@ -483,8 +498,8 @@ approve that bounded synthetic family, train its reference adapter and export
 the exact FP32 bundle. C82 loads it inside the shipped Java jar and submits a
 bounded asynchronous shadow only after Organization has formed the authoritative
 response. Returned output survives exact revision, option and execution-owner
-checks but cannot alter the response or create work. Headless parity is proven;
-loaded gameplay and learned behavior activation remain open.
+checks but cannot alter the response or create work. Headless parity is proven.
+
 
 C83 extends enacted coordination through the registered execution-owner seam.
 Only addressed recipients who actually acquire the current revision can answer;
@@ -495,7 +510,7 @@ promised activity. Pending routes reconstruct with the same durable identity,
 and terminal receipts are consumed once. ZAO A40 uses that service for distinct
 Afflicted necessity-backed provisioning and Crossed associate rendezvous; a
 state change retains the matter but dispatches a fresh current-state appraisal.
-The combined path is controlled headlessly; loaded gameplay remains unobserved.
+The combined path has installed-Kahlua controls.
 
 C84 adds a repeatable causal episode boundary around the production dormant
 county. Checkpoints come from one maximum-horizon prefix, a fresh Kahlua process
@@ -518,8 +533,7 @@ SourceUse acquisition, Locomotion carrying and Handover delivery owners.
 Queue admission is not acquisition or completion, and completed, partial,
 interrupted and failed work each close through one exact durable result. The
 same process survives loaded/dormant handoff, registered ZAO execution and
-save/reload. Borders 180, 190 and 194-197 execute this headlessly; loaded-world
-speech, movement, animation and save/reopen play remain unobserved.
+save/reload. Borders 180, 190 and 194-197 execute this in installed Kahlua.
 
 C90-C92 turn accepted work into durable cooperative procedures. People receive
 their own projections, claim only roles their current execution owner reports
@@ -533,16 +547,13 @@ fallback movement and cover work for two to seven people. Watch and cover use a
 finite native body/head posture owner. Failed claims request a communicated
 revision instead of silently assigning someone else. Mousecat inspection shows
 enacted steps, targets, postures, role claims, contribution thresholds, recent
-procedure events and the selected person's separate next step. Loaded frequency
-and scenario quality remain observation work.
+procedure events and the selected person's separate next step.
 
-Pre-alpha, and the evidence comes in two kinds.
-
-Play evidence accrues one observation at a time in `RECEIPTS.md`, which
-holds 6 so far: surfaces witnessed doing what their record claims,
-defects exposed in play, and observations still open. Mechanical closure and
-play acceptance are distinct: an unobserved surface remains unobserved, and a
-fix made from a play receipt awaits observation of its resulting behavior.
+Neo maintains the current aggregate assessment from implemented and delivered
+mechanics, simulation results, native records and ordinary operator feedback.
+The operator plays the aggregate build. Completed mechanics retain their credit
+as specific defects are repaired and later improvements link back to them.
+`neo-verification-assessment` owns evidence recovery and current record upkeep.
 
 Mechanical and behavioural validation follows the changed inputs, affected
 contracts and task objective under `GOVERNANCE.md`'s testing rule. Analysis
@@ -560,8 +571,8 @@ fresh-process replay before export. Its completion and reload behavior are
 tested in the installed game VM.
 The previous fast extrapolator was removed because it assigned outcomes from
 unsupported curves. A validated learned accelerator remains unfinished.
-Trajectory exports require completed horizons and report simulation faults;
-headless receipts do not establish loaded-body behavior or play quality.
+Trajectory exports require completed horizons and report simulation faults.
+The causal simulator remains the authoritative path while the accelerator is built.
 
 C51-C56 repair person preservation, authorized Afflicted return, shared county
 time, complete native-person continuity, durable/runtime reconstruction and
@@ -663,12 +674,10 @@ Project Zomboid Build 42.20–42.21, matching the published mod metadata.
 **ZombieBuddy** is required to load the Java component (`media/java/SAO.jar`).
 Without it, the Java engine reads are unavailable and Lua functionality degrades.
 
-Ground recovery requires externally installed **Lean & Lie 1.27**, Workshop
-`3652012357`, native mod ID `LeanAndLie`, and its transitive **TchernoLib 1.16**
-dependency, Workshop `3389605231`, native mod ID `TchernoLib`. SAO's independent
-adapter invokes installed animation mechanics and distributes no copied source
-actions or animation XML. Revision and input pins are recorded in
-`tools/recovery_source_manifest.json`; attribution is in `CREDITS.md`.
+Ground recovery is supplied by SAO's packaged actions and namespaced animation
+nodes, derived from **Lean & Lie 1.27** mechanics, Workshop `3652012357`.
+The nodes reference native game clips by name. Revision and input pins are
+recorded in `tools/recovery_source_manifest.json`; attribution is in `CREDITS.md`.
 
 Other NPC mods are recognised where present and never depended on; another mod's
 people are handled through their actual properties and ownership.

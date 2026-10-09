@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animNode>
+	<m_Name>Bob_PlayKeytarProficientA</m_Name>
+	<m_AnimName>Bob_PlayKeytarProficientA</m_AnimName>
+	<m_deferredBoneAxis>Y</m_deferredBoneAxis>
+	<m_SyncTrackingEnabled>false</m_SyncTrackingEnabled>
+	<m_EarlyBlendOut>false</m_EarlyBlendOut>
+	<m_BlendTime>0.6</m_BlendTime>
+	<m_SpeedScale>0.60</m_SpeedScale>
+	<m_Conditions>
+		<m_Name>PerformingAction</m_Name>
+		<m_Type>STRING</m_Type>
+		<m_StringValue>Bob_PlayKeytarProficientA</m_StringValue>
+	</m_Conditions>
+	<m_SubStateBoneWeights>
+		<boneName>Bip01_Spine1</boneName>
+	</m_SubStateBoneWeights>
+	<m_SubStateBoneWeights>
+		<boneName>Bip01_Neck</boneName>
+	</m_SubStateBoneWeights>
+	<m_SubStateBoneWeights>
+		<boneName>Bip01_BackPack</boneName>
+	</m_SubStateBoneWeights>
+	<m_SubStateBoneWeights>
+	<boneName>Bip01_Prop1</boneName>
+	</m_SubStateBoneWeights>
+	<m_SubStateBoneWeights>
+	<boneName>Bip01_Prop2</boneName>
+	</m_SubStateBoneWeights>
+</animNode>

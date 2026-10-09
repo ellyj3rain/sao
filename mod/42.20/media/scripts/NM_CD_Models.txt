@@ -1,0 +1,149 @@
+module NewMusic
+{
+    imports
+    {
+        Base
+    }
+
+    model CD
+    {
+        mesh = WorldItems/NM_CD,
+        texture = WorldItems/CD/World_NM_CD,
+        scale = 0.4,
+    }
+
+    model CDCover1
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover1,
+        scale = 0.06,
+    }
+
+    model CDCover2
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover2,
+        scale = 0.06,
+    }
+
+    model CDCover3
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover3,
+        scale = 0.06,
+    }
+
+    model CDCover4
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover4,
+        scale = 0.06,
+    }
+
+    model CDCover5
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover5,
+        scale = 0.06,
+    }
+
+    model CDCover6
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover6,
+        scale = 0.06,
+    }
+
+    model CDCover7
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover7,
+        scale = 0.06,
+    }
+
+    model CDCover8
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover8,
+        scale = 0.06,
+    }
+
+    model CDCover9
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover9,
+        scale = 0.06,
+    }
+
+    model CDCover10
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover10,
+        scale = 0.06,
+    }
+
+    model CDCover11
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover11,
+        scale = 0.06,
+    }
+
+    model CDCover12
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover12,
+        scale = 0.06,
+    }
+
+    model CDCover13
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover13,
+        scale = 0.06,
+    }
+
+    model CDCover14
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover14,
+        scale = 0.06,
+    }
+
+    model CDCover15
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover15,
+        scale = 0.06,
+    }
+
+    model CDCover16
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover16,
+        scale = 0.06,
+    }
+
+    model CDCover17
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover17,
+        scale = 0.06,
+    }
+
+    model CDCoverBlank
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover_Blank,
+        scale = 0.06,
+    }
+
+    model CDCoverEmpty
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover_Empty,
+        scale = 0.06,
+    }
+}
+
+

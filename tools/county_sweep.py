@@ -214,6 +214,17 @@ MODULES = [
 # out quietly - otherwise the check reports a real gap in the same
 # breath as five expected ones and nobody reads it.
 NOT_DORMANT = {
+    'CompanionExecution': 'executes agreed companion movement and native interaction through a loaded Controller/body; the dormant county has no physical executor',
+    'Leisure': 'owns exact source hobby actions, carried material and loaded native callback lifetime',
+    'LeisureAcquisition': 'observes loaded world objects and executes native acquisition before source hobby use',
+    'LeisureArt': 'owns native painting/sculpture actions and source artwork objects on a loaded body',
+    'LeisureExercise': 'owns native fitness, exercise equipment and Yoga timed actions on a loaded body',
+    'LeisureGames': 'owns loaded source game sessions, scene callbacks and exact arcade/claw material',
+    'LeisureLifestyle': 'executes source meditation, crafting, sports and relaxation callbacks on a loaded body',
+    'LeisureMusic': 'owns source music/dance actions and native material, performer and partner callbacks',
+    'LeisureRadio': 'owns exact loaded device/audio sessions and performer emission lifetime',
+    'WeekOneContinuity': 'observes loaded source Bandit bodies, native private perception and acknowledged body handover',
+    'WeekOneEvents': 'transports source native spawn/event callbacks; dormant simulation has no source body/event spawner',
     "Appearance": "renders how a body looks; nobody is materialised",
     "Controller": "drives materialised agents; the dormant half has none",
     "ConflictResponse": "dispatches conflict choices through a bound loaded Controller/body and native contact, retreat or pose executors; the bodyless county has no such action owner",

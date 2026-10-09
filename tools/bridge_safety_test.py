@@ -49,7 +49,7 @@ JAVA = ROOT / "java" / "src" / "com" / "sao"
 BRIDGE = "SAOBridge.java"
 DEPTH = 4
 
-CATCH = ("catch (Throwable", "catch (Exception")
+CATCH = re.compile(r"\bcatch\s*\(\s*(?:Throwable|Exception)\b")
 PUBLIC = re.compile(
     r"^    public\s+(?!static\s+final)([\w.<>\[\]]+)\s+(\w+)\s*\(", re.M)
 ANY_METHOD = re.compile(
@@ -58,25 +58,45 @@ ANY_METHOD = re.compile(
 OURS = re.compile(r"(?:com\.sao\.\w+\.)?(SAO\w+)\.(\w+)\s*\(")
 # Anything that could reach the engine: a method call on a reference.
 ENGINE_CALL = re.compile(r"\b\w+\s*\.\s*\w+\s*\(")
+# A guarded owned-map retirement has no engine access: look up the entry,
+# compare its retained string identifier, then remove the same map key.
+# Full-body matching keeps an added native call visible to the checker.
+MAP_RETIREMENT = re.compile(
+    r"\{\s*\w+\s+(?P<entry>\w+)\s*=\s*(?P<map>[A-Z][A-Z0-9_]{2,})\.get\((?P<key>\w+)\);"
+    r"\s*if\(\s*(?P=entry)==null\|\|!(?P=entry)\.\w+\.equals\(\w+\)\)return false;"
+    r"\s*(?P=map)\.remove\((?P=key)\);return true;\s*", re.S)
+
+
+def body_after(src, offset):
+    i = src.find("{", offset)
+    if i < 0:
+        return None
+    depth, j = 0, i
+    while j < len(src):
+        if src[j] == "{":
+            depth += 1
+        elif src[j] == "}":
+            depth -= 1
+            if depth == 0:
+                return src[i:j]
+        j += 1
+    return None
 
 
 def bodies(src):
-    """Every method in one file, by name, as text."""
+    """Retain callable overloads; private overloads have their own caller.
+
+    A qualified call from another class cannot reach a private overload.
+    A guarded public wrapper may call an unguarded private implementation
+    inside its existing catch.
+    """
     out = {}
     for m in ANY_METHOD.finditer(src):
-        i = src.find("{", m.end())
-        if i < 0:
+        if src[m.start():m.end()].lstrip().startswith("private "):
             continue
-        depth, j = 0, i
-        while j < len(src):
-            if src[j] == "{":
-                depth += 1
-            elif src[j] == "}":
-                depth -= 1
-                if depth == 0:
-                    out.setdefault(m.group(1), src[i:j])
-                    break
-            j += 1
+        body = body_after(src, m.end())
+        if body is not None:
+            out.setdefault(m.group(1), []).append(body)
     return out
 
 
@@ -92,7 +112,10 @@ def cannot_throw(body):
     `WEAPON_SOURCES` and `AMMO_SOURCES`. Guessing at identifiers is how
     an instrument invents findings; the shape is what to match on.
     """
+    if MAP_RETIREMENT.fullmatch(body):
+        return True
     stripped = OURS.sub("", body)
+    stripped = re.sub(r"\b(?:Double|Float)\.isFinite\s*\(", "", stripped)
     stripped = re.sub(r"\b[A-Z][A-Z0-9_]{2,}\s*\.\s*\w+\s*\(", "", stripped)
     return not ENGINE_CALL.search(stripped)
 
@@ -121,30 +144,31 @@ def main():
               "with it")
         return 1
 
-    def safe(cls, meth, depth, seen):
+    def safe(cls, meth, depth, seen, entry_body=None):
         key = (cls, meth)
         if key in seen:
             return True          # recursion: not a new way to throw
         if depth > DEPTH:
             return False
-        body = by_class.get(cls, {}).get(meth)
-        if body is None:
+        method_bodies = [entry_body] if entry_body is not None else by_class.get(cls, {}).get(meth, [])
+        if not method_bodies:
             return False
-        if any(c in body for c in CATCH):
-            return True
         seen = seen | {key}
-        calls = set(OURS.findall(body))
-        if not calls:
-            return cannot_throw(body)
-        if not cannot_throw(body):
-            return False
-        return all(safe(c, m, depth + 1, seen) for c, m in calls)
+        for body in method_bodies:
+            if CATCH.search(body):
+                continue
+            calls = set(OURS.findall(body))
+            if not cannot_throw(body):
+                return False
+            if not all(safe(c, m, depth + 1, seen) for c, m in calls):
+                return False
+        return True
 
     total, unsafe = 0, []
     for m in PUBLIC.finditer(bridge):
         total += 1
         name = m.group(2)
-        if not safe("SAOBridge", name, 1, frozenset()):
+        if not safe("SAOBridge", name, 1, frozenset(), body_after(bridge, m.end())):
             unsafe.append((name, bridge.count("\n", 0, m.start()) + 1))
 
     print(f"  public bridge methods  : {total}")

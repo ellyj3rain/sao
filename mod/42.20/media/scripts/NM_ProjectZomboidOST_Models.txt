@@ -1,0 +1,52 @@
+module NewMusic
+{
+    imports
+    {
+        Base
+    }
+
+    model CassetteZomboid
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette_Zomboid,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+
+    model CassetteCoverZomboid
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover_Zomboid,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+
+    model CDCoverZomboid
+    {
+        mesh = WorldItems/NM_CDCover,
+        texture = WorldItems/CD/World_NM_CDCover_Zomboid,
+        scale = 0.06,
+    }
+
+    model JacketZomboid
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Zomboid_Vinyl,
+        scale = 0.1,
+    }
+
+    model JacketZomboidEmpty
+    {
+        mesh = WorldItems/NM_Jacket,
+        texture = WorldItems/Vinyl/World_NM_Zomboid_Vinyl_Empty,
+        scale = 0.1,
+    }
+}

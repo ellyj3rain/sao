@@ -1,0 +1,121 @@
+VERSION = 1,
+
+option BanditsWeekOne.StartTime  = {
+    type = enum, numValues=6, default = 1,
+    page = BanditsWeekOne, translation = BanditsWeekOne.StartTime, valueTranslation=BanditsWeekOne.StartTime,
+}
+
+option BanditsWeekOne.StartBabe = {
+    type = boolean, default = true,
+    page = BanditsWeekOne, translation = BanditsWeekOne.StartBabe,
+}
+
+option BanditsWeekOne.StartRide = {
+    type = boolean, default = true,
+    page = BanditsWeekOne, translation = BanditsWeekOne.StartRide,
+}
+
+option BanditsWeekOne.InhabitantsPopMultiplier = {
+    type = double, min = 0, max = 4, default = 1,
+    page = BanditsWeekOne, translation = BanditsWeekOne.InhabitantsPopMultiplier,
+}
+
+option BanditsWeekOne.StreetsPopMultiplier = {
+    type = double, min = 0, max = 4, default = 1,
+    page = BanditsWeekOne, translation = BanditsWeekOne.StreetsPopMultiplier,
+}
+
+option BanditsWeekOne.ArmyPopMultiplier = {
+    type = double, min = 0, max = 4, default = 1,
+    page = BanditsWeekOne, translation = BanditsWeekOne.ArmyPopMultiplier,
+}
+
+option BanditsWeekOne.BanditsPopMultiplier = {
+    type = double, min = 0, max = 4, default = 1,
+    page = BanditsWeekOne, translation = BanditsWeekOne.BanditsPopMultiplier,
+}
+
+option BanditsWeekOne.InhabitantsPistolChance = {
+    type = integer, min = 0, max = 100, default = 7,
+    page = BanditsWeekOne, translation = BanditsWeekOne.InhabitantsPistolChance,
+}
+
+option BanditsWeekOne.StreetsPistolChance = {
+    type = integer, min = 0, max = 100, default = 3,
+    page = BanditsWeekOne, translation = BanditsWeekOne.StreetsPistolChance,
+}
+
+option BanditsWeekOne.VehiclesMax = {
+    type = integer, min = 0, max = 10, default = 4,
+    page = BanditsWeekOne, translation = BanditsWeekOne.VehiclesMax,
+}
+
+option BanditsWeekOne.VehiclesSpeed = {
+    type = double, min = 0.1, max = 3, default = 1,
+    page = BanditsWeekOne, translation = BanditsWeekOne.VehiclesSpeed,
+}
+
+option BanditsWeekOne.PoliceCooldown = {
+    type = integer, min = 1, max = 1440, default = 30,
+    page = BanditsWeekOne, translation = BanditsWeekOne.PoliceCooldown,
+}
+
+option BanditsWeekOne.SWATCooldown = {
+    type = integer, min = 1, max = 1440, default = 120,
+    page = BanditsWeekOne, translation = BanditsWeekOne.SWATCooldown,
+}
+
+option BanditsWeekOne.MedicsCooldown = {
+    type = integer, min = 1, max = 1440, default = 45,
+    page = BanditsWeekOne, translation = BanditsWeekOne.MedicsCooldown,
+}
+
+option BanditsWeekOne.HazmatCooldown = {
+    type = integer, min = 1, max = 1440, default = 50,
+    page = BanditsWeekOne, translation = BanditsWeekOne.HazmatCooldown,
+}
+
+option BanditsWeekOne.FiremanCooldown = {
+    type = integer, min = 1, max = 1440, default = 25,
+    page = BanditsWeekOne, translation = BanditsWeekOne.FiremanCooldown,
+}
+
+option BanditsWeekOne.PriceMultiplier = {
+    type = double, min = 0.1, max = 10, default = 1,
+    page = BanditsWeekOne, translation = BanditsWeekOne.PriceMultiplier,
+}
+
+option BanditsWeekOne.PriceInflation = {
+    type = double, min = 0.0, max = 1000, default = 26,
+    page = BanditsWeekOne, translation = BanditsWeekOne.PriceInflation,
+}
+
+option BanditsWeekOne.EventFinalSolution = {
+    type = boolean, default = true,
+    page = BanditsWeekOne, translation = BanditsWeekOne.EventFinalSolution,
+}
+
+option BanditsWeekOne.EventBoeing = {
+    type = boolean, default = true,
+    page = BanditsWeekOne, translation = BanditsWeekOne.EventBoeing,
+}
+
+option BanditsWeekOne.EventStrafe = {
+    type = boolean, default = true,
+    page = BanditsWeekOne, translation = BanditsWeekOne.EventStrafe,
+}
+
+option BanditsWeekOne.EventBombing = {
+    type = boolean, default = true,
+    page = BanditsWeekOne, translation = BanditsWeekOne.EventBombing,
+}
+
+option BanditsWeekOne.EventGas = {
+    type = boolean, default = true,
+    page = BanditsWeekOne, translation = BanditsWeekOne.EventGas,
+}
+
+option BanditsWeekOne.EventArson = {
+    type = boolean, default = true,
+    page = BanditsWeekOne, translation = BanditsWeekOne.EventArson,
+}

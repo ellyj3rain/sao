@@ -1,13 +1,10 @@
 {
-  "schema": "sao-installed-recovery-adapter/1",
+  "schema": "sao-owned-recovery-integration/2",
   "source": "Lean & Lie",
   "installedVersion": "1.27",
   "workshopId": "3652012357",
-  "runtimeDependencies": [
-    "LeanAndLie",
-    "TchernoLib"
-  ],
-  "standing": "Installed external animation dependency is explicitly required by staged published mod metadata; original carried selected-source bytes remain private historical evidence with redistribution terms unestablished",
+  "runtimeDependencies": [],
+  "standing": "Operator-authorized source-derived mechanics and selected animation-node integration; upstream redistribution permission remains unestablished. Native clips remain installed game assets.",
   "originalPrivateSources": {
     "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\client\\SAO_RecoveryPose.lua": "c1f04cd84d51f28b1a2684c2a62bc6248b745ef9cfb76461f5dd1aedc183010a",
     "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\tools\\recovery_source_manifest.json": "c3af312b79f07facfd491e8c6135eefe4cbf6c161d409f39a33e4fc699ae25f4",
@@ -23,22 +20,72 @@
     "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\AnimSets\\player\\sitonground-sitting\\SAORecovery_sleep_to_awake.xml": "cd61ec7e54882e03c1e6e09a288bc37d45715859605ad77447e66375f1e5daa9"
   },
   "externalSourceRoot": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3652012357/mods/LeanAndLie/common",
-  "invokedAPIs": [
-    "TchAL.stateVariableOnGround"
-  ],
+  "invokedAPIs": [],
   "invokedNativeNodes": [
-    "sit_loop_Awake",
-    "sit_loop_Sleep",
-    "sit_loop_AwakeToAsleep",
-    "sit_loop_AwakeToSit"
+    "SAORecovery_awake",
+    "SAORecovery_sleep",
+    "SAORecovery_awakeToAsleep",
+    "SAORecovery_awakeToSit",
+    "SAORecovery_sleep_to_awake"
   ],
-  "scope": "SAO-owned native queue action and exact body/record/token offset custody; installed external animation nodes remain in installed dependency; no source actions, player-key registry, player sleep UI or unequip helper invoked",
-  "transitiveDependency": {
+  "scope": "SAO-owned exact body/record/token queue, offset custody, packaged private animation variable SAORecoveryGround, real native pose observation and measured recovery; no TchernoLib/player-key/sleep UI/source actor registry invocation.",
+  "sourcePinMeaning": "Reviewed installed input hashes and packet custody metadata, not runtime content hashing",
+  "cleanup": "Blocked offset reversal releases the owned ground variable and requests native get-up. Runtime exact-custody pending exits retry bounded safe reversal or observe native movement. Ownership rebound retires the actuator receipt and preserves explicit unavailable audit; persisted audit alone grants no translation authority.",
+  "historicalExternalRelationship": {
     "id": "TchernoLib",
     "installedVersion": "1.16",
     "versionMin": "42.0.0",
     "installedB42Path": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3389605231/mods/TchernoLib/common/mod.info"
   },
-  "sourcePinMeaning": "Reviewed installed input hashes and packet custody metadata, not runtime content hashing",
-  "cleanup": "Blocked offset reversal releases the owned ground variable and requests native get-up. Runtime exact-custody pending exits retry bounded safe reversal or observe native movement. Ownership rebound retires the actuator receipt and preserves explicit unavailable audit; persisted audit alone grants no translation authority."
+  "packagedGroundNodes": [
+    "mod/42.20/media/AnimSets/player/sitonground-sitting/SAORecovery_ground_base.xml",
+    "mod/42.20/media/AnimSets/player/sitonground-sitting/SAORecovery_awake.xml",
+    "mod/42.20/media/AnimSets/player/sitonground-sitting/SAORecovery_sleep.xml",
+    "mod/42.20/media/AnimSets/player/sitonground-sitting/SAORecovery_awake_to_sleep.xml",
+    "mod/42.20/media/AnimSets/player/sitonground-sitting/SAORecovery_sleep_to_awake.xml",
+    "mod/42.20/media/AnimSets/player/sitonground-sitting/SAORecovery_awake_to_sit.xml"
+  ],
+  "reviewedOriginalSources": {
+    "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\108600\\3652012357\\mods\\LeanAndLie\\common\\media\\AnimSets\\player\\sitonground-sitting\\TchAL_LieOnGroundBase.xml": "4cc06fed5df8ae6f687fa4d32f8844da179db6179ea53b0a5ad0d57d8faea702",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\108600\\3652012357\\mods\\LeanAndLie\\common\\media\\AnimSets\\player\\sitonground-sitting\\sit_loop_Awake.xml": "0fb69433e3651156c65556b89f33bc09bad1852727fda82ff4f46ad7771930a2",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\108600\\3652012357\\mods\\LeanAndLie\\common\\media\\AnimSets\\player\\sitonground-sitting\\sit_loop_Sleep.xml": "c20597725858cb3e05af75f7f331a778d025d1d40cb48d649682a95c18e97dbe",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\108600\\3652012357\\mods\\LeanAndLie\\common\\media\\AnimSets\\player\\sitonground-sitting\\sit_loop_AwakeToAsleep.xml": "d866091f63e18da90b1f5ab7922da03afd4b59dc7caa8a91ac72db7dbc6d1b78",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\108600\\3652012357\\mods\\LeanAndLie\\common\\media\\AnimSets\\player\\sitonground-sitting\\sit_loop_AsleepToAwake.xml": "036642f9fe4a22a83daf7b1d2b4533d1002308407668e151bd754182b82773d4",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\108600\\3652012357\\mods\\LeanAndLie\\common\\media\\AnimSets\\player\\sitonground-sitting\\sit_loop_AwakeToSit.xml": "3f508ff7faceb3280a19646a5283eefcc92801f7fb9c4b9292c85456ab67a75a",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\108600\\3652012357\\mods\\LeanAndLie\\common\\media\\lua\\shared\\TimedActions\\ISSitToAwakeOnGroundAction.lua": "e25393251ac040b368e5acba65e2a57710a851787ac58923dc076bcd5b9bbba9",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\108600\\3652012357\\mods\\LeanAndLie\\common\\media\\lua\\shared\\TimedActions\\ISAwakeToAsleepOnGroundAction.lua": "3e58fe827d4190872988beaf16701ca126da2df549b4cf7f051b46a2bb001f1b",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\108600\\3652012357\\mods\\LeanAndLie\\common\\media\\lua\\shared\\TimedActions\\ISAsleepToAwakeOnGroundAction.lua": "861ef181e13521af94f06e07ba6c87ba1f520ff7de250946dfe9b3046adf8e5f",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\108600\\3652012357\\mods\\LeanAndLie\\common\\media\\lua\\shared\\TimedActions\\ISAwakeToSitOnGroundAction.lua": "f9db6cd741323f56600ceaf021c7c71cf7346699799e257c6d288c9d17a1d3b5",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\108600\\3652012357\\mods\\LeanAndLie\\common\\media\\lua\\shared\\TchAL_shared.lua": "804899c9cd1fe4e4b33eafdc63415cf43279e6f79800723ea479068a0687ed9c",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\108600\\3652012357\\mods\\LeanAndLie\\common\\media\\lua\\client\\TchAL_states.lua": "d3c6b06ed84f131869c8f71cc7371a1038d46bdd86ac2fe515b3f1c548d282ff"
+  },
+  "nativeClipReferences": [
+    "Bob_Awake",
+    "Bob_Asleep",
+    "Bob_AwakeToAsleep",
+    "Bob_AsleepToAwake",
+    "Bob_SitGround_toActionIdle"
+  ],
+  "adaptation": "Retained selected source node lineage, SAO names/condition namespace and native clips; current independent exact-custody action replaces external actor/UI callbacks. TchernoLib source not copied.",
+  "packagedSourceSha256": {
+    "mod/42.20/media/AnimSets/player/sitonground-sitting/SAORecovery_ground_base.xml": "14747089b9e05dd554146010890366c3300b8f86494a1c390d04577b967c9b37",
+    "mod/42.20/media/AnimSets/player/sitonground-sitting/SAORecovery_awake.xml": "3c6a2fb8a2b88756805dae8d492faae534d3e2574cfaa2e7eed3706fd07bfd71",
+    "mod/42.20/media/AnimSets/player/sitonground-sitting/SAORecovery_sleep.xml": "74249daef214ef7a72c9333f63ccbd2bf100f64cf568ddb7926541de6ce807c0",
+    "mod/42.20/media/AnimSets/player/sitonground-sitting/SAORecovery_awake_to_sleep.xml": "eb06983d7ccad233fea8015da66916c89a80991051e1732c420fc5506b591524",
+    "mod/42.20/media/AnimSets/player/sitonground-sitting/SAORecovery_sleep_to_awake.xml": "cd61ec7e54882e03c1e6e09a288bc37d45715859605ad77447e66375f1e5daa9",
+    "mod/42.20/media/AnimSets/player/sitonground-sitting/SAORecovery_awake_to_sit.xml": "3818ecc999c7ba2313f8a23910db566b3116c25ab2d7a3d3e6146e7c6e5f9ffd"
+  },
+  "nativeClipSha256": {
+    "Bob_Awake": "a310b6a117096b2cfb825522747c824f8ee8e55b3edb76abea8d82e2cee4cb70",
+    "Bob_Asleep": "69a99fed37a19b73157b8224cf3f9f9c28e7e6d5f79a806fbb92e5c2976f02ad",
+    "Bob_AwakeToAsleep": "bfad9a5de9234e611412029f3fc14a124cc532a39164b3993efa71c9593ead08",
+    "Bob_AsleepToAwake": "4b56af8e2c1a19881ab6619aa159e550ead1edfb0f39d474a4a5d932a3fb3a5f",
+    "Bob_SitGround_toActionIdle": "3de4ade11c64a141ed4e84ea7cf80fe2eede7e03a5d5ef4421cf1d79493a422c"
+  },
+  "termsEvidence": {
+    "selectedLeanSource": "No redistribution grant found in installed source package or current Workshop description; operator integration authorization is recorded separately.",
+    "LeanWorkshop": "https://steamcommunity.com/sharedfiles/filedetails/?id=3652012357",
+    "TchernoLibWorkshop": "https://steamcommunity.com/sharedfiles/filedetails/?id=3389605231",
+    "TchernoLibStanding": "Current Workshop declares On Lockdown; no TchernoLib source copied or invoked by owned recovery."
+  }
 }

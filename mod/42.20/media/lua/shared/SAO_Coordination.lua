@@ -788,6 +788,20 @@ function Coordination.formResponse(id, processId, body, activity, ownerLabel)
         { processId = processId }, ownerLabel)
     if not context then return nil, "process-unavailable" end
     local view = SAO.Organization.viewFor(id, processId, false)
+    if view and view.kind=="leisure-dance" then
+        local selected
+        context,selected=Coordination.danceAppraisal(id,body,view,context)
+        local ok,response=pcall(SAO.Organization.respondDance,id,processId,selected,context.choice,context)
+        if not ok then return nil,"source-dance-appraisal-unavailable" end
+        return response,context
+    end
+    if view and view.kind=="leisure-duet" then
+        local selected
+        context,selected=Coordination.duetAppraisal(id,body,view,context)
+        local ok,response=pcall(SAO.Organization.respondDuet,id,processId,selected,context.choice,context)
+        if not ok then return nil,"source-duet-appraisal-unavailable" end
+        return response,context
+    end
     if view and view.kind == "leisure-participation" then
         context = Coordination.participationAppraisal(id, body, view, context)
         participationAuthority = { kind = "appraisal", id = id, processId = processId, value = context }
@@ -845,6 +859,138 @@ local function participationAvailable(id, body, allowOwnWork)
     return true
 end
 
+function Coordination.duetAppraisal(id,body,view,context)
+    local proposal=view.proposal and view.proposal.proposal or {}
+    local terms=proposal.duet or {}
+    local available,reason=participationAvailable(id,body)
+    local M=SAO.LeisureMusic
+    local compatible
+    if available and terms.partnerId==id and finite(terms.expiresAtHours) and terms.expiresAtHours>=nowHours()
+        and M and M.duetChoices then
+        for _,choice in ipairs(M.duetChoices(id,body)) do
+            if choice.actorId==id and choice.sourceId==terms.sourceId and choice.songId==terms.songId
+                and choice.role==terms.partnerRole then
+                for _,role in ipairs(choice.partnerRoles or {}) do
+                    if role==terms.originatorRole then compatible=choice;break end
+                end
+            end
+            if compatible then break end
+        end
+    end
+    local interests=SAO.ProceduralPlanning.participationInterests(id,"music") or {}
+    local obligations=false
+    for _,commitment in ipairs(SAO.Organization.activeCommitments(id)) do
+        if commitment.processId~=view.id and commitment.processId~=view.processId then obligations=true end
+    end
+    local traits=SAO.Disposition.traits(id) or {}
+    local seeksCompany=finite(traits.talkativeness) and finite(traits.discipline)
+        and traits.talkativeness>traits.discipline and context.relationship>0
+    local recall=SAO.Controller and SAO.Controller.leisureReasons
+        and SAO.Controller.leisureReasons(id,body,"music")
+    local affinity=recall and recall.interest or 0
+    local choice
+    if context.contest or context.dead or context.incapable then
+        choice,reason="decline","person-or-relationship-unavailable"
+    elseif not available or obligations or interests.competing then
+        choice,reason="defer",reason or "own-responsibility-needs-attention"
+    elseif not compatible then choice,reason="decline","no-personally-supported-source-part"
+    elseif affinity<0 then choice,reason="decline","retained-experience-disfavors-this-activity"
+    elseif interests.related or seeksCompany or affinity>0 then
+        choice,reason="accept","personally-supported-part-and-current-interest"
+    else choice,reason="decline","prefers-to-retain-time-for-other-interests" end
+    context.choice=choice;context.reconsider=view.response and view.response.response=="defer" or false
+    context.interests={relatedIntention=interests.related==true,competingIntention=interests.competing==true,
+        acceptedObligation=obligations,seeksCompany=seeksCompany,musicAffinity=affinity,
+        episodeIds=recall and recall.episodeIds or {},sourceChoiceId=compatible and compatible.id,reason=reason,
+        expectedEffect="may-perform-a-mutually-agreed-source-part",uncertainty="agreement-performance-and-enjoyment-remain-unobserved"}
+    context.constraints.executionOwnerAvailable=available==true
+    context.inputOwners.interests="SAO.LeisureMusic+SAO.ProceduralPlanning+SAO.Disposition+SAO.PersonalMemory"
+    return context,compatible and compatible.id
+end
+
+function Coordination.proposeDuet(id,body,recipientId,choiceId,partnerRole)
+    local available,reason=participationAvailable(id,body)
+    if not available or not SAO.Communication.canConverse(id,recipientId) then return nil,reason or "transport-unavailable" end
+    local known=false
+    for _,contact in ipairs(Coordination.knownContacts(id))do
+        if contact.id==recipientId and not contact.hostile then known=true;break end
+    end
+    if not known then return nil,"recipient-not-personally-known" end
+    local prior=SAO.Organization.openMatter(id,"leisure-duet")
+    if prior then
+        local view=SAO.Organization.viewFor(id,prior.id,false)
+        local proposal=view and view.proposal and view.proposal.proposal
+        local expiry=proposal and proposal.duet and proposal.duet.expiresAtHours
+        if not finite(expiry) or expiry>=nowHours() then return nil,"own-duet-invitation-still-open" end
+        SAO.Organization.withdrawMatter(prior.id,id,"own-proposed-duet-window-ended")
+    end
+    local offer,why=SAO.Organization.proposeDuet(id,recipientId,choiceId,partnerRole,nowHours()+1)
+    if not offer then return nil,why end
+    local message=SAO.Communication.deliverProcessProposal(id,recipientId,offer.processId,"spoken")
+    return offer,message and "received" or "unheard"
+end
+
+function Coordination.danceAppraisal(id,body,view,context)
+    local proposal=view.proposal and view.proposal.proposal or {}
+    local terms=proposal.dance or {};local available,reason=participationAvailable(id,body)
+    local M=SAO.LeisureMusic;local compatible
+    if available and terms.partnerId==id and finite(terms.expiresAtHours) and terms.expiresAtHours>=nowHours()
+        and M and M.danceChoices then
+        for _,candidate in ipairs(M.danceChoices(id,body))do
+            local sameMusic=candidate.heardMusic and terms.heardMusic
+            for field,value in pairs(terms.heardMusic or {})do
+                if not candidate.heardMusic or candidate.heardMusic[field]~=value then sameMusic=false end
+            end
+            if candidate.actorId==id and candidate.sourceId==terms.sourceId and candidate.role==terms.partnerRole
+                and sameMusic then compatible=candidate;break end
+        end
+    end
+    local interests=SAO.ProceduralPlanning.participationInterests(id,"dance") or {}
+    local obligations=false
+    for _,commitment in ipairs(SAO.Organization.activeCommitments(id))do
+        if commitment.processId~=view.id and commitment.processId~=view.processId then obligations=true end
+    end
+    local traits=SAO.Disposition.traits(id) or {}
+    local seeksCompany=finite(traits.talkativeness) and finite(traits.discipline)
+        and traits.talkativeness>traits.discipline and context.relationship>0
+    local recall=SAO.Controller and SAO.Controller.leisureReasons and SAO.Controller.leisureReasons(id,body,"music")
+    local affinity=recall and recall.interest or 0;local response
+    if context.contest or context.dead or context.incapable then response,reason="decline","person-or-relationship-unavailable"
+    elseif not available or obligations or interests.competing then response,reason="defer",reason or "own-responsibility-needs-attention"
+    elseif not compatible then response,reason="decline","no-current-personally-heard-source-dance-part"
+    elseif affinity<0 then response,reason="decline","retained-experience-disfavors-this-activity"
+    elseif interests.related or seeksCompany or affinity>0 then response,reason="accept","personally-heard-source-and-current-interest"
+    else response,reason="decline","prefers-to-retain-time-for-other-interests"end
+    context.choice=response;context.reconsider=view.response and view.response.response=="defer" or false
+    context.interests={relatedIntention=interests.related==true,competingIntention=interests.competing==true,
+        acceptedObligation=obligations,seeksCompany=seeksCompany,musicAffinity=affinity,
+        episodeIds=recall and recall.episodeIds or {},sourceChoiceId=compatible and compatible.id,reason=reason,
+        expectedEffect="may-dance-together-to-the-currently-heard-source",uncertainty="agreement-participation-and-enjoyment-remain-unobserved"}
+    context.constraints.executionOwnerAvailable=available==true
+    context.inputOwners.interests="SAO.LeisureMusic+SAO.ProceduralPlanning+SAO.Disposition+SAO.PersonalMemory"
+    return context,compatible and compatible.id
+end
+function Coordination.proposeDance(id,body,recipientId,choiceId,partnerRole)
+    local available,reason=participationAvailable(id,body)
+    if not available or not SAO.Communication.canConverse(id,recipientId)then return nil,reason or "transport-unavailable"end
+    local known=false
+    for _,contact in ipairs(Coordination.knownContacts(id))do
+        if contact.id==recipientId and not contact.hostile then known=true;break end
+    end
+    if not known then return nil,"recipient-not-personally-known"end
+    local prior=SAO.Organization.openMatter(id,"leisure-dance")
+    if prior then
+        local view=SAO.Organization.viewFor(id,prior.id,false)
+        local proposal=view and view.proposal and view.proposal.proposal
+        local expiry=proposal and proposal.dance and proposal.dance.expiresAtHours
+        if not finite(expiry) or expiry>=nowHours()then return nil,"own-dance-invitation-still-open"end
+        SAO.Organization.withdrawMatter(prior.id,id,"own-proposed-dance-window-ended")
+    end
+    local offer,why=SAO.Organization.proposeDance(id,recipientId,choiceId,partnerRole,nowHours()+1)
+    if not offer then return nil,why end
+    local message=SAO.Communication.deliverProcessProposal(id,recipientId,offer.processId,"spoken")
+    return offer,message and "received" or "unheard"
+end
 function Coordination.participationAppraisal(id, body, view, context)
     local terms = view.proposal and view.proposal.proposal or {}
     local available, reason = participationAvailable(id, body)

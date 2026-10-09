@@ -1,0 +1,12 @@
+{
+    "IGUI_BenchPress": "Panca",
+    "IGUI_BenchPress_Tooltip": "Allenati sulla panca",
+    "IGUI_Treadmill": "Tapis Roulant",
+    "IGUI_Treadmill_Tooltip": "Corri sul tapis roulant",
+    "IGUI_need_barbell": "Ho bisogno di un bilanciere o di due manubri per questo esercizio",
+    "IGUI_low_endurance": "Sono troppo esausto",
+    "IGUI_pain": "Ho troppo dolore",
+    "IGUI_heavy": "Troppo pesante da usare ora",
+    "IGUI_treadmill_needs_electricity": "Il tapis roulant ha bisogno di elettricità per funzionare",
+    "IGUI_bench_rotate_bug": "Bug: ruota e/o sposta la panca!"
+}

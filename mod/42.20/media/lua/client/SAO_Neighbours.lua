@@ -289,13 +289,41 @@ function Nb.bridgeOpen()
     return sv ~= nil and sv.NeighbourBridge == true
 end
 
-function Nb.willSuperimpose(recId, worldobjects)
+local function originalPersonRoot(context, ns, actor)
+    if not context or not ns then return nil end
+    local profile = nil
+    pcall(function()
+        if ns.GetActorProfile then profile = ns.GetActorProfile(actor) end
+    end)
+    local pname = profile and tostring(profile.name or "") or ""
+    if pname == "" then return nil end
+    local root = nil
+    for _, title in ipairs({
+        pname .. " - Talk / Ask Along",
+        pname .. " - Open Survivor Panel",
+    }) do
+        local ok, found = pcall(function()
+            return context:getOptionFromName(title)
+        end)
+        if ok and found then root = found; break end
+    end
+    if not root or not root.subOption then return nil end
+    local ok, sub = pcall(function()
+        return context:getSubMenu(root.subOption)
+    end)
+    if not ok or not sub then return nil end
+    return root, sub, pname
+end
+
+function Nb.willSuperimpose(recId, worldobjects, context)
     if not Nb.bridgeOpen() then return false end
     local sq = squareOf(worldobjects)
     if not sq then return false end
-    local actor, kid = nearestActorTo(sq)
-    if not actor or not kid then return false end
-    return ("ks:" .. tostring(kid)) == recId
+    local actor, kid, ns = nearestActorTo(sq)
+    if not actor or not kid or ("ks:" .. tostring(kid)) ~= recId then
+        return false
+    end
+    return originalPersonRoot(context, ns, actor) ~= nil
 end
 
 local function superimposePersonRoot(playerNum, context, worldobjects)
@@ -310,27 +338,8 @@ local function superimposePersonRoot(playerNum, context, worldobjects)
         -- Not adopted yet: his person, his menu, untouched.
         return
     end
-    local profile = nil
-    pcall(function()
-        if ns.GetActorProfile then profile = ns.GetActorProfile(actor) end
-    end)
-    local pname = profile and tostring(profile.name or "") or ""
-    if pname == "" then return end
-    local root = nil
-    for _, title in ipairs({
-        pname .. " - Talk / Ask Along",
-        pname .. " - Open Survivor Panel",
-    }) do
-        root = context:getOptionFromName(title)
-        if root then break end
-    end
-    if not root or not root.subOption then return end
-    local sub = nil
-    local okSub, got = pcall(function()
-        return context:getSubMenu(root.subOption)
-    end)
-    if okSub then sub = got end
-    if not sub then return end
+    local root, sub, pname = originalPersonRoot(context, ns, actor)
+    if not root then return end
     local playerObj = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(playerNum)
     if not playerObj then return end
     pcall(function() sub:clear() end)
@@ -342,6 +351,9 @@ local function superimposePersonRoot(playerNum, context, worldobjects)
     end)
     pcall(function()
         SAO.Harness.addTellOption(sub, playerObj, recId)
+    end)
+    pcall(function()
+        SAO.Harness.addObjectiveOptions(sub, playerObj, recId)
     end)
     Nb.addPersonOptions(sub, playerObj, recId)
     Nb.superimposed = (Nb.superimposed or 0) + 1

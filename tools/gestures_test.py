@@ -67,6 +67,7 @@ INSTRUMENT_WRITER = re.compile(r"\bSAO\.Gesture\.playInstrument\s*\(")
 INSTRUMENT_ROUTES = {
     "decideRestActivity": ("what", "carriedInstrument", "material"),
     "Ctl.advanceLeisureParticipation": ("capability.verb", "offer.itemType", "item"),
+    "Ctl.beginLeisureOffer": ("capability.kind", "item:getFullType()", "item"),
 }
 
 
@@ -77,7 +78,7 @@ def instrument_pattern(arguments):
 
 
 def instrument_faults(source):
-    """Both owned routes carry the exact material and admitted purpose.
+    """Every owned route carries the exact material and admitted purpose.
 
     A global writer census also refuses an additional unsupported route;
     finding one good call cannot conceal a missing or malformed sibling.
@@ -85,7 +86,7 @@ def instrument_faults(source):
     text = strip_lua(source)
     faults = []
     if len(INSTRUMENT_WRITER.findall(text)) != len(INSTRUMENT_ROUTES):
-        faults.append("instrument writer census requires exactly two owned calls")
+        faults.append("instrument writer census requires exactly three owned calls")
     for name, arguments in INSTRUMENT_ROUTES.items():
         body = function_body(source, name, stripped=text)
         route = strip_lua(body or "")

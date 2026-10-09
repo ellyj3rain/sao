@@ -449,7 +449,7 @@ class VideoOptions(unittest.TestCase):
             encoder = Path(directory) / "encoder.exe"; encoder.write_bytes(b"fixture")
             self.assertEqual(Run.video_options(SimpleNamespace(host="observer", video_encoder=encoder, video_fps=120)),
                              {"videoEncoder": str(encoder.resolve()), "videoFps": 120})
-            with self.assertRaisesRegex(ValueError, "observer host"):
+            with self.assertRaisesRegex(ValueError, "captured observer or participant host"):
                 Run.video_options(SimpleNamespace(host="player", video_encoder=encoder))
 
     def test_current_adapter_contains_the_video_source(self):

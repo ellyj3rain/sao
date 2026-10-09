@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Core |
 |---|---|
-| Version | `3.8.0.0-pre-alpha` |
+| Version | `3.8.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `CORE.md` |
 | Status | ACTIVE - genesis identity for this project. |
@@ -64,6 +64,11 @@ coordinate. Observation and experience can refine those expectations.
 
 Execution ships first and rides the engine's native substrate. The other three are
 what make this a framework rather than a behavior list.
+
+Every integrated mod mechanic becomes SAO-owned behavior under this composition.
+Installed sources supply useful scaffolding and ideas; SAO adapts their mechanics,
+state and effects to its own person, decision, Standing, execution and persistence
+owners. This is the standing rule unless the operator changes it (DR-058, DR-060).
 
 ## Governing constraints
 

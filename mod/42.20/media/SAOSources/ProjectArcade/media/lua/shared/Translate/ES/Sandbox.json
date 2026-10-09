@@ -1,0 +1,36 @@
+{
+  "Sandbox_ProjectArcade": "Project Arcade",
+
+  "Sandbox_ProjectArcade_AnnouncementLanguage": "[ONLINE] Elegir el lenguaje de los anuncios",
+  "Sandbox_ProjectArcade_AnnouncementLanguage_tooltip": "Permite seleccionar el lenguaje en el que se realizarán los anuncios, por ejemplo cuando se logra un nuevo highscore en la Punching Machine.",
+  "Sandbox_ProjectArcade_AnnouncementLanguage_option1": "Inglés",
+  "Sandbox_ProjectArcade_AnnouncementLanguage_option2": "Español",
+  "Sandbox_ProjectArcade_AnnouncementLanguage_option3": "Ruso",
+
+  "Sandbox_ProjectArcade_DisableDefaultPrizePool": "Desactivar pool de premios default",
+  "Sandbox_ProjectArcade_DisableDefaultPrizePool_tooltip": "Si está activado, la máquina de garra NO cargará los premios integrados (solo addons / premios externos).",
+
+  "Sandbox_ProjectArcade_ReplaceVanillaArcadesOnLoad": "Reemplazar arcades vanilla al cargar el mundo",
+  "Sandbox_ProjectArcade_ReplaceVanillaArcadesOnLoad_tooltip": "Reemplaza las máquinas arcade vanilla por un arcade aleatorio de Project Arcade cuando se carga el mapa.",
+
+  "Sandbox_ProjectArcade_ReplaceVanillaPinballsOnLoad": "Reemplazar pinballs vanilla al cargar el mundo",
+  "Sandbox_ProjectArcade_ReplaceVanillaPinballsOnLoad_tooltip": "Reemplaza los pinball vanilla por un pinball aleatorio de Project Arcade cuando se carga el mapa.",
+
+  "Sandbox_ProjectArcade_SfxVolumePct": "Volumen SFX Project Arcade (%%)",
+  "Sandbox_ProjectArcade_SfxVolumePct_tooltip": "Controla el volumen de los sonidos del mod (0-100%%). No afecta el audio vanilla. Si estás dentro de la partida, tenés que salir y volver a entrar.",
+
+  "Sandbox_ProjectArcade_CurrencyFullType": "FullType del ítem de moneda",
+  "Sandbox_ProjectArcade_CurrencyFullType_tooltip": "Ejemplo: Base.SilverCoin. Si es diferente de Base.SilverCoin, Project Arcade no inyectará los spawns de monedas.",
+
+  "Sandbox_ProjectArcade_CoinDistContainersPct": "Aparición de monedas en contenedores (%%)",
+  "Sandbox_ProjectArcade_CoinDistContainersPct_tooltip": "0 lo desactiva. 100 es el valor por defecto. Valores más altos aumentan la tasa de aparición.",
+
+  "Sandbox_ProjectArcade_CoinDistZombiesPct": "Aparición de monedas en zombies (%%)",
+  "Sandbox_ProjectArcade_CoinDistZombiesPct_tooltip": "0 lo desactiva. 100 es el valor por defecto. Valores más altos aumentan la tasa de aparición.",
+
+  "Sandbox_ProjectArcade_ROMDistPct": "Aparición de ROMs (%%)",
+  "Sandbox_ProjectArcade_ROMDistPct_tooltip": "0 lo desactiva. 100 es el valor por defecto. Valores más altos aumentan la tasa de aparición.",
+  
+  "Sandbox_ProjectArcade_DisableArcadeAmbientSound": "Desactivar sonido ambiente de las máquinas arcade (Sonido de atracción)",
+  "Sandbox_ProjectArcade_DisableArcadeAmbientSound_tooltip": "Desactiva únicamente los sonidos pasivos cosméticos en algunas máquinas",
+}

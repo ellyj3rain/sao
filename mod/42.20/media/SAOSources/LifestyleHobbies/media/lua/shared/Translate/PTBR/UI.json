@@ -1,0 +1,285 @@
+{
+
+	"UI_LSPerk_dt_good": "traço (adquirido) <LINE>",
+	"UI_LSPerk_dt_bad": "traço (perdido) <LINE>",
+
+	"UI_LSPerk_Dancing_Max": "Você agora é o ápice da dança! Uma combinação de passos impecáveis e gestos perfeitos, capaz de fazer qualquer multidão parar para assistir aos seus movimentos. E daí se a maioria é formada por mortos-vivos sem mente? Você é um artista, que cria arte pela própria arte, girando majestosamente em um mar de mel congelado e plumas de cisne. Você é a própria personificação da graciosidade... de meia-calça <LINE>",
+	"UI_LSPerk_Dancing_8_mp": "o Dançar em festas contribuirá com mais pontos para a pontuação oculta da festa <LINE>",
+	"UI_LSPerk_Dancing_8": "o Movimentos mais avançados adicionados ao repertório <LINE>",
+	"UI_LSPerk_Dancing_6": "o Não pode falhar devido a baixo nível de habilidade <LINE>",
+	"UI_LSPerk_Dancing_4_mp": "o Dançar em festas contribuirá com mais pontos para a pontuação oculta da festa <LINE>",
+	"UI_LSPerk_Dancing_4": "o Movimentos mais avançados adicionados ao repertório <LINE> o - taxa de falha das ações <LINE>",
+	"UI_LSPerk_Dancing_2": "o - taxa de falha das ações <LINE>",
+	"UI_LSPerk_Dancing_1": "E 1 e 2 e pisa. Pode parecer um pouco desajeitado no começo, mas com prática suficiente, quem sabe aonde o ritmo pode levar? Você pode até se tornar um elegante cisne. Até lá, tente não tropeçar nos próprios pés <LINE>",
+	"UI_LSPerk_Dancing_General": "o Novos movimentos de dança <LINE> o + humor obtido com hobbies de dança <LINE>",
+
+	"UI_LSPerk_Cleaning_Max": "Poucos no mundo já alcançaram seu nível de limpeza. Não existe bagunça ou mancha que você não consiga enfrentar, e bastam meros instantes para transformar qualquer moradia em ruínas em um santuário impecável à higiene. Não é bom se banhar no brilho radiante do sucesso? <LINE>",
+	"UI_LSPerk_Cleaning_1": "A arte da esfregação. Você começou a aprender o básico da organização e, com prática, ficará melhor em esfregar vasos sanitários, enfrentar manchas e remover do tapete o sangue do vizinho. Pode não ser um trabalho glamoroso, mas pode transformar qualquer velho abrigo imundo em um larSEGURO! <LINE>",
+	"UI_LSPerk_Cleaning_General": "o + velocidade de trabalho das ações <LINE> o - taxa de consumo dos materiais de limpeza <LINE>",
+
+	"UI_LSPerk_Meditation_Max": "Através de grande disciplina, você dominou as artes meditativas. Manter um estado de atenção plena perfeita agora é algo natural, um testemunho da sua incrível força interior. Você se tornou o verdadeiro mestre da própria mente e do próprio corpo <LINE>",
+	"UI_LSPerk_Meditation_10_mp": "o Pode ensinar aulas de meditação <LINE>",
+	"UI_LSPerk_Meditation_10": "o Dominou a técnica suprema <LINE> o Novo nível de Mindfulness; um estado aprimorado pode ser alcançado meditando enquanto estiver sob os efeitos do nível anterior <LINE> o ++++ duração da ação <LINE>",
+	"UI_LSPerk_Meditation_8": "o Novas técnicas desbloqueadas <LINE>",
+	"UI_LSPerk_Meditation_6": "o Novo nível de Mindfulness; um estado aprimorado pode ser alcançado meditando enquanto estiver sob os efeitos do nível anterior <LINE> o --- taxa de dor no pescoço <LINE> o +++ duração da ação <LINE>",
+	"UI_LSPerk_Meditation_5": "o --- taxa de tédio <LINE>",
+	"UI_LSPerk_Meditation_4": "o Novas técnicas desbloqueadas <LINE> o -- taxa de dor no pescoço <LINE> o ++ duração da ação <LINE> o -- taxa de tédio <LINE>",
+	"UI_LSPerk_Meditation_3": "o Estado de Mindfulness desbloqueado, alcançado durante sessões longas de meditação, capaz de conceder diversos bônus <LINE> o Pode meditar usando mochila e bolsas <LINE> o -- taxa de tédio <LINE>",
+	"UI_LSPerk_Meditation_2": "o Novas técnicas desbloqueadas <LINE> o - taxa de dor no pescoço <LINE> o + duração da ação <LINE> o - taxa de tédio <LINE>",
+	"UI_LSPerk_Meditation_1": "Aqui começa sua jornada rumo à paz interior! Quem sabe que potencial oculto você pode descobrir dentro da sua mente? Então fique parado e tenha paciência; a jornada de mil respirações começa com uma única... bem, respiração <LINE> o taxa de XP reduzida pelo tédio <LINE> o - taxa de tédio <LINE>",
+	"UI_LSPerk_Meditation_General": "o + eficácia contra o estresse <LINE>",
+
+	"UI_LSPerk_Music_Max": "Você se tornou um mestre da sua arte e seu domínio da teoria musical é incomparável. Seus solos lendários dizem coisas que nenhuma palavra jamais conseguiria dizer. Parabéns, Maestro! <LINE>",
+	"UI_LSPerk_Music_10": "o + chance de aprender músicas <LINE>",
+	"UI_LSPerk_Music_9": "o + chance de aprender músicas <LINE>",
+	"UI_LSPerk_Music_8": "o Novas opções desbloqueadas na Cabine de DJ <LINE> o + chance de aprender músicas <LINE>",
+	"UI_LSPerk_Music_7": "o + chance de aprender músicas <LINE>",
+	"UI_LSPerk_Music_6_mp": "o Suas apresentações agora agradam à maioria das plateias, parabéns! <LINE>",
+	"UI_LSPerk_Music_6": "o Não pode falhar devido a baixo nível de habilidade ao tocar músicas (pela habilidade) <LINE> o Novas opções desbloqueadas na Cabine de DJ <LINE> o + chance de aprender músicas <LINE>",
+	"UI_LSPerk_Music_5": "o - taxa de falha das ações <LINE> o + chance de aprender músicas <LINE>",
+	"UI_LSPerk_Music_4_mp": "o Alguns já podem até começar a aplaudir seus solos <LINE> o Apresentações em grupo desbloqueadas <LINE> o Pode usar o microfone de pé para cantar durante apresentações em grupo <LINE>",
+	"UI_LSPerk_Music_4": "o Novas opções desbloqueadas na Cabine de DJ <LINE> o - taxa de falha das ações <LINE> o + chance de aprender músicas <LINE>",
+	"UI_LSPerk_Music_3": "o Novas opções desbloqueadas na Cabine de DJ <LINE> o - taxa de falha das ações <LINE> o + chance de aprender músicas <LINE>",
+	"UI_LSPerk_Music_2_mp": "o Sua música está começando a soar bem o suficiente para outras pessoas apreciarem <LINE>",
+	"UI_LSPerk_Music_2": "o Pode aprender músicas praticando com instrumentos musicais; tocar músicas reduz o tédio e a infelicidade <LINE> o Pode usar cadernos musicais para salvar músicas conhecidas <LINE> o Novas opções desbloqueadas na Cabine de DJ <LINE> o - taxa de falha das ações <LINE>",
+	"UI_LSPerk_Music_1": "Ritmo e melodia, fazer barulho é surpreendentemente divertido! Comece com melodias simples e vá avançando aos poucos até chegar a músicas de verdade. Todo gênio da música precisa começar em algum lugar <LINE> o taxa de XP reduzida pelo estresse <LINE> o - taxa de falha das ações <LINE>",
+	"UI_LSPerk_Music_General": "o + humor obtido com hobbies musicais <LINE> o - taxa de tédio ao praticar com instrumentos <LINE>",
+
+	"UI_LSPerk_Art_Max": "Você agora é um verdadeiro Mestre das Artes! Um visionário capaz de criar obras de uma beleza tão impressionante que está convencido de que até os mortos-vivos param para olhar. Bem-vindo ao panteão da grandeza artística <LINE>",
+	"UI_LSPerk_Art_10": "o Esculturas de gelo desbloqueadas para a estação de escultura <LINE>",
+	"UI_LSPerk_Art_8": "o + chance de produzir obras-primas <LINE> o Esculturas de pedra desbloqueadas para a estação de escultura <LINE>",
+	"UI_LSPerk_Art_7": "o Opção de pintura simples desbloqueada, concluída mais rapidamente ao custo de uma pontuação de beleza menor <LINE>",
+	"UI_LSPerk_Art_6": "o Esculturas de sucata metálica desbloqueadas para a estação de escultura (req.: habilidade de soldagem) <LINE>",
+	"UI_LSPerk_Art_5": "o Pinturas grandes desbloqueadas para o cavalete de arte <LINE>",
+	"UI_LSPerk_Art_4": "o Esculturas de madeira desbloqueadas para a estação de escultura (req.: habilidade de carpintaria) <LINE>",
+	"UI_LSPerk_Art_3": "o A estação de escultura agora pode ser usada para criar esculturas simples de arbustos (req.: habilidade de agricultura) <LINE>",
+	"UI_LSPerk_Art_2": "o Pinturas médias desbloqueadas para o cavalete de arte <LINE>",
+	"UI_LSPerk_Art_1": "A vida de um artista é uma busca nobre, cheia de possibilidades. Cubra cada parede da sua casa com paisagens serenas e crie esculturas maravilhosas que farão a vida pós-apocalíptica valer a pena. Claro, por enquanto, você pode ter apenas as habilidades de uma criança pequena (e não muito talentosa), mas felizmente quase ninguém sobrou vivo para julgá-lo! <LINE>",
+	"UI_LSPerk_Art_General": "o + velocidade de trabalho das ações <LINE> o + novas esculturas disponíveis <LINE> o + novas pinturas disponíveis <LINE> o + chance de produzir obras de maior qualidade <LINE> o - taxa de consumo dos materiais de arte <LINE>",
+
+	"UI_LSHS_Yoga": "Yoga",
+	"UI_LSHS_Yoga_Max": "Uma verdadeira força da natureza, capaz de alcançar um estado de tranquilidade que deixaria a maioria dos monges humildes; suas façanhas físicas fariam qualquer contorcionista de circo morrer de inveja. Você está no topo de todas as poses já criadas, até mesmo de algumas que ainda nem existem. Parabéns, guru Zen, você conquistou isso! <LINE>",
+	"UI_LSHS_Yoga_10_mp": "o Pode ensinar aulas de Yoga <LINE>",
+	"UI_LSHS_Yoga_9": "o Poses de nível mestre desbloqueadas <LINE> o + limite da sequência de poses <LINE> o +++ duração do estado Zen <LINE>",
+	"UI_LSHS_Yoga_8": "o +++ limite da sequência de poses <LINE>",
+	"UI_LSHS_Yoga_6": "o Poses de nível avançado desbloqueadas <LINE> o + limite da sequência de poses <LINE> o ++ duração do estado Zen <LINE>",
+	"UI_LSHS_Yoga_4": "o ++ limite da sequência de poses <LINE>",
+	"UI_LSHS_Yoga_3": "o Poses de nível intermediário desbloqueadas <LINE> o + duração do estado Zen <LINE>",
+	"UI_LSHS_Yoga_2": "o + limite da sequência de poses <LINE>",
+	"UI_LSHS_Yoga_1": "Alguém disse Yoga? Comece sua jornada rumo à paz interior levando os limites do seu corpo ao extremo e cambaleando até desbloquear novos níveis de sinergia entre mente e corpo. Namastê! <LINE> o Estado Zen desbloqueado por um curto período após praticar Yoga <LINE>",
+	"UI_LSHS_Yoga_General": "o - chance de queda durante ações <LINE> o + redução de estresse <LINE> o + taxa de XP de condicionamento físico <LINE> o + recuperação da fadiga muscular <LINE>",
+
+	"UI_LSHS_Inventing": "Invenção",
+	"UI_LSHS_Inventing_Max": "Todo esse tempo em isolamento, torcendo metal à sua vontade e criando engenhocas à sua própria imagem, mexeu drasticamente com a sua cabeça. Nada realmente importa. O todo é e também não é. O que isso tudo significa? Significa que você é um GÊNIO! <LINE> o +%1 para o limite de melhorias especiais <LINE> o Pode desmontar uma peça rara em duas versões comuns do mesmo tipo <LINE>",
+	"UI_LSHS_Inventing_10": "o Custo médio para descobrir novos itens reduzido em 50%% <LINE>",
+	"UI_LSHS_Inventing_9": "o Pode converter 3 peças de melhoria em uma de outro tipo, exceto peças raras <LINE>",
+	"UI_LSHS_Inventing_7": "o 'Eureka!' não mais impede de continuar inventando ou pesquisando <LINE>",
+	"UI_LSHS_Inventing_6": "o Efeitos de fadiga mental agora desaparecem mais rapidamente <LINE>",
+	"UI_LSHS_Inventing_5": "o Pequena chance de eventos críticos (versões mais fortes de eventos de falha e sorte) ao trabalhar com invenções de nível alto <LINE> o Raramente durante produção, receba a visita de um ser misterioso <LINE>",
+	"UI_LSHS_Inventing_4": "o Pode agora descobrir geringonças complexas que podem ser melhoradas através de pesquisa <LINE>",
+	"UI_LSHS_Inventing_3": "o Novos eventos de falha desbloqueados <LINE>",
+	"UI_LSHS_Inventing_2": "o Eventos de sorte desbloqueados <LINE>",
+	"UI_LSHS_Inventing_1": "Bem vindo ao mundo da experimentação e reaproveitamento! Acumule todo tipo de sucata e itens para criar brinquedos, fantasias, curiosidades aleatórias, geringonças inteligentes e até maquinários complexos. Experimente até se tornar um grande inventor ou morrer horrivelmente num acidente bizarro. Boa sorte! <LINE> o Eventos de falha desbloqueados <LINE>",
+	"UI_LSHS_Inventing_General": "o New inventions can be discovered <LINE> o Work speed increased <LINE>",
+
+	"UI_DJBooth_FloorLight_Missing": "Requer Piso de Discoteca (centro)",
+	"UI_DJBooth_FloorLight": "Sistema Luminoso",
+
+	"UI_LSPM_ClassicalCat": "CLÁSSICO",
+	"UI_LSPM_CountryCat": "COUNTRY",
+	"UI_LSPM_DiscoCat": "DISCO",
+	"UI_LSPM_JazzCat": "JAZZ",
+	"UI_LSPM_MetalCat": "METAL",
+	"UI_LSPM_PopCat": "POP",
+	"UI_LSPM_RapCat": "RAP",
+	"UI_LSPM_RBCat": "RB&SOUL",
+	"UI_LSPM_ReggaeCat": "REGGAE",
+	"UI_LSPM_RockCat": "ROCK",
+	"UI_LSPM_SalsaCat": "SALSA",
+	"UI_LSPM_TMCat": "TM/CUSTOM",
+	"UI_LSPM_WorldCat": "MUNDO",
+
+	"UI_PlaylistText": "Sobrescrever playlist existente:",
+	"UI_PlaylistText2": "A seleção de música será substituída",
+
+	"UI_Confirm": "Confirmar",
+	"UI_Cancel": "Cancelar",
+	"UI_WardrobeText": "Substituir a composição desse traje",
+	"UI_WardrobeText2": "Essa ação não pode ser desfeita",
+	"UI_WardrobeText3": "Você tem certeza?",
+
+	"UI_mainscreen_MusicUpdate": "Lifestyle Music Update instalado",
+	"UI_mainscreen_DiscoUpdate": "Lifestyle Disco Update instalado",
+	"UI_mainscreen_HomeUpdate": "Lifestyle Homestead Update instalado",
+
+    "UI_DJBooth_Scratch": "Riscar o Disco",
+	"UI_DJBooth_Rewind": "Rewind",
+	"UI_DJBooth_Woosh": "Woosh",
+	"UI_DJBooth_Impact": "Impacto",
+	"UI_DJBooth_Crowd": "Público",
+	"UI_DJBooth_War": "Guerra",
+	"UI_DJBooth_Synth": "Synth",
+	"UI_DJBooth_Airhorn": "Buzina",
+	"UI_DJBooth_Sirens": "Sirenes",
+
+	"UI_DJBooth_Volume": "Controle de Volume",
+
+	"UI_DJBooth_Need": "Requer Música %1",
+	
+	"UI_DJBooth_LoopMode1": "Modo de Loop 1",
+	"UI_DJBooth_LoopMode2": "Modo de Loop 2",
+	"UI_DJBooth_LoopMode3": "Modo de Loop 3",
+	"UI_DJBooth_LoopMode4": "Modo de Loop 4",
+	"UI_DJBooth_LoopRecord": "Gravar Loop",
+	"UI_DJBooth_CustomLoop": "Loops Personalizados",
+	"UI_DJBooth_StopLoop": "Parar Loops",
+	"UI_DJBooth_Loop1A": "Batidas A",
+	"UI_DJBooth_Loop1B": "Batidas B",
+	"UI_DJBooth_Loop1C": "Batidas C",
+	"UI_DJBooth_Loop2A": "Dreamscape A",
+	"UI_DJBooth_Loop2B": "Dreamscape B",
+	"UI_DJBooth_Loop2C": "Dreamscape C",
+	"UI_DJBooth_Loop2D": "Dreamscape D",
+	"UI_DJBooth_Loop3A": "Batidas Elétricas A",
+	"UI_DJBooth_Loop3B": "Batidas Elétricas B",
+	"UI_DJBooth_Loop3C": "Batidas Elétricas C",
+	"UI_DJBooth_Loop3D": "Batidas Elétricas D",
+	"UI_DJBooth_Loop4A": "Lofi A",
+	"UI_DJBooth_Loop4B": "Lofi B",
+	"UI_DJBooth_Loop4C": "Lofi C",
+	"UI_DJBooth_Loop4D": "Lofi D",
+	"UI_DJBooth_ElecKickdrum": "Bumbo Elétrico",
+	"UI_DJBooth_Kickdrum": "Bumbo",
+	"UI_DJBooth_SafariKick": "Bumbo Safari",
+	"UI_DJBooth_ElecSnareDrum": "Caixa Elétrica",
+	"UI_DJBooth_Snare": "Caixa",
+	"UI_DJBooth_Snap": "Estalo",
+	"UI_DJBooth_Clap": "Palma",
+	"UI_DJBooth_OpenHat": "Chimbal",
+	
+	"UI_DJBooth_Close": "Fechar",
+
+	"UI_trait_WeakStomachDesc": "Maior chance de infecção alimentar.<br><br>Bexiga pequena, mal consegue segurar e precisa do banheiro com mais frequência.",
+	"UI_trait_IronGutDesc": "Menor chance de infecção alimentar.<br><br>Bexiga grande, consegue segurar por bastante tempo e visita o banheiro com pouca frequência.",
+	"UI_trait_outdoorsmandesc": "Não é afetado por condições climáticas adversas.<br><br>Menor efeito negativo no humor ao se aliviar a céu aberto.",
+
+	"UI_trait_artistic": "Artístico",
+	"UI_trait_artisticdesc": "Artistas naturalmente talentosos, eles se beneficiam muito de hobbies relacionados a <SPACE><RGB:1,0.8,0> Arte <RGB:1,1,1><SPACE>, e também podem se tornar bons escritores.",
+
+    "UI_trait_couchpotato": "Preguiçoso",
+	"UI_trait_couchpotatodesc": "Eles preferem ficar em casa e se entregar ao <SPACE><RGB:1,0.8,0> conforto <RGB:1,1,1>.<br><br>Ficam cansados mais rápido e dormem com mais frequência.<br>Apreciam entretenimento passivo.<br>O tédio se acumula mais devagar quando estão dentro de casa.<br>Odeiam <SPACE><RGB:1,0.8,0> Meditação <RGB:1,1,1><SPACE> e estar ao ar livre.",
+
+    "UI_trait_disciplined": "Disciplinado",
+ 	"UI_trait_disciplineddesc": "Diligentes e focados, estão constantemente se esforçando para melhorar, e são excelentes <SPACE><RGB:1,0.8,0> Artistas Marciais <RGB:1,1,1><SPACE> e mestres em <SPACE><RGB:1,0.8,0> Meditação <RGB:1,1,1><SPACE>.<br><br>Não têm muito interesse em entretenimento passivo.<br>Necessidade de <RGB:1,0.8,0> Conforto <RGB:1,1,1><SPACE> - taxa reduzida e efeitos positivos/negativos.",
+
+	"UI_trait_virtuoso": "Virtuoso",
+	"UI_trait_virtuosodesc": "Músicos de coração, com talento natural para tocar e compor <SPACE><RGB:1,0.8,0> Música <RGB:1,1,1><SPACE>, também são artistas muito carismáticos.",
+
+	"UI_trait_tonedeaf": "Desafinado",
+	"UI_trait_tonedeafdesc": "Não possuem um bom ouvido para <SPACE><RGB:1,0.8,0> Música <RGB:1,1,1><SPACE> e não suportam esse tipo de entretenimento, preferem muito mais paz e silêncio.",
+
+  	"UI_trait_partyanimal": "Boêmio",
+	"UI_trait_partyanimaldesc": "A alma da festa e talentosos em <SPACE><RGB:1,0.8,0> Dança <RGB:1,1,1><SPACE>, sempre prontos para entrar na pista de dança e manter a energia alta.",
+
+	"UI_trait_killjoy": "Chato",
+	"UI_trait_killjoydesc": "Grandes multidões, música alta e energia frenética não são o seu estilo.",
+
+  	"UI_trait_cleanfreak": "Maníaco por Limpeza",
+	"UI_trait_cleanfreakdesc": "Eles encontram paz na limpeza e sentem uma necessidade compulsiva de viver em um ambiente impecável.<br><br>Quase nenhuma tolerância para ambientes sujos.<br>O processo de <RGB:1,0.8,0> Limpeza <RGB:1,1,1><SPACE> leva mais tempo para ser concluído.",
+
+	"UI_trait_sloppy": "Sujão",
+	"UI_trait_sloppydesc": "A organização não é sua prioridade.<br><br>Maior tolerância para ambientes sujos.<br>Odeia <SPACE><RGB:1,0.8,0> Limpeza <RGB:1,1,1><SPACE> e leva mais tempo para fazê-la.<br>Quase nunca dá descarga sozinho.<br>Entope o vaso sanitário com mais frequência.<br>Maior chance de gerar sangue/sujeira quando ensanguentado/sujo e lixo ao criar itens.",
+
+	"UI_trait_tidy": "Limpinho",
+	"UI_trait_tidydesc": "Manter o ambiente limpo é algo natural para eles.<br><br>Menor chance de gerar sangue/sujeira quando ensanguentado/sujo e lixo ao criar itens.<br>Apreciam <SPACE><RGB:1,0.8,0> Limpeza <RGB:1,1,1><SPACE> e a ação é realizada mais rapidamente.",
+
+	"UI_trait_disco": "Gosta de Música Antiga",
+    "UI_trait_discodesc": "Tem preferência por música antiga.",
+   
+	"UI_trait_discono": "Detesta Música Antiga",
+    "UI_trait_disconodesc": "Prefere ouvir qualquer coisa menos música antiga.",
+
+	"UI_trait_beach": "Gosta de Música de Praia",
+    "UI_trait_beachdesc": "Tem preferência por música de praia.",
+   
+	"UI_trait_beachno": "Detesta Música de Praia",
+    "UI_trait_beachnodesc": "Prefere ouvir qualquer coisa menos música de praia.",
+
+	"UI_trait_country": "Gosta de Música Country",
+    "UI_trait_countrydesc": "Tem preferência por música country.",
+   
+	"UI_trait_countryno": "Detesta Música Country",
+    "UI_trait_countrynodesc": "Prefere ouvir qualquer coisa menos música country.",
+
+	"UI_trait_classical": "Gosta de Música Clássica",
+    "UI_trait_classicaldesc": "Tem preferência por música clássica.",
+
+	"UI_trait_classicalno": "Detesta Música Clássica",
+    "UI_trait_classicalnodesc": "Prefere ouvir qualquer coisa menos música clássica.",
+
+	"UI_trait_holiday": "Gosta de Música de Festividades",
+    "UI_trait_holidaydesc": "Tem preferência por música de festividades.",
+   
+	"UI_trait_holidayno": "Detesta Música de Festividades",
+    "UI_trait_holidaynodesc": "Prefere ouvir qualquer coisa menos música de festividades.",
+
+	"UI_trait_jazz": "Gosta de Música Jazz",
+    "UI_trait_jazzdesc": "Tem preferência por música jazz.",
+   
+	"UI_trait_jazzno": "Detesta Música Jazz",
+    "UI_trait_jazznodesc": "Prefere ouvir qualquer coisa menos música jazz.",
+
+	"UI_trait_metal": "Gosta de Música Metal",
+    "UI_trait_metaldesc": "Tem preferência por música metal.",
+   
+	"UI_trait_metalno": "Detesta Música Metal",
+    "UI_trait_metalnodesc": "Prefere ouvir qualquer coisa menos música metal.",
+
+	"UI_trait_muzak": "Gosta de Música Muzak",
+    "UI_trait_muzakdesc": "Tem preferência por música muzak.",
+
+	"UI_trait_muzakno": "Detesta Música Muzak",
+    "UI_trait_muzaknodesc": "Prefere ouvir qualquer coisa menos música muzak.",
+
+	"UI_trait_pop": "Gosta de Música Pop",
+    "UI_trait_popdesc": "Tem preferência por música pop.",
+   
+	"UI_trait_popno": "Detesta Música Pop",
+    "UI_trait_popnodesc": "Prefere ouvir qualquer coisa menos música pop.",
+
+	"UI_trait_rap": "Gosta de Música Rap",
+    "UI_trait_rapdesc": "Tem preferência por música rap.",
+   
+	"UI_trait_rapno": "Detesta Música Rap",
+    "UI_trait_rapnodesc": "Prefere ouvir qualquer coisa menos música rap.",
+
+	"UI_trait_rock": "Gosta de Música de Rock",
+    "UI_trait_rockdesc": "Tem preferência por música de rock.",
+   
+	"UI_trait_rockno": "Detesta Música de Rock",
+    "UI_trait_rocknodesc": "Prefere ouvir qualquer coisa menos música de rock.",
+
+	"UI_trait_reggae": "Gosta de Música Reggae",
+    "UI_trait_reggaedesc": "Tem preferência por música reggae.",
+   
+	"UI_trait_reggaeno": "Detesta Música Reggae",
+    "UI_trait_reggaenodesc": "Prefere ouvir qualquer coisa menos música reggae.",
+
+	"UI_trait_salsa": "Gosta de Música Salsa",
+    "UI_trait_salsadesc": "Tem preferência por música salsa.",
+
+	"UI_trait_salsano": "Detesta Música Salsa",
+    "UI_trait_salsanodesc": "Prefere ouvir qualquer coisa menos música salsa.",
+
+	"UI_trait_world": "Gosta de Música Mundial",
+    "UI_trait_worlddesc": "Tem preferência por música mundial.",
+   
+	"UI_trait_worldno": "Detesta Música Mundial",
+    "UI_trait_worldnodesc": "Prefere ouvir qualquer coisa menos música mundial.",
+
+	"UI_trait_rbsoul": "Gosta de Música R&b e Soul",
+    "UI_trait_rbsouldesc": "Tem preferência por música r&b e soul.",
+
+	"UI_trait_rbsoulno": "Detesta Música R&b e Soul",
+    "UI_trait_rbsoulnodesc": "Prefere ouvir qualquer coisa menos música r&b e soul."
+}

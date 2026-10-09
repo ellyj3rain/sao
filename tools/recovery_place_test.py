@@ -1,28 +1,28 @@
 """Installed recovery-place geometry and actual bed animation; controlled native scene, no rendered-game claim."""
 from pathlib import Path
-import hashlib,json,os,subprocess,sys,shutil
+import argparse,hashlib,json,os,subprocess,sys,shutil
 import concept_observation_test as base
 
 ROOT=base.ROOT
 OUT=ROOT/'_scratch/d1-shared-reasoning/recovery-place/native'
 OUT=Path(os.environ.get('SAO_RECOVERY_PLACE_OUTPUT',OUT))
 MANIFEST=json.loads((ROOT/'tools/recovery_source_manifest.json').read_bytes())
-EXTERNAL=Path(os.environ.get('SAO_RECOVERY_SOURCE_ROOT',MANIFEST['externalSourceRoot']))
-TCHERNOLIB_INFO=Path(os.environ.get('SAO_RECOVERY_TCHERNOLIB_INFO',MANIFEST['transitiveDependency']['installedB42Path']))
+EXTERNAL=ROOT/'mod/42.20'
+
 SOURCE=ROOT/'java/src/com/sao/engine/SAORecoveryPlace.java'
 PROBE=ROOT/'tools/javacheck/RecoveryPlaceProbe.java'
 POSE=ROOT/'mod/42.20/media/lua/client/SAO_RecoveryPose.lua'
 CASES=ROOT/'tools/recovery_place_cases.lua'
 RUNNER=ROOT/'tools/luacheck/LuaRun.java'
 
-def run():
-    if not all(p.is_file()for p in [base.GAME/'projectzomboid.jar',base.JDK/'java.exe',base.JDK/'javac.exe',EXTERNAL/'mod.info',TCHERNOLIB_INFO]):
-        print('Recovery place SKIPPED: installed engine/JDK or required LeanAndLie/TchernoLib dependency metadata absent');return
-    jars=[base.GAME/'projectzomboid.jar',base.GAME/'ZombieBuddy.jar',ROOT/'mod/42.20/media/java/SAO.jar']
+def run(jar_path=None):
+    if not all(p.is_file()for p in [base.GAME/'projectzomboid.jar',base.JDK/'java.exe',base.JDK/'javac.exe']):
+        print('Recovery place SKIPPED: installed engine/JDK or packaged recovery input absent');return
+    jars=[base.GAME/'projectzomboid.jar',base.GAME/'ZombieBuddy.jar',Path(jar_path or ROOT/'mod/42.20/media/java/SAO.jar').resolve()]
     sources=[SOURCE,base.SOURCE,base.BRIDGE,PROBE,base.BOOT,ROOT/'java/src/com/sao/engine/SAORecoveryPose.java',
         ROOT/'java/src/com/sao/engine/SAOOrientationAnimation.java',ROOT/'tools/orienting_checks/RecoveryPoseProbe.java',ROOT/'tools/orienting_checks/OrientationProbe.java']
     files=[*sources,*jars,Path(__file__),POSE,CASES,RUNNER,base.GAME/'stdlib.lua',
-        ROOT/'mod/42.20/media/lua/shared/TimedActions/SAORecoveryTransitionAction.lua',EXTERNAL/'mod.info',TCHERNOLIB_INFO,
+        ROOT/'mod/42.20/media/lua/shared/TimedActions/SAORecoveryTransitionAction.lua',
         base.GAME/'media/lua/shared/TimedActions/ISGetOnBedAction.lua',base.GAME/'media/AnimSets/player/onbed/OnBedAsleep.xml',
         base.GAME/'media/AnimSets/player/onbed/OnBedAwake.xml',base.GAME/'media/newtiledefinitions.tiles',base.GAME/'media/seating.txt',
         base.GAME/'media/lua/shared/ISBaseObject.lua',base.GAME/'media/lua/shared/TimedActions/ISBaseTimedAction.lua',
@@ -92,5 +92,6 @@ def run():
     receipt['inputsAfter']=pin();assert receipt['inputsAfter']==inputs,'proof inputs changed';receipt['status']='PASS';save();print(out/'receipt.json')
 
 if __name__=='__main__':
-    try:run()
+    parser=argparse.ArgumentParser();parser.add_argument("--jar",type=Path);args=parser.parse_args()
+    try:run(args.jar)
     except Exception as error: print('FAIL recovery place: '+str(error),file=sys.stderr);raise SystemExit(1)

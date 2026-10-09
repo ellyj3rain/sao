@@ -1,0 +1,5 @@
+{
+  "IGUI_KnoxAquarium_Options": "Knox Aquarium",
+  "IGUI_KnoxAquarium_MenuEverywhere": "Show the Fish Tank entry on every right-click",
+  "IGUI_KnoxAquarium_MenuEverywhere_tip": "On: the entry is always there, greyed out where a tank cannot go. Off: it only appears on aquariums and on clear floor a tank could stand on."
+}

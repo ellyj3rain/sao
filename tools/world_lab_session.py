@@ -26,6 +26,7 @@ import world_lab_education as EducationSource
 
 SCHEMA = "sao-study-session/1"
 COMMAND_SCHEMA = "sao-study-session-command/1"
+PARTICIPANT_LEASE_SCHEMA = "sao.participant-input-lease/1"
 MIN_ATTEMPT_SECONDS = 30
 MAX_ATTEMPT_SECONDS = 604800
 # Native preparation copies and hashes the complete isolated mod/cache tree
@@ -67,7 +68,7 @@ def public_state(state):
                 "study session identity differs")
     Lab.require(isinstance(state["label"], str) and 0 < len(state["label"]) <= 160,
                 "study session label differs")
-    Lab.require(state["status"] in ("starting", "running", "saved", "continuing", "failed"),
+    Lab.require(state["status"] in ("starting", "running", "saved", "continuing", "failed", "closed"),
                 "study session status differs")
     Lab.integer(state["attempt"], 0, 2**31 - 1, "study attempt")
     bounded_duration(state["attemptDurationSeconds"])
@@ -253,6 +254,30 @@ def attach_running(args, state):
     return owner, receipt
 
 
+
+def participant_run_dir(out: Path) -> Path:
+    """Fresh participant attempts never share the observer native-run tree."""
+    return Path(out) / "participant-run"
+
+
+def participant_lease_path(out: Path) -> Path:
+    return participant_run_dir(out) / "participant-input-lease.json"
+
+
+def participant_lease_held(lease_path: Path) -> bool:
+    """Report an exact live body-bound lease; this does not assign an agent controller."""
+    from world_lab_participant_lease import binding, read, validate_lease
+    try:
+        root = Path(lease_path).parent
+        run = read(root / 'run.json', 32 * 1024 * 1024)
+        state = read(root / 'attempts' / f"{run['launchNumber']:04d}" / 'participant-state.json')
+        now = int(time.time() * 1000)
+        expected = binding(run, state, now)
+        return validate_lease(read(lease_path), expected, now)
+    except (OSError, ValueError, KeyError, TypeError):
+        return False
+
+
 def stop_process(process):
     if process is None or process.poll() is not None:
         return
@@ -368,6 +393,31 @@ def runner_command(args, resume, duration):
     return command
 
 
+
+def participant_command(args, duration):
+    """Fresh visible player host under out/participant-run; never native-run, never --resume."""
+    Lab.require(getattr(args, "window", "visible") == "visible",
+                "participant command refuses a hidden window")
+    command = [sys.executable, str(Path(__file__).with_name("world_lab_run.py")), str(args.package),
+               "--out", str(participant_run_dir(args.out)), "--game", str(args.game), "--jdk", str(args.jdk),
+               "--host", "player", "--window", "visible", "--participant-input", "--watch",
+               "--timeout", str(duration)]
+    EducationSource.forward(command, args)
+    if getattr(args, "video_encoder", None) is not None:
+        command.extend(("--video-encoder", str(args.video_encoder),
+                        "--video-fps", str(getattr(args, "video_fps", 120))))
+    for mod in getattr(args, "mod", []) or []:
+        command.extend(("--mod", str(mod)))
+    if getattr(args, "profile", None) is not None:
+        command.extend(("--profile", str(args.profile), "--catalog", str(args.catalog),
+                        "--workshop-root", str(args.workshop_root)))
+        for mod_id in getattr(args, "enable_mod", []) or []:
+            command.extend(("--enable-mod", mod_id))
+        for mod_id in getattr(args, "disable_mod", []) or []:
+            command.extend(("--disable-mod", mod_id))
+    return command
+
+
 def watcher_command(args, feed: Path, state_path: Path, commands: Path, attempt: int):
     command = [sys.executable, str(args.watcher), "--run", str(args.out / "native-run"),
                "--package", str(args.package), "--out", str(feed),
@@ -430,6 +480,9 @@ def open_mousecat(args, feed: Path, native_session: str):
 
 
 def supervise(args):
+    if getattr(args, "participant_input", False):
+        from world_lab_participant_session import supervise as participant_supervise
+        return participant_supervise(args)
     args.package = args.package.resolve(); args.out = args.out.resolve()
     args.game = args.game.resolve(); args.jdk = args.jdk.resolve()
     args.watcher = args.watcher.resolve(); args.registry = args.registry.resolve()
@@ -598,7 +651,7 @@ def main():
                         default=Path(r"C:\Program Files (x86)\Steam\steamapps\workshop\content\108600"))
     parser.add_argument("--enable-mod", action="append", default=[])
     parser.add_argument("--disable-mod", action="append", default=[])
-    parser.add_argument("--watcher", required=True, type=Path,
+    parser.add_argument("--watcher", type=Path,
                         help="Speakeasy tools/world_watch.py")
     parser.add_argument("--registry", required=True, type=Path,
                         help="Mousecat native-view registry")
@@ -616,6 +669,9 @@ def main():
     parser.add_argument("--auto-continue", action=argparse.BooleanOptionalAction, default=None,
                         help="start another saved attempt after a wall-time checkpoint")
     parser.add_argument("--window", choices=("visible", "hidden"), default="visible")
+    parser.add_argument("--host", choices=("observer", "player"), default="observer")
+    parser.add_argument("--participant-input", action="store_true",
+                        help="launch a fresh visible player study with native input and recording")
     parser.add_argument("--observer-layout", type=Path,
                         help="native observation areas, independent of the saved world")
     parser.add_argument("--site-controls", action="store_true",
@@ -635,6 +691,9 @@ def main():
     parser.add_argument("--video-archive-min-free-bytes", type=int, default=VideoArchive.DEFAULT_MIN_FREE_BYTES,
                         help="disk reserve kept by the video archive (default: 1 GiB)")
     args = parser.parse_args()
+    Lab.require((args.host == "player") == args.participant_input,
+                "player studies require the explicit participant input mode")
+    Lab.require(args.watcher is not None, "study observations require the source video bridge")
     if args.duration is not None:
         bounded_duration(args.duration)
     Lab.integer(args.video_fps, 30, 120, "native video capture ceiling")

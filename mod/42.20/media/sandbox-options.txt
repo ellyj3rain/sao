@@ -1,20 +1,10 @@
 VERSION = 1,
 
-/*
- * SURVIVOR AWARENESS OVERHAUL - the world decisions, in the game's own screen.
- * Every option here is a live lever. World POLICY lives on this screen;
- * per-person temperament (nerve, appetite, compassion, talkativeness) is
- * emergent from identity by design and deliberately not tunable here.
- */
-
 option SurvivorAwareness.Enable {
     type = boolean, default = true,
     page = SurvivorAwareness, translation = SurvivorAwareness_Enable,
 }
 
-/* [C12] Representation is not implementation (DR-017). The internal
- * sentinel (population 0 = derive from the map) stays internal; the
- * screen offers a worded switch and a plain number instead. */
 option SurvivorAwareness.PopulationGoverned {
     type = boolean, default = false,
     page = SurvivorAwareness, translation = SurvivorAwareness_PopulationGoverned,
@@ -40,10 +30,6 @@ option SurvivorAwareness.RoadTraffic {
     page = SurvivorAwareness, translation = SurvivorAwareness_RoadTraffic,
 }
 
-/* [C12] Worded steps, not a coded scale - the old RoadPressure double
- * ("0 = none, 5 = an exodus") asked the player to carry a decoder. The
- * step maps to the same internal scalar in one place (the policy
- * reader). */
 option SurvivorAwareness.RoadPressureStep {
     type = enum, numValues = 6, default = 1,
     page = SurvivorAwareness, translation = SurvivorAwareness_RoadPressureStep,
@@ -75,15 +61,6 @@ option SurvivorAwareness.TrustToCompany {
     page = SurvivorAwareness, translation = SurvivorAwareness_TrustToCompany,
 }
 
-/* [C115] The dials the rulings named. The operator ruled 2026-09-13
- * that the numbers ruled over the 09-11/09-13 era belong on this
- * screen. Each default is the ruled figure, not a new choice: what
- * a road meeting is worth ([C111], moved by ruling from 0.005 to
- * 0.02), the months over which a county's need for company opens
- * ([C111], stated then so the operator could move it), and the drive's
- * speed cap ([C114], Week One's own credited 30 km/h town figure -
- * the credit stands in CREDITS and in the code; the dial moves the
- * number, not the credit). */
 option SurvivorAwareness.RoadMeetingWorth {
     type = double, min = 0.0, max = 0.1, default = 0.02,
     page = SurvivorAwareness, translation = SurvivorAwareness_RoadMeetingWorth,
@@ -109,23 +86,17 @@ option SurvivorAwareness.DayZero {
     page = SurvivorAwareness, translation = SurvivorAwareness_DayZero,
 }
 
-/* [C119] The government's answer, ruled optional and default OFF
- * (Speakeasy records 49-50). On, this world's strike is drawn once -
- * the day, the towns, how many, how wide - counted from the fall's
- * own calendar and persisted: the same save carries one fate, a new
- * county is a novel apocalypse. Off, nothing of it runs at all. */
 option SurvivorAwareness.WeekOneNuke {
     type = boolean, default = false,
     page = SurvivorAwareness, translation = SurvivorAwareness_WeekOneNuke,
 }
 
-/* [C121] The casual smoke. A third of the county smoked and the end
- * did not help anyone quit, so default ON a smoker below the craving
- * line still takes smoke breaks at their own cadence. OFF, only the
- * withdrawal line is left - a smoker lights one up when the shakes
- * come and no other time, exactly the county as it was. The dial
- * moves nobody's habit: the draw and the craving are facts about the
- * person either way. */
+option SurvivorAwareness.WeekOneBodyMode {
+    type = enum, numValues = 2, default = 1,
+    page = SAO_WeekOne_People, translation = SurvivorAwareness_WeekOneBodyMode,
+    valueTranslation = SurvivorAwareness_WeekOneBodyMode,
+}
+
 option SurvivorAwareness.RealSmoking {
     type = boolean, default = true,
     page = SurvivorAwareness, translation = SurvivorAwareness_RealSmoking,
@@ -141,36 +112,21 @@ option SurvivorAwareness.DormantRisk {
     page = SurvivorAwareness, translation = SurvivorAwareness_DormantRisk,
 }
 
-/* [C40] DR-035: default OFF. Holding a prompt means replacing two of
- * another mod's functions with wrappers of ours, which is a reach
- * into their code whatever it is for - so a fresh world does not do
- * it. The words on the screen are unchanged and still true: the
- * player can turn it on, and their own options can do the same job. */
 option SurvivorAwareness.HoldNeighbourPrompts {
     type = boolean, default = false,
     page = SurvivorAwareness, translation = SurvivorAwareness_HoldNeighbourPrompts,
 }
 
-/* [C17] DR-021's presence layer, first slice: restitution against the
- * crowd ledger. Off by default until the dead census has measured
- * (stated amendable in DR-021's record). */
 option SurvivorAwareness.RestoreTakenZombies {
     type = boolean, default = false,
     page = SurvivorAwareness, translation = SurvivorAwareness_RestoreTakenZombies,
 }
 
-/* [C40] DR-035: this county stands on its own. Off, nothing of it
- * runs through another survivor mod's code - it is simply never
- * treated as an enemy. On, its people become this county's and its
- * own person menu carries this county's verbs. */
 option SurvivorAwareness.NeighbourBridge {
     type = boolean, default = false,
     page = SurvivorAwareness, translation = SurvivorAwareness_NeighbourBridge,
 }
 
-/* [C36] DR-031: the game's own broadcasts and papers reach the county
- * on the record's own dates rather than on days since the save began.
- * On the shipped July 9 start nothing changes. */
 option SurvivorAwareness.RecordOnCalendar {
     type = boolean, default = true,
     page = SurvivorAwareness, translation = SurvivorAwareness_RecordOnCalendar,
@@ -221,7 +177,6 @@ option SurvivorAwareness.Neuroinflammation {
     page = SurvivorAwareness, translation = SurvivorAwareness_Neuroinflammation,
 }
 
-/* Horse team riding and stamina controls, source-integrated into SAO. */
 option HorseMod.WalkSpeed {
     type        = double,
     min         = 0.1,
@@ -254,4 +209,1360 @@ option HorseMod.RidingPainGrunt {
     default     = true,
     page        = HorseMod,
     translation = HorseMod_RidingPainGrunt,
+}
+
+option Text.DividerMusicNew
+{
+	type = boolean,
+	default = true,
+	page = SAO_LifestyleHobbies_Main,
+	translation = Divider_Music,
+}
+
+option Text.DividerDancingNew
+{
+	type = boolean,
+	default = true,
+	page = SAO_LifestyleHobbies_Main,
+	translation = Divider_Dancing,
+}
+
+option Text.DividerMeditationNew
+{
+	type = boolean,
+	default = true,
+	page = SAO_LifestyleHobbies_Main,
+	translation = Divider_Meditation,
+}
+
+option Text.DividerHygiene
+{
+	type = boolean,
+	default = true,
+	page = SAO_LifestyleHobbies_Main,
+	translation = Divider_Hygiene,
+}
+
+option Text.DividerArt
+{
+	type = boolean,
+	default = true,
+	page = SAO_LifestyleHobbies_Main,
+	translation = Divider_Art,
+}
+
+option LSAmbt.Toggle
+{
+	type = boolean,
+	default = true,
+	page = SAO_LifestyleHobbies_Main,
+	translation = LS_Ambt_Toggle,
+}
+
+option Music.StrengthMultiplier
+{
+	type = enum,
+	numValues = 4,
+	default = 2,
+
+	page = SAO_LifestyleHobbies_MusicDance,
+	translation = Music_StrengthMultiplier,
+}
+
+option Music.ListeningStrengthMultiplier
+{
+	type = enum,
+	numValues = 4,
+	default = 2,
+
+	page = SAO_LifestyleHobbies_MusicDance,
+	translation = Music_ListeningStrengthMultiplier,
+}
+
+option Music.LearningChance
+{
+	type = enum,
+	numValues = 5,
+	default = 3,
+
+	page = SAO_LifestyleHobbies_MusicDance,
+	translation = Music_LearningChance,
+}
+
+option Music.Metabolics
+{
+	type = enum,
+	numValues = 3,
+	default = 1,
+
+	page = SAO_LifestyleHobbies_MusicDance,
+	translation = Music_Metabolics,
+}
+
+option Dancing.StrengthMultiplier
+{
+	type = enum,
+	numValues = 4,
+	default = 2,
+
+	page = SAO_LifestyleHobbies_MusicDance,
+	translation = Dancing_StrengthMultiplier,
+}
+
+option Meditation.StrengthMultiplier
+{
+	type = enum,
+	numValues = 4,
+	default = 2,
+
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = Meditation_StrengthMultiplier,
+}
+
+option Meditation.MindfulnessDuration
+{
+	type = enum,
+	numValues = 3,
+	default = 2,
+
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = Meditation_MindfulnessDuration,
+}
+
+option Meditation.HealFactor
+{
+	type = double,
+	min = 0.0,
+	max = 10.0,
+	default = 2.0,
+
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = Meditation_HealFactor,
+}
+
+option Meditation.EffectMultiplier
+{
+	type = enum,
+	numValues = 3,
+	default = 2,
+
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = Meditation_EffectMultiplier,
+}
+
+option LSMeditation.RemoveLevitation
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = LS_Meditation_RemoveLevitation,
+}
+
+option Meditation.KeepBags
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = Meditation_KeepBags,
+}
+
+option Yoga.StrengthMultiplier
+{
+	type = enum,
+	numValues = 4,
+	default = 2,
+
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = Yoga_StrengthMultiplier,
+}
+
+option Yoga.Exhaustion
+{
+	type = enum,
+	numValues = 4,
+	default = 3,
+
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = Yoga_Exhaustion,
+}
+
+option Yoga.Embarrassment
+{
+	type = enum,
+	numValues = 4,
+	default = 2,
+
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = Yoga_Embarrassment,
+}
+
+option Yoga.AidObjects
+{
+	type = boolean,
+	default = true,
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = Yoga_AidObjects,
+}
+
+option Yoga.RequiresMat
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = Yoga_RequiresMat,
+}
+
+option Yoga.KeepBags
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = Yoga_KeepBags,
+}
+
+option Yoga.FailChance
+{
+	type = enum,
+	numValues = 6,
+	default = 4,
+
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = Yoga_FailChance,
+}
+
+option Yoga.YogaXPMultiplier
+{
+	type = double,
+	min = 0.1,
+	max = 5.0,
+	default = 1.0,
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = LS_Yoga_YogaXPMultiplier,
+}
+
+option Yoga.FitnessXPMultiplier
+{
+	type = double,
+	min = 0.1,
+	max = 5.0,
+	default = 1.0,
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = LS_Yoga_FitnessXPMultiplier,
+}
+
+option Yoga.NimbleXPMultiplier
+{
+	type = double,
+	min = 0.1,
+	max = 5.0,
+	default = 1.0,
+	page = SAO_LifestyleHobbies_MeditationYoga,
+	translation = LS_Yoga_NimbleXPMultiplier,
+}
+
+option LSHygiene.HygieneNeedMultiplier
+{
+	type = double,
+	min = 0.0,
+	max = 3.0,
+	default = 1.0,
+	page = SAO_LifestyleHobbies_Hygiene,
+	translation = LS_Hygiene_HygieneNeedMultiplier,
+}
+
+option LSHygiene.BladderNeedMultiplier
+{
+	type = double,
+	min = 0.0,
+	max = 3.0,
+	default = 1.0,
+	page = SAO_LifestyleHobbies_Hygiene,
+	translation = LS_Hygiene_BladderNeedMultiplier,
+}
+
+option LSHygiene.HygieneNeedExpectationTime
+{
+	type = enum,
+	numValues = 4,
+	default = 2,
+
+	page = SAO_LifestyleHobbies_Hygiene,
+	translation = LS_Hygiene_HygieneNeedExpectationTime,
+}
+
+option LSHygiene.CleansMakeup
+{
+	type = boolean,
+	default = true,
+	page = SAO_LifestyleHobbies_Hygiene,
+	translation = LS_Hygiene_CleansMakeup,
+}
+
+option LSHygiene.NotEmbarrassed
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_Hygiene,
+	translation = LS_Hygiene_NotEmbarrassed,
+}
+
+option LSHygiene.CleanClogged
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_Hygiene,
+	translation = LS_Hygiene_CleanClogged,
+}
+
+option LSHygiene.ColdSeverity
+{
+	type = enum,
+	numValues = 4,
+	default = 2,
+
+	page = SAO_LifestyleHobbies_Hygiene,
+	translation = LS_Hygiene_ColdSeverity,
+}
+
+option LSHygiene.ColdChanceMultiplier
+{
+	type = double,
+	min = 0.0,
+	max = 3.0,
+	default = 0.0,
+	page = SAO_LifestyleHobbies_Hygiene,
+	translation = LS_Hygiene_ColdChanceMultiplier,
+}
+
+option LSHygiene.OuthouseRange
+{
+	type = integer,
+	min = 1,
+	max = 100,
+	default = 10,
+	page = SAO_LifestyleHobbies_Hygiene,
+	translation = LS_Hygiene_OuthouseRange,
+}
+
+option LSHygiene.CleaningExpectationTime
+{
+	type = enum,
+	numValues = 4,
+	default = 2,
+
+	page = SAO_LifestyleHobbies_Hygiene,
+	translation = LS_Hygiene_CleaningExpectationTime,
+}
+
+option LSHygiene.CleaningLitterChance
+{
+	type = enum,
+	numValues = 4,
+	default = 3,
+
+	page = SAO_LifestyleHobbies_Hygiene,
+	translation = LS_Hygiene_CleaningLitterChance,
+}
+
+option LSArt.GeneralBeautyMultiplier
+{
+	type = double,
+	min = 0.1,
+	max = 3.0,
+	default = 1.0,
+	page = SAO_LifestyleHobbies_Art,
+	translation = LS_Art_GeneralBeautyMultiplier,
+}
+
+option LSArt.BeautyOutdoors
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_Art,
+	translation = LS_Art_BeautyOutdoors,
+}
+
+option LSArt.BeautyShowNegative
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_Art,
+	translation = LS_Art_BeautyShowNegative,
+}
+
+option LSArt.BeautyNeedDecayRate
+{
+	type = enum,
+	numValues = 5,
+	default = 3,
+	page = SAO_LifestyleHobbies_Art,
+	translation = LS_Art_BeautyNeedDecayRate,
+}
+
+option LSArt.BeautyNeedStrength
+{
+	type = enum,
+	numValues = 5,
+	default = 3,
+	page = SAO_LifestyleHobbies_Art,
+	translation = LS_Art_BeautyNeedStrength,
+}
+
+option LSArt.ArtworkBeautyMultiplier
+{
+	type = double,
+	min = 0.1,
+	max = 4.0,
+	default = 1.0,
+	page = SAO_LifestyleHobbies_Art,
+	translation = LS_Art_ArtworkBeautyMultiplier,
+}
+
+option LSAmbt.Cooldown
+{
+	type = integer,
+	min = 1,
+	max = 1000,
+	default = 36,
+	page = SAO_LifestyleHobbies_Art,
+	translation = LS_Ambt_Cooldown,
+}
+
+option LSAmbt.MaxInProgress
+{
+	type = integer,
+	min = 1,
+	max = 100,
+	default = 1,
+	page = SAO_LifestyleHobbies_Art,
+	translation = LS_Ambt_MaxInProgress,
+}
+
+option LSAmbt.MaxTotal
+{
+	type = integer,
+	min = 1,
+	max = 100,
+	default = 3,
+	page = SAO_LifestyleHobbies_Art,
+	translation = LS_Ambt_MaxTotal,
+}
+
+option LSAmbt.ResetException
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_Art,
+	translation = LS_Ambt_ResetException,
+}
+
+option LSAmbt.HideTips
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_Art,
+	translation = LS_Ambt_HideTips,
+}
+
+option Text.LSDividerOther
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_Other,
+	translation = LSDivider_Other,
+}
+
+option LS.DynamicTraits
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_Other,
+	translation = LS_DynamicTraits,
+}
+
+option LS.DynamicTraitsReverse
+{
+	type = enum,
+	numValues = 3,
+	default = 1,
+	page = SAO_LifestyleHobbies_Other,
+	translation = LS_DynamicTraitsReverse,
+}
+
+option LSComfort.ComfortNeedMultiplier
+{
+	type = double,
+	min = 0.0,
+	max = 3.0,
+	default = 1.0,
+	page = SAO_LifestyleHobbies_Other,
+	translation = LS_Comfort_ComfortNeedMultiplier,
+}
+
+option LSComfort.ComfortPositive
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_Other,
+	translation = LS_Comfort_ComfortToggle,
+}
+
+option LSComfort.ComfortNoImpact
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_Other,
+	translation = LS_Comfort_ComfortNoImpact,
+}
+
+option LS.DividerServer
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_Server,
+	translation = LS_Divider_Server,
+}
+
+option LS.ModdataUpdate
+{
+	type = enum,
+	numValues = 12,
+	default = 1,
+
+	page = SAO_LifestyleHobbies_Server,
+	translation = LS_Server_ModdataUpdate,
+}
+
+option LS.MoodUpdate
+{
+	type = enum,
+	numValues = 9,
+	default = 1,
+
+	page = SAO_LifestyleHobbies_Server,
+	translation = LS_Server_MoodUpdate,
+}
+
+option Text.DividerDebug
+{
+	type = boolean,
+	default = false,
+	page = SAO_LifestyleHobbies_Other,
+	translation = Divider_Debug,
+}
+
+option Debug.MoodlePriority
+{
+	type = boolean,
+	default = false,
+
+	page = SAO_LifestyleHobbies_Other,
+	translation = Debug_MoodlePriority,
+}
+
+option Debug.Expressions
+{
+	type = boolean,
+	default = false,
+
+	page = SAO_LifestyleHobbies_Other,
+	translation = Debug_Expressions,
+}
+
+option Debug.DanceAnim
+{
+	type = boolean,
+	default = false,
+
+	page = SAO_LifestyleHobbies_Other,
+	translation = Debug_DanceAnim,
+}
+
+option Debug.LSVerbose
+{
+	type = boolean,
+	default = false,
+
+	page = SAO_LifestyleHobbies_Other,
+	translation = Debug_LSVerbose,
+}
+
+option MultiplierConfig.Art
+{
+	type = double,
+	min = 0.00,
+	max = 1000.0,
+	default = 1.0,
+	page = SAO_LifestyleHobbies_Skills,
+	translation = Art,
+}
+
+option MultiplierConfig.Cleaning
+{
+	type = double,
+	min = 0.00,
+	max = 1000.0,
+	default = 1.0,
+	page = SAO_LifestyleHobbies_Skills,
+	translation = Cleaning,
+}
+
+option MultiplierConfig.Dancing
+{
+	type = double,
+	min = 0.00,
+	max = 1000.0,
+	default = 1.0,
+	page = SAO_LifestyleHobbies_Skills,
+	translation = Dancing,
+}
+
+option MultiplierConfig.Meditation
+{
+	type = double,
+	min = 0.00,
+	max = 1000.0,
+	default = 1.0,
+	page = SAO_LifestyleHobbies_Skills,
+	translation = Meditation,
+}
+
+option MultiplierConfig.Music
+{
+	type = double,
+	min = 0.00,
+	max = 1000.0,
+	default = 1.0,
+	page = SAO_LifestyleHobbies_Skills,
+	translation = Music,
+}
+
+option NewMusic.MaxTrackingRange
+{
+    type = integer,
+    min = 0,
+    max = 36000,
+    default = 1500,
+    page = SAO_NewMusic,
+    translation = NewMusic_MaxTrackingRange,
+}
+
+option NewMusic.ActiveDeviceLimit
+{
+    type = integer,
+    min = 4,
+    max = 50,
+    default = 10,
+    page = SAO_NewMusic,
+    translation = NewMusic_ActiveDeviceLimit,
+}
+
+option NewMusic.BatteryDrainRate
+{
+    type = double,
+    min = 0.02,
+    max = 1000.00,
+    default = 24.00,
+    page = SAO_NewMusic,
+    translation = NewMusic_BatteryDrainRate,
+}
+
+option NewMusic.AudioMaxRadius
+{
+    type = integer,
+    min = 9,
+    max = 500,
+    default = 35,
+    page = SAO_NewMusic,
+    translation = NewMusic_AudioMaxRadius,
+}
+
+option NewMusic.ZombieAttractionRadius
+{
+    type = integer,
+    min = 9,
+    max = 200,
+    default = 105,
+    page = SAO_NewMusic,
+    translation = NewMusic_ZombieAttractionRadius,
+}
+
+option NewMusic.Disassembly
+{
+    type = boolean,
+    default = true,
+    page = SAO_NewMusic,
+    translation = NewMusic_Disassembly,
+}
+
+option NewMusic.ZomboidOST
+{
+    type = boolean,
+    default = true,
+    page = SAO_NewMusic,
+    translation = NewMusic_ZomboidOST,
+}
+
+option NewMusic.ConvertVanillaCDsAndCDPlayers
+{
+    type = boolean,
+    default = true,
+    page = SAO_NewMusic,
+    translation = NewMusic_ConvertVanillaCDsAndCDPlayers,
+}
+
+option NewMusic.MediaSpawnsWithCases
+{
+    type = boolean,
+    default = true,
+    page = SAO_NewMusic,
+    translation = NewMusic_MediaSpawnsWithCases,
+}
+
+option NewMusic.CassettesSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.6,
+    page = SAO_NewMusic,
+    title = MediaLootRarity,
+    translation = NewMusic_CassettesSpawnRate,
+}
+
+option NewMusic.VinylRecordsSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.3,
+    page = SAO_NewMusic,
+    translation = NewMusic_VinylRecordsSpawnRate,
+}
+
+option NewMusic.CDsSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.6,
+    page = SAO_NewMusic,
+    translation = NewMusic_CDsSpawnRate,
+}
+
+option NewMusic.WalkmanSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.6,
+    page = SAO_NewMusic,
+    title = DeviceLootRarity,
+    translation = NewMusic_WalkmanSpawnRate,
+}
+
+option NewMusic.BoomboxSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.6,
+    page = SAO_NewMusic,
+    translation = NewMusic_BoomboxSpawnRate,
+}
+
+option NewMusic.CDPlayerSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.6,
+    page = SAO_NewMusic,
+    translation = NewMusic_CDPlayerSpawnRate,
+}
+
+option NewMusic.RecordPlayerSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.6,
+    page = SAO_NewMusic,
+    translation = NewMusic_RecordPlayerSpawnRate,
+}
+
+option NewMusic.MusicalZombiesSpawnRate
+{
+    type = double,
+    min = 0.0,
+    max = 4.0,
+    default = 0.6,
+    page = SAO_NewMusic,
+    translation = NewMusic_MusicalZombiesSpawnRate,
+}
+
+option ComputerMod.DiscSpawnChance
+{
+	type = integer, min = 0, max = 100, default = 14,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_DiscSpawnChance,
+}
+
+option ComputerMod.GameDiscWeightPercent
+{
+	type = integer, min = 0, max = 300, default = 100,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_GameDiscWeightPercent,
+}
+
+option ComputerMod.SystemDiscWeightPercent
+{
+	type = integer, min = 0, max = 300, default = 100,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_SystemDiscWeightPercent,
+}
+
+option ComputerMod.BlankDiscWeightPercent
+{
+	type = integer, min = 0, max = 300, default = 100,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_BlankDiscWeightPercent,
+}
+
+option ComputerMod.HackDiscWeightPercent
+{
+	type = integer, min = 0, max = 300, default = 100,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_HackDiscWeightPercent,
+}
+
+option ComputerMod.PreinstalledGameChance
+{
+	type = integer, min = 0, max = 100, default = 60,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_PreinstalledGameChance,
+}
+
+option ComputerMod.PasswordChance
+{
+	type = integer, min = 0, max = 100, default = 34,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_PasswordChance,
+}
+
+option ComputerMod.FramePasswordNoteChance
+{
+	type = integer, min = 0, max = 100, default = 12,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_FramePasswordNoteChance,
+}
+
+option ComputerMod.NearbyPasswordNoteChance
+{
+	type = integer, min = 0, max = 100, default = 18,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_NearbyPasswordNoteChance,
+}
+
+option ComputerMod.HackRequiredElectricalLevel
+{
+	type = integer, min = 0, max = 10, default = 1,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_HackRequiredElectricalLevel,
+}
+
+option ComputerMod.EmptyFolderChance
+{
+	type = integer, min = 0, max = 100, default = 28,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_EmptyFolderChance,
+}
+
+option ComputerMod.FolderMagazineChance
+{
+	type = integer, min = 0, max = 100, default = 12,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_FolderMagazineChance,
+}
+
+option ComputerMod.FolderNewspaperChance
+{
+	type = integer, min = 0, max = 100, default = 18,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_FolderNewspaperChance,
+}
+
+option ComputerMod.FolderVideoChance
+{
+	type = integer, min = 0, max = 100, default = 9,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_FolderVideoChance,
+}
+
+option ComputerMod.PaintFileChance
+{
+	type = integer, min = 0, max = 100, default = 10,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_PaintFileChance,
+}
+
+option ComputerMod.ComponentSpawnChance
+{
+	type = integer, min = 0, max = 100, default = 6,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_ComponentSpawnChance,
+}
+
+option ComputerMod.FoundComputerBadPartChance
+{
+	type = integer, min = 0, max = 100, default = 18,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_FoundComputerBadPartChance,
+}
+
+option ComputerMod.FoundComputerBrokenPartChance
+{
+	type = integer, min = 0, max = 100, default = 1,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_FoundComputerBrokenPartChance,
+}
+
+option ComputerMod.ComponentWearRate
+{
+	type = integer, min = 0, max = 300, default = 100,
+	page = SAO_ComputerModkum_Hardware, translation = ComputerMod_ComponentWearRate,
+}
+
+option ComputerMod.EnableGameInstallVirus
+{
+	type = boolean, default = true,
+	page = SAO_ComputerModkum_Network, translation = ComputerMod_EnableGameInstallVirus,
+}
+
+option ComputerMod.GameInstallVirusChance
+{
+	type = integer, min = 0, max = 100, default = 8,
+	page = SAO_ComputerModkum_Network, translation = ComputerMod_GameInstallVirusChance,
+}
+
+option ComputerMod.EnableBoardApp
+{
+	type = boolean, default = true,
+	page = SAO_ComputerModkum_Network, translation = ComputerMod_EnableBoardApp,
+}
+
+option ComputerMod.EnableChatApp
+{
+	type = boolean, default = true,
+	page = SAO_ComputerModkum_Network, translation = ComputerMod_EnableChatApp,
+}
+
+option ComputerMod.EnableCommerceApp
+{
+	type = boolean, default = true,
+	page = SAO_ComputerModkum_Network, translation = ComputerMod_EnableCommerceApp,
+}
+
+option ComputerMod.NetworkOutageOnPowerLoss
+{
+	type = boolean, default = true,
+	page = SAO_ComputerModkum_Network, translation = ComputerMod_NetworkOutageOnPowerLoss,
+}
+
+option ComputerMod.NetworkTerminalNeedsPower
+{
+	type = boolean, default = true,
+	page = SAO_ComputerModkum_Network, translation = ComputerMod_NetworkTerminalNeedsPower,
+}
+
+option ComputerMod.MarketShopRefreshHours
+{
+	type = integer, min = 1, max = 168, default = 24,
+	page = SAO_ComputerModkum_Network, translation = ComputerMod_MarketShopRefreshHours,
+}
+
+option ComputerMod.MarketJobRefreshHours
+{
+	type = integer, min = 1, max = 168, default = 24,
+	page = SAO_ComputerModkum_Network, translation = ComputerMod_MarketJobRefreshHours,
+}
+
+option ComputerMod.MailAccountChance
+{
+	type = integer, min = 0, max = 100, default = 42,
+	page = SAO_ComputerModkum_Network, translation = ComputerMod_MailAccountChance,
+}
+
+option ComputerMod.MailLoggedInChance
+{
+	type = integer, min = 0, max = 100, default = 55,
+	page = SAO_ComputerModkum_Network, translation = ComputerMod_MailLoggedInChance,
+}
+
+option ComputerMod.SecretSiteHintChance
+{
+	type = integer, min = 0, max = 100, default = 28,
+	page = SAO_ComputerModkum_Network, translation = ComputerMod_SecretSiteHintChance,
+}
+
+option ProjectArcade.DisableDefaultPrizePool {
+    page = SAO_ProjectArcade,
+    translation = ProjectArcade_DisableDefaultPrizePool,
+    type = boolean,
+    default = false,
+}
+
+option ProjectArcade.ReplaceVanillaArcadesOnLoad {
+    page = SAO_ProjectArcade,
+    translation = ProjectArcade_ReplaceVanillaArcadesOnLoad,
+    type = boolean,
+    default = false,
+}
+
+option ProjectArcade.ReplaceVanillaPinballsOnLoad {
+    page = SAO_ProjectArcade,
+    translation = ProjectArcade_ReplaceVanillaPinballsOnLoad,
+    type = boolean,
+    default = false,
+}
+
+option ProjectArcade.SfxVolumePct {
+    page = SAO_ProjectArcade,
+    translation = ProjectArcade_SfxVolumePct,
+    type = integer,
+    min = 0,
+    max = 100,
+    default = 100,
+}
+
+option ProjectArcade.DisableArcadeAmbientSound {
+    page = SAO_ProjectArcade,
+    translation = ProjectArcade_DisableArcadeAmbientSound,
+    type = boolean,
+    default = false,
+}
+
+option ProjectArcade.AnnouncementLanguage {
+    page = SAO_ProjectArcade,
+    translation = ProjectArcade_AnnouncementLanguage,
+    type = enum,
+	numValues = 3,
+    default = 1,
+    valueTranslation = ProjectArcade_AnnouncementLanguage,
+}
+
+option ProjectArcade.CurrencyFullType {
+    page = SAO_ProjectArcade,
+    translation = ProjectArcade_CurrencyFullType,
+    type = string,
+    default = Base.SilverCoin,
+}
+
+option ProjectArcade.CoinDistContainersPct {
+    page = SAO_ProjectArcade,
+    translation = ProjectArcade_CoinDistContainersPct,
+    type = integer,
+    min = 0,
+    max = 300,
+    default = 100,
+}
+
+option ProjectArcade.CoinDistZombiesPct {
+    page = SAO_ProjectArcade,
+    translation = ProjectArcade_CoinDistZombiesPct,
+    type = integer,
+    min = 0,
+    max = 300,
+    default = 100,
+}
+
+option ProjectArcade.ROMDistPct {
+    page = SAO_ProjectArcade,
+    translation = ProjectArcade_ROMDistPct,
+    type = integer,
+    min = 0,
+    max = 300,
+    default = 100,
+}
+
+option FWOFitness.InitialPerkBonus
+{
+	type = boolean, default = true,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_InitialPerkBonus,
+}
+
+option FWOFitness.currentExerciseRegularityBonus
+{
+	type = boolean, default = true,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_currentExerciseRegularityBonus,
+}
+
+option FWOFitness.currentExerciseOffset
+{
+	type = integer, min = 0, max = 100, default = 25,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_currentExerciseOffset ,
+}
+
+option FWOFitness.currentExerciseRate
+{
+	type = double, min = 0.01, max = 100.0, default = 5.0,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_currentExerciseRate,
+}
+
+option FWOFitness.AverageExerciseRegularityBonus
+{
+	type = double, min = 0.0, max = 100.0, default = 6,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_AverageExerciseRegularityBonus,
+}
+
+option FWOFitness.LevelBonus
+{
+	type = double, min = 0.0, max = 100.0, default = 0.30,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_LevelBonus,
+}
+
+option FWOFitness.SpaceOutExercise
+{
+	type = boolean, default = true,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_SpaceOutExercise ,
+}
+
+option FWOFitness.SpaceOutExerciseNegative
+{
+	type = double, min = 0.0, max = 100.0, default = 0.90,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_SpaceOutExerciseNegative ,
+}
+
+option FWOFitness.RestedBonus
+{
+	type = boolean, default = true,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_RestedBonus,
+}
+
+option FWOFitness.RestedBonusNegative
+{
+	type = double, min = 0.0, max = 10, default = 0.90,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_RestedBonusNegative,
+}
+
+option FWOFitness.XPMultiplier
+{
+	type = double, min = 0.01, max = 10, default = 1.0,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_XPMultiplier,
+}
+
+option FWOFitness.PassiveMultiplier
+{
+	type = double, min = 0, max = 10, default = 1.0,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_PassiveMultiplier,
+}
+
+option FWOFitness.BoredomMultiplier
+{
+	type = double, min = 0, max = 10, default = 1.0,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_BoredomMultiplier,
+}
+
+option FWOFitness.UnhappynessMultiplier
+{
+	type = double, min = 0, max = 10, default = 1.0,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_UnhappynessMultiplier,
+}
+
+option FWOFitness.DropBags
+{
+	type = boolean, default = false,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_DropBags,
+}
+
+option FWOFitness.KeepBagsOn
+{
+	type = boolean, default = false,
+	page = SAO_FWOFitnessWorkoutOverhaul, translation = FWOFitness_KeepBagsOn,
+}
+
+option FWOWorkingTreadmill.FitnessXPMultiply
+{
+	type = double, min = 0, max = 100, default = 1.0,
+	page = SAO_FWOBenchPressTreadmill, translation = FWOWorkingTreadmill_FitnessXPMultiply,
+}
+
+option FWOWorkingTreadmill.StrengthXPMultiply
+{
+	type = double, min = 0, max = 100, default = 1.0,
+	page = SAO_FWOBenchPressTreadmill, translation = FWOWorkingTreadmill_StrengthXPMultiply,
+}
+
+option FWOWorkingTreadmill.SprintingXPMultiply
+{
+	type = double, min = 0, max = 100, default = 1.0,
+	page = SAO_FWOBenchPressTreadmill, translation = FWOWorkingTreadmill_SprintingXPMultiply,
+}
+
+option FWOWorkingTreadmill.HeatMultiplier
+{
+	type = double, min = 0.0, max = 5.0, default = 1.0,
+	page = SAO_FWOBenchPressTreadmill, translation = FWOWorkingTreadmill_HeatMultiplier,
+}
+
+option FWOWorkingTreadmill.ThirstMultiplier
+{
+	type = double, min = 0.0, max = 5.0, default = 1.0,
+	page = SAO_FWOBenchPressTreadmill, translation = FWOWorkingTreadmill_ThirstMultiplier,
+}
+
+option FWOWorkingTreadmill.TreadmillDropBags
+{
+	type = boolean, default = false,
+	page = SAO_FWOBenchPressTreadmill, translation = FWOWorkingTreadmill_TreadmillDropBags,
+}
+
+option FWOWorkingTreadmill.BenchpressDropBags
+{
+	type = boolean, default = false,
+	page = SAO_FWOBenchPressTreadmill, translation = FWOWorkingTreadmill_BenchpressDropBags,
+}
+
+option FWOWorkingTreadmill.BenchTreadKeepBagsOn
+{
+	type = boolean, default = false,
+	page = SAO_FWOBenchPressTreadmill, translation = FWOWorkingTreadmill_BenchTreadKeepBagsOn,
+}
+
+option KnoxAquarium.FreeTanks
+{
+	type = enum, numValues = 3, default = 1,
+	page = SAO_KnoxAquarium, translation = KnoxAquarium_FreeTanks,
+}
+
+option KnoxAquarium.ComfortEnabled
+{
+	type = boolean, default = true,
+	page = SAO_KnoxAquarium, translation = KnoxAquarium_ComfortEnabled,
+}
+
+option KnoxAquarium.ComfortRange
+{
+	type = integer, default = 6, min = 1, max = 20,
+	page = SAO_KnoxAquarium, translation = KnoxAquarium_ComfortRange,
+}
+
+option KnoxAquarium.ComfortMaxTanks
+{
+	type = integer, default = 3, min = 1, max = 10,
+	page = SAO_KnoxAquarium, translation = KnoxAquarium_ComfortMaxTanks,
+}
+
+option KnoxAquarium.FishSurviveMinMinutes
+{
+	type = integer, default = 10, min = 1, max = 120,
+	page = SAO_KnoxAquarium, translation = KnoxAquarium_FishSurviveMinMinutes,
+}
+
+option KnoxAquarium.FishSurviveMaxMinutes
+{
+	type = integer, default = 20, min = 1, max = 240,
+	page = SAO_KnoxAquarium, translation = KnoxAquarium_FishSurviveMaxMinutes,
+}
+
+option BanditsWeekOne.StartTime {
+    type = enum, numValues=6, default = 1,
+    page = SAO_WeekOne_Start, translation = BanditsWeekOne.StartTime, valueTranslation=BanditsWeekOne.StartTime,
+}
+
+option BanditsWeekOne.StartBabe {
+    type = boolean, default = true,
+    page = SAO_WeekOne_Start, translation = BanditsWeekOne.StartBabe,
+}
+
+option BanditsWeekOne.StartRide {
+    type = boolean, default = true,
+    page = SAO_WeekOne_Start, translation = BanditsWeekOne.StartRide,
+}
+
+option BanditsWeekOne.InhabitantsPopMultiplier {
+    type = double, min = 0, max = 4, default = 1,
+    page = SAO_WeekOne_People, translation = BanditsWeekOne.InhabitantsPopMultiplier,
+}
+
+option BanditsWeekOne.StreetsPopMultiplier {
+    type = double, min = 0, max = 4, default = 1,
+    page = SAO_WeekOne_People, translation = BanditsWeekOne.StreetsPopMultiplier,
+}
+
+option BanditsWeekOne.ArmyPopMultiplier {
+    type = double, min = 0, max = 4, default = 1,
+    page = SAO_WeekOne_People, translation = BanditsWeekOne.ArmyPopMultiplier,
+}
+
+option BanditsWeekOne.BanditsPopMultiplier {
+    type = double, min = 0, max = 4, default = 1,
+    page = SAO_WeekOne_People, translation = BanditsWeekOne.BanditsPopMultiplier,
+}
+
+option BanditsWeekOne.InhabitantsPistolChance {
+    type = integer, min = 0, max = 100, default = 7,
+    page = SAO_WeekOne_People, translation = BanditsWeekOne.InhabitantsPistolChance,
+}
+
+option BanditsWeekOne.StreetsPistolChance {
+    type = integer, min = 0, max = 100, default = 3,
+    page = SAO_WeekOne_People, translation = BanditsWeekOne.StreetsPistolChance,
+}
+
+option BanditsWeekOne.VehiclesMax {
+    type = integer, min = 0, max = 10, default = 4,
+    page = SAO_WeekOne_Roads, translation = BanditsWeekOne.VehiclesMax,
+}
+
+option BanditsWeekOne.VehiclesSpeed {
+    type = double, min = 0.1, max = 3, default = 1,
+    page = SAO_WeekOne_Roads, translation = BanditsWeekOne.VehiclesSpeed,
+}
+
+option BanditsWeekOne.PoliceCooldown {
+    type = integer, min = 1, max = 1440, default = 30,
+    page = SAO_WeekOne_Response, translation = BanditsWeekOne.PoliceCooldown,
+}
+
+option BanditsWeekOne.SWATCooldown {
+    type = integer, min = 1, max = 1440, default = 120,
+    page = SAO_WeekOne_Response, translation = BanditsWeekOne.SWATCooldown,
+}
+
+option BanditsWeekOne.MedicsCooldown {
+    type = integer, min = 1, max = 1440, default = 45,
+    page = SAO_WeekOne_Response, translation = BanditsWeekOne.MedicsCooldown,
+}
+
+option BanditsWeekOne.HazmatCooldown {
+    type = integer, min = 1, max = 1440, default = 50,
+    page = SAO_WeekOne_Response, translation = BanditsWeekOne.HazmatCooldown,
+}
+
+option BanditsWeekOne.FiremanCooldown {
+    type = integer, min = 1, max = 1440, default = 25,
+    page = SAO_WeekOne_Response, translation = BanditsWeekOne.FiremanCooldown,
+}
+
+option BanditsWeekOne.PriceMultiplier {
+    type = double, min = 0.1, max = 10, default = 1,
+    page = SAO_WeekOne_Exchange, translation = BanditsWeekOne.PriceMultiplier,
+}
+
+option BanditsWeekOne.PriceInflation {
+    type = double, min = 0.0, max = 1000, default = 26,
+    page = SAO_WeekOne_Exchange, translation = BanditsWeekOne.PriceInflation,
+}
+
+option BanditsWeekOne.EventFinalSolution {
+    type = boolean, default = false,
+    page = SAO_WeekOne_Events, translation = BanditsWeekOne.EventFinalSolution,
+}
+
+option BanditsWeekOne.EventBoeing {
+    type = boolean, default = true,
+    page = SAO_WeekOne_Events, translation = BanditsWeekOne.EventBoeing,
+}
+
+option BanditsWeekOne.EventStrafe {
+    type = boolean, default = true,
+    page = SAO_WeekOne_Events, translation = BanditsWeekOne.EventStrafe,
+}
+
+option BanditsWeekOne.EventBombing {
+    type = boolean, default = true,
+    page = SAO_WeekOne_Events, translation = BanditsWeekOne.EventBombing,
+}
+
+option BanditsWeekOne.EventGas {
+    type = boolean, default = true,
+    page = SAO_WeekOne_Events, translation = BanditsWeekOne.EventGas,
+}
+
+option BanditsWeekOne.EventArson {
+    type = boolean, default = true,
+    page = SAO_WeekOne_Events, translation = BanditsWeekOne.EventArson,
 }

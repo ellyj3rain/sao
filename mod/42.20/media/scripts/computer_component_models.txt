@@ -1,0 +1,37 @@
+module ComputerMod
+{
+    model ComputerModMotherboard486
+    {
+        mesh = WorldItems/ComputerModMotherboard486,
+        texture = WorldItems/ComputerModMotherboard486,
+        scale = 0.01,
+    }
+
+    model ComputerModCPU486DX2
+    {
+        mesh = WorldItems/ComputerModCPU486DX2,
+        texture = WorldItems/ComputerModCPU486DX2,
+        scale = 0.01,
+    }
+
+    model ComputerModRAM72Pin
+    {
+        mesh = WorldItems/ComputerModRAM72Pin,
+        texture = WorldItems/ComputerModRAM72Pin,
+        scale = 0.01,
+    }
+
+    model ComputerModGPUVLBSVGA
+    {
+        mesh = WorldItems/ComputerModGPUVLBSVGA,
+        texture = WorldItems/ComputerModGPUVLBSVGA,
+        scale = 0.01,
+    }
+
+    model ComputerModHDDIDE340MB
+    {
+        mesh = WorldItems/ComputerModHDDIDE340MB,
+        texture = WorldItems/ComputerModHDDIDE340MB,
+        scale = 0.01,
+    }
+}

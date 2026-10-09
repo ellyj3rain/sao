@@ -78,6 +78,14 @@ SUBJECT_FIELDS = {
 
 # Fields nothing in the Lua reads on purpose, with where they go.
 READ_ELSEWHERE = {
+    "beforeXP": "SAO_LeisureSkill retains the measured native XP precondition in its persisted receipt; receipt() and consume() return the whole copied receipt",
+    "afterXP": "SAO_LeisureSkill retains the measured native XP postcondition alongside appliedDelta in that same returned receipt",
+    "providerName": "SAO_LeisureSkill retains the authenticated provider in its persisted and returned receipt",
+    "receiverSourceId": "SAO_LeisureSkill retains the native XP receiver provenance in its persisted and returned receipt",
+    "receiverRevision": "SAO_LeisureSkill retains the native XP receiver revision in its persisted and returned receipt",
+    "danceInvitation": "SAO_Identity persists the accepted invitation audit; StudyWorld copies the private person record",
+    "duetInvitation": "SAO_Identity persists the accepted invitation audit; StudyWorld copies the private person record",
+    "gameInputDecision": "SAO_Identity persists the private minigame decision audit; StudyWorld copies the private person record",
     "personalMemoryAdmission": "SAO_Identity global ModData persists the attachment "
                                "audit; StudyWorld copies it into the private person record",
     "recoveryPoseExit": "SAO_Identity global ModData persists the exact-body exit "
@@ -95,7 +103,7 @@ READ_ELSEWHERE = {
 
 # These two entries are observation/save audit stamps, not decision inputs.
 # Verify the actual owner projection instead of exempting a dead field by name.
-AUDIT_FIELDS = {"personalMemoryAdmission", "recoveryPoseExit"}
+AUDIT_FIELDS = {"personalMemoryAdmission", "recoveryPoseExit", "danceInvitation", "duetInvitation", "gameInputDecision"}
 
 
 def audit_projection_present(observer, identity):

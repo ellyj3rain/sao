@@ -697,7 +697,12 @@ def main():
             full_rest = controller.split("local function decideRestActivity(", 1)[1].split(
                 "local function decideLocalResources(", 1)[0]
             with (work / "rest.lua").open("a", encoding="utf-8") as rest_file:
-                rest_file.write("\nlocal function fixtureRestActivity(" + full_rest + "\nfunction __restActivity(id,agent,body,tick,rec) agent.rec=rec; return fixtureRestActivity(id,agent,body,tick,rec) end\n")
+                participation = "function Ctl.proposeLeisureParticipation(" + controller.split(
+                    "function Ctl.proposeLeisureParticipation(", 1)[1].split(
+                    "local function decideRestActivity(", 1)[0]
+                rest_file.write("\nlocal Ctl=SAO.Controller\n" + participation
+                    + "\nlocal function fixtureRestActivity(" + full_rest
+                    + "\nfunction __restActivity(id,agent,body,tick,rec) agent.rec=rec; return fixtureRestActivity(id,agent,body,tick,rec) end\n")
             done = subprocess.run([str(JDK / "java.exe"), "-cp",
                 str(work) + os.pathsep + str(GAME / "projectzomboid.jar"), "LuaRun",
                 str(work / "prelude.lua"), str(GAME / "media/lua/shared/ISBaseObject.lua"),

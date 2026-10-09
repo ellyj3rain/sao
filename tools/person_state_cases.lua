@@ -56,6 +56,9 @@ local function fresh()
 end
 local function query()return SAO.PersonState.query(rec.id,body,SAO.History.ticks())end
 fresh()
+rec.weekOne={sourceEvent={kind="reinforcement",source="VBandit.schedule/SpawnGroup",
+    cohort="fixture-cohort",age=87,minute=33,variantId=2,count=5,
+    brainId=7,born=12.5}}
 local baseline=copy(rec)
 local value=query()
 verify("actual_export_available",value.schema=="sao-person-state/1" and value.status=="available")
@@ -70,6 +73,11 @@ verify("actual_eight_traits",axisCount==8)
 for _,axis in ipairs(axes)do verify("owned_trait_"..axis,value.modelView.effectiveTraits[axis]==actual[axis])end
 verify("audit_has_health_contributions",value.audit.traitEvidence.initiative.condition==-.15
     and value.audit.traitEvidence.nerve.condition==-.1)
+verify("weekone_source_provenance_export",type(value.audit.weekOneSource)=="table"
+    and value.audit.weekOneSource.cohort=="fixture-cohort"
+    and value.modelView.weekOneSource==nil)
+value.audit.weekOneSource.cohort="tampered"
+verify("weekone_source_provenance_detached",rec.weekOne.sourceEvent.cohort=="fixture-cohort")
 verify("model_view_omits_diagnoses",value.modelView.traitEvidence==nil and value.modelView.conditions==nil
     and value.modelView.situation.psychology==nil and value.audit.rawSituation.psychology~=nil)
 verify("native_temper_kept_without_health_labels",value.modelView.affect.temperStatus=="native"

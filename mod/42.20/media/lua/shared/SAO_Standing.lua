@@ -231,9 +231,47 @@ local function materialEvidenceSuperseded(prior, basis, atHours, order,
     return priorAt == atHours and priorOrder and order and priorOrder > order
 end
 
--- Canonical person keys. Survivors are their RECORD ID; the real player is
--- "player:<username>". Perception speaks usernames; everything stored here
--- speaks these keys; the controller converts at the boundary.
+-- A native player body can be observed by username while its Standing
+-- identity belongs to one saved character. Resolve an active local body at
+-- that boundary; absent bodies retain the prior account-scoped spelling.
+local function activePlayerKey(name)
+    local found, ambiguous = nil, false
+    local function consider(body)
+        if not body then return end
+        local ok, username = pcall(function()
+            return body:getUsername()
+        end)
+        if ok and username == name then
+            if found and found ~= body then ambiguous = true
+            else found = body end
+        end
+    end
+    if type(getSpecificPlayer) == "function" then
+        for slot = 0, 3 do
+            local ok, body = pcall(getSpecificPlayer, slot)
+            if ok then consider(body) end
+        end
+    end
+    if type(getOnlinePlayers) == "function" then
+        local ok, online = pcall(getOnlinePlayers)
+        if ok and online then
+            local countOK, count = pcall(function() return online:size() end)
+            if countOK and type(count) == "number" then
+                for i = 0, count - 1 do
+                    local readOK, body = pcall(function() return online:get(i) end)
+                    if readOK then consider(body) end
+                end
+            end
+        end
+    end
+    if ambiguous then return nil, true end
+    if found then return S.playerKey(found), true end
+    return nil, false
+end
+
+-- Canonical person keys. Survivors are their record ID. New native player
+-- characters carry distinct player: keys while older receipt-less saves keep
+-- the account key already written in their Standing record.
 function S.keyForObserved(name)
     local id = SAO.Identity and SAO.Identity.idByName(name) or nil
     if id then return id end
@@ -243,19 +281,57 @@ function S.keyForObserved(name)
     -- with the player or with one of ours.
     local marked = tostring(name):match("^~(.+)$")
     if marked then return "foreign:" .. marked end
+    local activeKey, matched = activePlayerKey(name)
+    if matched then return activeKey end
     return "player:" .. tostring(name)
 end
 
--- [B27] The player's key, in one place. Three key domains exist -
--- `sao-<n>` for ours, `foreign:<name>` for another mod's people, and
--- `player:<name>` - and the last was being spelled out by hand at
--- fifteen sites across five files. They all agree today; a single
--- constructor is how they go on agreeing.
-function S.playerKey(playerObj)
+-- The account spelling is retained for every save without an SAO creator
+-- receipt. A confirmed new character gets one stable key within that world.
+function S.playerAccountKey(playerObj)
     if not playerObj then return nil end
     local ok, name = pcall(function() return playerObj:getUsername() end)
-    if not ok or not name then return nil end
+    if not ok or type(name) ~= "string" or name == "" then return nil end
     return "player:" .. tostring(name)
+end
+
+function S.characterKey(playerObj, characterId)
+    local account = S.playerAccountKey(playerObj)
+    if not account or type(characterId) ~= "string"
+        or not characterId:match("^sao%-player%-%d+$") then return nil end
+    return account .. "/character/" .. characterId
+end
+
+function S.playerKey(playerObj)
+    local account = S.playerAccountKey(playerObj)
+    if not account then return nil end
+    local ok, receipt = pcall(function()
+        return playerObj:getModData().SAOCreationReceipt
+    end)
+    if not ok then return nil end
+    if receipt == nil then return account end
+    if type(receipt) ~= "table" or receipt.schema ~= "sao-created-player/1"
+        or receipt.accountKey ~= account
+        or receipt.playerKey ~= S.characterKey(playerObj,
+            receipt.characterId) then return nil end
+    local bodyOK, descriptorId, forename, surname = pcall(function()
+        local descriptor = playerObj:getDescriptor()
+        return descriptor:getID(), descriptor:getForename(),
+            descriptor:getSurname()
+    end)
+    if not bodyOK or type(descriptorId) ~= "number"
+        or descriptorId < 0
+        or descriptorId ~= math.floor(descriptorId)
+        or receipt.nativeDescriptorId ~= descriptorId
+        or receipt.forename ~= forename
+        or receipt.surname ~= surname then return nil end
+    local worldOK, world, mode = pcall(function()
+        local selected = getWorld()
+        return selected:getWorld(), selected:getGameMode()
+    end)
+    if not worldOK or receipt.world ~= world
+        or receipt.gameMode ~= mode then return nil end
+    return receipt.playerKey
 end
 
 -- [B35] The other half of [B27]'s "one spelling". That batch put
@@ -272,6 +348,8 @@ function S.keyForAttackerTag(kind, name)
         local id = SAO.Identity and SAO.Identity.idByName(name) or nil
         return id or ("shell:" .. tostring(name))
     end
+    local activeKey, matched = activePlayerKey(name)
+    if matched then return activeKey end
     return "player:" .. tostring(name)
 end
 
@@ -957,6 +1035,33 @@ end
 function S.joinGroup(id, groupName)
     local s = store(); if not s then return false end
     s.groups[id] = tostring(groupName)
+    return true
+end
+
+-- A creator group entry is unpublished until its world-choice owner accepts
+-- the same native body. The token can undo only this new, exact roster row;
+-- ordinary company departure has wider social effects and is not an inverse.
+function S.joinCreatorGroup(id, groupName)
+    local s = store()
+    if not s or type(id) ~= "string" or id == ""
+        or type(groupName) ~= "string" or groupName == ""
+        or s.groups[id] ~= nil then return false end
+    local called, accepted = pcall(S.joinGroup, id, groupName)
+    if not called or accepted ~= true or s.groups[id] ~= groupName then
+        if s.groups[id] == groupName then s.groups[id] = nil end
+        return false
+    end
+    return true, {store = s, id = id, groupName = groupName, active = true}
+end
+
+function S.rollbackCreatorGroup(token)
+    if type(token) ~= "table" or token.active ~= true
+        or store() ~= token.store
+        or token.store.groups[token.id] ~= token.groupName then
+        return false
+    end
+    token.store.groups[token.id] = nil
+    token.active = false
     return true
 end
 

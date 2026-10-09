@@ -4,7 +4,9 @@
 -- Week One's FinalSolution is a SCRIPT: hour 168 of every world, eight
 -- to ten fixed circles, default ON, with a seven-night dream quest, a
 -- siren countdown, and an in-game kill switch at the military base's
--- computer. Nothing of that crosses. What crosses is the EVENT and its
+-- computer. Existing worlds that already chose its script keep that
+-- producer. New SAO-created worlds offer an explicit no-strike or SAO
+-- event choice. SAO's separate world dial uses the EVENT and its
 -- engine idioms, credited (CREDITS.md): the fire (SetOnFire on every
 -- body in the circles), the ground (BurnWalls as squares stream in),
 -- the sound (their two kaboom files, near and distant), and the
@@ -49,10 +51,17 @@ local N = SAO.Nuke
 -- through the shared logger.
 local function log(msg) SAO.Log.line("NUKE", msg) end
 
--- The dial ([C119]): one switch on the county's own page.
-local function armed()
+-- The SAO dial ([C119]) remains off by default. A selected Week One strike
+-- and an already drawn SAO fate each keep one producer for this save.
+local function saoSelected()
     local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
     return sv ~= nil and sv.WeekOneNuke == true
+end
+
+local function weekOneSelected()
+    local sv = SandboxVars and SandboxVars.BanditsWeekOne or nil
+    return type(BWOScheduler) == "table"
+        and sv ~= nil and sv.EventFinalSolution == true
 end
 
 -- The world's own memory of its fate. ModData is the same store the
@@ -63,6 +72,99 @@ local function store()
     end)
     if ok and type(s) == "table" then return s end
     return nil
+end
+
+local function producer(s)
+    if s.producer == "SAO" or s.producer == "BanditsWeekOne"
+        or s.producer == "none" then
+        return s.producer
+    end
+    -- Older saves that already drew or felt the SAO strike retain its owner.
+    if s.drawn or s.struck then
+        s.producer = "SAO"
+    elseif weekOneSelected() then
+        s.producer = "BanditsWeekOne"
+    elseif saoSelected() then
+        s.producer = "SAO"
+    end
+    return s.producer
+end
+
+local function creatorReceiptValid(choice, receipt)
+    if (choice ~= "none" and choice ~= "SAO") or type(receipt) ~= "table"
+        or receipt.schema ~= "sao-created-player/1" or receipt.newWorld ~= true
+        or receipt.nukeChoice ~= choice or type(receipt.world) ~= "string"
+        or receipt.world == "" or type(receipt.gameMode) ~= "string"
+        or receipt.gameMode == "" or type(receipt.decisionId) ~= "string"
+        or type(receipt.characterId) ~= "string"
+        or not receipt.characterId:match("^sao%-player%-%d+$")
+        or type(receipt.playerKey) ~= "string" or receipt.playerKey == ""
+        or type(receipt.appliedAtHours) ~= "number"
+        or receipt.appliedAtHours ~= receipt.appliedAtHours
+        or receipt.appliedAtHours < 0
+        or math.abs(receipt.appliedAtHours) == math.huge
+        or type(receipt.nativeDescriptorId) ~= "number"
+        or receipt.nativeDescriptorId < 0
+        or receipt.nativeDescriptorId % 1 ~= 0 then
+        return false
+    end
+    local ok, world, mode = pcall(function()
+        local current = getWorld()
+        return current:getWorld(), current:getGameMode()
+    end)
+    if not ok or world ~= receipt.world or mode ~= receipt.gameMode then
+        return false
+    end
+    local prefix = receipt.world .. "|" .. receipt.gameMode .. "|"
+    return receipt.decisionId:sub(1, #prefix) == prefix
+        and receipt.decisionId:sub(#prefix + 1):match("^[1-9]%d*$") ~= nil
+end
+
+-- The creator calls this only after its confirmed new-world draft matches a
+-- real native character. Existing saved worlds keep their prior owner/fate.
+function N.applyCreatorChoice(choice, receipt)
+    if not creatorReceiptValid(choice, receipt) then
+        return false, "invalid-creator-receipt"
+    end
+    local s = store()
+    if not s then return false, "world-store-unavailable" end
+    if s.creatorChoice then
+        local prior = s.creatorChoice
+        if prior.decisionId == receipt.decisionId and prior.nukeChoice == choice
+            and prior.world == receipt.world and prior.gameMode == receipt.gameMode
+            and prior.characterId == receipt.characterId
+            and prior.playerKey == receipt.playerKey
+            and prior.nativeDescriptorId == receipt.nativeDescriptorId then
+            return true, "already-applied"
+        end
+        return false, "creator-choice-conflict"
+    end
+    -- World load may read the selected SAO dial before OnCreatePlayer can
+    -- attach the confirmed native body. Complete that same owner's receipt;
+    -- a different producer or an already drawn fate still cannot change.
+    if (s.producer ~= nil and s.producer ~= choice)
+        or s.drawn or s.struck then
+        return false, "world-producer-already-owned"
+    end
+    s.creatorChoice = {
+        schema = receipt.schema, decisionId = receipt.decisionId,
+        world = receipt.world, gameMode = receipt.gameMode,
+        characterId = receipt.characterId,
+        nativeDescriptorId = receipt.nativeDescriptorId,
+        playerKey = receipt.playerKey,
+        appliedAtHours = receipt.appliedAtHours, nukeChoice = choice,
+    }
+    s.producer = choice
+    return true, "applied"
+end
+
+function N.effectiveProducer()
+    local s = store()
+    return s and producer(s) or nil
+end
+
+local function armed(s)
+    return producer(s) == "SAO" and saoSelected()
 end
 
 -- Where a strike can land: the county's own towns, Week One's own
@@ -279,7 +381,7 @@ end
 function N.onDay()
     local s = store()
     if not s then return false end
-    if not armed() then return false end
+    if not armed(s) then return false end
     local hours = nil
     pcall(function() hours = SAO.History.countyHours() end)
     if type(hours) ~= "number" then return false end
@@ -301,7 +403,7 @@ end
 -- theirs behaves too: the fire follows the player's own horizon.
 local function onSquare(square)
     local s = store()
-    if not s or not armed() or not s.struck then return end
+    if not s or not armed(s) or not s.struck then return end
     if not square then return end
     local x, y, z = nil, nil, nil
     pcall(function() x, y, z = square:getX(), square:getY(), square:getZ() end)
@@ -317,6 +419,6 @@ end
 
 Events.LoadGridsquare.Add(onSquare)
 
-log("nuke module loaded (the government's answer, drawn per world, off by default)")
+log("nuke module loaded (SAO dial off by default; world producer selected once)")
 
 return N

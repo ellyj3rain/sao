@@ -29,10 +29,13 @@ public final class ConceptObservationProbe {
         object.getProperties().set("CustomName",name); square.getObjects().add(object); return object;
     }
     private static KahluaTable workbenchRow(SAOIsoPlayerShell body) {
+        return conceptRow(body,"workbench");
+    }
+    private static KahluaTable conceptRow(SAOIsoPlayerShell body,String concept) {
         var rows=(KahluaTable)SAOConceptObservation.observe(body,6).rawget("observations");
         for(int i=1;i<=rows.len();i++) {
             var row=(KahluaTable)rows.rawget((double)i);
-            if("workbench".equals(row.rawget("concept")))return row;
+            if(concept.equals(row.rawget("concept")))return row;
         }
         return null;
     }
@@ -73,7 +76,9 @@ public final class ConceptObservationProbe {
         var regions=zombie.iso.areas.isoregion.IsoRegions.class.getDeclaredField("dataRoot");
         regions.setAccessible(true); regions.set(null,new zombie.iso.areas.isoregion.data.DataRoot());
         var properties=new HashMap<String,ArrayList<String>>();
-        properties.put("CustomName",new ArrayList<>(java.util.List.of("Bed","Chair","Sink","Workbench","Workshop")));
+        properties.put("CustomName",new ArrayList<>(java.util.List.of("Bed","Chair","Sink","Workbench","Workshop","Painting","Sculpting","Microphone","Hamster Wheel","Contraption","Table")));
+        properties.put("GroupName",new ArrayList<>(java.util.List.of("EaselCanvas","EaselCanvasSmall","EaselCanvasLarge","StationWork","Standing","Foreign","Human","Fitness","Ping Pong")));
+        properties.put("Facing",new ArrayList<>(java.util.List.of("N","S","E","W")));
         properties.put("BedType",new ArrayList<>(java.util.List.of("goodBed")));
         zombie.core.TilePropertyAliasMap.instance.Generate(properties);
         var body=(SAOIsoPlayerShell)fixture("person",new Class<?>[]{IsoCell.class},cell);
@@ -100,6 +105,105 @@ public final class ConceptObservationProbe {
         check("ordinary_tokenless_observer_admitted",body.getModData().rawget("SAOExternalToken")==null
             && observed!=null && "observer".equals(observed.rawget("actorId")));
         check("visible_bed_observed",count(observed,"bed")==1);
+        var tank=furniture(cell,11,19,"Workshop");
+        tank.getSprite().setName("controlled_visible_aquarium");
+        var tankData=zombie.Lua.LuaManager.platform.newTable();
+        var fish=zombie.Lua.LuaManager.platform.newTable();
+        var privateFish=zombie.Lua.LuaManager.platform.newTable();
+        privateFish.rawset("privateHealth",0.25);fish.rawset(1.0,privateFish);
+        tankData.rawset("fish",fish);tankData.rawset("water",12.0);
+        tankData.rawset("privateOwner","foreign");tank.getModData().rawset("KnoxAquarium",tankData);
+        var hiddenTank=furniture(cell,13,19,"Workshop");
+        hiddenTank.getModData().rawset("KnoxAquarium",tankData);
+        var tankView=conceptRow(body,"aquarium");
+        check("aquarium_visible_object_acquired",tankView!=null && count(SAOConceptObservation.observe(body,6),"aquarium")==1);
+        check("aquarium_exact_physical_locator",Double.valueOf(tank.getObjectIndex()).equals(tankView.rawget("objectIndex"))
+            && "controlled_visible_aquarium".equals(tankView.rawget("spriteName")));
+        check("aquarium_visible_occupied_water_appearance",Boolean.TRUE.equals(tankView.rawget("aquariumOccupied"))
+            && Boolean.TRUE.equals(tankView.rawget("aquariumWaterPresent")) && "water".equals(tankView.rawget("aquariumMode")));
+        check("aquarium_private_health_and_quantity_withheld",tankView.rawget("fish")==null
+            && tankView.rawget("privateOwner")==null && tankView.rawget("water")==null && tankView.rawget("privateHealth")==null);
+        tankData.rawset("mode","dry");tankData.rawset("water",0.0);fish.wipe();
+        tankView=conceptRow(body,"aquarium");
+        check("aquarium_actual_appearance_change_reacquired","dry".equals(tankView.rawget("aquariumMode"))
+            && Boolean.FALSE.equals(tankView.rawget("aquariumWaterPresent")) && Boolean.FALSE.equals(tankView.rawget("aquariumOccupied")));
+        tank.getSquare().getObjects().remove(tank);hiddenTank.getSquare().getObjects().remove(hiddenTank);
+        var canvas=furniture(cell,11,19,"Painting");
+        canvas.getProperties().set("GroupName","EaselCanvasSmall");
+        canvas.getSprite().setName("LS_Painting_26");
+        var canvasView=conceptRow(body,"art-canvas");
+        check("canvas_exact_source_classifier",canvasView!=null && "EaselCanvasSmall".equals(canvasView.rawget("groupName")));
+        String canvasKey=(String)canvasView.rawget("key"), canvasInstance=(String)canvasView.rawget("runtimeInstance");
+        check("selected_visible_exact_native_object",SAOConceptObservation.resolveVisibleObject(body,canvasKey,canvasInstance)==canvas);
+        check("foreign_native_instance_refused",SAOConceptObservation.resolveVisibleObject(body,canvasKey,"foreign-instance")==null);
+        canvas.getProperties().set("GroupName","Foreign");
+        check("arbitrary_painting_label_not_canvas",conceptRow(body,"art-canvas")==null
+            && SAOConceptObservation.resolveVisibleObject(body,canvasKey,canvasInstance)==null);
+        canvas.getProperties().set("GroupName","EaselCanvasLarge");
+        check("large_canvas_source_classifier",conceptRow(body,"art-canvas")!=null);
+        canvas.getProperties().set("GroupName","EaselCanvas");
+        check("medium_canvas_source_classifier",conceptRow(body,"art-canvas")!=null);
+        var canvasSquare=canvas.getSquare();canvasSquare.getObjects().remove(canvas);
+        var replacement=furniture(cell,11,19,"Painting");replacement.getProperties().set("GroupName","EaselCanvas");
+        replacement.getSprite().setName("LS_Painting_26");
+        check("same_index_replacement_requires_new_acquisition",SAOConceptObservation.resolveVisibleObject(body,canvasKey,canvasInstance)==null);
+        canvasSquare.getObjects().remove(replacement);
+        var sculpture=furniture(cell,11,19,"Sculpting");sculpture.getProperties().set("GroupName","StationWork");
+        check("sculpture_exact_source_classifier",conceptRow(body,"art-sculpture")!=null);
+        sculpture.getSquare().getObjects().remove(sculpture);
+        var microphone=furniture(cell,11,19,"Microphone");microphone.getProperties().set("GroupName","Standing");
+        check("microphone_exact_source_classifier",conceptRow(body,"microphone")!=null);
+        microphone.getSquare().getObjects().remove(microphone);
+        var piano=furniture(cell,11,19,"Workshop");piano.getSprite().setName("recreational_01_108");
+        check("piano_exact_source_sprite",conceptRow(body,"piano")!=null);
+        piano.getSprite().setName("recreational_01_107");
+        check("nearby_sprite_not_invented_piano",conceptRow(body,"piano")==null);
+        piano.getSquare().getObjects().remove(piano);
+        var radio=new zombie.iso.objects.IsoRadio(cell,cell.getGridSquare(11,19,0),new IsoSprite());
+        radio.getSquare().getObjects().add(radio);
+        check("radio_actual_native_class",conceptRow(body,"audio-device")!=null);
+        radio.getSquare().getObjects().remove(radio);
+        var treadmill=furniture(cell,11,19,"Hamster Wheel");
+        treadmill.getProperties().set("GroupName","Human");treadmill.getProperties().set("Facing","E");
+        check("treadmill_source_props_and_facing",conceptRow(body,"fitness-treadmill")!=null
+            && "E".equals(conceptRow(body,"fitness-treadmill").rawget("facing")));
+        treadmill.getProperties().set("GroupName","Foreign");
+        check("foreign_treadmill_group_refused",conceptRow(body,"fitness-treadmill")==null);
+        treadmill.getSquare().getObjects().remove(treadmill);
+        var benchPress=furniture(cell,11,19,"Contraption");benchPress.getProperties().set("GroupName","Fitness");
+        check("bench_exact_source_props",conceptRow(body,"fitness-bench")!=null);
+        benchPress.getSquare().getObjects().remove(benchPress);
+        var mat=furniture(cell,11,19,"Workshop");mat.getSprite().setName("floors_rugs_01_48");
+        check("yoga_source_mat_visible",conceptRow(body,"yoga-mat")!=null);
+        mat.getSprite().setName("floors_rugs_01_60");
+        check("adjacent_rug_not_invented_mat",conceptRow(body,"yoga-mat")==null);
+        mat.getSquare().getObjects().remove(mat);
+        var pingPong=furniture(cell,11,19,"Table");pingPong.getProperties().set("GroupName","Ping Pong");
+        pingPong.getSprite().setName("LS_Recreation_0");
+        check("pingpong_actual_source_table",conceptRow(body,"ping-pong-table")!=null);
+        pingPong.getSprite().setName("LS_Recreation_4");
+        check("adjacent_recreation_sprite_not_pingpong",conceptRow(body,"ping-pong-table")==null);
+        pingPong.getSquare().getObjects().remove(pingPong);
+        var computer=furniture(cell,11,19,"Workshop");computer.getSprite().setName("appliances_com_01_72");
+        check("computer_source_device_visible",conceptRow(body,"computer")!=null);
+        computer.getSprite().setName("appliances_com_01_71");
+        check("adjacent_appliance_not_computer",conceptRow(body,"computer")==null);
+        computer.getSquare().getObjects().remove(computer);
+        var claw=furniture(cell,11,19,"Arcade");
+        claw.getSprite().setName("pa_recreational_2");
+        var clawClassifier=SAOConceptObservation.class.getDeclaredMethod("objectConcept",IsoObject.class);
+        clawClassifier.setAccessible(true);
+        check("claw_exact_source_classifier","claw-machine".equals(clawClassifier.invoke(null,claw)));
+        check("claw_exact_source_sprite_observed",conceptRow(body,"claw-machine")!=null);
+        for (int orientation = 3; orientation <= 5; orientation++) {
+            claw.getSprite().setName("pa_recreational_" + orientation);
+            check("claw_source_orientation_" + orientation,
+                "claw-machine".equals(clawClassifier.invoke(null,claw))
+                    && conceptRow(body,"claw-machine") != null);
+        }
+        claw.getSprite().setName("pa_recreational_6");
+        check("adjacent_claw_sprite_not_invented",conceptRow(body,"claw-machine")==null);
+        claw.getSquare().getObjects().remove(claw);
         var bench=furniture(cell,11,21,"Workbench");
         var benchContainer=new zombie.inventory.ItemContainer("toolcabinet",bench.getSquare(),bench);
         bench.setContainer(benchContainer);
@@ -151,6 +255,7 @@ public final class ConceptObservationProbe {
             && hiddenBench.getModData().rawget("SAOWorldSourceId")==null);
         check("authored_room_labels_not_observed",count(observed,"room")==1
             && count(observed,"authored-bedroom")==0 && count(observed,"secret-bedroom")==0);
+        check("indoor_has_no_outdoor_ground",((KahluaTable)observed.rawget("approaches")).len()==0);
         var frontiers=(KahluaTable)observed.rawget("frontiers");
         check("visible_doorway_frontier",frontiers.len()==1);
         var frontier=(KahluaTable)frontiers.rawget(1.0);
@@ -176,6 +281,25 @@ public final class ConceptObservationProbe {
         body.setForwardDirection(1,0);
         check("radius_limited",count(SAOConceptObservation.observe(body,1),"bed")==1);
         check("invalid_range_refused",SAOConceptObservation.observe(body,0)==null && SAOConceptObservation.observe(body,15)==null);
+        for(int x=16;x<=26;x++) for(int y=16;y<=24;y++) cell.getGridSquare(x,y,0).setSolidFloor(true);
+        body.getCurrentSquare().getMovingObjects().remove(body);
+        body.setX(20.5f); body.setY(20.5f);
+        body.setCurrent(cell.getGridSquare(20,20,0)); body.setSquare(body.getCurrentSquare());
+        body.getCurrentSquare().getMovingObjects().add(body);
+        body.setForwardDirection(1,0);
+        var outside=SAOConceptObservation.observe(body,6);
+        var grounds=(KahluaTable)outside.rawget("approaches");
+        boolean visibleGround=false, behindGround=false, semanticLeak=false;
+        for(int i=1;i<=grounds.len();i++) {
+            var ground=(KahluaTable)grounds.rawget((double)i);
+            visibleGround|="ground:22:20:0".equals(ground.rawget("key"));
+            behindGround|="ground:16:20:0".equals(ground.rawget("key"));
+            semanticLeak|=ground.rawget("concept")!=null || ground.rawget("buildingId")!=null
+                || ground.rawget("actorId")!=null;
+        }
+        check("personally_visible_outdoor_ground",visibleGround && grounds.len()<=16);
+        check("ground_behind_gaze_withheld",!behindGround);
+        check("ground_has_no_imported_meaning",!semanticLeak);
         body.getModData().rawset("SAOExternalOwner","other");
         body.getModData().rawset("SAOExternalToken","external-owner-token");
         check("foreign_owner_refused",SAOConceptObservation.observe(body,6)==null);

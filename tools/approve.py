@@ -1,23 +1,58 @@
 #!/usr/bin/env python3
-"""Upsert a ZombieBuddy approval for the DEPLOYED SAO.jar (F-023): the
-approval store matches by jar hash, so every new build needs its entry or
-ZB blocks the load at boot and the whole mod tree is excluded. Run by
-deploy.sh after every copy; safe to run repeatedly."""
-import json
-import hashlib
-import pathlib
+"""Approve the exact deployed SAO JAR in ZombieBuddy's current store."""
 
-store = pathlib.Path.home() / ".zombie_buddy/mod_approvals.json"
-jar = pathlib.Path.home() / "Zomboid/mods/SurvivorAwareness/42.20/media/java/SAO.jar"
-if not store.exists() or not jar.exists():
-    print("[approve] store or jar missing; nothing done")
-    raise SystemExit(0)
-data = json.loads(store.read_text(encoding="utf-8"))
-h = hashlib.sha256(jar.read_bytes()).hexdigest()
-mods = data.setdefault("mods", [])
-if any(m.get("id") == "SurvivorAwareness" and m.get("jar_hash") == h for m in mods):
-    print("[approve] current hash already approved:", h[:12])
-else:
-    mods.append({"id": "SurvivorAwareness", "jar_hash": h, "decision": True})
-    store.write_text(json.dumps(data, indent=2), encoding="utf-8")
-    print("[approve] approved deployed jar:", h[:12])
+import argparse
+import hashlib
+import json
+import os
+import pathlib
+import sys
+import tempfile
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--store", type=pathlib.Path)
+    parser.add_argument("--jar", type=pathlib.Path)
+    args = parser.parse_args()
+    if (args.store is None) != (args.jar is None):
+        parser.error("--store and --jar must be supplied together")
+
+    store = args.store or pathlib.Path.home() / ".zombie_buddy/mod_approvals.json"
+    jar = args.jar or pathlib.Path.home() / "Zomboid/mods/SurvivorAwareness/42.20/media/java/SAO.jar"
+    if not store.is_file() or not jar.is_file():
+        print("[approve] REFUSED: approval store or deployed JAR is missing", file=sys.stderr)
+        return 1
+
+    data = json.loads(store.read_text(encoding="utf-8"))
+    if not isinstance(data, dict) or not isinstance(data.get("mods"), list):
+        print("[approve] REFUSED: approval store has no mods list", file=sys.stderr)
+        return 1
+    digest = hashlib.sha256(jar.read_bytes()).hexdigest()
+    mods = data["mods"]
+    if any(isinstance(entry, dict) and entry.get("id") == "SurvivorAwareness"
+           and entry.get("jar_hash") == digest and entry.get("decision") is True
+           for entry in mods):
+        print("[approve] current hash already approved:", digest[:12])
+        return 0
+
+    mods.append({"id": "SurvivorAwareness", "jar_hash": digest, "decision": True})
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=store.parent,
+                                         prefix=".mod_approvals.", suffix=".tmp",
+                                         delete=False) as handle:
+            temporary = pathlib.Path(handle.name)
+            json.dump(data, handle, indent=2)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, store)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+    print("[approve] approved deployed jar:", digest[:12])
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

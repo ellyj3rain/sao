@@ -64,15 +64,18 @@ function SAOCountyWindow:new(x, y, w, h)
 end
 
 -- Assemble display rows: { {kind="header"|"row", text=..}, ... }
--- [C38] A day in the county's own words: the calendar date from the
--- bridge (the save's start, [C36]'s arithmetic), or the day count
--- where there is no bridge. The chronicle and the knowledge surface
--- read the same call.
+-- The chronicle reads the same county calendar as Knowledge. A missing
+-- calendar or invalid event stamp is shown explicitly without inventing a
+-- day from an unavailable clock.
 local function dayWord(hours)
+    if type(hours) ~= "number" or hours ~= hours
+        or hours == math.huge or hours == -math.huge then
+        return "date unavailable"
+    end
     local d = nil
-    pcall(function() d = SAOJavaBridge:countyDate(hours or 0) end)
+    pcall(function() d = SAO.History.countyDate(hours) end)
     if type(d) == "string" and d ~= "" then return d end
-    return "day " .. math.max(1, math.floor((hours or 0) / 24))
+    return "date unavailable"
 end
 
 function SAOCountyWindow:build()

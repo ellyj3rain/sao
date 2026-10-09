@@ -1,0 +1,61 @@
+{
+   	"Lifestyle.PasteGrub": "Pâte nutritive",
+	"Lifestyle.PasteBurger": "Pâte de burger",
+	"Lifestyle.UmbrellaHat": "Chapeau parapluie",
+	"Lifestyle.ToothpasteCurio": "Pâtritive-O-Matic",
+	"Lifestyle.ScrapBushSeed": "Graine de buisson ferraille",
+	
+	"Lifestyle.Harvester": "Récolteur",
+    "Lifestyle.PowerAxe": "Hache puissante",
+
+    "Lifestyle.BloodSausage": "Boudin",
+
+    "Lifestyle.oldPaintBrush": "Pinceau de l'artiste",
+    "Lifestyle.paintPaletteEmpty": "Palette (vide)",
+    "Lifestyle.paintPalette": "Palette de peinture",
+    "Lifestyle.paintTubs": "Fournitures artistiques",
+    "Lifestyle.Mov_ArtEasel": "Chevalet",
+    "Lifestyle.Mov_SculptingStation": "Station de sculpture",
+
+    "Lifestyle.LSMagazineEdition1": "Magazine : Édition Spéciale DISCO",
+    "Lifestyle.LSMagazineEdition2": "Magazine - Édition spéciale : Les secrets de l'atelier",
+
+    "Lifestyle.Harmonica": "Harmonica",
+    "Lifestyle.SheetMusicBook": "Carnet de note de musique",
+    "Lifestyle.BucketBleachFull": "Seau d'eau javelisée",
+
+    "Lifestyle.LS_Discoball": "Boule disco",
+    "Lifestyle.LS_DJBooth01": "Table de mixage",
+
+	"Lifestyle.BookCleaning1": "Le nettoyage I: \"Nettoyer sa chambre\"",
+	"Lifestyle.BookCleaning2": "Le nettoyage II: \"La javel ne se boit pas\"",
+	"Lifestyle.BookCleaning3": "Le nettoyage III: \"Techniques avancées de serpillère\"",
+	"Lifestyle.BookCleaning4": "Le nettoyage IV: \"La vie du gardien : un guide\"",
+	"Lifestyle.BookCleaning5": "Le nettoyage V: \"La métaphysique des tâches tenaces\"",
+
+	"Lifestyle.BookMusic1": "La musique I: \"Les notes de bases et les voisins bruyants\"",
+	"Lifestyle.BookMusic2": "La musique II: \"Reproduire les sons à l'oreille\"",
+	"Lifestyle.BookMusic3": "La musique III: \"Théorie pratique musicale\"",
+	"Lifestyle.BookMusic4": "La musique IV: \"Composition, harmonie et impro\"",
+	"Lifestyle.BookMusic5": "La musique V: \"Les fondements acoustiques de l'interprétation musicale\"",
+
+	"Lifestyle.BookDancing1": "La danse I: \"Deux pieds gauches, un bon début\"",
+	"Lifestyle.BookDancing2": "La danse II: \"Rythme, pas et grâce sociale\"",
+	"Lifestyle.BookDancing3": "La danse III: \"Salle de bal et technique de danse moderne\"",
+	"Lifestyle.BookDancing4": "La danse IV: \"Chorégraphie, forme et mouvement de scène\"",
+	"Lifestyle.BookDancing5": "La danse V: \"Kinésiologie et biomécanique du mouvement expressif\"",
+
+    "Lifestyle.ToyChicken": "Poulet en plastique",
+    "Lifestyle.MetalToyRocket": "Roquette (jouet)",
+    "Lifestyle.WoodenToyPlane": "Avion (jouet)",
+    "Lifestyle.WoodToyPlane": "Avion (jouet)",
+    "Lifestyle.WoodToyTrain": "Train (jouet)",
+    "Lifestyle.WoodToyTank": "Tank (jouet)",
+    "Lifestyle.WoodToyHorse": "Cheval (jouet)",
+	"Lifestyle.WoodToyHelicopter": "Hélicoptère (jouet)",
+    "Lifestyle.WoodToyRabbit": "Lapin dans un chapeau",
+    "Lifestyle.ToyNewtonCradle": "Balancier de Newton",
+    "Lifestyle.ClothToyPenguin": "Peluche pingouin",
+    "Lifestyle.MetalToyRobot": "Robot (jouet)",
+	"Lifestyle.MetalToyDog": "Chien en ferraille (jouet)"
+}

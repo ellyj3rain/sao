@@ -1,0 +1,37 @@
+{
+  "Tooltip_ArcadeROM": "Un chip programable ROM de arcade.",
+
+  "Tooltip_ArcadeStreetFighterII": "Máquina recreativa con el ROM de Street Fighter II.",
+  "Tooltip_ArcadePacMan": "Máquina recreativa con el ROM de Pac-Man.",
+  "Tooltip_ArcadeDoubleDragon": "Máquina recreativa con el ROM de Double Dragon.",
+  "Tooltip_ArcadeSpaceInvaders": "Máquina recreativa con el ROM de Space Invaders.",
+  "Tooltip_ArcadeDonkeyKong": "Máquina recreativa con el ROM de Donkey Kong.",
+  "Tooltip_ArcadeCentipede": "Máquina recreativa con el ROM de Centipede.",
+  "Tooltip_ArcadeDigDug": "Máquina recreativa con el ROM de Dig Dug.",
+  "Tooltip_ArcadeNBAJam": "Máquina recreativa con el ROM de NBA Jam.",
+  "Tooltip_ArcadeTMNT": "Máquina recreativa con el ROM de Teenage Mutant Ninja Turtles.",
+  "Tooltip_ArcadeMK": "Máquina recreativa con el ROM de Mortal Kombat.",
+
+  "Tooltip_ComplexTerminator2": "Máquina recreativa con el ROM de Terminator 2 - Judgement Day.",
+  "Tooltip_ComplexStarWars": "Máquina recreativa con el ROM de Star Wars. Se ingresa desde la parte trasera.",
+
+  "Tooltip_PinballAddamsFamily": "Máquina recreativa con la temática de The Addams Family.",
+  "Tooltip_PinballTwilightZone": "Máquina recreativa con la temática de The Twilight Zone.",
+  "Tooltip_PinballIndianaJones": "Máquina recreativa con la temática de Indiana Jones.",
+  "Tooltip_PinballFunHouse": "Máquina recreativa con la temática de FunHouse.",
+  "Tooltip_PinballBlackKnight2000": "Máquina recreativa con la temática de Black Knight 2000.",
+  "Tooltip_PinballElviraPartyMonsters": "Máquina recreativa con la temática de Elvira and the Party Monsters.",
+  "Tooltip_PinballMarioBros": "Máquina recreativa con la temática de Mario Bros.",
+
+  "Tooltip_RecreativePunching": "Máquina recreativa para probar fuerza de golpes de puño.",
+  "Tooltip_RecreativeClaw": "Máquina recreativa que intercambia una moneda por un premio misterioso.",
+  "Tooltip_RecreativeCoinPusher": "Máquina recreativa que deja apostar monedas de plata… para ganar más monedas de plata.",
+
+  "Tooltip_WalletILovePixels": "Una billetera coleccionable con una inscripción serigráfica que dice 'I Love Pixels'",
+  "Tooltip_KeyRing_BlueGhost": "Un llavero coleccionable con un fantasma azul llamado 'Inky' hecho de plástico.",
+  "Tooltip_PenMulticolor_DKong": "Una lapicera multicolor con una cabeza de 'Donkey Kong' hecha de goma suave en el centro.",
+  
+  "Tooltip_ArcadianCarpet": "Una alfombra clásica en salones recreativos con un patrón de manchas de colores.",
+  "Tooltip_WallLight": "Tubo de luz colocable en la pared.",
+  "Tooltip_DecorDecal": "Pintura con motivo de 3 franjas de color.",
+}

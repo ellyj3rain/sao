@@ -1,0 +1,52 @@
+module NewMusic
+{
+    imports
+    {
+        Base
+    }
+    model VinylplayerEbony
+    {
+        mesh = WorldItems/NM_VinylPlayer,
+        texture = WorldItems/Vinyl/World_NM_VinylPlayerEbony,
+        scale = 0.013,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 270.0 0.0,
+        }
+    }
+    model VinylplayerOak
+    {
+        mesh = WorldItems/NM_VinylPlayer,
+        texture = WorldItems/Vinyl/World_NM_VinylPlayerOak,
+        scale = 0.013,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 270.0 0.0,
+        }
+    }
+    model VinylplayerRosewood
+    {
+        mesh = WorldItems/NM_VinylPlayer,
+        texture = WorldItems/Vinyl/World_NM_VinylPlayerRosewood,
+        scale = 0.013,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 270.0 0.0,
+        }
+    }
+    model VinylplayerMetal
+    {
+        mesh = WorldItems/NM_VinylPlayer,
+        texture = WorldItems/Vinyl/World_NM_VinylPlayerMetal,
+        scale = 0.013,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 270.0 0.0,
+        }
+    }
+}
+

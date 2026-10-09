@@ -1,0 +1,335 @@
+module ComputerMod
+{
+    item GameCDPong
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDSnake
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDMinesweeper
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDTetris
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDSpaceInvaders
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDDoom
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDRacer
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDFlappy
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDBreakout
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDAsteroids
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDFrogger
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDMissile
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDLander
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDCircuit
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDMemory
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDStarPilot
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDCaveRunner
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDLightsOut
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDSignalMatch
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDBoxPush
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDTileSlide
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDPipeLink
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDCodeBreaker
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item GameCDOutbreakOps
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item SystemCDPZOS
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item BlankCD
+    {
+        DisplayCategory = Entertainment,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item PasswordHackCD
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.1,
+        Icon = Disc,
+        MediaCategory = CDs,
+        WorldStaticModel = Disk,
+    }
+
+    item PasswordNote
+    {
+        DisplayCategory = Literature,
+        ItemType = base:normal,
+        Weight = 0.01,
+        Icon = sticky_note,
+    }
+
+    item Motherboard486
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.65,
+        Icon = Motherboard486,
+        ConditionMax = 100,
+        WorldStaticModel = ComputerModMotherboard486,
+        Tags = base:showcondition;base:hasmetal;base:miscelectronic,
+    }
+
+    item CPU486DX2
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.05,
+        Icon = CPU486DX2,
+        ConditionMax = 100,
+        WorldStaticModel = ComputerModCPU486DX2,
+        Tags = base:showcondition;base:hasmetal;base:miscelectronic,
+    }
+
+    item RAM72Pin
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.03,
+        Icon = RAM72Pin,
+        ConditionMax = 100,
+        WorldStaticModel = ComputerModRAM72Pin,
+        Tags = base:showcondition;base:hasmetal;base:miscelectronic,
+    }
+
+    item GPUVLBSVGA
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.25,
+        Icon = GPUVLBSVGA,
+        ConditionMax = 100,
+        WorldStaticModel = ComputerModGPUVLBSVGA,
+        Tags = base:showcondition;base:hasmetal;base:miscelectronic,
+    }
+
+    item HDDIDE340MB
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 0.55,
+        Icon = HDDIDE340MB,
+        ConditionMax = 100,
+        WorldStaticModel = ComputerModHDDIDE340MB,
+        Tags = base:showcondition;base:hasmetal;base:miscelectronic,
+    }
+}

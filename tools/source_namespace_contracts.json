@@ -1,0 +1,407 @@
+{
+  "schema": "sao.source-namespace-contracts/1",
+  "qualification": {
+    "mode": "Native Kahlua full-source lifetime/identity controls",
+    "checks": 421,
+    "restoredControls": 37,
+    "inputs": {
+      "tools/d2_source_namespace_lifetimes_test.py": "a0a7dd5c29061cfe09cb7bfe6f4458cacab1fcaff22cb71e61887b1ba92f5ec5",
+      "tools/d2_source_namespace_lifetimes/NamespaceLifetimeProbe.java": "199bb017318ed7260e9f6d13653dd59af72149fa7d3cd16324ee57c524b3c934",
+      "tools/d2_source_namespace_lifetimes/cases.lua": "48766225ba0ec7d2ca95b94cde93030dc7e218ba969d53efc39de72dbb5ae8eb",
+      "tools/d2_source_namespace_lifetimes/setup.lua": "625a802b9f85a5569c77f7cd9f825555b2673fdcfb9dcc72f96106c70899926d",
+      "tools/d2_source_namespace_lifetimes/prelude.lua": "b79ac3589e674627fc1f9211e4531a5217e899a6a2dc137b5e710d761d60e95d"
+    },
+    "receiptSha256": "a30d38f9874e673bce3c8055df647468a097c1c2df1a107ea7a05f0674b59812",
+    "receiptPath": "_scratch/d2-leisure-01/namespace-integration-02-20261006/current-native01/receipt.json",
+    "requiredControls": [
+      "aquarium-placement-guard-restored",
+      "aquarium-overlay-guard-restored",
+      "computer-event-guard-restored",
+      "globalmusic-guard-restored",
+      "recmedia-guard-restored"
+    ],
+    "unrelatedInputs": {
+      "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\mod\\42.20\\media\\lua\\client\\MPSocial\\InteractionManager.lua": "b6a7195b574479ea5baec3ca92a0c45ec179206856182f712d357ba3e591e0f4"
+    },
+    "scope": "Exact five publisher/extension modes. The unrelated InteractionManager source leaf is separately refreshed by current-interaction01 and the namespace generation join; its old byte pin grants no source access.",
+    "scopedGenerationJoin": {
+      "path": "_scratch/d2-leisure-01/residual-integration-20261006/unaffected-reuse.json",
+      "sha256": "3ead5581d46905290d3e04137658c5fca84f26828036361921cad4f31289f05b"
+    }
+  },
+  "contracts": [
+    {
+      "path": "mod/42.20/media/lua/client/KA_Placement.lua",
+      "sourceId": "KnoxAquarium",
+      "sourceSha256": "bbd536952ef966aeefa25d4ad7f218d6be3b01a4daa43df7a4a97b6eeaf22938",
+      "runtimeSha256": "f232db8d934ac9506e925ac1326dc4a09198ffc893d71880fc27798a56df5052",
+      "name": "KAPlacement",
+      "accesses": {
+        "GET": 9,
+        "SET": 1
+      },
+      "classification": "owned-publisher",
+      "routine": "ensurePlacementClass",
+      "lifetime": "Client-environment memoized derived class. Returns nil until ISBuildingObject exists. Published class identity reused across placement calls; actual player/item/tier live on each constructed cursor. Cursor stays in native getCell:setDrag; K.walkThenPlace performs current inventory/placement rechecks. No class or cursor save contract.",
+      "proofMode": "aquarium-placement"
+    },
+    {
+      "path": "mod/42.20/media/lua/client/KA_Radial.lua",
+      "sourceId": "KnoxAquarium",
+      "sourceSha256": "740ed185535b91232156c0a838bb2cd61453b88b2b307d94cc5d36bf0f6de232",
+      "runtimeSha256": "4d1d091f56eff1bd3784250f935ffdfb1dcce562756a175ba79cf6cf0cf83c13",
+      "name": "KAWheelOverlay",
+      "accesses": {
+        "GET": 9,
+        "SET": 1
+      },
+      "classification": "owned-publisher",
+      "routine": "ensureOverlayClass",
+      "lifetime": "Client-environment memoized derived class, absent until ISPanel exists. K.wheelOverlays stores per-player panels; getWheelOverlay rebinds panel.menu and hideWheelOverlay removes that exact panel. No persistent persona/registry save state.",
+      "proofMode": "aquarium-overlay"
+    },
+    {
+      "path": "mod/42.20/media/lua/client/ComputerMod_UI_State.lua",
+      "sourceId": "ComputerModkum",
+      "sourceSha256": "36ed6c32e62250b37351fb5d8758c6823597e75102e8b835f1a149172c81ac06",
+      "runtimeSha256": "8aba75927d88c8dc6c5efd9d80a680894b4596b38f19010548dfdc679073071f",
+      "name": "ComputerModGameMoodEventHandler",
+      "accesses": {
+        "GET": 2,
+        "SET": 1
+      },
+      "classification": "owned-publisher",
+      "routine": "ComputerModInstallUIState / updateComputerGameMoodFromPlayer",
+      "lifetime": "Client process handler publication after UI-state installation. Native OnPlayerUpdate closure reads this current global at each event; reinstall replaces the handler while preserving one subscription. Acting player supplied by native event; active ComputerScreenUI owns mood timestamp fields. No handler save state.",
+      "proofMode": "computer-event"
+    },
+    {
+      "path": "mod/42.20/media/lua/client/ComputerMod_UI_State.lua",
+      "sourceId": "ComputerModkum",
+      "sourceSha256": "36ed6c32e62250b37351fb5d8758c6823597e75102e8b835f1a149172c81ac06",
+      "runtimeSha256": "8aba75927d88c8dc6c5efd9d80a680894b4596b38f19010548dfdc679073071f",
+      "name": "ComputerModGameMoodEventInstalledV2",
+      "accesses": {
+        "GET": 1,
+        "SET": 1
+      },
+      "classification": "owned-publisher",
+      "routine": "ComputerModInstallUIState",
+      "lifetime": "Client event-subscription sentinel across repeated UI-state installation. Set only when Events.OnPlayerUpdate exists; absent event leaves registration pending for later installer invocation. Deliberately process-lived, never actor state or saved data.",
+      "proofMode": "computer-event"
+    },
+    {
+      "path": "mod/42.20/media/lua/TCMusicDefenitions.lua",
+      "sourceId": "NewMusic",
+      "sourceSha256": "671287036a7d0ae56519e3a00b45879f9fa12fbffdf24cd02d429de2f6cd0b46",
+      "runtimeSha256": "a75946b98bcb56852a55e7cba5ed0c2881264dbef8382f9359262d4ea12b2fb8",
+      "name": "GlobalMusic",
+      "accesses": {
+        "GET": 1,
+        "SET": 1
+      },
+      "classification": "owned-publisher",
+      "routine": "Compatibility bootstrap / registerAlias / registerCarrier",
+      "lifetime": "Shared in-memory item-name-to-carrier compatibility registry. Shims/contract create only when not a table; album fallback creates only when nil. Valid existing table identity/foreign rows remain. Exact source aliases normalize legacy tokens; package runtime/bootstrap rebuilds registry. Persistent item full types remain native item state, not a saved registry claim.",
+      "proofMode": "globalmusic"
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/TCMusicDefenitions.lua",
+      "sourceId": "NewMusic",
+      "sourceSha256": "3a6c67230d094139a77272ae247409f1053124ff7ced64014e86b9c6aae87839",
+      "runtimeSha256": "2a662b81bfd62f01b733c10f8409f37916b9feb3fa6c8721dfbc43e06346859d",
+      "name": "GlobalMusic",
+      "accesses": {
+        "GET": 1,
+        "SET": 1
+      },
+      "classification": "owned-publisher",
+      "routine": "Compatibility bootstrap / registerAlias / registerCarrier",
+      "lifetime": "Shared in-memory item-name-to-carrier compatibility registry. Shims/contract create only when not a table; album fallback creates only when nil. Valid existing table identity/foreign rows remain. Exact source aliases normalize legacy tokens; package runtime/bootstrap rebuilds registry. Persistent item full types remain native item state, not a saved registry claim.",
+      "proofMode": "globalmusic"
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/contracts/NMMediaContract.lua",
+      "sourceId": "NewMusic",
+      "sourceSha256": "cf6390cc473dc596d23ee0c46cf94c35cfb20a76a296e9d512af28718cab4778",
+      "runtimeSha256": "78fd0a2728f9abbcd9a3e24031cd29e41c008729febba3d942e05d42f11463af",
+      "name": "GlobalMusic",
+      "accesses": {
+        "GET": 7,
+        "SET": 1
+      },
+      "classification": "owned-publisher",
+      "routine": "Compatibility bootstrap / registerAlias / registerCarrier",
+      "lifetime": "Shared in-memory item-name-to-carrier compatibility registry. Shims/contract create only when not a table; album fallback creates only when nil. Valid existing table identity/foreign rows remain. Exact source aliases normalize legacy tokens; package runtime/bootstrap rebuilds registry. Persistent item full types remain native item state, not a saved registry claim.",
+      "proofMode": "globalmusic"
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/music/NMAlbumPackBuilder.lua",
+      "sourceId": "NewMusic",
+      "sourceSha256": "d7326a9e37f7c797826528505c9133bab11aaab5e66bc1bd0c833b7b138dbc3a",
+      "runtimeSha256": "ed2a0ea759c1dbeeaa3e21df771a44dd4246369c997659f29d3e91f9fc3405f9",
+      "name": "GlobalMusic",
+      "accesses": {
+        "GET": 2,
+        "SET": 1
+      },
+      "classification": "owned-publisher",
+      "routine": "Compatibility bootstrap / registerAlias / registerCarrier",
+      "lifetime": "Shared in-memory item-name-to-carrier compatibility registry. Shims/contract create only when not a table; album fallback creates only when nil. Valid existing table identity/foreign rows remain. Exact source aliases normalize legacy tokens; package runtime/bootstrap rebuilds registry. Persistent item full types remain native item state, not a saved registry claim.",
+      "proofMode": "globalmusic"
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/RecordedMedia/LSVHS.lua",
+      "sourceId": "LifestyleHobbies",
+      "sourceSha256": "9875fda185947ae21c5d0e7cd97bbe21b1236683e12b7ab19e24daf57feb19b3",
+      "runtimeSha256": "df2707efe11950ba12391afdd7d88c4bbb42d9157b43f97dd48aa319c202f0f8",
+      "name": "RecMedia",
+      "accesses": {
+        "GET": 9,
+        "SET": 1
+      },
+      "classification": "engine-extension",
+      "routine": "Module registration",
+      "lifetime": "Installed engine recording-definition registry. Source extends exactly eight named training records after preserving existing table identity/native entries. Original reexecution overwrites those eight source-owned rows while preserving all others. Native recording/media runtime has a separate owning consumer; this native-table proof does not claim playback/learning/save delivery.",
+      "proofMode": "recmedia"
+    },
+    {
+      "path": "mod/42.20/media/lua/client/LSMoodleManager.lua",
+      "sourceId": "LifestyleHobbies",
+      "sourceSha256": "7fd07315ac820143f47db01ac8f3c4fc8f5f7b80241ddb4da47c69a362ac8eee",
+      "runtimeSha256": "dc480301ffa4b22da12d5d58178d3fc0663d36743b6507296e031ad50074a36d",
+      "name": "MF",
+      "accesses": {
+        "GET": 8
+      },
+      "classification": "optional-provider",
+      "routine": "LSMoodleManager priority and receiver lookups",
+      "lifetime": "Actual installed optional MoodleFramework owner. Source reads existing player-specific cached moodle data and returns an empty call-local table when absent; it does not allocate provider data for priority queries. Present and absent branches and wrong-player/original-restored controls are bounded native module proofs.",
+      "proofMode": "mf-present/mf-absent",
+      "qualification": {
+        "receiptPath": "_scratch/d2-leisure-01/namespace-integration-02-20261006/current-mf01/receipt.json",
+        "receiptSha256": "c29cd686961168ce493b2f53ffe07498697ffd1832523692f9b4dfd18b476489",
+        "checks": 13,
+        "restoredControls": 3,
+        "requiredControls": [
+          "original-priority-reader-restored",
+          "active-provider-omitted",
+          "wrong-player-key"
+        ]
+      }
+    },
+    {
+      "path": "mod/42.20/media/lua/server/ProjectArcade_RecipeBridge.lua",
+      "sourceId": "ProjectArcade",
+      "sourceSha256": "465c14a521d61497329406be2a896f10467aa7c9d73b12bdf7c23269d72b7c4e",
+      "runtimeSha256": "f2dceadab55f6247af8273ccbe3ae608d4faa6c33d4495de225c877ec0ffd967",
+      "name": "NB_BuildRecipeCode",
+      "accesses": {
+        "GET": 4
+      },
+      "classification": "optional-provider",
+      "routine": "nb / nb-actual-first / nb-actual-later",
+      "lifetime": "{\"activation\": \"SAO.SourceIntegration.active(ProjectArcade) and getActivatedMods():contains(Neat_Building)\", \"actualProviderId\": \"Neat_Building\", \"actualPublicProvider\": \"NB_BuildRecipeCode.Floors.OnCreate\", \"boundary\": \"Installed provider bytes and metadata tested with controlled activation and nil native square; no building incorporation or rendered construction claim.\", \"fallback\": \"RecipeBridge uses existing native BuildRecipeCode.floor.OnCreate; compatibility leaves admission available while provider absent and retries through OnGameStart.\", \"qualifiedOrdering\": \"Actual installed complete module before compatibility and after an absent first boot attempt; wrapper remains exact once on subsequent Boot/Start events.\", \"shape\": \"Actual complete installed source declares NB_BuildRecipeCode as a table, Floors as a table and OnCreate as a function. Current guards admit that method and reject absent namespace/Floors/method.\"}",
+      "proofMode": [
+        "nb",
+        "nb-actual-first",
+        "nb-actual-later"
+      ],
+      "qualification": {
+        "receiptPath": "_scratch/d2-leisure-01/residual-integration-20261006/music-current-01/proof01/receipt.json",
+        "receiptSha256": "08939f9f0c6537139a07533c05e869db15374f458821f6e5981dfa2eab24d4fe",
+        "checks": 116,
+        "restoredControls": 0
+      },
+      "restoredControl": {
+        "receipt": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d2-leisure-01\\residual-music-arcade-20261006\\proof11\\receipt.json",
+        "receiptSha256": "3ffa96f4e8c903b98f646a3a5abe9a30f9b05780a6fcd9341c321dac1ca6edec",
+        "name": "nb-original-restored",
+        "logSha256": "9e616d99bff1a77f8165e685ef37bc0b961edf3d3a0cfd6a085ff3404175770c",
+        "reusedOnExactInputs": true
+      },
+      "scopedControlJoin": {
+        "path": "_scratch/d2-leisure-01/residual-integration-20261006/music-current-01/evidence-join.json",
+        "sha256": "c89cac2beb4b21d355be87a2f5986b6d60d933d336747a88f652bb562d785641"
+      },
+      "boundary": "Contracts apply only to these exact names/files/bytes/access branches and proven native or optional contexts. No prefix/global namespace waiver."
+    },
+    {
+      "path": "mod/42.20/media/lua/server/ProjectArcade_NB_Compat.lua",
+      "sourceId": "ProjectArcade",
+      "sourceSha256": "50417b63cf0f0e2b801331497480ed289471c0b69ba5a474fee4ef06073fab87",
+      "runtimeSha256": "768c4b2bc22ce89bd597a1ce61ea29066e3109ed6858eae7bb1b481778cd0ac9",
+      "name": "NB_BuildRecipeCode",
+      "accesses": {
+        "GET": 5
+      },
+      "classification": "optional-provider",
+      "routine": "nb / nb-actual-first / nb-actual-later",
+      "lifetime": "{\"activation\": \"SAO.SourceIntegration.active(ProjectArcade) and getActivatedMods():contains(Neat_Building)\", \"actualProviderId\": \"Neat_Building\", \"actualPublicProvider\": \"NB_BuildRecipeCode.Floors.OnCreate\", \"boundary\": \"Installed provider bytes and metadata tested with controlled activation and nil native square; no building incorporation or rendered construction claim.\", \"fallback\": \"RecipeBridge uses existing native BuildRecipeCode.floor.OnCreate; compatibility leaves admission available while provider absent and retries through OnGameStart.\", \"qualifiedOrdering\": \"Actual installed complete module before compatibility and after an absent first boot attempt; wrapper remains exact once on subsequent Boot/Start events.\", \"shape\": \"Actual complete installed source declares NB_BuildRecipeCode as a table, Floors as a table and OnCreate as a function. Current guards admit that method and reject absent namespace/Floors/method.\"}",
+      "proofMode": [
+        "nb",
+        "nb-actual-first",
+        "nb-actual-later"
+      ],
+      "qualification": {
+        "receiptPath": "_scratch/d2-leisure-01/residual-integration-20261006/music-current-01/proof01/receipt.json",
+        "receiptSha256": "08939f9f0c6537139a07533c05e869db15374f458821f6e5981dfa2eab24d4fe",
+        "checks": 116,
+        "restoredControls": 0
+      },
+      "restoredControl": {
+        "receipt": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d2-leisure-01\\residual-music-arcade-20261006\\proof11\\receipt.json",
+        "receiptSha256": "3ffa96f4e8c903b98f646a3a5abe9a30f9b05780a6fcd9341c321dac1ca6edec",
+        "name": "nbcompat-original-restored",
+        "logSha256": "1afab3a052e42477b1fc29d7ded6a58c881cd239e20f70853a5a72dbf2a56ecd",
+        "reusedOnExactInputs": true
+      },
+      "scopedControlJoin": {
+        "path": "_scratch/d2-leisure-01/residual-integration-20261006/music-current-01/evidence-join.json",
+        "sha256": "c89cac2beb4b21d355be87a2f5986b6d60d933d336747a88f652bb562d785641"
+      },
+      "boundary": "Contracts apply only to these exact names/files/bytes/access branches and proven native or optional contexts. No prefix/global namespace waiver."
+    },
+    {
+      "path": "mod/42.20/media/lua/client/InventoryTetris/DataPacks/Mods/TetrisDataPack_ProjectArcade.lua",
+      "sourceId": "ProjectArcade",
+      "sourceSha256": "b73284077adcc13b2fd2278ce92936dfd50779600e9df4eb72200a76864402d5",
+      "runtimeSha256": "7abfd6b1f0259418aea3c1f8ffc022d5f5c18996bff0a693080574aa49753e94",
+      "name": "TetrisItemData",
+      "accesses": {
+        "GET": 3
+      },
+      "classification": "optional-provider",
+      "routine": "tetris",
+      "lifetime": "{\"absentAndPartial\": \"Absent providers and one-/two-provider partial method sets register nothing and return normally.\", \"activation\": \"Exact OnGameBoot callback after ProjectArcade source admission\", \"guard\": \"All three namespaces must be tables and all three exact registration methods functions before any definition registration.\", \"installedAbsenceReceipt\": \"C:\\\\Users\\\\jleyv\\\\Peanut Butter\\\\AI Assisted Software Engineering Mass Repository\\\\Projects\\\\.worktrees\\\\sao-c120-experience\\\\_scratch\\\\d2-leisure-01\\\\residual-integration-20261006\\\\music-current-01\\\\tetris-absence.json\", \"method\": \"registerItemDefinitions\", \"presenceBoundary\": \"Complete three-method provider is a controlled synthetic host; actual installed InventoryTetris presence is not claimed.\"}",
+      "proofMode": [
+        "tetris"
+      ],
+      "qualification": {
+        "receiptPath": "_scratch/d2-leisure-01/residual-integration-20261006/music-current-01/proof01/receipt.json",
+        "receiptSha256": "08939f9f0c6537139a07533c05e869db15374f458821f6e5981dfa2eab24d4fe",
+        "checks": 116,
+        "restoredControls": 0
+      },
+      "restoredControl": {
+        "receipt": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d2-leisure-01\\residual-music-arcade-20261006\\proof11\\receipt.json",
+        "receiptSha256": "3ffa96f4e8c903b98f646a3a5abe9a30f9b05780a6fcd9341c321dac1ca6edec",
+        "name": "tetris-original-restored",
+        "logSha256": "022d47ab24e4e52729c5b597645e49372feabfae9c9bbe11bded6191de677353",
+        "reusedOnExactInputs": true
+      },
+      "scopedControlJoin": {
+        "path": "_scratch/d2-leisure-01/residual-integration-20261006/music-current-01/evidence-join.json",
+        "sha256": "c89cac2beb4b21d355be87a2f5986b6d60d933d336747a88f652bb562d785641"
+      },
+      "boundary": "Contracts apply only to these exact names/files/bytes/access branches and proven native or optional contexts. No prefix/global namespace waiver."
+    },
+    {
+      "path": "mod/42.20/media/lua/client/InventoryTetris/DataPacks/Mods/TetrisDataPack_ProjectArcade.lua",
+      "sourceId": "ProjectArcade",
+      "sourceSha256": "b73284077adcc13b2fd2278ce92936dfd50779600e9df4eb72200a76864402d5",
+      "runtimeSha256": "7abfd6b1f0259418aea3c1f8ffc022d5f5c18996bff0a693080574aa49753e94",
+      "name": "TetrisContainerData",
+      "accesses": {
+        "GET": 3
+      },
+      "classification": "optional-provider",
+      "routine": "tetris",
+      "lifetime": "{\"absentAndPartial\": \"Absent providers and one-/two-provider partial method sets register nothing and return normally.\", \"activation\": \"Exact OnGameBoot callback after ProjectArcade source admission\", \"guard\": \"All three namespaces must be tables and all three exact registration methods functions before any definition registration.\", \"installedAbsenceReceipt\": \"C:\\\\Users\\\\jleyv\\\\Peanut Butter\\\\AI Assisted Software Engineering Mass Repository\\\\Projects\\\\.worktrees\\\\sao-c120-experience\\\\_scratch\\\\d2-leisure-01\\\\residual-integration-20261006\\\\music-current-01\\\\tetris-absence.json\", \"method\": \"registerContainerDefinitions\", \"presenceBoundary\": \"Complete three-method provider is a controlled synthetic host; actual installed InventoryTetris presence is not claimed.\"}",
+      "proofMode": [
+        "tetris"
+      ],
+      "qualification": {
+        "receiptPath": "_scratch/d2-leisure-01/residual-integration-20261006/music-current-01/proof01/receipt.json",
+        "receiptSha256": "08939f9f0c6537139a07533c05e869db15374f458821f6e5981dfa2eab24d4fe",
+        "checks": 116,
+        "restoredControls": 0
+      },
+      "restoredControl": {
+        "receipt": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d2-leisure-01\\residual-music-arcade-20261006\\proof11\\receipt.json",
+        "receiptSha256": "3ffa96f4e8c903b98f646a3a5abe9a30f9b05780a6fcd9341c321dac1ca6edec",
+        "name": "tetris-original-restored",
+        "logSha256": "022d47ab24e4e52729c5b597645e49372feabfae9c9bbe11bded6191de677353",
+        "reusedOnExactInputs": true
+      },
+      "scopedControlJoin": {
+        "path": "_scratch/d2-leisure-01/residual-integration-20261006/music-current-01/evidence-join.json",
+        "sha256": "c89cac2beb4b21d355be87a2f5986b6d60d933d336747a88f652bb562d785641"
+      },
+      "boundary": "Contracts apply only to these exact names/files/bytes/access branches and proven native or optional contexts. No prefix/global namespace waiver."
+    },
+    {
+      "path": "mod/42.20/media/lua/client/InventoryTetris/DataPacks/Mods/TetrisDataPack_ProjectArcade.lua",
+      "sourceId": "ProjectArcade",
+      "sourceSha256": "b73284077adcc13b2fd2278ce92936dfd50779600e9df4eb72200a76864402d5",
+      "runtimeSha256": "7abfd6b1f0259418aea3c1f8ffc022d5f5c18996bff0a693080574aa49753e94",
+      "name": "TetrisPocketData",
+      "accesses": {
+        "GET": 3
+      },
+      "classification": "optional-provider",
+      "routine": "tetris",
+      "lifetime": "{\"absentAndPartial\": \"Absent providers and one-/two-provider partial method sets register nothing and return normally.\", \"activation\": \"Exact OnGameBoot callback after ProjectArcade source admission\", \"guard\": \"All three namespaces must be tables and all three exact registration methods functions before any definition registration.\", \"installedAbsenceReceipt\": \"C:\\\\Users\\\\jleyv\\\\Peanut Butter\\\\AI Assisted Software Engineering Mass Repository\\\\Projects\\\\.worktrees\\\\sao-c120-experience\\\\_scratch\\\\d2-leisure-01\\\\residual-integration-20261006\\\\music-current-01\\\\tetris-absence.json\", \"method\": \"registerPocketDefinitions\", \"presenceBoundary\": \"Complete three-method provider is a controlled synthetic host; actual installed InventoryTetris presence is not claimed.\"}",
+      "proofMode": [
+        "tetris"
+      ],
+      "qualification": {
+        "receiptPath": "_scratch/d2-leisure-01/residual-integration-20261006/music-current-01/proof01/receipt.json",
+        "receiptSha256": "08939f9f0c6537139a07533c05e869db15374f458821f6e5981dfa2eab24d4fe",
+        "checks": 116,
+        "restoredControls": 0
+      },
+      "restoredControl": {
+        "receipt": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d2-leisure-01\\residual-music-arcade-20261006\\proof11\\receipt.json",
+        "receiptSha256": "3ffa96f4e8c903b98f646a3a5abe9a30f9b05780a6fcd9341c321dac1ca6edec",
+        "name": "tetris-original-restored",
+        "logSha256": "022d47ab24e4e52729c5b597645e49372feabfae9c9bbe11bded6191de677353",
+        "reusedOnExactInputs": true
+      },
+      "scopedControlJoin": {
+        "path": "_scratch/d2-leisure-01/residual-integration-20261006/music-current-01/evidence-join.json",
+        "sha256": "c89cac2beb4b21d355be87a2f5986b6d60d933d336747a88f652bb562d785641"
+      },
+      "boundary": "Contracts apply only to these exact names/files/bytes/access branches and proven native or optional contexts. No prefix/global namespace waiver."
+    },
+    {
+      "path": "mod/42.20/media/lua/server/Items/ProjectArcade_WorldFiller.lua",
+      "sourceId": "ProjectArcade",
+      "sourceSha256": "34cada6e17f9daeede1fc75070e0ea6c20abaec277e9eeaa41171bc1e6595021",
+      "runtimeSha256": "8032fff59ada1d7c04483a8b7a5f9b000f808bd8b25c0397ba526143b247a431",
+      "name": "TILEZED",
+      "accesses": {
+        "GET": 1
+      },
+      "classification": "engine-guard",
+      "routine": "tilenil / tilefalse / tiletrue / native-tilenil / native-tilefalse / native-tiletrue",
+      "lifetime": "{\"boundary\": \"Registration target receivers are controlled; no installed native overlay manager or editor/rendered scene is started.\", \"false\": 1, \"guard\": \"Exact if not TILEZED then getTileOverlays():addOverlays(overlayMap) end\", \"nativeIdiom\": \"Complete installed Items/WorldFiller.lua and Items/ApplianceOverlays.lua execute the same nil/false/true guard in native Kahlua.\", \"nil\": 1, \"publisherRequired\": false, \"true\": 0}",
+      "proofMode": [
+        "tilenil",
+        "tilefalse",
+        "tiletrue",
+        "native-tilenil",
+        "native-tilefalse",
+        "native-tiletrue"
+      ],
+      "qualification": {
+        "receiptPath": "_scratch/d2-leisure-01/residual-integration-20261006/music-current-01/proof01/receipt.json",
+        "receiptSha256": "08939f9f0c6537139a07533c05e869db15374f458821f6e5981dfa2eab24d4fe",
+        "checks": 116,
+        "restoredControls": 0
+      },
+      "restoredControl": {
+        "receipt": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\sao-c120-experience\\_scratch\\d2-leisure-01\\residual-music-arcade-20261006\\proof11\\receipt.json",
+        "receiptSha256": "3ffa96f4e8c903b98f646a3a5abe9a30f9b05780a6fcd9341c321dac1ca6edec",
+        "name": "tile-unguarded-restored",
+        "logSha256": "8baaab8a93cf9e6682698ef677d35d523c4f35d695967c2b72a85ee5e7ead8ed",
+        "reusedOnExactInputs": true
+      },
+      "scopedControlJoin": {
+        "path": "_scratch/d2-leisure-01/residual-integration-20261006/music-current-01/evidence-join.json",
+        "sha256": "c89cac2beb4b21d355be87a2f5986b6d60d933d336747a88f652bb562d785641"
+      },
+      "boundary": "Contracts apply only to these exact names/files/bytes/access branches and proven native or optional contexts. No prefix/global namespace waiver."
+    }
+  ]
+}

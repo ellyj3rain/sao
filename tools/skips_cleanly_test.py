@@ -14,13 +14,13 @@ at the comment could see it had stopped being true.
 Nothing had checked the property, so it drifted silently for eleven
 borders. This checks it.
 
-Every tool under `tools/` that names the installed game is imported
-with its game-install paths redirected to somewhere that does not
-exist - the jar, the JDK, the stdlib, vanilla's own script directory -
-and then run. Each must:
+Standing checks that execute against the installed game run with their
+game-install paths redirected to somewhere that does not exist. Their
+actual registered CLI arguments are retained and installed path bindings
+are redirected before executing each tool's guarded entry block. Each must:
 
   * return 0, because a missing game is not a defect in this tree; and
-  * print SKIPPED, because silence would be indistinguishable from
+  * report SKIP or SKIPPED, because silence would be indistinguishable from
     having run.
 
 Paths INSIDE the repository are left alone: a tool whose own Java
@@ -28,20 +28,20 @@ source or prelude is missing is a real fault and must stay one. The
 distinction is the whole point - the game is absent on CI, the
 repository is not.
 
-A tool with no `main()` is not a border and is passed over; the census
-prints what it covered so a tool that stops being seen is visible.
+Named qualification tools retain their scoped inputs and receipts.
+Optional engine helpers do not turn a source inventory command into a
+native check. The census prints the standing checks it exercised.
 """
+import ast
 import contextlib
 import importlib.util
 import io
-import itertools
 import os
 import pathlib
 import re
-import shlex
-import subprocess
 import sys
 import tempfile
+import gate_reach_test as gate
 
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
@@ -60,95 +60,209 @@ TOOLS = ROOT / "tools"
 # tool missing its OWN Java source is a real fault and must stay one.
 INSIDE_THE_INSTALL = "ProjectZomboid"
 
-# A tool reads the installed game when it BINDS a path into it, not
-# when it mentions it. `modinfo_check` names the jar in its docstring
-# to say which engine class it mirrors and never opens it; matching on
-# the mention called that a border that skips wrongly.
-MARKER = re.compile(
-    r"^\s*[A-Z_]+\s*=\s*pathlib\.Path\(\s*r?[\"']"
-    r"[^\"']*ProjectZomboid", re.M)
-
 ABSENT = pathlib.Path("/nonexistent/no-game-installed-here")
 
 
+def game_path_bindings(path, seen=(), cache=None):
+    """Trace installed path constants, including owned imported bindings."""
+    path = path.resolve()
+    cache = {} if cache is None else cache
+    if path in cache:
+        return cache[path]
+    if path in seen:
+        return set()
+    tree = ast.parse(path.read_text(encoding="utf-8-sig", errors="ignore"))
+    assignments = [node for node in tree.body if isinstance(node, ast.Assign)]
+    game_names = set()
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom) and node.module:
+            imported = path.parent.joinpath(*node.module.split('.')).with_suffix('.py')
+            if imported.is_file():
+                names = game_path_bindings(imported, (*seen, path), cache)
+                game_names.update(alias.asname or alias.name for alias in node.names
+                                  if alias.name in names)
+    for node in assignments:
+        constructor = node.value
+        is_path = isinstance(constructor, ast.Call) and (
+            isinstance(constructor.func, ast.Name) and constructor.func.id in ("Path", "installed_path")
+            or isinstance(constructor.func, ast.Attribute) and constructor.func.attr == "Path")
+        if is_path and any(isinstance(value, ast.Constant) and isinstance(value.value, str)
+                           and "ProjectZomboid" in value.value for value in ast.walk(constructor)):
+            game_names.update(target.id for target in node.targets if isinstance(target, ast.Name))
+    for _ in assignments:
+        for node in assignments:
+            if any(isinstance(value, ast.Name) and value.id in game_names for value in ast.walk(node.value)):
+                game_names.update(target.id for target in node.targets if isinstance(target, ast.Name))
+    cache[path] = game_names
+    return game_names
+
+
 def reads_the_game(path):
-    source = path.read_text(encoding="utf-8", errors="ignore")
-    return bool(MARKER.search(source) or
-                re.search(r'^from native_proof_preflight import .*installed_presence', source, re.M))
+    source = path.read_text(encoding="utf-8-sig", errors="ignore")
+    tree = ast.parse(source)
+    functions = {node.name: node for node in tree.body if isinstance(node, ast.FunctionDef)}
+    imports = {alias.asname or alias.name for node in tree.body
+               if isinstance(node, ast.ImportFrom) and node.module == "native_proof_preflight"
+               for alias in node.names if alias.name == "installed_presence"}
+    game_names = game_path_bindings(path)
+    visited = set()
+
+    def walk(node):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
+            return False
+        if isinstance(node, ast.Name) and node.id in game_names:
+            return True
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+            if node.func.id in imports:
+                return True
+            if node.func.id in functions and node.func.id not in visited:
+                visited.add(node.func.id)
+                if any(walk(child) for child in functions[node.func.id].body):
+                    return True
+        return any(walk(child) for child in ast.iter_child_nodes(node))
+
+    # Binding a path is metadata. Its use from an executable entry point
+    # establishes a native border; optional inventory helpers stay helpers.
+    return any(walk(node) for node in tree.body
+               if not isinstance(node, (ast.Assign, ast.Import, ast.ImportFrom)))
+
+
+def declared_commands(path):
+    """Retain standing arguments; failed-check diagnostic retries do not run."""
+    source = (ROOT / 'tools/check.sh').read_text(encoding='utf-8')
+    commands = [row for row in gate.shell_invocations(source)
+                if (ROOT / row['path']).resolve() == path.resolve()]
+    lines = source.replace('\\\n', ' ').splitlines()
+    standing = [row for row in commands
+                if re.match(r'^\s*if\b', lines[row['line'] - 1])]
+    return standing or commands
+
+
+def said_skipped(output):
+    """SKIP and SKIPPED both explicitly report an unavailable native proof."""
+    return 'SKIPPED' in output or bool(re.search(r'^\s*SKIP\b', output, re.M))
+
+
+@contextlib.contextmanager
+def cli_context(path, args, engine, jdk):
+    previous_argv = sys.argv
+    previous_path = sys.path[:]
+    previous_modules = sys.modules.copy()
+    changes = {'PZ_DIR': str(engine), 'PZ_GAME_DIR': str(engine), 'JDK_BIN': str(jdk)}
+    previous_env = {key: os.environ.get(key) for key in changes}
+    sys.argv = [str(path), *args]
+    os.environ.update(changes)
+    try:
+        yield
+    finally:
+        sys.argv = previous_argv
+        sys.path[:] = previous_path
+        for name in list(sys.modules):
+            if name not in previous_modules:
+                del sys.modules[name]
+        sys.modules.update(previous_modules)
+        for key, value in previous_env.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+
+def absent_paths(value):
+    """Keep related installed paths related, including stored input lists."""
+    if isinstance(value, pathlib.Path) and INSIDE_THE_INSTALL in str(value):
+        if value.is_absolute() and value.is_relative_to(ROOT):
+            return value
+        for index, part in enumerate(value.parts):
+            if part == INSIDE_THE_INSTALL:
+                return ABSENT.joinpath(*value.parts[index + 1:])
+        return ABSENT
+    if isinstance(value, list):
+        return [absent_paths(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(absent_paths(item) for item in value)
+    if isinstance(value, dict):
+        return {absent_paths(key): absent_paths(item) for key, item in value.items()}
+    return value
+
+
+def probe_absent(path, args, engine, jdk):
+    """Execute the actual CLI entry with owned inputs and unavailable install."""
+    name = 'skipprobe_' + path.stem
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    output = io.StringIO()
+    with cli_context(path, args, engine, jdk), contextlib.redirect_stdout(output), \
+            contextlib.redirect_stderr(output):
+        sys.modules[name] = module
+        try:
+            spec.loader.exec_module(module)
+        except SystemExit as exc:
+            return 0 if exc.code is None else exc.code, said_skipped(output.getvalue())
+        except Exception as exc:
+            return 'LOAD:%s' % type(exc).__name__, False
+
+        for attr, held in list(vars(module).items()):
+            if not attr.startswith('__'):
+                setattr(module, attr, absent_paths(held))
+
+        tree = ast.parse(path.read_text(encoding='utf-8-sig'))
+        blocks = [node for node in tree.body
+                  if isinstance(node, ast.If) and isinstance(node.test, ast.Compare)
+                  and isinstance(node.test.left, ast.Name) and node.test.left.id == '__name__'
+                  and len(node.test.ops) == 1 and isinstance(node.test.ops[0], ast.Eq)
+                  and len(node.test.comparators) == 1
+                  and isinstance(node.test.comparators[0], ast.Constant)
+                  and node.test.comparators[0].value == '__main__']
+        try:
+            if blocks:
+                module.__dict__['__name__'] = '__main__'
+                exec(compile(ast.Module(body=blocks, type_ignores=[]), str(path), 'exec'), module.__dict__)
+                code = 0
+            elif callable(getattr(module, 'main', None)):
+                code = module.main()
+            else:
+                return None, False
+        except SystemExit as exc:
+            code = exc.code
+        except Exception as exc:
+            code = 'EXC:%s' % type(exc).__name__
+    return 0 if code is None else code, said_skipped(output.getvalue())
 
 
 def run_declared_absent(path):
-    """Exercise the actual registered CLI; shared native fixtures remain imports."""
-    source = (ROOT / 'tools/check.sh').read_text(encoding='utf-8')
-    matches = list(re.finditer(r'if ! "\$PY"\s+tools/' + re.escape(path.name) + r'([^\n]*?);\s*then', source))
-    if not matches:
+    """Exercise actual registered arguments and compound CLI entry blocks."""
+    commands = declared_commands(path)
+    if not commands:
+        if path.name in gate.ONE_OFF or path.name in gate.SCOPED:
+            return None, False
         return 'UNREGISTERED', False
     with tempfile.TemporaryDirectory(prefix='sao-absence-audit-') as directory:
         root = pathlib.Path(directory)
-        env = os.environ.copy()
-        env.update(PZ_DIR=str(root/'absent-engine'), JDK_BIN=str(root/'absent-jdk'),
-                   PYTHONDONTWRITEBYTECODE='1')
         serial = 0
-        for match in matches:
-            # Redirection belongs to the shell, not argparse. Expand actual
-            # declared loop choices rather than selecting a guessed part.
-            line = re.split(r'\s+(?:[12]?>|[12]>&)', match.group(1))[0]
-            original = shlex.split(line)
-            loops = {m.group(1): shlex.split(m.group(2)) for m in
-                     re.finditer(r'for\s+(\w+)\s+in\s+([^;\n]+);\s*do', source[:match.start()])}
-            variables = sorted({name for value in original for name in re.findall(r'\$(\w+)', value)
-                                if name in loops})
-            for choices in itertools.product(*(loops[name] for name in variables)):
-                serial += 1
-                selected = dict(zip(variables, choices));args = []
-                for slot, value in enumerate(original):
-                    for name, choice in selected.items():
-                        value = value.replace('$'+name, choice)
-                    if '$' in value or (slot and original[slot-1] in ('--output', '--output-dir', '--out')):
-                        value = str(root/f'output-{serial}-{slot}')
-                    args.append(value)
-                result = subprocess.run([sys.executable, '-B', str(path), *args], cwd=ROOT, env=env,
-                                        capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=30)
-                if result.returncode != 0 or 'SKIPPED' not in result.stdout:
-                    return result.returncode, 'SKIPPED' in result.stdout
+        for command in commands:
+            serial += 1
+            original = command['args'];args = []
+            for slot, value in enumerate(original):
+                if '$' in value or (slot and original[slot-1] in ('--output', '--output-dir', '--out')):
+                    value = str(root/f'output-{serial}-{slot}')
+                args.append(value)
+            code, said = probe_absent(path, args, root/'ProjectZomboid', root/'absent-jdk')
+            if code != 0 or not said:
+                return code, said
     return 0, True
 
 
 def run_absent(path):
     """(exit code, said SKIPPED) with the game made absent."""
-    if re.search(r'^from native_proof_preflight import .*installed_presence',
-                 path.read_text(encoding='utf-8'), re.M):
+    standing = bool(declared_commands(path))
+    if not standing and (path.name in gate.ONE_OFF or path.name in gate.SCOPED):
+        return None, False
+    if standing:
         return run_declared_absent(path)
-    name = "skipprobe_" + path.stem
-    spec = importlib.util.spec_from_file_location(name, path)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[name] = module
-    quiet = io.StringIO()
-    try:
-        with contextlib.redirect_stdout(quiet):
-            spec.loader.exec_module(module)
-    except SystemExit:
-        pass
-    except Exception as exc:
-        return "LOAD:%s" % type(exc).__name__, False
-    if not hasattr(module, "main"):
-        return None, False
-    redirected = 0
-    for attr, held in list(vars(module).items()):
-        if isinstance(held, pathlib.Path) and INSIDE_THE_INSTALL in str(held):
-            setattr(module, attr, ABSENT)
-            redirected += 1
-    if not redirected:
-        return None, False
-    out = io.StringIO()
-    with contextlib.redirect_stdout(out):
-        try:
-            code = module.main()
-        except SystemExit as exc:
-            code = exc.code
-        except Exception as exc:
-            code = "EXC:%s" % type(exc).__name__
-    return code, "SKIPPED" in out.getvalue()
+    with tempfile.TemporaryDirectory(prefix='sao-absence-audit-') as directory:
+        root = pathlib.Path(directory)
+        return probe_absent(path, [], root/'ProjectZomboid', root/'absent-jdk')
 
 
 def main():
@@ -185,7 +299,7 @@ def main():
 
     print("     %d tools name the installed game, %d of them are borders"
           % (looked, checked))
-    print("     %d said SKIPPED with it absent" % skipping)
+    print("     %d explicitly reported SKIP or SKIPPED with it absent" % skipping)
     if checked == 0:
         faults.append("no border was actually exercised; the census is not "
                       "finding them and this border proves nothing")
@@ -217,7 +331,7 @@ def main():
             print("  FAULT: " + fault)
         return 1
     print("  128) skips cleanly: all %d borders that read the installed game "
-          "return 0 and say SKIPPED without it, so CI reports what ran rather "
+          "return 0 and report SKIP or SKIPPED without it, so CI reports what ran rather "
           "than refusing" % checked)
     return 0
 

@@ -1,0 +1,525 @@
+module NewMusic
+{
+    imports
+    {
+        Base
+    }
+    model CDPlayerBlue
+    {
+        mesh = WorldItems/NM_CDPlayer,
+        texture = WorldItems/CD/World_NM_CDPlayerBlue,
+        scale = 0.625,
+        
+        attachment Bip01_Prop1
+        {
+            offset = 0.02 0.06 -0.02,
+            rotate = 110.0 200.0 20.0,
+            scale = 0.75,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.02 0.06 -0.02,
+            rotate = 110.0 160.0 -20.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_left
+        {
+            offset = -0.005 0.04 0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_right
+        {
+            offset = -0.005 0.04 -0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 105.0,
+            scale = 0.75,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 75.0,
+            scale = 0.75,
+        }
+    }
+    model CDPlayerBlack
+    {
+        mesh = WorldItems/NM_CDPlayer,
+        texture = WorldItems/CD/World_NM_CDPlayerBlack,
+        scale = 0.625,
+        
+        attachment Bip01_Prop1
+        {
+            offset = 0.02 0.06 -0.02,
+            rotate = 110.0 200.0 20.0,
+            scale = 0.75,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.02 0.06 -0.02,
+            rotate = 110.0 160.0 -20.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_left
+        {
+            offset = -0.005 0.04 0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_right
+        {
+            offset = -0.005 0.04 -0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 105.0,
+            scale = 0.75,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 75.0,
+            scale = 0.75,
+        }
+    }
+    model CDPlayerCow
+    {
+        mesh = WorldItems/NM_CDPlayer,
+        texture = WorldItems/CD/World_NM_CDPlayerCow,
+        scale = 0.625,
+        
+        attachment Bip01_Prop1
+        {
+            offset = 0.02 0.06 -0.02,
+            rotate = 110.0 200.0 20.0,
+            scale = 0.75,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.02 0.06 -0.02,
+            rotate = 110.0 160.0 -20.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_left
+        {
+            offset = -0.005 0.04 0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_right
+        {
+            offset = -0.005 0.04 -0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 105.0,
+            scale = 0.75,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 75.0,
+            scale = 0.75,
+        }
+    }
+    model CDPlayerGreen
+    {
+        mesh = WorldItems/NM_CDPlayer,
+        texture = WorldItems/CD/World_NM_CDPlayerGreen,
+        scale = 0.625,
+        
+        attachment Bip01_Prop1
+        {
+            offset = 0.02 0.06 -0.02,
+            rotate = 110.0 200.0 20.0,
+            scale = 0.75,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.02 0.06 -0.02,
+            rotate = 110.0 160.0 -20.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_left
+        {
+            offset = -0.005 0.04 0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_right
+        {
+            offset = -0.005 0.04 -0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 105.0,
+            scale = 0.75,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 75.0,
+            scale = 0.75,
+        }
+    }
+    model CDPlayerOrange
+    {
+        mesh = WorldItems/NM_CDPlayer,
+        texture = WorldItems/CD/World_NM_CDPlayerOrange,
+        scale = 0.625,
+        
+        attachment Bip01_Prop1
+        {
+            offset = 0.02 0.06 -0.02,
+            rotate = 110.0 200.0 20.0,
+            scale = 0.75,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.02 0.06 -0.02,
+            rotate = 110.0 160.0 -20.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_left
+        {
+            offset = -0.005 0.04 0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_right
+        {
+            offset = -0.005 0.04 -0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 105.0,
+            scale = 0.75,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 75.0,
+            scale = 0.75,
+        }
+    }
+    model CDPlayerPurple
+    {
+        mesh = WorldItems/NM_CDPlayer,
+        texture = WorldItems/CD/World_NM_CDPlayerPurple,
+        scale = 0.625,
+        
+        attachment Bip01_Prop1
+        {
+            offset = 0.02 0.06 -0.02,
+            rotate = 110.0 200.0 20.0,
+            scale = 0.75,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.02 0.06 -0.02,
+            rotate = 110.0 160.0 -20.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_left
+        {
+            offset = -0.005 0.04 0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_right
+        {
+            offset = -0.005 0.04 -0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 105.0,
+            scale = 0.75,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 75.0,
+            scale = 0.75,
+        }
+    }
+    model CDPlayerRed
+    {
+        mesh = WorldItems/NM_CDPlayer,
+        texture = WorldItems/CD/World_NM_CDPlayerRed,
+        scale = 0.625,
+        
+        attachment Bip01_Prop1
+        {
+            offset = 0.02 0.06 -0.02,
+            rotate = 110.0 200.0 20.0,
+            scale = 0.75,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.02 0.06 -0.02,
+            rotate = 110.0 160.0 -20.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_left
+        {
+            offset = -0.005 0.04 0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_right
+        {
+            offset = -0.005 0.04 -0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 105.0,
+            scale = 0.75,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 75.0,
+            scale = 0.75,
+        }
+    }
+    model CDPlayerWhite
+    {
+        mesh = WorldItems/NM_CDPlayer,
+        texture = WorldItems/CD/World_NM_CDPlayerWhite,
+        scale = 0.625,
+        
+        attachment Bip01_Prop1
+        {
+            offset = 0.02 0.06 -0.02,
+            rotate = 110.0 200.0 20.0,
+            scale = 0.75,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.02 0.06 -0.02,
+            rotate = 110.0 160.0 -20.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_left
+        {
+            offset = -0.005 0.04 0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_right
+        {
+            offset = -0.005 0.04 -0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 105.0,
+            scale = 0.75,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 75.0,
+            scale = 0.75,
+        }
+    }
+    model CDPlayerYellow
+    {
+        mesh = WorldItems/NM_CDPlayer,
+        texture = WorldItems/CD/World_NM_CDPlayerYellow,
+        scale = 0.625,
+        
+        attachment Bip01_Prop1
+        {
+            offset = 0.02 0.06 -0.02,
+            rotate = 110.0 200.0 20.0,
+            scale = 0.75,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.02 0.06 -0.02,
+            rotate = 110.0 160.0 -20.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_left
+        {
+            offset = -0.005 0.04 0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_right
+        {
+            offset = -0.005 0.04 -0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 105.0,
+            scale = 0.75,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 75.0,
+            scale = 0.75,
+        }
+    }
+    model CDPlayerMagenta
+    {
+        mesh = WorldItems/NM_CDPlayer,
+        texture = WorldItems/CD/World_NM_CDPlayerMagenta,
+        scale = 0.625,
+        
+        attachment Bip01_Prop1
+        {
+            offset = 0.02 0.06 -0.02,
+            rotate = 110.0 200.0 20.0,
+            scale = 0.75,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.02 0.06 -0.02,
+            rotate = 110.0 160.0 -20.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_left
+        {
+            offset = -0.005 0.04 0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_right
+        {
+            offset = -0.005 0.04 -0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 105.0,
+            scale = 0.75,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 75.0,
+            scale = 0.75,
+        }
+    }
+    model CDPlayerPink
+    {
+        mesh = WorldItems/NM_CDPlayer,
+        texture = WorldItems/CD/World_NM_CDPlayerPink,
+        scale = 0.625,
+        
+        attachment Bip01_Prop1
+        {
+            offset = 0.02 0.06 -0.02,
+            rotate = 110.0 200.0 20.0,
+            scale = 0.75,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.02 0.06 -0.02,
+            rotate = 110.0 160.0 -20.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_left
+        {
+            offset = -0.005 0.04 0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_right
+        {
+            offset = -0.005 0.04 -0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 105.0,
+            scale = 0.75,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 75.0,
+            scale = 0.75,
+        }
+    }
+    model CDPlayerCyan
+    {
+        mesh = WorldItems/NM_CDPlayer,
+        texture = WorldItems/CD/World_NM_CDPlayerCyan,
+        scale = 0.625,
+        
+        attachment Bip01_Prop1
+        {
+            offset = 0.02 0.06 -0.02,
+            rotate = 110.0 200.0 20.0,
+            scale = 0.75,
+        }
+        attachment Bip01_Prop2
+        {
+            offset = -0.02 0.06 -0.02,
+            rotate = 110.0 160.0 -20.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_left
+        {
+            offset = -0.005 0.04 0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment walkie_belt_right
+        {
+            offset = -0.005 0.04 -0.02,
+            rotate = 90.0 0.0 -75.0,
+            scale = 0.75,
+        }
+        attachment webbing_left_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 105.0,
+            scale = 0.75,
+        }
+        attachment webbing_right_walkie
+        {
+            offset = -0.03 0.0 0.0,
+            rotate = 270.0 190.0 75.0,
+            scale = 0.75,
+        }
+    }
+}
+
+

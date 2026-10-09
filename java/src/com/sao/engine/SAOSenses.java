@@ -22,6 +22,28 @@ public final class SAOSenses {
     public static float hearing(IsoGameCharacter body, boolean includeWeather) {
         try {
             if (!awakeHuman(body) || body.hasTrait(CharacterTrait.DEAF)) return 0;
+            return physicalHearing(body, includeWeather);
+        } catch (Throwable unavailable) { return 0; }
+    }
+
+    /** A stamped Week One proxy has human hearing even though its native type
+     * is IsoZombie. The caller must first prove the exact SAO person/brain
+     * marks; this guard only admits the physical living BWO body. */
+    static float weekOneHearing(IsoZombie body) {
+        try {
+            if (body == null || !body.getVariableBoolean("Bandit")
+                    || body.getModData() == null
+                    || !"BanditsWeekOne".equals(body.getModData().rawget("SAOWeekOneOrigin"))
+                    || body.isDead() || body.isAsleep()
+                    || !Float.isFinite(body.getX()) || !Float.isFinite(body.getY())
+                    || !Float.isFinite(body.getZ())
+                    || body.hasTrait(CharacterTrait.DEAF)) return 0;
+            return physicalHearing(body, true);
+        } catch (Throwable unavailable) { return 0; }
+    }
+
+    private static float physicalHearing(IsoGameCharacter body, boolean includeWeather) {
+        try {
             float distanceModifier = body.getHearDistanceModifier();
             float weather = includeWeather ? body.getWeatherHearingMultiplier() : 1;
             if (!Float.isFinite(distanceModifier) || distanceModifier <= 0

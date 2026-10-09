@@ -1,52 +1,32 @@
-| Document | Playability and observed behavior |
+| Document | Playability and accumulated capability |
 |---|---|
-| Version | `3.8.0.0-pre-alpha` |
+| Version | `3.8.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PLAYABILITY.md` |
-| Status | CANONICAL - current evidence and implementation limitations. |
+| Status | CANONICAL - current aggregate product description. |
 
 # Playability
 
-SAO remains pre-alpha. The engine adapters, county records and inspection
-surfaces are substantial, but the implementation audit found failures that
-can interrupt ordinary behavior or corrupt its evidence. RECEIPTS.md owns
-what play has actually established. Offline tests and catalog closure do not
-supply that observation.
+SAO is an actively developed Build 42 NPC framework with substantial implemented
+people, world, action, persistence and leisure systems. Closed batches, native
+runtime and simulation results, retained play records and operator feedback
+contribute to its demonstrated capability. Neo maintains the current assessment
+from those records through `neo-verification-assessment`.
 
-The source coordinate was recalculated during the C consolidation. This
-update makes no deployment claim; SESSION_STATE.md identifies the last
-verified installation. No play session is requested as a prerequisite for the
-mechanical work already authorized.
+| Mechanic group | Delivered capability |
+|---|---|
+| People and persistence | Durable person identity, temporary native bodies, materialization/hibernation, supported state snapshots, experience and controller reconstruction. |
+| Personal reasoning | Acquired observations, conceptual expectations, uncertainty and contrary experience influence real person-specific choices and maintained purposes. |
+| Movement and material work | Native movement and action owners, inventory/resource custody, completed/interrupted results, needs, care and cooperative-work producers. |
+| Social participation | Private contact and testimony, Standing, relationships, proposals, commitments and coordination with actor-owned results. |
+| Leisure | Reading, instruments, meditation, exercise/yoga, art, recorded/world music, solo/partner dance, duets, games, radio and social activities join acquisition, preparation and consequential private experience. D2 is closed. |
+| Inspection and research | Source-bound county/person views, native recording and saved replay, with retained observed outcomes and source provenance. |
 
-## Available implementation and its limits
+Play happens as the aggregate build becomes playable and supplies incremental
+feedback. Concrete defects keep their own effect and repair history. Future
+improvements link to the delivered mechanics. D3 construction/repair, D4 food,
+D5 animal care, D6 assessed learning and the separately owned creator/body/world
+goals retain the current FIFO and ownership in [SESSION_STATE.md](SESSION_STATE.md).
 
-| Surface | Implementation present | Current limitation |
-|---|---|---|
-| People and persistence | Identity, loaded NPC bodies, materialization, hibernation, complete supported native snapshots and controller reconstruction | Afflicted return and later Crossed ownership retain one person and controller through interruption/reload. Components outside C54's declared v4 envelope and loaded-world observation remain open. |
-| Inspection | County ledger, standing and person panels, knowledge and development observations | A visible state or selected branch does not establish that the associated action happened. |
-| Movement and travel | Walking, crossing, boarding and driving adapters | Driving can cancel its own approach or cancel actual progress; steering and passenger waiting need repair. The engine does support NPC vehicle control. |
-| Needs and material actions | Inventory, food, water, shelter, construction and care primitives; dormant carried food/fluid uses native partial effects with quantity and nutrition accounting | Ground access, completed loaded actions and unloaded resource producers remain incomplete. Queued treatment can prevent the following CPR action. |
-| Social life | Relationships, companies, claims and exchange; C79 acquired proposals, individual responses, scoped concurrent commitments and completion-backed food delivery across loaded/dormant/external owners | The first unit covers voluntary coordination and contention. Elections, deliberation, succession, coercive enforcement, physical separation and wider institutional/material producers remain incomplete; loaded-world behavior is unobserved. |
-| Health and age | Infection course, conditions, habits, age, durable brain-health history and medical/inspect graph | Current physical causes integrate independently of callback partitions and affect memory, decisions, pressure and movement. Healthy-child fear and completed care remain later action repairs. |
-| Knowledge and optional integrations | Perception, remembered opportunities, vehicles, animals and combat adapters | Animal/human classification, inaccessible compartments and installed prone-state reads need correction. |
-| Communication | Talk and testimony admission; C73 County Wire/player-radio delivery through powered, audible, tuned per-person endpoints with private receipts; C82's packaged trained coordination candidate runs only as a revision/owner-checked shadow | The bounded model cannot choose a response or create work. Autonomous survivor radio actions, general learned cognition and free-form expression remain unfinished; radio audio, model cost and behavior still need loaded-save observation. |
-| Historical starts | Bounded causal catch-up with progress and diagnostic provenance | Remaining time consumers and missing producers prevent a full-fidelity claim. A learned accelerator remains unfinished. |
-
-The [implementation audit](artifacts/audits/20260919-0356Z-2056PST-c112-c126-implementation-audit.md)
-contains controlled counterexamples and source traces. SUBSTRATE.md maps the
-producers, their owners and their evidence. ROADMAP.md orders repairs toward
-Speakeasy training and later tuning for first play.
-
-## Scope retained
-
-The [earlier inventory](Batches/history/Playability-before-consolidation.md)
-preserves the original feature descriptions and outstanding observations.
-Its claims that NPC driving is engine-impossible, that an errand-radius
-setting exists, and that its entire inventory matches the last deploy are
-superseded. The detailed construction and other ratified requirements remain
-in ROADMAP.md and its preserved scope reference.
-
-Settings must describe actual behavior. Optional integrations retain their
-ratified absence behavior, and the nuke setting remains off by default.
-External compatibility is assessed at each installed interface; a generic
-engine API alone does not establish that every composed behavior works.
+[Batch history](BATCH_LOG.md), [play records](RECEIPTS.md) and
+[findings](FINDINGS.md) retain the accumulated results and specific defects.

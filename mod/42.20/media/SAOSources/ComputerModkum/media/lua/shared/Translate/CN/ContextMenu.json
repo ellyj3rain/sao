@@ -1,0 +1,12 @@
+{
+    "ContextMenu_ComputerMod_Computer": "电脑",
+    "ContextMenu_ComputerMod_InsertCD": "插入CD",
+    "ContextMenu_ComputerMod_NetworkTerminal": "网络终端",
+    "ContextMenu_ComputerMod_RemoveCD": "取出光盘",
+    "ContextMenu_ComputerMod_ResumeSession": "恢复会话",
+    "ContextMenu_ComputerMod_TurnOn": "打开",
+    "ContextMenu_ComputerMod_Components": "组件",
+    "ContextMenu_ComputerMod_InstallComponent": "安装",
+    "ContextMenu_ComputerMod_RepairComponent": "维修",
+    "ContextMenu_ComputerMod_RemoveComponent": "删除"
+}

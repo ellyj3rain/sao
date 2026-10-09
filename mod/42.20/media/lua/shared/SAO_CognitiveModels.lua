@@ -20,9 +20,47 @@ local EVENT_KEYS = { id=true, actorId=true, observerId=true, worldHours=true,
     thirstDelta=true, detail=true, capabilities=true, itemId=true,
     occurredAtHours=true, stats=true, beforeCookingTime=true,
     afterCookingTime=true, heatObserved=true, consumedAmount=true, quantityUnit=true, actionKind=true, apertureState=true, succeeded=true,
-    beforeValue=true, afterValue=true, durationHours=true }
+    beforeValue=true, afterValue=true, durationHours=true,
+    soundId=true, sourceBrainId=true, sourceBorn=true, sourceBodyId=true,
+    observerBrainId=true, observerBorn=true,
+    decisionAtTick=true, claimOwner=true, sourceProgram=true,
+    sourceStage=true, startedAtHours=true, nativeCompletedAtHours=true,
+    pulseId=true, sourceEpoch=true,
+    sourceSequence=true, soundHandle=true, nativeClock=true,
+    nativeEmittedAtHours=true, nativeHeardAtHours=true,
+    nativeWitnessedAtHours=true, nativeClaimedAtHours=true,
+    partnerId=true,processId=true,processRevision=true,musicKey=true,role=true,
+    sourceWorkSequence=true }
+local HOBBY_KINDS={ ["leisure-meditation"]=true,["leisure-exercise"]=true,
+    ["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
+    ["leisure-duet"]=true,["leisure-dance"]=true }
+local HOBBY_SOURCES={LifestyleHobbies=true,["native:ISFitnessAction"]=true,["KnoxAquarium:KA_Comfort"]=true,NewMusic=true,
+    ["LifestyleHobbies:paint-canvas"]=true,["LifestyleHobbies:appraise-art"]=true,
+    ["LifestyleHobbies:sculpt-Hedge"]=true,["LifestyleHobbies:sculpt-Wood"]=true,
+    ["LifestyleHobbies:sculpt-Metal"]=true,["LifestyleHobbies:sculpt-Stone"]=true,["LifestyleHobbies:sculpt-Ice"]=true}
+HOBBY_SOURCES["Lifestyle:LSYogaAction"]=true
+HOBBY_SOURCES["FWO:FWOTreadmillBenchpressExercise"]=true
+HOBBY_SOURCES["LifestyleHobbies:LSPingPong/fakeRival"]=true
+HOBBY_SOURCES["native:RecipeCodeOnCreate.drawRandomCard"]=true
+HOBBY_SOURCES["native:RecipeCodeOnCreate.rollDice"]=true
+HOBBY_SOURCES["native:ISRadioInteractions"]=true
+for _,class in ipairs({"PZPongGame","PZSnakeGame","PZMinesweeperGame","PZTetrisGame","PZSpaceInvadersGame",
+    "PZDoomGame","PZRacerGame","PZFlappyGame","PZBreakoutGame","PZAsteroidsGame","PZFroggerGame",
+    "PZMissileCommandGame","PZLunarLanderGame","PZCircuitRunnerGame","PZMemoryMatchGame","PZStarPilotGame",
+    "PZCaveRunnerGame","PZLightsOutGame","PZSignalMatchGame","PZBoxPushGame","PZTileSlideGame",
+    "PZPipeLinkGame","PZCodeBreakerGame","PZOutbreakOpsGame"}) do HOBBY_SOURCES["ComputerModkum:"..class]=true end
+for _,machine in ipairs({"ArcadeMachine1","ArcadeMachine2","ArcadeStreetFighter","ArcadePacman",
+    "ArcadeDoubleDragon","ArcadeSpaceInvaders","ArcadeDonkeyKong","ArcadeCentipede","ArcadeDigDug",
+    "ArcadeNBAJam","ArcadeTMNT","ArcadeMK","ComplexTerminator2","ComplexStarWars","PinballMachine",
+    "PinballAddamsFamily","PinballTwilightZone","PinballIndianaJones","PinballBlackKnight2000",
+    "PinballFunHouse","PinballElviraPartyMonsters","PinballMarioBros"}) do
+    HOBBY_SOURCES["ProjectArcade:ProjectArcade_PlayArcadeTimedAction:"..machine]=true
+end
 local EXTENDED = { ["medication-use"]=true, ["physical-change"]=true, preparation=true,
-    ["animal-care"]=true, ["window-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true }
+    ["animal-care"]=true, ["window-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
+    ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
+    ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
+    ["weekone-performance-hearing"]=true }
 local STATS = { "HUNGER", "THIRST", "FATIGUE", "ENDURANCE", "PANIC", "STRESS",
     "NICOTINE_WITHDRAWAL", "BOREDOM", "UNHAPPINESS", "DISCOMFORT", "INTOXICATION", "ANGER", "PAIN" }
 local STAT_KEYS = {} for _,name in ipairs(STATS) do STAT_KEYS[name]=true end
@@ -75,7 +113,11 @@ local function occurrencePosition(e)
         or e.kind=="recovery-outcome" and ("recovery/"..e.actorId.."/")
         or e.kind=="study-outcome" and ("study/"..e.actorId.."/")
         or e.kind=="commitment-outcome" and ("commitment/"..e.actorId.."/")
-        or e.kind=="instrument-use" and ("instrument/"..e.actorId.."/") or nil
+        or e.kind=="instrument-use" and ("instrument/"..e.actorId.."/")
+        or e.kind=="leisure-reading" and ("leisure-reading/"..e.actorId.."/")
+        or e.kind=="weekone-instrument-performance" and ("weekone-instrument-performance/"..e.actorId.."/")
+        or e.kind=="weekone-performance-hearing" and "weekone-heard/"
+        or HOBBY_KINDS[e.kind] and (e.kind.."/"..e.actorId.."/") or nil
     if not prefix or not text(e.id,128) or string.sub(e.id,1,#prefix)~=prefix then return nil end
     local suffix=string.sub(e.id,#prefix+1)
     local position=tonumber(suffix)
@@ -123,10 +165,69 @@ local function validEvent(e)
             and e.status~="interrupted" and e.status~="unavailable")
         or (e.perspective~="performed" and e.perspective~="observed") then return false end
     local behavior=e.kind=="entry-outcome" or e.kind=="recovery-outcome"
-    if not behavior and (e.kind~="commitment-outcome" and e.kind~="instrument-use" and (e.actionKind~=nil or e.succeeded~=nil) or e.apertureState~=nil
+    if not behavior and (e.kind~="commitment-outcome" and e.kind~="instrument-use" and e.kind~="leisure-reading" and e.kind~="weekone-instrument-performance" and not HOBBY_KINDS[e.kind] and (e.actionKind~=nil or e.succeeded~=nil) or e.apertureState~=nil
         or e.kind~="study-outcome" and (e.beforeValue~=nil or e.afterValue~=nil) or e.durationHours~=nil) then return false end
     if e.category=="learning" and e.kind~="study-outcome" or e.category=="social" and e.kind~="commitment-outcome" then return false end
-    if e.category=="leisure" and e.kind~="instrument-use" then return false end
+    if e.kind=="weekone-performance-hearing" then
+        local position=occurrencePosition(e)
+        return position~=nil and e.category=="leisure" and e.status=="completed"
+            and e.perspective=="observed" and e.actorId~=e.observerId
+            and string.sub(e.actorId,1,4)=="bwo-"
+            and e.sourceId=="BanditsWeekOne:SAOPerform"
+            and e.itemId==nil and e.itemType==nil and e.actionKind==nil
+            and e.succeeded==nil and e.stats==nil and e.detail==nil
+            and e.foodPresent==nil and e.waterPresent==nil
+            and e.hungerDelta==nil and e.thirstDelta==nil
+            and e.consumedAmount==nil and e.quantityUnit==nil
+            and e.sourceBodyId==nil and e.decisionAtTick==nil
+            and e.claimOwner==nil and e.sourceProgram==nil
+            and e.sourceStage==nil and e.startedAtHours==nil
+            and e.nativeCompletedAtHours==nil
+            and e.beforeCookingTime==nil and e.afterCookingTime==nil
+            and e.heatObserved==nil and e.episodeId==nil
+            and text(e.sourceEpoch,36) and #e.sourceEpoch==36
+            and text(e.pulseId,56) and text(e.soundId,96)
+            and finite(e.sourceSequence) and e.sourceSequence>=1
+            and e.sourceSequence<=9007199254740991
+            and e.sourceSequence==math.floor(e.sourceSequence)
+            and e.pulseId==e.sourceEpoch.."-"..tostring(e.sourceSequence)
+            and finite(e.sourceBrainId) and e.sourceBrainId==math.floor(e.sourceBrainId)
+            and e.sourceBrainId>=-2147483648 and e.sourceBrainId<=2147483647
+            and finite(e.sourceBorn) and math.abs(e.sourceBorn)<=1000000000000
+            and ((e.observerBrainId==nil and e.observerBorn==nil)
+                or (finite(e.observerBrainId)
+                    and e.observerBrainId==math.floor(e.observerBrainId)
+                    and e.observerBrainId>=-2147483648
+                    and e.observerBrainId<=2147483647
+                    and finite(e.observerBorn)
+                    and math.abs(e.observerBorn)<=1000000000000))
+            and finite(e.soundHandle) and e.soundHandle>=1
+            and e.soundHandle<=9007199254740991
+            and e.soundHandle==math.floor(e.soundHandle)
+            and e.nativeClock=="native-world-age-hours"
+            and finite(e.nativeEmittedAtHours) and e.nativeEmittedAtHours>=0
+            and finite(e.nativeHeardAtHours)
+            and e.nativeHeardAtHours>=e.nativeEmittedAtHours
+            and finite(e.nativeWitnessedAtHours)
+            and e.nativeWitnessedAtHours>=e.nativeHeardAtHours
+            and finite(e.nativeClaimedAtHours)
+            and e.nativeClaimedAtHours>=e.nativeWitnessedAtHours
+            and finite(e.occurredAtHours) and e.occurredAtHours>=0
+            and e.occurredAtHours<=e.worldHours
+    end
+    if e.kind~="leisure-duet" and e.kind~="leisure-dance" and (e.partnerId~=nil or e.processId~=nil
+        or e.processRevision~=nil or e.sourceWorkSequence~=nil) then return false end
+    if e.kind~="leisure-dance" and (e.musicKey~=nil or e.role~=nil) then return false end
+    if e.observerBrainId~=nil or e.observerBorn~=nil then return false end
+    if e.pulseId~=nil or e.sourceEpoch~=nil or e.sourceSequence~=nil
+        or e.soundHandle~=nil or e.nativeClock~=nil
+        or e.nativeEmittedAtHours~=nil or e.nativeHeardAtHours~=nil
+        or e.nativeWitnessedAtHours~=nil or e.nativeClaimedAtHours~=nil then return false end
+    if e.category=="leisure" and e.kind~="instrument-use" and e.kind~="leisure-reading" and e.kind~="weekone-instrument-performance" and not HOBBY_KINDS[e.kind] then return false end
+    if e.kind~="weekone-instrument-performance" and (e.soundId~=nil or e.sourceBrainId~=nil
+        or e.sourceBorn~=nil or e.sourceBodyId~=nil or e.decisionAtTick~=nil
+        or e.claimOwner~=nil or e.sourceProgram~=nil or e.sourceStage~=nil
+        or e.startedAtHours~=nil or e.nativeCompletedAtHours~=nil) then return false end
     if e.kind~="animal-care" and (e.consumedAmount~=nil or e.quantityUnit~=nil) then return false end
     if e.category=="animal" and e.kind~="animal-care" then return false end
     if e.category=="construction" and e.kind~="window-repair" then return false end
@@ -170,9 +271,94 @@ local function validEvent(e)
                 and e.itemId>=-2147483648 and e.itemId<=2147483647 and e.stats==nil
                 and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
         end
+        if e.kind=="weekone-instrument-performance" then
+            local sounds={ ["Base.GuitarElectric"]="BWOInstrumentBassGuitar1",
+                ["Base.Violin"]="BWOInstrumentViolinPaganini",
+                ["Base.Saxophone"]="BWOInstrumentSax1" }
+            return e.category=="leisure" and e.status=="completed"
+                and e.sourceId=="BanditsWeekOne:SAOPerform"
+                and e.actionKind=="perform-instrument" and e.succeeded==true
+                and sounds[e.itemType]==e.soundId and finite(e.itemId)
+                and e.itemId==math.floor(e.itemId) and e.itemId>=-2147483648
+                and e.itemId<=2147483647 and finite(e.sourceBrainId)
+                and e.sourceBrainId==math.floor(e.sourceBrainId)
+                and e.sourceBrainId>=-2147483648 and e.sourceBrainId<=2147483647
+                and e.sourceBodyId==e.sourceBrainId and finite(e.sourceBorn)
+                and e.sourceBorn>=-1000000000000 and e.sourceBorn<=1000000000000
+                and finite(e.decisionAtTick) and e.decisionAtTick>=0
+                and e.decisionAtTick<=9007199254740991
+                and e.decisionAtTick==math.floor(e.decisionAtTick)
+                and e.claimOwner=="BanditsWeekOne"
+                and text(e.sourceProgram,96) and text(e.sourceStage,96)
+                and finite(e.startedAtHours) and e.startedAtHours>=0
+                and (e.nativeCompletedAtHours==nil
+                    and e.startedAtHours<=e.occurredAtHours
+                    or finite(e.nativeCompletedAtHours)
+                        and e.nativeCompletedAtHours>=e.startedAtHours)
+                and e.stats==nil and e.beforeCookingTime==nil
+                and e.afterCookingTime==nil and e.heatObserved==nil
+        end
+        if e.kind=="leisure-duet" then
+            return e.category=="leisure" and e.status=="completed"
+                and e.perspective=="performed" and e.succeeded==true
+                and e.actionKind=="duet" and e.sourceId=="LifestyleHobbies"
+                and text(e.partnerId,128) and e.partnerId~=e.actorId
+                and text(e.processId,160)
+                and finite(e.processRevision) and e.processRevision>=1
+                and e.processRevision<=9007199254740991
+                and e.processRevision==math.floor(e.processRevision)
+                and finite(e.sourceWorkSequence) and e.sourceWorkSequence>=1
+                and e.sourceWorkSequence<=9007199254740991
+                and e.sourceWorkSequence==math.floor(e.sourceWorkSequence)
+                and e.itemId==nil and e.itemType==nil and e.stats==nil
+                and e.beforeCookingTime==nil and e.afterCookingTime==nil
+                and e.heatObserved==nil
+        end
+        if e.kind=="leisure-dance" then
+            return e.category=="leisure" and e.status=="completed"
+                and e.perspective=="performed" and e.succeeded==true
+                and e.actionKind=="dance" and e.sourceId=="LifestyleHobbies"
+                and text(e.partnerId,128) and e.partnerId~=e.actorId
+                and text(e.processId,160) and text(e.musicKey,160)
+                and (e.role=="source" or e.role=="target")
+                and finite(e.processRevision) and e.processRevision>=1
+                and e.processRevision<=9007199254740991
+                and e.processRevision==math.floor(e.processRevision)
+                and finite(e.sourceWorkSequence) and e.sourceWorkSequence>=1
+                and e.sourceWorkSequence<=9007199254740991
+                and e.sourceWorkSequence==math.floor(e.sourceWorkSequence)
+                and e.itemId==nil and e.itemType==nil and e.stats==nil
+                and e.beforeCookingTime==nil and e.afterCookingTime==nil
+                and e.heatObserved==nil
+        end
+        if HOBBY_KINDS[e.kind] then
+            return e.category=="leisure" and e.status=="completed" and type(e.succeeded)=="boolean"
+                and text(e.sourceId,160) and HOBBY_SOURCES[e.sourceId] and text(e.actionKind,96)
+                and e.itemId==nil and e.stats==nil and e.beforeCookingTime==nil
+                and e.afterCookingTime==nil and e.heatObserved==nil
+        end
+        if e.kind=="leisure-reading" then
+            if e.category ~= "leisure" or e.status ~= "completed" or type(e.succeeded) ~= "boolean"
+                or not text(e.itemType, 160) or not finite(e.itemId) or e.itemId ~= math.floor(e.itemId)
+                or e.itemId < -2147483648 or e.itemId > 2147483647
+                or e.beforeCookingTime ~= nil or e.afterCookingTime ~= nil or e.heatObserved ~= nil then return false end
+            local note = e.actionKind == "read-note" and e.sourceId == "native:literature:customPages"
+            local book = e.actionKind == "read-book" and e.sourceId == "native:literature:ISReadABook"
+            if not note and not book then return false end
+            if e.stats ~= nil then
+                if not book or not e.succeeded or not plainKeys(e.stats, {BOREDOM=true, UNHAPPINESS=true, STRESS=true}) then return false end
+                for _, name in ipairs({ "BOREDOM", "UNHAPPINESS", "STRESS" }) do
+                    local v = e.stats[name]
+                    if not plainKeys(v, {before=true, after=true}) or not finite(v.before) or not finite(v.after)
+                        or v.before < 0 or v.after < 0 or v.before > 1000000 or v.after > 1000000 then return false end
+                end
+            end
+            return true
+        end
         if e.kind=="commitment-outcome" then
             return e.category=="social" and e.status=="completed" and text(e.sourceId,160)
-                and (e.actionKind=="prepare" or e.actionKind=="deliver") and e.succeeded==true
+                and (e.actionKind=="prepare" or e.actionKind=="deliver"
+                    or e.actionKind=="watch-return") and e.succeeded==true
                 and e.itemId==nil and e.itemType==nil and e.stats==nil
                 and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
         end
@@ -515,9 +701,9 @@ end
 -- Both contestants retain the same measured occurrence independently. Exact
 -- source and item identities stay available when a later plan asks about them.
 local function rememberPlanEvidence(state, e, yes)
-    local function retain(kind, category, result)
+    local function retain(kind, category, result, facet)
         local item = kind == "inspect" and nil or e.itemType
-        local condition=kind=="commitment" and e.actionKind or nil
+        local condition=facet or (kind=="commitment" and e.actionKind or nil)
         local b = remember(state, planBeliefKey(kind, category, e.sourceId, item, condition),
             "Personally acquired "..kind.." evidence for "..category, result, e)
         b.planKind, b.category, b.sourceId, b.itemType, b.condition = kind, category, e.sourceId, item, condition
@@ -527,6 +713,16 @@ local function rememberPlanEvidence(state, e, yes)
     elseif e.kind == "study-outcome" then retain("study", "learning", true)
     elseif e.kind == "commitment-outcome" then retain("commitment", "social", true)
     elseif e.kind == "instrument-use" then retain("recreate", "leisure", e.succeeded)
+    elseif e.kind=="leisure-duet" then
+        retain("hobby","leisure",true,"duet:"..e.partnerId)
+    elseif e.kind=="leisure-dance" then
+        retain("hobby","leisure",true,"dance:"..e.partnerId)
+    elseif HOBBY_KINDS[e.kind] then retain("hobby", "leisure", e.succeeded,e.actionKind)
+    elseif e.kind == "weekone-instrument-performance" then
+        retain("hobby", "leisure", true, e.actionKind)
+    elseif e.kind == "leisure-reading" then
+        retain("recreate", "leisure", e.succeeded)
+        for name, v in pairs(e.stats or {}) do retain("reading-relief", "leisure", v.after < v.before, name) end
     elseif e.kind == "inspection" then
         retain("inspect", "container", true)
         if e.foodPresent ~= nil then retain("inspect", "food", e.foodPresent) end
@@ -545,6 +741,24 @@ local function extendedEvidence(modelId,state,e)
         remember(state,"direct:study:"..e.itemType,"Personally completed native manual reading; understanding and competence unassessed",true,e)
     elseif e.kind=="instrument-use" then
         remember(state,"direct:instrument:"..e.itemType,"Personally attempted a native sound; repertoire, skill and shared participation unassessed",e.succeeded,e)
+    elseif e.kind=="weekone-instrument-performance" then
+        remember(state,"direct:weekone-performance:"..e.itemType..":"..e.soundId,
+            "Personally performed with the held instrument; skill, pleasure and shared participation unmeasured",true,e)
+    elseif e.kind=="weekone-performance-hearing" then
+        remember(state,"heard:weekone-performance:"..e.actorId..":"..e.soundId,
+            "Heard "..e.actorId.." perform "..e.soundId.."; enjoyment, assent and participation unmeasured",true,e)
+    elseif e.kind=="leisure-duet" then
+        remember(state,"direct:duet:"..e.sourceId..":"..e.partnerId,
+            "Personally performed a source duet with "..e.partnerId.."; enjoyment and trust remain unmeasured",true,e)
+    elseif e.kind=="leisure-dance" then
+        remember(state,"direct:dance:"..e.sourceId..":"..e.partnerId,
+            "Personally performed a source partner dance with "..e.partnerId.."; enjoyment and trust remain unmeasured",true,e)
+    elseif HOBBY_KINDS[e.kind] then
+        remember(state,"direct:hobby:"..e.sourceId..":"..e.actionKind,
+            "Personally attempted "..e.actionKind.."; pleasure, skill and shared participation need their own evidence",e.succeeded,e)
+    elseif e.kind=="leisure-reading" then
+        remember(state,"direct:leisure-reading:"..e.sourceId..":"..e.itemType,
+            "Personally attempted reading; native completion and text exposure do not certify understanding",e.succeeded,e)
     elseif e.kind=="physical-change" then
         -- Numeric changes remain separate from dose identity and pharmacology.
         -- A reversed measured direction challenges the prior direction; it
@@ -783,7 +997,10 @@ local function validConsequences(candidate)
         if c.sourceId ~= nil and not text(c.sourceId, 160) then return false end
         if c.itemType ~= nil and not text(c.itemType, 160) then return false end
         if c.condition ~= nil and not (c.kind=="entry" and CONDITIONS[c.condition]
-            or c.kind=="commitment" and (c.condition=="prepare" or c.condition=="deliver")) then return false end
+            or c.kind=="commitment" and (c.condition=="prepare"
+                or c.condition=="deliver" or c.condition=="watch-return")
+            or c.kind=="reading-relief" and (c.condition=="BOREDOM" or c.condition=="UNHAPPINESS" or c.condition=="STRESS")
+            or c.kind=="hobby" and text(c.condition,160)) then return false end
         if c.kind == "entry" then
             if c.category ~= "body" or not text(c.sourceId, 160) or not CONDITIONS[c.condition] or c.itemType ~= nil then return false end
         elseif c.kind == "sleep" or c.kind == "rest" then
@@ -792,9 +1009,15 @@ local function validConsequences(candidate)
             if c.category ~= "learning" then return false end
         elseif c.kind == "commitment" then
             if c.category ~= "social" or not text(c.sourceId, 160) then return false end
+        elseif c.kind == "hobby" then
+            if c.category~="leisure" or not HOBBY_SOURCES[c.sourceId] or not text(c.condition,160) then return false end
         elseif c.kind == "recreate" then
-            if c.category ~= "leisure" or c.sourceId ~= "native:sound:BlowHarmonica"
+            if c.category ~= "leisure" or (c.sourceId ~= "native:sound:BlowHarmonica"
+                and c.sourceId ~= "native:literature:ISReadABook" and c.sourceId ~= "native:literature:customPages")
                 or not text(c.itemType,160) or c.condition ~= nil then return false end
+        elseif c.kind == "reading-relief" then
+            if c.category ~= "leisure" or c.sourceId ~= "native:literature:ISReadABook"
+                or not text(c.itemType, 160) or (c.condition ~= "BOREDOM" and c.condition ~= "UNHAPPINESS" and c.condition ~= "STRESS") then return false end
         elseif c.kind == "prepare" then
             if c.category ~= "food" then return false end
         elseif c.kind == "acquire" then
@@ -852,7 +1075,7 @@ local function consequenceBeliefs(modelId, state, c)
     for _, key in ipairs(state.beliefOrder) do
         local b = state.beliefs[key]
         if type(b) == "table" and b.planKind == c.kind and b.category == c.category
-            and (c.kind~="commitment" or c.condition~=nil and b.condition==c.condition)
+            and (c.kind~="commitment" and c.kind~="reading-relief" and c.kind~="hobby" or c.condition~=nil and b.condition==c.condition)
             and (c.itemType == nil or b.itemType == c.itemType
                 or modelId=="associative" and c.kind=="study" and b.sourceId==c.sourceId) then
             if c.sourceId ~= nil and b.sourceId == c.sourceId
@@ -861,7 +1084,9 @@ local function consequenceBeliefs(modelId, state, c)
             elseif modelId == "associative" and (c.kind == "inspect"
                 or c.kind == "study" and b.sourceId==c.sourceId
                 or c.kind == "commitment" and b.condition==c.condition
-                or c.kind == "prepare" and c.itemType ~= nil and b.itemType == c.itemType) then
+                or c.kind == "prepare" and c.itemType ~= nil and b.itemType == c.itemType
+                or c.kind == "hobby" and c.itemType ~= nil and b.itemType == c.itemType
+                    and b.condition == c.condition) then
                 transfer[#transfer+1] = b
             end
         end

@@ -187,7 +187,10 @@ for f in (list((lroot / "client").glob("*.lua"))
           + list((lroot / "shared").glob("*.lua"))
           + list((lroot / "server").glob("*.lua"))):
     txt = f.read_text(encoding="utf-8")
+    txt = strip_lua(txt, strings=False)
     fwrites |= set(re.findall(r"\b\w+\.(\w+)\s*[,=][^=]", txt))
+    # person(id).field and rel(...).field write through a canonical receiver.
+    fwrites |= set(re.findall(r"\b[\w.]+\([^()\n]*\)\.(\w+)\s*=(?!=)", txt))
     fwrites |= set(re.findall(r"[{,]\s*(\w+)\s*=", txt))
     for m in re.finditer(r"\b(" + "|".join(RECV) + r")\.(\w+)\b(?!\s*=(?!=))",
                          txt):

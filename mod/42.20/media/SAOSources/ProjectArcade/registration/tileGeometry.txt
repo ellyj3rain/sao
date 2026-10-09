@@ -1,0 +1,1200 @@
+tileGeometry
+{
+    VERSION = 2,
+
+    tileset
+    {
+        name = pa_arcades,
+
+        /* pa_arcades_0 */
+        tile
+        {
+            xy = 0x0,
+
+            box
+            {
+                translate = -639x0x-2405,
+                rotate = 0x0x0,
+                min = -5061x0x-1856,
+                max = 5061x18841x1856,
+            }
+
+            box
+            {
+                translate = 982x15969x-856,
+                rotate = 0x0x0,
+                min = -4018x0x-2913,
+                max = 4018x3323x2913,
+            }
+
+            box
+            {
+                translate = -327x7026x-1771,
+                rotate = 0x0x0,
+                min = -4699x0x-2525,
+                max = 4699x1109x2525,
+            }
+        }
+
+        /* pa_arcades_1 */
+        tile
+        {
+            xy = 1x0,
+
+            box
+            {
+                translate = -2814x0x-1078,
+                rotate = 1799855x899802x-1799855,
+                min = -5624x0x-1532,
+                max = 5624x18841x1532,
+            }
+
+            box
+            {
+                translate = -855x15969x860,
+                rotate = 1799855x899802x-1799855,
+                min = -4233x0x-2913,
+                max = 4233x3323x2913,
+            }
+
+            box
+            {
+                translate = -1520x386x-138,
+                rotate = 0x0x0,
+                min = -2349x0x-5138,
+                max = 2349x8751x5138,
+            }
+        }
+
+        /* pa_arcades_4 */
+        tile
+        {
+            xy = 4x0,
+
+            box
+            {
+                translate = -1451x0x-2971,
+                rotate = 0x0x0,
+                min = -5873x0x-1373,
+                max = 5873x19303x1373,
+            }
+
+            box
+            {
+                translate = 1208x15969x-1885,
+                rotate = 0x0x0,
+                min = -3792x0x-1884,
+                max = 3792x3785x1884,
+            }
+
+            box
+            {
+                translate = -4268x-3x-1722,
+                rotate = 0x0x0,
+                min = -732x0x-2588,
+                max = 732x8814x2588,
+            }
+        }
+
+        /* pa_arcades_5 */
+        tile
+        {
+            xy = 5x0,
+
+            box
+            {
+                translate = -2786x0x-843,
+                rotate = 1799855x899802x-1799855,
+                min = -5308x0x-1559,
+                max = 5308x19303x1559,
+            }
+
+            box
+            {
+                translate = -1884x15969x1054,
+                rotate = 1799855x899802x-1799855,
+                min = -3792x0x-1884,
+                max = 3792x3785x1884,
+            }
+
+            box
+            {
+                translate = -1702x-52x-553,
+                rotate = 0x0x0,
+                min = -2670x0x-5000,
+                max = 2670x8718x5000,
+            }
+        }
+
+        /* pa_arcades_6 */
+        tile
+        {
+            xy = 6x0,
+
+            box
+            {
+                translate = 2306x0x49,
+                rotate = 0x-899802x0,
+                min = -3995x0x-2515,
+                max = 3995x19264x2515,
+            }
+        }
+
+        /* pa_arcades_7 */
+        tile
+        {
+            xy = 7x0,
+
+            box
+            {
+                translate = -49x0x2306,
+                rotate = -1800000x-198x-1800000,
+                min = -3995x0x-2515,
+                max = 3995x19264x2515,
+            }
+        }
+
+        /* pa_arcades_8 */
+        tile
+        {
+            xy = 0x1,
+
+            box
+            {
+                translate = -61x0x-1814,
+                rotate = 0x0x0,
+                min = -4483x0x-2447,
+                max = 4483x18841x2447,
+            }
+
+            box
+            {
+                translate = 982x15969x-856,
+                rotate = 0x0x0,
+                min = -4018x0x-2913,
+                max = 4018x3323x2913,
+            }
+
+            box
+            {
+                translate = -25x7949x-1470,
+                rotate = 0x0x0,
+                min = -3719x0x-3530,
+                max = 3719x1622x3530,
+            }
+        }
+
+        /* pa_arcades_9 */
+        tile
+        {
+            xy = 1x1,
+
+            box
+            {
+                translate = -2789x0x-978,
+                rotate = 1799855x899802x-1799855,
+                min = -5523x0x-1557,
+                max = 5523x18841x1557,
+            }
+
+            box
+            {
+                translate = -855x15969x860,
+                rotate = 1799855x899802x-1799855,
+                min = -4233x0x-2913,
+                max = 4233x3323x2913,
+            }
+
+            box
+            {
+                translate = -1118x17x402,
+                rotate = 0x0x0,
+                min = -3254x0x-4196,
+                max = 3254x9862x4196,
+            }
+        }
+
+        /* pa_arcades_10 */
+        tile
+        {
+            xy = 2x1,
+
+            box
+            {
+                translate = 1965x0x-215,
+                rotate = 1799855x899802x-1799855,
+                min = -4158x0x-2502,
+                max = 4158x18751x2502,
+            }
+
+            box
+            {
+                translate = 2178x15848x428,
+                rotate = 1799855x899802x-1799855,
+                min = -4202x0x-3097,
+                max = 4202x3510x3097,
+            }
+        }
+
+        /* pa_arcades_12 */
+        tile
+        {
+            xy = 4x1,
+
+            box
+            {
+                translate = -1036x-33x-2377,
+                rotate = 0x0x0,
+                min = -5276x0x-2239,
+                max = 5276x18139x2239,
+            }
+        }
+
+        /* pa_arcades_13 */
+        tile
+        {
+            xy = 5x1,
+
+            box
+            {
+                translate = -1483x-126x-18,
+                rotate = 1799855x899802x-1799855,
+                min = -5015x0x-2176,
+                max = 5015x8429x2176,
+            }
+
+            box
+            {
+                translate = -2087x8268x0,
+                rotate = 0x0x0,
+                min = -1471x0x-5000,
+                max = 1471x9399x5000,
+            }
+        }
+
+        /* pa_arcades_16 */
+        tile
+        {
+            xy = 0x2,
+
+            box
+            {
+                translate = -1036x-33x-2377,
+                rotate = 0x0x0,
+                min = -5276x0x-2239,
+                max = 5276x18139x2239,
+            }
+        }
+
+        /* pa_arcades_17 */
+        tile
+        {
+            xy = 1x2,
+
+            box
+            {
+                translate = -1897x626x-355,
+                rotate = 1799855x899802x-1799855,
+                min = -5353x0x-1762,
+                max = 5353x18076x1762,
+            }
+        }
+
+        /* pa_arcades_20 */
+        tile
+        {
+            xy = 4x2,
+
+            box
+            {
+                translate = -411x0x-1300,
+                rotate = 0x0x0,
+                min = -4483x0x-2961,
+                max = 4483x18841x2961,
+            }
+
+            box
+            {
+                translate = 982x17397x2234,
+                rotate = 0x0x0,
+                min = -4018x0x-985,
+                max = 4018x1895x985,
+            }
+        }
+
+        /* pa_arcades_21 */
+        tile
+        {
+            xy = 5x2,
+
+            box
+            {
+                translate = -2054x0x-2408,
+                rotate = 1799855x899802x-1799855,
+                min = -6149x0x-1921,
+                max = 6149x17701x1921,
+            }
+
+            box
+            {
+                translate = 889x15802x-982,
+                rotate = 1799855x899802x-1799855,
+                min = -4018x0x-985,
+                max = 4018x1895x985,
+            }
+
+            box
+            {
+                translate = 1123x-578x-982,
+                rotate = 1799855x899802x-1799855,
+                min = -4018x0x-985,
+                max = 4018x8785x985,
+            }
+        }
+
+        /* pa_arcades_24 */
+        tile
+        {
+            xy = 0x3,
+
+            box
+            {
+                translate = -1994x0x-2515,
+                rotate = 0x198x0,
+                min = -5603x0x-1830,
+                max = 5603x15122x1830,
+            }
+
+            box
+            {
+                translate = -846x15087x-331,
+                rotate = 0x198x0,
+                min = -4931x0x-723,
+                max = 4931x2273x723,
+            }
+
+            box
+            {
+                translate = -3394x7651x-1031,
+                rotate = 0x0x0,
+                min = -433x0x-3969,
+                max = 433x1695x3969,
+            }
+        }
+
+        /* pa_arcades_25 */
+        tile
+        {
+            xy = 1x3,
+
+            box
+            {
+                translate = -2472x0x-2408,
+                rotate = 1799855x899802x-1799855,
+                min = -6149x0x-1921,
+                max = 6149x17701x1921,
+            }
+
+            box
+            {
+                translate = 169x15802x-982,
+                rotate = 1799855x899802x-1799855,
+                min = -4018x0x-985,
+                max = 4018x1895x985,
+            }
+
+            box
+            {
+                translate = 691x48x-982,
+                rotate = 1799855x899802x-1799855,
+                min = -4018x0x-985,
+                max = 4018x8848x985,
+            }
+        }
+
+        /* pa_arcades_28 */
+        tile
+        {
+            xy = 4x3,
+
+            box
+            {
+                translate = -411x0x-1300,
+                rotate = 0x0x0,
+                min = -4483x0x-2961,
+                max = 4483x18841x2961,
+            }
+
+            box
+            {
+                translate = 982x17397x2234,
+                rotate = 0x0x0,
+                min = -4018x0x-985,
+                max = 4018x1895x985,
+            }
+
+            box
+            {
+                translate = 0x0x-804,
+                rotate = 0x0x0,
+                min = -5000x0x-5000,
+                max = 5000x9468x5000,
+            }
+
+            box
+            {
+                translate = -1219x9446x4143,
+                rotate = 0x0x0,
+                min = -314x0x-377,
+                max = 314x1416x377,
+            }
+        }
+
+        /* pa_arcades_29 */
+        tile
+        {
+            xy = 5x3,
+
+            box
+            {
+                translate = -1300x0x411,
+                rotate = 1799855x899802x-1799855,
+                min = -4483x0x-2961,
+                max = 4483x18841x2961,
+            }
+
+            box
+            {
+                translate = 2234x17397x-982,
+                rotate = 1799855x899802x-1799855,
+                min = -4018x0x-985,
+                max = 4018x1895x985,
+            }
+
+            box
+            {
+                translate = -804x0x0,
+                rotate = 1799855x899802x-1799855,
+                min = -5000x0x-5000,
+                max = 5000x9468x5000,
+            }
+
+            box
+            {
+                translate = 4143x9446x992,
+                rotate = 1799855x899802x-1799855,
+                min = -314x0x-377,
+                max = 314x1416x377,
+            }
+        }
+
+        /* pa_arcades_32 */
+        tile
+        {
+            xy = 0x4,
+
+            box
+            {
+                translate = -411x0x-1300,
+                rotate = 0x0x0,
+                min = -4483x0x-2961,
+                max = 4483x18841x2961,
+            }
+
+            box
+            {
+                translate = 982x17397x2234,
+                rotate = 0x0x0,
+                min = -4018x0x-985,
+                max = 4018x1895x985,
+            }
+
+            box
+            {
+                translate = 0x0x-804,
+                rotate = 0x0x0,
+                min = -5000x0x-5000,
+                max = 5000x9468x5000,
+            }
+
+            box
+            {
+                translate = -1219x9446x4143,
+                rotate = 0x0x0,
+                min = -314x0x-377,
+                max = 314x1416x377,
+            }
+        }
+
+        /* pa_arcades_33 */
+        tile
+        {
+            xy = 1x4,
+
+            box
+            {
+                translate = -1300x0x411,
+                rotate = 1799855x899802x-1799855,
+                min = -4483x0x-2961,
+                max = 4483x18841x2961,
+            }
+
+            box
+            {
+                translate = 2234x17397x-982,
+                rotate = 1799855x899802x-1799855,
+                min = -4018x0x-985,
+                max = 4018x1895x985,
+            }
+
+            box
+            {
+                translate = -804x0x0,
+                rotate = 1799855x899802x-1799855,
+                min = -5000x0x-5000,
+                max = 5000x9468x5000,
+            }
+
+            box
+            {
+                translate = 4143x9446x992,
+                rotate = 1799855x899802x-1799855,
+                min = -314x0x-377,
+                max = 314x1416x377,
+            }
+        }
+
+        /* pa_arcades_36 */
+        tile
+        {
+            xy = 4x4,
+
+            box
+            {
+                translate = -411x0x-1300,
+                rotate = 0x0x0,
+                min = -4483x0x-2961,
+                max = 4483x18841x2961,
+            }
+
+            box
+            {
+                translate = 982x17397x2234,
+                rotate = 0x0x0,
+                min = -4018x0x-985,
+                max = 4018x1895x985,
+            }
+
+            box
+            {
+                translate = 0x0x-804,
+                rotate = 0x0x0,
+                min = -5000x0x-5000,
+                max = 5000x9468x5000,
+            }
+
+            box
+            {
+                translate = -1857x9446x4143,
+                rotate = 0x0x0,
+                min = -314x0x-377,
+                max = 314x1416x377,
+            }
+        }
+
+        /* pa_arcades_37 */
+        tile
+        {
+            xy = 5x4,
+
+            box
+            {
+                translate = -1300x0x411,
+                rotate = 1799855x899802x-1799855,
+                min = -4483x0x-2961,
+                max = 4483x18841x2961,
+            }
+
+            box
+            {
+                translate = 2234x17397x-982,
+                rotate = 1799855x899802x-1799855,
+                min = -4018x0x-985,
+                max = 4018x1895x985,
+            }
+
+            box
+            {
+                translate = -804x0x0,
+                rotate = 1799855x899802x-1799855,
+                min = -5000x0x-5000,
+                max = 5000x9468x5000,
+            }
+
+            box
+            {
+                translate = 4143x9446x992,
+                rotate = 1799855x899802x-1799855,
+                min = -314x0x-377,
+                max = 314x1416x377,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = recreational_01,
+
+        /* recreational_01_24 */
+        tile
+        {
+            xy = 0x3,
+
+            box
+            {
+                translate = -3417x-126x-6584,
+                rotate = 0x-899802x0,
+                min = -19x0x-6825,
+                max = 19x13224x6825,
+            }
+
+            box
+            {
+                translate = 0x0x-1476,
+                rotate = 0x0x0,
+                min = -5000x0x-44,
+                max = 5000x3448x44,
+            }
+        }
+
+        /* recreational_01_27 */
+        tile
+        {
+            xy = 3x3,
+
+            box
+            {
+                translate = -1486x4214x1502,
+                rotate = 0x0x0,
+                min = -19x0x-6793,
+                max = 19x8884x6793,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = pa_pinballs,
+
+        /* pa_pinballs_0 */
+        tile
+        {
+            xy = 0x0,
+
+            box
+            {
+                translate = -794x62x-4483,
+                rotate = 0x-899802x0,
+                min = -2499x0x-5028,
+                max = 2499x18394x5028,
+            }
+        }
+
+        /* pa_pinballs_3 */
+        tile
+        {
+            xy = 3x0,
+
+            box
+            {
+                translate = -4484x62x-556,
+                rotate = 0x0x0,
+                min = -2499x0x-5028,
+                max = 2499x18394x5028,
+            }
+
+            box
+            {
+                translate = -1677x5949x-4348,
+                rotate = 0x0x0,
+                min = -327x0x-842,
+                max = 327x1570x842,
+            }
+        }
+
+        /* pa_pinballs_11 */
+        tile
+        {
+            xy = 3x1,
+
+            box
+            {
+                translate = -4484x62x-581,
+                rotate = 0x0x0,
+                min = -2499x0x-5053,
+                max = 2499x18394x5053,
+            }
+
+            box
+            {
+                translate = -942x5922x-4296,
+                rotate = 0x0x0,
+                min = -1018x0x-704,
+                max = 1018x1238x704,
+            }
+        }
+
+        /* pa_pinballs_16 */
+        tile
+        {
+            xy = 0x2,
+
+            box
+            {
+                translate = -722x62x-4483,
+                rotate = 0x-899802x0,
+                min = -2499x0x-4956,
+                max = 2499x18394x4956,
+            }
+
+            box
+            {
+                translate = -4423x6004x-1224,
+                rotate = 0x0x0,
+                min = -577x0x-279,
+                max = 577x1653x279,
+            }
+        }
+
+        /* pa_pinballs_19 */
+        tile
+        {
+            xy = 3x2,
+
+            box
+            {
+                translate = -4484x62x-556,
+                rotate = 0x0x0,
+                min = -2499x0x-5028,
+                max = 2499x18394x5028,
+            }
+
+            box
+            {
+                translate = -1677x5949x-4348,
+                rotate = 0x0x0,
+                min = -327x0x-842,
+                max = 327x1570x842,
+            }
+
+            box
+            {
+                translate = -1677x5949x1535,
+                rotate = 0x0x0,
+                min = -327x0x-842,
+                max = 327x1570x842,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = lighting_outdoor_01,
+    }
+
+    tileset
+    {
+        name = pa_complex,
+
+        /* pa_complex_0 */
+        tile
+        {
+            xy = 0x0,
+
+            box
+            {
+                translate = -145x0x-50,
+                rotate = 0x0x0,
+                min = -3950x0x-4890,
+                max = 3950x8638x4890,
+            }
+
+            box
+            {
+                translate = -662x16250x-604,
+                rotate = 0x0x0,
+                min = -4498x0x-4331,
+                max = 4498x1485x4331,
+            }
+
+            box
+            {
+                translate = -1081x8620x-1488,
+                rotate = 0x0x0,
+                min = -4887x0x-3468,
+                max = 4887x7574x3468,
+            }
+
+            box
+            {
+                translate = -2523x9981x3302,
+                rotate = 0x0x0,
+                min = -298x0x-1698,
+                max = 298x1874x1698,
+            }
+        }
+
+        /* pa_complex_1 */
+        tile
+        {
+            xy = 1x0,
+
+            box
+            {
+                translate = -50x0x10,
+                rotate = 1799855x899802x-1799855,
+                min = -4085x0x-4890,
+                max = 4085x8638x4890,
+            }
+
+            box
+            {
+                translate = -605x16250x-408,
+                rotate = 1799855x899802x-1799855,
+                min = -4498x0x-4331,
+                max = 4498x1485x4331,
+            }
+
+            box
+            {
+                translate = -1489x8620x-811,
+                rotate = 1799855x899802x-1799855,
+                min = -4887x0x-3468,
+                max = 4887x7574x3468,
+            }
+
+            box
+            {
+                translate = 3944x11654x2551,
+                rotate = 0x0x0,
+                min = -1264x0x-394,
+                max = 1264x1252x394,
+            }
+        }
+
+        /* pa_complex_3 */
+        tile
+        {
+            xy = 3x0,
+
+            properties
+            {
+                Translucent = true,
+                UseObjectDepthTexture = true,
+            }
+        }
+
+        /* pa_complex_4 */
+        tile
+        {
+            xy = 4x0,
+
+            properties
+            {
+                Translucent = true,
+                UseObjectDepthTexture = true,
+            }
+        }
+
+        /* pa_complex_6 */
+        tile
+        {
+            xy = 6x0,
+
+            properties
+            {
+                Translucent = true,
+                UseObjectDepthTexture = true,
+            }
+        }
+
+        /* pa_complex_9 */
+        tile
+        {
+            xy = 1x1,
+
+            properties
+            {
+                Translucent = true,
+                UseObjectDepthTexture = true,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = pa_arcades_overlay,
+
+        /* pa_arcades_overlay_1 */
+        tile
+        {
+            xy = 1x0,
+
+            box
+            {
+                translate = -2642x0x0,
+                rotate = 0x0x0,
+                min = -2358x0x-5000,
+                max = 2358x24495x5000,
+            }
+        }
+
+        /* pa_arcades_overlay_5 */
+        tile
+        {
+            xy = 5x0,
+
+            box
+            {
+                translate = -2642x0x0,
+                rotate = 0x0x0,
+                min = -2358x0x-5000,
+                max = 2358x24495x5000,
+            }
+        }
+
+        /* pa_arcades_overlay_8 */
+        tile
+        {
+            xy = 0x1,
+
+            properties
+            {
+                UseObjectDepthTexture = true,
+            }
+        }
+
+        /* pa_arcades_overlay_9 */
+        tile
+        {
+            xy = 1x1,
+
+            box
+            {
+                translate = -2642x0x0,
+                rotate = 0x0x0,
+                min = -2358x0x-5000,
+                max = 2358x24495x5000,
+            }
+
+            properties
+            {
+                UseObjectDepthTexture = true,
+            }
+        }
+
+        /* pa_arcades_overlay_13 */
+        tile
+        {
+            xy = 5x1,
+
+            box
+            {
+                translate = -1593x0x0,
+                rotate = 0x0x0,
+                min = -2358x0x-5000,
+                max = 2358x24495x5000,
+            }
+        }
+
+        /* pa_arcades_overlay_17 */
+        tile
+        {
+            xy = 1x2,
+
+            box
+            {
+                translate = -2642x0x0,
+                rotate = 0x0x0,
+                min = -2358x0x-5000,
+                max = 2358x24495x5000,
+            }
+        }
+
+        /* pa_arcades_overlay_21 */
+        tile
+        {
+            xy = 5x2,
+
+            box
+            {
+                translate = -2642x0x0,
+                rotate = 0x0x0,
+                min = -2358x0x-5000,
+                max = 2358x24495x5000,
+            }
+        }
+
+        /* pa_arcades_overlay_25 */
+        tile
+        {
+            xy = 1x3,
+
+            box
+            {
+                translate = -2642x0x0,
+                rotate = 0x0x0,
+                min = -2358x0x-5000,
+                max = 2358x24495x5000,
+            }
+        }
+
+        /* pa_arcades_overlay_28 */
+        tile
+        {
+            xy = 4x3,
+
+            box
+            {
+                translate = 2838x0x5113,
+                rotate = 0x-899802x0,
+                min = -700x0x-5000,
+                max = 700x24495x5000,
+            }
+        }
+
+        /* pa_arcades_overlay_29 */
+        tile
+        {
+            xy = 5x3,
+
+            box
+            {
+                translate = 5115x0x2814,
+                rotate = 0x0x0,
+                min = -700x0x-5000,
+                max = 700x24495x5000,
+            }
+        }
+
+        /* pa_arcades_overlay_32 */
+        tile
+        {
+            xy = 0x4,
+
+            box
+            {
+                translate = 2838x0x5113,
+                rotate = 0x-899802x0,
+                min = -700x0x-5000,
+                max = 700x24495x5000,
+            }
+        }
+
+        /* pa_arcades_overlay_33 */
+        tile
+        {
+            xy = 1x4,
+
+            box
+            {
+                translate = 5115x0x2814,
+                rotate = 0x0x0,
+                min = -700x0x-5000,
+                max = 700x24495x5000,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = pa_decorations,
+
+        /* pa_decorations_0 */
+        tile
+        {
+            xy = 0x0,
+
+            polygon
+            {
+                translate = 0x0x0,
+                rotate = 2700000x0x0,
+                plane = XZ,
+                points = -5000x-5000 5000x-5000 5000x5000 -5000x5000,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = pa_arcades_on,
+
+        /* pa_arcades_on_13 */
+        tile
+        {
+            xy = 5x1,
+
+            box
+            {
+                translate = -646x0x0,
+                rotate = 0x0x0,
+                min = -915x0x-5000,
+                max = 915x24495x5000,
+            }
+        }
+    }
+
+    tileset
+    {
+        name = pa_complex_on,
+
+        /* pa_complex_on_3 */
+        tile
+        {
+            xy = 3x0,
+
+            box
+            {
+                translate = -4816x0x0,
+                rotate = 1799855x899802x-1799855,
+                min = -5000x0x-184,
+                max = 5000x8734x184,
+            }
+
+            box
+            {
+                translate = 4835x0x0,
+                rotate = 1799855x899802x-1799855,
+                min = -5000x0x-165,
+                max = 5000x10035x165,
+            }
+        }
+
+        /* pa_complex_on_4 */
+        tile
+        {
+            xy = 4x0,
+
+            box
+            {
+                translate = -2530x0x-7927,
+                rotate = 0x0x0,
+                min = -2470x0x-184,
+                max = 2470x8734x184,
+            }
+
+            box
+            {
+                translate = 0x0x4835,
+                rotate = 0x0x0,
+                min = -5000x0x-165,
+                max = 5000x10035x165,
+            }
+
+            properties
+            {
+                UseObjectDepthTexture = true,
+            }
+        }
+    }
+}

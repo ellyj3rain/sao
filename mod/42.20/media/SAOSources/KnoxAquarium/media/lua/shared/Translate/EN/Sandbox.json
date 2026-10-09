@@ -1,0 +1,18 @@
+{
+  "Sandbox_KnoxAquarium": "Knox Aquarium",
+  "Sandbox_KnoxAquarium_FreeTanks": "Free tanks (beta)",
+  "Sandbox_KnoxAquarium_FreeTanks_tooltip": "Who can place an aquarium from the right-click menu without an Empty Aquarium item. The server checks this on every placement. Tanks from found or packed Empty Aquarium items can always be placed.",
+  "Sandbox_KnoxAquarium_FreeTanks_option1": "Everyone",
+  "Sandbox_KnoxAquarium_FreeTanks_option2": "Admins only",
+  "Sandbox_KnoxAquarium_FreeTanks_option3": "Nobody (found tanks only)",
+  "Sandbox_KnoxAquarium_ComfortEnabled": "Aquariums relieve stress",
+  "Sandbox_KnoxAquarium_ComfortEnabled_tooltip": "A stocked, watered tank slightly lowers unhappiness, boredom and stress for players standing near it. Untick to turn this off entirely; placing, stocking and viewing tanks is unaffected.",
+  "Sandbox_KnoxAquarium_ComfortRange": "Comfort range (tiles)",
+  "Sandbox_KnoxAquarium_ComfortRange_tooltip": "How close a player must be to a stocked tank to get the stress relief, in tiles (roughly the same room).",
+  "Sandbox_KnoxAquarium_ComfortMaxTanks": "Comfort cap (tanks)",
+  "Sandbox_KnoxAquarium_ComfortMaxTanks_tooltip": "How many nearby tanks can contribute before the benefit stops increasing, so a room lined with aquariums is not a bigger bonus than a couple of tanks.",
+  "Sandbox_KnoxAquarium_FishSurviveMinMinutes": "Fish transport time, unskilled (real minutes)",
+  "Sandbox_KnoxAquarium_FishSurviveMinMinutes_tooltip": "How many real-world minutes a freshly caught fish survives out of water at 0 Fishing skill, before it must reach a tank.",
+  "Sandbox_KnoxAquarium_FishSurviveMaxMinutes": "Fish transport time, Fishing 10 (real minutes)",
+  "Sandbox_KnoxAquarium_FishSurviveMaxMinutes_tooltip": "How many real-world minutes a freshly caught fish survives out of water at 10 Fishing skill, before it must reach a tank."
+}

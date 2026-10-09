@@ -1,0 +1,175 @@
+{
+
+	"Moodles_BeautyGood_L1": "Güzel Görünüyor",
+	"Moodles_BeautyGood_L1_desc": "Güzel ortamlarda vakit geçirmek biraz iyi hissettirdi.",
+	"Moodles_BeautyGood_L2": "Güzellikle Tazelenmiş",
+	"Moodles_BeautyGood_L2_desc": "Birçok güzel yer gördükten sonra, kıyameti biraz da olsa unutabildin.",
+	"Moodles_BeautyGood_L3": "Estetik Haz",
+	"Moodles_BeautyGood_L3_desc": "Son zamanlarda etrafın güzelliklerle çevriliydi. Neşeli hissediyorsun.",
+	"Moodles_BeautyGood_L4": "Zarafetle Sarmalanmış",
+	"Moodles_BeautyGood_L4_desc": "Yakın zamanda o kadar çok güzelliğe tanıklık ettin ki, gözlerinin önünden gitmiyor.",
+
+	"Moodles_BeautyNeg_L1": "Biraz Kasvetli",
+	"Moodles_BeautyNeg_L1_desc": "Bir süredir güzel hiçbir şey görmedin. Bu durum seni yormaya başlıyor.",
+	"Moodles_BeautyNeg_L2": "Güzellik Özlemi",
+	"Moodles_BeautyNeg_L2_desc": "Kasvetli yerlerde çok uzun süre kaldın. Huzursuzluğunun dozu artıyor.",
+	"Moodles_BeautyNeg_L3": "Görsel Sefalet",
+	"Moodles_BeautyNeg_L3_desc": "Her şey çirkin hissettiriyor. Bu seni içten içe yıpratıyor.",
+	"Moodles_BeautyNeg_L4": "Renksiz Bir Dünya",
+	"Moodles_BeautyNeg_L4_desc": "Güzelliğin neye benzediğini bile unuttun. Dünya gri ve sıkıcı hissettiriyor.",
+
+	"Moodles_MindfulState_L1": "Farkındalık",
+	"Moodles_MindfulState_L1_desc": "Zihnin açık...",
+	"Moodles_MindfulState_L2": "Güçlü Farkındalık",
+	"Moodles_MindfulState_L2_desc": "Acıyı ve açlığı terk et...",
+	"Moodles_MindfulState_L3": "Tam Farkındalık",
+	"Moodles_MindfulState_L3_desc": "Gözlerin tamamen açık...",
+
+	"Moodles_HomeSick_L1": "Ev Özlemi",
+	"Moodles_HomeSick_L1_desc": "Bir evin konforunu özlüyorsun.",
+	"Moodles_HomeSick_L2": "Sıla Hasreti",
+	"Moodles_HomeSick_L2_desc": "4 duvar arasına girmeyi arzuluyorsun.",
+	"Moodles_HomeSick_L3": "Evsiz",
+	"Moodles_HomeSick_L3_desc": "Çaresizce yatacak bir yer arıyorsun.",
+	"Moodles_HomeSick_L4": "Gurbetçi",
+	"Moodles_HomeSick_L4_desc": "Her geçen saat bir eziyet.",
+
+	"Moodles_AtHouse_L1": "Evim Evim Güzel Evim",
+	"Moodles_AtHouse_L1_desc": "Kapalı alanda biraz zaman geçirildi, dünya umrunda değil.",
+
+	"Moodles_MusicGood_L1": "Kulağa Hoş Geliyor",
+	"Moodles_MusicGood_L1_desc": "Yakın zamanda güzel bir şarkı dinlendi.",
+	"Moodles_MusicGood_L2": "Müzik Ruhun Gıdası",
+	"Moodles_MusicGood_L2_desc": "Güzel melodi içini neşeyle dolduruyor.",
+	
+	"Moodles_MusicBad_L1": "Kulak Tırmalaması",
+	"Moodles_MusicBad_L1_desc": "Kim bunu dinler ki?",
+	"Moodles_MusicBad_L2": "Neden Sağır Doğmadım?",
+	"Moodles_MusicBad_L2_desc": "Kulaklarım kanıyor! Kapatın şunu!",
+
+	"Moodles_PartyGood_L1": "Sakin Parti",
+	"Moodles_PartyGood_L1_desc": "Kötü değil, iyi değil. Keşke daha fazla insan olsaydı.",
+	"Moodles_PartyGood_L2": "Unutulmaz Bir An",
+	"Moodles_PartyGood_L2_desc": "Bu gün kitaplara yazılacak kadar eğlenceli!",
+	"Moodles_PartyGood_L3": "Yarınlar Yokmuşçasına",
+	"Moodles_PartyGood_L3_desc": "Hangi gündeyiz? Aman neyse, kadehimi getirin!",
+	
+	"Moodles_PartyBad_L1": "Sinir Bozucu Parti",
+	"Moodles_PartyBad_L1_desc": "Keşke daha az utanç verici bir yer olsaydı.",
+	"Moodles_PartyBad_L2": "Gidebilir Miyiz?",
+	"Moodles_PartyBad_L2_desc": "Yüksek stres riski.",
+	"Moodles_PartyBad_L3": "Keşke Gelmeseydim",
+	"Moodles_PartyBad_L3_desc": "Eminim bir zombiyle takılmak bundan daha eğlencelidir. Tek isteğim kurtulmak.",
+
+	"Moodles_DJAudience_L1": "Küçük Ekip",
+	"Moodles_DJAudience_L1_desc": "Kıyamet sonrası eğlence!",
+	"Moodles_DJAudience_L2": "Büyük Kitle",
+	"Moodles_DJAudience_L2_desc": "Ses yüksek, kalabalık toplandı - parlama zamanı!",
+	"Moodles_DJAudience_L3": "Konser Gibi",
+	"Moodles_DJAudience_L3_desc": "Bu büyük buluşma için enerjiyi arttıralım!",
+	
+	"Moodles_Embarrassed_L1": "Biraz Utanmış",
+	"Moodles_Embarrassed_L1_desc": "Kendini utandırdın",
+	"Moodles_Embarrassed_L2": "Utanmış",
+	"Moodles_Embarrassed_L2_desc": "Mutsuz olma riski",
+	"Moodles_Embarrassed_L3": "Çok Utanmış",
+	"Moodles_Embarrassed_L3_desc": "Çok yüksek mutsuz olma riski",
+	"Moodles_Embarrassed_L4": "Aşırı Utanmış",
+	"Moodles_Embarrassed_L4_desc": "Yer yarılsa da içine girsem!",
+
+	"Moodles_Uncomfortable_L1": "Rahatsız",
+	"Moodles_Uncomfortable_L1_desc": "Hafif fiziksel rahatsızlık yaşıyor, biraz dinlenebilir.",
+
+	"Moodles_Comfort_L1": "Rahat",
+	"Moodles_Comfort_L1_desc": "Huzurlu hissediyor.",
+	"Moodles_Comfort_L2": "Çok Rahat",
+	"Moodles_Comfort_L2_desc": "Zihnim sakin, bedenim gevşemiş.",
+	"Moodles_Comfort_L3": "Aşırı Rahat",
+	"Moodles_Comfort_L3_desc": "Yer çekimini hissetmiyor.",
+	"Moodles_Comfort_L4": "Bulutların Üstünde",
+	"Moodles_Comfort_L4_desc": "Ne? Yerden mi yükseliyorum?",
+
+	"Moodles_BladderNeed_L1": "Hafif Dürtü",
+	"Moodles_BladderNeed_L1_desc": "İhtiyacını gidermek için küçük bir istek. Ruh halini etkilemez.",
+	"Moodles_BladderNeed_L2": "Dolu Mesane",
+	"Moodles_BladderNeed_L2_desc": "Tuvalete gitme vakti.",
+	"Moodles_BladderNeed_L3": "Acil İhtiyaç",
+	"Moodles_BladderNeed_L3_desc": "Daha fazla tutamıyorum...",
+	"Moodles_BladderNeed_L4": "Patlamak Üzere",
+	"Moodles_BladderNeed_L4_desc": "TUVALETE GİT... ŞİMDİ!",
+
+	"Moodles_HygieneGood_L1": "Temiz",
+	"Moodles_HygieneGood_L1_desc": "Ferah hissediyor.",
+	"Moodles_HygieneGood_L2": "Hijyenik",
+	"Moodles_HygieneGood_L2_desc": "Kişisel temizliğe evet!",
+	"Moodles_HygieneGood_L3": "Tertemiz",
+	"Moodles_HygieneGood_L3_desc": "Bir süreliğine kirlenme konusunda endişelenmeye gerek yok.",
+	"Moodles_HygieneGood_L4": "Pırıl Pırıl",
+	"Moodles_HygieneGood_L4_desc": "Parlıyor muyum bana mı öyle geliyor?",
+
+	"Moodles_HygieneBad_L1": "Tozlu",
+	"Moodles_HygieneBad_L1_desc": "Duş beni bekliyor.",
+	"Moodles_HygieneBad_L2": "Biraz Kokuyor",
+	"Moodles_HygieneBad_L2_desc": "Su perisi çağırıyor.",
+	"Moodles_HygieneBad_L3": "Kokuyor",
+	"Moodles_HygieneBad_L3_desc": "Of, şu kötü kokudan kurtulsam!",
+	"Moodles_HygieneBad_L4": "Lütfen Duş Al",
+	"Moodles_HygieneBad_L4_desc": "Burnumun direği kırıldı.",
+
+	"Moodles_Nauseous_L1": "Mide Bulandıran Koku",
+	"Moodles_Nauseous_L1_desc": "Buradaki birisi ceset gibi kokuyor.",
+
+	"Moodles_MintFresh_L1": "Ferah Nefes",
+	"Moodles_MintFresh_L1_desc": "Bu zamanlarda ağız hijyeni biraz lüks, yine de değer.",
+
+	"Moodles_BathCold_L1": "Kemik Donduran Su",
+	"Moodles_BathCold_L1_desc": "Ç-çok so-soğuk...",
+
+	"Moodles_BathHot_L1": "Buharlaşan Sıcak Su",
+	"Moodles_BathHot_L1_desc": "Canlandırıcı ve tazeleyici.",
+
+	"Moodles_WasTaughtMeditation_L1": "Nasihat Alındı (Meditasyon)",
+	"Moodles_WasTaughtMeditation_L1_desc": "Meditasyon ustamdan faydalı bilgiler öğrendim. Şimdi pratik zamanı!",
+
+	"Moodles_WasTaughtSkill_L1": "İyi Tavsiye",
+	"Moodles_WasTaughtSkill_L1_desc": "Bir ustadan faydalı bilgiler öğrendim. Şimdi pratik zamanı!",
+
+	"Moodles_TaughtSkill_L1": "Önemli Hissediyor",
+	"Moodles_TaughtSkill_L1_desc": "Bir kişiye fikir verdim, artık Matrix'ten kurtulmayı deniyor.",
+
+	"Moodles_AdviceWasted_L1": "Boşa Tavsiye",
+	"Moodles_AdviceWasted_L1_desc": "Düşüncelerimi paylaşmaya çalıştım ancak umursanmadım gibi...",
+
+	"Moodles_Attractive_L1": "Harika Görünüyorum",
+	"Moodles_Attractive_L1_desc": "Ayna ayna söyle bana...",
+
+	"Moodles_SmellGood_L1": "Mutluluk Saçıyor",
+	"Moodles_SmellGood_L1_desc": "Bu koku bana mutluluk aşılıyor...",
+
+	"Moodles_FTGood_L1": "Hayaller Aleminde",
+	"Moodles_FTGood_L1_desc": "Gelecek çok umutlu gözüküyor, özgüvenli hissediyorsun.",
+
+	"Moodles_FTBad_L1": "Çok Korkmuş",
+	"Moodles_FTBad_L1_desc": "Kötü bir olayın ardından, tetikte hissediyorsun. Biraz kendine zaman ver.",
+
+	"Moodles_ElDoradoGood_L1": "Talihin Parıltısı",
+	"Moodles_ElDoradoGood_L1_desc": "Altının ışıktaki parıltısı, içini alışılmadık bir güç hissiyle dolduruyor.",
+	"Moodles_ElDoradoGood_L2": "Görkemli Zenginlik",
+	"Moodles_ElDoradoGood_L2_desc": "Kendini hafiflemiş hissediyorsun, sanki dünya bile zenginliğine boyun eğiyor. Eminsin ki, biraz daha altın hiç uzak değil!",
+	"Moodles_ElDoradoGood_L3": "Altın Çağ",
+	"Moodles_ElDoradoGood_L3_desc": "Hiçbir hazine ulaşılamaz, hiçbir lüks erişilemez değil. Etrafındaki her şey umutla parıldıyor, neden bırakasın ki?",
+	"Moodles_ElDoradoGood_L4": "Cumhurbaşkanı",
+	"Moodles_ElDoradoGood_L4_desc": "Ölçülemez bir servete sahipsin ama bu yetmiyor. Asla yetmeyecek. Yine de, daha fazlasını istiyorsun.",
+
+	"Moodles_ElDoradoBad_L1": "Kuyumcuya Mı Gitsem?",
+	"Moodles_ElDoradoBad_L1_desc": "Altın, olması gerekenden daha fazla aklını kurcalıyor.",
+	"Moodles_ElDoradoBad_L2": "Zenginliğin Hasreti",
+	"Moodles_ElDoradoBad_L2_desc": "Ellerin fazlasıyla hafif hissettiriyor. İçinde bir şeyler... eksik gibi.",
+	"Moodles_ElDoradoBad_L3": "Para Hırsı",
+	"Moodles_ElDoradoBad_L3_desc": "Uykun huzursuz, yediğin tatsız. Hiçbir şey zenginliğin o sıcak parıltısının yerini tutamıyor. Daha fazlasını bulmalısın. Hemen.",
+	"Moodles_ElDoradoBad_L4": "Altının Bedeli",
+	"Moodles_ElDoradoBad_L4_desc": "Kendini bomboş hissediyorsun. Her adım daha ağır, her nefes daha zahmetli geliyor. Altını sadece istemiyorsun... hayatta kalmak için ona muhtaçsın.",
+
+	"Moodles_Zen_L1": "Zen",
+	"Moodles_Zen_L1_desc": "Berrak bir zihin ve açılmış bir çakra, vücudunu daha hızlı geliştirmene yardımcı olacaktır. Namaste!"
+}

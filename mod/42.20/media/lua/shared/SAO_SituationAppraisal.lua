@@ -27,6 +27,15 @@ end
 local function owned(id,body)
     local rec=SAO.Identity and SAO.Identity.get and SAO.Identity.get(id)
     if not rec or rec.id~=id or rec.dead or not body or not SAO.Body then return nil end
+    -- A Week One proxy is the same SAO person with a source-owned body. The
+    -- exact live crosswalk is a read-only custody proof, not body transfer.
+    if rec.weekOne and rec.weekOne.source=="BanditsWeekOne"
+        and rec.weekOne.status=="external" and not rec.weekOne.pending
+        and SAO.Claims and SAO.Claims.heldBy(rec)=="BanditsWeekOne"
+        and SAO.WeekOneContinuity and SAO.WeekOneContinuity.sourceBodyFor then
+        local ok,sourceBody=pcall(SAO.WeekOneContinuity.sourceBodyFor,id)
+        if ok and sourceBody==body then return rec end
+    end
     local ok,data=pcall(function()return body:getModData()end)
     if not ok or type(data)~="table" or data.SAOPersonId~=id or data.SAOExternalToken~=rec.bodyOwnerToken then return nil end
     if rec.bodyOwner==nil then
@@ -86,7 +95,7 @@ function S.query(id,body,tick)
     local stress=type(temper)=="table" and unit(temper.stress) and temper.stress or 0
     local awarenessOk,awareness=pcall(function()return SAO.PersonalAwareness.query(id)end)
     if not awarenessOk or not awareness or awareness.actorId~=id or awareness.status=="unavailable" then return unavailable("awareness-custody") end
-    local contextOk,context=pcall(function()return SAO.Perception.conceptContext(id,tick)end)
+    local contextOk,context=pcall(function()return SAO.Perception.conceptContext(id,tick,body)end)
     local cuesOk,cues=pcall(function()return SAO.Perception.soundCues(id,body,tick)end)
     if not contextOk or type(context)~="table" or not cuesOk or type(cues)~="table" then return unavailable("private-observation-owner") end
     local out={schema="sao-situation-appraisal/1",actorId=id,atHours=now,status="unresolved",questions={},clarity=clarity,
@@ -123,6 +132,38 @@ function S.query(id,body,tick)
             end
         end
         if #q.evidence>0 then out.questions[#out.questions+1]=q end
+    end
+    -- A selected, unresolved inquiry remains this person's question after
+    -- the native pulse expires. Its saved hearing is historical evidence;
+    -- the planner must still find a currently visible means before moving.
+    local retained=held and held.questions["unclassified-sound"]
+    if retained and #out.questions<8 then
+        local present=false
+        for _,q in ipairs(out.questions) do
+            if q.key=="unclassified-sound" then present=true;break end
+        end
+        if not present then
+            local last=retained.revisions[#retained.revisions]
+            local evidence={}
+            if last and last.localCauseConfirmed==false then
+                for _,e in ipairs(last.evidence) do
+                    if #evidence>=16 then break end
+                    if type(e.id)=="string" and #e.id<=56
+                        and e.sourceId=="native-audible-pulse:"..e.id
+                        and e.basis=="heard" and finite(e.heardAt)
+                        and e.heardAt>=0 and e.heardAt<=tick
+                        and finite(e.x) and finite(e.y) then
+                        evidence[#evidence+1]=copy(e)
+                    end
+                end
+            end
+            if #evidence>0 then
+                out.questions[#out.questions+1]={key="unclassified-sound",
+                    subject="unclassified-sound",interpretation="unknown-cause",
+                    uncertainty=1,evidence=evidence,retained=true,
+                    lastReviewedAtHours=last.atHours}
+            end
+        end
     end
     for _,q in ipairs(out.questions) do
         -- These are explicit, uncalibrated preference coefficients. They

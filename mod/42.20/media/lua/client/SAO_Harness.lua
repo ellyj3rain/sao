@@ -787,12 +787,19 @@ end
 -- clean yes, since some asks already had a line of their own. The
 -- debug orders under SAO Debug stay the operator's hand and never
 -- come through here. Returns whether the act ran.
-local function onYourWord(playerObj, id, kind, arg, act)
+local function onYourWord(playerObj, id, kind, arg, act, requireAccepted)
     local key = playerKeyOf(playerObj)
     local verdict, reason = "complies", nil
-    pcall(function()
+    local judged = pcall(function()
         verdict, reason = SAO.Command.order(key, id, kind, arg)
     end)
+    if requireAccepted and (not judged or not key
+        or verdict ~= "complies" and verdict ~= "reluctant") then
+        pcall(function() SAO.Voice.answer(id, "orderNo") end)
+        log(id .. " cannot apply unaccepted companion order ("
+            .. tostring(kind) .. ")")
+        return false
+    end
     -- Command.order already owns the delivered request and this person's
     -- revision-bound response; no second recognition projection is inferred.
     if verdict == "refuses" then
@@ -806,7 +813,7 @@ local function onYourWord(playerObj, id, kind, arg, act)
         log(id .. " goes along, grudgingly (" .. tostring(kind) .. "): "
             .. tostring(reason))
     end
-    if act then act() end
+    if act then act(key) end
     return true
 end
 
@@ -814,6 +821,14 @@ end
 -- DR-015) drives the same talk surface this county's own menu drives -
 -- one definition, superimposed rather than copied.
 H.talkTo = talkTo
+
+-- The same objective verbs enter either native person root. The procedure
+-- itself belongs to Organization and the represented person's Controller.
+function H.addObjectiveOptions(menu, playerObj, nearId)
+    if SAO.PlayerObjectives and SAO.PlayerObjectives.addPersonOptions then
+        SAO.PlayerObjectives.addPersonOptions(menu, playerObj, nearId)
+    end
+end
 
 -- [B27]/[C7] The tell option, one definition for both menus: the
 -- county's own person submenu and the neighbour's superimposed root.
@@ -885,7 +900,7 @@ local function fillMenu(playerNum, context, worldobjects)
         if rec7 and SAO.Claims.isHeld(rec7) and SAO.Neighbours
             and SAO.Neighbours.willSuperimpose then
             local okS, s7 = pcall(SAO.Neighbours.willSuperimpose,
-                nearId, worldobjects)
+                nearId, worldobjects, context)
             superimposedPerson = (okS and s7) or false
         end
     end
@@ -937,6 +952,7 @@ local function fillMenu(playerNum, context, worldobjects)
         -- [B27] You can pass on what you have seen - one definition,
         -- shared with the neighbour's superimposed root ([C7]).
         H.addTellOption(person, playerObj, nearId)
+        H.addObjectiveOptions(person, playerObj, nearId)
         -- [B20] You can treat them. The same vanilla action the
         -- survivors now use, with the player as the doctor - so YOUR
         -- Doctor level sets how long the dressing holds, exactly as
@@ -1784,28 +1800,40 @@ local function fillMenu(playerNum, context, worldobjects)
                 person:addSubMenu(opt, sub)
                 sub:addOption(coAgent.holdPosition
                     and "wait here (holding)" or "wait here", nil, function()
-                    onYourWord(playerObj, nearId, "hold", nil, function()
+                    onYourWord(playerObj, nearId, "hold", nil, function(orderKey)
                         coAgent.holdPosition = true
+                        if SAO.Controller.noteWeekOneCompanionOrder then
+                            SAO.Controller.noteWeekOneCompanionOrder(nearId,
+                                orderKey, "hold")
+                        end
                         pcall(function() SAO.Voice.answer(nearId, "walkNudge") end)
                         log(nearId .. " will hold this spot")
-                    end)
+                    end, true)
                 end)
                 sub:addOption(coAgent.followTight
                     and "stay close (doing it)" or "stay close", nil, function()
-                    onYourWord(playerObj, nearId, "close", nil, function()
+                    onYourWord(playerObj, nearId, "close", nil, function(orderKey)
                         coAgent.holdPosition = nil
                         coAgent.followTight = true
+                        if SAO.Controller.noteWeekOneCompanionOrder then
+                            SAO.Controller.noteWeekOneCompanionOrder(nearId,
+                                orderKey, "close")
+                        end
                         pcall(function() SAO.Voice.answer(nearId, "orderYes") end)
                         log(nearId .. " will stay close")
-                    end)
+                    end, true)
                 end)
                 sub:addOption("walk with me (normal)", nil, function()
-                    onYourWord(playerObj, nearId, "walk", nil, function()
+                    onYourWord(playerObj, nearId, "walk", nil, function(orderKey)
                         coAgent.holdPosition = nil
                         coAgent.followTight = nil
+                        if SAO.Controller.noteWeekOneCompanionOrder then
+                            SAO.Controller.noteWeekOneCompanionOrder(nearId,
+                                orderKey, "walk")
+                        end
                         pcall(function() SAO.Voice.answer(nearId, "orderYes") end)
                         log(nearId .. " walks with you")
-                    end)
+                    end, true)
                 end)
                 -- [B42] Go home. The county has had `HOMEWARD` and a
                 -- `homeX` on every record since genesis, and the player
@@ -1827,19 +1855,23 @@ local function fillMenu(playerNum, context, worldobjects)
                         function()
                             onYourWord(playerObj, nearId, "travel",
                                 { x = homeRec.homeX, y = homeRec.homeY },
-                                function()
-                                coAgent.holdPosition = nil
-                                coAgent.followTight = nil
-                                coAgent.companioning = nil
+                                function(orderKey)
                                 if SAO.Controller.orderTravel(nearId,
                                     homeRec.homeX, homeRec.homeY,
                                     homeRec.homeZ or 0) then
+                                    coAgent.holdPosition = nil
+                                    coAgent.followTight = nil
+                                    coAgent.companioning = nil
+                                    if SAO.Controller.noteWeekOneCompanionOrder then
+                                        SAO.Controller.noteWeekOneCompanionOrder(
+                                            nearId, orderKey, "home")
+                                    end
                                     pcall(function()
                                         SAO.Voice.answer(nearId, "parting")
                                     end)
                                     log(nearId .. " heads home")
                                 end
-                            end)
+                            end, true)
                         end)
                 end
                 -- [C20] Verb parity with the framework the county
@@ -2037,6 +2069,23 @@ local function fillMenu(playerNum, context, worldobjects)
     local countyOpt = context:addOption("The County...", nil, nil)
     local county = context:getNew(context)
     context:addSubMenu(countyOpt, county)
+    if SAO.PlayerObjectives and SAO.PlayerObjectives.mark then
+        local markedSquare = nil
+        for _, object in ipairs(worldobjects or {}) do
+            local ok, square = pcall(function() return object:getSquare() end)
+            if ok and square then markedSquare = square break end
+        end
+        if markedSquare then
+            county:addOption("Mark this square for a helper errand", nil,
+                function()
+                    local name, reason = SAO.PlayerObjectives.mark(playerObj,
+                        markedSquare)
+                    SAO.PlayerObjectives.notify(playerObj,
+                        name and ("Marked " .. name .. ".")
+                            or tostring(reason))
+                end)
+        end
+    end
     -- [B18] Your ground: every survivor holds a claim from their
     -- first day and the player held nothing, which since [A28] and
     -- [B15] means foragers could strip a player's base as innocent

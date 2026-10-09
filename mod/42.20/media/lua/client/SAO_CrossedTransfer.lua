@@ -128,6 +128,20 @@ function Transfer.begin(personId, body, token, atHours, terminalState)
         rec.crossedTransferPending = nil
         return true, "already-transferred"
     end
+    if type(rec.bodyOwner) == "string"
+        and rec.bodyOwner:sub(1, 10) == "companion:" then
+        local pending = pendingOf(rec)
+        if pending and pending.token ~= token then
+            return false, "another-transfer-pending"
+        end
+        rec.zaoTransferPending = pending or { token = token,
+            atHours = tonumber(atHours), terminalState = terminal }
+        rec.zaoTransferPending.terminalState = terminal
+        if SAO.CompanionExecution and SAO.CompanionExecution.terminalPending then
+            pcall(SAO.CompanionExecution.terminalPending, rec.id)
+        end
+        return false, "companion-release-pending"
+    end
     if rec.bodyOwner then return false, "owned-by-another" end
     if rec.bodyTransfer then
         if rec.bodyTransfer.owner ~= "ZAO" or rec.bodyTransfer.token ~= token then
@@ -177,6 +191,11 @@ function Transfer.resumePending()
                         rec.zaoTransferPending = nil
                         rec.crossedTransferPending = nil
                     end
+                elseif type(rec.bodyOwner) == "string"
+                    and rec.bodyOwner:sub(1, 10) == "companion:" then
+                    if SAO.CompanionExecution and SAO.CompanionExecution.terminalPending then
+                        pcall(SAO.CompanionExecution.terminalPending, rec.id)
+                    end
                 elseif body then
                     ok = Transfer.begin(rec.id, body,
                         pending.token, pending.atHours,
@@ -214,6 +233,10 @@ function Transfer.claimDormant(personId, token, atHours, terminalState)
     token = tostring(token or "")
     local terminal = terminalOf(rec, terminalState)
     if token == "" or not terminal then return false, "invalid-transfer" end
+    if type(rec.bodyOwner) == "string"
+        and rec.bodyOwner:sub(1, 10) == "companion:" then
+        return Transfer.begin(personId, nil, token, atHours, terminal)
+    end
     rec.zaoTransferPending = { token = token, atHours = tonumber(atHours),
         terminalState = terminal }
     local ok, reason = SAO.Body.claimExternalDormant(rec, "ZAO", token)

@@ -1,0 +1,184 @@
+{
+
+    "Moodles_BeautyGood_L1": "Reflet apaisant",
+    "Moodles_BeautyGood_L1_desc": "Le fait d'avoir passé du temps dans des environnements agréables vous a permis de vous sentir un peu plus détendu.",
+    "Moodles_BeautyGood_L2": "Revitalisé par la beauté",
+    "Moodles_BeautyGood_L2_desc": "Vous avez eu votre dose de scènes agréables à contempler. Le souvenir reste encore présent.",
+    "Moodles_BeautyGood_L3": "Haute esthétique",
+    "Moodles_BeautyGood_L3_desc": "Vous avez été entouré de beaucoup de belles choses ces derniers temps. Cela vous a apporté une joie profonde et sereine.",
+    "Moodles_BeautyGood_L4": "Nage dans l'élégance",
+    "Moodles_BeautyGood_L4_desc": "Vous avez récemment été submergé par tant de beauté que vous êtes encore sous le charme de ces images.",
+
+    "Moodles_BeautyNeg_L1": "Un peu maussade",
+    "Moodles_BeautyNeg_L1_desc": "Tu n'as rien vu de bien depuis un certain temps. Ça commence à te peser.",
+    "Moodles_BeautyNeg_L2": "Envie de beauté",
+    "Moodles_BeautyNeg_L2_desc": "Vous restez trop longtemps dans des lieux sombres. Cela ne fait qu'amplifier votre angoisse intérieure.",
+    "Moodles_BeautyNeg_L3": "Misère visuelle",
+    "Moodles_BeautyNeg_L3_desc": "Tout semble laid. Cela vous affaiblit progressivement de l'intérieur.",
+    "Moodles_BeautyNeg_L4": "Un monde sans couleur",
+    "Moodles_BeautyNeg_L4_desc": "Vous avez oublié ce qu'est la beauté. Le monde parait hostile et gris.",
+
+    "Moodles_MindfulState_L1": "Pleine conscience",
+    "Moodles_MindfulState_L1_desc": "Votre esprit est clair ...",
+    "Moodles_MindfulState_L2": "Conscience forte",
+    "Moodles_MindfulState_L2_desc": "Abandonnez la douleur et la faim ...",
+    "Moodles_MindfulState_L3": "Conscience parfaite",
+    "Moodles_MindfulState_L3_desc": "Vos yeux sont réellement ouverts ...",
+
+    "Moodles_HomeSick_L1": "Mal du pays",
+    "Moodles_HomeSick_L1_desc": "Le confort d'une maison vous manque.",
+    "Moodles_HomeSick_L2": "Gros mal du pays",
+    "Moodles_HomeSick_L2_desc": "Envie de rentrer à la maison.",
+    "Moodles_HomeSick_L3": "Mal du pays intense",
+    "Moodles_HomeSick_L3_desc": "Désespérément envie d'un endroit où se reposer.",
+    "Moodles_HomeSick_L4": "Sévère mal du pays",
+    "Moodles_HomeSick_L4_desc": "Chaque heure qui passe est une torture.",
+
+    "Moodles_AtHouse_L1": "Comfortablement installé",
+    "Moodles_AtHouse_L1_desc": "J'ai passé du temps à l'intérieur. Vous vous fichez du monde extérieur.",
+
+    "Moodles_MusicGood_L1": "Bonne musique",
+    "Moodles_MusicGood_L1_desc": "Vous écoutez de la bonne musique.",
+    "Moodles_MusicGood_L2": "Super musique",
+    "Moodles_MusicGood_L2_desc": "Cette mélodie harmonieuse vous emplit de joie.",
+
+    "Moodles_MusicBad_L1": "Musique fade",
+    "Moodles_MusicBad_L1_desc": "Pourquoi s'infliger cela ?",
+    "Moodles_MusicBad_L2": "Son horrible",
+    "Moodles_MusicBad_L2_desc": "AAahh !! Que cela cesse !",
+
+    "Moodles_PartyGood_L1": "Fête sympa",
+    "Moodles_PartyGood_L1_desc": "Pas géniale, pas nulle. Si seulement il y avait plus de monde.",
+    "Moodles_PartyGood_L2": "Fête de fou",
+    "Moodles_PartyGood_L2_desc": "Laissons nous aller comme s'il n'y avait pas de lendemain.",
+    "Moodles_PartyGood_L3": "Fête qui déchire",
+    "Moodles_PartyGood_L3_desc": "Bon sang, ça sera à marquer dans les annales !",
+
+    "Moodles_PartyBad_L1": "Fête ennuyeuse",
+    "Moodles_PartyBad_L1_desc": "J'espérais pouvoir être dans un endroit moins humiliant.",
+    "Moodles_PartyBad_L2": "Fête super ennuyeuse",
+    "Moodles_PartyBad_L2_desc": "Gros risque de stress.",
+    "Moodles_PartyBad_L3": "Fête ultra ennuyeuse",
+    "Moodles_PartyBad_L3_desc": "Des rires forcés, des discussions sans intérêt, tout ce que je veux c'est m'échapper d'ici.",
+
+    "Moodles_DJAudience_L1": "Petit groupe",
+    "Moodles_DJAudience_L1_desc": "C'est parti pour une audience post-apocalyptique !",
+    "Moodles_DJAudience_L2": "Audience raisonnable",
+    "Moodles_DJAudience_L2_desc": "Le son est bon, la foule est conséquence, il est temps de briller !",
+    "Moodles_DJAudience_L3": "Grosse foule",
+    "Moodles_DJAudience_L3_desc": "On met le paquet pour ce rassemblement massif !",
+
+    "Moodles_Embarrassed_L1": "Un peu gêné",
+    "Moodles_Embarrassed_L1_desc": "Vous vous sentez un peu embarrassé.",
+    "Moodles_Embarrassed_L2": "Embarrassé",
+    "Moodles_Embarrassed_L2_desc": "Risque de devenir triste.",
+    "Moodles_Embarrassed_L3": "Très embarrassé",
+    "Moodles_Embarrassed_L3_desc": "Très gros risque de devenir triste.",
+    "Moodles_Embarrassed_L4": "Extrêmement embarrassé",
+    "Moodles_Embarrassed_L4_desc": "J'aimerais disparaître !",
+
+    "Moodles_Uncomfortable_L1": "Inconfortable",
+    "Moodles_Uncomfortable_L1_desc": "Vous ressentez un inconfort physique déplaisant.",
+
+    "Moodles_Comfort_L1": "Confortable",
+    "Moodles_Comfort_L1_desc": "Vous vous sentez à l'aise et relaxé.",
+    "Moodles_Comfort_L2": "Très confortable",
+    "Moodles_Comfort_L2_desc": "Vous êtes dans un état profond de confort et de relaxation.",
+    "Moodles_Comfort_L3": "Extrêmement confortable",
+    "Moodles_Comfort_L3_desc": "Vous baignez dans un niveau de confort extravagant.",
+    "Moodles_Comfort_L4": "Luxueusement confortable",
+    "Moodles_Comfort_L4_desc": "J'ai trouvé le meilleur endroit du monde, et c'est ici.",
+
+    "Moodles_BladderNeed_L1": "Petit besoin",
+    "Moodles_BladderNeed_L1_desc": "Vous ressentez un léger besoin de vous soulager. Pas d'effet sur le moral.",
+    "Moodles_BladderNeed_L2": "Vessie pleine",
+    "Moodles_BladderNeed_L2_desc": "Vous avez la vessie inconfortablement pleine.",
+    "Moodles_BladderNeed_L3": "Besoin urgent",
+    "Moodles_BladderNeed_L3_desc": "Vous avez un besoin urgent, vous ne pourrez pas vous retenir très longtemps.",
+    "Moodles_BladderNeed_L4": "Vessie peine à craquer",
+    "Moodles_BladderNeed_L4_desc": "La nature appelle ... MAINTENANT.",
+
+    "Moodles_HygieneGood_L1": "Propre",
+    "Moodles_HygieneGood_L1_desc": "Vous vous sentez bien.",
+    "Moodles_HygieneGood_L2": "Très propre",
+    "Moodles_HygieneGood_L2_desc": "Super pour l'hygiène personnelle !",
+    "Moodles_HygieneGood_L3": "Super propre",
+    "Moodles_HygieneGood_L3_desc": "Il y a propre, et ensuite, super propre !",
+    "Moodles_HygieneGood_L4": "Étincelant",
+    "Moodles_HygieneGood_L4_desc": "Vous n'aurez pas besoin de vous soucier de la saleté avant un moment !",
+
+    "Moodles_HygieneBad_L1": "Mauvaise odeur",
+    "Moodles_HygieneBad_L1_desc": "Vous avez besoin d'une douche.",
+    "Moodles_HygieneBad_L2": "Odeur vraiment désagréable",
+    "Moodles_HygieneBad_L2_desc": "Ça sent assez mauvais là.",
+    "Moodles_HygieneBad_L3": "Odeur nauséabonde",
+    "Moodles_HygieneBad_L3_desc": "Beurk, quelle odeur insupportable !",
+    "Moodles_HygieneBad_L4": "Ça sent la mort",
+    "Moodles_HygieneBad_L4_desc": "Ça sent vraiment la viande pourrie ...",
+
+    "Moodles_Nauseous_L1": "Odeur nauséabonde",
+    "Moodles_Nauseous_L1_desc": "Quelqu'un dans les environs pue encore plus que les morts.",
+
+    "Moodles_MintFresh_L1": "Haleine fraîche",
+    "Moodles_MintFresh_L1_desc": "Une bonne hygiène buccale est un petit luxe dans ce monde.",
+
+    "Moodles_BathCold_L1": "Lavé à l'eau glacée",
+    "Moodles_BathCold_L1_desc": "Te-te-te-tellement froid ...",
+
+    "Moodles_BathHot_L1": "Lavé à l'eau bien chaude",
+    "Moodles_BathHot_L1_desc": "Revigorant et relaxant.",
+
+    "Moodles_WasTaughtMeditation_L1": "Bons conseils (Méditation)",
+    "Moodles_WasTaughtMeditation_L1_desc": "Un maître de la méditation m'a appris des leçons utiles. Il est temps de les mettre en pratique !",
+
+    "Moodles_WasTaughtSkill_L1": "Bon conseils",
+    "Moodles_WasTaughtSkill_L1_desc": "Un maître m'a appris des leçons utiles. Il est temps de les mettre en pratique !",
+	
+	"Moodles_Eureka_L1": "Eureka !",
+	"Moodles_Eureka_L1_desc": "Tous ces efforts ont enfin porté leurs fruits ! Vous aurez peut-être besoin d'un peu de temps pour recharger vos batteries créatives.",
+
+	"Moodles_Gloomy_L1": "A le cafard",
+	"Moodles_Gloomy_L1_desc": "Un événement récent vous a déprimé. Vous avez besoin de changer d'air pendant un certain temps.",
+
+	"Moodles_MintCurio_L1": "Haleine hyper mentholée (supprime la faim)",
+	"Moodles_MintCurio_L1_desc": "Aide à réduire les envies de grignotage avant qu'elles ne surviennent. N'empêche pas la famine et ne diminue pas la faim. Attention aux effets secondaires !",
+
+    "Moodles_TaughtSkill_L1": "Se sent important",
+    "Moodles_TaughtSkill_L1_desc": "J'ai donné un aperçu de ce que je savais faire et j'ai impressionné quelqu'un !",
+
+    "Moodles_AdviceWasted_L1": "Conseils gâchés",
+    "Moodles_AdviceWasted_L1_desc": "J'ai essayé de leur donner des conseils, mais on dirait qu'ils s'en fichent ...",
+
+    "Moodles_Attractive_L1": "Attirant(e)",
+    "Moodles_Attractive_L1_desc": "Miroir ô miroir, dis moi ...",
+
+    "Moodles_SmellGood_L1": "Respire le bonheur",
+    "Moodles_SmellGood_L1_desc": "Ce parfum m'encense d'une bonne dose d'optimisme.",
+
+    "Moodles_FTGood_L1": "Rêve éveillé",
+    "Moodles_FTGood_L1_desc": "Se sent très confiant en l'avenir.",
+
+    "Moodles_FTBad_L1": "Vraiment inquiet",
+    "Moodles_FTBad_L1_desc": "Se sent nerveux après un événement inquiétant.",
+
+    "Moodles_ElDoradoGood_L1": "Lueur de fortune",
+    "Moodles_ElDoradoGood_L1_desc": "La façon dont l'or scintille à la lumière vous remplit d'un sentiment de puissance inhabituel.",
+    "Moodles_ElDoradoGood_L2": "Trésors inédits",
+    "Moodles_ElDoradoGood_L2_desc": "Vous vous sentez plus léger, comme si le monde entier s'inclinait devant votre opulence. Nul doute que davantage d'or est à portée de main !",
+    "Moodles_ElDoradoGood_L3": "L'âge d'or",
+    "Moodles_ElDoradoGood_L3_desc": "Aucun trésor n'est hors de portée, aucun luxe inaccessible. Tout autour de vous scintille de promesses, pourquoi y renoncer ?",
+    "Moodles_ElDoradoGood_L4": "Exstasie de l'or",
+    "Moodles_ElDoradoGood_L4_desc": "Vous êtes entouré d'une richesse incommensurable, et pourtant cela ne vous suffit pas. Cela ne vous suffira jamais. Vous en voulez toujours plus.",
+
+    "Moodles_ElDoradoBad_L1": "Lueur inquiétante",
+    "Moodles_ElDoradoBad_L1_desc": "Quelque chose semble vous manquer... L'or vous obsède.",
+    "Moodles_ElDoradoBad_L2": "Désir doré",
+    "Moodles_ElDoradoBad_L2_desc": "Vos mains vous semblent trop légères. Vous avez l'impression que quelque chose ... manque.",
+    "Moodles_ElDoradoBad_L3": "Avare en manque",
+    "Moodles_ElDoradoBad_L3_desc": "Votre sommeil est agité, la nourriture insipide, rien ne peut remplacer la douce chaleur de l'or. Il vous faut en trouver davantage. Vite.",
+    "Moodles_ElDoradoBad_L4": "Le prix de l'or",
+    "Moodles_ElDoradoBad_L4_desc": "Se sent vide. Chaque pas est plus lourd, chaque respiration plus difficile. Vous ne voulez pas seulement de l'or... Vous en avez besoin pour survivre.",
+
+    "Moodles_Zen_L1": "Zen",
+    "Moodles_Zen_L1_desc": "Un esprit clair et un ki bien ancré vous aideront à améliorer votre bien-être plus rapidement. Namaste !"
+}

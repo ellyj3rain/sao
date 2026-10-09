@@ -1,0 +1,184 @@
+module NewMusic
+{
+    item CDPlayerBlue
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 1.5,
+        Icon = NM_CDPlayerBlue,
+        DisplayName = CD Player (Blue),
+        ConditionMax = 100,
+        CanBeEquipped = Belt Left,
+        AttachmentType = Walkie,
+        Tooltip = Tooltip_item_CDPlayer,
+        StaticModel = NewMusic.CDPlayerBlue,
+        WorldStaticModel = NewMusic.CDPlayerBlue,
+        UseWorldItem = TRUE,
+    }
+    item CDPlayerBlack
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 1.5,
+        Icon = NM_CDPlayerBlack,
+        DisplayName = CD Player (Black),
+        ConditionMax = 100,
+        CanBeEquipped = Belt Left,
+        AttachmentType = Walkie,
+        Tooltip = Tooltip_item_CDPlayer,
+        StaticModel = NewMusic.CDPlayerBlack,
+        WorldStaticModel = NewMusic.CDPlayerBlack,
+        UseWorldItem = TRUE,
+    }
+    item CDPlayerCow
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 1.5,
+        Icon = NM_CDPlayerCow,
+        DisplayName = CD Player (Moo),
+        ConditionMax = 100,
+        CanBeEquipped = Belt Left,
+        AttachmentType = Walkie,
+        Tooltip = Tooltip_item_CDPlayer,
+        StaticModel = NewMusic.CDPlayerCow,
+        WorldStaticModel = NewMusic.CDPlayerCow,
+        UseWorldItem = TRUE,
+    }
+    item CDPlayerGreen
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 1.5,
+        Icon = NM_CDPlayerGreen,
+        DisplayName = CD Player (Green),
+        ConditionMax = 100,
+        CanBeEquipped = Belt Left,
+        AttachmentType = Walkie,
+        Tooltip = Tooltip_item_CDPlayer,
+        StaticModel = NewMusic.CDPlayerGreen,
+        WorldStaticModel = NewMusic.CDPlayerGreen,
+        UseWorldItem = TRUE,
+    }
+    item CDPlayerOrange
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 1.5,
+        Icon = NM_CDPlayerOrange,
+        DisplayName = CD Player (Orange),
+        ConditionMax = 100,
+        CanBeEquipped = Belt Left,
+        AttachmentType = Walkie,
+        Tooltip = Tooltip_item_CDPlayer,
+        StaticModel = NewMusic.CDPlayerOrange,
+        WorldStaticModel = NewMusic.CDPlayerOrange,
+        UseWorldItem = TRUE,
+    }
+    item CDPlayerPurple
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 1.5,
+        Icon = NM_CDPlayerPurple,
+        DisplayName = CD Player (Purple),
+        ConditionMax = 100,
+        CanBeEquipped = Belt Left,
+        AttachmentType = Walkie,
+        Tooltip = Tooltip_item_CDPlayer,
+        StaticModel = NewMusic.CDPlayerPurple,
+        WorldStaticModel = NewMusic.CDPlayerPurple,
+        UseWorldItem = TRUE,
+    }
+    item CDPlayerRed
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 1.5,
+        Icon = NM_CDPlayerRed,
+        DisplayName = CD Player (Red),
+        ConditionMax = 100,
+        CanBeEquipped = Belt Left,
+        AttachmentType = Walkie,
+        Tooltip = Tooltip_item_CDPlayer,
+        StaticModel = NewMusic.CDPlayerRed,
+        WorldStaticModel = NewMusic.CDPlayerRed,
+        UseWorldItem = TRUE,
+    }
+    item CDPlayerWhite
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 1.5,
+        Icon = NM_CDPlayerWhite,
+        DisplayName = CD Player (White),
+        ConditionMax = 100,
+        CanBeEquipped = Belt Left,
+        AttachmentType = Walkie,
+        Tooltip = Tooltip_item_CDPlayer,
+        StaticModel = NewMusic.CDPlayerWhite,
+        WorldStaticModel = NewMusic.CDPlayerWhite,
+        UseWorldItem = TRUE,
+    }
+    item CDPlayerYellow
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 1.5,
+        Icon = NM_CDPlayerYellow,
+        DisplayName = CD Player (Yellow),
+        ConditionMax = 100,
+        CanBeEquipped = Belt Left,
+        AttachmentType = Walkie,
+        Tooltip = Tooltip_item_CDPlayer,
+        StaticModel = NewMusic.CDPlayerYellow,
+        WorldStaticModel = NewMusic.CDPlayerYellow,
+        UseWorldItem = TRUE,
+    }
+    item CDPlayerMagenta
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 1.5,
+        Icon = NM_CDPlayerMagenta,
+        DisplayName = CD Player (Magenta),
+        ConditionMax = 100,
+        CanBeEquipped = Belt Left,
+        AttachmentType = Walkie,
+        Tooltip = Tooltip_item_CDPlayer,
+        StaticModel = NewMusic.CDPlayerMagenta,
+        WorldStaticModel = NewMusic.CDPlayerMagenta,
+        UseWorldItem = TRUE,
+    }
+    item CDPlayerPink
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 1.5,
+        Icon = NM_CDPlayerPink,
+        DisplayName = CD Player (Pink),
+        ConditionMax = 100,
+        CanBeEquipped = Belt Left,
+        AttachmentType = Walkie,
+        Tooltip = Tooltip_item_CDPlayer,
+        StaticModel = NewMusic.CDPlayerPink,
+        WorldStaticModel = NewMusic.CDPlayerPink,
+        UseWorldItem = TRUE,
+    }
+    item CDPlayerCyan
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:normal,
+        Weight = 1.5,
+        Icon = NM_CDPlayerCyan,
+        DisplayName = CD Player (Cyan),
+        ConditionMax = 100,
+        CanBeEquipped = Belt Left,
+        AttachmentType = Walkie,
+        Tooltip = Tooltip_item_CDPlayer,
+        StaticModel = NewMusic.CDPlayerCyan,
+        WorldStaticModel = NewMusic.CDPlayerCyan,
+        UseWorldItem = TRUE,
+    }
+}
+

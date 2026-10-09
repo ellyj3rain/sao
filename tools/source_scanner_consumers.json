@@ -1,0 +1,90 @@
+{
+  "schema": "sao.source-scanner-consumers/1",
+  "consumers": {
+    "mod/42.20/media/lua/client/SAO_Leisure.lua": {
+      "sha256": "223e80d49724ccc0491b040406cbe53b404014f2e12a7fe279ccdbeb65d4e5cc",
+      "sourceIds": [
+        "LifestyleHobbies"
+      ],
+      "reason": "Qualified D2 actor-owned source adapter; exact original block identity only, full consumer revision pinned. Source mechanics and private custody remain checked by native/source owner qualification.",
+      "qualification": {
+        "receiptPath": "_scratch/d2-leisure-01/participant-integration21/native-play04/resolution12/source-coexistence14/hobbies01/receipt.json",
+        "receiptSha256": "1923c353df9db9deab73402e003029e71d3b861434fae0846c9ccb7b2cddd0dd",
+        "runtimeSha256": "223e80d49724ccc0491b040406cbe53b404014f2e12a7fe279ccdbeb65d4e5cc"
+      }
+    },
+    "mod/42.20/media/lua/client/SAO_LeisureArt.lua": {
+      "sha256": "3850a469f0ac67c81a4e7af91a400410f8bf363e101e4ab0ed914b304a7a25b4",
+      "sourceIds": [
+        "LifestyleHobbies"
+      ],
+      "reason": "Qualified D2 actor-owned source adapter; exact original block identity only, full consumer revision pinned. Source mechanics and private custody remain checked by native/source owner qualification.",
+      "qualification": {
+        "receiptPath": "_scratch/d2-leisure-01/participant-integration21/native-play04/resolution12/source-coexistence14/art01/receipt.json",
+        "receiptSha256": "35b8ba98fd98681460de528d7585d4f6340f89bbf2d5b5b6de0dc99b26cca785",
+        "runtimeSha256": "3850a469f0ac67c81a4e7af91a400410f8bf363e101e4ab0ed914b304a7a25b4"
+      }
+    },
+    "mod/42.20/media/lua/client/SAO_LeisureGames.lua": {
+      "sha256": "a68f90f73f1d3ac4e6c0d21978bbc2e7c75c3e648489ed4c80494ef476779814",
+      "sourceIds": [
+        "ComputerModkum",
+        "ProjectArcade",
+        "LifestyleHobbies"
+      ],
+      "reason": "Qualified D2 actor-owned source adapter; exact original block identity only, full consumer revision pinned. Source mechanics and private custody remain checked by native/source owner qualification.",
+      "qualification": {
+        "receiptPath": "_scratch/d2-leisure-01/claw-games-regression03/receipt.json",
+        "receiptSha256": "b9fe25ac86ecd36612e7c888dcc66676f9df29a04157c83d52df994838f9e3f9",
+        "runtimeSha256": "a68f90f73f1d3ac4e6c0d21978bbc2e7c75c3e648489ed4c80494ef476779814"
+      }
+    },
+    "mod/42.20/media/lua/client/SAO_LeisureExercise.lua": {
+      "sha256": "f02c393917645bed065ace69b3fc575751c2f5c6b99d7de3af3504b5e7263bae",
+      "sourceIds": [
+        "LifestyleHobbies",
+        "FWOFitnessWorkoutOverhaul",
+        "FWOBenchPressTreadmill",
+        "KnoxAquarium"
+      ],
+      "reason": "Qualified D2 actor-owned source adapter; exact original block identity only, full consumer revision pinned. Source mechanics and private custody remain checked by native/source owner qualification.",
+      "qualification": {
+        "receiptPath": "_scratch/d2-leisure-01/participant-integration21/native-play04/resolution12/source-coexistence14/exercise-source01/receipt.json",
+        "receiptSha256": "4603b64b3000841ff7d4d857bec764daa43bbcddc3a95815e8d8e5fb8dae6d2e",
+        "runtimeSha256": "f02c393917645bed065ace69b3fc575751c2f5c6b99d7de3af3504b5e7263bae"
+      }
+    },
+    "mod/42.20/media/lua/client/SAO_LeisureMusic.lua": {
+      "sha256": "3de28eb82dce3717a8af5fd71468c42d1a453f3c79f66e4fbe1945642787ed46",
+      "sourceIds": [
+        "LifestyleHobbies",
+        "NewMusic"
+      ],
+      "reason": "Qualified D2 actor-owned source adapter; exact original block identity only, full consumer revision pinned. Source mechanics and private custody remain checked by native/source owner qualification.",
+      "qualification": {
+        "receiptPath": "_scratch/d2-personal-dance-acquisition/personal-final01/receipt.json",
+        "receiptSha256": "4b936a772084d99810cd09fa4d63dccb6ca40d68231271c0566091fd295438d3",
+        "runtimeSha256": "3de28eb82dce3717a8af5fd71468c42d1a453f3c79f66e4fbe1945642787ed46"
+      }
+    },
+    "mod/42.20/media/lua/client/SAO_LeisureLifestyle.lua": {
+      "sha256": "f186e07774be77439829a4362d0b9acfd3d0762823d2112cc5bcfe7bebb2d821",
+      "sourceIds": [
+        "LifestyleHobbies"
+      ],
+      "reason": "Qualified D2 actor-owned source adapter; exact original block identity only, full consumer revision pinned. Source mechanics and private custody remain checked by native/source owner qualification.",
+      "qualification": {
+        "receiptPath": "_scratch/d2-leisure-01/dj-paired-menu-source15/receipt.json",
+        "receiptSha256": "c2dcb3a9b848b7a8f5185539b2efdd20ea5a577e733d72654018779f45e2bc4f",
+        "runtimeSha256": "f186e07774be77439829a4362d0b9acfd3d0762823d2112cc5bcfe7bebb2d821"
+      }
+    },
+    "mod/42.20/media/lua/client/SAO_LeisureMusicSupply.lua": {
+      "sha256": "b7a0d21de1484ced0a6f2aef26dcb76f298726c9127730759725b343d521cc86",
+      "sourceIds": [
+        "NewMusic"
+      ],
+      "reason": "Qualified D2 actor-owned source adapter; exact original block identity only, full consumer revision pinned. Source mechanics and private custody remain checked by native/source owner qualification."
+    }
+  }
+}

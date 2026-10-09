@@ -171,6 +171,13 @@ SAO.Age.dailyRoll=function(...)
     __test.ageCalls=__test.ageCalls+1
     return dailyRoll(...)
 end
+__test.lifeStageCalls=0
+local advanceLifeStage=SAO.History.advanceLifeStage
+assert(type(advanceLifeStage)=="function", "production life-stage owner missing")
+SAO.History.advanceLifeStage=function(...)
+    __test.lifeStageCalls=__test.lifeStageCalls+1
+    return advanceLifeStage(...)
+end
 __test.snapshots={}
 SAO.Telemetry.county=function()
     __test.snapshots[math.floor(SAO.History.countyHours()/24)]=SAO.Identity.livingCount()
@@ -180,6 +187,7 @@ RECORD_PROBE = r'''(function()
     __tick()
     if __person.dead then return "FAIL death before elapsed day" end
     if __test.ageCalls~=0 then return "FAIL initial partial day aged" end
+    if __test.lifeStageCalls~=0 then return "FAIL initial partial day changed life stage" end
     local initial=SAO.Neuro.stateOf(__person)
     if not initial or initial.atHours~=0 or initial.burden~=0 then
         return "FAIL initial partial day neuro debit"
@@ -198,6 +206,7 @@ RECORD_PROBE = r'''(function()
         return "FAIL elapsed brain history="..tostring(state and state.burden)
     end
     if __test.ageCalls~=1 then return "FAIL daily age calls="..__test.ageCalls end
+    if __test.lifeStageCalls~=1 then return "FAIL daily life-stage calls="..__test.lifeStageCalls end
     if __test.snapshots[1]~=0 then return "FAIL daily digest preceded real death" end
     return "PASS real person died at hour24, causal brain history advanced24h, digest sees death"
 end)()'''
@@ -299,6 +308,8 @@ def main():
         for label, mutation in (
             ("initial partial day cannot age", ("if previousDay and day > previousDay then", "if true then")),
             ("digest cannot precede age death", (age_block + digest_line, digest_line + age_block)),
+            ("elapsed county day advances life stage", (
+                "            pcall(function() SAO.History.advanceLifeStage(rec) end)\n", "")),
         ):
             result = run_case(work, source, history, mutation=mutation, **record_options)
             killed = result.startswith("FAIL")

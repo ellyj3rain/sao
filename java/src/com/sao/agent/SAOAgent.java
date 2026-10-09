@@ -31,11 +31,15 @@ public final class SAOAgent {
             log("ERROR IsoPlayer not loadable: " + exception);
             return;
         }
+        SAOZombieBuddyLoadWeave.install(instrumentation);
         instrumentation.addTransformer(new SAOMeleeTransformer(), false);
         log("melee callback transformer installed");
         SAOBodyScaleWeave.install(instrumentation);
         SAOLootDensityWeave.install(instrumentation);
         SAOOrientationWeave.install(instrumentation);
+        SAOCalloutWeave.install(instrumentation);
+        SAORadioPlaybackWeave.install(instrumentation);
+        SAODanceCycleWeave.install(instrumentation);
         SAOBridgeBootstrap.start();
     }
 

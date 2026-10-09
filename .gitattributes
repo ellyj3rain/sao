@@ -30,3 +30,17 @@ Batches/history/d1-pre-closure/** -text -whitespace
 
 # Preserve exact current-index/version bytes captured before the product correction.
 Batches/history/c-20261005-before-product/** -text -whitespace
+# Repurposed source provenance and native data retain sealed bytes.
+mod/42.20/media/SAOSources/** -text -whitespace
+mod/42.20/media/AnimSets/player/sitonground-sitting/SAORecovery_*.xml -text
+mod/42.20/media/texturepacks/LS_Artwork.pack filter=lfs diff=lfs merge=lfs -text
+# Captured native data and integrated producers retain their measured formatting.
+mod/42.20/media/**/*.bak* -text -whitespace
+mod/42.20/media/anims_X/** -text -whitespace
+mod/42.20/media/registries.lua -whitespace
+mod/42.20/media/lua/shared/ProjectArcade_SoundPolicy.lua -whitespace
+mod/42.20/media/lua/client/SAO_LeisureArt.lua -whitespace
+mod/42.20/media/lua/client/SAO_LeisureExercise.lua -whitespace
+mod/42.20/media/lua/client/SAO_LeisureGames.lua -whitespace
+# This measured producer retains original CRLF lines beside adapted LF lines.
+mod/42.20/media/lua/client/TimedActions/NMDisassembleDeviceAction.lua -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

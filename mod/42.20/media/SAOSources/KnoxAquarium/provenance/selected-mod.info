@@ -1,0 +1,9 @@
+name=Knox Aquarium (Beta)
+id=KnoxAquarium
+author=RentCollectorClips
+description=A working aquarium for Build 42. Three tanks - the original 20-litre Aquarium, a 200-litre Large Aquarium and a two-tile 400-litre Display Aquarium. Catch a fish with a rod, get it home while it is still alive, and it swims in the tank and stays yours: each fish is kept as its own saved item and comes back out the same fish. Or switch any empty tank to a dry habitat for a pet rat or mouse. Press V beside a tank for the aquarium wheel; everything is on the right-click menu too. Optional: with Fishing Overhaul BR by gadinho installed, 97 of his species swim in the Large and Display tanks. No dependencies and no Java. Beta build: Beta tools are included so you can try everything straight away; they will be removed once the beta ends.
+poster=poster.png
+icon=icon.png
+modversion=0.14.2
+tags=Build 42;Animals;Building;Items;Models
+versionMin=42.20

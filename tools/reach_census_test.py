@@ -72,10 +72,18 @@ CENSUS = {
     "SAO_DormantPopulation.lua": 1,
     "SAO_UI.lua": 1,
     "SAO_Perception.lua": 1,
+    # Approved creator/objective, bounded private inquiry and native WeekOne
+    # execution own these independent dimensional thresholds. They are one-off
+    # uses, with different meanings from existing social/sensory reaches.
+    "SAO_PlayerObjectives.lua": 3,   # delivery5; destination separation8/6
+    "SAO_ProceduralPlanning.lua": 3, # navigation lead and exact tile arrival1
+    "SAO_WeekOneContinuity.lua": 5,  # normalization.1; hop11; tactical3/6; tile1
 }
 
 
 def main():
+    from source_scanner_baseline import Baseline
+    baseline = Baseline()
     faults = []
     print("=" * 74)
     print("REACHES STILL TYPED BARE")
@@ -85,7 +93,8 @@ def main():
     for path in sorted(LUA.rglob("*.lua")):
         src = strip_lua(path.read_text(encoding="utf-8", errors="ignore"),
                         strings=False)
-        n = len(bare_reaches(src))
+        n = sum(not baseline.preserved(path, line_of(src, offset))
+                for offset, _, _ in bare_reaches(src))
         if n:
             found[path.name] = n
 

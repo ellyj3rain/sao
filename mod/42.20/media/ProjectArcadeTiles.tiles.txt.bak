@@ -1,0 +1,1953 @@
+version = 1
+tileset
+{
+    file = pa_arcades
+    size = 8,8
+    id = 4
+    // pa_arcades_0
+    tile
+    {
+        xy = 0,0
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeStreetFighterII
+        CustomName = Machine
+        Facing = S
+        GroupName = arcade_sf
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_1
+    tile
+    {
+        xy = 1,0
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeStreetFighterII
+        CustomName = Machine
+        Facing = E
+        GroupName = arcade_sf
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_2
+    tile
+    {
+        xy = 2,0
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeStreetFighterII
+        CustomName = Machine
+        Facing = W
+        GroupName = arcade_sf
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_3
+    tile
+    {
+        xy = 3,0
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeStreetFighterII
+        CustomName = Machine
+        Facing = N
+        GroupName = arcade_sf
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_4
+    tile
+    {
+        xy = 4,0
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadePacMan
+        CustomName = Machine
+        Facing = S
+        GroupName = arcade_pacman
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_5
+    tile
+    {
+        xy = 5,0
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadePacMan
+        CustomName = Machine
+        Facing = E
+        GroupName = arcade_pacman
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_6
+    tile
+    {
+        xy = 6,0
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadePacMan
+        CustomName = Machine
+        Facing = W
+        GroupName = arcade_pacman
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_7
+    tile
+    {
+        xy = 7,0
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadePacMan
+        CustomName = Machine
+        Facing = N
+        GroupName = arcade_pacman
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_8
+    tile
+    {
+        xy = 0,1
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeDoubleDragon
+        CustomName = Machine
+        Facing = S
+        GroupName = arcade_dd
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_9
+    tile
+    {
+        xy = 1,1
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeDoubleDragon
+        CustomName = Machine
+        Facing = E
+        GroupName = arcade_dd
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_10
+    tile
+    {
+        xy = 2,1
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeDoubleDragon
+        CustomName = Machine
+        Facing = W
+        GroupName = arcade_dd
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_11
+    tile
+    {
+        xy = 3,1
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeDoubleDragon
+        CustomName = Machine
+        Facing = N
+        GroupName = arcade_dd
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_12
+    tile
+    {
+        xy = 4,1
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeSpaceInvaders
+        CustomName = Machine
+        Facing = S
+        GroupName = arcade_si
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_13
+    tile
+    {
+        xy = 5,1
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeSpaceInvaders
+        CustomName = Machine
+        Facing = E
+        GroupName = arcade_si
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_14
+    tile
+    {
+        xy = 6,1
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeSpaceInvaders
+        CustomName = Machine
+        Facing = W
+        GroupName = arcade_si
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_15
+    tile
+    {
+        xy = 7,1
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeSpaceInvaders
+        CustomName = Machine
+        Facing = N
+        GroupName = arcade_si
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_16
+    tile
+    {
+        xy = 0,2
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeDonkeyKong
+        CustomName = Machine
+        Facing = S
+        GroupName = arcade_dk
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_17
+    tile
+    {
+        xy = 1,2
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeDonkeyKong
+        CustomName = Machine
+        Facing = E
+        GroupName = arcade_dk
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_18
+    tile
+    {
+        xy = 2,2
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeDonkeyKong
+        CustomName = Machine
+        Facing = W
+        GroupName = arcade_dk
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_19
+    tile
+    {
+        xy = 3,2
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeDonkeyKong
+        CustomName = Machine
+        Facing = N
+        GroupName = arcade_dk
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_20
+    tile
+    {
+        xy = 4,2
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeCentipede
+        CustomName = Machine
+        Facing = S
+        GroupName = arcade_cen
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_21
+    tile
+    {
+        xy = 5,2
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeCentipede
+        CustomName = Machine
+        Facing = E
+        GroupName = arcade_cen
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_22
+    tile
+    {
+        xy = 6,2
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeCentipede
+        CustomName = Machine
+        Facing = W
+        GroupName = arcade_cen
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_23
+    tile
+    {
+        xy = 7,2
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeCentipede
+        CustomName = Machine
+        Facing = N
+        GroupName = arcade_cen
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_24
+    tile
+    {
+        xy = 0,3
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeDigDug
+        CustomName = Machine
+        Facing = S
+        GroupName = arcade_dig
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_25
+    tile
+    {
+        xy = 1,3
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeDigDug
+        CustomName = Machine
+        Facing = E
+        GroupName = arcade_dig
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_26
+    tile
+    {
+        xy = 2,3
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeDigDug
+        CustomName = Machine
+        Facing = W
+        GroupName = arcade_dig
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_27
+    tile
+    {
+        xy = 3,3
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeDigDug
+        CustomName = Machine
+        Facing = N
+        GroupName = arcade_dig
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_28
+    tile
+    {
+        xy = 4,3
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeNBAJam
+        CustomName = Machine
+        Facing = S
+        GroupName = arcade_nba
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_29
+    tile
+    {
+        xy = 5,3
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeNBAJam
+        CustomName = Machine
+        Facing = E
+        GroupName = arcade_nba
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_30
+    tile
+    {
+        xy = 6,3
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeNBAJam
+        CustomName = Machine
+        Facing = W
+        GroupName = arcade_nba
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_31
+    tile
+    {
+        xy = 7,3
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeNBAJam
+        CustomName = Machine
+        Facing = N
+        GroupName = arcade_nba
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_32
+    tile
+    {
+        xy = 0,4
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeTMNT
+        CustomName = Machine
+        Facing = S
+        GroupName = arcade_tmnt
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_33
+    tile
+    {
+        xy = 1,4
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeTMNT
+        CustomName = Machine
+        Facing = E
+        GroupName = arcade_tmnt
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_34
+    tile
+    {
+        xy = 2,4
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeTMNT
+        CustomName = Machine
+        Facing = W
+        GroupName = arcade_tmnt
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_35
+    tile
+    {
+        xy = 3,4
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeTMNT
+        CustomName = Machine
+        Facing = N
+        GroupName = arcade_tmnt
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_36
+    tile
+    {
+        xy = 4,4
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeMK
+        CustomName = Machine
+        Facing = S
+        GroupName = arcade_mk
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_37
+    tile
+    {
+        xy = 5,4
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeMK
+        CustomName = Machine
+        Facing = E
+        GroupName = arcade_mk
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_38
+    tile
+    {
+        xy = 6,4
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeMK
+        CustomName = Machine
+        Facing = W
+        GroupName = arcade_mk
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_arcades_39
+    tile
+    {
+        xy = 7,4
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ArcadeMK
+        CustomName = Machine
+        Facing = N
+        GroupName = arcade_mk
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+}
+tileset
+{
+    file = pa_recreational
+    size = 8,8
+    id = 5
+    // pa_recreational_0
+    tile
+    {
+        xy = 0,0
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.RecreationalPunchingMachine
+        CustomName = Machine
+        Facing = S
+        GroupName = arcade_punchingmachine
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_recreational_1
+    tile
+    {
+        xy = 1,0
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.RecreationalPunchingMachine
+        CustomName = Machine
+        Facing = E
+        GroupName = arcade_punchingmachine
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_recreational_2
+    tile
+    {
+        xy = 2,0
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.RecreationalClawMachine
+        CustomName = Machine
+        Facing = S
+        GroupName = arcade_clawmachine
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_recreational_3
+    tile
+    {
+        xy = 3,0
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.RecreationalClawMachine
+        CustomName = Machine
+        Facing = E
+        GroupName = arcade_clawmachine
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_recreational_4
+    tile
+    {
+        xy = 4,0
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.RecreationalClawMachine
+        CustomName = Machine
+        Facing = N
+        GroupName = arcade_clawmachine
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_recreational_5
+    tile
+    {
+        xy = 5,0
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.RecreationalClawMachine
+        CustomName = Machine
+        Facing = W
+        GroupName = arcade_clawmachine
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_recreational_6
+    tile
+    {
+        xy = 6,0
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.RecreationalCoinPusher
+        CustomName = Machine
+        Facing = S
+        GroupName = arcade_coinpusher
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_recreational_7
+    tile
+    {
+        xy = 7,0
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.RecreationalCoinPusher
+        CustomName = Machine
+        Facing = E
+        GroupName = arcade_coinpusher
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        PickUpWeight = 40
+        solid = 
+    }
+}
+tileset
+{
+    file = pa_arcades_overlay
+    size = 8,8
+    id = 6
+    // pa_arcades_overlay_0
+    tile
+    {
+        xy = 0,0
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_1
+    tile
+    {
+        xy = 1,0
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_4
+    tile
+    {
+        xy = 4,0
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_5
+    tile
+    {
+        xy = 5,0
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_8
+    tile
+    {
+        xy = 0,1
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_9
+    tile
+    {
+        xy = 1,1
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_12
+    tile
+    {
+        xy = 4,1
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_13
+    tile
+    {
+        xy = 5,1
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_16
+    tile
+    {
+        xy = 0,2
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_17
+    tile
+    {
+        xy = 1,2
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_20
+    tile
+    {
+        xy = 4,2
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_21
+    tile
+    {
+        xy = 5,2
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_24
+    tile
+    {
+        xy = 0,3
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_25
+    tile
+    {
+        xy = 1,3
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_28
+    tile
+    {
+        xy = 4,3
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_arcades_overlay_29
+    tile
+    {
+        xy = 5,3
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+}
+tileset
+{
+    file = pa_pinballs
+    size = 8,8
+    id = 7
+    // pa_pinballs_0
+    tile
+    {
+        xy = 0,0
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballAddamsFamily
+        CustomName = Machine
+        Facing = S
+        ForceSingleItem = 
+        GroupName = pinball_af
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,1
+        solidtrans = 
+    }
+    // pa_pinballs_1
+    tile
+    {
+        xy = 1,0
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballAddamsFamily
+        CustomName = Machine
+        Facing = S
+        ForceSingleItem = 
+        GroupName = pinball_af
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,0
+        solidtrans = 
+    }
+    // pa_pinballs_2
+    tile
+    {
+        xy = 2,0
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballAddamsFamily
+        CustomName = Machine
+        Facing = E
+        ForceSingleItem = 
+        GroupName = pinball_af
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,0
+        solidtrans = 
+    }
+    // pa_pinballs_3
+    tile
+    {
+        xy = 3,0
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballAddamsFamily
+        CustomName = Machine
+        Facing = E
+        ForceSingleItem = 
+        GroupName = pinball_af
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 1,0
+        solidtrans = 
+    }
+    // pa_pinballs_4
+    tile
+    {
+        xy = 4,0
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballTwilightZone
+        CustomName = Machine
+        Facing = S
+        ForceSingleItem = 
+        GroupName = pinball_tz
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,1
+        solidtrans = 
+    }
+    // pa_pinballs_5
+    tile
+    {
+        xy = 5,0
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballTwilightZone
+        CustomName = Machine
+        Facing = S
+        ForceSingleItem = 
+        GroupName = pinball_tz
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,0
+        solidtrans = 
+    }
+    // pa_pinballs_6
+    tile
+    {
+        xy = 6,0
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballTwilightZone
+        CustomName = Machine
+        Facing = E
+        ForceSingleItem = 
+        GroupName = pinball_tz
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,0
+        solidtrans = 
+    }
+    // pa_pinballs_7
+    tile
+    {
+        xy = 7,0
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballTwilightZone
+        CustomName = Machine
+        Facing = E
+        ForceSingleItem = 
+        GroupName = pinball_tz
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 1,0
+        solidtrans = 
+    }
+    // pa_pinballs_8
+    tile
+    {
+        xy = 0,1
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballIndianaJones
+        CustomName = Machine
+        Facing = S
+        ForceSingleItem = 
+        GroupName = pinball_ij
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,1
+        solidtrans = 
+    }
+    // pa_pinballs_9
+    tile
+    {
+        xy = 1,1
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballIndianaJones
+        CustomName = Machine
+        Facing = S
+        ForceSingleItem = 
+        GroupName = pinball_ij
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,0
+        solidtrans = 
+    }
+    // pa_pinballs_10
+    tile
+    {
+        xy = 2,1
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballIndianaJones
+        CustomName = Machine
+        Facing = E
+        ForceSingleItem = 
+        GroupName = pinball_ij
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,0
+        solidtrans = 
+    }
+    // pa_pinballs_11
+    tile
+    {
+        xy = 3,1
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballIndianaJones
+        CustomName = Machine
+        Facing = E
+        ForceSingleItem = 
+        GroupName = pinball_ij
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 1,0
+        solidtrans = 
+    }
+    // pa_pinballs_12
+    tile
+    {
+        xy = 4,1
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballBlackKnight2000
+        CustomName = Machine
+        Facing = S
+        ForceSingleItem = 
+        GroupName = pinball_bk2000
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,1
+        solidtrans = 
+    }
+    // pa_pinballs_13
+    tile
+    {
+        xy = 5,1
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballBlackKnight2000
+        CustomName = Machine
+        Facing = S
+        ForceSingleItem = 
+        GroupName = pinball_bk2000
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,0
+        solidtrans = 
+    }
+    // pa_pinballs_14
+    tile
+    {
+        xy = 6,1
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballBlackKnight2000
+        CustomName = Machine
+        Facing = E
+        ForceSingleItem = 
+        GroupName = pinball_bk2000
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,0
+        solidtrans = 
+    }
+    // pa_pinballs_15
+    tile
+    {
+        xy = 7,1
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballBlackKnight2000
+        CustomName = Machine
+        Facing = E
+        ForceSingleItem = 
+        GroupName = pinball_bk2000
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 1,0
+        solidtrans = 
+    }
+    // pa_pinballs_16
+    tile
+    {
+        xy = 0,2
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballFunHouse
+        CustomName = Machine
+        Facing = S
+        ForceSingleItem = 
+        GroupName = pinball_fh
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,1
+        solidtrans = 
+    }
+    // pa_pinballs_17
+    tile
+    {
+        xy = 1,2
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballFunHouse
+        CustomName = Machine
+        Facing = S
+        ForceSingleItem = 
+        GroupName = pinball_fh
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,0
+        solidtrans = 
+    }
+    // pa_pinballs_18
+    tile
+    {
+        xy = 2,2
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballFunHouse
+        CustomName = Machine
+        Facing = E
+        ForceSingleItem = 
+        GroupName = pinball_fh
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,0
+        solidtrans = 
+    }
+    // pa_pinballs_19
+    tile
+    {
+        xy = 3,2
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballFunHouse
+        CustomName = Machine
+        Facing = E
+        ForceSingleItem = 
+        GroupName = pinball_fh
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 1,0
+        solidtrans = 
+    }
+    // pa_pinballs_20
+    tile
+    {
+        xy = 4,2
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballElviraPartyMonsters
+        CustomName = Machine
+        Facing = S
+        ForceSingleItem = 
+        GroupName = pinball_etpm
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,1
+        solidtrans = 
+    }
+    // pa_pinballs_21
+    tile
+    {
+        xy = 5,2
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballElviraPartyMonsters
+        CustomName = Machine
+        Facing = S
+        ForceSingleItem = 
+        GroupName = pinball_etpm
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,0
+        solidtrans = 
+    }
+    // pa_pinballs_22
+    tile
+    {
+        xy = 6,2
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballElviraPartyMonsters
+        CustomName = Machine
+        Facing = E
+        ForceSingleItem = 
+        GroupName = pinball_etpm
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 0,0
+        solidtrans = 
+    }
+    // pa_pinballs_23
+    tile
+    {
+        xy = 7,2
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.PinballElviraPartyMonsters
+        CustomName = Machine
+        Facing = E
+        ForceSingleItem = 
+        GroupName = pinball_etpm
+        IsLow = 
+        IsMoveAble = 
+        ItemHeight = 34
+        PickUpWeight = 40
+        SpriteGridPos = 1,0
+        solidtrans = 
+    }
+}
+tileset
+{
+    file = pa_complex
+    size = 8,8
+    id = 8
+    // pa_complex_0
+    tile
+    {
+        xy = 0,0
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ComplexTerminator2
+        CustomName = Machine
+        Facing = S
+        GroupName = complex_t2
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_complex_1
+    tile
+    {
+        xy = 1,0
+        AmbientSound = ArcadeMachineAmbience
+        BlocksPlacement = 
+        CanScrap = 
+        CustomItem = ProjectArcade.ComplexTerminator2
+        CustomName = Machine
+        Facing = E
+        GroupName = complex_t2
+        IsLow = 
+        IsMoveAble = 
+        Material = Electric
+        Material2 = MetalScrap
+        Material3 = MetalPlates
+        PickUpWeight = 40
+        solid = 
+    }
+    // pa_complex_2
+    tile
+    {
+        xy = 2,0
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.ComplexStarWars
+        CustomName = Machine
+        Facing = E
+        ForceSingleItem = 
+        GroupName = complex_sw
+        IsLow = 
+        IsMoveAble = 
+        PickUpWeight = 60
+        SpriteGridPos = 0,0
+        solid = 
+    }
+    // pa_complex_3
+    tile
+    {
+        xy = 3,0
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.ComplexStarWars
+        CustomName = Machine
+        Facing = E
+        ForceSingleItem = 
+        GroupName = complex_sw
+        IsLow = 
+        IsMoveAble = 
+        PickUpWeight = 60
+        SpriteGridPos = 1,0
+        solid = 
+    }
+    // pa_complex_4
+    tile
+    {
+        xy = 4,0
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.ComplexStarWars
+        CustomName = Machine
+        Facing = S
+        ForceSingleItem = 
+        GroupName = complex_sw
+        IsLow = 
+        IsMoveAble = 
+        PickUpWeight = 60
+        SpriteGridPos = 0,1
+        solid = 
+    }
+    // pa_complex_5
+    tile
+    {
+        xy = 5,0
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.ComplexStarWars
+        CustomName = Machine
+        Facing = S
+        ForceSingleItem = 
+        GroupName = complex_sw
+        IsLow = 
+        IsMoveAble = 
+        PickUpWeight = 60
+        SpriteGridPos = 0,0
+        solid = 
+    }
+    // pa_complex_6
+    tile
+    {
+        xy = 6,0
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.ComplexStarWars
+        Facing = W
+        ForceSingleItem = 
+        GroupName = complex_sw
+        IsLow = 
+        IsMoveAble = 
+        PickUpWeight = 60
+        SpriteGridPos = 0,0
+        solid = 
+    }
+    // pa_complex_7
+    tile
+    {
+        xy = 7,0
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.ComplexStarWars
+        Facing = W
+        ForceSingleItem = 
+        GroupName = complex_sw
+        IsLow = 
+        IsMoveAble = 
+        PickUpWeight = 60
+        SpriteGridPos = 1,0
+        solid = 
+    }
+    // pa_complex_8
+    tile
+    {
+        xy = 0,1
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.ComplexStarWars
+        Facing = N
+        ForceSingleItem = 
+        GroupName = complex_sw
+        IsLow = 
+        IsMoveAble = 
+        PickUpWeight = 60
+        SpriteGridPos = 0,1
+        solid = 
+    }
+    // pa_complex_9
+    tile
+    {
+        xy = 1,1
+        BlocksPlacement = 
+        CustomItem = ProjectArcade.ComplexStarWars
+        Facing = N
+        ForceSingleItem = 
+        GroupName = complex_sw
+        IsLow = 
+        IsMoveAble = 
+        PickUpWeight = 60
+        SpriteGridPos = 0,0
+        solid = 
+    }
+}
+tileset
+{
+    file = pa_complex_overlay
+    size = 8,8
+    id = 9
+    // pa_complex_overlay_0
+    tile
+    {
+        xy = 0,0
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_complex_overlay_1
+    tile
+    {
+        xy = 1,0
+        LightRadius = 1
+        TileOverlay = 
+        lightB = 255
+        lightG = 255
+        lightR = 255
+        lightswitch = 
+    }
+}
+tileset
+{
+    file = pa_decorations
+    size = 8,8
+    id = 10
+    // pa_decorations_0
+    tile
+    {
+        xy = 0,0
+        CanBreak = 
+        CustomItem = ProjectArcade.ArcadianCarpet
+        CustomName = Arcadian Carpet
+        IsMoveAble = 
+        Material = Fabric
+        MoveType = FloorTile
+        PickUpWeight = 10
+        attachedFloor = 
+        solidfloor = 
+    }
+    // pa_decorations_1
+    tile
+    {
+        xy = 1,0
+        WallOverlay = 
+        attachedW = 
+    }
+    // pa_decorations_2
+    tile
+    {
+        xy = 2,0
+        WallOverlay = 
+        attachedN = 
+    }
+    // pa_decorations_3
+    tile
+    {
+        xy = 3,0
+        WallOverlay = 
+        attachedW = 
+    }
+    // pa_decorations_4
+    tile
+    {
+        xy = 4,0
+        WallOverlay = 
+        attachedN = 
+    }
+    // pa_decorations_8
+    tile
+    {
+        xy = 0,1
+        CanScrap = 
+        CustomItem = ProjectArcade.WallPurpleLight
+        CustomName = Wall Purple Light
+        Facing = E
+        GroupName = Fluorescent
+        IsHigh = 
+        IsMoveAble = 
+        LightRadius = 4
+        Material = Electric
+        MoveType = WallObject
+        PickUpWeight = 40
+        ScrapSize = Small
+        WallObjectAllowDoorframe = 
+        lightB = 160
+        lightG = 70
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_decorations_9
+    tile
+    {
+        xy = 1,1
+        CanScrap = 
+        CustomItem = ProjectArcade.WallPurpleLight
+        CustomName = Wall Purple Light
+        Facing = S
+        GroupName = Fluorescent
+        IsHigh = 
+        IsMoveAble = 
+        LightRadius = 4
+        Material = Electric
+        MoveType = WallObject
+        PickUpWeight = 40
+        ScrapSize = Small
+        WallObjectAllowDoorframe = 
+        lightB = 160
+        lightG = 70
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_decorations_10
+    tile
+    {
+        xy = 2,1
+        CanScrap = 
+        CustomItem = ProjectArcade.WallPurpleLight
+        CustomName = Wall Purple Light
+        Facing = N
+        GroupName = Fluorescent
+        IsHigh = 
+        IsMoveAble = 
+        LightRadius = 4
+        Material = Electric
+        MoveType = WallObject
+        PickUpWeight = 40
+        ScrapSize = Small
+        WallObjectAllowDoorframe = 
+        lightB = 160
+        lightG = 70
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_decorations_11
+    tile
+    {
+        xy = 3,1
+        CanScrap = 
+        CustomItem = ProjectArcade.WallPurpleLight
+        CustomName = Wall Purple Light
+        Facing = W
+        GroupName = Fluorescent
+        IsHigh = 
+        IsMoveAble = 
+        LightRadius = 4
+        Material = Electric
+        MoveType = WallObject
+        PickUpWeight = 40
+        ScrapSize = Small
+        WallObjectAllowDoorframe = 
+        lightB = 160
+        lightG = 70
+        lightR = 255
+        lightswitch = 
+    }
+    // pa_decorations_12
+    tile
+    {
+        xy = 4,1
+        CanScrap = 
+        CustomItem = ProjectArcade.WallBlueLight
+        CustomName = Wall Blue Light
+        Facing = E
+        GroupName = Fluorescent
+        IsHigh = 
+        IsMoveAble = 
+        LightRadius = 4
+        Material = Electric
+        MoveType = WallObject
+        PickUpWeight = 40
+        ScrapSize = Small
+        WallObjectAllowDoorframe = 
+        lightB = 255
+        lightG = 200
+        lightR = 70
+        lightswitch = 
+    }
+    // pa_decorations_13
+    tile
+    {
+        xy = 5,1
+        CanScrap = 
+        CustomItem = ProjectArcade.WallBlueLight
+        CustomName = Wall Blue Light
+        Facing = S
+        GroupName = Fluorescent
+        IsHigh = 
+        IsMoveAble = 
+        LightRadius = 4
+        Material = Electric
+        MoveType = WallObject
+        PickUpWeight = 40
+        ScrapSize = Small
+        WallObjectAllowDoorframe = 
+        lightB = 255
+        lightG = 200
+        lightR = 70
+        lightswitch = 
+    }
+    // pa_decorations_14
+    tile
+    {
+        xy = 6,1
+        CanScrap = 
+        CustomItem = ProjectArcade.WallBlueLight
+        CustomName = Wall Blue Light
+        Facing = N
+        GroupName = Fluorescent
+        IsHigh = 
+        IsMoveAble = 
+        LightRadius = 4
+        Material = Electric
+        MoveType = WallObject
+        PickUpWeight = 40
+        ScrapSize = Small
+        WallObjectAllowDoorframe = 
+        lightB = 255
+        lightG = 200
+        lightR = 70
+        lightswitch = 
+    }
+    // pa_decorations_15
+    tile
+    {
+        xy = 7,1
+        CanScrap = 
+        CustomItem = ProjectArcade.WallBlueLight
+        CustomName = Wall Blue Light
+        Facing = W
+        GroupName = Fluorescent
+        IsHigh = 
+        IsMoveAble = 
+        LightRadius = 4
+        Material = Electric
+        MoveType = WallObject
+        PickUpWeight = 40
+        ScrapSize = Small
+        WallObjectAllowDoorframe = 
+        lightB = 255
+        lightG = 200
+        lightR = 70
+        lightswitch = 
+    }
+}
+tileset
+{
+    file = pa_decorations_on
+    size = 8,8
+    id = 11
+}
+tileset
+{
+    file = pa_arcades_on
+    size = 8,8
+    id = 12
+}
+tileset
+{
+    file = pa_complex_on
+    size = 8,8
+    id = 13
+}
+tileset
+{
+    file = pa_pinballs_on
+    size = 8,8
+    id = 14
+}
+tileset
+{
+    file = pa_recreational_on
+    size = 8,8
+    id = 15
+}

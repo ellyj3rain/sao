@@ -1,0 +1,37 @@
+{
+  "Tooltip_ArcadeROM": "A programmable arcade ROM chip.",
+
+  "Tooltip_ArcadeStreetFighterII": "Recreative machine with the ROM of Street Fighter II.",
+  "Tooltip_ArcadePacMan": "Recreative machine with the ROM of Pac-Man.",
+  "Tooltip_ArcadeDoubleDragon": "Recreative machine with the ROM of Double Dragon.",
+  "Tooltip_ArcadeDonkeyKong": "Recreative machine with the ROM of Donkey Kong.",
+  "Tooltip_ArcadeSpaceInvaders": "Recreative machine with the ROM of Space Invaders.",
+  "Tooltip_ArcadeCentipede": "Recreative machine with the ROM of Centipede.",
+  "Tooltip_ArcadeDigDug": "Recreative machine with the ROM of Dig Dug.",
+  "Tooltip_ArcadeNBAJam": "Recreative machine with the ROM of NBA Jam.",
+  "Tooltip_ArcadeTMNT": "Recreative machine with the ROM of Teenage Mutant Ninja Turtles.",
+  "Tooltip_ArcadeMK": "Recreative machine with the ROM of Mortal Kombat.",
+
+  "Tooltip_ComplexTerminator2": "Recreative machine with the ROM of Terminator 2 - Judgement Day.",
+  "Tooltip_ComplexStarWars": "Recreative machine with the ROM of Star Wars. It can be used from the back.",
+
+  "Tooltip_RecreativePunching": "Recreative machine for testing punching strength.",
+  "Tooltip_RecreativeClaw": "Recreative machine that trades a coin for a mysterious prize.",
+  "Tooltip_RecreativeCoinPusher": "Recreative machine that lets you gamble silver coins… to win more silver coins.",
+
+  "Tooltip_PinballAddamsFamily": "Recreative machine with the theme of The Addams Family.",
+  "Tooltip_PinballTwilightZone": "Recreative machine with the theme of The Twilight Zone.",
+  "Tooltip_PinballIndianaJones": "Recreative machine with the theme of Indiana Jones.",
+  "Tooltip_PinballFunHouse": "Recreative machine with the theme of FunHouse.",
+  "Tooltip_PinballBlackKnight2000": "Recreative machine with the theme of Black Knight 2000.",
+  "Tooltip_PinballElviraPartyMonsters": "Recreative machine with the theme of Elvira and the Party Monsters.",
+  "Tooltip_PinballMarioBros": "Recreative machine with the theme of Mario Bros.",
+
+  "Tooltip_WalletILovePixels": "A collectionable wallet with a screen-printed ‘I Love Pixels’ inscription.",
+  "Tooltip_KeyRing_BlueGhost": "A collectionable keyring with a plastic blue ghost named 'Inky'.",
+  "Tooltip_PenMulticolor_DKong": "A collectionable multicolor pen with a soft rubber ‘Donkey Kong’ head in the center.",
+
+  "Tooltip_ArcadianCarpet": "A classic video arcade carpet with a multicolored speckled pattern.",
+  "Tooltip_WallLight": "Wall-mounted light tube.",
+  "Tooltip_DecorDecal": "Paint with a 3-color stripe pattern.",
+}

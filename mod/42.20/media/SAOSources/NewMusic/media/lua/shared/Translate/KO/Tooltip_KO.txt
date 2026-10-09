@@ -1,0 +1,6 @@
+Tooltip_KO = {
+    Tooltip_item_Walkman = "이동 중에 음악을 즐길 수 있는 휴대용 카세트 플레이어.",
+    Tooltip_item_Boombox = "카세트테이프와 배터리를 넣을 수 있는 소리가 큰 휴대용 스테레오입니다.",
+    Tooltip_item_CDPlayer = "헤드폰으로 음악을 들을 수 있는 소형 휴대용 CD 플레이어",
+    Tooltip_item_Vinyl = "LP 레코드를 돌리는 턴테이블.",
+}

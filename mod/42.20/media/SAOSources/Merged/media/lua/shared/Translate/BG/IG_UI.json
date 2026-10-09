@@ -1,0 +1,12 @@
+{
+  "IGUI_BenchPress": "Bench Press",
+  "IGUI_BenchPress_Tooltip": "Тренирай на bench press",
+  "IGUI_Treadmill": "Пътека за бягане",
+  "IGUI_Treadmill_Tooltip": "Бягай на пътеката за бягане",
+  "IGUI_need_barbell": "Имам нужда от щанга или два дъмбела за това упражнение",
+  "IGUI_low_endurance": "Прекалено съм изтощен",
+  "IGUI_pain": "Прекалено ме боли",
+  "IGUI_heavy": "Прекалено тежко за използване сега",
+  "IGUI_treadmill_needs_electricity": "Пътеката за бягане се нуждае от електричество, за да работи",
+  "IGUI_bench_rotate_bug": "Грешка: моля, завъртете и/или преместете пейката!"
+}

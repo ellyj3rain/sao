@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fileGuidTable>
+    <files>
+        <path>media/clothing/clothingItems/LS_UmbrellaHat.xml</path>
+        <guid>df1cac71-058a-4738-8eef-30d8e9491564</guid>
+    </files>
+    <files>
+        <path>media/clothing/clothingItems/LS_NeuralHat.xml</path>
+        <guid>9533dc7d-5711-4d9e-a3f1-3ad515e0d8d4</guid>
+    </files>
+</fileGuidTable>

@@ -54,13 +54,23 @@ WINDOW = 15
 LABEL = "14) duplicated blocks of %d+ lines:" % WINDOW
 
 
-def normalised(path):
+def normalised(path, inventory=None):
     """(original line number, collapsed text) for every code line."""
     out = []
     try:
         text = path.read_text(encoding="utf-8", errors="ignore")
     except OSError:
         return out
+    from menu_reach import strip_lua
+    text = strip_lua(text, strings=False)
+    if inventory is not None and inventory.row(path):
+        # The importer contributes a verified two-statement availability
+        # adapter. Count original mechanic duplication independently of it.
+        lines = text.splitlines()
+        row = inventory.row(path)
+        if len(lines) >= 3 and lines[1].strip() == 'require "SAO_SourceIntegration"' and lines[2].strip() == 'if not SAO.SourceIntegration.active("' + row['sourceId'] + '") then return end':
+            lines[1] = lines[2] = ''
+        text = '\n'.join(lines)
     for number, raw in enumerate(text.splitlines(), 1):
         stripped = raw.strip()
         if not stripped:
@@ -77,6 +87,8 @@ def sources():
 
 
 def main():
+    from scanner_inventory import current
+    inventory = current()
     files = sources()
     if not files:
         print(LABEL, "SKIPPED (no sources found)")
@@ -84,10 +96,10 @@ def main():
 
     seen = collections.defaultdict(list)
     for path in files:
-        lines = normalised(path)
+        lines = normalised(path, inventory)
         for i in range(len(lines) - WINDOW + 1):
             block = "\n".join(text for _, text in lines[i:i + WINDOW])
-            seen[block].append((path.name, lines[i][0]))
+            seen[block].append((path, lines[i][0]))
 
     # Collapse overlapping windows. Every consecutive window of one
     # duplication is its own match, so a single forked function
@@ -101,6 +113,10 @@ def main():
     pairs = {}
     for block, where in seen.items():
         if len(where) < 2:
+            continue
+        # Both sides must independently preserve this exact block in their
+        # sealed original source. An imported path grants no generic waiver.
+        if all(inventory.original_block(path, block, lambda p: normalised(p, inventory), WINDOW) for path, _ in where):
             continue
         sites = sorted(set(where))
         for a in range(len(sites)):
@@ -128,7 +144,7 @@ def main():
 
     print(LABEL)
     for fa, la, fb, lb, span in sorted(regions, key=lambda r: -r[4]):
-        print(f"     {span} lines: {fa}:{la} and {fb}:{lb}")
+        print(f"     {span} lines: {fa.relative_to(ROOT)}:{la} and {fb.relative_to(ROOT)}:{lb}")
     return 1
 
 

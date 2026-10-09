@@ -53,6 +53,9 @@ direction: it has outlived what it argued about.
 import pathlib
 import subprocess
 import sys
+import argparse
+import hashlib
+import json
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
@@ -140,6 +143,8 @@ KNOWN = {n: OURS for n in (
     "SAOGestureAction",
     # C102's native-derived skill-book action is source-owned.
     "SAOStudyAction",
+    # Actual owned native timed-action classes, with lifecycle qualification.
+    "SAONoteReadAction", "SAORecoveryTransitionAction",
     # [C98] Source-owned Horse globals required by engine recipe/registry and
     # compatibility contracts. The rest of Horse execution is require-local.
     "GetSpeeds", "HorseGlueToWoodglue", "HorseModNetMetrics",
@@ -258,7 +263,63 @@ def build():
     return False
 
 
+def namespace_classifications(sites, source_writers, context_writers, inventory, native_declared, known=KNOWN, exports=None):
+    touched = set(sites)
+    owned = set(source_writers) - native_declared - set(known)
+    owned = {name for name in owned if (exports and name in exports) or any(
+        kind == 'SET' and inventory.original(path) in source_writers[name]
+        and inventory.public_namespace(path, name)
+        for kind, path in sites.get(name, []))}
+    engine = {name for name in touched & native_declared
+              if all(kind == 'GET' for kind, path in sites[name])}
+    context = {name for name in touched if all(
+        (kind == 'GET' and name in native_declared) or (
+        (inventory.environment(path), name) in context_writers
+        and (kind == 'GET' or inventory.original(path) in context_writers[(inventory.environment(path), name)]))
+        for kind, path in sites[name])}
+    return owned, engine, context
+
+
+def local_fallback_reads(sites, inventory, compiled_files):
+    from scanner_inventory import guarded_local_fallbacks
+    def native_count(path, kind, name):
+        row = compiled_files.get(str(path.resolve()))
+        if not row:
+            return -1
+        return sum(line.startswith(kind + ' ' + name + ' ') for line in row['lines'])
+    result = set()
+    for name, accesses in sites.items():
+        if any(kind != 'GET' for kind, _ in accesses):
+            continue
+        valid = True
+        for path in {path for _, path in accesses}:
+            original = inventory.original(path)
+            if (not original or native_count(path, 'GET', name) != 1
+                    or native_count(original, 'GET', name) != 1
+                    or native_count(original, 'SET', name) != 0
+                    or name not in guarded_local_fallbacks(path.read_text(encoding='utf-8', errors='ignore'))
+                    or name not in guarded_local_fallbacks(original.read_text(encoding='utf-8', errors='ignore'))):
+                valid = False
+                break
+        if valid:
+            result.add(name)
+    return result
+
+
+def private_access_qualified(kind, path, name, inventory, context_writers):
+    """Qualify the exact access, not every unrelated use of its name."""
+    key = (inventory.environment(path), name)
+    return bool(key[0] and key in context_writers and (
+        kind == 'GET' or inventory.original(path) in context_writers[key]))
+
+
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--capture', type=pathlib.Path)
+    parser.add_argument('--reuse-compiler', type=pathlib.Path)
+    args = parser.parse_args()
+    if args.capture and args.capture.exists():
+        raise ValueError('namespace evidence output already exists')
     faults = []
     print("=" * 74)
     print("WHOSE NAMESPACE WE ARE IN")
@@ -282,14 +343,87 @@ def main():
     # crossed that limit merely by adding one shipped module.  The instrument
     # resolves paths from its working directory, so pass the same inventory as
     # repository-relative paths instead of making tree size a hidden border.
-    done = subprocess.run(
-        [str(JDK / "java.exe"), "-cp", f"{PZ};{OUT}", "LuaGlobals"]
-        + [str(p.relative_to(ROOT)) for p in files],
-        cwd=ROOT, capture_output=True, text=True, timeout=600)
+    from scanner_inventory import current, declarations, engine_java_names, GAME
+    inventory = current()
+    digest = lambda p: hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()
+    authority = {'engineJar': digest(PZ), 'compilerInstrument': digest(SRC)}
+    prior = json.loads(args.reuse_compiler.read_text()) if args.reuse_compiler else {}
+    if prior and prior.get('compilerAuthority') != authority:
+        raise ValueError('reused compiler authority differs')
+    if prior and (prior.get('status') not in ('PASS', 'QUALIFIED_WITH_FINDINGS')
+                  or prior.get('inputsBefore') != prior.get('inputsAfter')):
+        raise ValueError('reused compiler evidence was not stable')
+    reusable = prior.get('compiledFiles', {})
+    compiled_files, evidence_inputs, reused_files = {}, {}, []
+    for path in (pathlib.Path(__file__), ROOT / 'tools/scanner_inventory.py',
+                 inventory.package / 'media/SAOSources/manifest.json', SRC, PZ, OUT / 'LuaGlobals.class'):
+        evidence_inputs[str(path.resolve())] = digest(path)
+    contract_path = ROOT / 'tools/source_namespace_contracts.json'
+    if contract_path.is_file():
+        evidence_inputs[str(contract_path.resolve())] = digest(contract_path)
+        for relative in json.loads(contract_path.read_text())['qualification']['inputs']:
+            path = ROOT / relative
+            evidence_inputs[str(path.resolve())] = digest(path)
+        evidence_inputs.update(inventory.namespace_evidence_inputs())
+    def compiled(paths):
+        lines = []
+        pending = []
+        for path in paths:
+            key = str(path.resolve())
+            evidence_inputs[key] = digest(path)
+            old = reusable.get(key)
+            if old and old['sha256'] == evidence_inputs[key]:
+                compiled_files[key] = old
+                reused_files.append(key)
+                lines.extend(old['lines'])
+            else:
+                pending.append(path)
+        # Bounded relative-path batches preserve native compiler authority
+        # without making Windows command length depend on package growth.
+        for start in range(0, len(pending), 64):
+            batch = pending[start:start + 64]
+            arguments = [str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p) for p in batch]
+            done = subprocess.run(
+                [str(JDK / "java.exe"), "-cp", f"{PZ};{OUT}", "LuaGlobals"]
+                + arguments,
+                cwd=ROOT, capture_output=True, text=True, timeout=60)
+            if done.returncode and not done.stdout:
+                raise RuntimeError('native global inventory failed: ' + done.stderr[:200])
+            produced = (done.stdout or '').splitlines()
+            lines.extend(produced)
+            for path, argument in zip(batch, arguments):
+                key = str(path.resolve())
+                selected = [line for line in produced if line.endswith(' ' + argument)
+                            or line.startswith('FAIL ' + argument + ':')]
+                compiled_files[key] = {'sha256': evidence_inputs[key], 'lines': selected}
+        return lines
+    native_lines = compiled(files)
+    originals = sorted({row['original'] for row in inventory.runtime.values()})
+    source_writers, context_writers = {}, inventory.environment_fields()
+    exports = inventory.global_exports()
+    original_to_current = {row['original'].resolve(): path for path, row in inventory.runtime.items()}
+    for line in compiled(originals):
+        if line.startswith('FAIL '):
+            faults.append(line + ' - original namespace proof failed')
+        parts = line.split(' ', 2)
+        if len(parts) == 3 and parts[0] == 'SET':
+            original_path = pathlib.Path(ROOT / parts[2]).resolve()
+            source_writers.setdefault(parts[1], set()).add(original_path)
+            environment = inventory.environment(original_to_current.get(original_path)) if original_path in original_to_current else None
+            if environment:
+                context_writers.setdefault((environment, parts[1]), set()).add(original_path)
+    native_declared = engine_java_names()
+    from lua_stdlib_test import registry as native_stdlib_registry
+    stdlib = native_stdlib_registry()
+    if stdlib is None:
+        raise RuntimeError('native standard-library namespace inventory unavailable')
+    native_declared.update(stdlib)
+    for name, providers in exports.items():
+        source_writers.setdefault(name, set()).update(providers)
     root = str(ROOT) + "\\"
 
-    touched, written, where = set(), set(), {}
-    for line in (done.stdout or "").strip().split("\n"):
+    touched, written, where, sites = set(), set(), {}, {}
+    for line in native_lines:
         if line.startswith("FAIL "):
             faults.append(
                 line[5:].replace(root, "").replace("\\", "/")
@@ -301,6 +435,7 @@ def main():
             continue
         kind, name, path = parts
         touched.add(name)
+        sites.setdefault(name, []).append((kind, pathlib.Path(ROOT / path).resolve()))
         where.setdefault(name, path.replace(root, "").replace("\\", "/"))
         if kind == "SET":
             written.add(name)
@@ -310,19 +445,49 @@ def main():
             "not one global came back from the instrument, which cannot be "
             "true of ten thousand lines of Lua - the run failed silently")
 
+    # Regex selects relevant installed provider files; only native SETGLOBAL
+    # establishes a provider. A reassignment to an engine local is insufficient.
+    engine_provider_files = []
+    for path in (GAME / 'media/lua').rglob('*.lua'):
+        if declarations(path.read_text(encoding='utf-8', errors='ignore')) & touched:
+            engine_provider_files.append(path)
+    for line in compiled(sorted(engine_provider_files)):
+        parts = line.split(' ', 2)
+        if parts[0] == 'FAIL':
+            faults.append(line + ' - installed Lua provider could not be qualified')
+        elif len(parts) == 3 and parts[0] == 'SET':
+            native_declared.add(parts[1])
+
     print(f"  globals touched: {len(touched)}   written: "
           f"{len(written)}   classified: {len(KNOWN)}")
     print("  we write outright: " + ", ".join(sorted(written)))
     print("  neighbours we are inside: "
           + (", ".join(sorted(NEIGHBOURS)) or "none"))
 
-    for name in sorted(touched - set(KNOWN)):
+    # An owned source name must have a real current native writer preserving
+    # that exact original owner. No prefix grants custody; canonical new
+    # global assignments are still checked against KNOWN.
+    owned_names, source_engine_reads, context_names = namespace_classifications(
+        sites, source_writers, context_writers, inventory, native_declared, exports=exports)
+    fallback_names = local_fallback_reads(sites, inventory, compiled_files)
+    classified = set(KNOWN) | owned_names | source_engine_reads | context_names | fallback_names
+    unclassified = {name: [(kind, path) for kind, path in sites[name]
+                          if not (kind == 'GET' and name in native_declared)
+                          and not private_access_qualified(kind, path, name, inventory, context_writers)
+                          and not inventory.qualified_namespace_access(kind, path, name)]
+                    for name in sorted(touched - classified)}
+    unclassified = {name: accesses for name, accesses in unclassified.items() if accesses}
+    print('  exact original-owned namespaces:', len(owned_names),
+          'source native Lua declarations:', len(source_engine_reads))
+    print('  exact source local fallback reads:', len(fallback_names))
+    for name in unclassified:
+        access_path = unclassified[name][0][1].relative_to(ROOT).as_posix()
         faults.append(
-            f"`{name}` is touched at {where[name]} and is not classified. "
+            f"`{name}` is touched at {access_path} and is not classified. "
             "If it is ours, say so; if it is the engine's or the standard "
-            "library's, say which. If it is neither, it is a global nobody "
-            "writes and every read of it is nil - which is how [B45] "
-            "found `uname` and `ksData`")
+            "library's, say which. The census has no qualified provider or "
+            "private environment for this access; inspect its exact source "
+            "context before concluding whether it is optional or defective")
 
     for name in sorted(set(KNOWN) - touched):
         faults.append(
@@ -346,15 +511,51 @@ def main():
                 "describe current bytecode")
 
     for name in sorted(written):
-        if KNOWN.get(name) not in (OURS, ENGINE_PATCH):
+        source_owned = name in owned_names and all(
+            kind != 'SET' or private_access_qualified(kind, path, name, inventory, context_writers)
+            or (inventory.original(path) in source_writers[name]
+                and inventory.public_namespace(path, name))
+            for kind, path in sites.get(name, []))
+        if all(kind != 'SET' or private_access_qualified(kind, path, name, inventory, context_writers)
+               or inventory.qualified_namespace_access(kind, path, name)
+               for kind, path in sites.get(name, [])):
+            source_owned = True
+        if name in context_names:
+            source_owned = True
+        if KNOWN.get(name) not in (OURS, ENGINE_PATCH) and not source_owned:
             faults.append(
-                f"we WRITE `{name}`, which is not ours. Writing outside our "
-                "own namespace is a change to somebody else's mod made from "
-                "inside ours, and the load order decides who wins - that is "
-                "not a thing to do by accident")
+                f"we WRITE `{name}` without a qualified public owner or exact "
+                "private environment. Native SETGLOBAL is confirmed; inspect "
+                "the source context to distinguish an intentional lazy publisher "
+                "from a leaked temporary or an engine/foreign overwrite")
 
     print()
     print("VERDICT:")
+    if args.capture:
+        after = {path: digest(path) for path in evidence_inputs}
+        if after != evidence_inputs:
+            faults.append('namespace inputs changed during qualification')
+        args.capture.parent.mkdir(parents=True, exist_ok=True)
+        evidence = {'schema': 'sao.source-namespace-census/1',
+                    'status': 'INPUT_DRIFT' if after != evidence_inputs else ('QUALIFIED_WITH_FINDINGS' if faults else 'PASS'),
+                    'compilerAuthority': authority, 'compiledFiles': compiled_files,
+                    'compilerReuse': {'path': str(args.reuse_compiler.resolve()) if args.reuse_compiler else None,
+                                      'sha256': digest(args.reuse_compiler) if args.reuse_compiler else None,
+                                      'files': reused_files},
+                    'inputsBefore': evidence_inputs, 'inputsAfter': after,
+                    'touched': len(touched), 'written': len(written),
+                    'sourceOwned': sorted(owned_names), 'nativeReads': sorted(source_engine_reads),
+                    'privateEnvironmentNames': sorted(context_names),
+                    'localFallbackReads': sorted(fallback_names),
+                    'qualifiedPublisherAccesses': [{'name': name, 'kind': kind, 'path': str(path)}
+                        for name, accesses in sorted(sites.items()) for kind, path in accesses
+                        if inventory.qualified_namespace_access(kind, path, name)],
+                    'unclassified': {name: [{'kind': kind, 'path': str(path)} for kind, path in accesses]
+                                     for name, accesses in unclassified.items()},
+                    'writes': {name: [{'kind': kind, 'path': str(path)} for kind, path in sites[name] if kind == 'SET']
+                               for name in sorted(written)}, 'findings': faults,
+                    'boundary': 'Native Kahlua compiler GET/SET, installed annotated Java/bootstrap exports and native-compiled relevant engine Lua providers. Original source pins establish provenance, not automatic namespace permission. No runtime or candidate mutation.'}
+        args.capture.write_text(json.dumps(evidence, indent=2) + '\n')
     if faults:
         for f in faults:
             print(f"  FAULT: {f}")

@@ -27,7 +27,7 @@ public final class RecoveryPoseProbe {
     @SuppressWarnings("unchecked")
     static SkinningData skin(Path game) throws Exception {
         var skin = OrientationProbe.skeleton(game);
-        for (String name : List.of("Bob_Awake", "Bob_Asleep", "Bob_AwakeToAsleep",
+        for (String name : List.of("Bob_Awake", "Bob_Asleep", "Bob_AwakeToAsleep", "Bob_AsleepToAwake",
                 "Bob_SitGround_ActionIdle", "Bob_SitGround_toActionIdle")) {
             var parameters = ProcessedAiSceneParams.create();
             parameters.scene = jassimp.Jassimp.importFile(game.resolve("media/anims_X/Bob/" + name + ".x").toString());
@@ -42,13 +42,13 @@ public final class RecoveryPoseProbe {
         var body = OrientationProbe.body(cell, skin);
         var set = body.getAdvancedAnimator().animSet;
         var state = new AnimState(); state.name = "sitonground-sitting"; state.set = set;
-        for (String name : List.of("awake", "sleep", "awake_to_sleep", "awake_to_sit")) {
-            var node = AnimNode.Parse(externalRoot().resolve("media/AnimSets/player/sitonground-sitting/").resolve(java.util.Map.of("awake","sit_loop_Awake","sleep","sit_loop_Sleep","awake_to_sleep","sit_loop_AwakeToAsleep","awake_to_sit","sit_loop_AwakeToSit").get(name) + ".xml").toString());
+        for (String name : List.of("awake", "sleep", "awake_to_sleep", "awake_to_sit", "sleep_to_awake")) {
+            var node = AnimNode.Parse(root.resolve("mod/42.20/media/AnimSets/player/sitonground-sitting/SAORecovery_" + name + ".xml").toString());
             if (node == null) throw new AssertionError("native recovery XML parse " + name);
             node.parentState = state; state.addNode(node);
         }
         set.states.put(state.name, state);
-        body.setVariable("SitGroundAnim", "Idle"); body.setVariable("SleepStateOnGround", condition);
+        body.setVariable("SitGroundAnim", "Idle"); body.setVariable("SAORecoveryGround", condition);
         body.getAdvancedAnimator().setState(state.name, List.of());
         OrientationProbe.animate(body, 45);
         return body;
@@ -85,7 +85,7 @@ public final class RecoveryPoseProbe {
         for (int i = 0; i < 180; i++) { OrientationProbe.animate(body, 1); action.waitToStart(); }
         check("awake_pose_keeps_native_action_waiting", !action.isStarted()
             && body.shouldWaitToStartTimedAction() && SAORecoveryPose.isRecoveryPose(body, "rest"));
-        body.clearVariable("SleepStateOnGround");
+        body.clearVariable("SAORecoveryGround");
         for (int i = 0; i < 180 && !action.isStarted(); i++) {
             OrientationProbe.animate(body, 1); action.waitToStart();
         }
@@ -126,7 +126,9 @@ public final class RecoveryPoseProbe {
                 game.resolve("media/lua/shared/TimedActions/ISBaseTimedAction.lua"), pose, actionFile))
             lua(thread, env, Files.readString(path), path.toString());
         lua(thread,env,"ISRestAction={};getActivatedMods=function()return {contains=function(_,id)return id=='LeanAndLie' or id=='TchernoLib' end}end","installed-mod-list");
-        lua(thread,env,Files.readString(externalRoot().resolve("media/lua/client/TchAL_states.lua")),"actual-installed-state-contract");
+        lua(thread,env,"TchAL={stateVariableOnGround='SleepStateOnGround'};getActivatedMods=function()error('external activation queried')end","foreign-source-trap");
+        lua(thread,env,"__packagedAvailable=SAO.RecoveryPose.available()","owned-source-availability");
+        check("owned_source_available_without_external_activation_" + omitEvent, Boolean.TRUE.equals(env.rawget("__packagedAvailable")));
         env.rawset("__enqueue", (JavaFunction)(frame, count) -> {
             var table = (KahluaTable)frame.get(0); var action = new LuaTimedActionNew(table, body);
             table.rawset("action", action);
@@ -150,7 +152,7 @@ public final class RecoveryPoseProbe {
             __staleStatus=SAO.RecoveryPose.poll(__work)
             """, "stale-transition");
         check("stale_owner_cannot_release_pose_" + omitEvent, "failed".equals(env.rawget("__staleStatus"))
-            && "Awake".equals(body.getVariableString("SleepStateOnGround")) && env.rawget("__queued") == null);
+            && "Awake".equals(body.getVariableString("SAORecoveryGround")) && env.rawget("__queued") == null);
         lua(thread, env, """
             __owned=true
             __work={body=__body,custody=SAO.RecoveryPose.captureCustody(__body),kind='sleep',id='runner',rec=__rec,requestedAt=12,
@@ -170,7 +172,7 @@ public final class RecoveryPoseProbe {
             } else action.waitToStart();
         }
         check("owned_transition_starts_through_native_wait", action.isStarted()
-            && Boolean.TRUE.equals(work.rawget("started")) && "AwakeToAsleep".equals(body.getVariableString("SleepStateOnGround")));
+            && Boolean.TRUE.equals(work.rawget("started")) && "AwakeToAsleep".equals(body.getVariableString("SAORecoveryGround")));
         check("owned_transition_start_grants_no_sleep", !body.isAsleep() && work.rawget("sleepEvent") == null);
         if (preceding != null) check("incidental_native_action_finishes_before_owned_transition",
             preceding.isStarted() && preceding.finished() && !body.getCharacterActions().contains(preceding));
@@ -200,6 +202,21 @@ public final class RecoveryPoseProbe {
             && Boolean.TRUE.equals(work.rawget("finished")) && SAORecoveryPose.isRecoveryPose(body, "sleep"));
         check("handoff_preserves_offset_without_physiology", Double.valueOf(.4).equals(env.rawget("__offset")) && !body.isAsleep());
     }
+    static void installedOriginalCoexistence(IsoCell cell, SkinningData skin, Path root) throws Exception {
+        var body=posed(cell,skin,root,"Awake");
+        var state=body.getAdvancedAnimator().animSet.states.get("sitonground-sitting");
+        for(String file:List.of("sit_loop_Awake","sit_loop_Sleep","sit_loop_AwakeToAsleep","sit_loop_AwakeToSit")) {
+            var parsed=AnimNode.Parse(externalRoot().resolve("media/AnimSets/player/sitonground-sitting/"+file+".xml").toString());
+            if(parsed==null)throw new AssertionError("original installed node parse "+file);
+            parsed.parentState=state;state.addNode(parsed);
+        }
+        body.clearVariable("SleepStateOnGround");OrientationProbe.animate(body,90);
+        check("owned_pose_with_original_nodes_present",SAORecoveryPose.isRecoveryPose(body,"rest"));
+        body.clearVariable("SAORecoveryGround");body.setVariable("SleepStateOnGround","Awake");OrientationProbe.animate(body,90);
+        check("original_foreign_pose_not_owned", !SAORecoveryPose.isRecoveryPose(body,"rest") && node(track(body,"Bob_Awake")).getSourceNode().name.equals("sit_loop_Awake"));
+        body.clearVariable("SleepStateOnGround");body.setVariable("SAORecoveryGround","Awake");OrientationProbe.animate(body,90);
+        check("owned_pose_restored_after_foreign_pose",SAORecoveryPose.isRecoveryPose(body,"rest"));
+    }
     public static void main(String[] args) throws Exception {
         var boot = MovementCrossingProbe.class.getDeclaredMethod("boot"); boot.setAccessible(true);
         var cell = (IsoCell) boot.invoke(null);
@@ -211,7 +228,7 @@ public final class RecoveryPoseProbe {
         check("unknown_kind", !SAORecoveryPose.isRecoveryPose(awake, "awakeRest"));
         check("null_body", !SAORecoveryPose.isRecoveryPose(null, "sleep"));
         var standing = OrientationProbe.body(cell, skin); standing.setAsleep(true);
-        standing.setVariable("SleepStateOnGround", "Asleep"); OrientationProbe.animate(standing, 45);
+        standing.setVariable("SAORecoveryGround", "Asleep"); OrientationProbe.animate(standing, 45);
         check("flag_and_variable_not_pose", !SAORecoveryPose.isRecoveryPose(standing, "sleep"));
         check("actual_body_not_other", !SAORecoveryPose.isRecoveryPose(standing, "rest"));
         check("transition_not_completion", !SAORecoveryPose.isRecoveryPose(posed(cell, skin, root, "AwakeToAsleep"), "sleep"));
@@ -237,6 +254,7 @@ public final class RecoveryPoseProbe {
         OrientationProbe.field(zombie.characters.IsoGameCharacter.class, "animPlayer").set(standing, null);
         check("missing_player", !SAORecoveryPose.isRecoveryPose(standing, "sleep"));
         check("read_does_not_allocate", !standing.hasAnimationPlayer());
+        installedOriginalCoexistence(cell, skin, root);
         nativeStartInterlock(cell, skin, root, Path.of(args[1]));
         var pose = args.length > 2 ? Path.of(args[2]) : root.resolve("mod/42.20/media/lua/client/SAO_RecoveryPose.lua");
         var actionFile = args.length > 3 ? Path.of(args[3]) : root.resolve("mod/42.20/media/lua/shared/TimedActions/SAORecoveryTransitionAction.lua");

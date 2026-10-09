@@ -12,16 +12,15 @@
 -- Hair is the honest place to put it. Every accessor here is a public
 -- method on a shipped class, javap-verified:
 --
---     body:getDescriptor()                  -> SurvivorDesc
---     desc:getHumanVisual()                 -> HumanVisual
+--     body:getHumanVisual()                 -> displayed HumanVisual
+--     body:getDescriptor():getHumanVisual() -> constructor source
 --     visual:getNaturalHairColor()          -> ImmutableColor
 --     visual:setHairColor(ImmutableColor)
 --     visual:getNaturalBeardColor() / setBeardColor
 --     ImmutableColor.new(r, g, b)
 --
 -- The NATURAL colour is never written. Only the displayed one moves,
--- so what a person's hair actually was is still there underneath and
--- this is reversible by doing nothing.
+-- so what a person's hair actually was is still there underneath.
 
 SAO = SAO or {}
 SAO.Appearance = SAO.Appearance or {}
@@ -72,29 +71,70 @@ local function blend(colour, frac, channel)
     return base + (GREY[channel] - base) * frac
 end
 
--- Move ONE colour toward grey. Returns true when it was applied.
-local function greyOne(visual, getNatural, setDisplayed, frac)
-    local natural = nil
-    pcall(function() natural = visual[getNatural](visual) end)
-    if not natural then return false end
+local function channels(colour)
+    if not colour then return nil end
     local r, g, b
     local ok = pcall(function()
-        r = natural:getRedFloat()
-        g = natural:getGreenFloat()
-        b = natural:getBlueFloat()
+        r = colour:getRedFloat()
+        g = colour:getGreenFloat()
+        b = colour:getBlueFloat()
     end)
-    if not ok or r == nil then return false end
-    local mixed = { r = r, g = g, b = b }
-    local nr = blend(mixed, frac, "r")
-    local ng = blend(mixed, frac, "g")
-    local nb = blend(mixed, frac, "b")
-    if nr == nil then return false end
+    if not ok or type(r) ~= "number" or type(g) ~= "number"
+        or type(b) ~= "number" then return nil end
+    return { r = r, g = g, b = b }
+end
+
+local function sameColour(a, b)
+    return a and b and math.abs(a.r - b.r) <= 0.01
+        and math.abs(a.g - b.g) <= 0.01
+        and math.abs(a.b - b.b) <= 0.01
+end
+
+-- Recompute only when the displayed colour is natural or the last age-owned
+-- colour. A later dye or restored custom colour remains the person's choice.
+local function greyOne(visual, getNatural, getDisplayed, setDisplayed, frac, previous)
+    local natural, displayed
+    local read = pcall(function()
+        natural = visual[getNatural](visual)
+        displayed = visual[getDisplayed](visual)
+    end)
+    if not read then return false, nil, false end
+    local base = channels(natural)
+    if not base then return false, nil, false end
+    local current = channels(displayed)
+    if displayed and not current then return false, nil, false end
+    local nr = blend(base, frac, "r")
+    local ng = blend(base, frac, "g")
+    local nb = blend(base, frac, "b")
+    local target = { r = nr, g = ng, b = nb }
+    if current and not sameColour(current, base)
+        and not sameColour(current, previous)
+        and not sameColour(current, target) then return false, nil, false end
+    if current and sameColour(current, target) then return false, target, true end
+    if not current and frac == 0 then return false, target, true end
     local applied = false
     pcall(function()
         visual[setDisplayed](visual, ImmutableColor.new(nr, ng, nb))
         applied = true
     end)
-    return applied
+    return applied, applied and target or nil, applied
+end
+
+local function syncDisplay(body, visual)
+    local descriptorVisual
+    pcall(function() descriptorVisual = body:getDescriptor():getHumanVisual() end)
+    if not descriptorVisual or descriptorVisual == visual then return end
+    for _, names in ipairs({
+        { "getHairModel", "setHairModel" },
+        { "getBeardModel", "setBeardModel" },
+        { "getHairColor", "setHairColor" },
+        { "getBeardColor", "setBeardColor" },
+    }) do
+        pcall(function()
+            local value = visual[names[1]](visual)
+            if value ~= nil then descriptorVisual[names[2]](descriptorVisual, value) end
+        end)
+    end
 end
 
 -- [C31] A child's head (Growing Up's rule, CREDITS.md): no beard, and
@@ -136,38 +176,41 @@ function A.applyChildhood(rec, body, visual)
     return changed
 end
 
--- Put a survivor's age on their head. Called when a body exists to
--- carry it: the grey once per person, the child's head every time
--- (a restored snapshot can bring a style back).
+-- Put a survivor's age on the actual native body. A restored snapshot can
+-- carry a later dye or changed cut, so only age-owned colour is recomputed.
 function A.applyAge(rec, body)
     if not rec or not body then return false end
     local age = nil
     pcall(function() age = SAO.History.ageOf(rec.id) end)
     if not age then return false end
     local visual = nil
-    pcall(function() visual = body:getDescriptor():getHumanVisual() end)
+    pcall(function() visual = body:getHumanVisual() end)
+    if not visual then return false end
 
     local childChanged = false
     if visual and age < 18 then
         childChanged = A.applyChildhood(rec, body, visual)
     end
 
-    local did = false
-    if not rec.greyApplied then
-        local frac = A.greyness(rec.id, age)
-        -- Somebody too young for it is not a failure, and marking them
-        -- done stops this being asked again every time they materialise.
-        if frac <= 0 then
-            rec.greyApplied = true
-        elseif visual then
-            did = greyOne(visual, "getNaturalHairColor", "setHairColor", frac)
-            -- A beard greys with the hair and often before it. Not
-            -- everyone has one; a missing beard colour is not a failure.
-            greyOne(visual, "getNaturalBeardColor", "setBeardColor", frac)
-            if did then rec.greyApplied = true end
-        end
+    local frac = A.greyness(rec.id, age)
+    local prior = type(rec.appearanceGrey) == "table"
+        and rec.appearanceGrey or nil
+    local hairChanged, hairTarget, hairOwned = greyOne(visual,
+        "getNaturalHairColor", "getHairColor", "setHairColor", frac,
+        prior and prior.hair)
+    -- A beard greys with the hair. Its natural colour is never changed.
+    local beardChanged, beardTarget, beardOwned = greyOne(visual,
+        "getNaturalBeardColor", "getBeardColor", "setBeardColor", frac,
+        prior and prior.beard)
+    if hairOwned or beardOwned then
+        rec.appearanceGrey = prior or { version = 1 }
+        if hairOwned then rec.appearanceGrey.hair = hairTarget end
+        if beardOwned then rec.appearanceGrey.beard = beardTarget end
+        rec.appearanceGrey.fraction = frac
+        rec.greyApplied = true -- Retained historical marker; no longer a render gate.
     end
-
+    local did = hairChanged or beardChanged
+    syncDisplay(body, visual)
     if did or childChanged then
         pcall(function() body:resetModelNextFrame() end)
     end

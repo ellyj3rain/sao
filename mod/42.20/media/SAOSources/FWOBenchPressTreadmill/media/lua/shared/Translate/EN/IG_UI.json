@@ -1,0 +1,13 @@
+{
+    "IGUI_BenchPress": "Bench-Press",
+    "IGUI_BenchPress_Tooltip": "Train on Bench-Press",
+    "IGUI_Treadmill": "Treadmill",
+    "IGUI_Treadmill_Tooltip": "Run on Treadmill",
+    "IGUI_need_barbell": "I need a barbell or two dumbbells to do this exercise",
+    "IGUI_low_endurance": "I'm Too Exhausted",
+    "IGUI_pain": "I'm in Too Much Pain",
+    "IGUI_heavy": "Too Heavy to Use Right Now",
+    "IGUI_treadmill_needs_electricity": "The treadmill needs electricity to run",
+    "IGUI_bench_rotate_bug": "Bug: please rotate and/or move the bench!",
+    "IGUI_sitting": "I need to stand up first"
+}

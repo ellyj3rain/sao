@@ -1,0 +1,277 @@
+module Lifestyle
+{
+
+    imports
+        {
+             Base,
+        }
+
+	/* ---------------------------------- General -------------------------------- */
+
+    craftRecipe Fill_Empty_Palette_with_Paint
+    {
+      Tags = InHandCraft,
+      time = 150,
+      Sound:MakePlaster,
+	  timedAction = Making,
+      inputs
+      {
+         item 1 [Lifestyle.paintPaletteEmpty] flags[Prop1],
+         item 3 [Lifestyle.paintTubs] flags[Prop2],
+      }
+      outputs
+      {
+         item 1 Lifestyle.paintPalette,
+      }
+    }
+
+	/* ---------------------------------- Improv Parts -------------------------------- */
+
+    craftRecipe ConvertPartsMech
+    {
+      Tags = AnySurfaceCraft,
+	  needToBeLearn = true,
+      time = 150,
+	  category = Assembly,
+	  timedAction = ChoppingBlock_Hammer,
+	  xpAward = Maintenance:1,
+      inputs
+      {
+         item 1 tags[base:hammer;base:clubhammer;base:mallet] mode:keep flags[Prop1;MayDegradeLight],
+		 item 3 [Lifestyle.upgradeElectric;Lifestyle.upgradePlumbing;Lifestyle.upgradeWood] mode:destroy flags[ItemCount],
+      }
+      outputs
+      {
+         item 1 Lifestyle.upgradeMechanical,
+      }
+    }
+    craftRecipe ConvertPartsElec
+    {
+      Tags = AnySurfaceCraft,
+	  needToBeLearn = true,
+      time = 150,
+	  category = Assembly,
+	  timedAction = ChoppingBlock_Hammer,
+	  xpAward = Maintenance:1,
+      inputs
+      {
+         item 1 tags[base:hammer;base:clubhammer;base:mallet] mode:keep flags[Prop1;MayDegradeLight],
+		 item 3 [Lifestyle.upgradeMechanical;Lifestyle.upgradePlumbing;Lifestyle.upgradeWood] mode:destroy flags[ItemCount],
+      }
+      outputs
+      {
+         item 1 Lifestyle.upgradeElectric,
+      }
+    }
+    craftRecipe ConvertPartsPlumb
+    {
+      Tags = AnySurfaceCraft,
+	  needToBeLearn = true,
+      time = 150,
+	  category = Assembly,
+	  timedAction = ChoppingBlock_Hammer,
+	  xpAward = Maintenance:1,
+      inputs
+      {
+         item 1 tags[base:hammer;base:clubhammer;base:mallet] mode:keep flags[Prop1;MayDegradeLight],
+		 item 3 [Lifestyle.upgradeMechanical;Lifestyle.upgradeElectric;Lifestyle.upgradeWood] mode:destroy flags[ItemCount],
+      }
+      outputs
+      {
+         item 1 Lifestyle.upgradePlumbing,
+      }
+    }
+    craftRecipe ConvertPartsWood
+    {
+      Tags = AnySurfaceCraft,
+	  needToBeLearn = true,
+      time = 150,
+	  category = Assembly,
+	  timedAction = ChoppingBlock_Hammer,
+	  xpAward = Maintenance:1,
+      inputs
+      {
+         item 1 tags[base:hammer;base:clubhammer;base:mallet] mode:keep flags[Prop1;MayDegradeLight],
+		 item 3 [Lifestyle.upgradeMechanical;Lifestyle.upgradeElectric;Lifestyle.upgradePlumbing] mode:destroy flags[ItemCount],
+      }
+      outputs
+      {
+         item 1 Lifestyle.upgradeWood,
+      }
+    }
+    craftRecipe ConvertPartsRareMech
+    {
+      Tags = AnySurfaceCraft,
+	  needToBeLearn = true,
+      time = 150,
+	  category = Assembly,
+	  timedAction = ChoppingBlock_Hammer,
+	  xpAward = Maintenance:1,
+      inputs
+      {
+         item 1 tags[base:hammer;base:clubhammer;base:mallet] mode:keep flags[Prop1;MayDegradeLight],
+		 item 1 [Lifestyle.upgradeMechanicalRare] mode:destroy flags[ItemCount],
+      }
+      outputs
+      {
+         item 2 Lifestyle.upgradeMechanical,
+      }
+    }
+    craftRecipe ConvertPartsRareElec
+    {
+      Tags = AnySurfaceCraft,
+	  needToBeLearn = true,
+      time = 150,
+	  category = Assembly,
+	  timedAction = ChoppingBlock_Hammer,
+	  xpAward = Maintenance:1,
+      inputs
+      {
+         item 1 tags[base:hammer;base:clubhammer;base:mallet] mode:keep flags[Prop1;MayDegradeLight],
+		 item 1 [Lifestyle.upgradeElectricRare] mode:destroy flags[ItemCount],
+      }
+      outputs
+      {
+         item 2 Lifestyle.upgradeElectric,
+      }
+    }
+    craftRecipe ConvertPartsRarePlumb
+    {
+      Tags = AnySurfaceCraft,
+	  needToBeLearn = true,
+      time = 150,
+	  category = Assembly,
+	  timedAction = ChoppingBlock_Hammer,
+	  xpAward = Maintenance:1,
+      inputs
+      {
+         item 1 tags[base:hammer;base:clubhammer;base:mallet] mode:keep flags[Prop1;MayDegradeLight],
+		 item 1 [Lifestyle.upgradePlumbingRare] mode:destroy flags[ItemCount],
+      }
+      outputs
+      {
+         item 2 Lifestyle.upgradePlumbing,
+      }
+    }
+    craftRecipe ConvertPartsRareWood
+    {
+      Tags = AnySurfaceCraft,
+	  needToBeLearn = true,
+      time = 150,
+	  category = Assembly,
+	  timedAction = ChoppingBlock_Hammer,
+	  xpAward = Maintenance:1,
+      inputs
+      {
+         item 1 tags[base:hammer;base:clubhammer;base:mallet] mode:keep flags[Prop1;MayDegradeLight],
+		 item 1 [Lifestyle.upgradeWoodRare] mode:destroy flags[ItemCount],
+      }
+      outputs
+      {
+         item 2 Lifestyle.upgradeWood,
+      }
+    }
+
+	/* -------------------------------- Carpentry -- Carving -------------------------------- */
+
+    craftRecipe Carve_Art_Paintbrush
+    {
+      Tags = AnySurfaceCraft,
+      needToBeLearn = true,
+      SkillRequired = Carving:2,
+      timedAction = SharpenStakeWood,
+      time = 200,
+      category = Carving,
+      xpAward = Carving:8,
+      inputs
+      {
+         item 1 tags[base:sharpknife] mode:keep flags[MayDegradeLight;IsNotDull],
+         item 1 [Base.WoodenStick2;Base.LongHandle;Base.LongStick] flags[Prop2],
+		 item 2 [Base.Twine],
+		 item 2 [Base.Glue],
+      }
+      outputs
+      {
+         item 1 Lifestyle.oldPaintBrush,
+      }
+    }
+
+    craftRecipe Carve_Art_Palette
+    {
+      Tags = AnySurfaceCraft,
+      needToBeLearn = true,
+      SkillRequired = Carving:2,
+      timedAction = CraftWeapon1H,
+      time = 200,
+      category = Carving,
+      xpAward = Carving:8,
+      inputs
+      {
+         item 1 tags[base:sharpknife] mode:keep flags[Prop1;MayDegradeLight;IsNotDull],
+         item 1 [Base.Plank] flags[Prop2],
+      }
+      outputs
+      {
+         item 1 Lifestyle.paintPaletteEmpty,
+      }
+    }
+
+    craftRecipe Create_Mop
+    {
+      Tags = AnySurfaceCraft,
+      SkillRequired = Carving:2,
+      timedAction = SharpenStakeWood,
+      time = 300,
+      category = Carving,
+      xpAward = Carving:12,
+      inputs
+      {
+         item 1 tags[base:sharpknife] mode:keep flags[Prop1;MayDegradeLight;IsNotDull],
+         item 1 [Base.WoodenStick2;Base.LongHandle;Base.LongStick] flags[Prop2],
+		 item 4 [Base.RippedSheets],
+		 item 1 [Base.Rope],
+      }
+      outputs
+      {
+         item 1 Base.Mop,
+      }
+    }
+
+	/* -------------------------------- Literature -------------------------------- */
+
+    craftRecipe Create_Music_Sheet_Book
+    {
+      Tags = AnySurfaceCraft,
+      SkillRequired = Music:2,
+      timedAction = Making,
+      time = 600,
+      category = Tailoring,
+      xpAward = Tailoring:20,
+      inputs
+      {
+         item 1 tags[base:scissors] mode:keep flags[Prop1],
+		 item 1 tags[base:sewingneedle] mode:keep,
+		 item 1 [Base.Notebook] flags[Prop2],
+         item 2 [Base.LeatherStrips],
+		 item 4 [Base.Glue],
+		 item 1 [Base.Thread],
+      }
+      outputs
+      {
+         item 1 Lifestyle.SheetMusicBook,
+      }
+    }
+
+	/* -------------------------------- Furniture -------------------------------- */
+
+	/* -------------------------------- Carpentry -------------------------------- */
+
+
+
+	/* -------------------------------- Electronics -------------------------------- */
+
+
+	/* -------------------------------- MetalWorking -------------------------------- */
+
+
+}

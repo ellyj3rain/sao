@@ -52,6 +52,7 @@ public final class Main {
         com.sao.agent.SAOLootDensityWeave.install();
         com.sao.agent.SAOOrientationWeave.install();
         SAOBridgeBootstrap.start();
+        SAOViewpointBootstrap.start();
     }
 
     /** True when SwipeStatePlayer no longer carries the OnAnimEvent_*

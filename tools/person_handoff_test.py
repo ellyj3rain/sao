@@ -69,6 +69,27 @@ __zombieThreat=nil __formedThreat=nil __hostileKey=nil __sourceBusy=false
 __locomotionStatus='moving' __locomotionTicks=0
 __targetRequests=0 __targetRefusal=nil
 __externalAdvanceCalls=0 __externalAdvanceElapsed=nil
+__wakeSquares={}
+getCell=function()
+ return {getGridSquare=function(_,x,y,z)
+  local key=tostring(x)..':'..tostring(y)..':'..tostring(z)
+  if not __wakeSquares[key] then
+   local square={x=x,y=y,z=z}
+   function square:getX() return self.x end
+   function square:getY() return self.y end
+   function square:getZ() return self.z end
+   function square:TreatAsSolidFloor() return true end
+   function square:isFree() return true end
+   function square:isSolid() return false end
+   function square:isWaterSquare() return false end
+   function square:getMovingObjects()
+    return {size=function() return 0 end,get=function() return nil end}
+   end
+   __wakeSquares[key]=square
+  end
+  return __wakeSquares[key]
+ end}
+end
 SAO={
  Log={line=function(tag,msg) table.insert(__logs,msg) end},
  Identity={all=function() return __records end,
@@ -190,6 +211,9 @@ function __body()
  function b:getX() return self.x end
  function b:getY() return self.y end
  function b:getZ() return self.z end
+ function b:getCurrentSquare()
+  return getCell():getGridSquare(self.x,self.y,self.z)
+ end
  function b:getModData() return self.md end
  function b:getInventory() return self.inventory end
  function b:setNpc() end
@@ -279,7 +303,9 @@ SAOJavaBridge={
  biteHoursLeft=function() return '8' end,
  spawnShellNamed=function(self,fn,sn,x,y,z,sex,accountNow)
    assert(accountNow==false,'spawn accounted before restore')
-   __spawned=__spawned+1 return __body()
+   __spawned=__spawned+1
+   local body=__body() body.x=x body.y=y body.z=z
+   return body
  end,
  accountShell=function(self,b)
    if __expectRestoredVisual then
@@ -1159,7 +1185,8 @@ do
   counters.desc=counters.desc+1
   return {setForename=function() end,setSurname=function() end}
  end}
- getCell=function() return {} end
+ -- Keep an admissible native square so this inverse reaches the constructor.
+ getCell=oldCell
  IsoPlayer={new=function(cell,desc,x,y,z)
   counters.bare=counters.bare+1
   local body=__body() body.bare=true body.x=x body.y=y body.z=z return body

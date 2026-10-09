@@ -1,0 +1,38 @@
+{	
+	"LS_DiscoBall": "Fabriquer une boule disco",
+	"Build_LS_DiscoBall": "Boule disco",
+
+	"LS_DiscoFloor": "Fabriquer un dancefloor",
+	"Build_LS_DiscoFloor": "Dancefloor",
+
+	"LS_DJBooth": "Assembler une table de mixage",
+	"Build_LS_DJBooth": "Table de mixage",
+
+	"LS_Microphone": "Fabriquer un micro sur pied",
+	"Build_LS_Microphone": "Micro sur pied",
+
+	"Create_Music_Sheet_Book": "Faire un livre de partitions",
+
+	"LS_Easel": "Fabriquer un chevalet",
+	"Build_LS_Easel": "Chevalet",
+
+	"LS_SculptingStation": "Assembler une station de sculpture",
+	"Build_LS_SculptingStation": "Station de sculpture",
+
+	"Carve_Art_Paintbrush": "Tailler un pinceau d'artiste",
+	"Carve_Art_Palette": "Tailler une palette de peinture",
+	"Fill_Empty_Palette_with_Paint": "Remplir la palette de peinture",
+
+	"LS_InvWorkbench": "Construire un poste de travail d'invention",
+	"Build_LS_InvWorkbench": "Poste de travail d'invention",
+
+	"ConvertPartsMech": "Convertir les pièces (en: mécanique)",
+	"ConvertPartsElec": "Convertir les pièces (en: électrique)",
+	"ConvertPartsPlumb": "Convertir les pièces (en: plomberie)",
+	"ConvertPartsWood": "Convertir les pièces (en: bois)",
+
+	"Make_Bucket_of_Water_and_Bleach": "Mélanger de la javel et de l'eau",
+	
+	"lifestyle:scrap bush growing season": "Saison de pousse du buisson ferraille"
+
+}

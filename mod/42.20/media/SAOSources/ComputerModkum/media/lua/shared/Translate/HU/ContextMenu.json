@@ -1,0 +1,12 @@
+{
+    "ContextMenu_ComputerMod_Computer": "Számítógép",
+    "ContextMenu_ComputerMod_InsertCD": "Helyezze be a CD-t",
+    "ContextMenu_ComputerMod_NetworkTerminal": "Hálózati terminál",
+    "ContextMenu_ComputerMod_RemoveCD": "Távolítsa el a CD-t",
+    "ContextMenu_ComputerMod_ResumeSession": "Munkamenet folytatása",
+    "ContextMenu_ComputerMod_TurnOn": "Kapcsolja be",
+    "ContextMenu_ComputerMod_Components": "Alkatrészek",
+    "ContextMenu_ComputerMod_InstallComponent": "Telepítés",
+    "ContextMenu_ComputerMod_RepairComponent": "Javítás",
+    "ContextMenu_ComputerMod_RemoveComponent": "Távolítsa el"
+}

@@ -200,11 +200,17 @@ public final class SoundEvidenceProbe {
         var audible = sound(other, 12, 20, 10, 20);
         String otherRows = scan(listener, audible);
         check("other_source_audible", otherRows.startsWith("S:12:20:") && !otherRows.contains("|"));
+        check("fast_hearing_uses_same_native_row",
+            SAOPerceptionScanner.scanAudibleSounds(listener).equals(otherRows)
+            && com.sao.bridge.SAOBridge.INSTANCE.perceiveAudibleSounds(listener).equals(otherRows));
         System.out.println("ROW other=" + otherRows);
 
         var unclassified = sound(null, 13, 20, 10, 20);
         String unknownRows = scan(listener, unclassified);
         check("unattributed_audible", unknownRows.startsWith("S:13:20:") && !unknownRows.contains("|"));
+        WorldSoundManager.instance.soundList.clear();
+        check("fast_hearing_needs_live_native_sound",
+            SAOPerceptionScanner.scanAudibleSounds(listener).isEmpty());
         System.out.println("ROW unattributed=" + unknownRows);
 
         check("out_of_range_ignored", scan(listener, sound(other, 40, 20, 3, 20)).isEmpty());

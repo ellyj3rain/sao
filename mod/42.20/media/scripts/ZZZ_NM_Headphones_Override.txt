@@ -1,0 +1,14 @@
+module Base
+{
+    item Headphones
+    {
+        DisplayCategory = Electronics,
+        ItemType = base:clothing,
+        Weight = 0.3,
+        Icon = NM_Headphones,
+        BodyLocation = base:hat,
+        ClothingItem = Hat_EarMuffs,
+        WorldStaticModel = HeadPhones,
+        Tags = base:hasmetal;base:miscelectronic,
+    }
+}

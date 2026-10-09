@@ -14,7 +14,6 @@ local function hoursNow()
     return ok and h or 0
 end
 
-local function pickOriginFor(path) return SAO.PopulationAdmissions.tradeGroundFor(path) end
 local function biteWindowHours() return SAO.PhysicalFacts.biteWindowHours() end
 -- Dormant life (sanctioned unloaded-world simulation): a dormant survivor
 -- is not a statue. On a slow per-person cadence their RECORD position
@@ -344,7 +343,7 @@ end
 -- dormant survivor had no way to decide to go to anybody. Every
 -- meeting in the county was two need-driven walks coinciding within
 -- three tiles.
-local function chooseDayGoal(id, rec, reach, tickCounter)
+local function chooseDayGoal(id, rec, reach, tickCounter, preFall)
     if not rec.homeX then return nil end
 
     -- Contact for an already-authored proposal precedes the ordinary need /
@@ -409,36 +408,28 @@ local function chooseDayGoal(id, rec, reach, tickCounter)
     -- engine's own profession path ([A18], `pickOriginFor`). So an
     -- ordinary day's second-priority walk, behind need and ahead of
     -- company, is TO WORK: a stable workplace picked once from the
-    -- trade's own filed points and kept - a commuter does not re-apply
-    -- for a different office every morning. A person the county
+    -- trade's filed points in their saved origin region and kept.
+    -- A person the county
     -- anchored at their trade ground at genesis ([A18]) already lives
     -- where they work, and the near-check below sends them straight
     -- through to the social life [C72] built; a person with no filed
     -- trade ground falls through the same way. Nobody is barred from
     -- company by having a job - the next branch stands.
     --
-    -- Gated by the county's own fall ([C42]): `fallHasCome` is read
-    -- from the record's stamps, never the dial, and once it has come
-    -- this branch is dead and the chooser is exactly what it was -
-    -- need, then somebody, then places.
-    if not needOffer then
-        local fallen = true
-        pcall(function() fallen = SAO.Standing.fallHasCome() end)
-        if not fallen then
-            local row = rec.occupation
-                and SAO.Census.rowOf(rec.occupation) or nil
-            if row and row.enginePath then
-                if not (rec.workX and rec.workY) then
-                    local w = pickOriginFor(row.enginePath)
-                    if w then rec.workX, rec.workY = w.x, w.y end
-                end
-                if rec.workX and rec.workY
-                    and (math.abs((rec.x or rec.homeX) - rec.workX) >= 3
-                        or math.abs((rec.y or rec.homeY) - rec.workY) >= 3)
-                    and not placeBarred(id, myG, b,
-                        { cx = rec.workX, cy = rec.workY }, desperate) then
-                    return { x = rec.workX, y = rec.workY }
-                end
+    -- The caller's exact county verdict also governs the street hour.
+    -- Designated people keep the organization's work in both body states.
+    if preFall and not rec.designation and not needOffer then
+        local row = rec.occupation
+            and SAO.Census.rowOf(rec.occupation) or nil
+        if row and row.enginePath then
+            local work = SAO.PopulationAdmissions.workplaceFor(
+                rec, row.enginePath)
+            if work
+                and (math.abs((rec.x or rec.homeX) - work.x) >= 3
+                    or math.abs((rec.y or rec.homeY) - work.y) >= 3)
+                and not placeBarred(id, myG, b,
+                    { cx = work.x, cy = work.y }, desperate) then
+                return { x = work.x, y = work.y }
             end
         end
     end
@@ -617,9 +608,26 @@ local function awakeFatigueBase()
     return base
 end
 
+local function permittedDormantHome(id, rec)
+    local hx, hy = tonumber(rec.homeX), tonumber(rec.homeY)
+    if not finite(hx) or not finite(hy) then return nil end
+    local ok, permitted = pcall(function()
+        return SAO.Standing.mayEnterBelieved(id, hx, hy)
+    end)
+    if ok and permitted == true then return hx, hy end
+    return nil
+end
+
 local function dormantAtHome(id, rec)
     local x, y = tonumber(rec.x), tonumber(rec.y)
-    local hx, hy = tonumber(rec.homeX), tonumber(rec.homeY)
+    local hx, hy = permittedDormantHome(id, rec)
+    local gx, gy = tonumber(rec.dayGoalX), tonumber(rec.dayGoalY)
+    -- A person who has begun a leg away from home is not resting merely
+    -- because the first coarse step still lies in the home neighborhood.
+    if hx and hy and gx and gy
+        and (math.abs(gx - hx) >= 3 or math.abs(gy - hy) >= 3) then
+        return false
+    end
     if x and y and hx and hy and math.abs(x - hx) < 3
         and math.abs(y - hy) < 3 then return true end
     local ok, inside = pcall(function()
@@ -629,15 +637,19 @@ local function dormantAtHome(id, rec)
 end
 
 local function restWindow(atHours)
-    local hour = atHours % 24.0
+    local hour = SAO.History.civilTimeAtCountyHours(atHours)
+    if hour == nil then return nil end
     return hour >= 22.0 or hour < 6.0
 end
 
 local function nextRestBoundary(atHours)
-    local hour = atHours % 24.0
-    if hour < 6.0 then return atHours + (6.0 - hour) end
-    if hour < 22.0 then return atHours + (22.0 - hour) end
-    return atHours + (30.0 - hour)
+    local hour, join = SAO.History.civilTimeAtCountyHours(atHours)
+    if hour == nil then return nil end
+    local boundary
+    if hour < 6.0 then boundary = atHours + (6.0 - hour)
+    elseif hour < 22.0 then boundary = atHours + (22.0 - hour)
+    else boundary = atHours + (30.0 - hour) end
+    return join and math.min(boundary, join) or boundary
 end
 
 local function advanceRestState(fatigue, endurance, sleepNeed, hours,
@@ -666,7 +678,9 @@ local function advanceDormantPhysiology(id, rec, nowHours, fatigueBase)
         rec.dormantPhysiologyAtHours = nowHours
         return true
     end
-    if nowHours == last then return true end
+    -- The final catch-up tick and the first live tick can share one county
+    -- hour while their civil clocks differ. Reconcile the current window even
+    -- with zero elapsed time; the interval loop below charges no physiology.
 
     local sleeping = rec.dormantSleeping
     if sleeping ~= true and sleeping ~= false then sleeping = nil end
@@ -675,6 +689,7 @@ local function advanceDormantPhysiology(id, rec, nowHours, fatigueBase)
     local cursor = last
     while cursor < nowHours do
         local inWindow = restWindow(cursor)
+        if inWindow == nil then return false end
         if not inWindow then
             -- Six o'clock is an action boundary, not an inference from an
             -- absent flag: the bodyless owner actually wakes the person.
@@ -688,7 +703,9 @@ local function advanceDormantPhysiology(id, rec, nowHours, fatigueBase)
             resting = false
         end
 
-        local finish = math.min(nowHours, nextRestBoundary(cursor))
+        local boundary = nextRestBoundary(cursor)
+        if not boundary or boundary <= cursor then return false end
+        local finish = math.min(nowHours, boundary)
         local span = finish - cursor
         if sleeping == true then
             if fatigue <= RESTED_THRESHOLD then
@@ -722,7 +739,9 @@ local function advanceDormantPhysiology(id, rec, nowHours, fatigueBase)
     end
 
     -- A boundary at exactly this pass happens before the encounter pass.
-    if not restWindow(nowHours) then
+    local currentWindow = restWindow(nowHours)
+    if currentWindow == nil then return false end
+    if not currentWindow then
         sleeping, resting = false, false
     elseif sleeping == true then
         resting = true
@@ -889,14 +908,37 @@ local function dormantLife(conf, tickCounter)
                     and tickCounter >= rec.nextDormantMoveAt then
                     rec.nextDormantMoveAt = tickCounter + 1800 + SAO.Rand.int(1800)
                     local tx, ty
+                    local homeX, homeY = permittedDormantHome(id, rec)
+                    local requestedHome = false
+                    if rec.playerCompanionIntent and SAO.WeekOneContinuity
+                        and SAO.WeekOneContinuity.validTransferredCompanion then
+                        local ok, intent = pcall(function()
+                            local player = getSpecificPlayer and getSpecificPlayer(0)
+                            return SAO.WeekOneContinuity.validTransferredCompanion(
+                                rec, player)
+                        end)
+                        requestedHome = ok and intent and intent.mode == "home"
+                    end
                     local residenceTarget, residenceJourney = D.residenceDestination(id, rec)
-                    if residenceTarget and not rec.dayGoalProcessId then
+                    if requestedHome then
+                        -- The transferred player request is saved evidence,
+                        -- revalidated against the current player and Standing.
+                        -- Only a loaded native interior arrival can finish it.
+                        if rec.dayGoalProcessId then
+                            finishDormantContact(id, rec, "superseded",
+                                tickCounter, "saved player home request")
+                        end
+                        clearDayGoal(rec)
+                        rec.dayGoalX, rec.dayGoalY = homeX or rec.x,
+                            homeY or rec.y
+                        tx, ty = homeX or rec.x, homeY or rec.y
+                    elseif residenceTarget and not rec.dayGoalProcessId then
                         -- A retained personal journey survives unloading. Its
                         -- coarse movement learns no stock and cannot commit a
                         -- new residence without native indoor arrival.
                         tx, ty = residenceTarget.cx, residenceTarget.cy
                     elseif night and not preFall and not residenceJourney then
-                        tx, ty = rec.homeX, rec.homeY
+                        tx, ty = homeX or rec.x, homeY or rec.y
                     else
                         -- A current unheard proposal is a new reason to move,
                         -- not an errand that waits behind yesterday's random
@@ -1079,7 +1121,7 @@ local function dormantLife(conf, tickCounter)
                                     and (SAO.Rand.unit() < affinity)
                             end
                             local chosen = (not retainSourceGoal and out)
-                                and chooseDayGoal(id, rec, reach, tickCounter) or nil
+                                and chooseDayGoal(id, rec, reach, tickCounter, preFall) or nil
                             if retainSourceGoal then
                                 -- The engine was between chunk operations. The
                                 -- reservation and destination remain owned by this
@@ -1131,7 +1173,7 @@ local function dormantLife(conf, tickCounter)
                                 -- entirely - an evening in is an evening
                                 -- in, not a failed errand.
                                 rec.dayGoalX, rec.dayGoalY =
-                                    rec.homeX, rec.homeY
+                                    homeX or rec.x, homeY or rec.y
                                 rec.dayGoalPlaceId = nil
                                 rec.dayGoalSourceNeed = nil
                                 rec.dayGoalPerson = nil
@@ -1214,6 +1256,11 @@ local function dormantLife(conf, tickCounter)
                         -- each pass loses or adds distance with update cadence.
                         rec.x = rec.x + dx / len * step
                         rec.y = rec.y + dy / len * step
+                        -- Rest was measured through this instant, then this
+                        -- person physically departed. The next interval is
+                        -- awake movement; an unknown sleep state is not
+                        -- turned into a fabricated waking observation.
+                        if step > 0 then rec.dormantResting = nil end
                     end
                     -- A day's walking teaches places ([A15]): drifting past a
                     -- held claim leaves the coarse knowledge a passerby would

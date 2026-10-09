@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.8.0.0-pre-alpha` |
+| Version | `3.8.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -57,7 +57,9 @@ grants permission.
 
 Native world sounds supply an audible origin without a reliable acoustic kind.
 Perception retains them as unknown sounds. Own-source sounds are excluded by the
-scanner; hearing alone supplies neither an enemy identity nor a shooter. A
+scanner; hearing alone supplies neither an enemy identity nor a shooter. Each
+owned body's observation callback samples the short-lived native sound list;
+the wider sight, ground and object scan keeps its county-time cadence. A
 recognized voice resolves that sound without erasing independent threat evidence
 at the same tile. Earlier unclassified heard entries migrate out of the threat
 bucket on bind or acquisition; observed, reported and explicit phantom beliefs
@@ -247,7 +249,7 @@ ownership. Registered tub-system members refuse before movement. WaterPipes
 registration reconciliation uses its owning commands after verified physical
 relocation; fixtures outside the safely established state refuse before effects.
 Multiplayer retains the installed path. Controlled installed-source execution
-has a distinct boundary from loaded native-world acceptance.
+establishes the actor/object binding, relocation measurement and utility guards.
 
 ### Native window repair and private completion (C112)
 
@@ -1157,8 +1159,8 @@ execution owner. ZAO A42 supplies shared-driver contact continuation while its
 Afflicted and Crossed policies remain distinct. SAO neither infers either
 state's maintenance nor treats a generic message as hearing, assent or success.
 Border 197 executes the complete SourceUse-to-Handover chain and failure/partial
-branches in installed Kahlua. Loaded presentation and play acceptance remain
-separate evidence.
+branches in installed Kahlua, including exact acquisition, delivery and durable
+result consumption.
 
 ### Cooperative procedure and private projections (C90)
 
@@ -1189,8 +1191,8 @@ but those verbs still require their own native completion tokens and producers.
 separate operator rows, allowing Mousecat to compare them without changing either.
 Border 207 exercises dependency refusal, acquisition, actor-private progress,
 route progress, bilateral delivery, disagreement and save/rebind with five
-defect controls. This is installed-Kahlua mechanical evidence; a natural loaded
-run has not yet established long-form procedure frequency or quality.
+defect controls. These establish the production procedure mechanics; broader
+procedure frequency and quality remain behavioral assessment work.
 
 ### Cooperative role allocation and strategic action (C91)
 
@@ -1230,10 +1232,10 @@ formation, role, movement, knowledge, synchronization and revision cases with
 four defect controls. The A-Life, Living Fellows and CAO source catalogue is in
 `artifacts/audits/c91-autonomous-cooperation/PRIOR_ART_CATALOGUE.md`.
 
-C91 establishes the general and executable role contract plus loaded
-Locomotion/Cooking call sites. It does not claim a natural loaded scene,
-posture owners for every strategic verb, autonomous tactical doctrine, or
-training admission. Observed scenarios remain operator-reviewed candidates.
+C91 establishes the executable role contract and Locomotion/Cooking call sites.
+Posture owners for further strategic verbs and broader autonomous tactical
+doctrine remain implementation work. Training admission follows Speakeasy's
+existing source-review contract.
 
 ### Person-private procedural planning (C95)
 
@@ -1574,8 +1576,8 @@ maintenance, motives and action policies remain outside the generic input.
 Borders 192-193 execute exact Python/Java/tokenizer parity, the packaged jar,
 capacity and reset controls, authoritative response ordering, Survivor and
 distinct ZAO-owner paths, and stale/foreign/hidden/owner-drift refusal. This is
-mechanical headless evidence. Behavior activation, decline/withdraw data, full
-JVM heap cost and loaded-world acceptance remain open.
+mechanical headless evidence. Behavior activation, decline/withdraw data and full
+JVM heap cost remain model and performance work.
 
 The first unit covers voluntary coordination and contention. It does not yet
 produce elections, deliberation, appeal, coercive enforcement, physical
@@ -1625,18 +1627,29 @@ existing aging rule; reads do not train either model. Model versions /1 and /2
 remain readable and migrate to /3 when authentic new evidence is admitted.
 
 RecoveryPose owns an independent exact-body/person/token action capsule through
-the existing native timed-action queue. Installed LeanAndLie 1.27 and TchernoLib
-1.16 supply external animation mechanics and the ground-state variable; SAO
-distributes its own adapter rather than copied external actions or animation XML.
+the existing native timed-action queue. SAO packages actions and namespaced
+ground-animation nodes derived from Lean & Lie 1.27 mechanics, referencing the
+installed game's native clips. The SAORecoveryGround variable owns ground state.
 Admission, elapsed observation, cancellation and cleanup retain the same actual
 body and ownership token. Needs admits physiological recovery only from the
 qualified native pose and measured segment. Stale callbacks and retired receivers
 cannot earn another person's recovery result.
 
-The final bounded pending-intent and native admission contract is
-Saved preparation persists its existing1800 county-tick navigation origin/deadline separately from120 native-idle admission ticks begun at the observed approach. An already started wait remains binding during displacement; reload/requeue cannot renew either clock. Current record/body/custody, Standing, entry, needs, threat, responsibility, locomotion job, offered place geometry/index and current runtime key govern admission. Fresh reobservation retains prior-key provenance with persistentObjectIdentity=false; active native bed-pointer and pose/physiology ownership remain exact.. Its actual loaded verification is
-Original failed08 continuation09e96a7d-a49f-460d-8117-6ea264f3efe5 completed and saved normally, exit0/errors[]/unforced, county2.2487840652 to4.5107564926. sao-2 reached its retained approach, reacquired the currently visible bed and entered owned native sleep. Nine current intent/key acknowledgments persist; fatigue0.7782769799 to0.3887803555 over1.75 sampled countyhours establishes ongoing physiological recovery. The later native image shows a horizontal body partly hidden by the right-bedroom wall. Full sleep completion, a completed recovery experience, and rendered ground sleep are unobserved.. Unavailable or refused admission remains
-separate from completed physiological recovery.
+Saved preparation retains its 1,800-county-tick navigation origin and deadline
+separately from the 120 native-idle admission ticks begun at the observed approach.
+An already started wait remains binding during displacement; reload or requeue
+cannot renew either clock. Current person/body/custody, Standing, entry, needs,
+threat, responsibility, locomotion job, offered-place geometry/index and runtime
+key govern admission. Fresh reobservation retains prior-key provenance with
+`persistentObjectIdentity=false`; native bed-pointer and pose/physiology ownership
+remain exact.
+
+The D1 saved continuation demonstrates this admission path: `sao-2` reacquired
+the visible bed, entered owned sleep and retained nine intent/key acknowledgements.
+Fatigue fell from 0.7783 to 0.3888 over 1.75 sampled county hours; the world
+advanced and saved normally without runtime errors. The closed D1 record retains
+the exact native observations. Unavailable or refused admission grants no
+physiological recovery result.
 
 `SAORecoveryPlace` produces personally visible resting-place candidates. Native
 bed geometry supplies an exact furniture identity and a clear approach; ground
@@ -1954,17 +1967,76 @@ procedures and accepted commitments for perform/listen roles. Returned assent
 precedes a fresh performance; native sound, private hearing and actual spoken
 acknowledgement precede the performer's shared-purpose result. Controller dispatch
 uses those private role offers. Waiting to hear yields an ordinary turn; recorded
-hearing supplies its own observation. The source joins have controlled proofs;
-current-source native deployment and rendered acceptance remain separate.
+hearing supplies its own observation. Controlled owner/consumer proofs establish
+these source joins within the delivered D2 recreation product.
+
+A source-owned Week One performance exposes only a current, exact native sound
+occurrence to SAO's person. An awake owned body attempts its private hearing
+claim on each observation callback, including between county-time full scans;
+the native claim still requires live pulse, emitter, body generation and
+personal audibility. A retained occurrence is not claimed again on later
+frames. This carries actual performance evidence into the same person's
+persistent hearing history without making the imported source role a native
+person identity or treating hearing as participation or assent.
+
+The ordinary observer acquires the native sound row before attempting the
+performance claim on that callback. For a loaded Week One source proxy, the
+source cache's separate advancing Java cursor admits a bounded candidate slice
+on each tick while a performance is live; exact source body and SAO person
+custody precede the same personal scanner and private claim. The cursor admits
+the explicit performance-row and hearer streams. Its 128 raw visits per tick
+bound candidates, while native sound-list work depends on nearby eligible
+listeners and currently live sounds; a larger or continuously changing cache
+can outlast a short pulse. These bounds do not imply universal reception.
+
+The exact source proxy's cached program callback also acquires ordinary native
+sound through the same `Perception.observeAudible` path before its next full
+county-time sight and cognition scan. Repeated source program callbacks sample at most once per
+SAO person, current source body, brain generation and tick; an exact saved
+body rebind samples before the second cached appraisal return. The separate
+live-performance OnTick path may rescan that listener in the same county tick
+when a performance remains live, so the cache is not a global sampling cap. That sound is
+the person's anonymous private evidence. Source ownership still governs its
+physical task. The ordinary SAO Controller's situation-inquiry route requires
+SAO body and native concept-observation custody. A source proxy can instead
+offer the same person's unresolved question to the existing private cognitive
+comparison when its exact current source body sees an outdoor ground approach.
+`SAO.WeekOneContinuity` asks the source task actuator to move to that visible
+square and records the selected attempt in the person's Planning purpose.
+The source role stays provenance for the actuator, not a person identity.
+
+The selected source inquiry has a Planning admission, which retains its purpose
+through active-purpose capacity and conflict handoff. A separate bounded tick
+poll reads the exact source body, selected native position and current target
+visibility. Perception publishes a successful concept-read receipt only for
+that body, brain generation, tick and source tile. Planning revises the retained
+question only after those observations agree; the source move callback itself
+never certifies arrival or a sound cause. Lost custody or a deadline records an
+unconfirmed attempt. A transient reconciliation failure retains the pending
+attempt and its admission. Terminal reconciliation runs at most once per county
+tick. Sixteen failed terminal attempts mark it durably unresolved, then defer
+another attempt for 240 county ticks; later failures repeat that backoff until
+Planning acknowledges the result. The shared concept interrupter only releases
+inquiries it owns, leaving this source inquiry with its Week One owner. The Java
+cursor admits the pending-person stream and bounds each poll to sixteen IDs.
+Sustained mutation of a larger pending table can restart iteration, so the bound
+does not guarantee every pending ID advances.
+
+An unresolved anonymous sound question retained by an admitted inquiry remains
+available after its native pulse expires and across a save reload. Situation
+appraisal reads only that person's saved revision, preserves its original
+hearing date and unknown cause, and requires a current owned concept observation
+before planning can offer another approach. The route targets a presently
+visible object or ground lead; the remembered sound coordinate is evidence of
+an earlier direction, not an independently actionable destination.
 
 Study, practice and social consequences have explicit unknown predictions until
-their authentic result owners supply applicable experience. The implementation
-remains local. Wider leisure and anticipatory resource purposes, educational and
-cultural priors, automatic assessment, retained understanding and broader transfer
-remain work across the existing owners. The literal corpus remains an actual
-knowledge and training input. Controlled decision proof and rendered end-to-end
-acceptance have separate standing; this shared comparison establishes no trained
-general competence.
+their authentic result owners supply applicable experience. D2 integrates leisure
+choices and their native result owners. Wider anticipatory resource purposes,
+educational/cultural priors, automatic assessment, retained understanding and
+broader transfer remain work across the existing owners. The literal corpus
+remains an actual knowledge and training input; trained general competence
+remains model work.
 
 Connected receipts can seed near associations and cross-domain technological
 conjectures. Repeated identical operations cannot manufacture deeper evidence.
@@ -2094,7 +2166,7 @@ The isolated observer skips instruction breakpoint lookup when the installed
 KahluaThread's breakpoint map is empty. Source positions, stepping, nonempty maps,
 watchpoints, error handling and Core.debug retain their native paths. Explicit
 native lookup and ordinary launches remain available. Installed VM controls prove
-these branches; live speed benefit and native threat response require a fresh run.
+these branches; live speed benefit remains an unmeasured performance question.
 
 Loaded resource plans still lack a deliberate scout candidate. A nearby location
 is not evidence of its supplies. Search appraisal needs person-private memory,
@@ -2204,8 +2276,8 @@ stages refuse. Existing direct-save formats remain readable. Twenty-six
 terminal cases and eleven production controls pass within the thirty-one-test
 unit suite. The retained C107 log passes the corrected parser and fails the
 restored original parser; all 1,168 saved-file hashes and both log hashes match.
-Its original failed records remain unchanged. Saved-world reopening remains
-separate native acceptance.
+Its original failed records remain unchanged; corrected validation retains the
+authentic native save and its original evidence.
 
 Focused observation verification passes 78 production Lua checks, four default
 inspection checks and 29 Lua controls, plus four actual native health checks and
@@ -2218,10 +2290,10 @@ are explicitly omitted when bytes cannot admit them. Removing only the byte
 predicate fails the exact projection assertion.
 
 Independent review found no Critical, High or Medium issue. Its byte-only proof
-gap is closed by the separate causal control. Full gate, exact public deployment,
-loaded latency and native behavior require their own receipts. These controlled
-proofs establish avoided projection and truthful freshness, not 60/120 FPS,
-survival quality, dataset admission or aggregate learning.
+gap is closed by the separate causal control. These controlled proofs establish
+avoided projection and truthful freshness. Loaded latency, 60/120 FPS targets,
+broader survival quality and aggregate learning remain performance and model work;
+dataset admission follows Speakeasy's existing source-review contract.
 
 
 ### Route progress and tactical continuity (C110)
@@ -2252,8 +2324,8 @@ continuity checks pass, with independent correctness and coherence reviews.
 The route-progress bridge has packaged bytecode evidence. The source-only
 repair is reanchored onto the actual public C109 parent and rebuilt there.
 The complete normal closing gate and public checks have their own receipts.
-Loaded behavior, broader threat reasoning, educational competence and speech
-retain separate verification boundaries. No game or global deployment occurs.
+Broader threat reasoning, educational competence and speech continue through
+their existing implementation and model owners.
 
 ### Persistent observer subjects (C115)
 

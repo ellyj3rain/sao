@@ -25,6 +25,7 @@ GAME = pathlib.Path(os.environ.get(
     "PZ_DIR", r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid"))
 PZ = GAME / "projectzomboid.jar"
 ZB = GAME / "ZombieBuddy.jar"
+SHIP = ROOT / "mod/42.20/media/java/SAO.jar"
 JDK = pathlib.Path(os.environ.get(
     "JDK_BIN", r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin"))
 SCANNER = ROOT / "java/src/com/sao/engine/SAOPerceptionScanner.java"
@@ -49,9 +50,12 @@ NATIVE_EXPECTED = {
     "bridge_forwards_known_tiles", "intervening_wall_hides_actual_body",
     "wall_gap_ends_continuous_tracking",
     "bridge_world_reset_ends_tracking_epoch",
+    "fast_hearing_uses_same_native_row", "fast_hearing_needs_live_native_sound",
 }
 LUA_EXPECTED = {
     "own_sound_produces_no_belief", "other_sound_is_unknown", "unattributed_sound_is_unknown",
+    "transient_sound_acquired_between_full_scans", "sleep_ignores_fast_hearing",
+    "source_sound_only_acquired_without_full_scan", "source_sound_only_sleep_refused",
     "sound_cannot_be_shared_as_threat", "observed_zombie_is_actionable",
     "observed_zombie_can_be_told", "mixed_row_order_preserves_observation",
     "legacy_store_migrates_sound", "legacy_bind_migrates_before_query",
@@ -83,6 +87,7 @@ PRELUDE = r'''
 __tick=100
 __persisted={}
 __rows=''
+__quickRows=''
 __starts={}
 Events={OnGameStart={Add=function(callback) __starts[#__starts+1]=callback end}}
 ModData={getOrCreate=function(key)
@@ -98,7 +103,8 @@ SAO={
     Identity={get=function() return nil end,resolveBodyTag=function() return nil end},
     Disposition={},
 }
-SAOJavaBridge={perceive=function(self,body,known) __known=known return __rows end}
+SAOJavaBridge={perceive=function(self,body,known) __known=known return __rows end,
+    perceiveAudibleSounds=function(self,body) return __quickRows end}
 __body={getX=function() return 10.75 end,getY=function() return 20.75 end,
     getZ=function() return 0 end}
 '''
@@ -108,7 +114,7 @@ local P=SAO.Perception
 local results={}
 local function count(t) local n=0 for _ in pairs(t or {}) do n=n+1 end return n end
 local function fresh()
-    P.beliefs={} P.beliefVersion=0 __persisted={} __rows='' __tick=100
+    P.beliefs={} P.beliefVersion=0 __persisted={} __rows='' __quickRows='' __tick=100
     SAO.Standing.groupOf=function() return nil end
     SAO.Identity={get=function() return nil end,resolveBodyTag=function() return nil end}
     SAO.Body=nil
@@ -148,6 +154,35 @@ check('other_sound_is_unknown',function()
     return unknown(b,'12,20') and count(b.zombies)==0 and count(b.people)==0
         and P.nearestBelievedZombie('listener',100,10.75,20.75)==nil
         and P.believedThreatCount('listener',100,20,10.75,20.75)==0
+end)
+check('transient_sound_acquired_between_full_scans',function()
+    local b=observe('listener','',100)
+    __quickRows=__native.other
+    __tick=101 P.observe('listener',__body,101,false)
+    return b.scanCount==1 and b.lastScanAt==100
+        and b.sounds['12,20'] and b.sounds['12,20'].at==101
+        and b.sounds['12,20'].kind=='unknown'
+        and count(b.zombies)==0
+end)
+check('source_sound_only_acquired_without_full_scan',function()
+    local b=observe('listener','',100)
+    __quickRows=__native.other
+    P.observeAudible('listener',__body,101,false)
+    return b.scanCount==1 and b.lastScanAt==100
+        and b.sounds['12,20'] and b.sounds['12,20'].at==101
+        and b.sounds['12,20'].kind=='unknown' and count(b.zombies)==0
+end)
+check('source_sound_only_sleep_refused',function()
+    local b=observe('listener','',100)
+    __quickRows=__native.other
+    P.observeAudible('listener',__body,101,true)
+    return count(b.sounds)==0 and b.scanCount==1
+end)
+check('sleep_ignores_fast_hearing',function()
+    local b=observe('listener','',100)
+    __quickRows=__native.other
+    P.observe('listener',__body,101,true)
+    return count(b.sounds)==0 and b.scanCount==1
 end)
 check('unattributed_sound_is_unknown',function()
     local b=observe('listener',__native.unattributed)
@@ -622,7 +657,7 @@ def compile_native(work, receipt):
                          f'public static final String VALUE = "{version}"; }}\n', encoding="utf-8")
     sources = sorted((ROOT / "java/src").rglob("*.java"))
     done = run([JDK / "javac.exe", "-encoding", "UTF-8", "-cp",
-                os.pathsep.join(map(str, (PZ, ZB))), "-d", classes,
+                os.pathsep.join(map(str, (PZ, ZB, SHIP))), "-d", classes,
                 *sources, generated, PROBE, RUNNER], work, receipt, "compile-production")
     if done.returncode:
         raise RuntimeError("production native compile failed: " + done.stdout + done.stderr)
@@ -638,14 +673,14 @@ def native(work, classes, receipt, label="production", scanner=None):
         source = changed / "SAOPerceptionScanner.java"
         source.write_text(scanner, encoding="utf-8")
         done = run([JDK / "javac.exe", "-encoding", "UTF-8", "-cp",
-                    os.pathsep.join(map(str, (classes, PZ, ZB))), "-d", changed, source],
+                    os.pathsep.join(map(str, (classes, PZ, ZB, SHIP))), "-d", changed, source],
                    work, receipt, label + "-compile")
         if done.returncode:
             raise RuntimeError("scanner control did not compile: " + done.stdout + done.stderr)
         leading.append(changed)
     done = run([JDK / "java.exe", f"-Duser.home={work / (label + '-home')}",
                 "-Djava.awt.headless=true", "-cp",
-                os.pathsep.join(map(str, (*leading, classes, PZ, ZB))), "SoundEvidenceProbe"],
+                os.pathsep.join(map(str, (*leading, classes, PZ, ZB, SHIP))), "SoundEvidenceProbe"],
                GAME, receipt, label + "-native")
     checks = dict(re.findall(r"^CHECK ([a-z0-9_]+)=(true|false)$", done.stdout, re.M))
     rows = dict(re.findall(r"^ROW ([a-z]+)=(.*)$", done.stdout, re.M))
@@ -737,6 +772,10 @@ def execute(receipt):
         print(f"PASS {len(checks)} production Kahlua sound-evidence cases", flush=True)
         perception = PERCEPTION.read_text(encoding="utf-8-sig")
         mutations = [
+            ("source-sound-only-disabled", "function P.observeAudible(id, body, tick, asleep)\n    local b = store(id)\n    observeAudible(id, body, b, tick, asleep)\nend",
+             "function P.observeAudible(id, body, tick, asleep)\n    return\nend", "source_sound_only_acquired_without_full_scan"),
+            ("fast-hearing-disabled", "return SAOJavaBridge:perceiveAudibleSounds(body)",
+             'return ""', "transient_sound_acquired_between_full_scans"),
             ("sound-as-zombie", 'b.sounds[key] = { x = x, y = y, dist = d, at = tick,',
              'b.zombies[key] = { x = x, y = y, dist = d, at = tick,', "other_sound_is_unknown"),
             ("migration-disabled", "local function soundEvidence(b)\n",
@@ -830,13 +869,14 @@ def main():
         if 'heard " .. pname' in controller or "Heard gunfire, attributed" in controller:
             raise RuntimeError("Controller retains unsupported sound-to-shooter attribution")
         receipt["controller_check"] = "source wiring assertion: former arbitrary sound-to-shooter block absent"
-        if not all(path.is_file() for path in (PZ, ZB, GAME / "stdlib.lua", JDK / "java.exe", JDK / "javac.exe")):
+        if not all(path.is_file() for path in (PZ, ZB, SHIP, GAME / "stdlib.lua", JDK / "java.exe", JDK / "javac.exe")):
             receipt["status"] = "SKIPPED"
             print("SKIPPED sound evidence: installed Project Zomboid or JDK absent")
         else:
             receipt["sources"] = {str(path.relative_to(ROOT)).replace("\\", "/"): sha(path)
                                   for path in (SCANNER, BRIDGE, PERCEPTION, HASH, CONTROLLER, PROBE, RUNNER)}
             receipt["engine_sha256"] = sha(PZ)
+            receipt["source_jar_sha256"] = sha(SHIP)
             execute(receipt)
             receipt["status"] = "PASS"
             print("Border 200 PASS: native sound and sight acquisition, private continuous tracks, "

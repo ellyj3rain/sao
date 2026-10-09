@@ -1,0 +1,165 @@
+module NewMusic
+{
+    sound NMZomboidTheme2
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/theme2.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidAlone
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/alone.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidBarricading
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/barricading.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidChase
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/chase.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidDesperateEscape
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/desperate_escape.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidFightOrFlight
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/fight_or_flight.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidGuitar
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/guitar.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidLow
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/low.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidMaybeNot
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/maybe_not.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidMaybeWeCanWinThis
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/maybe_we_can_win_this.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidMisc
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/misc.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidPiano
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/piano.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidPreface
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/preface.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidPZ
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/PZ.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidRaider
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/raider.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidRun
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/run.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidSayingGoodbye
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/saying_goodbye.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidTheHorde
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/the_horde.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidTheInevitable
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/the_inevitable.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidTheZombieThreat
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/the_zombie_threat.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidTheyWereOnceHere
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/they_were_once_here.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidTuneDeath
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/tunedeath.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidWhatWasLost
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/what_was_lost.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidWhereIsEveryone
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/where_is_everyone.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidWorkFast
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/work_fast.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidActive
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/wwl_active.ogg, distanceMax = 500, }
+    }
+    sound NMZomboidTense
+    {
+        category = Music,
+        master = Music,
+        clip { file = media/music/luatriggered/wwl_tense.ogg, distanceMax = 500, }
+    }
+}

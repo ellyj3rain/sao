@@ -1,0 +1,408 @@
+module NewMusic
+{
+    imports
+    {
+        Base
+    }
+    model Cassette1
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette01,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette2
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette02,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette3
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette03,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette4
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette04,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette5
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette05,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette6
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette06,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette7
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette07,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette8
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette08,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette9
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette09,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette10
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette10,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette11
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette11,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette12
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette12,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette13
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette13,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette14
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette14,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette15
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette15,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette16
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette16,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette17
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette17,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette18
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette18,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+    model Cassette19
+    {
+        mesh = WorldItems/NM_Cassette,
+        texture = WorldItems/Cassette/World_NM_Cassette19,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.10 0.0,
+            rotate = 180.0 0.0 0.0,
+        }
+    }
+
+    model CassetteCover3
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover3,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover1
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover1,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover2
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover2,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover4
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover4,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover5
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover5,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover6
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover6,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover7
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover7,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover8
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover8,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover9
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover9,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover10
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover10,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover11
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover11,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover12
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover12,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover13
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover13,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover14
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover14,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover15
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover15,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover16
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover16,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+    model CassetteCover17
+    {
+        mesh = WorldItems/NM_CassetteCase,
+        texture = WorldItems/Cassette/World_NM_CassetteCover17,
+        scale = 0.0005,
+        attachment world
+        {
+            offset = 0.0 0.0 0.0,
+            rotate = 0.0 0.0 0.0,
+        }
+    }
+}
+
+
+
+

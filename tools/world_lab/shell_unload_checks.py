@@ -6,13 +6,16 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def run(tmp, GAME, JDK):
+def run(tmp, GAME, JDK, *, sao_jar=None):
     work = Path(tmp).resolve() / "shell-unload-native"
     work.mkdir()
     source = ROOT / "java/src/com/sao/bridge/SAOBridge.java"
     body = source.read_text(encoding="utf-8")
+    selected_jar = Path(sao_jar) if sao_jar is not None else ROOT / "mod/42.20/media/java/SAO.jar"
+    if not selected_jar.is_file():
+        raise AssertionError(f"selected native SAO fixture JAR unavailable: {selected_jar}")
     classpath = os.pathsep.join(str(path) for path in (
-        Path(GAME) / "projectzomboid.jar", ROOT / "mod/42.20/media/java/SAO.jar"))
+        Path(GAME) / "projectzomboid.jar", selected_jar))
     suffix = ".exe" if os.name == "nt" else ""
 
     def execute(args, label, expected=None):

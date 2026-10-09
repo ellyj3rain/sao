@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `3.8.0.0-pre-alpha` |
+| Version | `3.8.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -701,7 +701,6 @@ identity and cell admission. StudyObserver seeds a declared loaded free square
 with this owner and restores `choices` in `finally`. It honors
 `IsoWorld.getZombiesDisabled()` independently of debug mode. Missing squares wait
 before admission; blocked or disabled native conditions produce refusal receipts.
-Actual construction and later perception require loaded acceptance.
 
 Installed `KahluaThread.luaMainloop()` tracks current file and source line before
 its stepping and instruction breakpoint branches. The instruction branch reads
@@ -724,7 +723,8 @@ former restRecoverTick elapsed-time helper grants no additional improvement.
 Installed recovery controls compare native dispatch, sleep delay, bed quality,
 Insomnia and time multiplier effects. Controller completes recovery from measured
 native change and retires exact runtime references across ownership/lifecycle
-changes. Loaded-save recovery acceptance remains separate.
+changes. The D1 saved continuation demonstrates owned native sleep and measured
+fatigue recovery through this engine path.
 
 SAOPerceptionScanner.appendExteriorBuildings reads only loaded boundary
 candidates beside a free outside tile, passes the actor-specific current

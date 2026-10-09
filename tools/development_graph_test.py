@@ -286,6 +286,9 @@ class ContinuityGraphChecks(unittest.TestCase):
             match = re.search(r"^\| \[D1\]\(([^)]+)\) \| [^|]+ \| ([^|]+) \|.*$", result, re.M)
             self.assertIsNotNone(match)
             result = result[:match.start()] + result[match.end():]
+            # This fixture reopens D1 before its successors exist. A later
+            # closed batch cannot precede the reopened chronology owner.
+            result = re.sub(r"^\| \[[D-Z]\d+\].*$", "", result, flags=re.M)
             result += "\nActive: [D1 — " + match[2].strip() + "](" + match[1] + ")\n"
         elif path.startswith("Batches/D1-"):
             self.assertIn("| Status | CLOSED -", result)

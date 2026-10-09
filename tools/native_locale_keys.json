@@ -1,0 +1,1387 @@
+{
+  "schema": "sao.native-locale-keys/1",
+  "engineBuild": "42.20",
+  "authority": "Native installed Project Zomboid EN translation identifiers used by the current packaged Lua; source file pins retain the capture provenance.",
+  "lookups": [
+    {
+      "lookup": "ContextMenu_AddAll",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/ContextMenu.json",
+          "sha256": "5222ed338f510ff2fd6f87520900cb615f60a3e7847bb16c3addb0028e40a356",
+          "declaredKeys": [
+            "ContextMenu_AddAll"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "ContextMenu_ExtendedPlacement",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/ContextMenu.json",
+          "sha256": "5222ed338f510ff2fd6f87520900cb615f60a3e7847bb16c3addb0028e40a356",
+          "declaredKeys": [
+            "ContextMenu_ExtendedPlacement"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "ContextMenu_Grab",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/ContextMenu.json",
+          "sha256": "5222ed338f510ff2fd6f87520900cb615f60a3e7847bb16c3addb0028e40a356",
+          "declaredKeys": [
+            "ContextMenu_Grab",
+            "ContextMenu_Grab_Corpse",
+            "ContextMenu_Grab_all",
+            "ContextMenu_Grab_half",
+            "ContextMenu_Grab_one"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "ContextMenu_Info",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/ContextMenu.json",
+          "sha256": "5222ed338f510ff2fd6f87520900cb615f60a3e7847bb16c3addb0028e40a356",
+          "declaredKeys": [
+            "ContextMenu_Info"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "ContextMenu_SitGround",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/ContextMenu.json",
+          "sha256": "5222ed338f510ff2fd6f87520900cb615f60a3e7847bb16c3addb0028e40a356",
+          "declaredKeys": [
+            "ContextMenu_SitGround"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "EC_Locked",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/Entity.json",
+          "sha256": "f89dc944b827c2f2a52c7395e60858cac008c84a441e572e44cb9567c258cde2",
+          "declaredKeys": [
+            "EC_Locked"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "Fluid_Name_",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/Fluids.json",
+          "sha256": "ee5f742ed83bc7fdb8f373c0a036e4ecf6c35f3dc5d5168d662bb4ed8cfba078",
+          "declaredKeys": [
+            "Fluid_Name_Acid",
+            "Fluid_Name_AnimalBlood",
+            "Fluid_Name_AnimalGrease",
+            "Fluid_Name_AnimalMilk",
+            "Fluid_Name_Any",
+            "Fluid_Name_Beer",
+            "Fluid_Name_Bleach",
+            "Fluid_Name_Blood",
+            "Fluid_Name_Brandy",
+            "Fluid_Name_CarbonatedWater",
+            "Fluid_Name_Champagne",
+            "Fluid_Name_Cider",
+            "Fluid_Name_CleaningLiquid",
+            "Fluid_Name_Coffee",
+            "Fluid_Name_CoffeeLiqueur",
+            "Fluid_Name_Cola",
+            "Fluid_Name_ColaDiet",
+            "Fluid_Name_Cologne",
+            "Fluid_Name_CowMilk",
+            "Fluid_Name_Curacao",
+            "Fluid_Name_Dye",
+            "Fluid_Name_Gin",
+            "Fluid_Name_GingerAle",
+            "Fluid_Name_Grenadine",
+            "Fluid_Name_HairDye",
+            "Fluid_Name_Honey",
+            "Fluid_Name_JuiceApple",
+            "Fluid_Name_JuiceCranberry",
+            "Fluid_Name_JuiceFruitpunch",
+            "Fluid_Name_JuiceGrape",
+            "Fluid_Name_JuiceLemon",
+            "Fluid_Name_JuiceOrange",
+            "Fluid_Name_JuiceTomato",
+            "Fluid_Name_Mead",
+            "Fluid_Name_MilkChocolate",
+            "Fluid_Name_Perfume",
+            "Fluid_Name_Petrol",
+            "Fluid_Name_PoisonPotent",
+            "Fluid_Name_Port",
+            "Fluid_Name_RubbingAlcohol",
+            "Fluid_Name_Rum",
+            "Fluid_Name_Scotch",
+            "Fluid_Name_SecretFlavoring",
+            "Fluid_Name_SheepMilk",
+            "Fluid_Name_Sherry",
+            "Fluid_Name_SimpleSyrup",
+            "Fluid_Name_SodaBlueberry",
+            "Fluid_Name_SodaBubblegum",
+            "Fluid_Name_SodaGrape",
+            "Fluid_Name_SodaLime",
+            "Fluid_Name_SodaPineapple",
+            "Fluid_Name_SodaPop",
+            "Fluid_Name_SodaStrewberry",
+            "Fluid_Name_SpiffoJuice",
+            "Fluid_Name_TaintedWater",
+            "Fluid_Name_Tea",
+            "Fluid_Name_Tequila",
+            "Fluid_Name_Vermouth",
+            "Fluid_Name_Vodka",
+            "Fluid_Name_Water",
+            "Fluid_Name_Whiskey",
+            "Fluid_Name_Wine"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_CanNotRotate",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_CanNotRotate"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_CanRotate",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_CanRotate"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_ChanceToBreak",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_ChanceToBreak"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_ComposterHasCompost",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_ComposterHasCompost"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_CraftUI_RequiredItems",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_CraftUI_RequiredItems"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_CraftUI_RequiredSkills",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_CraftUI_RequiredSkills"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_Emote_No",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_Emote_No"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_Emote_Yes",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_Emote_Yes"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_EnterVehicle",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_EnterVehicle"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_FitnessNeedItem",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_FitnessNeedItem"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_Gametime_hours",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_Gametime_hours"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_Hair_",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_Hair_Back",
+            "IGUI_Hair_Bald",
+            "IGUI_Hair_Baldspot",
+            "IGUI_Hair_Bob",
+            "IGUI_Hair_BobCurly",
+            "IGUI_Hair_Braids",
+            "IGUI_Hair_Buffont",
+            "IGUI_Hair_Bun",
+            "IGUI_Hair_BunCurly",
+            "IGUI_Hair_CentreParting",
+            "IGUI_Hair_CentrePartingLong",
+            "IGUI_Hair_Cornrows",
+            "IGUI_Hair_CrewCut",
+            "IGUI_Hair_Demi",
+            "IGUI_Hair_Donny",
+            "IGUI_Hair_Fabian",
+            "IGUI_Hair_FabianCurly",
+            "IGUI_Hair_FlatTop",
+            "IGUI_Hair_Fresh",
+            "IGUI_Hair_GreasedBack",
+            "IGUI_Hair_Grungey",
+            "IGUI_Hair_Grungey02",
+            "IGUI_Hair_GrungeyBehindEars",
+            "IGUI_Hair_GrungeyParted",
+            "IGUI_Hair_Hat",
+            "IGUI_Hair_HatCurly",
+            "IGUI_Hair_HatLong",
+            "IGUI_Hair_HatLongBraided",
+            "IGUI_Hair_HatLongCurly",
+            "IGUI_Hair_Kate",
+            "IGUI_Hair_KateCurly",
+            "IGUI_Hair_LeftParting",
+            "IGUI_Hair_LibertySpikes",
+            "IGUI_Hair_Long",
+            "IGUI_Hair_Long2",
+            "IGUI_Hair_Long2curly",
+            "IGUI_Hair_LongBraids",
+            "IGUI_Hair_LongBraids02",
+            "IGUI_Hair_Longcurly",
+            "IGUI_Hair_Messy",
+            "IGUI_Hair_MessyCurly",
+            "IGUI_Hair_Metal",
+            "IGUI_Hair_MohawkFan",
+            "IGUI_Hair_MohawkFlat",
+            "IGUI_Hair_MohawkShort",
+            "IGUI_Hair_MohawkSpike",
+            "IGUI_Hair_Mullet",
+            "IGUI_Hair_MulletCurly",
+            "IGUI_Hair_OverEye",
+            "IGUI_Hair_OverEyeCurly",
+            "IGUI_Hair_OverLeftEye",
+            "IGUI_Hair_Picard",
+            "IGUI_Hair_PonyTail",
+            "IGUI_Hair_PonyTailBraids",
+            "IGUI_Hair_Rachel",
+            "IGUI_Hair_RachelCurly",
+            "IGUI_Hair_Recede",
+            "IGUI_Hair_RightParting",
+            "IGUI_Hair_Short",
+            "IGUI_Hair_ShortAfroCurly",
+            "IGUI_Hair_ShortCurly",
+            "IGUI_Hair_ShortHatCurly",
+            "IGUI_Hair_Spike",
+            "IGUI_Hair_TopCurls"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_HaloNote_LearnedRecipe",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_HaloNote_LearnedRecipe"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_HaloNote_Unhappiness",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_HaloNote_Unhappiness"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_HealthTooltip",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_HealthTooltip"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_IsOperational",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_IsOperational"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_ItemCat_Furniture",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_ItemCat_Furniture"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_ItemCat_Water",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_ItemCat_Water",
+            "IGUI_ItemCat_WaterContainer"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_ItemsInContainer",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_ItemsInContainer"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_ItemsSurface",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_ItemsSurface"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_MovableHasMaterial",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_MovableHasMaterial"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_Moveables_DoorBarricaded",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_Moveables_DoorBarricaded"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_Moveables_DoorInFrame",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_Moveables_DoorInFrame"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_Moveables_FloorAtTopOfStairs",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_Moveables_FloorAtTopOfStairs"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_Moveables_WindowInFrame",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_Moveables_WindowInFrame"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_MustPlaceRoomRoof",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_MustPlaceRoomRoof"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_Name",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_Name",
+            "IGUI_Name_Object",
+            "IGUI_Name_Worn"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_NeedToBeStandingInside",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_NeedToBeStandingInside"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_None",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_None"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_PlayerStats_Level",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_PlayerStats_Level",
+            "IGUI_PlayerStats_LevelDown",
+            "IGUI_PlayerStats_LevelUp"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_RadioPower",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_RadioPower",
+            "IGUI_RadioPowerNearby"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_RadioPowerNearby",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_RadioPowerNearby"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_RadioRequiresPowerNearby",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_RadioRequiresPowerNearby"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_RainCollectorHasWater",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_RainCollectorHasWater"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_RemovePropane",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_RemovePropane"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_RequiresWaterSupply",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_RequiresWaterSupply"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_Skill",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_Skill"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_ToHeavy",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_ToHeavy"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_TooHot",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_TooHot"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_Tool",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_Tool",
+            "IGUI_Tooltip_ContainerLocked",
+            "IGUI_Tooltip_DoorClosed",
+            "IGUI_Tooltip_PlayerOwn",
+            "IGUI_Tooltip_VehicleDoorLocked"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_VehicleName",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_VehicleNameAmbulanceBurnt",
+            "IGUI_VehicleNameBurntCar",
+            "IGUI_VehicleNameCarLights",
+            "IGUI_VehicleNameCarLightsBulletinSheriff",
+            "IGUI_VehicleNameCarLightsKST",
+            "IGUI_VehicleNameCarLightsLouisvilleCounty",
+            "IGUI_VehicleNameCarLightsMuldraughPolice",
+            "IGUI_VehicleNameCarLightsPolice",
+            "IGUI_VehicleNameCarLightsRanger",
+            "IGUI_VehicleNameCarLightsSmashedFront",
+            "IGUI_VehicleNameCarLightsSmashedLeft",
+            "IGUI_VehicleNameCarLightsSmashedRear",
+            "IGUI_VehicleNameCarLightsSmashedRight",
+            "IGUI_VehicleNameCarLuxury",
+            "IGUI_VehicleNameCarLuxurySmashedFront",
+            "IGUI_VehicleNameCarLuxurySmashedLeft",
+            "IGUI_VehicleNameCarLuxurySmashedRear",
+            "IGUI_VehicleNameCarLuxurySmashedRight",
+            "IGUI_VehicleNameCarNormal",
+            "IGUI_VehicleNameCarNormalSmashedFront",
+            "IGUI_VehicleNameCarNormalSmashedLeft",
+            "IGUI_VehicleNameCarNormalSmashedRear",
+            "IGUI_VehicleNameCarNormalSmashedRight",
+            "IGUI_VehicleNameCarSmall02SmashedFront",
+            "IGUI_VehicleNameCarSmall02SmashedLeft",
+            "IGUI_VehicleNameCarSmall02SmashedRear",
+            "IGUI_VehicleNameCarSmall02SmashedRight",
+            "IGUI_VehicleNameCarSmallSmashedFront",
+            "IGUI_VehicleNameCarSmallSmashedLeft",
+            "IGUI_VehicleNameCarSmallSmashedRear",
+            "IGUI_VehicleNameCarSmallSmashedRight",
+            "IGUI_VehicleNameCarStationWagon",
+            "IGUI_VehicleNameCarStationWagon2",
+            "IGUI_VehicleNameCarStationWagonSmashedFront",
+            "IGUI_VehicleNameCarStationWagonSmashedLeft",
+            "IGUI_VehicleNameCarStationWagonSmashedRear",
+            "IGUI_VehicleNameCarStationWagonSmashedRight",
+            "IGUI_VehicleNameCarTaxi",
+            "IGUI_VehicleNameCarTaxi2",
+            "IGUI_VehicleNameKnoxDistillery",
+            "IGUI_VehicleNameLectroMax",
+            "IGUI_VehicleNameLuxuryCarBurnt",
+            "IGUI_VehicleNameMassGenFac",
+            "IGUI_VehicleNameMccoyLogging",
+            "IGUI_VehicleNameModernCar",
+            "IGUI_VehicleNameModernCar02",
+            "IGUI_VehicleNameModernCarLightsCityLouisvillePD",
+            "IGUI_VehicleNameModernCarLightsMeadeSheriff",
+            "IGUI_VehicleNameModernCarLightsWestPoint",
+            "IGUI_VehicleNameNormalCarBurntPolice",
+            "IGUI_VehicleNameOffRoad",
+            "IGUI_VehicleNameOffRoadSmashedFront",
+            "IGUI_VehicleNameOffRoadSmashedLeft",
+            "IGUI_VehicleNameOffRoadSmashedRear",
+            "IGUI_VehicleNameOffRoadSmashedRight",
+            "IGUI_VehicleNamePickUpTruck",
+            "IGUI_VehicleNamePickUpTruckJPLandscaping",
+            "IGUI_VehicleNamePickUpTruckLights",
+            "IGUI_VehicleNamePickUpTruckLightsAirport",
+            "IGUI_VehicleNamePickUpTruckLightsAirportSecurity",
+            "IGUI_VehicleNamePickUpTruckLightsFire",
+            "IGUI_VehicleNamePickUpTruckLightsFossoil",
+            "IGUI_VehicleNamePickUpTruckLightsRanger",
+            "IGUI_VehicleNamePickUpTruckLightsSmashedFront",
+            "IGUI_VehicleNamePickUpTruckLightsSmashedLeft",
+            "IGUI_VehicleNamePickUpTruckLightsSmashedRear",
+            "IGUI_VehicleNamePickUpTruckLightsSmashedRight",
+            "IGUI_VehicleNamePickUpTruckMccoy",
+            "IGUI_VehicleNamePickUpTruckSmashedFront",
+            "IGUI_VehicleNamePickUpTruckSmashedLeft",
+            "IGUI_VehicleNamePickUpTruckSmashedRear",
+            "IGUI_VehicleNamePickUpTruckSmashedRight",
+            "IGUI_VehicleNamePickUpTruck_Camo",
+            "IGUI_VehicleNamePickUpVan",
+            "IGUI_VehicleNamePickUpVanBrickingIt",
+            "IGUI_VehicleNamePickUpVanBuilder",
+            "IGUI_VehicleNamePickUpVanCallowayLandscaping",
+            "IGUI_VehicleNamePickUpVanHeltonMetalWorking",
+            "IGUI_VehicleNamePickUpVanKimbleKonstruction",
+            "IGUI_VehicleNamePickUpVanLights",
+            "IGUI_VehicleNamePickUpVanLightsCarpenter",
+            "IGUI_VehicleNamePickUpVanLightsFire",
+            "IGUI_VehicleNamePickUpVanLightsFossoil",
+            "IGUI_VehicleNamePickUpVanLightsKentuckyLumber",
+            "IGUI_VehicleNamePickUpVanLightsLouisvilleCounty",
+            "IGUI_VehicleNamePickUpVanLightsPolice",
+            "IGUI_VehicleNamePickUpVanLightsRanger",
+            "IGUI_VehicleNamePickUpVanLightsSmashedFront",
+            "IGUI_VehicleNamePickUpVanLightsSmashedLeft",
+            "IGUI_VehicleNamePickUpVanLightsSmashedRear",
+            "IGUI_VehicleNamePickUpVanLightsSmashedRight",
+            "IGUI_VehicleNamePickUpVanLightsStatePolice",
+            "IGUI_VehicleNamePickUpVanMarchRidgeConstruction",
+            "IGUI_VehicleNamePickUpVanMccoy",
+            "IGUI_VehicleNamePickUpVanMetalworker",
+            "IGUI_VehicleNamePickUpVanSmashedFront",
+            "IGUI_VehicleNamePickUpVanSmashedLeft",
+            "IGUI_VehicleNamePickUpVanSmashedRear",
+            "IGUI_VehicleNamePickUpVanSmashedRight",
+            "IGUI_VehicleNamePickUpVanWeldingbyCamille",
+            "IGUI_VehicleNamePickUpVanYingsWood",
+            "IGUI_VehicleNamePickUpVan_Camo",
+            "IGUI_VehicleNamePickupBurnt",
+            "IGUI_VehicleNamePickupSpecialBurnt",
+            "IGUI_VehicleNamePolice",
+            "IGUI_VehicleNamePostal",
+            "IGUI_VehicleNameRaceCar",
+            "IGUI_VehicleNameRaceCar12",
+            "IGUI_VehicleNameRaceCar34",
+            "IGUI_VehicleNameRaceCar58",
+            "IGUI_VehicleNameRaceCarBurnt",
+            "IGUI_VehicleNameSUV",
+            "IGUI_VehicleNameSUVSmashedFront",
+            "IGUI_VehicleNameSUVSmashedLeft",
+            "IGUI_VehicleNameSUVSmashedRear",
+            "IGUI_VehicleNameSUVSmashedRight",
+            "IGUI_VehicleNameSmallCar",
+            "IGUI_VehicleNameSmallCar02",
+            "IGUI_VehicleNameSportsCar",
+            "IGUI_VehicleNameStepVan",
+            "IGUI_VehicleNameStepVanAirportCatering",
+            "IGUI_VehicleNameStepVanMail",
+            "IGUI_VehicleNameStepVanMailSmashedFront",
+            "IGUI_VehicleNameStepVanMailSmashedLeft",
+            "IGUI_VehicleNameStepVanMailSmashedRear",
+            "IGUI_VehicleNameStepVanMailSmashedRight",
+            "IGUI_VehicleNameStepVanRadio",
+            "IGUI_VehicleNameStepVanSmashedFront",
+            "IGUI_VehicleNameStepVanSmashedLeft",
+            "IGUI_VehicleNameStepVanSmashedRear",
+            "IGUI_VehicleNameStepVanSmashedRight",
+            "IGUI_VehicleNameStepVan_Cereal",
+            "IGUI_VehicleNameStepVan_Citr8",
+            "IGUI_VehicleNameStepVan_CompleteRepairShop",
+            "IGUI_VehicleNameStepVan_Genuine_Beer",
+            "IGUI_VehicleNameStepVan_Heralds",
+            "IGUI_VehicleNameStepVan_HuangsLaundry",
+            "IGUI_VehicleNameStepVan_Jorgensen",
+            "IGUI_VehicleNameStepVan_LouisvilleMotorShop",
+            "IGUI_VehicleNameStepVan_LouisvilleSWAT",
+            "IGUI_VehicleNameStepVan_MarineBites",
+            "IGUI_VehicleNameStepVan_Mechanic",
+            "IGUI_VehicleNameStepVan_Plonkies",
+            "IGUI_VehicleNameStepVan_RandisPlants",
+            "IGUI_VehicleNameStepVan_Scarlet",
+            "IGUI_VehicleNameStepVan_SouthEasternHosp",
+            "IGUI_VehicleNameStepVan_SouthEasternPaint",
+            "IGUI_VehicleNameStepVan_USL",
+            "IGUI_VehicleNameStepVan_Zippee",
+            "IGUI_VehicleNameTaxiBurnt",
+            "IGUI_VehicleNameTrailer",
+            "IGUI_VehicleNameTrailerAdvert",
+            "IGUI_VehicleNameTrailerCover",
+            "IGUI_VehicleNameTrailer_Horsebox",
+            "IGUI_VehicleNameTrailer_Livestock",
+            "IGUI_VehicleNameVan",
+            "IGUI_VehicleNameVanAmbulance",
+            "IGUI_VehicleNameVanBeckmans",
+            "IGUI_VehicleNameVanBrewsterHarbin",
+            "IGUI_VehicleNameVanBuilder",
+            "IGUI_VehicleNameVanCarpenter",
+            "IGUI_VehicleNameVanCoastToCoast",
+            "IGUI_VehicleNameVanDeerValley",
+            "IGUI_VehicleNameVanFossoil",
+            "IGUI_VehicleNameVanGardenGods",
+            "IGUI_VehicleNameVanGardener",
+            "IGUI_VehicleNameVanJohnMcCoy",
+            "IGUI_VehicleNameVanJonesFabrication",
+            "IGUI_VehicleNameVanKerrHomes",
+            "IGUI_VehicleNameVanKnobCreekGas",
+            "IGUI_VehicleNameVanKnoxCom",
+            "IGUI_VehicleNameVanKorshunovs",
+            "IGUI_VehicleNameVanLouisvilleLandscaping",
+            "IGUI_VehicleNameVanMail",
+            "IGUI_VehicleNameVanMccoy",
+            "IGUI_VehicleNameVanMechanic",
+            "IGUI_VehicleNameVanMeltingPointMetal",
+            "IGUI_VehicleNameVanMetalheads",
+            "IGUI_VehicleNameVanMetalworker",
+            "IGUI_VehicleNameVanMicheles",
+            "IGUI_VehicleNameVanMobileMechanics",
+            "IGUI_VehicleNameVanMooreMechanics",
+            "IGUI_VehicleNameVanOldMill",
+            "IGUI_VehicleNameVanOvoFarm",
+            "IGUI_VehicleNameVanPennSHam",
+            "IGUI_VehicleNameVanPlattAuto",
+            "IGUI_VehicleNameVanPluggedInElectrics",
+            "IGUI_VehicleNameVanRadio",
+            "IGUI_VehicleNameVanRadio_3N",
+            "IGUI_VehicleNameVanRiversideFabrication",
+            "IGUI_VehicleNameVanRosewoodworking",
+            "IGUI_VehicleNameVanSchwabSheetMetal",
+            "IGUI_VehicleNameVanSeats",
+            "IGUI_VehicleNameVanSeatsAirportShuttle",
+            "IGUI_VehicleNameVanSeats_Creature",
+            "IGUI_VehicleNameVanSeats_LadyDelighter",
+            "IGUI_VehicleNameVanSeats_Prison",
+            "IGUI_VehicleNameVanSeats_Space",
+            "IGUI_VehicleNameVanSeats_Trippy",
+            "IGUI_VehicleNameVanSeats_Valkyrie",
+            "IGUI_VehicleNameVanSpecial",
+            "IGUI_VehicleNameVanSpiffo",
+            "IGUI_VehicleNameVanTreyBaines",
+            "IGUI_VehicleNameVanUncloggers",
+            "IGUI_VehicleNameVanUtility",
+            "IGUI_VehicleNameVanVanGreenes",
+            "IGUI_VehicleNameVanWPCarpentry",
+            "IGUI_VehicleNameVan_BugWipers",
+            "IGUI_VehicleNameVan_KnoxDisti",
+            "IGUI_VehicleNameVan_LectroMax",
+            "IGUI_VehicleNameVan_MassGenFac",
+            "IGUI_VehicleNameVan_Transit",
+            "IGUI_VehicleNameVan_VoltMojo"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_WindowBarricaded",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_WindowBarricaded"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_WindowOpen",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_WindowOpen"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_XP_xp",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_XP_xp"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Aiming",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Aiming",
+            "IGUI_perks_Aiming_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Axe",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Axe",
+            "IGUI_perks_Axe_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Blunt",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Blunt"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Carpentry",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Carpentry",
+            "IGUI_perks_Carpentry_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Carving",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Carving",
+            "IGUI_perks_Carving_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Combat",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Combat",
+            "IGUI_perks_CombatFirearms",
+            "IGUI_perks_CombatMelee"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Cooking",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Cooking",
+            "IGUI_perks_Cooking_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Doctor",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Doctor"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Electricity",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Electricity"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Farming",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Farming",
+            "IGUI_perks_FarmingCategory"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Fishing",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Fishing",
+            "IGUI_perks_Fishing_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_FlintKnapping",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_FlintKnapping"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Foraging",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Foraging",
+            "IGUI_perks_Foraging_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Lightfooted",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Lightfooted",
+            "IGUI_perks_Lightfooted_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_LongBlade",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_LongBlade"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Masonry",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Masonry",
+            "IGUI_perks_Masonry_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Mechanics",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Mechanics",
+            "IGUI_perks_Mechanics_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_MetalWelding",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_MetalWelding"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Nimble",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Nimble",
+            "IGUI_perks_Nimble_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Pottery",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Pottery",
+            "IGUI_perks_Pottery_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Reloading",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Reloading",
+            "IGUI_perks_Reloading_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_SmallBlade",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_SmallBlade"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_SmallBlunt",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_SmallBlunt"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Sneaking",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Sneaking",
+            "IGUI_perks_Sneaking_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Spear",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Spear",
+            "IGUI_perks_Spear_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Sprinting",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Sprinting"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Tailoring",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Tailoring",
+            "IGUI_perks_Tailoring_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "IGUI_perks_Trapping",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/IG_UI.json",
+          "sha256": "e9eb823e8148157229332aca8d447cf8be58d4c5859f0bc82e2cc74e6afc4577",
+          "declaredKeys": [
+            "IGUI_perks_Trapping",
+            "IGUI_perks_Trapping_Description"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "Tooltip_Chance",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/Tooltip.json",
+          "sha256": "0ed9d9fd4ebfade63bf5bc0817ee5dd91e8b79f0c28988872cf4a03a040602f9",
+          "declaredKeys": [
+            "Tooltip_Chance"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "Tooltip_WaterUnlimited",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/Tooltip.json",
+          "sha256": "0ed9d9fd4ebfade63bf5bc0817ee5dd91e8b79f0c28988872cf4a03a040602f9",
+          "declaredKeys": [
+            "Tooltip_WaterUnlimited"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "Tooltip_craft_Needs",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/Tooltip.json",
+          "sha256": "0ed9d9fd4ebfade63bf5bc0817ee5dd91e8b79f0c28988872cf4a03a040602f9",
+          "declaredKeys": [
+            "Tooltip_craft_Needs",
+            "Tooltip_craft_NeedsWallDesc",
+            "Tooltip_craft_NeedsWallframeDesc"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "Tooltip_item_Weight",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/Tooltip.json",
+          "sha256": "0ed9d9fd4ebfade63bf5bc0817ee5dd91e8b79f0c28988872cf4a03a040602f9",
+          "declaredKeys": [
+            "Tooltip_item_Weight"
+          ]
+        }
+      ]
+    },
+    {
+      "lookup": "UI_ClothingTextureType",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/UI.json",
+          "sha256": "1c28635da4551016132710c9b907ae330db6ad6e8aa69c79e9dda78f59e8a838",
+          "declaredKeys": [
+            "UI_ClothingTextureType"
+          ]
+        }
+      ]
+    }
+  ]
+}

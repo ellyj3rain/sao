@@ -1,14 +1,21 @@
-| Document | The three projects and what each owns |
+| Document | Project More Life and its source ownership |
 |---|---|
-| Version | `3.8.0.0-pre-alpha` |
+| Version | `3.8.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |
 
-# The three projects
+# Project More Life
 
-One county. Three repositories, because three things need separate
-licences and separate gates, not because they are three products.
+Project More Life is the named compiled mod or mod set for this county.
+SAO, ZAO and Speakeasy are its current source repositories and modules.
+Their separate licences, gates and ownership contracts remain explicit as
+the assembly takes shape. The repository names do not name the product.
+
+Post Latent participates as a supporting project while also serving the
+broader ecosystem. Its source surface is not registered as one of the three
+current module repositories. The project relationship is recorded without
+claiming that Post Latent already ships inside the compiled mod.
 
 | | Repository | Licence | What it owns |
 |---|---|---|---|
@@ -23,11 +30,12 @@ its share of that sentence.
 The dependency substrate - what exists, what is planned, and what each area of
 concern needs - is mapped in `SUBSTRATE.md`.
 
-## Private unified project
+## Compiled project
 
-DR-041 establishes the intended release destination: one private unified
-mod/project. The immediate work compresses SAO's borders; later work combines
-the cross-module contracts and the runtime pieces into that project. DR-042
+DR-041 establishes the intended release destination: Project More Life as a
+private compiled mod or mod set. The immediate work compresses SAO's borders;
+later work combines the cross-module contracts and the runtime pieces into
+that product. DR-042
 makes the first pass a whole-mod runtime restructuring, including source
 ownership and file layout. The three repositories and ownership contracts
 below describe the current source layout.
@@ -166,8 +174,9 @@ SUBSTRATE.md records the implementation boundaries and current evidence.
   against a known-bad control.
 - **The record is the person.** All three read the same identity; none
   mints a second one for the same being.
-- **A batch closes with a record, a log row, a state advance, a border
-  for the class it found, and a control that flips the verdict.**
+- **A batch closes with its coherent product, record, log row, state advance
+  and sufficient affected-contract evidence.** Reuse applicable checks and
+  observations; a new or changed instrument has a discriminating control.
 - **Nothing becomes a requirement.** No capability in any of the three
   may require another survivor mod, and nothing runs through one
   unless the player asks (DR-035).
@@ -178,8 +187,8 @@ SUBSTRATE.md records the implementation boundaries and current evidence.
 
 | | Version | Standing |
 |---|---|---|
-| SAO | see `VERSION` and `SESSION_STATE.md` | C118/C119 supply private entry and recovery owners; the open C120 candidate connects authentic experience to later choices and repairs native observation defects. General qualitative reasoning, corrected rendered recovery acceptance and broader learned behavior remain open. C82's coordination model retains its bounded shadow standing. |
-| ZAO | A45 / `3a20065`; own `VERSION` | Current engine compatibility builds on the single Afflicted/Crossed driver and distinct state policies. Retained human bodies, private options and state-specific consequences remain established boundaries; broader material/social life, degradation and loaded-world acceptance remain development obligations. |
+| SAO | see `VERSION` and `SESSION_STATE.md` | C118-C120 supply private entry, measured recovery and authentic personal experience. D1 shared person-specific reasoning is CLOSED and merged through PR138. D2 Leisure is CLOSED; its protected publication is tracked in PR139. D3 construction/crafting/repair/utilities is next. Broader learned competence and calibration remain model work; C82 retains its bounded shadow standing. |
+| ZAO | A45 / `3a20065`; own `VERSION` | Current engine compatibility builds on the single Afflicted/Crossed driver and distinct state policies. Retained human bodies, private options and state-specific consequences remain established boundaries; broader material/social life and degradation remain development obligations. |
 | Speakeasy | Record 90 / `34d05a8` | Current observation contract supports authentic learning evidence. R82's evaluated educational adapter scored 38/187 versus the seed's 43/187, with 0/49 numeric answers. R83's edition correction requires successor corpus, curriculum and assessment bindings before a qualified next fit. Broader consequential decisions and conversation remain open. |
 
 Each of those is its own repository's to update. This table says where

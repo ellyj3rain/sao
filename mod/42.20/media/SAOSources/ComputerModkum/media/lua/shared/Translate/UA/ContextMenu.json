@@ -1,0 +1,12 @@
+{
+    "ContextMenu_ComputerMod_Computer": "комп'ютер",
+    "ContextMenu_ComputerMod_InsertCD": "Вставте CD",
+    "ContextMenu_ComputerMod_NetworkTerminal": "Мережевий термінал",
+    "ContextMenu_ComputerMod_RemoveCD": "Видалити компакт-диск",
+    "ContextMenu_ComputerMod_ResumeSession": "Відновити сеанс",
+    "ContextMenu_ComputerMod_TurnOn": "Увімкнути",
+    "ContextMenu_ComputerMod_Components": "компоненти",
+    "ContextMenu_ComputerMod_InstallComponent": "встановити",
+    "ContextMenu_ComputerMod_RepairComponent": "Ремонт",
+    "ContextMenu_ComputerMod_RemoveComponent": "видалити"
+}

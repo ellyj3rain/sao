@@ -24,8 +24,8 @@ import flee_continuity_test as fixture
 
 OUT = Path(os.environ.get("SAO_RECOVERY_OUTPUT", ROOT / "_scratch/shared-reasoning/recovery"))
 SOURCE_MANIFEST = json.loads((ROOT/'tools/recovery_source_manifest.json').read_bytes())
-EXTERNAL = Path(os.environ.get('SAO_RECOVERY_SOURCE_ROOT', SOURCE_MANIFEST['externalSourceRoot']))
-TCHERNOLIB_INFO = Path(os.environ.get('SAO_RECOVERY_TCHERNOLIB_INFO', SOURCE_MANIFEST['transitiveDependency']['installedB42Path']))
+EXTERNAL = ROOT/'mod/42.20'
+
 
 JAVA = r'''
 import com.sao.engine.SAOIsoPlayerShell;
@@ -150,7 +150,7 @@ public final class LoadedRecoveryProbe {
             SAONeeds.setShellAsleep(body,false);body.setIsResting(false);body.setSitOnGround(false);
             try { state.set(body.getStateMachine(),zombie.ai.states.IdleState.instance()); }
             catch(Exception failure){throw new IllegalStateException(failure);}
-            body.clearVariable("SleepStateOnGround");body.clearVariable("SitGroundStarted");
+            body.clearVariable("SAORecoveryGround");body.clearVariable("SitGroundStarted");
             stats.set(CharacterStat.FATIGUE,((Number)frame.get(0)).floatValue());
             stats.set(CharacterStat.ENDURANCE,((Number)frame.get(1)).floatValue());
             stats.set(CharacterStat.HUNGER,((Number)frame.get(2)).floatValue());
@@ -201,7 +201,8 @@ ISTimedActionQueue.hasAction=function(action) return action~=nil and queued==act
 ISLogSystem={logAction=function()end}
 isClient=function()return false end;isServer=function()return false end
 __sourceEnabled=true
-getActivatedMods=function()return {contains=function(_,id)return __sourceEnabled and (id=='LeanAndLie' or id=='TchernoLib')end}end
+getActivatedMods=function()error('foreign activation queried')end
+TchAL={stateVariableOnGround='SleepStateOnGround'}
 TchAL.setupLieDownOnGround=function()error('forbidden installed player-key helper')end
 TchAL.setVariable=function()error('forbidden installed player-key helper')end
 TchAL.sleep=function()error('forbidden player sleep UI')end
@@ -437,7 +438,7 @@ SAO.Needs.stopRecovery("runner",b,"fixture-reset")
 n=fresh(.95,.7,.2,.1);realOffer("runner",a,b,752,n)
 local late=queued;SAO.Needs.stopRecovery("runner",b,"threat")
 late:perform()
-check("cancelled_queue_cannot_start_sleep_later",not b:isAsleep() and b:getVariableString("SleepStateOnGround")==""
+check("cancelled_queue_cannot_start_sleep_later",not b:isAsleep() and b:getVariableString("SAORecoveryGround")==""
  and SAO.Needs.recoveryRuntimeCount()==0)
 n=fresh(.95,.7,.2,.1);realOffer("runner",a,b,753,n)
 __reloadNeeds(__needsPath)
@@ -457,7 +458,7 @@ check("late_update_cannot_move_transferred_body",b:getX()==oldX and b:getY()==ol
 transferred:start();transferred:perform();transferred:stop();transferred:forceCancel()
 transferred:interruptWaitToStart();transferred:animEvent("AsleepEvent","")
 check("retired_callbacks_preserve_foreign_queue",queued==sibling and not transferred:isValid()
- and transferred:complete()==false and b:getVariableString("SleepStateOnGround")=="")
+ and transferred:complete()==false and b:getVariableString("SAORecoveryGround")=="")
 SAO.Needs.pollRecovery("runner",b)
 check("terminal_transfer_releases_offset_without_body_actuation",SAO.RecoveryPose.appliedOffset[b]==nil
  and b:getX()==oldX and b:getY()==oldY)
@@ -476,7 +477,7 @@ SAOJavaBridge:setShellAsleep(b,false);SAO.RecoveryPose.settle(b)
 n=fresh(.95,.7,.2,.1);SAO.Controller.offerRecovery("runner",a,b,754,n)
 local blockedX,blockedY=b:getX(),b:getY();local priorExperienceCount=#(rec.recoveryExperiences or {})
 __groundClear=false;SAO.Needs.stopRecovery("runner",b,"blocked-native-exit")
-check("blocked_exit_releases_owned_pose_without_translation",not b:isAsleep() and b:getVariableString("SleepStateOnGround")=="" and b:getX()==blockedX and b:getY()==blockedY)
+check("blocked_exit_releases_owned_pose_without_translation",not b:isAsleep() and b:getVariableString("SAORecoveryGround")=="" and b:getX()==blockedX and b:getY()==blockedY)
 local exactExit=SAO.RecoveryPose.appliedOffset[b]
 check("blocked_exit_retains_exact_receipt_without_credit",exactExit and SAO.RecoveryPose.pendingExits[b]==exactExit and rec.recoveryPoseExit.status=="pending-safe-exit" and #(rec.recoveryExperiences or {})==priorExperienceCount)
 SAO.RecoveryPose.pollPendingExits()
@@ -667,7 +668,8 @@ def native_pose_checks(game, jdk, cp):
         game / "media/lua/shared/ISBaseObject.lua",game / "media/lua/shared/TimedActions/ISBaseTimedAction.lua",
         game / "media/AnimSets/player/sitonground-sitting/sit_action.xml"]
     inputs+=list((EXTERNAL/'media/AnimSets/player/sitonground-sitting').glob("*.xml"))
-    inputs+=[EXTERNAL/'media/lua/client/TchAL_states.lua',EXTERNAL/'mod.info',TCHERNOLIB_INFO]
+    inputs+=list((Path(SOURCE_MANIFEST["externalSourceRoot"])/"media/AnimSets/player/sitonground-sitting").glob("*.xml"))
+
     inputs+=[game / ("media/anims_X/Bob/"+name+".x") for name in
         ("Bob_Awake","Bob_Asleep","Bob_AwakeToAsleep","Bob_Idle","Bob_Walk",
          "Bob_LookLeft","Bob_LookRight","Bob_LookDown","Bob_LookUp",
@@ -689,12 +691,14 @@ def native_pose_checks(game, jdk, cp):
         "native_clip_delivers_sleep_event_before_completion"),
         ("omit-handoff-ownership",pose,'    if not owns(work) then return "failed" end\n','',
         "stale_owner_cannot_release_pose_false")]
+    lua_controls.append(("restore-external-activation-gate",pose,'        return not isClient() and not isServer()\n            and P.stateVariableOnGround == "SAORecoveryGround"','        return getActivatedMods():contains("LeanAndLie")',"owned_source_available_without_external_activation_false"))
+    controls.append(("restore-external-node-name",'"SAORecovery_awake"','"sit_loop_Awake"',"actual_awake"))
     native_selection=os.environ.get('SAO_RECOVERY_NATIVE_CONTROLS')
     if native_selection:
         labels=set(native_selection.split(','))
         controls=[c for c in controls if c[0]in labels];lua_controls=[c for c in lua_controls if c[0]in labels]
         assert len(controls)+len(lua_controls)==len(labels),'unknown native recovery control'
-    expected_checks=35
+    expected_checks=40
     if receipt_path.is_file():
         saved=json.loads(receipt_path.read_text(encoding="utf-8"))
         baseline=saved.get("baseline",{}); retained=saved.get("controls",[])
@@ -720,7 +724,7 @@ def native_pose_checks(game, jdk, cp):
     assert built.returncode==0,built.stdout+built.stderr
     native_cp=str(classes)+os.pathsep+cp
     def execute(label, first=None, pose_path=pose, action_path=action):
-        command=[str(jdk / "java.exe"),"-Dsao.test.recoveryExternalRoot="+str(EXTERNAL),"-Duser.home="+str(out / ("home-"+label)),
+        command=[str(jdk / "java.exe"),"-Dsao.test.recoveryExternalRoot="+SOURCE_MANIFEST["externalSourceRoot"],"-Duser.home="+str(out / ("home-"+label)),
             "-Djava.library.path="+str(game),"--enable-native-access=ALL-UNNAMED","-cp",
             (str(first)+os.pathsep if first else "")+native_cp,"RecoveryPoseProbe",str(ROOT),str(game),str(pose_path),str(action_path)]
         result=subprocess.run(command,cwd=game,capture_output=True,text=True,timeout=120)
@@ -764,13 +768,12 @@ def native_pose_checks(game, jdk, cp):
 def run():
     game, jdk = fixture.GAME, fixture.JDK
     required = (game / "projectzomboid.jar", game / "stdlib.lua",
-                jdk / "java.exe", jdk / "javac.exe",EXTERNAL/'mod.info',TCHERNOLIB_INFO,
-                EXTERNAL/'media/lua/client/TchAL_states.lua',
-                EXTERNAL/'media/AnimSets/player/sitonground-sitting/sit_loop_Awake.xml',
-                EXTERNAL/'media/AnimSets/player/sitonground-sitting/sit_loop_Sleep.xml',
-                EXTERNAL/'media/AnimSets/player/sitonground-sitting/sit_loop_AwakeToAsleep.xml')
+                jdk / "java.exe", jdk / "javac.exe",
+                EXTERNAL/'media/AnimSets/player/sitonground-sitting/SAORecovery_awake.xml',
+                EXTERNAL/'media/AnimSets/player/sitonground-sitting/SAORecovery_sleep.xml',
+                EXTERNAL/'media/AnimSets/player/sitonground-sitting/SAORecovery_awake_to_sleep.xml')
     if not all(path.is_file() for path in required):
-        print("Border 225 SKIPPED: installed engine/JDK or required LeanAndLie/TchernoLib contracts absent; native recovery unverified")
+        print("Border 225 SKIPPED: installed engine/JDK or packaged recovery nodes absent; native recovery unverified")
         return
     OUT.mkdir(parents=True, exist_ok=True)
     jar, sao = game / "projectzomboid.jar", ROOT / "mod/42.20/media/java/SAO.jar"
@@ -985,7 +988,6 @@ def run():
             str(game / "media/lua/client/TimedActions/ISInventoryTransferAction.lua"),
             str(game / "media/lua/shared/TimedActions/ISTakeWaterAction.lua"),
             str(game / "media/lua/shared/TimedActions/ISSitOnGround.lua"),
-            str(EXTERNAL/'media/lua/client/TchAL_states.lua'),
             *map(str,actions),str(pose_path),
             str(models),str(cognition),str(needs_path),str(OUT / "needs-path.lua"),str(perception),str(organization),str(production_path), str(OUT / "capture-production.lua"),str(path), str(OUT / "probe.lua"), str(export)]
         result = subprocess.run(command,

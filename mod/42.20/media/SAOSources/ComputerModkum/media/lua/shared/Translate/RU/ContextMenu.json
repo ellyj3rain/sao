@@ -1,0 +1,12 @@
+{
+    "ContextMenu_ComputerMod_Computer": "Компьютер",
+    "ContextMenu_ComputerMod_InsertCD": "Вставить диск",
+    "ContextMenu_ComputerMod_NetworkTerminal": "Сетевой терминал",
+    "ContextMenu_ComputerMod_RemoveCD": "Извлечь диск",
+    "ContextMenu_ComputerMod_ResumeSession": "Продолжить сеанс",
+    "ContextMenu_ComputerMod_TurnOn": "Включить",
+    "ContextMenu_ComputerMod_Components": "Компоненты",
+    "ContextMenu_ComputerMod_InstallComponent": "Установить",
+    "ContextMenu_ComputerMod_RepairComponent": "Ремонт",
+    "ContextMenu_ComputerMod_RemoveComponent": "Удалить"
+}

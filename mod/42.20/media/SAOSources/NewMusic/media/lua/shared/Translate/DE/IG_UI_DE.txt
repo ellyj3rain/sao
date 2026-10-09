@@ -1,0 +1,3 @@
+IG_UI_DE = {
+    IGUI_NM_NewMusic = "Neue Musik",
+}

@@ -1,0 +1,12 @@
+{
+    "ContextMenu_ComputerMod_Computer": "Datamaskin",
+    "ContextMenu_ComputerMod_InsertCD": "Sett inn CD",
+    "ContextMenu_ComputerMod_NetworkTerminal": "Nettverksterminal",
+    "ContextMenu_ComputerMod_RemoveCD": "Ta ut CDen",
+    "ContextMenu_ComputerMod_ResumeSession": "Gjenoppta økten",
+    "ContextMenu_ComputerMod_TurnOn": "Slå på",
+    "ContextMenu_ComputerMod_Components": "Komponenter",
+    "ContextMenu_ComputerMod_InstallComponent": "Installer",
+    "ContextMenu_ComputerMod_RepairComponent": "Reparasjon",
+    "ContextMenu_ComputerMod_RemoveComponent": "Fjern"
+}

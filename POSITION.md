@@ -60,9 +60,8 @@ was audited rather than asserted:
   landed in the `player:` key domain by username; they now carry
   their own `foreign:` domain. See [B10].
 
-## What this does NOT mean
+## Current product assessment
 
-The survey measures published features, not verified play. Every
-batch in this repo still carries its own honest pending-receipt list.
-Being alone in a design space is not the same as being finished in
-it.
+The survey describes the implemented feature set. Neo maintains the current
+account from delivered mechanics, simulation results, play records and operator
+feedback. Concrete defects and subsequent improvements retain their own scope.

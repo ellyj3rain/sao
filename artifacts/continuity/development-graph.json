@@ -4,11 +4,11 @@
   "sourceVector": [
     {
       "sourceRef": "ARCHITECTURE.md",
-      "revision": "sha256:054da9002ca390fc8e65f3abd6aa764e2be8e589e0cd5167ed4b818c37a596de"
+      "revision": "sha256:e8ca0fc8ca258811289ae33cc86ef15ba6ab25aab0efb3e06a6753cab5fd8bac"
     },
     {
       "sourceRef": "BATCH_LOG.md",
-      "revision": "sha256:336e235d2449f9665547247442e6509510953a59d7678a9a3dfd45d7d8201844"
+      "revision": "sha256:9e1acb0ed252690634fdff89a6a06b6c359ac8af0abc80eeb24ea16d20fd10cb"
     },
     {
       "sourceRef": "Batches/A1-2026-08-26-repository-and-governance-surface.md",
@@ -489,6 +489,10 @@
     {
       "sourceRef": "Batches/D1-20261004-0124Z-1824PST-shared-reasoning.md",
       "revision": "sha256:dbd48feb7f4388504b32b28b4b268c558c83cc84e5cf4f2a9722cca06d171e5c"
+    },
+    {
+      "sourceRef": "Batches/D2-20261005-2341Z-1641PST-leisure.md",
+      "revision": "sha256:88e21676557bc5dbdfb325388cb235d05ea9c113c02f7c8b36d5dfec18e4f717"
     },
     {
       "sourceRef": "Batches/Products/C1-2026-08-28-catalog-and-version-governance.md",
@@ -1328,31 +1332,31 @@
     },
     {
       "sourceRef": "DECISION_REGISTRY.md",
-      "revision": "sha256:09c4b781a963bc26d4fee19a151fc1a74829ed7f3ce7ced07e9d7df23d3ac0d6"
+      "revision": "sha256:8be4ca22f5928226dd044fbc4d28f559a22bb0c3bc403127c051857d3cbbffff"
     },
     {
       "sourceRef": "FINDINGS.md",
-      "revision": "sha256:e840f9f7b08ba3e38da17bba7733ec0853d980ac451191657fea508d7777dc27"
+      "revision": "sha256:46f0211181fe3833ca20f9ac8f0e2113b4107171d8e75431ff12d204861cead5"
     },
     {
       "sourceRef": "GOVERNANCE.md",
-      "revision": "sha256:38e192c7383f99bbe9871e7232c76f28dde27c28d17767fc69e429edfa18fcc1"
+      "revision": "sha256:2e1da153113a9d0d7418eb3573757da158b899e32111a6dcc69660126f366ef6"
     },
     {
       "sourceRef": "NEO.md",
-      "revision": "sha256:21cf2881eafd81d29c059cd55b2bd30b86a69ca38652077072fd422cd580452f"
+      "revision": "sha256:b83b574c411eb12d855460b5706713f65c218e053cf7ea4284e5ee13e4e7d346"
     },
     {
       "sourceRef": "PROJECTS.md",
-      "revision": "sha256:ee159296e4e0f2f33351488f0a2cc7725d850de4271a87c48cf9b0358a118bfb"
+      "revision": "sha256:f8f2aa668ae26b4bce2fc35770e4da10c5c20f214e0aef1f84f68dbf9093f862"
     },
     {
       "sourceRef": "SESSION_STATE.md",
-      "revision": "sha256:015ff935d734eb2aeba4767e9cdb1c2a722b42805c188a6fc5318be2b4dd138f"
+      "revision": "sha256:b1f89403c9664c3513f7c08baeaacedf428157eaada9b919fd2c3ea6dede037d"
     },
     {
       "sourceRef": "SUBSTRATE.md",
-      "revision": "sha256:d3b90f4047a033616bd1740b1f6f76a255a51fec0dc9171c9749ca1524cdec63"
+      "revision": "sha256:a81bc63025940a854d1d08bae1193e9ba6dd805ba3d52ced951aee811f095e2a"
     },
     {
       "sourceRef": "artifacts/audits/20261003-2310Z-1610PST-shared-boundaries/shared-reasoning-verification.json",
@@ -1384,11 +1388,11 @@
     },
     {
       "sourceRef": "java/src/com/sao/engine/SAORecoveryPose.java",
-      "revision": "sha256:24485121c0a814d8ca8a89afe86dc6fd396a2d82410639eebe972202d9f095d1"
+      "revision": "sha256:0aece1cf75d1d3d76e9170db93aac6d091212604d63848e3fc57e5a00da1790f"
     },
     {
       "sourceRef": "java/src/com/sao/engine/SAOWorldSources.java",
-      "revision": "sha256:171c4682072b6adfb15e8d8858ed71dac9381e3512b7b6f299fd9583cdbc3020"
+      "revision": "sha256:b0a58b6aaa6459ad73af5647b3a8612e668acd52b60649066231f8823c1978ba"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_AfflictedReturn.lua",
@@ -1404,11 +1408,11 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Appearance.lua",
-      "revision": "sha256:a86cc6ebb7951217081a6595e5a8a2d500cf22bf6d1c3214d05c5668289d78a9"
+      "revision": "sha256:3756858a5aa786a1f2060f7b6001c4b32cce6f98de14601e6c61d7ad627ad26e"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Body.lua",
-      "revision": "sha256:dbb1551620115d801296b7e35ddf37c64ec5dedcd1894b7cc2bd6d3829fd4bd0"
+      "revision": "sha256:4c8bc8d1e39181397cd9b40836ae98272b327330935d61db8eecc457f0dd227f"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_CapabilityExperience.lua",
@@ -1416,7 +1420,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Controller.lua",
-      "revision": "sha256:2d43f9d604970011ae6c9f9f818e1bd427c11bd4a4df33b8666358502f8d932a"
+      "revision": "sha256:791536c8f7e29291818d958dcdd984314679140422206468a5c97d720fc408c8"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Cooking.lua",
@@ -1424,7 +1428,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_DormantPopulation.lua",
-      "revision": "sha256:a2ab9bcfb1342d80454b92ba6c8f56419edda94fab12c3af5d32f0b283fbbb6e"
+      "revision": "sha256:0e8e6f9f97854962909ff00d111eb7c04bebf200d837c2bf5f47fb1aedd5cd18"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Driving.lua",
@@ -1448,7 +1452,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Harness.lua",
-      "revision": "sha256:1d9e36c130c4a426bbaaee1134df4e49c93a1915eab49fcc5e5bfced60510f70"
+      "revision": "sha256:0b891156f2e0acdc198713dcba723f687bbbaebea43e902f597f517d68a8a4d4"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Inspect.lua",
@@ -1456,7 +1460,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Locomotion.lua",
-      "revision": "sha256:367ffc040373907ff2a94ba63d27f921dba4ff9660ea232b7e1e666d035b5c26"
+      "revision": "sha256:a9dfce89bb13750d19953fdbfe5e9bbba6982feeed9cd121c8478c9e789ab695"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Medical.lua",
@@ -1480,11 +1484,11 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Population.lua",
-      "revision": "sha256:72761fb0471057c03660c3229a9d3817a704d41c861114fb6798abdeb72b019a"
+      "revision": "sha256:5d31c50e13a4b3c93e3bdefb456ac087f826ebaa09fbe26675c70666acb5f558"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_PopulationAdmissions.lua",
-      "revision": "sha256:cf8ffceb5928e5c3a5ae95c652852084a76cafea1475e79af3564a88efb9d1fc"
+      "revision": "sha256:2567aa399d3040251ed01456aababd2d8fc2cd3a3a2d81f43800d453713d79e4"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_PopulationRepresentation.lua",
@@ -1496,7 +1500,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_RecoveryPose.lua",
-      "revision": "sha256:e3c1cf3d63295482f642a14b90b4ba176f997b2c132ed6e30a7e1bfc599de228"
+      "revision": "sha256:a63f8d071206ef7836129ef8dc3ce3ebe3bc0689876563d85b8d4beedde2be00"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_ResourceProduction.lua",
@@ -1504,7 +1508,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Sandbox.lua",
-      "revision": "sha256:48f0c7bb191932ebcacbbf7b7641987bc8a5d367804396860847191ad6b40a9c"
+      "revision": "sha256:d97ff45b149b165194ec02c65ad920b0e87a320ac071f557273db515ed525172"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_SourceUse.lua",
@@ -1512,7 +1516,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Study.lua",
-      "revision": "sha256:3efe9e84c9aaccd67e77e417aa69b58d6046eafdf573710a858501f71f29749e"
+      "revision": "sha256:e6aa6575bea251e52b2452c5e11244778e8258ea037a75490711faafc9c7977e"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Telemetry.lua",
@@ -1520,7 +1524,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_UI.lua",
-      "revision": "sha256:a1b18125cc3c70d58efc379f2624966abe8fd0235c6ad162bd10fda83493d446"
+      "revision": "sha256:21ee994554eef234ad0cd54b9d7a4a36d69f49fbfa292c52279381fc4dc6f227"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Voice.lua",
@@ -1548,11 +1552,11 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Cognition.lua",
-      "revision": "sha256:735aaa060ee9678b166e55a60daa2a92165c0678265395f884fc88a350d1432c"
+      "revision": "sha256:773ae85c28cc98e3659001f917a6b8c4df16f0f78bd60611cd1cd992fbe1a25a"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
-      "revision": "sha256:1f0bae804b737532ad254f3ea5b292988aac18284dde6bcd0e8a38248491b5fd"
+      "revision": "sha256:4b12de26c8cf72960d1e5a59437e2ac6879c30bbafd916cb92480affad2f71a9"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Command.lua",
@@ -1560,7 +1564,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Communication.lua",
-      "revision": "sha256:0e3086529546b35de6c220eb767a92b9e61fa3aa38eb075e9d65383750ccea36"
+      "revision": "sha256:59d99105184fdafd76d6459fa59d78308b3d14c780a272d13252542dd53547b2"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Conditions.lua",
@@ -1568,7 +1572,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Coordination.lua",
-      "revision": "sha256:f21aa3e5e1e18fe1e1181d80e2fc2016e4f81bf87a88f84327447c60e3fd4657"
+      "revision": "sha256:7e4b3c26cf74c0b6288d1281683795c80bd5ef733be2272dd7d482d8fb0f4f75"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_CoordinationInference.lua",
@@ -1580,7 +1584,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Disposition.lua",
-      "revision": "sha256:71a019aa1d4e6897cd54a88ae6f0d0a2b1ec7b077e833add6f9f7ce32c56d0e6"
+      "revision": "sha256:ec58a6b25ff6b660749a5d380cb71cdb4e51d916f476f7b77cd4838f2ee6096d"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_GraphPersistence.lua",
@@ -1600,11 +1604,11 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_History.lua",
-      "revision": "sha256:ca4fd60ba4350d2dfe1226a44061fffd0c185b5dbedcd42fd885f04f3b6365ef"
+      "revision": "sha256:e0dd6146e076eb1967e334f6d87898f0fa6659b23528769e7e7698c59089611c"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Identity.lua",
-      "revision": "sha256:51ef442d4958b3eb7c249b96661f4e667d175cdd5a8f62f96e8e67caf518134b"
+      "revision": "sha256:9c29797211f1835e0d8c70b391e6bec9477b30a45c9e2eabf93056c5f513e837"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Integration.lua",
@@ -1616,7 +1620,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Knowledge.lua",
-      "revision": "sha256:01fa99b93f914f47438fcc3311f3f4e576e2ae008d892a9085975fafbdf218e8"
+      "revision": "sha256:27df4d5b0908ef75eb48076057b6d2171982dca0791f467064ef901ef5c839db"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Labor.lua",
@@ -1632,7 +1636,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Organization.lua",
-      "revision": "sha256:66fdba3bb1362e07c93740715f0554571540336b08626c644e986cc2367a2084"
+      "revision": "sha256:85685fdbfd56d64e0cb702fddd2b4fa0cbf684e2022967de7fb063a3ea5f714e"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_PathogenEvents.lua",
@@ -1640,7 +1644,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Perception.lua",
-      "revision": "sha256:fb2db7d093e67a68cd41a9803c66278aeaa02efff81024c3ce641cdcc433bf9f"
+      "revision": "sha256:e8293247a16c07aaa334dca750c7b4bf0e1c62184ebdeaa55dd4a3cdabec7ffd"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Pharmacology.lua",
@@ -1660,7 +1664,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-      "revision": "sha256:94f55c4080a4f8e97c923e1bc1ba96e3930da580157bd16b6d2e51abce4ce38f"
+      "revision": "sha256:978a6b4e86956624fd622e65551dd503a6ac43b4050b41cbed13eff48cc1720d"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Provisioning.lua",
@@ -1676,7 +1680,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Standing.lua",
-      "revision": "sha256:69ee137cca73f0e539363f8d1b079c4a833b9269b05c438beb5a58df6a965e22"
+      "revision": "sha256:0fbedac69d7acc5fa1ef2877030f5147516cce5eb6ad3d7e20621ca60c7ce26f"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Treatment.lua",
@@ -1692,7 +1696,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
-      "revision": "sha256:40b82097bf255d116ecc5890d00f7ae54748ec3d5f51be3fdc6e46a88dfbd6d9"
+      "revision": "sha256:1425b9279527850b303b5251f9731959045055ee2dbfa26cc9ce0baab3efe60c"
     },
     {
       "sourceRef": "tools/catalogue.py",
@@ -1700,7 +1704,7 @@
     },
     {
       "sourceRef": "tools/check.sh",
-      "revision": "sha256:844ac23bee7bbe388f2b1d431153f17253ca083fb4ee8bcbc0294a665670f00e"
+      "revision": "sha256:b3cddee1110a22d6a6efe17c4964a4f82221d1ac39620b3ff38ec7ac29108b37"
     },
     {
       "sourceRef": "tools/county_episode.py",
@@ -1724,7 +1728,7 @@
     },
     {
       "sourceRef": "tools/version_replay.py",
-      "revision": "sha256:55190dba069eef57fc66f0c7b69fe12e2f206c379acbb6037a7c3c80e22fd719"
+      "revision": "sha256:3dd84e6cd1ea871b49d1eb8c50da4649a5d2f6cdec8f33a85af8fe1e97f7191e"
     },
     {
       "sourceRef": "tools/world_lab.py",
@@ -1740,7 +1744,7 @@
     },
     {
       "sourceRef": "tools/world_lab_session.py",
-      "revision": "sha256:6c031807b9330894973b5b4059104f05ea81d0208b32579e6aaa9b8ee985a2fc"
+      "revision": "sha256:3eb66fb42e298a0fb27b59bd0b185290675844ca4798156bb20f83977bd37668"
     }
   ],
   "nodes": [
@@ -3620,7 +3624,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:336e235d2449f9665547247442e6509510953a59d7678a9a3dfd45d7d8201844",
+          "revision": "sha256:9e1acb0ed252690634fdff89a6a06b6c359ac8af0abc80eeb24ea16d20fd10cb",
           "locator": "D1"
         },
         {
@@ -3635,6 +3639,35 @@
       "recordedStatus": "CLOSED - shared person-specific reasoning, dated priors and bounded native recovery.",
       "recordedAt": "2026-10-04 01:24 UTC / 18:24 PST",
       "closedAt": "2026-10-05 15:34 UTC / 08:34 PST"
+    },
+    {
+      "id": "batch:D2",
+      "kind": "batch",
+      "label": "D2 · Leisure",
+      "summary": "D2 delivers the integrated Leisure product. Its current action, decision, result, interruption and durable-experience paths are implemented and covered by the accumulated source, native-runtime and simulation evidence recorded below. Later improvements link back to D2. The operator's 2026-10-09 correction removes mandatory playtest and loaded-game verification as closure requirements; play occurs as the aggregate build becomes playable. Wider creator, appearance, Mousecat, Week One and D3–D6 goals retain their own continuing outcomes.",
+      "status": {
+        "implementation": "Acquired personal opportunities, ordinary comparisons, native recreation owners, authenticated results, interruption and durable private experience form the Leisure product.",
+        "verification": "Accumulated source, native-runtime and simulation receipts cover the affected owners and joins below. Current source declarations, version and package transport are reconciled to their qualified inputs. Neo maintains the outcome assessment from ordinary feedback and evidence.",
+        "publication": "Version 3.8.1.0-pre-alpha is installed. PR139 carries one logical commit through the protected main publication path; its required CI results and actual merge are recorded by the publication receipt."
+      },
+      "sources": [
+        {
+          "path": "BATCH_LOG.md",
+          "revision": "sha256:9e1acb0ed252690634fdff89a6a06b6c359ac8af0abc80eeb24ea16d20fd10cb",
+          "locator": "D2"
+        },
+        {
+          "path": "Batches/D2-20261005-2341Z-1641PST-leisure.md",
+          "revision": "sha256:88e21676557bc5dbdfb325388cb235d05ea9c113c02f7c8b36d5dfec18e4f717"
+        }
+      ],
+      "tags": [
+        "D",
+        "delivered"
+      ],
+      "recordedStatus": "CLOSED - integrated Leisure product",
+      "recordedAt": "2026-10-05 23:41 UTC / 16:41 PST",
+      "closedAt": "2026-10-09"
     },
     {
       "id": "branch:archive/c-era-raw-20260919",
@@ -3691,6 +3724,26 @@
         {
           "path": "Batches/D1-20261004-0124Z-1824PST-shared-reasoning.md",
           "revision": "sha256:dbd48feb7f4388504b32b28b4b268c558c83cc84e5cf4f2a9722cca06d171e5c"
+        }
+      ],
+      "tags": [
+        "branch"
+      ]
+    },
+    {
+      "id": "branch:neo/d2-leisure, created for protected publication at closure",
+      "kind": "branch",
+      "label": "neo/d2-leisure, created for protected publication at closure",
+      "summary": "Working branch recorded for the active batch; no publication is inferred.",
+      "status": {
+        "implementation": "unknown",
+        "verification": "unknown",
+        "publication": "unknown"
+      },
+      "sources": [
+        {
+          "path": "Batches/D2-20261005-2341Z-1641PST-leisure.md",
+          "revision": "sha256:88e21676557bc5dbdfb325388cb235d05ea9c113c02f7c8b36d5dfec18e4f717"
         }
       ],
       "tags": [
@@ -14220,6 +14273,10 @@
         {
           "path": "Batches/D1-20261004-0124Z-1824PST-shared-reasoning.md",
           "revision": "sha256:dbd48feb7f4388504b32b28b4b268c558c83cc84e5cf4f2a9722cca06d171e5c"
+        },
+        {
+          "path": "Batches/D2-20261005-2341Z-1641PST-leisure.md",
+          "revision": "sha256:88e21676557bc5dbdfb325388cb235d05ea9c113c02f7c8b36d5dfec18e4f717"
         }
       ],
       "tags": [
@@ -14332,21 +14389,21 @@
         },
         {
           "path": "SESSION_STATE.md",
-          "revision": "sha256:015ff935d734eb2aeba4767e9cdb1c2a722b42805c188a6fc5318be2b4dd138f",
+          "revision": "sha256:b1f89403c9664c3513f7c08baeaacedf428157eaada9b919fd2c3ea6dede037d",
           "locator": "shared reasoning continuation"
         },
         {
           "path": "ARCHITECTURE.md",
-          "revision": "sha256:054da9002ca390fc8e65f3abd6aa764e2be8e589e0cd5167ed4b818c37a596de",
+          "revision": "sha256:e8ca0fc8ca258811289ae33cc86ef15ba6ab25aab0efb3e06a6753cab5fd8bac",
           "locator": "shared reasoning continuation"
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
-          "revision": "sha256:1f0bae804b737532ad254f3ea5b292988aac18284dde6bcd0e8a38248491b5fd"
+          "revision": "sha256:4b12de26c8cf72960d1e5a59437e2ac6879c30bbafd916cb92480affad2f71a9"
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Cognition.lua",
-          "revision": "sha256:735aaa060ee9678b166e55a60daa2a92165c0678265395f884fc88a350d1432c"
+          "revision": "sha256:773ae85c28cc98e3659001f917a6b8c4df16f0f78bd60611cd1cd992fbe1a25a"
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Labor.lua",
@@ -14354,7 +14411,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-          "revision": "sha256:94f55c4080a4f8e97c923e1bc1ba96e3930da580157bd16b6d2e51abce4ce38f"
+          "revision": "sha256:978a6b4e86956624fd622e65551dd503a6ac43b4050b41cbed13eff48cc1720d"
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Needs.lua",
@@ -14362,7 +14419,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Controller.lua",
-          "revision": "sha256:2d43f9d604970011ae6c9f9f818e1bd427c11bd4a4df33b8666358502f8d932a"
+          "revision": "sha256:791536c8f7e29291818d958dcdd984314679140422206468a5c97d720fc408c8"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -16420,7 +16477,7 @@
         },
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:336e235d2449f9665547247442e6509510953a59d7678a9a3dfd45d7d8201844"
+          "revision": "sha256:9e1acb0ed252690634fdff89a6a06b6c359ac8af0abc80eeb24ea16d20fd10cb"
         }
       ],
       "tags": [
@@ -16446,7 +16503,7 @@
         },
         {
           "path": "DECISION_REGISTRY.md",
-          "revision": "sha256:09c4b781a963bc26d4fee19a151fc1a74829ed7f3ce7ced07e9d7df23d3ac0d6"
+          "revision": "sha256:8be4ca22f5928226dd044fbc4d28f559a22bb0c3bc403127c051857d3cbbffff"
         }
       ],
       "tags": [
@@ -16472,7 +16529,7 @@
         },
         {
           "path": "FINDINGS.md",
-          "revision": "sha256:e840f9f7b08ba3e38da17bba7733ec0853d980ac451191657fea508d7777dc27"
+          "revision": "sha256:46f0211181fe3833ca20f9ac8f0e2113b4107171d8e75431ff12d204861cead5"
         }
       ],
       "tags": [
@@ -16498,7 +16555,7 @@
         },
         {
           "path": "GOVERNANCE.md",
-          "revision": "sha256:38e192c7383f99bbe9871e7232c76f28dde27c28d17767fc69e429edfa18fcc1"
+          "revision": "sha256:2e1da153113a9d0d7418eb3573757da158b899e32111a6dcc69660126f366ef6"
         }
       ],
       "tags": [
@@ -16524,7 +16581,7 @@
         },
         {
           "path": "NEO.md",
-          "revision": "sha256:21cf2881eafd81d29c059cd55b2bd30b86a69ca38652077072fd422cd580452f"
+          "revision": "sha256:b83b574c411eb12d855460b5706713f65c218e053cf7ea4284e5ee13e4e7d346"
         }
       ],
       "tags": [
@@ -16550,7 +16607,7 @@
         },
         {
           "path": "PROJECTS.md",
-          "revision": "sha256:ee159296e4e0f2f33351488f0a2cc7725d850de4271a87c48cf9b0358a118bfb"
+          "revision": "sha256:f8f2aa668ae26b4bce2fc35770e4da10c5c20f214e0aef1f84f68dbf9093f862"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -16581,7 +16638,7 @@
         },
         {
           "path": "SUBSTRATE.md",
-          "revision": "sha256:d3b90f4047a033616bd1740b1f6f76a255a51fec0dc9171c9749ca1524cdec63"
+          "revision": "sha256:a81bc63025940a854d1d08bae1193e9ba6dd805ba3d52ced951aee811f095e2a"
         }
       ],
       "tags": [
@@ -16685,7 +16742,7 @@
         },
         {
           "path": "java/src/com/sao/engine/SAORecoveryPose.java",
-          "revision": "sha256:24485121c0a814d8ca8a89afe86dc6fd396a2d82410639eebe972202d9f095d1"
+          "revision": "sha256:0aece1cf75d1d3d76e9170db93aac6d091212604d63848e3fc57e5a00da1790f"
         }
       ],
       "tags": [
@@ -16711,7 +16768,7 @@
         },
         {
           "path": "java/src/com/sao/engine/SAOWorldSources.java",
-          "revision": "sha256:171c4682072b6adfb15e8d8858ed71dac9381e3512b7b6f299fd9583cdbc3020"
+          "revision": "sha256:b0a58b6aaa6459ad73af5647b3a8612e668acd52b60649066231f8823c1978ba"
         }
       ],
       "tags": [
@@ -16815,7 +16872,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Appearance.lua",
-          "revision": "sha256:a86cc6ebb7951217081a6595e5a8a2d500cf22bf6d1c3214d05c5668289d78a9"
+          "revision": "sha256:3756858a5aa786a1f2060f7b6001c4b32cce6f98de14601e6c61d7ad627ad26e"
         }
       ],
       "tags": [
@@ -16841,7 +16898,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Body.lua",
-          "revision": "sha256:dbb1551620115d801296b7e35ddf37c64ec5dedcd1894b7cc2bd6d3829fd4bd0"
+          "revision": "sha256:4c8bc8d1e39181397cd9b40836ae98272b327330935d61db8eecc457f0dd227f"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -16898,7 +16955,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Controller.lua",
-          "revision": "sha256:2d43f9d604970011ae6c9f9f818e1bd427c11bd4a4df33b8666358502f8d932a"
+          "revision": "sha256:791536c8f7e29291818d958dcdd984314679140422206468a5c97d720fc408c8"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -16970,7 +17027,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_DormantPopulation.lua",
-          "revision": "sha256:a2ab9bcfb1342d80454b92ba6c8f56419edda94fab12c3af5d32f0b283fbbb6e"
+          "revision": "sha256:0e8e6f9f97854962909ff00d111eb7c04bebf200d837c2bf5f47fb1aedd5cd18"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -17136,7 +17193,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Harness.lua",
-          "revision": "sha256:1d9e36c130c4a426bbaaee1134df4e49c93a1915eab49fcc5e5bfced60510f70"
+          "revision": "sha256:0b891156f2e0acdc198713dcba723f687bbbaebea43e902f597f517d68a8a4d4"
         }
       ],
       "tags": [
@@ -17188,7 +17245,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Locomotion.lua",
-          "revision": "sha256:367ffc040373907ff2a94ba63d27f921dba4ff9660ea232b7e1e666d035b5c26"
+          "revision": "sha256:a9dfce89bb13750d19953fdbfe5e9bbba6982feeed9cd121c8478c9e789ab695"
         }
       ],
       "tags": [
@@ -17369,7 +17426,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Population.lua",
-          "revision": "sha256:72761fb0471057c03660c3229a9d3817a704d41c861114fb6798abdeb72b019a"
+          "revision": "sha256:5d31c50e13a4b3c93e3bdefb456ac087f826ebaa09fbe26675c70666acb5f558"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -17400,7 +17457,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_PopulationAdmissions.lua",
-          "revision": "sha256:cf8ffceb5928e5c3a5ae95c652852084a76cafea1475e79af3564a88efb9d1fc"
+          "revision": "sha256:2567aa399d3040251ed01456aababd2d8fc2cd3a3a2d81f43800d453713d79e4"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -17493,7 +17550,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_RecoveryPose.lua",
-          "revision": "sha256:e3c1cf3d63295482f642a14b90b4ba176f997b2c132ed6e30a7e1bfc599de228"
+          "revision": "sha256:a63f8d071206ef7836129ef8dc3ce3ebe3bc0689876563d85b8d4beedde2be00"
         }
       ],
       "tags": [
@@ -17545,7 +17602,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Sandbox.lua",
-          "revision": "sha256:48f0c7bb191932ebcacbbf7b7641987bc8a5d367804396860847191ad6b40a9c"
+          "revision": "sha256:d97ff45b149b165194ec02c65ad920b0e87a320ac071f557273db515ed525172"
         }
       ],
       "tags": [
@@ -17607,7 +17664,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Study.lua",
-          "revision": "sha256:3efe9e84c9aaccd67e77e417aa69b58d6046eafdf573710a858501f71f29749e"
+          "revision": "sha256:e6aa6575bea251e52b2452c5e11244778e8258ea037a75490711faafc9c7977e"
         }
       ],
       "tags": [
@@ -17659,7 +17716,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_UI.lua",
-          "revision": "sha256:a1b18125cc3c70d58efc379f2624966abe8fd0235c6ad162bd10fda83493d446"
+          "revision": "sha256:21ee994554eef234ad0cd54b9d7a4a36d69f49fbfa292c52279381fc4dc6f227"
         }
       ],
       "tags": [
@@ -17856,7 +17913,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Cognition.lua",
-          "revision": "sha256:735aaa060ee9678b166e55a60daa2a92165c0678265395f884fc88a350d1432c"
+          "revision": "sha256:773ae85c28cc98e3659001f917a6b8c4df16f0f78bd60611cd1cd992fbe1a25a"
         }
       ],
       "tags": [
@@ -17882,7 +17939,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
-          "revision": "sha256:1f0bae804b737532ad254f3ea5b292988aac18284dde6bcd0e8a38248491b5fd"
+          "revision": "sha256:4b12de26c8cf72960d1e5a59437e2ac6879c30bbafd916cb92480affad2f71a9"
         }
       ],
       "tags": [
@@ -17934,7 +17991,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Communication.lua",
-          "revision": "sha256:0e3086529546b35de6c220eb767a92b9e61fa3aa38eb075e9d65383750ccea36"
+          "revision": "sha256:59d99105184fdafd76d6459fa59d78308b3d14c780a272d13252542dd53547b2"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -18006,7 +18063,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Coordination.lua",
-          "revision": "sha256:f21aa3e5e1e18fe1e1181d80e2fc2016e4f81bf87a88f84327447c60e3fd4657"
+          "revision": "sha256:7e4b3c26cf74c0b6288d1281683795c80bd5ef733be2272dd7d482d8fb0f4f75"
         }
       ],
       "tags": [
@@ -18084,7 +18141,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Disposition.lua",
-          "revision": "sha256:71a019aa1d4e6897cd54a88ae6f0d0a2b1ec7b077e833add6f9f7ce32c56d0e6"
+          "revision": "sha256:ec58a6b25ff6b660749a5d380cb71cdb4e51d916f476f7b77cd4838f2ee6096d"
         }
       ],
       "tags": [
@@ -18219,7 +18276,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_History.lua",
-          "revision": "sha256:ca4fd60ba4350d2dfe1226a44061fffd0c185b5dbedcd42fd885f04f3b6365ef"
+          "revision": "sha256:e0dd6146e076eb1967e334f6d87898f0fa6659b23528769e7e7698c59089611c"
         }
       ],
       "tags": [
@@ -18245,7 +18302,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Identity.lua",
-          "revision": "sha256:51ef442d4958b3eb7c249b96661f4e667d175cdd5a8f62f96e8e67caf518134b"
+          "revision": "sha256:9c29797211f1835e0d8c70b391e6bec9477b30a45c9e2eabf93056c5f513e837"
         }
       ],
       "tags": [
@@ -18323,7 +18380,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Knowledge.lua",
-          "revision": "sha256:01fa99b93f914f47438fcc3311f3f4e576e2ae008d892a9085975fafbdf218e8"
+          "revision": "sha256:27df4d5b0908ef75eb48076057b6d2171982dca0791f467064ef901ef5c839db"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -18437,7 +18494,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Organization.lua",
-          "revision": "sha256:66fdba3bb1362e07c93740715f0554571540336b08626c644e986cc2367a2084"
+          "revision": "sha256:85685fdbfd56d64e0cb702fddd2b4fa0cbf684e2022967de7fb063a3ea5f714e"
         }
       ],
       "tags": [
@@ -18489,7 +18546,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Perception.lua",
-          "revision": "sha256:fb2db7d093e67a68cd41a9803c66278aeaa02efff81024c3ce641cdcc433bf9f"
+          "revision": "sha256:e8293247a16c07aaa334dca750c7b4bf0e1c62184ebdeaa55dd4a3cdabec7ffd"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -18634,7 +18691,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-          "revision": "sha256:94f55c4080a4f8e97c923e1bc1ba96e3930da580157bd16b6d2e51abce4ce38f"
+          "revision": "sha256:978a6b4e86956624fd622e65551dd503a6ac43b4050b41cbed13eff48cc1720d"
         }
       ],
       "tags": [
@@ -18738,7 +18795,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Standing.lua",
-          "revision": "sha256:69ee137cca73f0e539363f8d1b079c4a833b9269b05c438beb5a58df6a965e22"
+          "revision": "sha256:0fbedac69d7acc5fa1ef2877030f5147516cce5eb6ad3d7e20621ca60c7ce26f"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -18857,7 +18914,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
-          "revision": "sha256:40b82097bf255d116ecc5890d00f7ae54748ec3d5f51be3fdc6e46a88dfbd6d9"
+          "revision": "sha256:1425b9279527850b303b5251f9731959045055ee2dbfa26cc9ce0baab3efe60c"
         }
       ],
       "tags": [
@@ -18883,7 +18940,7 @@
         },
         {
           "path": "tools/check.sh",
-          "revision": "sha256:844ac23bee7bbe388f2b1d431153f17253ca083fb4ee8bcbc0294a665670f00e"
+          "revision": "sha256:b3cddee1110a22d6a6efe17c4964a4f82221d1ac39620b3ff38ec7ac29108b37"
         }
       ],
       "tags": [
@@ -19013,7 +19070,7 @@
         },
         {
           "path": "tools/version_replay.py",
-          "revision": "sha256:55190dba069eef57fc66f0c7b69fe12e2f206c379acbb6037a7c3c80e22fd719"
+          "revision": "sha256:3dd84e6cd1ea871b49d1eb8c50da4649a5d2f6cdec8f33a85af8fe1e97f7191e"
         }
       ],
       "tags": [
@@ -19127,7 +19184,7 @@
         },
         {
           "path": "tools/world_lab_session.py",
-          "revision": "sha256:6c031807b9330894973b5b4059104f05ea81d0208b32579e6aaa9b8ee985a2fc"
+          "revision": "sha256:3eb66fb42e298a0fb27b59bd0b185290675844ca4798156bb20f83977bd37668"
         }
       ],
       "tags": [
@@ -30244,6 +30301,20 @@
       "rationale": "Advance purpose steps through canonical results and independent acknowledgments."
     },
     {
+      "id": "edge:07e87266fb76aa9b87fb0844",
+      "from": "batch:D2",
+      "to": "contract:20261003:C23",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D2-20261005-2341Z-1641PST-leisure.md",
+          "revision": "sha256:88e21676557bc5dbdfb325388cb235d05ea9c113c02f7c8b36d5dfec18e4f717"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:080e5642c43789496ac0b110",
       "from": "batch:A24",
       "to": "commit:616cbaf",
@@ -41196,6 +41267,20 @@
       "rationale": "Dormant county continuity measured."
     },
     {
+      "id": "edge:3ef7e107dafbb2c2b0c373b4",
+      "from": "batch:D2",
+      "to": "branch:neo/d2-leisure, created for protected publication at closure",
+      "relation": "records",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D2-20261005-2341Z-1641PST-leisure.md",
+          "revision": "sha256:88e21676557bc5dbdfb325388cb235d05ea9c113c02f7c8b36d5dfec18e4f717"
+        }
+      ],
+      "rationale": "Working branch recorded for the active batch; no publication is inferred."
+    },
+    {
       "id": "edge:3f072ebf3feba19e0cf5e135",
       "from": "batch:A18",
       "to": "batch:A19",
@@ -46453,6 +46538,20 @@
         }
       ],
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
+    },
+    {
+      "id": "edge:5aa3b9fcd41d554611749552",
+      "from": "batch:D2",
+      "to": "contract:20261003:C34",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D2-20261005-2341Z-1641PST-leisure.md",
+          "revision": "sha256:88e21676557bc5dbdfb325388cb235d05ea9c113c02f7c8b36d5dfec18e4f717"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:5abdd15e6066b18b9768526a",
@@ -52510,6 +52609,24 @@
       "rationale": "Explicit preserved thread-index membership."
     },
     {
+      "id": "edge:79206385cae8d646b77c4b78",
+      "from": "product:20261005-product-consolidation:C82",
+      "to": "batch:D1",
+      "relation": "chronology",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/C_PRODUCT_CATALOGUE.json",
+          "revision": "sha256:55ae08738f13c855af1b8def955fcf23b799772dea1b4455392c8878925e0b59"
+        },
+        {
+          "path": "BATCH_LOG.md",
+          "revision": "sha256:9e1acb0ed252690634fdff89a6a06b6c359ac8af0abc80eeb24ea16d20fd10cb"
+        }
+      ],
+      "rationale": "Delivered D follows the current C product chronology; its recorded contract predecessor remains preserved."
+    },
+    {
       "id": "edge:79266c174dbb2db173d062ad",
       "from": "event:product-consolidation:C:20261005",
       "to": "product:20261005-product-consolidation:C55",
@@ -54527,6 +54644,20 @@
         }
       ],
       "rationale": "Explicit former-source membership in the 2026-09-19 consolidation."
+    },
+    {
+      "id": "edge:82f8de511fd202880b1b1cd4",
+      "from": "batch:D2",
+      "to": "contract:20261003:C33",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D2-20261005-2341Z-1641PST-leisure.md",
+          "revision": "sha256:88e21676557bc5dbdfb325388cb235d05ea9c113c02f7c8b36d5dfec18e4f717"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:830685761d8d4a6c2f14b0ce",
@@ -59520,6 +59651,20 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
+      "id": "edge:9d971f70d1a46c75420d9ff2",
+      "from": "batch:D2",
+      "to": "contract:20261003:C32",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D2-20261005-2341Z-1641PST-leisure.md",
+          "revision": "sha256:88e21676557bc5dbdfb325388cb235d05ea9c113c02f7c8b36d5dfec18e4f717"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:9da4b8ef51593b23b2665f48",
       "from": "batch:A13",
       "to": "commit:159dd02",
@@ -64295,6 +64440,20 @@
       "rationale": "Explicit preserved thread-index membership."
     },
     {
+      "id": "edge:b72ee372808aa55ed2c7fd57",
+      "from": "batch:D2",
+      "to": "contract:20261003:C30",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D2-20261005-2341Z-1641PST-leisure.md",
+          "revision": "sha256:88e21676557bc5dbdfb325388cb235d05ea9c113c02f7c8b36d5dfec18e4f717"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:b76739dd95eed77ebe3dab5f",
       "from": "source:c-20261003:C15",
       "to": "product:20261005-product-consolidation:C15",
@@ -68975,6 +69134,20 @@
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
     },
     {
+      "id": "edge:cd15da7a9c92ae2f69fb65a2",
+      "from": "batch:D2",
+      "to": "era:D",
+      "relation": "concept-membership",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D2-20261005-2341Z-1641PST-leisure.md",
+          "revision": "sha256:88e21676557bc5dbdfb325388cb235d05ea9c113c02f7c8b36d5dfec18e4f717"
+        }
+      ],
+      "rationale": "The authoritative index records this numbered batch in its letter era."
+    },
+    {
       "id": "edge:cd243d1640e334e64eff72d9",
       "from": "source:c-20261003:C10",
       "to": "product:20261005-product-consolidation:C10",
@@ -73540,6 +73713,20 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
+      "id": "edge:e2829cdc922800a45daf2082",
+      "from": "batch:D1",
+      "to": "batch:D2",
+      "relation": "chronology",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D2-20261005-2341Z-1641PST-leisure.md",
+          "revision": "sha256:88e21676557bc5dbdfb325388cb235d05ea9c113c02f7c8b36d5dfec18e4f717"
+        }
+      ],
+      "rationale": "The batch explicitly follows this preserved event or record."
+    },
+    {
       "id": "edge:e28cc9fb3e980db46b79e79f",
       "from": "batch:B38",
       "to": "commit:302dd7d",
@@ -73892,24 +74079,6 @@
         }
       ],
       "rationale": "Return lacked adoption/dormant recovery."
-    },
-    {
-      "id": "edge:e3985145f91038db5f7f4655",
-      "from": "product:20261005-product-consolidation:C82",
-      "to": "batch:D1",
-      "relation": "chronology",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/C_PRODUCT_CATALOGUE.json",
-          "revision": "sha256:55ae08738f13c855af1b8def955fcf23b799772dea1b4455392c8878925e0b59"
-        },
-        {
-          "path": "BATCH_LOG.md",
-          "revision": "sha256:336e235d2449f9665547247442e6509510953a59d7678a9a3dfd45d7d8201844"
-        }
-      ],
-      "rationale": "Delivered D follows the current C product chronology; its recorded contract predecessor remains preserved."
     },
     {
       "id": "edge:e3b4d145852b8f910f20ca37",
@@ -79307,5 +79476,5 @@
       ]
     }
   ],
-  "revision": "sha256:9be178cec26fa1489cc44768e10df2b3a72f01c2e8a295f22aed220ade489cfa"
+  "revision": "sha256:c3f0605b06a76423f8ba8988a36fdc9c92d65fe9dad434e18214761a8e9c2b09"
 }

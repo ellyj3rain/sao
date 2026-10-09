@@ -1,0 +1,68 @@
+KNOX AQUARIUM - CREDITS AND LICENCES
+====================================
+
+3D SOURCE MODEL
+---------------
+"Fish tank XYZ Damage" by yulkenn
+    https://sketchfab.com/yulkenn
+    https://sketchfab.com/3d-models/fish-tank-xyz-damage-2fe9b28cb6334b4ea90c9e588540f11d
+    Licensed under Creative Commons Attribution 4.0 International (CC BY 4.0)
+    http://creativecommons.org/licenses/by/4.0/
+
+CHANGES MADE TO THE ORIGINAL MODEL
+The original .glb was not modified or redistributed. It was used as a rendering
+source only. For this mod the glass tank was isolated from the wider scene
+(table, floor, room lighting and several unused props were discarded), its
+materials were brightened for Project Zomboid's flat isometric lighting, and a
+new charcoal cabinet, plinth, doors, handles, fitted lid, feeding hatch, water
+volume and waterline were modelled procedurally around it in Blender. The four
+swimming fish, their motion paths and every user-interface icon are original
+work created for this mod. Everything shipped in this mod is a set of 2D sprites
+rendered from that scene; no mesh, texture or material file from the original
+download is included.
+
+FISH, WATER, CABINET, ANIMATION FRAMES AND UI ICONS
+Original work by RentCollectorClips, created for this mod.
+
+BASE GAME
+Project Zomboid is by The Indie Stone. This mod is not affiliated with or
+endorsed by The Indie Stone.
+
+OPTIONAL COMPATIBILITY - FISHING OVERHAUL BR
+Knox Aquarium detects "Fishing Overhaul BR [B42]" (Workshop 3784235810, mod id
+PeixesBRExpansion, by gadinho) and works with its species when it is installed.
+
+Its fish are found by reading the base game's own fishing registry, and the
+Inspect window shows its 3D models by asking each fish item for the model name
+it already carries - those models and textures stay that mod's own files,
+loaded from that mod, and used only while it is installed.
+
+SPECIES SPRITES (since 0.13). This mod ships 2D sprite frames of 97 of his
+species swimming, used in the Large and Display tanks. They were rendered, with
+gadinho's permission as a partner in this project, from the 3D models and
+textures in his mod. Only the rendered 2D frames are included - no mesh,
+texture or model file of his is shipped. Many of those species come from the
+"Lake Fish Pack" and "River Fish Pack" by TricksUp, which are licensed to him.
+The species only appear while his mod is installed, because only his fish can
+be put in a tank to show them.
+
+Neither mod requires the other. With Knox Aquarium alone every tank works and
+draws its own aquarium fish.
+
+DISPLAY AQUARIUM MODEL
+The display aquarium is rendered from a 3D aquarium model by CGAxis
+(cgaxis.com, model "cgaxis_models_24_09"). As with every tank here, the model
+is not shipped: only 2D sprite frames rendered from it. Its built-in shoal of
+fish was removed; the cabinet, lid and water were built for this mod.
+
+LARGE AQUARIUM MODEL
+The large aquarium ("Paludario") is based on a 3D model built by gadinho, author
+of Fishing Overhaul BR, and given to this mod when he stopped work on his own
+aquarium mod. It originates from "Paludarium Vivarium Aquarium #1", purchased by
+him on Fab; he has confirmed it may be used here.
+
+The model is not shipped as geometry. It was converted, its glass faces removed,
+and rendered to 2D sprite frames in the same Blender pipeline used for every
+other tank in this mod - which is why the large tank costs about 9 MB rather
+than the 88 MB the raw meshes would have added. The arapaima swimming in it is
+his model too, extracted from the same file.

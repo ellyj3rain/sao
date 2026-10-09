@@ -1,0 +1,12 @@
+{
+    "ContextMenu_ComputerMod_Computer": "컴퓨터",
+    "ContextMenu_ComputerMod_InsertCD": "CD 삽입",
+    "ContextMenu_ComputerMod_NetworkTerminal": "네트워크 터미널",
+    "ContextMenu_ComputerMod_RemoveCD": "CD 제거",
+    "ContextMenu_ComputerMod_ResumeSession": "세션 재개",
+    "ContextMenu_ComputerMod_TurnOn": "켜다",
+    "ContextMenu_ComputerMod_Components": "구성요소",
+    "ContextMenu_ComputerMod_InstallComponent": "설치",
+    "ContextMenu_ComputerMod_RepairComponent": "수리",
+    "ContextMenu_ComputerMod_RemoveComponent": "제거"
+}

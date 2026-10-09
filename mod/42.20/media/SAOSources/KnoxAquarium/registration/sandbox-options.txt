@@ -1,0 +1,46 @@
+VERSION = 1,
+
+option KnoxAquarium.FreeTanks
+{
+	type = enum, numValues = 3, default = 1,
+	page = KnoxAquarium, translation = KnoxAquarium_FreeTanks,
+}
+
+/* PLAYTEST 2026-09-16. Every default below reproduces the value that was
+   hardcoded before this option existed, so an existing save or server that
+   never touches these behaves exactly as it always has. Values are read
+   fresh on every use (K.sandbox), server-authoritative for anything that
+   decides what a player may do (KA_Core / KA_Server), never trusted from a
+   client alone. This file is parsed by the same script parser vanilla's own
+   scripts use, which strips C-style block comments like this one - a Lua
+   line comment would not be recognised, so none is used here. */
+
+option KnoxAquarium.ComfortEnabled
+{
+	type = boolean, default = true,
+	page = KnoxAquarium, translation = KnoxAquarium_ComfortEnabled,
+}
+
+option KnoxAquarium.ComfortRange
+{
+	type = integer, default = 6, min = 1, max = 20,
+	page = KnoxAquarium, translation = KnoxAquarium_ComfortRange,
+}
+
+option KnoxAquarium.ComfortMaxTanks
+{
+	type = integer, default = 3, min = 1, max = 10,
+	page = KnoxAquarium, translation = KnoxAquarium_ComfortMaxTanks,
+}
+
+option KnoxAquarium.FishSurviveMinMinutes
+{
+	type = integer, default = 10, min = 1, max = 120,
+	page = KnoxAquarium, translation = KnoxAquarium_FishSurviveMinMinutes,
+}
+
+option KnoxAquarium.FishSurviveMaxMinutes
+{
+	type = integer, default = 20, min = 1, max = 240,
+	page = KnoxAquarium, translation = KnoxAquarium_FishSurviveMaxMinutes,
+}

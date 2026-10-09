@@ -125,12 +125,38 @@ function Identity.nameFromEngine(rec)
     return true
 end
 
-function Identity.create(forename, surname, x, y, z)
+function Identity.create(forename, surname, x, y, z, candidateEligible)
     local s = store()
     if not s then return nil end
+    if candidateEligible ~= nil and type(candidateEligible) ~= "function" then
+        return nil, "candidate-filter-invalid"
+    end
+    -- Historical county genesis can know that a prospective generated ID
+    -- belongs to somebody who has not yet been born. Consume that ordinal
+    -- without ever writing a record, name or creation tally. A missing
+    -- calendar answer keeps the same ordinal available for a later poll.
+    local id
+    for _ = 1, 256 do
+        local candidate = "sao-" .. tostring(s.nextId)
+        if candidateEligible then
+            local ok, admitted, reason = pcall(candidateEligible, candidate)
+            if not ok then return nil, "candidate-filter-failed" end
+            if admitted == nil then
+                return nil, reason or "candidate-filter-unavailable"
+            end
+            if type(admitted) ~= "boolean" then
+                return nil, "candidate-filter-invalid-result"
+            end
+            s.nextId = s.nextId + 1
+            if admitted then id = candidate; break end
+        else
+            s.nextId = s.nextId + 1
+            id = candidate
+            break
+        end
+    end
+    if not id then return nil, "candidate-filter-exhausted" end
     dropNameIndex()
-    local id = "sao-" .. tostring(s.nextId)
-    s.nextId = s.nextId + 1
     local rec = {
         id = id,
         forename = tostring(forename or "Unnamed"),

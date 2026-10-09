@@ -11,8 +11,24 @@ if [ ! -x "$JDK/javac.exe" ] \
 fi
 PZ_JAR="C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar"
 ZB_JAR="C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/ZombieBuddy.jar"
+VIEWPOINT_JAR="$ROOT/vendor/viewpoint/Viewpoint-0.1.5a-hotfix.jar"
+VIEWPOINT_SHA256="94FEDDA302AB6C17BA1B38495789E4C9781D52823FB8204214C85402E3CAB41F"
+VIEWPOINT_LICENSE_SHA256="F127293CC98E1845BA180E8696B2C23FB93444A929F2B43EB8267728B6F77C74"
 OUT="$ROOT/java/out"
 DIST="$ROOT/java/dist"
+
+for document in LICENSE CREDITS.md; do
+    if [ ! -f "$ROOT/$document" ]; then
+        echo "[build] missing required package document: $document" >&2
+        exit 1
+    fi
+done
+if [ ! -f "$ROOT/vendor/viewpoint/LICENSE" ] \
+    || [ "$(sha256sum "$ROOT/vendor/viewpoint/LICENSE" | awk '{print toupper($1)}')" \
+        != "$VIEWPOINT_LICENSE_SHA256" ]; then
+    echo "[build] pinned Viewpoint source license missing or changed" >&2
+    exit 1
+fi
 
 rm -rf "$OUT" && mkdir -p "$OUT" "$DIST"
 
@@ -54,10 +70,39 @@ to_windows_path() {
 }
 WIN_OUT="$(to_windows_path "$OUT")"
 WIN_DIST="$(to_windows_path "$DIST")"
+WIN_VIEWPOINT="$(to_windows_path "$VIEWPOINT_JAR")"
+
+# The renderer and shader resources are one pinned Workshop source. Reject
+# changed or unexpected archive content before extracting into generated out/.
+if [ ! -f "$VIEWPOINT_JAR" ]; then
+    echo "[build] missing pinned Viewpoint source: $VIEWPOINT_JAR" >&2
+    exit 1
+fi
+ACTUAL_VIEWPOINT_SHA256="$(sha256sum "$VIEWPOINT_JAR" | awk '{print toupper($1)}')"
+if [ "$ACTUAL_VIEWPOINT_SHA256" != "$VIEWPOINT_SHA256" ]; then
+    echo "[build] pinned Viewpoint hash mismatch" >&2
+    exit 1
+fi
+if ! "$JDK/jar.exe" --list --file "$WIN_VIEWPOINT" | awk '
+    { sub(/\r$/, "") }
+    /^viewpoint\// {
+        if ($0 ~ /\\/ || $0 ~ /(^|\/)\.\.?(\/|$)/) bad=1
+        entries++
+        next
+    }
+    $0 != "META-INF/" && $0 != "META-INF/MANIFEST.MF" { bad=1 }
+    END { if (bad || entries != 825) exit 1 }
+'; then
+    echo "[build] pinned Viewpoint archive entries changed" >&2
+    exit 1
+fi
+(cd "$OUT" && "$JDK/jar.exe" --extract --file "$WIN_VIEWPOINT" viewpoint)
+python3 "$ROOT/tools/adapt_viewpoint_framecaps.py" "$OUT/viewpoint/game/FrameCaps.class"
+
 { find "$ROOT/java/src" -name '*.java'; echo "$GEN/SAOVersion.java"; } \
     | while read -r f; do to_windows_path "$f"; done \
     | sed 's|.*|"&"|' > "$OUT/sources.txt"
-"$JDK/javac.exe" -cp "$PZ_JAR;$ZB_JAR" -d "$WIN_OUT" \
+"$JDK/javac.exe" -cp "$PZ_JAR;$ZB_JAR;$WIN_VIEWPOINT" -d "$WIN_OUT" \
     "@$WIN_OUT/sources.txt"
 
 # [C82] Native learned artifacts are classpath resources, so inference does
@@ -78,7 +123,7 @@ EOF
 echo "[build] packaging SAOAgent.jar"
 rm -f "$DIST/SAOAgent.jar"
 "$JDK/jar.exe" --create --file "$WIN_DIST/SAOAgent.jar" \
-    --manifest "$WIN_OUT/MANIFEST.MF" -C "$WIN_OUT" com
+    --manifest "$WIN_OUT/MANIFEST.MF" -C "$WIN_OUT" com -C "$WIN_OUT" viewpoint
 
 # [B33] The jar also lands in the mod tree, which is the SHIPPING
 # location: deploy copies mod/ wholesale, and publishing IS shipping
@@ -94,6 +139,17 @@ MODJAR="$ROOT/mod/42.20/media/java/SAO.jar"
 mkdir -p "$(dirname "$MODJAR")"
 cp "$DIST/SAOAgent.jar" "$MODJAR"
 
-"$JDK/jar.exe" --list --file "$WIN_DIST/SAOAgent.jar"
+# The mod/ tree is the installable package, so its license and source credit
+# travel with the bundled Viewpoint classes and the rest of SAO's sources.
+for document in LICENSE CREDITS.md; do
+    if ! cmp -s "$ROOT/$document" "$ROOT/mod/$document"; then
+        cp "$ROOT/$document" "$ROOT/mod/$document"
+    fi
+done
+if ! cmp -s "$ROOT/vendor/viewpoint/LICENSE" "$ROOT/mod/VIEWPOINT-LICENSE.txt"; then
+    cp "$ROOT/vendor/viewpoint/LICENSE" "$ROOT/mod/VIEWPOINT-LICENSE.txt"
+fi
+
+echo "[build] packaged SAO classes and pinned Viewpoint renderer/resources"
 echo "[build] done: $DIST/SAOAgent.jar"
 echo "[build] shipped: $MODJAR"

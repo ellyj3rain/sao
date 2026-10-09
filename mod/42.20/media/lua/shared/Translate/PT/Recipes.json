@@ -1,0 +1,7 @@
+{
+  "Assemble486Motherboard": "Monte a placa-mãe 486",
+  "Assemble486DX2Processor": "Monte o processador 486DX2",
+  "Assemble72PinRAM": "Monte RAM de 72 pinos",
+  "AssembleVLBGraphicsCard": "Monte a placa gráfica VLB",
+  "Assemble340MBIDEHardDrive": "Monte o disco rígido IDE de 340 MB"
+}
