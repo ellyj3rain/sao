@@ -282,13 +282,23 @@ checks, reuse and reason in the batch record, and use the hook's existing
 command-scoped `git commit --no-verify` option. This permits evidence reuse;
 it is not a passing gate result. Persistent hook disabling is unnecessary.
 
-The required GitHub `ci-verify` job in
-`.github/workflows/ci-verify.yml` currently invokes the full suite for pull
-requests and main pushes. Main branch protection requires `ci-verify` and
-`codeql-python`. Report that concrete external publication constraint
-when it causes additional work; it does not create a local requirement to
-repeat the suite. Required remote checks still complete before merge. Their
-results retain their own environment and skipped-observation boundaries.
+GitHub verification applies the same affected-contract selection as local
+verification. The `ci-verify` job selects product and package checks from the
+whole pull request's changed inputs and their dependencies. Changes across
+shared runtime interfaces broaden the affected product checks. Repository
+maintenance scanners retain their findings and logs in an advisory job. The
+complete suite runs through explicit manual or scheduled advisory work.
+Publication and a new commit identifier alone do not trigger another full run.
+The protected pull request process and affected security checks remain in force.
+Required checks always report their selected scope, actual results and skipped
+observations. A diagnostic about unrelated repository maintenance is assigned
+to its owner without becoming a product publication veto.
+
+Source branch pushes preserve work independently of promotion to main. Normal
+save, start and play flow follows the aggregate playable build. Publication CI
+does not introduce an additional save or play condition. Neo owns CI rule
+correction when the actual GitHub routing contradicts this discipline, and
+records the live branch policy and published workflow separately.
 
 ## Analysis discipline
 

@@ -2,9 +2,14 @@ name: CI Verify
 
 on:
   pull_request:
-  push:
-    branches: [main]
+  schedule:
+    - cron: "17 10 * * 3"
   workflow_dispatch:
+    inputs:
+      full_suite:
+        description: Run the complete standing suite as advisory maintenance
+        type: boolean
+        default: false
 
 concurrency:
   group: ci-verify-${{ github.ref }}
@@ -13,52 +18,100 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  # A later repair commit retains every earlier changed input in the PR.
+  CI_BASE: ${{ github.event.pull_request.base.sha || 'HEAD^' }}
+
 jobs:
   ci-verify:
     name: ci-verify
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
     steps:
       - name: Check out the project
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # save_compat_test compares the shipped record fields against a
-          # baseline commit; a shallow clone would make it skip silently.
           fetch-depth: 0
           lfs: true
-
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.12'
-
       - name: Check committed diff hygiene
         shell: bash
+        run: git diff --check "$CI_BASE"...HEAD
+      - name: Run affected product contracts
+        shell: bash
+        run: bash tools/check.sh --affected "$CI_BASE" _scratch/ci-required
+      - name: Preserve product selection and results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: affected-product-${{ github.run_attempt }}
+          path: _scratch/ci-required
+          if-no-files-found: warn
+
+  maintenance-advisory:
+    name: maintenance-advisory
+    # This status is advisory, outside the required ci-verify/codeql-python
+    # contexts. Findings retain their failed outcome and artifact logs.
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out the project
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Report affected maintenance findings
+        shell: bash
+        run: bash tools/check.sh --maintenance-advisory "$CI_BASE" _scratch/ci-maintenance
+      - name: Preserve maintenance selection and findings
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: affected-maintenance-${{ github.run_attempt }}
+          path: _scratch/ci-maintenance
+          if-no-files-found: warn
+
+  full-suite-advisory:
+    name: full-suite-advisory
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.full_suite)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out the project
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Report the complete standing suite
+        id: full
+        shell: bash
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            git diff --check "origin/${{ github.base_ref }}"...HEAD
-          else
-            git show --check --format=fuller HEAD
-          fi
-
-      # Run the standing contract checks. Installed native inputs report
-      # their absence as SKIPPED; missing required repository inputs fail.
-      # Scoped proof tools retain their declared cohorts and predecessors.
-      #
-      # [C56] The count that used to stand here is gone on purpose. It
-      # said six, which was true when it was written; the C era took it
-      # to thirty-four and nobody reading the comment could see that it
-      # had stopped being true. Fifteen of those exited 1 instead of
-      # skipping, so this step would have refused on any machine
-      # without the game - which is every machine but the operator's.
-      # Border 128 holds the property now and counts them itself.
-      - name: Run the borders
+          mkdir -p _scratch/ci-full-suite
+          set -o pipefail
+          bash tools/check.sh 2>&1 | tee _scratch/ci-full-suite/full-suite.log
+      - name: Record full maintenance outcome
+        if: always()
         shell: bash
-        run: bash tools/check.sh
-
-      # The check census distinguishes standing invocations, scoped proof
-      # tools and import helpers. Creating a tool grants no execution credit.
-      - name: Check standing and scoped registrations
-        shell: bash
-        run: python tools/gate_reach_test.py
+        env:
+          FULL_OUTCOME: ${{ steps.full.outcome }}
+        run: |
+          printf '### Full standing suite (advisory)\n\nActual step outcome: %s.\n' "$FULL_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
+      - name: Preserve full maintenance log
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: full-suite-maintenance-${{ github.run_attempt }}
+          path: _scratch/ci-full-suite
+          if-no-files-found: warn

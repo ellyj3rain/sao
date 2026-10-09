@@ -130,7 +130,8 @@ and remain inside the human behavioral envelope regardless of skill.
   Read the actual verdict and exit status. Skipped or unobservable
   behavior remains unverified; Border 128 holds the absent-game boundary.
   The governance rule states how to avoid redundant local hook runs and
-  identifies required remote CI as a separate concrete constraint.
+  carries the same affected-contract selection into actual GitHub workflows
+  and distinguishes product requirements from advisory repository maintenance.
 - **Publishing.** A closed batch reaches `origin/main` through a branch and a
   pull request, merged by you. `main` is protected and refuses a direct push.
   The shape is CAO's, read off its merged pull requests:

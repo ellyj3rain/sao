@@ -7,6 +7,8 @@
 #
 #   tools/check.sh            - check every Lua file in the tree
 #   tools/check.sh --staged   - check only what is about to be committed
+#   tools/check.sh --affected BASE OUTPUT - affected product contracts for CI
+#   tools/check.sh --maintenance-advisory BASE OUTPUT - affected maintenance
 #
 # Exit non-zero on any failure, so the hook can refuse the commit.
 set -u
@@ -16,6 +18,20 @@ if [ -z "${PY:-}" ]; then
     PY=python
     command -v python >/dev/null 2>&1 || PY=python3
 fi
+
+# CI derives its selection from the full pull-request base, using the standing
+# invocations below. The original full run remains available explicitly.
+case "${1:-}" in
+    --affected|--maintenance-advisory)
+        if [ "$#" -ne 3 ]; then
+            printf 'usage: %s %s BASE OUTPUT\n' "$0" "$1" >&2
+            exit 2
+        fi
+        lane=required
+        [ "$1" = "--maintenance-advisory" ] && lane=advisory
+        exec "$PY" tools/gate_reach_test.py --ci-run "$lane" --base "$2" --output "$3"
+        ;;
+esac
 
 fail=0
 note() { printf '[check] %s\n' "$*"; }

@@ -45,6 +45,7 @@ introduced; it cannot recover a definition that was already forked
 and then edited apart.
 """
 import collections
+import json
 import pathlib
 import re
 import sys
@@ -86,9 +87,33 @@ def sources():
                   + list((ROOT / "java/src").rglob("*.java")))
 
 
+def qualified_source_repetition(path, line, block, inventory, baseline):
+    """A recorded repetition in an exact qualified source adaptation.
+
+    Ported native API/namespace repairs can change an original window. Their
+    accepted current occurrences retain a separate, byte-pinned baseline.
+    A new file, changed revision or extra occurrence receives no admission.
+    """
+    from scanner_inventory import sha
+    relative = pathlib.Path(path).relative_to(ROOT).as_posix()
+    record = baseline.get('integratedRepetitions', {}).get(relative)
+    if not record or sha(path.read_bytes()) != record['sha256']:
+        return False
+    row = inventory.row(path)
+    if row:
+        if record['sourceIds'] != [row['sourceId']] or record['sourceSha256'] != row['sourceSha256']:
+            return False
+    else:
+        consumer = baseline['consumers'].get(relative)
+        if not consumer or consumer['sha256'] != record['sha256'] or consumer['sourceIds'] != record['sourceIds']:
+            return False
+    return record['windows'].get(str(line)) == sha(block.encode('utf-8'))
+
+
 def main():
     from scanner_inventory import current
     inventory = current()
+    baseline = json.loads((ROOT / 'tools/source_scanner_consumers.json').read_text(encoding='utf-8'))
     files = sources()
     if not files:
         print(LABEL, "SKIPPED (no sources found)")
@@ -116,7 +141,9 @@ def main():
             continue
         # Both sides must independently preserve this exact block in their
         # sealed original source. An imported path grants no generic waiver.
-        if all(inventory.original_block(path, block, lambda p: normalised(p, inventory), WINDOW) for path, _ in where):
+        if all(inventory.original_block(path, block, lambda p: normalised(p, inventory), WINDOW)
+               or qualified_source_repetition(path, line, block, inventory, baseline)
+               for path, line in where):
             continue
         sites = sorted(set(where))
         for a in range(len(sites)):

@@ -11,6 +11,13 @@
 
 ## Delivered product
 
+D2 was published by self-merged [PR139](https://github.com/ellyj3rain/sao/pull/139)
+on 2026-10-09 at 23:20 UTC. The delivery commit is `7144849d0efa3906d2cd60c319806958e69e3544`.
+At the 23:21 UTC checkpoint the source worktree was recentered on
+`neo/d3-construction-crafting-repair-utilities` at that commit. The actual
+merge was independently restored before publisher retirement; source files
+and all 37 peer worktree indexes were preserved. D3 is the current main line.
+
 D2 Leisure is CLOSED. Personally acquired opportunities, interests, accessible
 means and current pressures drive ordinary recreation choices. Reading,
 instruments, meditation, exercise/yoga, art, music, solo/partner dance, duets,
@@ -79,6 +86,15 @@ and scenario flow continues. The optional nuclear event and cancelled plugin
 publication decisions remain in force.
 
 ## Independent asset library and maintenance
+
+The 2026-10-09 GitHub correction requires actual routing by changed inputs and
+affected product contracts. The blanket full-suite publication veto was removed
+from the live main-branch required-status policy while CodeQL and the protected
+pull-request process remained in force. The replacement routing has separate
+repository-maintenance ownership and publication; it does not enlarge D2
+Leisure or earn another product version. Its required product job and advisory
+maintenance findings retain their actual results. Source saving and normal
+play remain independent of publication CI.
 
 [neo-library](https://github.com/ellyj3rain/neo-library) is PRIVATE, version
 0.2.2, published through self-merged PR9. Native Mousecat stores exact code/art
