@@ -9,7 +9,7 @@ local list=function(values)
     return a
 end
 ArrayList={new=function() return list() end}
-ResourceType={Item='Item'};ItemTag.SAW='Saw';ItemTag.FILE='File'
+ResourceType={Item='Item'};ItemTag.SAW='Saw';ItemTag.FILE='File';ItemTag.WHETSTONE='Whetstone';ItemTag.SHARPENABLE='Sharpenable'
 ActionSoundTime={ACTION_START=__nativeCraft('actionSoundTime')};DebugType.CraftLogic='CraftLogic'
 function log() end
 function showDebugInfoInChat() end
@@ -26,16 +26,29 @@ local function material(kind,id,container)
     function item:getCurrentUses() return self.uses==nil and 1 or self.uses end
     item.condition=kind=='Saw' and 2 or kind=='File' and 8 or 10
     item.repairCount=kind=='Saw' and 3 or 0
-    function item:getConditionMax() return kind=='Saw' and 10 or 8 end
+    item.maximum=id==701 and __nativeCraft('maxCondition') or id==702 and __nativeCraft('toolMaxCondition') or 10
+    item.sharpness=0;item.maxSharpness=1
+    item.headCondition=kind=='HandAxe' and 10 or nil
+    function item:getConditionMax() return self.maximum end
     function item:getHaveBeenRepaired() return self.repairCount end
     function item:isDamaged() return self.condition<self:getConditionMax() end
-    function item:hasTag(tag) return kind=='Saw' and tag==ItemTag.SAW or kind=='File' and tag==ItemTag.FILE end
+    function item:hasTag(tag) return (kind=='Saw' or kind=='SmallSaw' or kind=='HacksawBlade') and tag==ItemTag.SAW
+        or kind=='File' and tag==ItemTag.FILE or (kind=='Whetstone' or kind=='CrudeWhetstone') and tag==ItemTag.WHETSTONE
+        or (kind=='KitchenKnife' or kind=='HandAxe') and tag==ItemTag.SHARPENABLE end
+    function item:hasSharpness() return kind=='KitchenKnife' or kind=='HandAxe' end
+    function item:getSharpness() return self.sharpness end
+    function item:getMaxSharpness() return self.maxSharpness end
+    function item:isSharpenable() return self:hasSharpness() and self.sharpness<self.maxSharpness end
+    function item:hasHeadCondition() return self.headCondition~=nil end
+    function item:getHeadCondition() return self.headCondition end
+    function item:getHeadConditionMax() return 10 end
     function item:canBeDroppedOnFloor() return true end
     return item
 end
-local function input(keep,index)
+local function input(keep,index,sharpening)
     return {getResourceType=function() return ResourceType.Item end,getIntAmount=function() return 1 end,
-        isKeep=function() return keep end,isDamaged=function() return index==0 end,index=index}
+        isKeep=function() return keep end,isDamaged=function() return index==0 and not sharpening end,
+        isSharpenable=function() return index==0 and sharpening==true end,index=index}
 end
 local targetInput,toolInput=input(true,0),input(true,1)
 local actionScript={getMetabolics=function() return __nativeCraft('actionMetabolics') end,
@@ -49,12 +62,24 @@ local recipe={getRequiredSkillCount=function() return 1 end,getRequiredSkill=fun
     getName=function() return 'FixSaw' end,getTranslationName=function() return 'Repair saw' end,
     getTime=function() return __nativeCraft('recipeTime') end,getTimedActionScript=function() return actionScript end,
     isCanWalk=function() return false end}
-ScriptManager={instance={getCraftRecipe=function(_,name) return name=='Base.FixSaw' and __recipeRegistered~=false and recipe or nil end}}
+recipe.targetInput,recipe.toolInput=targetInput,toolInput
+local recipes={['Base.FixSaw']=recipe}
+for _,name in ipairs({'Base.SharpenBlade','Base.SharpenBladePoorlyWithFile'}) do
+    local target,tool=input(true,0,true),input(true,1,true)
+    local r={targetInput=target,toolInput=tool,toolCategory=name=='Base.SharpenBlade' and 'whetstone' or 'file'}
+    for k,v in pairs(recipe) do if type(v)=='function' then r[k]=v end end
+    r.getRequiredSkillCount=function() return 0 end
+    r.getInputs=function() return list({target,tool}) end
+    r.getIOForIndex=function(_,n) return n==0 and target or n==1 and tool end
+    r.getName=function() return name:sub(6) end
+    recipes[name]=r
+end
+ScriptManager={instance={getCraftRecipe=function(_,name) return __recipeRegistered~=false and recipes[name] or nil end}}
 CraftRecipeManager={hasPlayerLearnedRecipe=function(_,body) return body.recipeKnown~=false and __nativeCraft('recipeLearned') end,
     hasPlayerRequiredSkill=function() return __nativeCraft('requiredSkill') end,
-    getValidInputScriptForItem=function(_,item)
-        if item:hasTag(ItemTag.SAW) then return targetInput end
-        if item:hasTag(ItemTag.FILE) then return toolInput end
+    getValidInputScriptForItem=function(r,item)
+        if r==recipe and item:hasTag(ItemTag.SAW) or r~=recipe and item:hasTag(ItemTag.SHARPENABLE) then return r.targetInput end
+        if item:hasTag(r.toolCategory=='whetstone' and ItemTag.WHETSTONE or ItemTag.FILE) then return r.toolInput end
     end}
 HandcraftLogic={new=function(body)
     local l={body=body,manual={},outputs={}}
@@ -69,8 +94,8 @@ HandcraftLogic={new=function(body)
         self.manual[i]=items;return items:size()==1
     end
     function l:canPerformCurrentRecipe()
-        if body.nativeRefused or not self.selected or not self.manual[targetInput] or not self.manual[toolInput]
-            or self.manual[targetInput]:get(0)~=body.target or self.manual[toolInput]:get(0)~=body.tool then return false end
+        if body.nativeRefused or not self.selected or not self.manual[self.recipe.targetInput] or not self.manual[self.recipe.toolInput]
+            or self.manual[self.recipe.targetInput]:get(0)~=body.target or self.manual[self.recipe.toolInput]:get(0)~=body.tool then return false end
         return __nativeCraft('eligible')==true
     end
     function l:getRecipeData()
@@ -82,8 +107,11 @@ HandcraftLogic={new=function(body)
             luaCallOnCreate=function()
                 body.createCallbacks=(body.createCallbacks or 0)+1
                 if body.breakFileAtCallback then __nativeCraft('setToolCondition',0) end
+                if body.seedNativeCallback~=nil then __nativeCraft('seed',body.seedNativeCallback) end
                 __nativeCraft('onCreate');body.target.condition=__nativeCraft('condition');body.tool.condition=__nativeCraft('toolCondition')
                 body.target.repairCount=__nativeCraft('repairCount')
+                body.target.sharpness=__nativeCraft('sharpness');body.target.maxSharpness=__nativeCraft('maxSharpness')
+                if body.target:hasHeadCondition() then body.target.headCondition=__nativeCraft('headCondition') end
             end,
             processDestroyAndUsedItems=function()
                 __nativeCraft('process');body.target.condition=__nativeCraft('condition');body.tool.condition=__nativeCraft('toolCondition')
@@ -111,6 +139,7 @@ SAO.Needs.busy=function(body) local q=ISTimedActionQueue.getTimedActionQueue(bod
 SAO.Standing.mayTakeCurrent=function() return __permission~=false end
 SAO.Needs.read=function() return {hunger=.1,thirst=.1,fatigue=.1} end
 SAOJavaBridge.privateCarriedItems=function(_,body)
+    __carriedScans=(__carriedScans or 0)+1
     local items={};for _,inv in ipairs({body:getInventory(),body:getInventory().nested}) do
         for _,item in ipairs(inv.items) do items[#items+1]=item end
     end
@@ -126,12 +155,20 @@ LuaTimedActionNew.new=function(action,body)
     function a:setAnimVariable() end
     return a
 end
-local function fixture(id,nested)
+local function fixture(id,nested,recipeId,targetType,toolType)
     __nativeCraft('reset');__permission=true;__recipeRegistered=true;__hours=100
+    recipeId=recipeId or 'Base.FixSaw';targetType=targetType or 'Saw';toolType=toolType or 'File'
+    __nativeCraft('recipe',recipeId)
+    if targetType~='Saw' then __nativeCraft('targetType',targetType) end
+    if toolType~='File' then __nativeCraft('toolType',toolType) end
     local f=__boardingFixture(id,false)
     f.body.emitter=f.emitter
     f.inventory.items={};f.rec.bodyOwnerToken=nil;f.body.md.SAOExternalToken=nil
-    f.target=material('Saw',701,f.inventory);f.tool=material('File',702,f.inventory)
+    f.target=material(targetType,701,f.inventory);f.tool=material(toolType,702,f.inventory)
+    f.target.condition,f.target.repairCount=__nativeCraft('condition'),__nativeCraft('repairCount')
+    f.tool.condition=__nativeCraft('toolCondition')
+    f.target.sharpness,f.target.maxSharpness=__nativeCraft('sharpness'),__nativeCraft('maxSharpness')
+    if __nativeCraft('hasHeadCondition') then f.target.headCondition=__nativeCraft('headCondition') end
     f.inventory.items={f.target,f.tool};f.body.target,f.body.tool=f.target,f.tool
     if nested then
         local bag={items=f.inventory.items};__boardingInventory(bag,f.inventory)
@@ -163,6 +200,14 @@ local function fixture(id,nested)
         targetItemId='701',targetItemType='Base.Saw',toolItemId='702',toolItemType='Base.File'},
         {id='return-entry',verb='go',owner='Locomotion',token='travel:arrived',target=p.materialWork.entryKey,status='available'}}
     p.cursor=1;f.purpose,f.step=p,p.steps[1]
+    if recipeId~='Base.FixSaw' then
+        p.materialWork={operation='maintain-tool',entryKey='held-item:701',targetItemId='701',targetItemType='Base.'..targetType}
+        p.constructionDestination=nil;p.steps={f.step}
+        local policy=SAO.ResourceProduction.repairPolicy(recipeId)
+        f.step.target,f.step.recipeId=recipeId,recipeId
+        f.step.category,f.step.toolCategory,f.step.effectMetric=policy.category,policy.toolCategory,policy.effectMetric
+    end
+    f.step.targetItemType,f.step.toolItemType='Base.'..targetType,'Base.'..toolType
     return f
 end
 local function begin(f)
@@ -255,7 +300,7 @@ function __runRepairControl(name)
         begin(f);a=action(f);a:start();a.manualInputs[0]=list({f.tool});a.action.nativeFinished=true
         check('changed_manual_input_refuses',a:perform()==false and __nativeCraft('condition')==2)
     elseif name=='result-condition-bound' then
-        begin(f);row=finish(f);row.afterCondition=999;row.fullRestoration=false
+        begin(f);row=finish(f);row.afterCondition=999;row.fullRestoration=true
         check('forged_durable_condition_refused',R.outcome(f.id,row.id)==nil)
     elseif name=='native-completion-credit' then
         begin(f);row=finish(f);row.afterCondition=row.beforeCondition;row.fullRestoration=false
@@ -267,6 +312,24 @@ function __runRepairControl(name)
         check('generic_private_repair_fact_denied',C.experience(f.id,{id='resource-production/'..f.id..'/1',kind='tool-repair',
             category='construction',actorId=f.id,observerId=f.id,perspective='performed',status='completed',worldHours=100,
             sourceId='Base.FixSaw',itemId=701,itemType='Base.Saw',beforeValue=2,afterValue=10})==false and not f.rec.cognition)
+    elseif name=='sharpen-target-gate' then
+        f=fixture('sharp-gate',false,'Base.SharpenBlade','KitchenKnife','Whetstone')
+        f.target.sharpness=f.target.maxSharpness;__nativeCraft('setSharpness',f.target.sharpness)
+        check('sharp_blade_refuses',R.repairAvailable(f.id,f.body,f.target,f.step.recipeId)==false)
+    elseif name=='selected-effect-measurement' then
+        f=fixture('effect-metric',false,'Base.SharpenBlade','KitchenKnife','Whetstone');__nativeCraft('skill',10);f.body.seedNativeCallback=0
+        begin(f);row=finish(f)
+        check('whetstone_zero_sharpness_native_gain',row and R.outcome(f.id,row.id) and row.status=='completed'
+            and row.beforeSharpness==0 and row.afterSharpness>0 and row.effectMetric=='sharpness')
+    elseif name=='result-sharpness-bound' then
+        f=fixture('sharpness-bound',false,'Base.SharpenBlade','KitchenKnife','Whetstone');__nativeCraft('skill',10);f.body.seedNativeCallback=0
+        begin(f);row=finish(f);row.afterSharpness=999;row.fullRestoration=true
+        check('forged_durable_sharpness_refused',R.outcome(f.id,row.id)==nil)
+    elseif name=='ordinary-inventory-filter' then
+        f=fixture('inventory-filter',false,'Base.SharpenBlade','KitchenKnife','Whetstone');f.inventory.items={f.target}
+        for i=1,511 do f.inventory.items[#f.inventory.items+1]=material('Nails',10000+i,f.inventory) end
+        __carriedScans=0;local options=R.maintenanceOptions(f.id,f.body)
+        check('ordinary_inventory_filters_before_exact_custody_scan',#options==2 and __carriedScans==3)
     else error('unknown control '..name) end
     __windowResults=table.concat(__checks,'\n')
 end
@@ -310,11 +373,77 @@ function __runToolRepairCases()
     check('duplicate_native_callback_inert',a:performRecipe()==false and a:complete()==false and __nativeCraft('callbacks')==1)
     saved(f)
     check('native_save_retains_private_fact',#f.rec.cognition.experiences==1 and R.outcome(f.id,row.id).experienceDelivered==true)
-    row=f.rec.resourceProductionOutcomes[1];row.afterCondition=999;row.fullRestoration=false
+    local legacy=f.rec.resourceProductionOutcomes[1]
+    legacy.effectMetric,legacy.toolCategory=nil,nil
+    check('legacy_saved_fixsaw_row_supported',R.outcome(f.id,legacy.id)~=nil)
+    row=f.rec.resourceProductionOutcomes[1];row.afterCondition=999;row.fullRestoration=true
     check('forged_durable_condition_refused',R.outcome(f.id,row.id)==nil)
     row.afterCondition=row.beforeCondition
     check('forged_no_gain_credit_refused',R.outcome(f.id,row.id)==nil)
     row.afterCondition=10;row.fullRestoration=true
+    local policy=R.repairPolicy('Base.SharpenBlade');policy.toolCategory='file'
+    check('portable_policy_detached_and_finite',R.repairPolicy('Base.SharpenBlade').toolCategory=='whetstone'
+        and R.repairPolicy('Base.SharpenBladePoorlyWithFile').effectMetric=='sharpness'
+        and R.repairPolicy('Base.SharpenBladeWithGrindstone')==nil)
+    f=fixture('small-saw-family',false,'Base.FixSaw','SmallSaw','File')
+    f.target.condition=2;__nativeCraft('setTargetCondition',2);begin(f);row=finish(f)
+    check('native_small_saw_family_restores',row and row.status=='completed' and row.afterCondition==row.maxCondition)
+    f=fixture('whetstone-sharpening',false,'Base.SharpenBlade','KitchenKnife','Whetstone');__nativeCraft('skill',10);f.body.seedNativeCallback=0
+    check('full_condition_dull_blade_native_eligible',f.target.condition==f.target:getConditionMax()
+        and R.repairAvailable(f.id,f.body,f.target,f.step.recipeId)==true)
+    f.inventory.items={f.target};local options=R.maintenanceOptions(f.id,f.body)
+    check('maintenance_options_private_target_without_tool',#options==2 and options[1].targetItemId=='701'
+        and options[1].targetItemType=='Base.KitchenKnife' and options[1].sharpness==0 and begin(f)==false)
+    for i=1,511 do f.inventory.items[#f.inventory.items+1]=material('Nails',10000+i,f.inventory) end
+    __carriedScans=0;options=R.maintenanceOptions(f.id,f.body)
+    check('ordinary_inventory_filters_before_exact_custody_scan',#options==2 and __carriedScans==3)
+    f.inventory.items={f.target}
+    for i=1,20 do f.inventory.items[#f.inventory.items+1]=material('KitchenKnife',20000+i,f.inventory) end
+    options=R.maintenanceOptions(f.id,f.body)
+    check('maintenance_options_bounded_to_32',#options==32)
+    f.inventory.items={f.target,f.tool};begin(f);row=finish(f)
+    check('whetstone_zero_sharpness_native_gain',row and R.outcome(f.id,row.id) and row.status=='completed'
+        and row.beforeSharpness==0 and row.afterSharpness>0 and row.effectMetric=='sharpness'
+        and row.nativeCompleted and row.targetRetained and row.toolRetained and __nativeCraft('callbacks')==1)
+    check('independent_upkeep_closes_and_native_fact_once',f.purpose.admission==nil and f.purpose.status=='completed'
+        and f.rec.cognition and #f.rec.cognition.experiences==1 and f.rec.cognition.experiences[1].category=='construction'
+        and f.rec.cognition.experiences[1].effectMetric=='sharpness')
+    saved(f);check('sharpness_observations_survive_native_save',R.outcome(f.id,row.id).afterSharpness==row.afterSharpness)
+    row=f.rec.resourceProductionOutcomes[1];row.afterSharpness=999;row.fullRestoration=true
+    check('forged_durable_sharpness_refused',R.outcome(f.id,row.id)==nil)
+    f=fixture('sharp-blade',false,'Base.SharpenBlade','KitchenKnife','Whetstone')
+    f.target.sharpness=f.target.maxSharpness;__nativeCraft('setSharpness',f.target.sharpness)
+    check('sharp_blade_refuses',R.repairAvailable(f.id,f.body,f.target,f.step.recipeId)==false)
+    f=fixture('file-condition-damage',false,'Base.SharpenBladePoorlyWithFile','KitchenKnife','File')
+    __nativeCraft('skill',0);f.body.seedNativeCallback=0;begin(f);row=finish(f)
+    check('native_file_sharpness_gain_preserves_condition_damage',row and R.outcome(f.id,row.id) and row.status=='completed'
+        and row.afterSharpness>row.beforeSharpness and row.afterCondition<row.beforeCondition
+        and not row.fullRestoration and row.afterCondition==__nativeCraft('condition'))
+    local fact=f.rec.cognition and f.rec.cognition.experiences[1]
+    check('private_fact_retains_native_condition_loss',fact and fact.effectMetric=='sharpness' and fact.conditionLoss==row.beforeCondition-row.afterCondition)
+    f=fixture('file-head-damage',false,'Base.SharpenBladePoorlyWithFile','HandAxe','File')
+    __nativeCraft('skill',0);f.body.seedNativeCallback=0;begin(f);row=finish(f)
+    check('native_axe_sharpness_gain_preserves_head_damage',row and R.outcome(f.id,row.id) and row.status=='completed'
+        and row.afterSharpness>row.beforeSharpness and row.afterHeadCondition<row.beforeHeadCondition
+        and row.afterHeadCondition==__nativeCraft('headCondition'))
+    fact=f.rec.cognition and f.rec.cognition.experiences[1]
+    check('private_fact_retains_native_head_loss',fact and fact.headConditionLoss==row.beforeHeadCondition-row.afterHeadCondition)
+    local separateDamage=true
+    local baseKey='plan:tool-repair:construction:'..#row.recipeId..':'..row.recipeId..':'..#row.targetItemType..':'..row.targetItemType
+    local damageCandidate={id='maintenance-damage',evidence=1,continuity=1,novelty=0,informationGain=0,blockers=0,
+        consequences={{kind='tool-repair',category='construction',sourceId=row.recipeId,itemType=row.targetItemType,condition='damage',value=-.25}}}
+    for _,model in ipairs({'ordinary','associative'}) do
+        local own=f.rec.cognition and f.rec.cognition.models[model]
+        local benefit=own and own.beliefs[baseKey]
+        local damage=own and own.beliefs[baseKey..':damage']
+        local prediction=own and M.planPrediction(model,damageCandidate,own,{actorId=f.id,atHours=100,pressure=.5})
+        local selected=prediction and prediction.predictions[1]
+        separateDamage=separateDamage and benefit~=nil and damage~=nil and benefit.condition==nil and damage.condition=='damage'
+            and benefit.id~=damage.id and benefit.support==1 and damage.support==1
+            and selected~=nil and selected.probability>.5 and #selected.beliefIds==1 and selected.beliefIds[1]==damage.id
+            and #selected.evidenceIds==1 and selected.evidenceIds[1]==fact.id
+    end
+    check('both_models_predict_exact_separate_native_damage',separateDamage)
     f=fixture('native-partial');f.tool.condition=1;__nativeCraft('setToolCondition',1);__nativeCraft('setToolWearChance',1)
     check('low_condition_file_admits',begin(f)==true);row=finish(f)
     check('native_depleted_file_can_yield_full_restoration',row and row.status=='completed' and row.afterCondition==row.maxCondition

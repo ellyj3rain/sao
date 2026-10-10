@@ -21,6 +21,7 @@ local EVENT_KEYS = { id=true, actorId=true, observerId=true, worldHours=true,
     occurredAtHours=true, stats=true, beforeCookingTime=true,
     afterCookingTime=true, heatObserved=true, consumedAmount=true, quantityUnit=true, actionKind=true, apertureState=true, succeeded=true,
     beforeValue=true, afterValue=true, durationHours=true,
+    effectMetric=true, conditionLoss=true, headConditionLoss=true,
     soundId=true, sourceBrainId=true, sourceBorn=true, sourceBodyId=true,
     observerBrainId=true, observerBorn=true,
     decisionAtTick=true, claimOwner=true, sourceProgram=true,
@@ -166,6 +167,7 @@ local function validEvent(e)
         or (e.status~="completed" and e.status~="no-effect"
             and e.status~="interrupted" and e.status~="unavailable")
         or (e.perspective~="performed" and e.perspective~="observed") then return false end
+    if e.kind ~= "tool-repair" and (e.effectMetric ~= nil or e.conditionLoss ~= nil or e.headConditionLoss ~= nil) then return false end
     local behavior=e.kind=="entry-outcome" or e.kind=="recovery-outcome"
     if not behavior and (e.kind~="commitment-outcome" and e.kind~="instrument-use" and e.kind~="leisure-reading" and e.kind~="weekone-instrument-performance" and not HOBBY_KINDS[e.kind] and (e.actionKind~=nil or e.succeeded~=nil) or e.apertureState~=nil
         or e.kind~="study-outcome" and e.kind~="tool-repair" and (e.beforeValue~=nil or e.afterValue~=nil) or e.durationHours~=nil) then return false end
@@ -408,8 +410,12 @@ local function validEvent(e)
                 and e.itemType=="Base.Plank" and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
         end
         if e.kind=="tool-repair" then
-            return e.category=="construction" and e.sourceId=="Base.FixSaw"
-                and finite(e.beforeValue) and e.beforeValue>0 and e.beforeValue<=1000000000
+            local sharp = e.sourceId=="Base.SharpenBlade" or e.sourceId=="Base.SharpenBladePoorlyWithFile"
+            return e.category=="construction" and (e.sourceId=="Base.FixSaw" or sharp)
+                and (sharp and e.effectMetric=="sharpness" or not sharp and (e.effectMetric==nil or e.effectMetric=="condition"))
+                and (e.conditionLoss==nil or sharp and finite(e.conditionLoss) and e.conditionLoss>=0 and e.conditionLoss<=1000000000)
+                and (e.headConditionLoss==nil or sharp and finite(e.headConditionLoss) and e.headConditionLoss>=0 and e.headConditionLoss<=1000000000)
+                and finite(e.beforeValue) and (e.beforeValue>0 or sharp and e.beforeValue==0) and e.beforeValue<=1000000000
                 and finite(e.afterValue) and e.afterValue>=0 and e.afterValue<=1000000000
                 and (e.status=="completed" and e.afterValue>e.beforeValue
                     or e.status=="no-effect" and e.afterValue<=e.beforeValue)
@@ -725,7 +731,11 @@ local function rememberPlanEvidence(state, e, yes)
     end
     if e.kind == "acquire" then retain("acquire", e.category, yes)
     elseif e.kind == "preparation" then retain("prepare", "food", true)
-    elseif e.kind == "tool-repair" then retain("tool-repair", "construction", e.afterValue>e.beforeValue)
+    elseif e.kind == "tool-repair" then
+        retain("tool-repair", "construction", e.afterValue>e.beforeValue)
+        if e.effectMetric=="sharpness" then
+            retain("tool-repair", "construction", (e.conditionLoss or 0)>0 or (e.headConditionLoss or 0)>0, "damage")
+        end
     elseif e.kind == "study-outcome" then retain("study", "learning", true)
     elseif e.kind == "commitment-outcome" then retain("commitment", "social", true)
     elseif e.kind == "instrument-use" then retain("recreate", "leisure", e.succeeded)
@@ -803,8 +813,19 @@ local function extendedEvidence(modelId,state,e)
         local improved = e.afterValue>e.beforeValue
         if modelId=="ordinary" then
             remember(state,"direct:tool-repair:"..e.sourceId..":"..e.itemType,
-                "Native "..e.sourceId.." changed held "..e.itemType.." condition from "..e.beforeValue.." to "..e.afterValue,improved,e)
-        else relation(state,"transform","repair:"..e.sourceId,"tool:"..e.itemType,improved,e,"manufacturing") end
+                "Native "..e.sourceId.." changed held "..e.itemType.." "..(e.effectMetric or "condition").." from "..e.beforeValue.." to "..e.afterValue,improved,e)
+            if e.effectMetric=="sharpness" then
+                remember(state,"direct:tool-damage:"..e.sourceId..":"..e.itemType,
+                    "Observed condition loss "..(e.conditionLoss or 0).." and head condition loss "..(e.headConditionLoss or 0),
+                    (e.conditionLoss or 0)>0 or (e.headConditionLoss or 0)>0,e)
+            end
+        else
+            relation(state,"transform","repair:"..e.sourceId,"tool:"..e.itemType,improved,e,"manufacturing")
+            if e.effectMetric=="sharpness" then
+                relation(state,"vary","repair:"..e.sourceId,"damage:"..e.itemType,
+                    (e.conditionLoss or 0)>0 or (e.headConditionLoss or 0)>0,e,"manufacturing")
+            end
+        end
     elseif e.kind=="material-crafting" then
         if modelId=="ordinary" then
             remember(state,"direct:material-crafting:"..e.sourceId..":"..e.itemType,
@@ -1020,14 +1041,16 @@ local function validConsequences(candidate)
     if not boundedArray(candidate.consequences, 4) then return false end
     for _, consequence in ipairs(candidate.consequences) do
         local c = consequence
-        if not plainKeys(c, CONSEQUENCE_KEYS) or not finite(c.value) or c.value < 0 or c.value > 2 then return false end
+        if not plainKeys(c, CONSEQUENCE_KEYS) or not finite(c.value) or c.value > 2
+            or c.value < 0 and not (c.kind=="tool-repair" and c.condition=="damage" and c.value>=-2) then return false end
         if c.sourceId ~= nil and not text(c.sourceId, 160) then return false end
         if c.itemType ~= nil and not text(c.itemType, 160) then return false end
         if c.condition ~= nil and not (c.kind=="entry" and CONDITIONS[c.condition]
             or c.kind=="commitment" and (c.condition=="prepare"
                 or c.condition=="deliver" or c.condition=="watch-return")
             or c.kind=="reading-relief" and (c.condition=="BOREDOM" or c.condition=="UNHAPPINESS" or c.condition=="STRESS")
-            or c.kind=="hobby" and text(c.condition,160)) then return false end
+            or c.kind=="hobby" and text(c.condition,160)
+            or c.kind=="tool-repair" and c.condition=="damage") then return false end
         if c.kind == "entry" then
             if c.category ~= "body" or not text(c.sourceId, 160) or not CONDITIONS[c.condition] or c.itemType ~= nil then return false end
         elseif c.kind == "sleep" or c.kind == "rest" then
@@ -1048,7 +1071,9 @@ local function validConsequences(candidate)
         elseif c.kind == "prepare" then
             if c.category ~= "food" then return false end
         elseif c.kind == "tool-repair" then
-            if c.category ~= "construction" or c.sourceId ~= "Base.FixSaw" or not text(c.itemType,160) then return false end
+            if c.category ~= "construction" or (c.sourceId ~= "Base.FixSaw" and c.sourceId ~= "Base.SharpenBlade"
+                and c.sourceId ~= "Base.SharpenBladePoorlyWithFile") or not text(c.itemType,160)
+                or c.condition~=nil and c.condition~="damage" then return false end
         elseif c.kind == "acquire" then
             if c.category ~= "food" and c.category ~= "water" then return false end
         elseif c.kind == "inspect" then
@@ -1104,6 +1129,7 @@ local function consequenceBeliefs(modelId, state, c)
     for _, key in ipairs(state.beliefOrder) do
         local b = state.beliefs[key]
         if type(b) == "table" and b.planKind == c.kind and b.category == c.category
+            and (c.kind~="tool-repair" or b.condition==c.condition)
             and (c.kind~="commitment" and c.kind~="reading-relief" and c.kind~="hobby" or c.condition~=nil and b.condition==c.condition)
             and (c.itemType == nil or b.itemType == c.itemType
                 or modelId=="associative" and c.kind=="study" and b.sourceId==c.sourceId) then

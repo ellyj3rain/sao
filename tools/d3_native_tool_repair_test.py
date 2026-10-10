@@ -61,6 +61,8 @@ def execute(out: Path, sources: dict[str, str], classes: Path, expected: set[str
 def main() -> int:
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path);parser.add_argument('--required',action='store_true')
+    parser.add_argument('--controls',choices=('all','portable'),default='all',
+                        help='portable runs changed maintenance contracts; unchanged custody controls retain prior qualification')
     args=parser.parse_args()
     owned=[Path(__file__),PRODUCTION,PLANNER,COGNITION,MODELS,EXPERIENCE,BASE,BOARD,CASES,PROBE]
     installed=[*NATIVE,*SCRIPTS,GAME / 'projectzomboid.jar',GAME / 'stdlib.lua',JDK / 'java.exe',JDK / 'javac.exe',JDK / 'javap.exe']
@@ -128,9 +130,23 @@ def main() -> int:
          'local function craftExactInputs(c) return true end\n','changed_manual_input_refuses'),
         ('result-condition-bound','production.lua','row.afterCondition>row.maxCondition','false','forged_durable_condition_refused'),
         ('native-completion-credit','production.lua',
-         'row.improved~=(row.nativeCompleted and row.targetRetained and row.held and row.afterCondition>row.beforeCondition)',
+         'row.improved~=(row.nativeCompleted and row.targetRetained and row.held and after>before)',
          'false','forged_no_gain_credit_refused'),
+        ('sharpen-target-gate','production.lua','input:isSharpenable() and target:isSharpenable()',
+         'input:isSharpenable()','sharp_blade_refuses'),
+        ('selected-effect-measurement','production.lua',
+         'local before=rt.effectMetric=="sharpness" and rt.beforeSharpness or rt.beforeCondition',
+         'local before=rt.beforeCondition','whetstone_zero_sharpness_native_gain'),
+        ('result-sharpness-bound','production.lua','row.afterSharpness>row.maxSharpness+0.000001',
+         'false','forged_durable_sharpness_refused'),
+        ('ordinary-inventory-filter','production.lua',
+         'repairTargetEligible(item,input,candidate.policy) and R.repairAvailable(id,body,item,recipeId)',
+         'R.repairAvailable(id,body,item,recipeId)','ordinary_inventory_filters_before_exact_custody_scan'),
     ]
+    if args.controls=='portable':
+        selected={'native-producer','result-condition-bound','native-completion-credit','sharpen-target-gate',
+                  'selected-effect-measurement','result-sharpness-bound','ordinary-inventory-filter'}
+        mutations=[m for m in mutations if m[0] in selected]
     for name,filename,old,new,detector in mutations:
         variant=dict(sources);count=variant[filename].count(old)
         if count!=1:controls.append({'name':name,'detected':False,'mutationMatches':count});continue
@@ -142,9 +158,9 @@ def main() -> int:
     after={str(p):digest(p) for p in inputs}
     passed=native_api and normal['exitCode']==0 and not normal['failed'] and not normal['missing'] and not normal['extra'] and before==after and all(c['detected'] for c in controls)
     receipt={'schema':'sao-d3-native-tool-repair-proof/1','status':'PASS' if passed else 'FAIL','sourcePins':before,
-             'sourcePreserved':before==after,'normal':normal,'controls':controls,
+             'sourcePreserved':before==after,'normal':normal,'controls':controls,'controlScope':args.controls,
              'nativeApi':{'verified':native_api,'exitCode':api.returncode,'outputSha256':digest(out / 'native-api.txt')},
-             'boundary':'Installed native recipe/input/kept-item definitions, CraftRecipe/HandcraftLogic/CraftRecipeData/RecipeCodeOnCreate.sharpenBlade/ItemUser native condition and kept-material effects, Lua native action/queue/transfers, Kahlua persistence and actual SAO planner/cognitive leaves; controlled unattached actor, map, action dispatch, skill/weapon-level/knowledge/XP receivers, sound/UI/network. The installed FixSaw recipe is inherently known; its Maintenance:2 gate is native. The explicit knowledge-refusal receiver is a conservative admission control. Native sharpening retains the installed condition/broken-flag behavior, including zero or negative depleted-file postcondition. Native wear RNG remains installed; depleted-file control changes the raw native file wear denominator. No-gain control sets the exact raw file broken between recipe application and the actual native OnCreate callback; it verifies measurement gating and negative private feedback, not a natural FixSaw RNG failure. Input script ResearchableRecipes removed only for unrelated UI registry bootstrap; translation display names controlled. No loaded game.'}
+             'boundary':'Installed FixSaw/SharpenBlade/SharpenBladePoorlyWithFile recipe/input/kept-item definitions, CraftRecipe/HandcraftLogic/CraftRecipeData/RecipeCodeOnCreate.sharpenBlade/ItemUser native condition, sharpness, head-condition and kept-material effects, Lua native action/queue/transfers, Kahlua persistence and actual SAO planner/cognitive leaves; controlled unattached actor, map, action dispatch, skill/weapon-level/knowledge/XP receivers, sound/UI/network. The installed FixSaw recipe is inherently known; its Maintenance:2 gate is native. The explicit knowledge-refusal receiver is a conservative admission control. Native sharpening retains the installed condition/broken-flag behavior, including zero or negative depleted-file postcondition. Native wear/damage RNG remains installed; portable damage cases seed its java.util.Random at the actual callback for reproducibility. Depleted-file control changes the raw native file wear denominator. No-gain control sets the exact raw file broken between recipe application and the actual native OnCreate callback; it verifies measurement gating and negative private feedback, not a natural FixSaw RNG failure. Inventory count/filter limits use controlled held-item receivers. Input script ResearchableRecipes removed only for unrelated UI registry bootstrap; translation display names controlled. No loaded game.'}
     (out / 'receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n',encoding='utf-8')
     print(f"D3 native tool repair {'PASS' if passed else 'FAIL'}: {len(normal['checks'])}/{len(expected)} cases; {sum(c['detected'] for c in controls)}/{len(controls)} controls")
     if not passed:

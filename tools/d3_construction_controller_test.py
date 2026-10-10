@@ -28,6 +28,24 @@ CANDIDATE = ROOT / "mod/42.20/media/java/SAO.jar"
 BUILD = ROOT / "mod/42.20/media/lua/client/SAO_Build.lua"
 INSPECT = ROOT / "mod/42.20/media/lua/client/SAO_Inspect.lua"
 EXPECTED = {
+    "d3_controller_idle_kit_tending_enters_portable_maintenance",
+    "d3_controller_portable_private_choice_retains_both_models",
+    "d3_controller_portable_known_whetstone_acquires_exact_identity",
+    "d3_controller_portable_acquisition_admission_has_no_repair_credit",
+    "d3_controller_portable_pending_acquisition_preserves_exact_purpose",
+    "d3_controller_portable_wrong_source_cannot_advance",
+    "d3_controller_portable_unknown_tool_source_stays_blocked",
+    "d3_controller_portable_acquired_tool_resumes_saved_same_purpose",
+    "d3_controller_portable_full_condition_blade_admits_by_sharpness",
+    "d3_controller_portable_native_completion_returns_idle_and_closes_goal",
+    "d3_controller_portable_completed_result_replay_is_once_only",
+    "d3_controller_portable_interruption_retains_unfinished_goal",
+    "d3_controller_portable_carried_tool_ignores_stale_source_delay",
+    "d3_controller_portable_current_pressure_can_defer_upkeep",
+    "d3_controller_portable_native_ineligible_target_has_no_dispatch",
+    "d3_controller_portable_failed_native_attempt_has_no_completion_credit",
+    "d3_controller_portable_held_file_beats_unknown_whetstone",
+    "d3_controller_portable_available_tool_beats_unavailable_larger_deficit",
     "d3_controller_boarding_admission_does_not_increment_inspection",
     "d3_controller_canonical_board_completion_updates_inspection",
     "d3_controller_repeated_board_terminal_does_not_double_inspection",
@@ -102,11 +120,18 @@ def production_controller(source: str) -> str:
                                 '    if agent.state == "WARMING" then')
     home_number = native.section(source, "local function homeRouteNumber(value)", "local function sameHomeRoute(")
     adoption = native.section(source, "function Ctl.adopt(rec)", "-- Passive adoption ([A17])")
+    rest = native.section(source, "local function decideRestActivity(id, agent, body, tick, idleRec)",
+                          "local function decideLocalResources(id, agent, body, tick, idleRec)")
+    production = native.section(source, "    -- Native production owns its exact resource-transformation action until it retires.",
+                                "    -- Food preparation owns its routes and exact transfers as one operation.")
     return (home_number + "\n" + native.controller(source) + "\n" + resource
             + "\nlocal function closeUnownedCognitionOnAdoption() end\n"
               "Ctl.reconcileWeekOneCompanion=function() return false end\n" + adoption
+            + "\n" + rest + "\n__d3Rest=decideRestActivity\n"
             + "\n__d3OrderTravel=orderTravelState\n"
-              "__d3BoardHold=function(id,agent,body,tick) tickCount=tick\n" + board_hold + "end\n")
+              "__d3BoardHold=function(id,agent,body,tick) tickCount=tick\n" + board_hold + "end\n"
+            + "local function selectedThreat() return nil end\n"
+              "__d3ProductionHold=function(id,agent,body,tick) tickCount=tick\n" + production + "end\n")
 
 
 def execute(out: pathlib.Path, sources: dict[str, str], classes: pathlib.Path) -> dict:
@@ -137,6 +162,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=pathlib.Path)
     parser.add_argument("--required", action="store_true")
+    parser.add_argument("--controls", choices=("all", "portable"), default="all",
+                        help="Select portable correction controls while retaining normal construction cases.")
     args = parser.parse_args()
     owned = [pathlib.Path(__file__).resolve(), CASES, CANDIDATE, BUILD, INSPECT,
              native.P, native.W, native.C, native.I, native.MODELS, native.COGNITION,
@@ -180,6 +207,22 @@ def main() -> int:
                                "if not ok then __windowResults=table.concat(__checks,'\\n')..'\\nD3_ERROR='..tostring(reason) end"})
     normal = execute(out / "normal", sources, classes)
     mutations = [
+        ("portable-executable-alternative-filter", "planner.lua",
+         "if not executable or offered[candidate.id].executable then ranked[#ranked + 1] = candidate end",
+         "ranked[#ranked + 1] = candidate", "d3_controller_portable_held_file_beats_unknown_whetstone"),
+        ("portable-kit-tending-entry", "controller.lua",
+         "local admitted = Ctl.tryToolMaintenance(id, agent, body, tick, maintenanceContext)",
+         "local admitted = false", "d3_controller_idle_kit_tending_enters_portable_maintenance"),
+        ("portable-sharpness-completion-metric", "planner.lua",
+         "before, after, maximum = canonical.beforeSharpness, canonical.afterSharpness, canonical.maxSharpness",
+         "before, after, maximum = canonical.beforeCondition, canonical.afterCondition, canonical.maxCondition",
+         "d3_controller_portable_native_completion_returns_idle_and_closes_goal"),
+        ("portable-held-tool-source-delay", "planner.lua", "local waiting = not heldTool and delayed",
+         "local waiting = delayed", "d3_controller_portable_carried_tool_ignores_stale_source_delay"),
+        ("portable-pending-purpose-preservation", "planner.lua",
+         "if retained and retained.admission then return retained, current end",
+         "if false then return retained, current end",
+         "d3_controller_portable_pending_acquisition_preserves_exact_purpose"),
         ("completed-construction-purpose-reuse", "planner.lua",
          'purpose.key == key and purpose.status ~= "completed"', 'purpose.key == key',
          "d3_controller_same_aperture_accepts_next_completed_plank"),
@@ -281,7 +324,10 @@ def main() -> int:
     # The installed action/native material guard has its independent controls;
     # only the new Controller joins are mutated in this bounded instrument.
     controls = []
+    omitted_controls = [row[0] for row in mutations if args.controls == "portable" and not row[0].startswith("portable-")]
     for name, filename, old, new, expected in mutations:
+        if name in omitted_controls:
+            continue
         text = sources[filename]
         if old not in text or old == new:
             controls.append({"name": name, "landed": False, "killed": False, "expectedFailure": expected})
@@ -297,8 +343,11 @@ def main() -> int:
     passed = passed and all(control["landed"] and control["killed"] for control in controls) and before == after
     receipt = {"schema": 1, "passed": passed, "inputSha256Before": before, "inputSha256After": after,
                "unchangedInputs": before == after, "compileCommand": command, "compileExitCode": compiled.returncode,
+               "controlSelection": args.controls, "omittedControls": omitted_controls,
                "candidateJarSha256": before[str(CANDIDATE)], "normal": normal, "controls": controls,
                "production": ["Controller resource/construction context, exact acquisition connector, travel/state/death/transfer/adoption/reconciliation",
+                              "Controller ordinary private idle kit-tending decision and existing resource production hold",
+                              "ProceduralPlanning portable target choice, retained acquisition/admission and recipe metric result",
                               "Build canonical outcome validation, planner flush and acknowledgement; existing Inspect boarded projection",
                               "ProceduralPlanning maintained purpose/admission/canonical result consumption",
                               "WindowRepair native actor/target/material/queue admission, installed AddWindowAction completion, serialized saved-work recovery"],
@@ -306,8 +355,9 @@ def main() -> int:
                               "actor, surrounding map, Standing inputs, native queue dispatch and network sync",
                               "bridge carried inventory and construction-material count projection",
                               "unrelated Week One and cognition adoption ports",
+                              "portable native repair policy/eligibility, action dispatch and canonical effect producer; independent native repair instrument covers those physical owners",
                               "Build physical terminal effects and cancellation request/acknowledgement boundary"],
-               "unverified": ["loaded gameplay", "physical SourceUse transfer and physical barricade execution in this instrument"]}
+               "unverified": ["loaded gameplay", "physical SourceUse transfer, portable repair effect and physical barricade execution in this instrument"]}
     receipt_path = out / "receipt.json"
     receipt_path.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
     print(f"D3 construction Controller {'PASS' if passed else 'FAIL'}: {len(normal['checks'])}/{len(EXPECTED)} cases, "

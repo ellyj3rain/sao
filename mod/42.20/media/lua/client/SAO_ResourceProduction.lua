@@ -304,10 +304,19 @@ local function queue(id, rt, work)
     work.stage = "filling"
     return true
 end
--- SawLogs and FixSaw are operations of this transformation owner. Native handles and
+-- SawLogs and portable tool maintenance are operations of this transformation owner. Native handles and
 -- exact input lists live only in its capsule, never in the person's save.
 local CRAFT_SEAL, CRAFT_RECIPE, CRAFT_LIMIT = {}, "Base.SawLogs", 32
 local REPAIR_RECIPE = "Base.FixSaw"
+local REPAIR_ORDER={REPAIR_RECIPE,"Base.SharpenBlade","Base.SharpenBladePoorlyWithFile"}
+local REPAIR_POLICIES={
+    [REPAIR_RECIPE]={category="saw",toolCategory="file",effectMetric="condition"},
+    ["Base.SharpenBlade"]={category="blade",toolCategory="whetstone",effectMetric="sharpness"},
+    ["Base.SharpenBladePoorlyWithFile"]={category="blade",toolCategory="file",effectMetric="sharpness"}}
+function R.repairPolicy(recipeId)
+    local p=REPAIR_POLICIES[recipeId]
+    return p and {recipeId=recipeId,category=p.category,toolCategory=p.toolCategory,effectMetric=p.effectMetric} or nil
+end
 local craftInstalled = false
 local function finite(v) return type(v)=="number" and v==v and v~=math.huge and v~=-math.huge end
 local function integer(v) return finite(v) and v>=0 and v<1000000000 and v%1==0 end
@@ -340,7 +349,9 @@ local CRAFT_FIELDS={id=true,workId=true,sequence=true,actorId=true,kind=true,cat
     targetItemId=true,targetItemType=true,toolItemId=true,toolItemType=true,
     beforeCondition=true,afterCondition=true,maxCondition=true,beforeRepairCount=true,afterRepairCount=true,
     beforeToolCondition=true,afterToolCondition=true,targetRetained=true,toolRetained=true,
-    nativeCompleted=true,improved=true,fullRestoration=true,
+    nativeCompleted=true,improved=true,fullRestoration=true,effectMetric=true,toolCategory=true,
+    beforeSharpness=true,afterSharpness=true,maxSharpness=true,
+    beforeHeadCondition=true,afterHeadCondition=true,maxHeadCondition=true,
     purposeDelivered=true,experienceDelivered=true}
 local function craftIdentity(id, row)
     if not (type(row)=="table" and not getmetatable(row) and row.actorId==id
@@ -351,10 +362,21 @@ local function craftIdentity(id, row)
         and textId(row.entryKey) and finite(row.x) and row.x%1==0 and finite(row.y) and row.y%1==0
         and finite(row.z) and row.z%1==0 and finite(row.startedAt) and row.startedAt>=0) then return false end
     if row.kind=="repair-held-item" then
-        return row.recipeId==REPAIR_RECIPE and row.category=="saw" and row.token=="resource:repaired"
+        local policy=REPAIR_POLICIES[row.recipeId]
+        local legacy=row.recipeId==REPAIR_RECIPE
+        local metric=policy and policy.effectMetric
+        return policy~=nil and row.category==policy.category and row.token=="resource:repaired"
+            and (row.effectMetric==metric or legacy and row.effectMetric==nil)
+            and (row.toolCategory==policy.toolCategory or legacy and row.toolCategory==nil)
             and textId(row.targetItemId) and textId(row.targetItemType) and textId(row.toolItemId) and textId(row.toolItemType)
             and row.targetItemId~=row.toolItemId and integer(row.beforeCondition) and row.beforeCondition>0
-            and integer(row.maxCondition) and row.maxCondition>row.beforeCondition
+            and integer(row.maxCondition) and row.maxCondition>=row.beforeCondition
+            and (metric~="condition" or row.maxCondition>row.beforeCondition)
+            and (row.beforeSharpness==nil and row.maxSharpness==nil and metric~="sharpness"
+                or finite(row.beforeSharpness) and row.beforeSharpness>=0 and finite(row.maxSharpness)
+                    and row.maxSharpness>=row.beforeSharpness and (metric~="sharpness" or row.maxSharpness>row.beforeSharpness))
+            and (row.beforeHeadCondition==nil and row.maxHeadCondition==nil
+                or integer(row.beforeHeadCondition) and integer(row.maxHeadCondition) and row.maxHeadCondition>=row.beforeHeadCondition)
             and integer(row.beforeRepairCount) and integer(row.beforeToolCondition) and row.beforeToolCondition>0
             and row.logItemId==nil and row.logItemType==nil and row.sawItemId==nil and row.sawItemType==nil
             and row.beforeLogUses==nil and row.sawConditionBefore==nil
@@ -366,6 +388,7 @@ local function craftIdentity(id, row)
         and integer(row.sawConditionBefore) and row.sawConditionBefore>0
 end
 local function repairOutcome(id,row)
+    local metric=REPAIR_POLICIES[row.recipeId].effectMetric
     if type(row.nativeAttempted)~="boolean" or type(row.nativeCompleted)~="boolean"
         or type(row.targetRetained)~="boolean" or type(row.toolRetained)~="boolean"
         or type(row.held)~="boolean" or type(row.improved)~="boolean" or type(row.fullRestoration)~="boolean"
@@ -383,13 +406,21 @@ local function repairOutcome(id,row)
     if row.nativeObservability~=nil then
         if row.nativeObservability~="runtime-unavailable" or row.status~="interrupted" or row.nativeAttempted
             or row.nativeCompleted or row.targetRetained or row.toolRetained or row.held or row.improved or row.fullRestoration
-            or row.afterCondition~=nil or row.afterRepairCount~=nil or row.afterToolCondition~=nil or row.nativeCredit~=nil then return nil end
+            or row.afterCondition~=nil or row.afterRepairCount~=nil or row.afterToolCondition~=nil
+            or row.afterSharpness~=nil or row.afterHeadCondition~=nil or row.nativeCredit~=nil then return nil end
     else
+        local before=metric=="sharpness" and row.beforeSharpness or row.beforeCondition
+        local after=metric=="sharpness" and row.afterSharpness or row.afterCondition
+        local maximum=metric=="sharpness" and row.maxSharpness or row.maxCondition
         if not integer(row.afterCondition) or row.afterCondition>row.maxCondition or not integer(row.afterRepairCount)
+            or (row.beforeSharpness==nil and row.afterSharpness~=nil or row.beforeSharpness~=nil
+                and (not finite(row.afterSharpness) or row.afterSharpness<0 or row.afterSharpness>row.maxSharpness+0.000001))
+            or (row.beforeHeadCondition==nil and row.afterHeadCondition~=nil or row.beforeHeadCondition~=nil
+                and (not integer(row.afterHeadCondition) or row.afterHeadCondition>row.maxHeadCondition))
             or not finite(row.afterToolCondition) or row.afterToolCondition%1~=0
             or row.afterToolCondition < -1000000000 or row.afterToolCondition>row.beforeToolCondition
-            or row.improved~=(row.nativeCompleted and row.targetRetained and row.held and row.afterCondition>row.beforeCondition)
-            or row.fullRestoration~=(row.improved and row.afterCondition==row.maxCondition)
+            or row.improved~=(row.nativeCompleted and row.targetRetained and row.held and after>before)
+            or row.fullRestoration~=(row.improved and after>=maximum-0.000001)
             or row.nativeCompleted and (not row.nativeAttempted or not row.targetRetained or not row.toolRetained or not row.held)
             or row.held~=(row.targetRetained and row.toolRetained) then return nil end
     end
@@ -490,32 +521,79 @@ local function ownItem(rt,item)
     return container and rt.inventory:containsRecursive(item)
         and (container==rt.inventory or container:getOutermostContainer()==rt.inventory)
 end
+local function repairTargetEligible(target,input,policy)
+    if not input or input:getResourceType()~=ResourceType.Item or input:getIntAmount()~=1 or not input:isKeep() then return false end
+    if policy.effectMetric=="sharpness" then return input:isSharpenable() and target:isSharpenable() end
+    return input:isDamaged() and target:isDamaged() and target:getCondition()<target:getConditionMax()
+end
+local function repairToolEligible(tool,policy)
+    return tool:hasTag(policy.toolCategory=="whetstone" and ItemTag.WHETSTONE or ItemTag.FILE)
+end
 function R.repairAvailable(id,body,target,recipeId)
     local ok,available=pcall(function()
-        local recipe=recipeId==REPAIR_RECIPE and registeredRecipe(recipeId)
+        local policy=REPAIR_POLICIES[recipeId]
+        local recipe=policy and registeredRecipe(recipeId)
         if not recipe or not owner(id,body) or not now() or not craftPosition(id,body) or not target
             or craftCarried(body,tostring(target:getID()),target:getFullType())~=target
             or not ownItem({inventory=body:getInventory()},target) or target:getIsCraftingConsumed()
-            or target:isBroken() or not target:isDamaged() or target:getCondition()<=0
-            or target:getCondition()>=target:getConditionMax()
+            or target:isBroken() or target:getCondition()<=0
             or not CraftRecipeManager.hasPlayerLearnedRecipe(recipe,body) then return false end
         for i=0,recipe:getRequiredSkillCount()-1 do
             if not CraftRecipeManager.hasPlayerRequiredSkill(recipe:getRequiredSkill(i),body) then return false end
         end
         local input=CraftRecipeManager.getValidInputScriptForItem(recipe,target,body)
-        return recipe:getInputs():size()==2 and recipe:getOutputs():size()==0 and input~=nil
-            and input:getResourceType()==ResourceType.Item and input:getIntAmount()==1 and input:isKeep()
-            and input:isDamaged() and not target:hasTag(ItemTag.FILE)
+        return recipe:getInputs():size()==2 and recipe:getOutputs():size()==0
+            and repairTargetEligible(target,input,policy) and not target:hasTag(ItemTag.FILE)
+            and not target:hasTag(ItemTag.WHETSTONE)
     end)
     return ok and available==true
+end
+function R.maintenanceOptions(id,body)
+    local ok,options=pcall(function()
+        local out={}
+        if not owner(id,body) or not now() or not craftPosition(id,body) then return out end
+        local items=SAOJavaBridge:privateCarriedItems(body)
+        if items:size()>512 then return out end
+        local candidates={}
+        for _,recipeId in ipairs(REPAIR_ORDER) do
+            local recipe=registeredRecipe(recipeId)
+            if recipe then candidates[#candidates+1]={id=recipeId,recipe=recipe,policy=REPAIR_POLICIES[recipeId]} end
+        end
+        for i=0,items:size()-1 do
+            local item=items:get(i)
+            if item:getCondition()>0 and not item:isBroken() and not item:getIsCraftingConsumed() then
+            for _,candidate in ipairs(candidates) do
+                local recipeId=candidate.id
+                local input=CraftRecipeManager.getValidInputScriptForItem(candidate.recipe,item,body)
+                if repairTargetEligible(item,input,candidate.policy) and R.repairAvailable(id,body,item,recipeId) then
+                    local option=R.repairPolicy(recipeId)
+                    option.targetItemId,option.targetItemType=tostring(item:getID()),item:getFullType()
+                    option.condition,option.maxCondition=item:getCondition(),item:getConditionMax()
+                    option.sharpness,option.maxSharpness=item:getSharpness(),item:getMaxSharpness()
+                    out[#out+1]=option
+                    if #out==32 then return out end
+                end
+            end
+            end
+        end
+        return out
+    end)
+    return ok and options or {}
+end
+local function craftPurposeTarget(p,work)
+    local material=p and p.materialWork
+    if not material or material.entryKey~=work.entryKey then return false end
+    if material.operation=="board" then return true end
+    return work.kind=="repair-held-item" and material.operation=="maintain-tool"
+        and material.entryKey=="held-item:"..work.targetItemId
+        and material.targetItemId==work.targetItemId and material.targetItemType==work.targetItemType
 end
 local function craftPurpose(rec,work)
     local state=rec.proceduralPlanning
     local p=state and state.purposes and state.purposes[work.purposeId]
     local step=p and p.steps and p.steps[p.cursor]
     local a=p and p.admission
-    if not p or p.status=="completed" or p.status=="abandoned" or not p.materialWork
-        or p.materialWork.operation~="board" or p.materialWork.entryKey~=work.entryKey
+    if not p or p.status=="completed" or p.status=="abandoned" or not craftPurposeTarget(p,work)
         or not step or step.id~=work.purposeStepId or step.owner~="SAO.ResourceProduction"
         or step.token~=work.token or step.productionKind~=work.kind or step.recipeId~=work.recipeId
         or step.target~=work.recipeId or step.category~=work.category
@@ -523,7 +601,9 @@ local function craftPurpose(rec,work)
         or a.target~=step.target or not finite(a.at) or a.at<work.startedAt then return nil end
     if work.kind=="repair-held-item" then
         if step.targetItemId~=work.targetItemId or step.targetItemType~=work.targetItemType
-            or step.toolItemId~=work.toolItemId or step.toolItemType~=work.toolItemType then return nil end
+            or step.toolItemId~=work.toolItemId or step.toolItemType~=work.toolItemType
+            or step.toolCategory~=nil and step.toolCategory~=REPAIR_POLICIES[work.recipeId].toolCategory
+            or step.effectMetric~=nil and step.effectMetric~=REPAIR_POLICIES[work.recipeId].effectMetric then return nil end
     elseif step.logItemId~=work.logItemId or step.logItemType~=work.logItemType
         or step.sawItemId~=work.sawItemId or step.sawItemType~=work.sawItemType then return nil end
     return p,step,a
@@ -535,6 +615,9 @@ local function craftAnchors(rt,work)
             and work.toolItemId==rt.toolItemId and work.toolItemType==rt.toolItemType
             and work.beforeCondition==rt.beforeCondition and work.maxCondition==rt.maxCondition
             and work.beforeRepairCount==rt.beforeRepairCount and work.beforeToolCondition==rt.beforeToolCondition
+            and work.effectMetric==rt.effectMetric and work.toolCategory==rt.toolCategory
+            and work.beforeSharpness==rt.beforeSharpness and work.maxSharpness==rt.maxSharpness
+            and work.beforeHeadCondition==rt.beforeHeadCondition and work.maxHeadCondition==rt.maxHeadCondition
     end
     return work.logItemId==rt.work.logItemId and work.sawItemId==rt.work.sawItemId
         and work.beforeLogUses==rt.beforeLogUses and work.sawConditionBefore==rt.sawConditionBefore
@@ -562,8 +645,12 @@ local function craftBound(rt,materials)
                 or craftCarried(body,work.toolItemId,work.toolItemType)~=rt.tool
                 or rt.target:getCondition()~=rt.beforeCondition or rt.target:getConditionMax()~=rt.maxCondition
                 or rt.target:getHaveBeenRepaired()~=rt.beforeRepairCount or rt.tool:getCondition()~=rt.beforeToolCondition
-                or rt.target:isBroken() or rt.tool:isBroken() or not rt.target:isDamaged()
-                or rt.target:getIsCraftingConsumed() or rt.tool:getIsCraftingConsumed() or not rt.tool:hasTag(ItemTag.FILE)
+                or rt.beforeSharpness~=nil and (rt.target:getSharpness()~=rt.beforeSharpness or rt.target:getMaxSharpness()~=rt.maxSharpness)
+                or rt.beforeHeadCondition~=nil and (rt.target:getHeadCondition()~=rt.beforeHeadCondition or rt.target:getHeadConditionMax()~=rt.maxHeadCondition)
+                or rt.target:isBroken() or rt.tool:isBroken()
+                or not R.repairAvailable(rt.id,body,rt.target,rt.recipeId)
+                or rt.target:getIsCraftingConsumed() or rt.tool:getIsCraftingConsumed()
+                or not repairToolEligible(rt.tool,REPAIR_POLICIES[rt.recipeId])
                 or rt.prepared and (rt.target:getContainer()~=rt.inventory or rt.tool:getContainer()~=rt.inventory) then return false end
         elseif not ownItem(rt,rt.log) or not ownItem(rt,rt.saw)
             or craftCarried(body,work.logItemId,work.logItemType)~=rt.log
@@ -641,11 +728,17 @@ local function craftMeasurement(rt)
         local toolRetained=ownItem(rt,rt.tool) and craftCarried(rt.body,work.toolItemId,work.toolItemType)==rt.tool or false
         local held=targetRetained and toolRetained
         local completed=rt.nativeCompleted==true
-        local improved=completed and held and rt.target:getCondition()>rt.beforeCondition
-        return {afterCondition=rt.target:getCondition(),afterRepairCount=rt.target:getHaveBeenRepaired(),
+        local after=rt.effectMetric=="sharpness" and rt.target:getSharpness() or rt.target:getCondition()
+        local before=rt.effectMetric=="sharpness" and rt.beforeSharpness or rt.beforeCondition
+        local maximum=rt.effectMetric=="sharpness" and rt.maxSharpness or rt.maxCondition
+        local improved=completed and held and after>before
+        local measured={afterCondition=rt.target:getCondition(),afterRepairCount=rt.target:getHaveBeenRepaired(),
             afterToolCondition=rt.tool:getCondition(),targetRetained=targetRetained,toolRetained=toolRetained,
             nativeAttempted=rt.nativeAttempted==true,nativeCompleted=completed,held=held,improved=improved,
-            fullRestoration=improved and rt.target:getCondition()==rt.maxCondition}
+            fullRestoration=improved and after>=maximum-0.000001}
+        if rt.beforeSharpness~=nil then measured.afterSharpness=rt.target:getSharpness() end
+        if rt.beforeHeadCondition~=nil then measured.afterHeadCondition=rt.target:getHeadCondition() end
+        return measured
     end
     local measured={afterLogUses=math.max(0,rt.log:getCurrentUses()),sawConditionAfter=rt.saw:getCondition(),
         logConsumed=rt.nativeAttempted==true and not rt.inventory:containsRecursive(rt.log) and rt.log:getCurrentUses()==0,
@@ -697,7 +790,7 @@ local function craftClose(rt,status,detail)
     if not craftOutcome(rt.id,row) then table.remove(rows); return false end
     rec.resourceProductionWork=nil; rt.closed=true; craftDispose(rt); reconcile(rt.id)
     if SAO.Observation then pcall(SAO.Observation.record,rt.id,"ResourceProduction",status,
-        rt.kind=="repair-held-item" and (status=="completed" and "Improved a carried saw" or "Saw maintenance: "..detail)
+        rt.kind=="repair-held-item" and (status=="completed" and "Maintained a carried tool" or "Tool maintenance: "..detail)
             or status=="completed" and "Sawed a carried log into planks" or "Plank crafting: "..detail) end
     return true
 end
@@ -864,7 +957,7 @@ local function craftAction(rt,containers,manual,items)
         local ok,result=pcall(complete,self)
         local completed=ok and result==true and rt.nativeCompleted and not rt.cancelling and craftBound(rt,false)
         return craftClose(rt,completed and "completed" or "interrupted",
-            completed and (rt.kind=="repair-held-item" and "native-saw-condition-and-file-wear-measured"
+            completed and (rt.kind=="repair-held-item" and "native-tool-benefit-and-wear-measured"
                 or "native-log-payment-and-planks-measured") or rt.cancelReason or "native-craft-completion-unconfirmed")
     end
     craftGuardStop(rt,c,false)
@@ -932,41 +1025,50 @@ craftBegin=function(id,body,step,context)
 end
 local function repairBegin(id,body,step,context)
     local rec=owner(id,body)
-    if not rec or runtime[id] or rec.resourceProductionWork or rec.worldSourceReservation or rec.cookingWork
+    local policy=REPAIR_POLICIES[step.recipeId]
+    if not policy or not rec or runtime[id] or rec.resourceProductionWork or rec.worldSourceReservation or rec.cookingWork
         or not craftLedger(rec) or SAO.Needs.busy(body) or step.owner~="SAO.ResourceProduction"
-        or step.token~="resource:repaired" or step.recipeId~=REPAIR_RECIPE or step.target~=REPAIR_RECIPE
-        or step.category~="saw" or not textId(step.targetItemId) or not textId(step.targetItemType)
+        or step.token~="resource:repaired" or step.target~=step.recipeId or step.category~=policy.category
+        or (step.toolCategory~=policy.toolCategory and (step.recipeId~=REPAIR_RECIPE or step.toolCategory~=nil))
+        or step.effectMetric~=nil and step.effectMetric~=policy.effectMetric
+        or not textId(step.targetItemId) or not textId(step.targetItemType)
         or not textId(step.toolItemId) or not textId(step.toolItemType) or isClient() or isServer() then return false end
     local route=SAO.Locomotion.jobs[id]
     if route and not route.done then return false end
     local p=rec.proceduralPlanning and rec.proceduralPlanning.purposes[context.purposeId]
-    if not p or not p.materialWork or p.materialWork.operation~="board" or not textId(p.materialWork.entryKey)
+    if not p or not p.materialWork or not textId(p.materialWork.entryKey)
+        or not craftPurposeTarget(p,{kind="repair-held-item",entryKey=p.materialWork.entryKey,
+            targetItemId=step.targetItemId,targetItemType=step.targetItemType})
         or p.steps[p.cursor]~=step or step.id~=context.purposeStepId or p.admission then return false end
     local target=craftCarried(body,step.targetItemId,step.targetItemType)
     local tool=craftCarried(body,step.toolItemId,step.toolItemType)
-    if not R.repairAvailable(id,body,target,REPAIR_RECIPE) then return false end
+    if not R.repairAvailable(id,body,target,step.recipeId) then return false end
     local square,world=body:getCurrentSquare(),getWorld()
-    local rt={kind="repair-held-item",recipeId=REPAIR_RECIPE,id=id,body=body,record=rec,inventory=body:getInventory(),
-        recipe=registeredRecipe(REPAIR_RECIPE),target=target,tool=tool,inputs={target,tool},actions={},
+    local rt={kind="repair-held-item",recipeId=step.recipeId,id=id,body=body,record=rec,inventory=body:getInventory(),
+        recipe=registeredRecipe(step.recipeId),target=target,tool=tool,inputs={target,tool},actions={},
         queue=ISTimedActionQueue.getTimedActionQueue(body),purpose=p,step=step,square=square,cell=body:getCell(),
         world=world:getWorld(),token=body:getModData().SAOExternalToken,x=body:getX(),y=body:getY(),startedAt=now()}
-    if not tool or target==tool or not ownItem(rt,target) or not ownItem(rt,tool) or not tool:hasTag(ItemTag.FILE)
+    if not tool or target==tool or not ownItem(rt,target) or not ownItem(rt,tool) or not repairToolEligible(tool,policy)
         or tool:getCondition()<=0 or tool:isBroken() or tool:getIsCraftingConsumed()
         or rt.queue.current or #rt.queue.queue>0 then return false end
     local logic,containers,manual,items=craftSelection(rt)
     if not logic or items:size()~=2 or not items:contains(target) or not items:contains(tool) then return false end
     local seq=(rec.resourceProductionSequence or 0)+1
     local work={id="resource-production/"..tostring(id).."/"..seq,sequence=seq,actorId=id,kind=rt.kind,
-        recipeId=REPAIR_RECIPE,category="saw",token="resource:repaired",targetItemId=step.targetItemId,
+        recipeId=step.recipeId,category=policy.category,effectMetric=policy.effectMetric,toolCategory=policy.toolCategory,
+        token="resource:repaired",targetItemId=step.targetItemId,
         targetItemType=step.targetItemType,toolItemId=step.toolItemId,toolItemType=step.toolItemType,
         requestedPurposeId=context.purposeId,requestedPurposeStepId=context.purposeStepId,
         purposeId=context.purposeId,purposeStepId=context.purposeStepId,entryKey=p.materialWork.entryKey,
         world=rt.world,bodyToken=rt.token,x=square:getX(),y=square:getY(),z=square:getZ(),
         beforeCondition=target:getCondition(),maxCondition=target:getConditionMax(),beforeRepairCount=target:getHaveBeenRepaired(),
         beforeToolCondition=tool:getCondition(),startedAt=rt.startedAt,stage="preparing",status="crafting"}
+    if target:hasSharpness() then work.beforeSharpness,work.maxSharpness=target:getSharpness(),target:getMaxSharpness() end
+    if target:hasHeadCondition() then work.beforeHeadCondition,work.maxHeadCondition=target:getHeadCondition(),target:getHeadConditionMax() end
     rt.work,rt.workId,rt.entryKey=work,work.id,work.entryKey
     for _,key in ipairs({"targetItemId","targetItemType","toolItemId","toolItemType","beforeCondition",
-        "maxCondition","beforeRepairCount","beforeToolCondition"}) do rt[key]=work[key] end
+        "maxCondition","beforeRepairCount","beforeToolCondition","effectMetric","toolCategory",
+        "beforeSharpness","maxSharpness","beforeHeadCondition","maxHeadCondition"}) do rt[key]=work[key] end
     if not craftIdentity(id,work) then return false end
     for _,item in ipairs(rt.inputs) do if item:getContainer()~=rt.inventory then craftTransfer(rt,item) end end
     craftAction(rt,containers,manual,items)

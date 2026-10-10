@@ -1265,6 +1265,153 @@ local function materialSource(purpose, sources, category, at)
     return best, delayed
 end
 
+local function repairPolicy(recipeId)
+    local owner = SAO.ResourceProduction
+    local ok, policy
+    if owner and owner.repairPolicy then ok, policy = pcall(owner.repairPolicy, recipeId)
+    elseif recipeId == "Base.FixSaw" then
+        ok, policy = true, { recipeId = recipeId, category = "saw", toolCategory = "file", effectMetric = "condition" }
+    end
+    if ok and type(policy) == "table" and policy.recipeId == recipeId
+        and (policy.category == "saw" or policy.category == "blade")
+        and (policy.toolCategory == "file" or policy.toolCategory == "whetstone")
+        and (policy.effectMetric == "condition" or policy.effectMetric == "sharpness") then return policy end
+end
+
+local function repairMeasure(option, policy)
+    local before, maximum = option.condition, option.maxCondition
+    if policy.effectMetric == "sharpness" then before, maximum = option.sharpness, option.maxSharpness end
+    if not finite(before) or not finite(maximum) or before < 0 or maximum <= before
+        or policy.effectMetric == "condition" and before <= 0 then return nil end
+    return before, maximum
+end
+
+local function repairStep(option, policy, status)
+    local before = repairMeasure(option, policy)
+    return { id = "repair-held:" .. policy.recipeId .. ":" .. option.targetItemId
+            .. ":" .. policy.effectMetric .. ":" .. tostring(before),
+        verb = "produce", owner = "SAO.ResourceProduction", token = "resource:repaired",
+        target = policy.recipeId, recipeId = policy.recipeId, productionKind = "repair-held-item",
+        category = policy.category, toolCategory = policy.toolCategory, effectMetric = policy.effectMetric,
+        targetItemId = option.targetItemId, targetItemType = option.targetItemType,
+        toolItemId = option.toolItemId, toolItemType = option.toolItemType, status = status }
+end
+
+function P.maintenancePurpose(id)
+    local s, selected, priority = state(id)
+    for _, key in ipairs(s and s.order or {}) do
+        local purpose = s.purposes[key]
+        if purpose and purpose.materialWork and purpose.materialWork.operation == "maintain-tool"
+            and purpose.status ~= "completed" and purpose.status ~= "abandoned" then
+            local step = purpose.steps[purpose.cursor]
+            local rank = purpose.admission and 1 or step and step.status == "available" and 2 or 3
+            if not selected or rank < priority then selected, priority = purpose, rank end
+        end
+    end
+    return selected, selected and selected.steps[selected.cursor]
+end
+
+function P.planToolMaintenance(id, context)
+    context = type(context) == "table" and context or {}
+    local s = state(id, true)
+    if not s then return nil, "person-unavailable" end
+    local retained, current = P.maintenancePurpose(id)
+    if retained and retained.admission then return retained, current end
+    local at = finite(context.atHours) and context.atHours or nowHours()
+    local pressure = clamp(tonumber(context.pressure) or 0, 0, 1)
+    local candidates, offered, executable = {{ id = "continue-use", evidence = 1, continuity = 0.7,
+        novelty = 0, informationGain = 0, blockers = 0, utility = 0.25 + pressure }}, {}
+    for index, option in ipairs(type(context.options) == "table" and context.options or {}) do
+        if index > 32 then break end
+        local policy = type(option) == "table" and repairPolicy(option.recipeId)
+        local before, maximum
+        if policy then before, maximum = repairMeasure(option, policy) end
+        if before and type(option.targetItemId) == "string" and option.targetItemId ~= ""
+            and type(option.targetItemType) == "string" and option.targetItemType ~= ""
+            and option.category == policy.category and option.toolCategory == policy.toolCategory
+            and option.effectMetric == policy.effectMetric then
+            local key = "maintain-tool:" .. option.targetItemId .. ":" .. option.targetItemType
+            local purpose = purposeByKey(s, key)
+            local source, delayed = materialSource(purpose or {}, context.sources and context.sources[policy.toolCategory], policy.toolCategory, at)
+            local step = repairStep(option, policy, "available")
+            local heldTool = type(option.toolItemId) == "string" and option.toolItemId ~= ""
+                and type(option.toolItemType) == "string" and option.toolItemType ~= ""
+            local waiting = not heldTool and delayed
+            for _, failure in ipairs(purpose and purpose.routeFailures or {}) do
+                if failure.stepId == step.id and finite(failure.retryAt) and at < failure.retryAt then waiting = true end
+            end
+            local travel = not heldTool and source and clamp((tonumber(source.distance) or 100) / 100, 0, 1) or 0
+            local choice = step.id
+            if not offered[choice] then
+                local consequences = {{ kind = "tool-repair", category = "construction",
+                    sourceId = policy.recipeId, itemType = option.targetItemType, value = 1 - before / maximum }}
+                if policy.effectMetric == "sharpness" then
+                    consequences[#consequences + 1] = { kind = "tool-repair", category = "construction",
+                        sourceId = policy.recipeId, itemType = option.targetItemType, condition = "damage", value = -0.25 }
+                end
+                candidates[#candidates + 1] = { id = choice, evidence = 1, continuity = purpose and 1 or 0.7,
+                    novelty = purpose and 0 or 0.1, informationGain = 0.2,
+                    blockers = (waiting or not heldTool and not source) and 1 or 0,
+                    utility = 1 - before / maximum - travel, consequences = consequences }
+                offered[choice] = { option = option, policy = policy, purpose = purpose, key = key,
+                    step = step, source = not heldTool and source or nil, heldTool = heldTool, waiting = waiting,
+                    executable = not waiting and (heldTool or source ~= nil) }
+                if offered[choice].executable then executable = true end
+            end
+        end
+    end
+    -- The existing private interpreter admits sixteen alternatives. Keep its
+    -- continued-use option, retained targets, then the largest observed deficit.
+    local ranked = {}
+    for index = 2, #candidates do
+        local candidate = candidates[index]
+        if not executable or offered[candidate.id].executable then ranked[#ranked + 1] = candidate end
+    end
+    table.sort(ranked, function(a, b)
+        local aRetained, bRetained = offered[a.id].purpose ~= nil, offered[b.id].purpose ~= nil
+        if aRetained ~= bRetained then return aRetained end
+        if a.utility ~= b.utility then return a.utility > b.utility end
+        return a.id < b.id
+    end)
+    candidates = { candidates[1] }
+    for index = 1, math.min(15, #ranked) do candidates[#candidates + 1] = ranked[index] end
+    local view = interpretations(id, candidates, { domain = "construction", pressure = pressure, atHours = at })
+    local chosen = view and offered[view.selected]
+    if not chosen then
+        if retained then
+            if current then current.status = "blocked" end
+            retained.status = "blocked"
+            retained.blockers = { #candidates == 1 and "native-maintenance-target-unavailable" or "maintenance-deferred" }
+            retained.interpretations, retained.updatedAt = dataCopy(view), at
+        end
+        return retained, nil, "maintenance-deferred"
+    end
+    local purpose = chosen.purpose or P.maintain(id, { key = chosen.key,
+        objective = "maintain an exact carried tool", domain = "construction", origin = "kit-tending", atHours = at })
+    if not purpose then return nil, "person-unavailable" end
+    local option, policy, step = chosen.option, chosen.policy, chosen.step
+    purpose.materialWork = { operation = "maintain-tool", entryKey = "held-item:" .. option.targetItemId,
+        targetItemId = option.targetItemId, targetItemType = option.targetItemType }
+    local blockers, steps = {}, {}
+    if chosen.waiting then blockers[#blockers + 1] = "known-route-retry-delayed" end
+    if not chosen.heldTool then
+        if chosen.source and not chosen.waiting then
+            local source = chosen.source
+            steps[#steps + 1] = { id = materialAcquisitionId(source), verb = "acquire", owner = "SAO.SourceUse",
+                token = "resource:acquired", target = source.sourceId .. ":" .. tostring(source.itemId),
+                category = source.category, sourceId = source.sourceId, sourceRevision = source.revision,
+                itemId = source.itemId, itemType = source.itemType, place = dataCopy(source.place),
+                quantity = 1, quantityUnit = "item", status = "available" }
+        elseif not chosen.waiting then blockers[#blockers + 1] = "missing-known-" .. policy.toolCategory end
+    end
+    step.status = chosen.waiting and "blocked" or chosen.heldTool and "available"
+        or #steps > 0 and "dependent" or "blocked"
+    steps[#steps + 1] = step
+    setPlan(purpose, steps, blockers, dataCopy(view), at)
+    purpose.selectedStrategy = steps[1].id
+    return purpose, purpose.steps[purpose.cursor]
+end
+
 function P.planFortification(id, context)
     context = type(context) == "table" and context or {}
     local repair = context.operation == "repair"
@@ -1387,7 +1534,7 @@ function P.planFortification(id, context)
                     selected = source
                     craftStep = { id = stepId, verb = "produce", owner = "SAO.ResourceProduction",
                         token = "resource:repaired", target = "Base.FixSaw", recipeId = "Base.FixSaw",
-                        productionKind = "repair-held-item", category = "saw",
+                        productionKind = "repair-held-item", category = "saw", toolCategory = "file", effectMetric = "condition",
                         targetItemId = inputs.targetItemId, targetItemType = inputs.targetItemType,
                         toolItemId = inputs.toolItemId, toolItemType = inputs.toolItemType,
                         status = inputs.toolItemId and "available" or "dependent" }
@@ -2879,15 +3026,24 @@ end
 
 function P.admitRepairProduction(id, work)
     if type(work) ~= "table" or type(work.id) ~= "string" or work.actorId ~= id
-        or work.kind ~= "repair-held-item" or work.recipeId ~= "Base.FixSaw" then return false end
+        or work.kind ~= "repair-held-item" then return false end
+    local policy = repairPolicy(work.recipeId)
+    if not policy or work.category ~= policy.category
+        or work.toolCategory and work.toolCategory ~= policy.toolCategory
+        or work.effectMetric and work.effectMetric ~= policy.effectMetric then return false end
     local s = state(id)
     local purpose = s and s.purposes[work.requestedPurposeId or work.purposeId]
     local step = purpose and purpose.steps[purpose.cursor]
-    if not purpose or not purpose.materialWork or purpose.materialWork.operation ~= "board"
+    local material = purpose and purpose.materialWork
+    if not material or (material.operation ~= "board" and material.operation ~= "maintain-tool")
+        or material.operation == "maintain-tool" and (material.entryKey ~= "held-item:" .. tostring(work.targetItemId)
+            or material.targetItemId ~= work.targetItemId or material.targetItemType ~= work.targetItemType)
         or purpose.status == "completed" or purpose.status == "abandoned" or not step or purpose.admission
         or step.id ~= (work.requestedPurposeStepId or work.purposeStepId)
         or step.owner ~= "SAO.ResourceProduction" or step.verb ~= "produce"
         or step.productionKind ~= work.kind or step.recipeId ~= work.recipeId
+        or step.category ~= policy.category or step.toolCategory and step.toolCategory ~= policy.toolCategory
+        or step.effectMetric and step.effectMetric ~= policy.effectMetric
         or step.token ~= "resource:repaired" or step.status ~= "available"
         or step.targetItemId ~= work.targetItemId or step.targetItemType ~= work.targetItemType
         or step.toolItemId ~= work.toolItemId or step.toolItemType ~= work.toolItemType then return false end
@@ -2902,30 +3058,45 @@ function P.consumeRepairProductionResult(id, receipt)
     local canonical = owner and owner.outcome and owner.outcome(id, receipt.id)
     if not canonical or canonical.actorId ~= id or canonical.id ~= receipt.id
         or canonical.purposeId ~= receipt.purposeId or canonical.kind ~= "repair-held-item"
-        or canonical.recipeId ~= "Base.FixSaw" or canonical.token ~= "resource:repaired"
+        or canonical.token ~= "resource:repaired"
         or canonical.nativeOwner ~= "ISHandcraftAction" or not finite(canonical.atHours)
         or canonical.atHours > nowHours() or (canonical.status ~= "completed"
             and canonical.status ~= "interrupted" and canonical.status ~= "failed") then return false end
+    local policy = repairPolicy(canonical.recipeId)
+    if not policy or canonical.category ~= policy.category
+        or canonical.toolCategory and canonical.toolCategory ~= policy.toolCategory
+        or canonical.effectMetric and canonical.effectMetric ~= policy.effectMetric
+        or policy.effectMetric == "sharpness" and canonical.effectMetric ~= "sharpness" then return false end
     local s = state(id)
     local purpose = s and s.purposes[canonical.purposeId]
     if not purpose or purpose.status == "abandoned" then return true, "purpose-retired" end
     local receiptKey = "SAO.ResourceProduction:" .. canonical.id
     for _, seen in ipairs(purpose.resultReceipts or {}) do if seen == receiptKey then return true end end
     local step, admission = purpose.steps[purpose.cursor], purpose.admission
-    if not purpose.materialWork or purpose.materialWork.operation ~= "board" or not step or not admission
+    local material = purpose.materialWork
+    if not material or (material.operation ~= "board" and material.operation ~= "maintain-tool")
+        or material.operation == "maintain-tool" and (material.entryKey ~= "held-item:" .. tostring(canonical.targetItemId)
+            or material.targetItemId ~= canonical.targetItemId or material.targetItemType ~= canonical.targetItemType)
+        or not step or not admission
         or step.owner ~= "SAO.ResourceProduction" or step.token ~= "resource:repaired"
         or step.id ~= canonical.purposeStepId or admission.stepId ~= step.id
         or admission.owner ~= step.owner or admission.correlationId ~= canonical.id
         or admission.target ~= step.target or canonical.atHours < admission.at
         or canonical.recipeId ~= step.recipeId or canonical.kind ~= step.productionKind
+        or step.category ~= policy.category or step.toolCategory and step.toolCategory ~= policy.toolCategory
+        or step.effectMetric and step.effectMetric ~= policy.effectMetric
         or canonical.targetItemId ~= step.targetItemId or canonical.targetItemType ~= step.targetItemType
         or canonical.toolItemId ~= step.toolItemId or canonical.toolItemType ~= step.toolItemType then return false end
+    local before, after, maximum = canonical.beforeCondition, canonical.afterCondition, canonical.maxCondition
+    if policy.effectMetric == "sharpness" then
+        before, after, maximum = canonical.beforeSharpness, canonical.afterSharpness, canonical.maxSharpness
+    end
     if canonical.status == "completed" and (canonical.nativeCredit ~= canonical.id
         or canonical.nativeAttempted ~= true or canonical.nativeCompleted ~= true
         or canonical.targetRetained ~= true or canonical.held ~= true or canonical.improved ~= true
-        or not finite(canonical.beforeCondition) or not finite(canonical.afterCondition)
-        or not finite(canonical.maxCondition) or canonical.beforeCondition <= 0
-        or canonical.afterCondition <= canonical.beforeCondition or canonical.afterCondition > canonical.maxCondition) then return false end
+        or not finite(before) or not finite(after) or not finite(maximum) or before < 0
+        or policy.effectMetric == "condition" and before <= 0
+        or after <= before or after > maximum) then return false end
     return P.recordResult(id, purpose.id, { owner = "SAO.ResourceProduction", token = "resource:repaired",
         status = canonical.status, correlationId = canonical.id, reason = canonical.detail,
         atHours = canonical.atHours }, REPAIR_RESULT)

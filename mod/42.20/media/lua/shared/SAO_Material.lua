@@ -10,7 +10,7 @@ Material.sourceOwners = Material.sourceOwners or {}
 
 local SOURCE_CATEGORY_ORDER = {
     "device", "drink", "file", "food", "fuel", "glass-pane", "hammer", "instrument", "medical",
-    "log", "memento", "nails", "plank", "reading", "saw", "smokes", "tools",
+    "log", "memento", "nails", "plank", "reading", "saw", "smokes", "tools", "whetstone",
     "water", "weapons",
 }
 local MAX_NATIVE_SOURCES = 256

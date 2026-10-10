@@ -184,7 +184,7 @@ currency with `python tools/development_graph.py --check`.
 
 ## Status
 
-`3.10.0.0-pre-alpha` - the coordinate is computed by the version machine
+`3.10.1.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -202,7 +202,7 @@ and utilities](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-ut
 is active and OPEN. Its first material-work join retains observed permitted
 window/boarding work before supplies are carried, acquires exact private
 materials, prepares and executes native actions, and preserves unfinished
-purposes through interruption and reload. [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is CLOSED: a person can acquire a privately remembered log and saw, run installed SawLogs with exact carried inputs, retain three measured native planks and return to the original boarding task. Canonical private experience, interruption and saved recovery accompany that chain. The existing odometer credits this native crafting contract once. [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md) is CLOSED: the person can weigh maintaining the carried saw against continuing work, acquire a privately known file, execute installed FixSaw with exact kept inputs and carry measured condition/wear and authenticated feedback back into the same construction purpose. Native and integrated evidence support both children. D3 keeps entity placement, other recipes/pane integration, other item repair, plumbing, generators and native server execution active before D4–D6.
+purposes through interruption and reload. [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is CLOSED: a person can acquire a privately remembered log and saw, run installed SawLogs with exact carried inputs, retain three measured native planks and return to the original boarding task. Canonical private experience, interruption and saved recovery accompany that chain. The existing odometer credits this native crafting contract once. [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md) is CLOSED: the person can weigh maintaining the carried saw against continuing work, acquire a privately known file, execute installed FixSaw with exact kept inputs and carry measured condition/wear and authenticated feedback back into the same construction purpose. [D3.3](Batches/D3.3-20261010-0622Z-2222PST-portable-tool-maintenance.md) is CLOSED: ordinary private kit tending joins installed saw repair and blade sharpening to personally acquired file/whetstone means. Full-condition dull blades retain native eligibility; measured sharpness, condition/head damage and tool wear feed authenticated private learning and saved continuity. Focused native and integrated evidence support these children; aggregate play supplies whole-system behavior and presentation evidence. D3 keeps entity placement, other recipes/pane integration, other item repair, plumbing, generators and native server execution active before D4–D6.
 
 ### Historical reasoning and source trials
 

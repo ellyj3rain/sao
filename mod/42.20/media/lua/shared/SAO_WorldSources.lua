@@ -42,7 +42,7 @@ local RESULT_CONSUMER = "provisioning"
 local SOURCE_CATEGORY_ORDER = {
     "device", "drink", "file", "food", "fuel", "glass-pane", "hammer", "instrument", "leisure-material", "medical",
     "log", "medicine", "memento", "nails", "plank", "reading", "saw", "smokes", "tools",
-    "water", "weapons",
+    "water", "weapons", "whetstone",
 }
 local SOURCE_CATEGORIES = {}
 for _, name in ipairs(SOURCE_CATEGORY_ORDER) do
@@ -1108,7 +1108,7 @@ function WS.beliefFact(sourceId, observationKind)
             if item then
                 fact.visibleItem={id=item.id,type=item.type}
                 for _, category in ipairs({"reading","instrument","leisure-material",
-                    "glass-pane","hammer","plank","nails","log","saw","file"}) do
+                    "glass-pane","hammer","plank","nails","log","saw","file","whetstone"}) do
                     if item.categories[category] then
                         fact.quantities[category]=1
                         fact.candidates[category]={id=item.id,type=item.type,categories={[category]=true}}

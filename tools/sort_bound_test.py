@@ -63,6 +63,8 @@ SORT = re.compile(r"table\.sort\s*\(\s*([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)")
 
 # (file, the list being sorted) -> what bounds its length.
 BOUNDED = {
+    ("SAO_ProceduralPlanning.lua", "ranked"):
+        "planToolMaintenance stops context.options after index32 before creating candidates; ranked copies only those maintenance candidates, so at most32 reach the sort before the private interpreter retains15",
     ("SAO_AgeVisual.lua", "matches"):
         "one row per source model candidate; the current authored catalog has five sourceSample registrations (ages0,8,15,31,72), with no population-dependent writer",
     ("SAO_Cognition.lua", "offered"):

@@ -1868,7 +1868,8 @@ public final class SAOBridge {
                 || category == null || !(category.equals("glass-pane")
                     || category.equals("hammer") || category.equals("plank")
                     || category.equals("nails") || category.equals("log")
-                    || category.equals("saw") || category.equals("file"))) return 0;
+                    || category.equals("saw") || category.equals("file")
+                    || category.equals("whetstone"))) return 0;
         try {
             int count = 0;
             for (zombie.inventory.InventoryItem item

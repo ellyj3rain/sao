@@ -692,6 +692,7 @@ function __runD3ConstructionControllerCases()
     end
     SAO.ResourceProduction.begin=function(id,body,step,ctx)
         repairWork={id="resource-production/"..id.."/1",actorId=id,kind=step.productionKind,recipeId=step.recipeId,
+            category=step.category,
             requestedPurposeId=ctx.purposeId,requestedPurposeStepId=ctx.purposeStepId,
             targetItemId=step.targetItemId,targetItemType=step.targetItemType,toolItemId=step.toolItemId,toolItemType=step.toolItemType,
             logItemId=step.logItemId,logItemType=step.logItemType,sawItemId=step.sawItemId,sawItemType=step.sawItemType}
@@ -735,7 +736,7 @@ function __runD3ConstructionControllerCases()
     check("d3_controller_repair_admission_preserves_construction_destination",maintenancePurpose.admission
         and maintenancePurpose.status~="completed" and P.constructionDestination(maintenance.id).entryKey==maintenanceEntry)
     repairOutcome={id=repairWork.id,actorId=maintenance.id,purposeId=maintenancePurpose.id,purposeStepId=repairWork.purposeStepId,
-        kind="repair-held-item",recipeId="Base.FixSaw",token="resource:repaired",nativeOwner="ISHandcraftAction",
+        kind="repair-held-item",recipeId="Base.FixSaw",category="saw",token="resource:repaired",nativeOwner="ISHandcraftAction",
         targetItemId="921",targetItemType="Base.Saw",toolItemId="922",toolItemType="Base.File",status="completed",atHours=__hours,
         nativeCredit=repairWork.id,nativeAttempted=true,nativeCompleted=true,held=true,targetRetained=true,improved=true,
         beforeCondition=2,afterCondition=10,maxCondition=10}
@@ -746,5 +747,197 @@ function __runD3ConstructionControllerCases()
     local craftResumed=C.advanceConstruction(maintenance.id,maintenance.agent,maintenance.body,133,P.constructionDestination(maintenance.id))
     check("d3_controller_repair_resumes_planks_under_original_purpose",craftResumed and repairWork.kind=="saw-logs"
         and repairWork.purposeId==maintenancePurpose.id and P.constructionDestination(maintenance.id).entryKey==maintenanceEntry)
+    __runPortableControllerCases(craftItem)
     __windowResults = table.concat(__checks, "\n")
+end
+
+function __runPortableControllerCases(craftItem)
+    -- Portable owner eligibility/effects remain a controlled boundary here.
+    -- The actual Planner, both private models, ordinary idle decision, exact
+    -- source connector and production hold execute; the native owner has its
+    -- separate installed handcraft/callback/custody proof.
+    ItemTag.WHETSTONE=ItemTag.WHETSTONE or "controlled-native-whetstone"
+    local policies={
+        ["Base.FixSaw"]={recipeId="Base.FixSaw",category="saw",toolCategory="file",effectMetric="condition"},
+        ["Base.SharpenBlade"]={recipeId="Base.SharpenBlade",category="blade",toolCategory="whetstone",effectMetric="sharpness"},
+        ["Base.SharpenBladePoorlyWithFile"]={recipeId="Base.SharpenBladePoorlyWithFile",category="blade",toolCategory="file",effectMetric="sharpness"},
+    }
+    local repairRows, portableStarts = {}, 0
+    SAO.ResourceProduction={
+        repairPolicy=function(recipe) return policies[recipe] end,
+        maintenanceOptions=function(_,body) return body.maintenanceOffers or {} end,
+        reconcileSaved=function() return true end,
+        outcome=function(id,key) local row=repairRows[key];return row and row.actorId==id and row or nil end,
+        begin=function(id,body,step,ctx)
+            portableStarts=portableStarts+1
+            local rec=SAO.Identity.get(id)
+            rec.portableSequence=(rec.portableSequence or 0)+1
+            local work={id="resource-production/"..id.."/"..rec.portableSequence,actorId=id,
+                kind=step.productionKind,recipeId=step.recipeId,category=step.category,
+                toolCategory=step.toolCategory,effectMetric=step.effectMetric,entryKey="held-item:"..step.targetItemId,
+                targetItemId=step.targetItemId,targetItemType=step.targetItemType,
+                toolItemId=step.toolItemId,toolItemType=step.toolItemType,
+                requestedPurposeId=ctx.purposeId,requestedPurposeStepId=ctx.purposeStepId}
+            local admitted=P.admitRepairProduction(id,work)
+            if admitted then rec.resourceProductionWork=work end
+            return admitted
+        end,
+        tick=function(id,body)
+            local rec=SAO.Identity.get(id)
+            local work=rec.resourceProductionWork
+            local row={id=work.id,actorId=id,purposeId=work.purposeId,purposeStepId=work.purposeStepId,
+                kind=work.kind,recipeId=work.recipeId,category=work.category,toolCategory=work.toolCategory,effectMetric=work.effectMetric,
+                targetItemId=work.targetItemId,targetItemType=work.targetItemType,toolItemId=work.toolItemId,toolItemType=work.toolItemType,
+                token="resource:repaired",nativeOwner="ISHandcraftAction",atHours=__hours,status=body.portableStatus or "completed",
+                nativeAttempted=true,nativeCompleted=true,targetRetained=true,held=true,
+                beforeCondition=10,afterCondition=9,maxCondition=10,beforeSharpness=0.1,afterSharpness=0.8,maxSharpness=1}
+            row.improved=row.status=="completed"
+            row.nativeCredit=row.improved and row.id or nil
+            if row.status~="completed" then row.afterSharpness=row.beforeSharpness end
+            if row.status=="interrupted" then row.nativeAttempted=false;row.nativeCompleted=false;row.afterCondition=row.beforeCondition end
+            repairRows[row.id]=row
+            if P.consumeRepairProductionResult(id,row) then rec.resourceProductionWork=nil end
+            return row.status
+        end,
+        interrupt=function() return true end,
+    }
+    SAO.Needs.ownsRecoveryBody=function() return true end
+    SAO.Needs.workAvailable=function() return true end
+    SAO.Needs.read=function(body) return {fatigue=body.maintenancePressure or 0} end
+    SAO.Disposition.traits=function() return {discipline=0.8} end
+    SAO.Disposition.isSmoker=function() return false end
+    SAO.Lessons={has=function() return false end}
+    SAO.Study={offerLeisure=function() return nil end}
+    C.proposeLeisureParticipation=function() return false end
+    C.leisureGroundOffers=function() return {} end
+    local function offerBlade(f)
+        local blade=craftItem(930,"Base.KitchenKnife",false)
+        f.inventory.items={blade}
+        f.body.maintenanceOffers={{recipeId="Base.SharpenBlade",category="blade",toolCategory="whetstone",effectMetric="sharpness",
+            targetItemId="930",targetItemType="Base.KitchenKnife",condition=10,maxCondition=10,sharpness=0.1,maxSharpness=1}}
+        return blade
+    end
+    local function whetstone()
+        local item=craftItem(931,"Base.Whetstone",false)
+        item.hasTag=function(_,tag) return tag==ItemTag.WHETSTONE end
+        return item
+    end
+    local portable=fixture("d3-controller-portable-kit",false)
+    offerBlade(portable)
+    sources[portable.id]={sourceId="holder:whetstone",itemId=931,revision=21,itemType="Base.Whetstone",category="whetstone",known=true}
+    local kitEntered=__d3Rest(portable.id,portable.agent,portable.body,150,portable.rec)
+    local kitCall=sourceCalls[portable.id]
+    local kitPurpose=P.maintenancePurpose(portable.id)
+    check("d3_controller_idle_kit_tending_enters_portable_maintenance",kitEntered==true and portable.agent.state=="SOURCEWARD"
+        and kitPurpose and kitPurpose.materialWork.operation=="maintain-tool" and kitPurpose.materialWork.entryKey=="held-item:930"
+        and P.constructionDestination(portable.id)==nil and portable.body.orderedTravel==nil)
+    check("d3_controller_portable_private_choice_retains_both_models",kitPurpose and kitPurpose.interpretations
+        and kitPurpose.interpretations.models[1].modelId=="ordinary" and kitPurpose.interpretations.models[2].modelId=="associative"
+        and portable.rec.leisureDecision.alternatives[1].kind=="maintenance")
+    check("d3_controller_portable_known_whetstone_acquires_exact_identity",kitCall and kitCall.category=="whetstone"
+        and kitCall.context.sourceId=="holder:whetstone" and kitCall.context.sourceRevision==21 and kitCall.context.itemId==931
+        and kitCall.context.itemType=="Base.Whetstone" and kitCall.context.purposeId==kitPurpose.id)
+    check("d3_controller_portable_acquisition_admission_has_no_repair_credit",portableStarts==0 and kitPurpose.admission
+        and kitPurpose.status~="completed" and P.techniqueProfile(portable.id).practice["Base.SharpenBlade"]==nil)
+    local heldRevision=kitPurpose.revision
+    local pending,pendingStep=P.planToolMaintenance(portable.id,{options={{recipeId="Base.FixSaw",category="saw",toolCategory="file",
+        effectMetric="condition",targetItemId="other",targetItemType="Base.Saw",condition=1,maxCondition=10}}})
+    check("d3_controller_portable_pending_acquisition_preserves_exact_purpose",pending==kitPurpose and pendingStep.id==kitCall.expectedStep
+        and pending.revision==heldRevision and pending.materialWork.targetItemId=="930")
+    local wrong={actorId=portable.id,reservationId=kitCall.reservationId,purposeId=kitPurpose.id,purposeStepId=kitCall.expectedStep,
+        operation="acquire",status="completed",sourceId="wrong-holder",preRevision=21,itemId=931,itemType="Base.Whetstone",
+        category="whetstone",measurement="native-item-transfer",observedQuantity=1,at=__hours}
+    terminals[kitCall.reservationId]=wrong
+    check("d3_controller_portable_wrong_source_cannot_advance",P.consumeSourceResult(wrong)==false and kitPurpose.admission~=nil)
+    local unknown=fixture("d3-controller-portable-unknown",false)
+    offerBlade(unknown)
+    sources[unknown.id]={sourceId="unseen:whetstone",itemId=931,revision=21,itemType="Base.Whetstone",category="whetstone",known=false}
+    local unknownStart=C.tryToolMaintenance(unknown.id,unknown.agent,unknown.body,151)
+    local unknownPurpose=P.maintenancePurpose(unknown.id)
+    check("d3_controller_portable_unknown_tool_source_stays_blocked",not unknownStart and sourceCalls[unknown.id]==nil
+        and unknownPurpose and unknownPurpose.status=="blocked" and not unknownPurpose.admission and portableStarts==0)
+    portable.inventory.items[#portable.inventory.items+1]=whetstone()
+    portable.rec.worldSourceReservation=nil
+    wrong.sourceId="holder:whetstone"
+    local transferred=P.consumeSourceResult(wrong)
+    local originalPurposeId=kitPurpose.id
+    portable.rec=__nativeRoundtrip(portable.rec);__records[portable.id]=portable.rec;portable.agent.rec=portable.rec
+    portable.agent.state="IDLE"
+    local resumed=C.tryToolMaintenance(portable.id,portable.agent,portable.body,152)
+    kitPurpose=P.maintenancePurpose(portable.id)
+    local work=portable.rec.resourceProductionWork
+    check("d3_controller_portable_acquired_tool_resumes_saved_same_purpose",transferred and resumed and kitPurpose.id==originalPurposeId
+        and work and work.purposeId==originalPurposeId and work.targetItemId=="930" and work.toolItemId=="931"
+        and portable.agent.state=="RESOURCE" and portable.body.orderedTravel==nil)
+    check("d3_controller_portable_full_condition_blade_admits_by_sharpness",work and work.effectMetric=="sharpness"
+        and work.recipeId=="Base.SharpenBlade" and kitPurpose.status~="completed"
+        and P.techniqueProfile(portable.id).practice["Base.SharpenBlade"]==nil)
+    portable.agent.nextProductionNeedsAt=100000
+    __d3ProductionHold(portable.id,portable.agent,portable.body,153)
+    check("d3_controller_portable_native_completion_returns_idle_and_closes_goal",portable.agent.state=="IDLE"
+        and portable.rec.resourceProductionWork==nil and kitPurpose.status=="completed" and not kitPurpose.admission
+        and P.maintenancePurpose(portable.id)==nil and P.techniqueProfile(portable.id).practice["Base.SharpenBlade"].completed==1)
+    portable.rec=__nativeRoundtrip(portable.rec);__records[portable.id]=portable.rec;portable.agent.rec=portable.rec
+    local replayed=P.consumeRepairProductionResult(portable.id,repairRows[work.id])
+    check("d3_controller_portable_completed_result_replay_is_once_only",replayed and P.maintenancePurpose(portable.id)==nil
+        and P.techniqueProfile(portable.id).practice["Base.SharpenBlade"].completed==1)
+    local interrupted=fixture("d3-controller-portable-interrupted",false)
+    offerBlade(interrupted);interrupted.inventory.items[#interrupted.inventory.items+1]=whetstone()
+    C.tryToolMaintenance(interrupted.id,interrupted.agent,interrupted.body,154)
+    local unfinished=P.maintenancePurpose(interrupted.id)
+    interrupted.body.portableStatus="interrupted";interrupted.agent.nextProductionNeedsAt=100000
+    __d3ProductionHold(interrupted.id,interrupted.agent,interrupted.body,155)
+    check("d3_controller_portable_interruption_retains_unfinished_goal",unfinished and unfinished.status=="interrupted"
+        and not unfinished.admission and P.maintenancePurpose(interrupted.id).id==unfinished.id
+        and P.techniqueProfile(interrupted.id).practice["Base.SharpenBlade"].completed==0)
+    local delayed=fixture("d3-controller-portable-delay",false)
+    offerBlade(delayed)
+    sources[delayed.id]={sourceId="holder:whetstone",itemId=931,revision=21,itemType="Base.Whetstone",category="whetstone",known=true}
+    local delayedContext=C.toolMaintenanceContext(delayed.id,delayed.agent,delayed.body)
+    local delayedPurpose,delayedStep=P.planToolMaintenance(delayed.id,delayedContext)
+    P.deferResourceRoute(delayed.id,delayedPurpose.id,delayedStep.id,"old exact source temporarily unavailable")
+    delayed.inventory.items[#delayed.inventory.items+1]=whetstone()
+    local heldContext=C.toolMaintenanceContext(delayed.id,delayed.agent,delayed.body)
+    heldContext.sources=delayedContext.sources
+    local carriedStart=C.tryToolMaintenance(delayed.id,delayed.agent,delayed.body,156,heldContext)
+    check("d3_controller_portable_carried_tool_ignores_stale_source_delay",carriedStart and delayed.rec.resourceProductionWork
+        and delayed.rec.resourceProductionWork.purposeId==delayedPurpose.id and delayed.agent.state=="RESOURCE")
+    local pressured=fixture("d3-controller-portable-pressure",false)
+    offerBlade(pressured);pressured.inventory.items[#pressured.inventory.items+1]=whetstone()
+    pressured.body.maintenancePressure=1
+    local startsBefore=portableStarts
+    local deferred=C.tryToolMaintenance(pressured.id,pressured.agent,pressured.body,157)
+    check("d3_controller_portable_current_pressure_can_defer_upkeep",not deferred and pressured.agent.state=="IDLE"
+        and portableStarts==startsBefore and pressured.rec.resourceProductionWork==nil)
+    local ineligible=fixture("d3-controller-portable-ineligible",false)
+    offerBlade(ineligible);ineligible.body.maintenanceOffers={}
+    check("d3_controller_portable_native_ineligible_target_has_no_dispatch",not C.tryToolMaintenance(ineligible.id,ineligible.agent,ineligible.body,158)
+        and P.maintenancePurpose(ineligible.id)==nil and portableStarts==startsBefore)
+    local failed=fixture("d3-controller-portable-failed",false)
+    offerBlade(failed);failed.inventory.items[#failed.inventory.items+1]=whetstone()
+    C.tryToolMaintenance(failed.id,failed.agent,failed.body,159)
+    local failedPurpose=P.maintenancePurpose(failed.id)
+    failed.body.portableStatus="failed";failed.agent.nextProductionNeedsAt=100000
+    __d3ProductionHold(failed.id,failed.agent,failed.body,160)
+    check("d3_controller_portable_failed_native_attempt_has_no_completion_credit",failedPurpose and failedPurpose.status=="blocked"
+        and not failedPurpose.admission and P.techniqueProfile(failed.id).practice["Base.SharpenBlade"].completed==0)
+    local fileOnly=fixture("d3-controller-portable-file-only",false)
+    offerBlade(fileOnly);fileOnly.inventory.items[#fileOnly.inventory.items+1]=craftItem(932,"Base.File",false)
+    fileOnly.body.maintenanceOffers[2]={recipeId="Base.SharpenBladePoorlyWithFile",category="blade",toolCategory="file",effectMetric="sharpness",
+        targetItemId="930",targetItemType="Base.KitchenKnife",condition=10,maxCondition=10,sharpness=0.1,maxSharpness=1}
+    local fileStarted=C.tryToolMaintenance(fileOnly.id,fileOnly.agent,fileOnly.body,161)
+    local filePurpose=P.maintenancePurpose(fileOnly.id)
+    check("d3_controller_portable_held_file_beats_unknown_whetstone",fileStarted and fileOnly.rec.resourceProductionWork
+        and fileOnly.rec.resourceProductionWork.recipeId=="Base.SharpenBladePoorlyWithFile" and fileOnly.agent.state=="RESOURCE"
+        and filePurpose and filePurpose.interpretations.models[1].selected:find("Base.SharpenBladePoorlyWithFile",1,true)~=nil
+        and filePurpose.interpretations.models[2].selected:find("Base.SharpenBladePoorlyWithFile",1,true)~=nil)
+    local mixed=fixture("d3-controller-portable-mixed",false)
+    offerBlade(mixed);mixed.inventory.items[#mixed.inventory.items+1]=craftItem(932,"Base.File",false)
+    mixed.inventory.items[#mixed.inventory.items+1]=craftItem(933,"Base.HuntingKnife",false)
+    mixed.body.maintenanceOffers[2]={recipeId="Base.SharpenBladePoorlyWithFile",category="blade",toolCategory="file",effectMetric="sharpness",
+        targetItemId="933",targetItemType="Base.HuntingKnife",condition=10,maxCondition=10,sharpness=0.4,maxSharpness=1}
+    local mixedStarted=C.tryToolMaintenance(mixed.id,mixed.agent,mixed.body,162)
+    check("d3_controller_portable_available_tool_beats_unavailable_larger_deficit",mixedStarted and mixed.rec.resourceProductionWork
+        and mixed.rec.resourceProductionWork.targetItemId=="933" and mixed.rec.resourceProductionWork.recipeId=="Base.SharpenBladePoorlyWithFile"
+        and mixed.agent.state=="RESOURCE")
 end

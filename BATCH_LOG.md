@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.10.0.0-pre-alpha` |
+| Version | `3.10.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -200,6 +200,7 @@ Later Leisure improvements link back to the completed D2 product.
 | [D2](Batches/D2-20261005-2341Z-1641PST-leisure.md) | 2026-10-05 | Leisure | [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-006`](Batches/THREADS.md#t-006) |
 | [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) | 2026-10-10 | Native plank crafting for retained construction | [`T-008`](Batches/THREADS.md#t-008), [`T-006`](Batches/THREADS.md#t-006) |
 | [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md) | 2026-10-10 | Native saw maintenance for retained construction | [`T-008`](Batches/THREADS.md#t-008), [`T-006`](Batches/THREADS.md#t-006) |
+| [D3.3](Batches/D3.3-20261010-0622Z-2222PST-portable-tool-maintenance.md) | 2026-10-10 | Portable tool maintenance | [`T-008`](Batches/THREADS.md#t-008), [`T-006`](Batches/THREADS.md#t-006) |
 
 ### Current Simulation repair18 and approved artwork intake | 2026-10-07 00:30 UTC / 17:30 PST
 
@@ -546,3 +547,8 @@ Focused controls exercise documentation, imported tool dependencies, deleted hel
 ## [REPO] 2026-10-10 00:42 UTC - Markdown documentation maintenance
 
 The operator retires automatic Word companions. Markdown remains the complete canonical documentation. This maintenance removes 374 generated tracked DOCX exports and corrects the current documentation contract; current product source, versions and prior Markdown history remain preserved. Checks cover the exact deletion allowlist, current policy text, committed diff hygiene and affected producer lifecycle where changed. Generated derivatives receive no additional duplicate archive.
+
+
+## D3.3 portable tool maintenance closure — 2026-10-10
+
+The CLOSED child delivers installed portable saw repair and blade sharpening under exact carried-target custody, private file/whetstone acquisition, ordinary kit tending, native measurements, authenticated benefit/damage and saved continuity. Its child record retains native97/7, Controller80/5 plus29 reused controls, category84+45/14, SawLogs63/15 and scoped integration evidence. One integrated first pass and bounded corrections addressed executable-means selection and signed maintenance damage. The existing maintenance contract advances one kohai movement to3.10.1.0-pre-alpha. The whole D3 parent remains OPEN; the pending canonical Neo/GZDS governance amendment remains recorded without interrupting the mod.

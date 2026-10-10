@@ -29,6 +29,7 @@ import zombie.scripting.objects.ScriptModule;
 public final class NativeToolRepairProbe {
     private static ScriptModule module;
     private static CraftRecipe recipe;
+    private static final HashMap<String,CraftRecipe> recipes=new HashMap<>();
     private static Receiver actor;
     private static HandcraftLogic logic;
     private static InventoryItem target, tool, floorTarget;
@@ -76,8 +77,8 @@ public final class NativeToolRepairProbe {
         for(Field field:ScriptManager.class.getDeclaredFields())if(zombie.scripting.ScriptBucketCollection.class.isAssignableFrom(field.getType())){
             field.setAccessible(true);((zombie.scripting.ScriptBucketCollection<?>)field.get(ScriptManager.instance)).registerModule(module);
         }
-        for(String name:List.of("Saw","File","SmallSaw","HacksawBlade")) {
-            Path p=game.resolve("media/scripts/generated/items/"+(name.equals("File")?"weapon":"normal")+".txt");
+        for(String name:List.of("Saw","File","SmallSaw","HacksawBlade","KitchenKnife","HandAxe","Whetstone","CrudeWhetstone")) {
+            Path p=game.resolve("media/scripts/generated/items/"+(List.of("File","KitchenKnife","HandAxe").contains(name)?"weapon":"normal")+".txt");
             // Research UI links require unrelated recipes; they do not supply
             // material/type/tag/condition fields used by this exact recipe.
             String definition=block(p,"item",name).replaceAll("(?im)^\\s*Researchablerecipes\\s*=.*$","");
@@ -85,12 +86,14 @@ public final class NativeToolRepairProbe {
             item.setDisplayName(name); // Controlled translation receiver, no language bootstrap.
             module.items.getScriptMap().put(name,item);
         }
-        recipe=new CraftRecipe();recipe.setModule(module);recipe.InitLoadPP("FixSaw");
         zombie.scripting.objects.TimedActionScript timed=new zombie.scripting.objects.TimedActionScript();timed.setModule(module);timed.InitLoadPP("SharpenBlade");
         timed.Load("SharpenBlade",block(game.resolve("media/scripts/generated/timedactions.txt"),"timedAction","SharpenBlade"));
         module.timedActionScripts.getScriptMap().put("SharpenBlade",timed);
-        recipe.Load("FixSaw",block(game.resolve("media/scripts/generated/recipes/recipes_fixing.txt"),"craftRecipe","FixSaw"));
-        module.craftRecipes.getScriptMap().put("FixSaw",recipe);
+        for(String name:List.of("FixSaw","SharpenBlade","SharpenBladePoorlyWithFile")) {
+            CraftRecipe loaded=new CraftRecipe();loaded.setModule(module);loaded.InitLoadPP(name);
+            loaded.Load(name,block(game.resolve("media/scripts/generated/recipes/recipes_fixing.txt"),"craftRecipe",name));
+            module.craftRecipes.getScriptMap().put(name,loaded);recipes.put("Base."+name,loaded);
+        }
         for(Field field:ScriptManager.class.getDeclaredFields())if(zombie.scripting.ScriptBucketCollection.class.isAssignableFrom(field.getType())){
             field.setAccessible(true);zombie.scripting.ScriptBucketCollection collection=(zombie.scripting.ScriptBucketCollection)field.get(ScriptManager.instance);
             zombie.scripting.ScriptBucket bucket=collection.getBucketFromModule(module);
@@ -101,14 +104,17 @@ public final class NativeToolRepairProbe {
                 if(!collection.getAllScripts().contains(script))collection.getAllScripts().add(script);
             }
         }
-        recipe.OnScriptsLoaded(ScriptLoadMode.Init);
+        for(CraftRecipe loaded:recipes.values())loaded.OnScriptsLoaded(ScriptLoadMode.Init);
         zombie.inventory.ItemTags.Init(ScriptManager.instance.getAllItems());
-        recipe.OnPostWorldDictionaryInit();
-        if(recipe.getInputs().size()!=2 || recipe.getOutputs().size()!=0)
-            throw new IllegalStateException("native FixSaw shape changed");
+        for(CraftRecipe loaded:recipes.values()) {
+            loaded.OnPostWorldDictionaryInit();
+            if(loaded.getInputs().size()!=2 || loaded.getOutputs().size()!=0)throw new IllegalStateException("native maintenance shape changed");
+        }
+        recipe=recipes.get("Base.FixSaw");
         zombie.network.GameServer.server=false;
     }
     private static void reset() throws Exception {
+        recipe=recipes.get("Base.FixSaw");
         actor=(Receiver)unsafe().allocateInstance(Receiver.class);
         actor.inventory=new ItemContainer();actor.history=new PlayerCraftHistory(actor);actor.xp=new XpReceiver(actor);
         // Initialise no map/world/renderer; the native floor refresh handles null square.
@@ -128,7 +134,7 @@ public final class NativeToolRepairProbe {
         if(alternateFloor!=null)containers.add(alternateFloor);
         logic.setContainers(containers);logic.setRecipe(recipe);logic.setManualSelectInputs(true);logic.clearManualInputs();
         for(InputScript input:recipe.getInputs()) {
-            ArrayList<InventoryItem> selected=new ArrayList<>();selected.add(input.isDamaged()?target:tool);
+            ArrayList<InventoryItem> selected=new ArrayList<>();selected.add(input.isDamaged() || input.isSharpenable()?target:tool);
             if(!logic.setManualInputsFor(input,selected))throw new IllegalStateException("native manual inputs refused: "+input.isKeep()
                 +" io="+recipe.containsIO(input)+" item="+selected.get(0).getFullType()+" container="+selected.get(0).getContainer()
                 +" possible="+input.getPossibleInputItems()+" script="+selected.get(0).getScriptItem()
@@ -138,13 +144,31 @@ public final class NativeToolRepairProbe {
     private static Object operation(String op,Object value) throws Exception {
         switch(op) {
             case "reset": reset();return true;
+            case "recipe": recipe=recipes.get((String)value);if(recipe==null)throw new IllegalArgumentException("unsupported recipe");logic=null;return true;
+            case "targetType":
+                actor.inventory.Remove(target);zombie.network.GameServer.server=true;
+                target=module.getItem((String)value).InstanceItem(null);target.setID(701);
+                target.setConditionNoSound(target.getConditionMax());target.setHaveBeenRepaired(3);
+                if(target.hasSharpness())target.setSharpness(0);
+                actor.inventory.AddItemBlind(target);target.setContainer(actor.inventory);items.put(701,target);
+                zombie.network.GameServer.server=false;logic=null;return true;
+            case "toolType":
+                actor.inventory.Remove(tool);zombie.network.GameServer.server=true;
+                tool=module.getItem((String)value).InstanceItem(null);tool.setID(702);tool.setConditionNoSound(Math.min(8,tool.getConditionMax()));
+                actor.inventory.AddItemBlind(tool);tool.setContainer(actor.inventory);items.put(702,tool);
+                zombie.network.GameServer.server=false;logic=null;return true;
+            case "seed":
+                Field randomField=zombie.core.random.RandAbstract.class.getDeclaredField("rand");randomField.setAccessible(true);
+                ((java.util.Random)randomField.get(zombie.core.random.RandStandard.INSTANCE)).setSeed(((Number)value).longValue());return true;
             case "addFloorTarget":
                 zombie.network.GameServer.server=true;floorTarget=module.getItem("Saw").InstanceItem(null);floorTarget.setID(703);floorTarget.setConditionNoSound(1);
                 zombie.network.GameServer.server=false;alternateFloor=new ItemContainer();alternateFloor.setType("floor");
                 alternateFloor.AddItemBlind(floorTarget);floorTarget.setContainer(alternateFloor);return true;
             case "floorTargetUntouched": return alternateFloor!=null && alternateFloor.contains(floorTarget) && floorTarget.getCondition()==1;
             case "skill": skill=((Number)value).intValue();return skill;
-            case "requiredSkill": return zombie.entity.components.crafting.recipe.CraftRecipeManager.hasPlayerRequiredSkill(recipe.getRequiredSkill(0),actor);
+            case "requiredSkill": return recipe.getRequiredSkillCount()==0 || zombie.entity.components.crafting.recipe.CraftRecipeManager.hasPlayerRequiredSkill(recipe.getRequiredSkill(0),actor);
+            case "requiredSkillCount": return recipe.getRequiredSkillCount();
+            case "setSharpness": target.setSharpness(((Number)value).floatValue());return target.getSharpness();
             case "setTargetCondition": target.setConditionNoSound(((Number)value).intValue());return target.getCondition();
             case "setToolCondition": tool.setConditionNoSound(((Number)value).intValue());return tool.getCondition();
             case "setToolWearChance": ((zombie.inventory.types.HandWeapon)tool).setConditionLowerChance(((Number)value).intValue());return true;
@@ -158,6 +182,14 @@ public final class NativeToolRepairProbe {
             case "process": logic.getRecipeData().processDestroyAndUsedItems(actor);return true;
             case "condition": return target.getCondition();
             case "maxCondition": return target.getConditionMax();
+            case "toolMaxCondition": return tool.getConditionMax();
+            case "hasSharpness": return target.hasSharpness();
+            case "sharpness": return target.getSharpness();
+            case "maxSharpness": return target.getMaxSharpness();
+            case "isSharpenable": return target.isSharpenable();
+            case "hasHeadCondition": return target.hasHeadCondition();
+            case "headCondition": return target.getHeadCondition();
+            case "maxHeadCondition": return target.getHeadConditionMax();
             case "repairCount": return target.getHaveBeenRepaired();
             case "toolCondition": return tool.getCondition();
             case "targetHeld": return actor.inventory.contains(target);
