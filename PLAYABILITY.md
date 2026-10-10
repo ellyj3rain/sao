@@ -1,6 +1,6 @@
 | Document | Playability and accumulated capability |
 |---|---|
-| Version | `3.12.0.0-pre-alpha` |
+| Version | `4.0.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PLAYABILITY.md` |
 | Status | CANONICAL - current aggregate product description. |

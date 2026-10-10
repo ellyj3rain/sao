@@ -2804,6 +2804,114 @@ function Ctl.advanceResourcePurpose(id, agent, body, tick, needs)
     return false
 end
 
+function Ctl.generatorContext(id, agent, body, tick, needs, intent)
+    local context = { intent = intent, atHours = SAO.History.countyHours(), tick = tick,
+        position = { x=body:getX(),y=body:getY(),z=body:getZ() }, needs = needs,
+        pressure = math.min(1, math.max(0, needs and needs.hunger or 0) / math.max(.1,SAO.Disposition.eatAt(id))*.5),
+        options = SAO.Generator.options(id, body, intent), sources = {} }
+    local categories = {}
+    for _, option in ipairs(context.options or {}) do
+        if option.materialCategory and not option.inputItemId then categories[option.materialCategory] = true end
+    end
+    for _, category in ipairs({ "generator-manual", "electronics-scrap", "petrol" }) do
+        if categories[category] then
+            for _, source in ipairs(Ctl.resourceContext(id,agent,body,needs or {},category,context.pressure).sources) do
+                if #context.sources < 128 then context.sources[#context.sources+1] = source end
+            end
+        end
+    end
+    return context
+end
+function Ctl.resumePoweredMeal(id, agent, body, tick)
+    if agent.state ~= "IDLE" or agent.resting or not SAO.Cooking or SAO.Needs.busy(body)
+        or not SAO.Needs.ownsRecoveryBody(id,body) or SAO.Identity.get(id) ~= agent.rec
+        or tick < (agent.nextPoweredMealAt or 0) then return false end
+    local meal = SAO.ProceduralPlanning.poweredMeal(id)
+    if not meal then return false end
+    agent.nextPoweredMealAt = tick+600
+    local consumer = meal.consumer
+    if consumer and SAO.WorldSources.generatorConsumerObject
+        and not SAO.WorldSources.generatorConsumerObject(body,consumer) then
+        local target = SAO.WorldSources.generatorConsumerTarget(body,consumer)
+        local x,y,z = tostring(target):match("^READY:(%-?%d+):(%-?%d+):(%-?%d+)$")
+        if not x or SAO.Standing.mayAttemptBelieved(id,tonumber(x),tonumber(y),"standing")~=true then return false end
+        return orderTravelState(agent,id,body,tonumber(x),tonumber(y),tonumber(z),"TRAVEL",
+            "returns to the retained appliance for the original powered meal","need")
+    end
+    local started = SAO.Cooking.begin(id,body,{purposeId=meal.purposeId,purposeStepId=meal.purposeStepId,
+        acquiredItemId=meal.foodItemId,privateFood=true,expectedSourceId=meal.applianceSourceId})
+    if not started then return false end
+    local demand = agent.rec.cookingPowerDemand
+    if demand and demand.requestingPurposeId==meal.purposeId
+        and tostring(demand.foodItemId)==tostring(meal.foodItemId) and demand.foodItemType==meal.foodItemType
+        and demand.applianceSourceId==meal.applianceSourceId and type(demand.consumer)=="table"
+        and (demand.consumer.sourceId or demand.consumer.id)==meal.consumerId then
+        agent.rec.cookingPowerDemand=nil
+    end
+    agent.rec.poweredMealReady=nil
+    agent.nextResourceAt,agent.nextCookAt=0,0
+    setState(agent,id,"COOK","reassesses the original meal after its consumer regained power","need")
+    return true
+end
+function Ctl.advanceGeneratorPurpose(id, agent, body, tick, needs)
+    local planning, owner = SAO.ProceduralPlanning, SAO.Generator
+    if not planning or not planning.planGenerator or not owner or not owner.options or not owner.begin
+        or agent.state ~= "IDLE" or agent.resting or SAO.Needs.busy(body)
+        or SAO.Body.active[id] ~= body or SAO.Body.foreign[id] ~= nil or SAO.Identity.get(id) ~= agent.rec
+        or agent.rec.dead or agent.rec.bodyOwner ~= nil or not body:isExistInTheWorld() or body:isDead()
+        or body:isAsleep() or tick < (agent.nextGeneratorAt or 0) then return false end
+    local retained, current = planning.generatorPurpose(id)
+    if retained and retained.admission then return true end
+    local food, foodStep = planning.resourceDemand(id,"food")
+    local context = food and {purposeId=food.id,acquiredItemId=foodStep and foodStep.acquiredItemId,privateFood=true}
+    local intent = context and SAO.Cooking and SAO.Cooking.powerDemand and SAO.Cooking.powerDemand(id,body,context)
+    intent = intent or agent.rec.cookingPowerDemand or retained and retained.generatorPower
+    if not intent then return false end
+    if retained and intent.consumer and retained.generatorPower.consumer.sourceId == intent.consumer.sourceId then
+        intent.generator = retained.generatorPower.generator
+        intent.rejectedGenerators = retained.generatorPower.rejectedGenerators
+        if intent.generator and intent.rejectedGenerators
+            and intent.rejectedGenerators[intent.generator.sourceId]==intent.generator.fingerprint then
+            intent.generator=nil
+        end
+    end
+    agent.nextGeneratorAt = tick+600
+    if SAO.Perception.observeGenerators then SAO.Perception.observeGenerators(id,body,SAO.History.ticks()) end
+    local purpose, step = planning.planGenerator(id,Ctl.generatorContext(id,agent,body,tick,needs,intent))
+    if not purpose or not step or step.status ~= "available" then return false end
+    if step.owner == "SAO.SourceUse" and step.verb == "acquire" then
+        local started = SAO.SourceUse.beginAcquisition(id,body,step.place,step.category,{
+            purposeId=purpose.id,purposeStepId=step.id,sourceId=step.sourceId,sourceRevision=step.sourceRevision,
+            itemId=step.itemId,itemType=step.itemType})
+        if started then
+            agent.taskDeadline=tick+5400
+            setState(agent,id,"SOURCEWARD","acquires an exact known means for the retained generator","errand")
+            return true
+        end
+    elseif step.owner == "SAO.Study" and step.operation == "learn-generator" then
+        local item, items = nil, SAOJavaBridge:privateCarriedItems(body)
+        if items:size() <= 512 then
+            for index=0,items:size()-1 do
+                local candidate=items:get(index)
+                if tostring(candidate:getID())==step.inputItemId and candidate:getFullType()==step.inputItemType then item=candidate;break end
+            end
+        end
+        if item and SAO.Study.beginGenerator(id,body,item,purpose.id,step.id) then
+            -- Study owns the reading queue while ordinary IDLE arbitration
+            -- retains its admission. Native completion releases that claim.
+            setState(agent,id,"IDLE","reads an exact generator manual for the retained power purpose","errand")
+            return true
+        end
+    elseif step.owner == "SAO.Generator" then
+        if owner.begin(id,body,step,{purposeId=purpose.id,purposeStepId=step.id}) then
+            setState(agent,id,"RESOURCE","works on the retained generator for the intended consumer","errand")
+            return true
+        end
+    end
+    planning.deferGenerator(id,purpose.id,step.id,"the exact generator, consumer or selected means could not be used")
+    return false
+end
+
 -- Retained private prerequisites get a real attempt before undirected rest.
 -- Immediate needs, danger and received shared commitments run before this.
 function Ctl.advancePersonalPurpose(id, agent, body, tick, needs)
@@ -8803,6 +8911,8 @@ local function decide(id, agent, body)
     if agent.state == "IDLE" then
         local advanced = advanceCoordination(id, body, "SAO", "idle", agent)
         if advanced then return end
+        if Ctl.resumePoweredMeal(id, agent, body, tick) then return end
+        if Ctl.advanceGeneratorPurpose(id, agent, body, tick, needs) then return end
         if Ctl.advanceResourcePurpose(id, agent, body, tick, needs) then return end
         if Ctl.advanceResidencePurpose(id, agent, body, tick) then return end
     end

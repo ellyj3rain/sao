@@ -14,7 +14,7 @@ local FRAME_KEYS = { id=true, actorId=true, worldHours=true, hunger=true,
     thirst=true, fatigue=true, eatAt=true, drinkAt=true, foodAllowed=true,
     waterAllowed=true, inspectionAllowed=true, knownFood=true, knownWater=true,
     knownPlaces=true, capabilities=true, priorIntent=true }
-local EVENT_KEYS = { id=true, actorId=true, observerId=true, worldHours=true,
+local EVENT_KEYS = { id=true, actorId=true, observerId=true, worldHours=true, consumerId=true,
     entityId=true, recipeId=true, originalFixtureSourceId=true,
     siteKey=true, siteX=true, siteY=true, siteZ=true, feedsFixture=true,
     kind=true, category=true, sourceId=true, itemType=true, perspective=true,
@@ -61,7 +61,7 @@ for _,machine in ipairs({"ArcadeMachine1","ArcadeMachine2","ArcadeStreetFighter"
 end
 local COLLECTOR_ENTITIES = { ["Base.RainCollector"]=true, ["Base.RainCollectorRound"]=true,
     ["Base.RainCollector_Tarp"]=true, ["Base.RainCollectorRound_Tarp"]=true }
-local EXTENDED = { ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["collector-construction"]=true,
+local EXTENDED = { ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["collector-construction"]=true,
     ["animal-care"]=true, ["window-repair"]=true, ["material-crafting"]=true, ["tool-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -112,6 +112,7 @@ local function occurrencePosition(e)
     local prefix=e.kind=="medication-use" and "medication/"
         or e.kind=="physical-change" and "physical/"
         or e.kind=="preparation" and ("cooking/"..e.actorId.."/")
+        or e.kind=="generator-operation" and ("generator/"..e.actorId.."/")
         or e.kind=="animal-care" and ("animal-care/"..e.actorId.."/")
         or e.kind=="window-repair" and (e.actorId.."/window-result/")
         or e.kind=="material-crafting" and ("resource-production/"..e.actorId.."/")
@@ -162,15 +163,39 @@ local function validFrame(f)
     end
     return f.priorIntent==nil or action(f.priorIntent)
 end
+local GENERATOR_EVENT_KEYS = {id=true, actorId=true, observerId=true, worldHours=true,
+    occurredAtHours=true, kind=true, category=true, sourceId=true, consumerId=true,
+    perspective=true, status=true, actionKind=true, succeeded=true,
+    itemId=true, itemType=true, beforeValue=true, afterValue=true, capabilities=true}
+local GENERATOR_OPERATIONS = {inspect=true, repair=true, fuel=true, connect=true,
+    activate=true, ["verify-power"]=true}
 local function validEvent(e)
     if not plainKeys(e, EVENT_KEYS) or not text(e.id,128)
         or not text(e.actorId,128) or not text(e.observerId,128)
         or not finite(e.worldHours) or e.worldHours<0
         or (e.kind~="inspection" and e.kind~="acquire" and e.kind~="store" and e.kind~="consume" and not EXTENDED[e.kind])
-        or (e.category~="food" and e.category~="water" and e.category~="container" and e.category~="medicine" and e.category~="body" and e.category~="animal" and e.category~="construction" and e.category~="learning" and e.category~="social" and e.category~="leisure")
+        or (e.category~="food" and e.category~="water" and e.category~="container" and e.category~="medicine" and e.category~="body" and e.category~="animal" and e.category~="construction" and e.category~="learning" and e.category~="social" and e.category~="leisure" and e.category~="utilities")
         or (e.status~="completed" and e.status~="no-effect"
             and e.status~="interrupted" and e.status~="unavailable")
         or (e.perspective~="performed" and e.perspective~="observed") then return false end
+    if e.kind=="generator-operation" then
+        if not plainKeys(e, GENERATOR_EVENT_KEYS) or e.category~="utilities"
+            or e.status~="completed" or e.perspective~="performed" or e.actorId~=e.observerId
+            or not finite(e.occurredAtHours) or e.occurredAtHours<0 or e.occurredAtHours>e.worldHours
+            or not occurrencePosition(e) or not text(e.sourceId,160) or e.sourceId:sub(1,2)~="J:"
+            or not text(e.consumerId,160) or e.consumerId:sub(1,2)~="E:"
+            or not GENERATOR_OPERATIONS[e.actionKind] or e.succeeded~=true
+            or e.capabilities~=nil and not capabilities(e.capabilities) then return false end
+        if e.actionKind=="repair" or e.actionKind=="fuel" then
+            local maximum=e.actionKind=="repair" and 100 or 10
+            return finite(e.itemId) and e.itemId==math.floor(e.itemId)
+                and e.itemId>=-2147483648 and e.itemId<=2147483647 and text(e.itemType,160)
+                and finite(e.beforeValue) and finite(e.afterValue) and e.beforeValue>=0
+                and e.afterValue>e.beforeValue and e.afterValue<=maximum
+        end
+        return e.itemId==nil and e.itemType==nil and e.beforeValue==nil and e.afterValue==nil
+    end
+    if e.category=="utilities" or e.consumerId~=nil then return false end
     if e.kind ~= "tool-repair" and (e.effectMetric ~= nil or e.conditionLoss ~= nil or e.headConditionLoss ~= nil) then return false end
     if e.kind ~= "collector-construction" and (e.entityId ~= nil or e.recipeId ~= nil
         or e.originalFixtureSourceId ~= nil or e.siteKey ~= nil or e.siteX ~= nil
@@ -755,6 +780,7 @@ local function rememberPlanEvidence(state, e, yes)
     if e.kind == "acquire" then retain("acquire", e.category, yes)
     elseif e.kind == "preparation" then retain("prepare", "food", true)
     elseif e.kind == "plumbing" then retain("plumb", "construction", true)
+    elseif e.kind == "generator-operation" and e.actionKind=="verify-power" then retain("power", "utilities", true)
     elseif e.kind == "collector-construction" then
         local b = remember(state, planBeliefKey("construct", "construction", e.originalFixtureSourceId, e.entityId),
             "Personally acquired collector construction evidence", true, e)
@@ -836,6 +862,14 @@ local function extendedEvidence(modelId,state,e)
                     relation(state,"vary","body",into..direction,true,e,"medicine")
                 end
             end
+        end
+    elseif e.kind=="generator-operation" then
+        if modelId=="ordinary" then
+            remember(state,"direct:generator:"..e.sourceId..":"..e.consumerId..":"..e.actionKind,
+                "Personally measured generator "..e.actionKind.." for "..e.consumerId,true,e)
+        else
+            relation(state,"operate","generator:"..e.sourceId,"consumer:"..e.consumerId..":"..e.actionKind,
+                true,e,"electrical-systems")
         end
     elseif e.kind=="tool-repair" then
         local improved = e.afterValue>e.beforeValue
@@ -1111,6 +1145,9 @@ local function validConsequences(candidate)
         elseif c.kind == "plumb" then
             if c.category ~= "construction" or not text(c.sourceId,160)
                 or string.sub(c.sourceId,1,2) ~= "F:" or c.condition ~= nil then return false end
+        elseif c.kind == "power" then
+            if c.category~="utilities" or not text(c.sourceId,160) or c.sourceId:sub(1,2)~="J:"
+                or c.condition~=nil or c.itemType~=nil then return false end
         elseif c.kind == "construct" then
             if c.category ~= "construction" or not text(c.sourceId,160)
                 or c.sourceId:sub(1,2) ~= "F:" or not COLLECTOR_ENTITIES[c.itemType]

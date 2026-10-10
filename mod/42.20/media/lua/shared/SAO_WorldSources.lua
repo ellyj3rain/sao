@@ -40,8 +40,8 @@ local MAX_PROJECTION_CHANGES = 2048
 local MAX_ACTION_OPTIONS = 128
 local RESULT_CONSUMER = "provisioning"
 local SOURCE_CATEGORY_ORDER = {
-    "device", "drink", "file", "food", "fuel", "garbage-bag", "glass-pane", "hammer", "instrument", "leisure-material", "medical",
-    "log", "medicine", "memento", "nails", "pipe-wrench", "plank", "reading", "saw", "smokes", "tools",
+    "device", "drink", "electronics-scrap", "file", "food", "fuel", "garbage-bag", "generator-manual", "glass-pane", "hammer", "instrument", "leisure-material", "medical",
+    "log", "medicine", "memento", "nails", "petrol", "pipe-wrench", "plank", "reading", "saw", "smokes", "tools",
     "tarp", "water", "weapons", "whetstone",
 }
 local SOURCE_CATEGORIES = {}
@@ -121,6 +121,7 @@ local function store()
         return nil
     end
     value.sources = value.sources or {}
+    value.utilityFacts = value.utilityFacts or {}
     value.chunks = value.chunks or {}
     value.places = value.places or {}
     value.reservations = value.reservations or {}
@@ -376,6 +377,26 @@ function WS.parse(text)
             local plumbing = raw.plumbing or ""
             if plumbing ~= "" and plumbing ~= "unconnected" and plumbing ~= "connected"
                 or plumbing ~= "" and raw.kind ~= "fluid" then return nil end
+            local utility = raw.kind == "generator" or raw.kind == "power-consumer"
+            local inspected, condition, fuel, maxFuel, connected, active, outside, powered
+            if utility then
+                if raw.id:sub(1,2) ~= (raw.kind == "generator" and "J:" or "E:")
+                    or (raw.inspected ~= "0" and raw.inspected ~= "1") then return nil end
+                inspected = raw.inspected == "1"
+                local function flag(name)
+                    if raw[name] ~= "0" and raw[name] ~= "1" then return nil end
+                    return raw[name] == "1"
+                end
+                if inspected and raw.kind == "generator" then
+                    condition = finiteNumber(raw.condition,0,100,true)
+                    maxFuel = finiteNumber(raw.maxFuel,0.001,1000000,false)
+                    fuel = maxFuel and finiteNumber(raw.fuel,0,maxFuel,false)
+                    connected,active,outside = flag("connected"),flag("active"),flag("outside")
+                    if condition == nil or fuel == nil or connected == nil or active == nil or outside == nil then return nil end
+                elseif inspected then
+                    powered = flag("powered"); if powered == nil then return nil end
+                elseif raw.condition or raw.fuel or raw.maxFuel or raw.connected or raw.active or raw.outside or raw.powered then return nil end
+            elseif raw.inspected or raw.powered then return nil end
             current = {
                 id = raw.id,
                 fingerprint = raw.fp,
@@ -388,6 +409,8 @@ function WS.parse(text)
                 access = raw.access or "unknown",
                 container = raw.container or "",
                 plumbing = plumbing,
+                inspected=inspected,condition=condition,fuel=fuel,maxFuel=maxFuel,
+                connected=connected,active=active,outside=outside,powered=powered,
                 quantities = {}, items = {}, itemOrder = {},
             }
             for key, value in pairs(raw) do
@@ -541,6 +564,8 @@ local function copyObservation(source, header)
         access = source.access,
         container = source.container,
         plumbing = source.plumbing or "",
+        inspected=source.inspected,condition=source.condition,fuel=source.fuel,maxFuel=source.maxFuel,
+        connected=source.connected,active=source.active,outside=source.outside,powered=source.powered,
         quantities = source.quantities,
         items = source.items,
         itemOrder = source.itemOrder,
@@ -1013,6 +1038,8 @@ local function beliefFact(source)
         state = source.state, access = source.access,
         container = source.container, quantities = {}, candidates = {},
         plumbing = source.plumbing or "",
+        inspected=source.inspected,condition=source.condition,fuel=source.fuel,maxFuel=source.maxFuel,
+        connected=source.connected,active=source.active,outside=source.outside,powered=source.powered,
     }
     for category, quantity in pairs(source.quantities or {}) do
         fact.quantities[category] = quantity
@@ -1101,8 +1128,18 @@ function WS.beliefSnapshot(place)
 end
 
 
-function WS.beliefFact(sourceId, observationKind)
+function WS.beliefFact(sourceId, observationKind, actorId)
     local value = store()
+    local utility = tostring(sourceId or ""):sub(1,2)
+    if utility == "J:" or utility == "E:" then
+        local facts = value and value.utilityFacts and value.utilityFacts[tostring(actorId or "")]
+        local fact = facts and facts[tostring(sourceId)]
+        if not fact then return nil end
+        local copy = {}
+        for key,item in pairs(fact) do if type(item) ~= "table" then copy[key]=item end end
+        copy.quantities,copy.candidates={},{}
+        return copy
+    end
     local source = value and value.sources[tostring(sourceId or "")]
     if observationKind == "visible-ground" then
         if not source or source.kind ~= "ground" then return nil end
@@ -1114,7 +1151,7 @@ function WS.beliefFact(sourceId, observationKind)
             if item then
                 fact.visibleItem={id=item.id,type=item.type}
                 for _, category in ipairs({"reading","instrument","leisure-material",
-                    "glass-pane","hammer","plank","nails","log","saw","file","whetstone","pipe-wrench","garbage-bag","tarp"}) do
+                    "glass-pane","hammer","plank","nails","log","saw","file","whetstone","pipe-wrench","garbage-bag","tarp","electronics-scrap","petrol","generator-manual"}) do
                     if item.categories[category] then
                         fact.quantities[category]=1
                         fact.candidates[category]={id=item.id,type=item.type,categories={[category]=true}}
@@ -1687,6 +1724,123 @@ end
 
 -- A native observation writer, not an option query. Each packet contains one
 -- personally visible loose item; omitted chunk contents retain their evidence.
+local function utilityFact(source, header)
+    local fact = beliefFact(copyObservation(source, header))
+    fact.sourceId=source.id
+    fact.chunkX,fact.chunkY=math.floor(source.x/CHUNK_SIZE),math.floor(source.y/CHUNK_SIZE)
+    return fact
+end
+local function utilityPacket(encoded,kind)
+    local snapshot=WS.parse(encoded)
+    if not snapshot or (snapshot.header.status~="OBSERVED" and snapshot.header.status~="HYDRATED") then return nil end
+    for _,source in ipairs(snapshot.ordered) do if source.kind~=kind then return nil end end
+    return snapshot
+end
+function WS.generatorCandidates(body)
+    if not SAOJavaBridge then return {} end
+    local ok,encoded=pcall(function()return SAOJavaBridge:worldGeneratorCandidates(body)end)
+    local snapshot=ok and utilityPacket(encoded,"generator") or nil
+    local out={}
+    for _,source in ipairs(snapshot and snapshot.ordered or{}) do out[#out+1]=utilityFact(source,snapshot.header) end
+    return out
+end
+function WS.generatorConsumer(body,object)
+    if not SAOJavaBridge then return nil end
+    local ok,encoded=pcall(function()return SAOJavaBridge:worldGeneratorConsumer(body,object)end)
+    local snapshot=ok and utilityPacket(encoded,"power-consumer") or nil
+    return snapshot and #snapshot.ordered==1 and utilityFact(snapshot.ordered[1],snapshot.header) or nil
+end
+local function utilityCoordinates(fact,prefix)
+    return type(fact)=="table" and type(fact.sourceId or fact.id)=="string"
+        and (fact.sourceId or fact.id):sub(1,2)==prefix and type(fact.fingerprint)=="string"
+        and type(fact.revision)=="string" and finiteNumber(fact.x,-2147483647,2147483647,true)~=nil
+        and finiteNumber(fact.y,-2147483647,2147483647,true)~=nil
+        and finiteNumber(fact.z,-2147483647,2147483647,true)~=nil
+end
+function WS.generatorTarget(body,fact,operation)
+    if not SAOJavaBridge or not utilityCoordinates(fact,"J:") then return nil end
+    local ok,value=pcall(function()return SAOJavaBridge:worldGeneratorTarget(body,fact.sourceId or fact.id,
+        fact.fingerprint,fact.revision,fact.x,fact.y,fact.z,operation)end)
+    return ok and value or nil
+end
+function WS.generatorObject(body,fact,operation)
+    if not SAOJavaBridge or not utilityCoordinates(fact,"J:") then return nil end
+    local ok,value=pcall(function()return SAOJavaBridge:worldGeneratorObject(body,fact.sourceId or fact.id,
+        fact.fingerprint,fact.revision,fact.x,fact.y,fact.z,operation)end)
+    return ok and value or nil
+end
+function WS.generatorValid(body,object,fact,operation)
+    if not SAOJavaBridge or not utilityCoordinates(fact,"J:") then return false end
+    local ok,value=pcall(function()return SAOJavaBridge:worldGeneratorValid(body,object,fact.sourceId or fact.id,
+        fact.fingerprint,fact.x,fact.y,fact.z,operation)end)
+    return ok and value==true
+end
+function WS.generatorConsumerPowered(body,generator,consumer)
+    if not SAOJavaBridge or not utilityCoordinates(consumer,"E:") then return false end
+    local ok,value=pcall(function()return SAOJavaBridge:worldGeneratorConsumerPowered(body,generator,consumer.sourceId or consumer.id,
+        consumer.fingerprint,consumer.x,consumer.y,consumer.z)end)
+    return ok and value==true
+end
+function WS.generatorConsumerTarget(body,consumer)
+    if not SAOJavaBridge or not utilityCoordinates(consumer,"E:") then return nil end
+    local ok,value=pcall(function()return SAOJavaBridge:worldGeneratorConsumerTarget(body,consumer.sourceId or consumer.id,
+        consumer.fingerprint,consumer.revision,consumer.x,consumer.y,consumer.z)end)
+    return ok and value or nil
+end
+function WS.generatorConsumerObject(body,consumer)
+    if not SAOJavaBridge or not utilityCoordinates(consumer,"E:") then return nil end
+    local ok,value=pcall(function()return SAOJavaBridge:worldGeneratorConsumerObject(body,consumer.sourceId or consumer.id,
+        consumer.fingerprint,consumer.revision,consumer.x,consumer.y,consumer.z)end)
+    return ok and value or nil
+end
+local function utilityObserver(actorId,body)
+    local record=inspectionActor(actorId,body) and SAO.Identity.get(actorId)
+    if not record or record.bodyOwner~=nil or record.zaoTransferPending or record.crossedTransferPending
+        or SAO.Body.active and SAO.Body.active[actorId]~=body
+        or SAO.Body.foreign and SAO.Body.foreign[actorId]~=nil then return false end
+    local ok,valid=pcall(function()
+        local md=body:getModData()
+        return tostring(md.SAOPersonId or "")==actorId and md.SAOExternalOwner==nil
+            and md.SAOExternalToken==record.bodyOwnerToken and md.ZAOOwned~=true
+            and body:isExistInTheWorld() and not body:isDead() and not body:isAsleep()
+    end)
+    return ok and valid
+end
+local function registerUtility(actorId,body,fact)
+    if not utilityObserver(actorId,body) or not fact then return nil end
+    local value=store();if not value then return nil end
+    value.utilityFacts[actorId]=value.utilityFacts[actorId] or{}
+    local facts=value.utilityFacts[actorId]
+    fact.observedAt,fact.actorId=nowHours(),actorId
+    -- A farther sighting does not overwrite already acquired machine information.
+    local prior=facts[fact.sourceId]
+    if not (prior and prior.fingerprint==fact.fingerprint and prior.inspected==true and fact.inspected~=true) then
+        facts[fact.sourceId]=fact
+    end
+    local count=0;for _ in pairs(facts)do count=count+1 end
+    while count>MAX_ACTION_OPTIONS do
+        local oldestKey,oldest
+        for key,row in pairs(facts)do if key~=fact.sourceId and(not oldest or(row.observedAt or 0)<oldest) then oldestKey,oldest=key,row.observedAt or 0 end end
+        if not oldestKey then break end;facts[oldestKey]=nil;count=count-1
+    end
+    return {id="source:"..fact.sourceId,sourceId=fact.sourceId,cx=fact.x+.5,cy=fact.y+.5,z=fact.z,
+        minX=fact.x,minY=fact.y,maxX=fact.x+1,maxY=fact.y+1}
+end
+function WS.observeGenerators(actorId,body)
+    actorId=tostring(actorId or "")
+    if not utilityObserver(actorId,body) then return {} end
+    local out={}
+    for _,fact in ipairs(WS.generatorCandidates(body))do
+        local anchor=registerUtility(actorId,body,fact);if anchor then out[#out+1]=anchor end
+    end
+    return out
+end
+function WS.observeGeneratorConsumer(actorId,body,object)
+    actorId=tostring(actorId or "")
+    if not utilityObserver(actorId,body) then return nil end
+    return registerUtility(actorId,body,WS.generatorConsumer(body,object))
+end
+
 function WS.observeVisibleGround(actorId, body)
     if not inspectionActor(tostring(actorId or ""), body) or not SAO.Needs
         or not SAO.Needs.ownsRecoveryBody or not SAO.Needs.ownsRecoveryBody(actorId,body) then return {} end
@@ -2667,7 +2821,9 @@ end
 -- The durable WorldSources table remains the authority: material projection
 -- may retain this copy, but it cannot mutate or alias the observation ledger.
 -- A conflicted source is withheld until native observation resolves it.
-function WS.sourceProjection(id)
+function WS.sourceProjection(id, actorId)
+    local prefix=tostring(id or ""):sub(1,2)
+    if prefix=="J:" or prefix=="E:" then return WS.beliefFact(id,nil,actorId) end
     local value = store()
     if not value then return nil, "store-unavailable" end
     id = tostring(id or "")
@@ -2687,6 +2843,8 @@ function WS.sourceProjection(id)
         access = source.access,
         container = source.container,
         plumbing = source.plumbing or "",
+        inspected=source.inspected,condition=source.condition,fuel=source.fuel,maxFuel=source.maxFuel,
+        connected=source.connected,active=source.active,outside=source.outside,powered=source.powered,
         observedAt = source.observedAt,
         provenance = source.provenance,
         quantities = {}, items = {}, itemOrder = {},

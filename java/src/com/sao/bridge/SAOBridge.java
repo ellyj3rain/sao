@@ -1869,6 +1869,7 @@ public final class SAOBridge {
                     || category.equals("hammer") || category.equals("plank")
                     || category.equals("pipe-wrench")
                     || category.equals("garbage-bag") || category.equals("tarp")
+                    || category.equals("electronics-scrap") || category.equals("petrol") || category.equals("generator-manual")
                     || category.equals("nails") || category.equals("log")
                     || category.equals("saw") || category.equals("file")
                     || category.equals("whetstone"))) return 0;
@@ -4409,6 +4410,66 @@ public final class SAOBridge {
             SAOAgent.log("worldPlumbValid threw: " + throwable);
             return false;
         }
+    }
+
+    public String worldGeneratorCandidates(Object object) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.generatorCandidates(shell) : "";
+        } catch (Throwable throwable) { SAOAgent.log("worldGeneratorCandidates threw: " + throwable); return ""; }
+    }
+
+    public String worldGeneratorTarget(Object object, String id, String fingerprint, String revision,
+            double x, double y, double z, String operation) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell shell && integralUtilityCoordinates(x,y,z)
+            ? com.sao.engine.SAOWorldSources.generatorTarget(shell,id,fingerprint,revision,(int)x,(int)y,(int)z,operation) : "BAD_GENERATOR_REQUEST";
+        } catch (Throwable throwable) { SAOAgent.log("worldGeneratorTarget threw: " + throwable); return "FAILED"; }
+    }
+
+    public Object worldGeneratorObject(Object object, String id, String fingerprint, String revision,
+            double x, double y, double z, String operation) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell shell && integralUtilityCoordinates(x,y,z)
+            ? com.sao.engine.SAOWorldSources.generatorObject(shell,id,fingerprint,revision,(int)x,(int)y,(int)z,operation) : null;
+        } catch (Throwable throwable) { SAOAgent.log("worldGeneratorObject threw: " + throwable); return null; }
+    }
+
+    public boolean worldGeneratorValid(Object object, Object target, String id, String fingerprint,
+            double x, double y, double z, String operation) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell shell && target instanceof zombie.iso.objects.IsoGenerator generator
+            && integralUtilityCoordinates(x,y,z) && com.sao.engine.SAOWorldSources.generatorValid(shell,generator,id,fingerprint,(int)x,(int)y,(int)z,operation);
+        } catch (Throwable throwable) { SAOAgent.log("worldGeneratorValid threw: " + throwable); return false; }
+    }
+
+    public boolean worldGeneratorConsumerPowered(Object object, Object target, String id, String fingerprint,
+            double x, double y, double z) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell shell && target instanceof zombie.iso.objects.IsoGenerator generator
+            && integralUtilityCoordinates(x,y,z) && com.sao.engine.SAOWorldSources.generatorConsumerPowered(shell,generator,id,fingerprint,(int)x,(int)y,(int)z);
+        } catch (Throwable throwable) { SAOAgent.log("worldGeneratorConsumerPowered threw: " + throwable); return false; }
+    }
+
+    public String worldGeneratorConsumer(Object object, Object target) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell shell && target instanceof zombie.iso.IsoObject consumer
+            ? com.sao.engine.SAOWorldSources.generatorConsumer(shell,consumer) : "";
+        } catch (Throwable throwable) { SAOAgent.log("worldGeneratorConsumer threw: " + throwable); return ""; }
+    }
+
+    private boolean integralUtilityCoordinates(double x, double y, double z) {
+        return Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)
+            && x == Math.rint(x) && y == Math.rint(y) && z == Math.rint(z)
+            && Math.abs(x) <= Integer.MAX_VALUE && Math.abs(y) <= Integer.MAX_VALUE && Math.abs(z) <= Integer.MAX_VALUE;
+    }
+
+    public String worldGeneratorConsumerTarget(Object object, String id, String fingerprint, String revision,
+            double x, double y, double z) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell shell && integralUtilityCoordinates(x,y,z)
+            ? com.sao.engine.SAOWorldSources.generatorConsumerTarget(shell,id,fingerprint,revision,(int)x,(int)y,(int)z) : "BAD_CONSUMER_REQUEST";
+        } catch (Throwable throwable) { SAOAgent.log("worldGeneratorConsumerTarget threw: " + throwable); return "FAILED"; }
+    }
+
+    public Object worldGeneratorConsumerObject(Object object, String id, String fingerprint, String revision,
+            double x, double y, double z) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell shell && integralUtilityCoordinates(x,y,z)
+            ? com.sao.engine.SAOWorldSources.generatorConsumerObject(shell,id,fingerprint,revision,(int)x,(int)y,(int)z) : null;
+        } catch (Throwable throwable) { SAOAgent.log("worldGeneratorConsumerObject threw: " + throwable); return null; }
     }
 
     public String worldCollectorSites(Object object) {

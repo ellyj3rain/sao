@@ -25,8 +25,8 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.12.0.0-pre-alpha` |
-| Classified delivered scope | `A1-D3.5` |
+| Current version | `4.0.0.0-pre-alpha` |
+| Classified delivered scope | `A1-D3.6` |
 | Current C generation | `20261005-product-consolidation` |
 | Unconsumed scope | `D3` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
@@ -215,6 +215,7 @@ the machine. Names, dates, and threads below come from
 | `D3.3` | 2026-10-10 | kohai | `3.10.1.0-pre-alpha` | Portable tool maintenance | Portable blade sharpening and ordinary kit tending extend the existing exact held-tool maintenance contract through private file/whetstone means, native metric-specific benefits and damage, authenticated experience and saved continuity. The OPEN D3 parent receives no duplicate credit. |
 | `D3.4` | 2026-10-10 | minor | `3.11.0.0-pre-alpha` | Plumbing to usable water | Native plumbing establishes private fixture and pipe-wrench admission, installed connection, measured connection-result authority, handled-source refresh and actual usable water under the same hydration purpose. The OPEN D3 parent receives no duplicate credit. |
 | `D3.5` | 2026-10-10 | minor | `3.12.0.0-pre-alpha` | Rain-collector construction | Native world-entity construction establishes registered collector recipes, exact manual inputs and private acquisition, personally observed placement, measured native construction and authenticated result/persistence contracts feeding the existing rain/plumbing/usable-water purpose. The OPEN D3 parent receives no duplicate credit. |
+| `D3.6` | 2026-10-10 | minor | `4.0.0.0-pre-alpha` | Generator to usable power | Native generator operation establishes private machinery/consumer identities, acquired operating knowledge, exact repair/fuel/connection/activation ownership, reached consumer power and retained original activity with authenticated results and recovery. The OPEN D3 parent receives no duplicate credit. |
 
 Dotted labels record child scope. Each capability row above receives credit once;
 child delivery leaves its explicitly active parent open. Closed parent aggregation
@@ -338,6 +339,6 @@ another batch. Subsequent delivered work determines its own tier:
 
 | If newly delivered scope is | Result |
 |---|---|
-| patch or hotfix | `3.12.0.1-pre-alpha` |
-| kohai | `3.12.1.0-pre-alpha` |
-| minor | `4.0.0.0-pre-alpha` |
+| patch or hotfix | `4.0.0.1-pre-alpha` |
+| kohai | `4.0.1.0-pre-alpha` |
+| minor | `4.1.0.0-pre-alpha` |

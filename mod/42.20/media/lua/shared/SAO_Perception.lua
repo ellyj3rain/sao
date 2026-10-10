@@ -1803,6 +1803,7 @@ function P.observe(id, body, tick, asleep)
         pcall(function() observeOccupiedBuilding(id, body, tick) end)
         pcall(function() P.observeConcepts(id, body, tick) end)
         pcall(function() P.observeLooseItems(id, body, tick) end)
+        pcall(function() P.observeGenerators(id, body, tick) end)
     end
 
     if not SAOJavaBridge then return end
@@ -3501,7 +3502,7 @@ function P.learnSource(id, place, sourceId, tick, source)
     belief.sourceFacts = belief.sourceFacts or {}
     belief.sourceFacts[tostring(sourceId)] = nil
     local fact = nil
-    pcall(function() fact = SAO.WorldSources.beliefFact(sourceId) end)
+    pcall(function() fact = SAO.WorldSources.beliefFact(sourceId, nil, id) end)
     local belongs = fact and (fact.buildingId == tostring(place.id)
         or (fact.kind == "vehicle" and place.minX and place.minY
             and place.maxX and place.maxY
@@ -3521,7 +3522,7 @@ end
 function P.learnInspectedSource(id, place, sourceId, tick, source)
     if not place or place.id == nil or not sourceId then return false end
     local fact = SAO.WorldSources and SAO.WorldSources.beliefFact(sourceId,
-        source == "native-visible-ground" and "visible-ground" or nil)
+        source == "native-visible-ground" and "visible-ground" or nil, id)
     if not fact then return false end
     local belongs = tostring(fact.buildingId) == tostring(place.id)
         or tostring(place.sourceId or "") == tostring(sourceId)
@@ -3574,6 +3575,29 @@ function P.observeLooseItems(id, body, tick)
         P.learnInspectedSource(id, anchor, anchor.sourceId, tick, "native-visible-ground")
     end
     return #rows > 0
+end
+
+-- Generator identity is visible knowledge; condition and fuel require native
+-- reached inspection. These native source anchors disclose no nearby stock.
+function P.observeGenerators(id, body, tick)
+    local world = SAO.WorldSources
+    if not world or not world.observeGenerators then return false end
+    local current = SAO.History and SAO.History.ticks and SAO.History.ticks()
+    if not finiteSoundNumber(current) or tick ~= nil and tick ~= current then return false end
+    local rows = world.observeGenerators(id, body)
+    for _, anchor in ipairs(rows or {}) do
+        P.learnInspectedSource(id, anchor, anchor.sourceId, current, "native-visible-generator")
+    end
+    return #(rows or {}) > 0
+end
+function P.rememberGeneratorConsumer(id, body, object)
+    local world = SAO.WorldSources
+    if not world or not world.observeGeneratorConsumer then return false end
+    local tick = SAO.History and SAO.History.ticks and SAO.History.ticks()
+    if not finiteSoundNumber(tick) then return false end
+    local anchor = world.observeGeneratorConsumer(id, body, object)
+    if not anchor then return false end
+    return P.learnInspectedSource(id, anchor, anchor.sourceId, tick, "native-reached-consumer")
 end
 
 -- Visibility acquires an exact holder's geometry, never its inventory. The

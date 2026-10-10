@@ -3,6 +3,7 @@
 require "SAO_Pharmacology"
 require "SAO_Cooking"
 require "SAO_ResourceProduction"
+require "SAO_Generator"
 require "SAO_Cognition"
 
 SAO.Pharmacology.onNativeOutcome = function(id, receipt)
@@ -51,6 +52,19 @@ end
 -- nor evidence of bodily relief. The result owner retains its richer proof.
 local function finiteAmount(value)
     return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
+end
+if SAO.Generator then
+SAO.Generator.onOutcome = function(id, receipt)
+    local canonical = receipt and SAO.Generator.outcome(id, receipt.id)
+    if not canonical then return false end
+    if SAO.ProceduralPlanning and SAO.ProceduralPlanning.consumeGeneratorOutcome then
+        pcall(SAO.ProceduralPlanning.consumeGeneratorOutcome, id, canonical.sequence)
+    end
+    if SAO.Cognition and SAO.Cognition.generatorOutcome then
+        return SAO.Cognition.generatorOutcome(id, canonical)
+    end
+    return false
+end
 end
 SAO.ResourceProduction.onOutcome = function(id, receipt)
     local canonical = receipt and SAO.ResourceProduction.outcome(id, receipt.id)

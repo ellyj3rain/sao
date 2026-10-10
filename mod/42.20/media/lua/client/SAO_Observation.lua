@@ -689,6 +689,18 @@ local function planning(id, rec)
         if #(purpose.blockers or {}) > 0 then
             row(s, "Blocked by", table.concat(purpose.blockers, ", "))
         end
+        if purpose.generatorPower then
+            local utility = purpose.generatorPower
+            row(s, "Power needed for", utility.requestingActivity or "Intended use")
+            row(s, "Consumer", utility.consumer and utility.consumer.sourceId or "Unknown")
+            row(s, "Generator", utility.generator and utility.generator.sourceId or "Seeking a known generator")
+            local sequence = {}
+            for stepIndex, step in ipairs(purpose.sequence or {}) do
+                if stepIndex > 6 then break end
+                sequence[#sequence+1] = tostring(step.operation or step.verb) .. " (" .. tostring(step.status) .. ")"
+            end
+            row(s, "Utility work", #sequence>0 and table.concat(sequence, " > ") or "No known executable route")
+        end
         if purpose.resourceCategory then
             local demand, capacity = purpose.demand or {}, purpose.capacity or {}
             row(s, "Resource goal", tostring(purpose.resourceCategory) .. " / pressure "

@@ -353,8 +353,12 @@ def main() -> int:
         ("receipt token", 'step.token ~= result.token', 'false', "mismatched_result_cannot_advance"),
         ("private spatial store", 'function P.rememberSpatial(id, fact)\n    local s = state(id, true)',
          'function P.rememberSpatial(id, fact)\n    local s = state("a", true)', "spatial_knowledge_is_person_private"),
-        ("exact acquisition revision", 'or step.sourceId ~= authoritative.sourceId or step.sourceRevision ~= authoritative.preRevision',
-         'or step.sourceId ~= authoritative.sourceId', "d3_wrong_revision_result_refused"),
+        ("exact acquisition revision", 'if purpose.materialWork and (step.owner ~= "SAO.SourceUse" or step.verb ~= "acquire"\n'
+         '        or step.token ~= "resource:acquired" or admission.owner ~= "SAO.SourceUse"\n'
+         '        or step.sourceId ~= authoritative.sourceId or step.sourceRevision ~= authoritative.preRevision',
+         'if purpose.materialWork and (step.owner ~= "SAO.SourceUse" or step.verb ~= "acquire"\n'
+         '        or step.token ~= "resource:acquired" or admission.owner ~= "SAO.SourceUse"\n'
+         '        or step.sourceId ~= authoritative.sourceId', "d3_wrong_revision_result_refused"),
         ("material acquisition authority", 'or authority ~= RESOURCE_RESULT) then return false end',
          ') then return false end', "d3_forged_admitted_acquisition_refused"),
         ("native nail consumption", 'result.plankConsumed ~= true or result.nailsConsumed ~= 2',

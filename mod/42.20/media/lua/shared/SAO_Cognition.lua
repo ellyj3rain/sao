@@ -355,7 +355,7 @@ local KINDS = { inspection = true, acquire = true, store = true, consume = true 
 local HOBBY_KINDS={ ["leisure-meditation"]=true,["leisure-exercise"]=true,
     ["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true }
-local EXTENDED = { ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true, ["collector-construction"] = true,
+local EXTENDED = { ["generator-operation"] = true, ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true, ["collector-construction"] = true,
     ["animal-care"] = true, ["window-repair"] = true, ["material-crafting"] = true, ["tool-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -432,7 +432,7 @@ local function sameData(a, b)
 end
 local BEHAVIOR_RESULT = {}
 function C.experience(id, supplied, authority)
-    if type(supplied)=="table" and (supplied.kind=="collector-construction" or supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
+    if type(supplied)=="table" and (supplied.kind=="generator-operation" or supplied.kind=="collector-construction" or supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
         and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
     local now = clock()
     if not C.settings().enabled or not now then return false, "disabled" end
@@ -1266,6 +1266,67 @@ function C.collectorConstructionOutcome(id, receipt)
     x.siteKey, x.siteX, x.siteY, x.siteZ = receipt.siteKey, receipt.siteX, receipt.siteY, receipt.siteZ
     x.feedsFixture = receipt.feedsFixture
     return nativeExperience(id, "collector-construction", receipt.sequence, x)
+end
+
+-- The generator owner retains physical evidence. Models receive the exact
+-- performed operation, without food, recreation or bodily relief credit.
+function C.generatorOutcome(id, receipt)
+    local now = clock()
+    if not now or type(receipt)~="table" or receipt.actorId~=id
+        or not finite(receipt.sequence,1,9007199254740991) or receipt.sequence~=math.floor(receipt.sequence)
+        or receipt.id~="generator/"..id.."/"..tostring(receipt.sequence)
+        or not finite(receipt.atHours,0,now) or not finite(receipt.startedAt,0,receipt.atHours) then return false end
+    local owner=SAO.Generator
+    local canonical=owner and owner.outcome and owner.outcome(id,receipt.id)
+    if not canonical or not sameData(canonical,receipt) then return false,"generator-owner-unavailable" end
+    if receipt.status~="completed" then return true,"unfinished-utility-retained-by-planner" end
+    local tokens={inspect="utility:generator-inspected",repair="utility:generator-repaired",
+        fuel="utility:generator-fuelled",connect="utility:generator-connected",
+        activate="utility:generator-activated",["verify-power"]="utility:consumer-powered"}
+    local operation=receipt.operation
+    local nativeOwners={inspect="ISGeneratorInfoAction/SAO.Generator",repair="ISFixGenerator",
+        fuel="ISAddFuel",connect="ISPlugGenerator",activate="ISActivateGenerator",
+        ["verify-power"]="SAO.Generator/NativePower"}
+    if not tokens[operation] or receipt.token~=tokens[operation] or receipt.nativeCredit~=receipt.id
+        or receipt.nativeOwner~=nativeOwners[operation]
+        or receipt.nativeCompleted~=true or not text(receipt.sourceId,160) or receipt.sourceId:sub(1,2)~="J:"
+        or not text(receipt.consumerId,160) or receipt.consumerId:sub(1,2)~="E:" then return false end
+    local x=privateFact(id,"generator-operation","utilities",receipt.id,now,receipt.atHours)
+    x.sourceId,x.consumerId,x.actionKind,x.succeeded=receipt.sourceId,receipt.consumerId,operation,true
+    if operation=="repair" or operation=="fuel" then
+        local itemId=tonumber(receipt.inputItemId)
+        if receipt.nativeAttempted~=true or not finite(itemId,-2147483648,2147483647)
+            or itemId~=math.floor(itemId) or not text(receipt.inputItemType,160) then return false end
+        x.itemId,x.itemType=itemId,receipt.inputItemType
+        if operation=="repair" then
+            if receipt.inputConsumed~=true or receipt.inputItemType~="Base.ElectronicsScrap"
+                or not finite(receipt.beforeCondition,0,100) or not finite(receipt.afterCondition,0,100)
+                or receipt.afterCondition<=receipt.beforeCondition then return false end
+            x.beforeValue,x.afterValue=receipt.beforeCondition,receipt.afterCondition
+        else
+            if receipt.inputRetained~=true or not finite(receipt.beforeFuel,0,10)
+                or not finite(receipt.afterFuel,0,10) or receipt.afterFuel<=receipt.beforeFuel
+                or not finite(receipt.beforeInputAmount,0,1000000000)
+                or not finite(receipt.afterInputAmount,0,receipt.beforeInputAmount)
+                or receipt.afterInputAmount>=receipt.beforeInputAmount
+                or math.abs((receipt.afterFuel-receipt.beforeFuel)
+                    -(receipt.beforeInputAmount-receipt.afterInputAmount))>0.0001 then return false end
+            x.beforeValue,x.afterValue=receipt.beforeFuel,receipt.afterFuel
+        end
+    elseif operation=="connect" then
+        if receipt.nativeAttempted~=true or receipt.beforeConnected~=false or receipt.afterConnected~=true then return false end
+    elseif operation=="activate" then
+        if receipt.nativeAttempted~=true or receipt.outside~=true
+            or receipt.beforeActive~=false or receipt.afterActive~=true then return false end
+    elseif operation=="verify-power" then
+        if receipt.sourceCovered~=true or receipt.consumerPowered~=true then return false end
+    elseif operation=="inspect" then
+        local fact=receipt.generatorAfter
+        if type(fact)~="table" or fact.inspected~=true or fact.sourceId~=receipt.sourceId
+            or not finite(fact.condition,0,100) or not finite(fact.fuel,0,10)
+            or type(fact.connected)~="boolean" or type(fact.active)~="boolean" then return false end
+    end
+    return nativeExperience(id,"generator-operation",receipt.sequence,x)
 end
 
 function C.preparationOutcome(id, receipt)

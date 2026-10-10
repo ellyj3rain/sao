@@ -2802,6 +2802,24 @@ if ! "$PY" tools/d3_plumbing_controller_test.py --collector-only --out "$sao_d3_
     note "BORDER FINDING - private collector construction or retained usable-water continuation differs"
     fail=1
 fi
+# D3.6 - personally intended appliance use retains native generator means,
+# operation and exact consumer power under one utility purpose.
+if ! "$PY" tools/d36_generator_sources_test.py --out "$sao_d3_proof/generator-sources"; then
+    note "BORDER FINDING - private generator sources, materials or native consumer power differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_generator_native_test.py --out "$sao_d3_proof/generator-native"; then
+    note "BORDER FINDING - native generator operation, learning or physical custody differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_generator_controller_test.py --out "$sao_d3_proof/generator-controller"; then
+    note "BORDER FINDING - private generator purpose or original activity continuation differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_generator_demand_test.py --out "$sao_d3_proof/generator-demand"; then
+    note "BORDER FINDING - reached power demand or authenticated private utility experience differs"
+    fail=1
+fi
 # Border 220 - shared native regions retain separate pixels, residency centers,
 # infrastructure exclusion and sealed lifecycle evidence under one world clock.
 if ! "$PY" tools/regional_observer_test.py; then

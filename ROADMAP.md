@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.12.0.0-pre-alpha` |
+| Version | `4.0.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -9,7 +9,7 @@
 
 Development extends the delivered mechanics, Speakeasy training and runtime
 integration while play exercises the aggregate build. D1 is CLOSED and merged;
-D2 Leisure is CLOSED, and D3 construction/crafting/repair/utilities is next.
+D2 Leisure is CLOSED, and D3 construction/crafting/repair/utilities is active and OPEN.
 Concrete missing or defective producers retain their owning work.
 SESSION_STATE.md states the current product and FIFO.
 
@@ -91,7 +91,7 @@ success batches, maximize substantive completion through the run, and inform Pic
 through Slack when logging off. The endpoint is the acquired-learning outcome
 below. Supporting repairs remain inside their product outcome. Future rows are
 planned scope; a row becomes the active batch when its predecessor closes.
-D1 and D2 are CLOSED. D3 is next; protected publication follows its existing
+D1 and D2 are CLOSED. D3 is active and OPEN; protected publication follows its existing
 branch/PR procedure, and later improvements link back to delivered products.
 
 These labels name coherent product outcomes. Scope is refined against the whole

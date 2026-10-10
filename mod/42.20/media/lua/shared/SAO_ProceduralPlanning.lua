@@ -19,6 +19,8 @@ local REPAIR_RESULT = {}
 local INSTRUMENT_RESULT = {}
 local NOTE_RESULT = {}
 local HOBBY_RESULT = {}
+local GENERATOR_RESULT = {}
+local GENERATOR_READING_RESULT = {}
 
 local MAX_PURPOSES, MAX_FACTS, MAX_EVENTS = 12, 64, 32
 local MAX_RESIDENCE_ATTEMPTS = 16
@@ -1451,6 +1453,298 @@ materialSource = function(purpose, sources, category, at)
     return best, delayed
 end
 
+local GeneratorPlanning = {}
+GeneratorPlanning.tokens = { inspect = "utility:generator-inspected", repair = "utility:generator-repaired",
+    fuel = "utility:generator-fuelled", connect = "utility:generator-connected",
+    activate = "utility:generator-activated", ["verify-power"] = "utility:consumer-powered",
+    ["learn-generator"] = "utility:generator-known" }
+function GeneratorPlanning.anchor(value, prefix)
+    if type(value) ~= "table" then return nil end
+    local sourceId = value.sourceId or value.id
+    if type(sourceId) ~= "string" or sourceId:sub(1,2) ~= prefix or type(value.fingerprint) ~= "string"
+        or value.fingerprint == "" or type(value.revision) ~= "string" or value.revision == ""
+        or not finite(value.x) or not finite(value.y) or not finite(value.z) then return nil end
+    local out = dataCopy(value)
+    out.sourceId = sourceId
+    return out
+end
+function GeneratorPlanning.same(a, b, revision)
+    return a and b and (a.sourceId or a.id) == (b.sourceId or b.id)
+        and a.fingerprint == b.fingerprint and a.x == b.x and a.y == b.y and a.z == b.z
+        and (not revision or a.revision == b.revision)
+end
+function GeneratorPlanning.step(option, status)
+    local reading = option.materialCategory == "generator-manual"
+    local operation = reading and "learn-generator" or option.operation
+    return { id = "generator:" .. option.generator.sourceId .. ":" .. option.generator.revision
+            .. ":" .. option.consumer.sourceId .. ":" .. option.consumer.revision .. ":" .. operation
+            .. ":" .. tostring(option.inputItemId or "no-input"),
+        verb = reading and "read" or "produce", owner = reading and "SAO.Study" or "SAO.Generator",
+        token = GeneratorPlanning.tokens[operation], target = option.generator.sourceId,
+        operation = operation, productionKind = "generator-operation", status = status,
+        generator = dataCopy(option.generator), consumer = dataCopy(option.consumer),
+        inputItemId = option.inputItemId and tostring(option.inputItemId), inputItemType = option.inputItemType,
+        materialCategory = option.materialCategory, requestingPurposeId = option.requestingPurposeId,
+        requestingActivity = option.requestingActivity, foodItemId = option.foodItemId,
+        foodItemType = option.foodItemType, applianceSourceId = option.applianceSourceId }
+end
+function P.generatorPurpose(id)
+    local s, selected, priority = state(id)
+    for _, key in ipairs(s and s.order or {}) do
+        local purpose = s.purposes[key]
+        if purpose and purpose.generatorPower and purpose.status ~= "completed" and purpose.status ~= "abandoned" then
+            local step = purpose.steps[purpose.cursor]
+            local rank = purpose.admission and 1 or step and step.status == "available" and 2 or 3
+            if not selected or rank < priority then selected, priority = purpose, rank end
+        end
+    end
+    return selected, selected and selected.steps[selected.cursor]
+end
+function P.planGenerator(id, context)
+    context = type(context) == "table" and context or {}
+    local s = state(id, true)
+    if not s then return nil, "person-unavailable" end
+    local intent = type(context.intent) == "table" and context.intent or {}
+    local consumer = GeneratorPlanning.anchor(intent.consumer, "E:")
+    if not consumer then return nil, "private-consumer-unavailable" end
+    local purpose = purposeByKey(s, "utility:power:" .. consumer.sourceId)
+    local current = purpose and purpose.steps[purpose.cursor]
+    if purpose and purpose.admission then return purpose, current end
+    if purpose and not GeneratorPlanning.same(purpose.generatorPower.consumer, consumer, false) then
+        purpose.status, purpose.resolution = "abandoned", "consumer-replaced"
+        purpose = nil
+    end
+    local assessment = SAO.Labor and SAO.Labor.assessUtility and SAO.Labor.assessUtility(id, context)
+    if not assessment then return purpose, current end
+    local at = finite(context.atHours) and context.atHours or nowHours()
+    purpose = purpose or P.maintain(id, { key = "utility:power:" .. consumer.sourceId,
+        objective = "restore usable power for " .. tostring(intent.requestingActivity or "the intended consumer"),
+        domain = "utilities", origin = "private-consumer-intent", atHours = at })
+    if not purpose then return nil, "person-unavailable" end
+    purpose.generatorPower = purpose.generatorPower or { consumer = consumer,
+        requestingPurposeId = intent.requestingPurposeId, requestingActivity = intent.requestingActivity,
+        foodItemId = intent.foodItemId, foodItemType = intent.foodItemType, applianceSourceId = intent.applianceSourceId }
+    purpose.generatorPower.consumer = consumer
+    for _, field in ipairs({ "requestingPurposeId", "requestingActivity", "foodItemId", "foodItemType", "applianceSourceId" }) do
+        purpose.generatorPower[field] = dataCopy(intent[field])
+    end
+    if purpose.awaitingReassessment then
+        for _, prior in ipairs(purpose.steps or {}) do
+            if prior.status == "completed" then
+                purpose.completedSteps = purpose.completedSteps or {}
+                purpose.completedSteps[#purpose.completedSteps+1] = dataCopy(prior)
+                if #purpose.completedSteps > 16 then table.remove(purpose.completedSteps,1) end
+            end
+        end
+        purpose.steps, purpose.cursor, purpose.awaitingReassessment = {}, 1, nil
+    end
+    local candidates, offered, executable = {}, {}, false
+    for _, option in ipairs(assessment.options or {}) do
+        local source, delayed
+        if option.materialCategory and not option.inputItemId then
+            source, delayed = materialSource(purpose, assessment.sources, option.materialCategory, at)
+        end
+        option.source, option.delayed = source, delayed
+        option.executable = option.blocked ~= true and (not option.materialCategory or option.inputItemId ~= nil or source ~= nil)
+        for _, failure in ipairs(purpose.routeFailures or {}) do
+            if failure.stepId == GeneratorPlanning.step(option, "available").id
+                and finite(failure.retryAt) and at < failure.retryAt then option.executable, option.delayed = false, true end
+        end
+        if option.executable and not delayed then executable = true end
+        offered[option.id] = option
+    end
+    for _, option in ipairs(assessment.options or {}) do
+        if (not executable or option.executable) and not option.delayed then
+            candidates[#candidates+1] = { id = option.id, evidence = option.evidence, continuity = option.continuity,
+                novelty = option.novelty, informationGain = option.informationGain,
+                blockers = option.executable and 0 or 1, appraisal = dataCopy(option.appraisal),
+                consequences = dataCopy(option.consequences) }
+        end
+    end
+    local views = #candidates > 0 and interpretations(id, candidates, { domain = "utilities",
+        pressure = assessment.pressure, actorId = id, atHours = at }) or nil
+    local selected = views and offered[views.selected]
+    if not selected then
+        local best
+        for _, candidate in ipairs(candidates) do
+            local score = SAO.CognitiveModels and SAO.CognitiveModels.planScore("ordinary", candidate, assessment.pressure)
+            if score and (not best or score > best) then best, selected = score, offered[candidate.id] end
+        end
+    end
+    local steps, blockers = {}, {}
+    if selected then
+        local source = selected.source
+        local option = dataCopy(selected)
+        if source then
+            steps[1] = { id = materialAcquisitionId(source), verb = "acquire", owner = "SAO.SourceUse",
+                token = "resource:acquired", target = source.sourceId .. ":" .. tostring(source.itemId),
+                status = "available", category = source.category, sourceId = source.sourceId,
+                sourceRevision = source.revision, itemId = source.itemId, itemType = source.itemType,
+                place = dataCopy(source.place), quantity = 1, quantityUnit = "item" }
+            option.inputItemId, option.inputItemType = tostring(source.itemId), source.itemType
+        elseif not selected.executable then blockers[1] = selected.reason or "missing-private-generator-means" end
+        steps[#steps+1] = GeneratorPlanning.step(option, #blockers > 0 and "blocked" or #steps > 0 and "dependent" or "available")
+        purpose.generatorPower.generator = dataCopy(selected.generator)
+    else blockers[1] = "private-generator-option-unavailable" end
+    setPlan(purpose, steps, blockers, views, at)
+    purpose.selectedStrategy, purpose.alternatives = selected and selected.id, dataCopy(assessment.options)
+    purpose.labor, purpose.appraisal, purpose.updatedAt = dataCopy(assessment.dimensions), selected and dataCopy(selected.appraisal), at
+    return purpose, purpose.steps[purpose.cursor]
+end
+function P.deferGenerator(id, purposeId, stepId, reason)
+    local s = state(id)
+    local purpose = s and s.purposes[purposeId]
+    local step = purpose and purpose.steps[purpose.cursor]
+    if not purpose or not purpose.generatorPower or purpose.admission or not step or step.id ~= stepId then return false end
+    resourceFailure(purpose, purpose.selectedStrategy, reason, nowHours(), step.id)
+    step.status, purpose.status = "blocked", "blocked"
+    purpose.blockers = { "generator-route-retry-delayed" }
+    return true
+end
+function GeneratorPlanning.attempt(id, work, reading)
+    if type(work) ~= "table" or work.actorId ~= id or type(work.id) ~= "string" then return nil end
+    local s = state(id)
+    local purpose = s and s.purposes[work.requestedPurposeId or work.purposeId]
+    local step = purpose and purpose.steps[purpose.cursor]
+    if not purpose or not purpose.generatorPower or purpose.status == "completed" or purpose.status == "abandoned"
+        or not step or step.id ~= (work.requestedPurposeStepId or work.purposeStepId)
+        or step.owner ~= (reading and "SAO.Study" or "SAO.Generator")
+        or step.token ~= GeneratorPlanning.tokens[reading and "learn-generator" or work.operation] then return nil end
+    if reading then
+        if step.operation ~= "learn-generator" or tostring(work.itemId) ~= step.inputItemId
+            or work.itemType ~= step.inputItemType then return nil end
+    elseif work.operation ~= step.operation or not GeneratorPlanning.same(step.generator, work.generator, true)
+        or not GeneratorPlanning.same(step.consumer, work.consumer, true)
+        or (work.inputItemId ~= nil and tostring(work.inputItemId) or nil) ~= step.inputItemId
+        or work.inputItemType ~= step.inputItemType or work.materialCategory ~= step.materialCategory then return nil end
+    return purpose, step
+end
+function P.admitGenerator(id, work)
+    local purpose, step = GeneratorPlanning.attempt(id, work, false)
+    if not purpose or step.status ~= "available" or purpose.admission then return false end
+    local accepted = P.noteAdmission(id, purpose.id, step.owner, work.id, step.id)
+    if accepted then work.purposeId, work.purposeStepId = purpose.id, step.id end
+    return accepted
+end
+function P.admitGeneratorReading(id, work)
+    local purpose, step = GeneratorPlanning.attempt(id, work, true)
+    if not purpose or step.status ~= "available" or purpose.admission then return false end
+    local accepted = P.noteAdmission(id, purpose.id, step.owner, work.id, step.id)
+    if accepted then work.purposeId, work.purposeStepId = purpose.id, step.id end
+    return accepted
+end
+function GeneratorPlanning.result(id, row, reading)
+    local s = state(id)
+    local retained = s and s.purposes[row.purposeId]
+    local pending = retained and retained.admission
+    if not retained or not retained.generatorPower or not pending or pending.correlationId ~= row.id then
+        return true, "purpose-attempt-superseded"
+    end
+    local purpose, step = GeneratorPlanning.attempt(id, row, reading)
+    if not purpose then return false end
+    local admission = purpose.admission
+    if not admission or admission.correlationId ~= row.id or admission.owner ~= step.owner
+        or admission.stepId ~= step.id or admission.target ~= step.target then return true, "purpose-attempt-superseded" end
+    if not finite(row.atHours) or not finite(row.startedAt) or row.startedAt > row.atHours
+        or row.atHours < admission.at or row.atHours > nowHours() or row.endedAt ~= row.atHours
+        or row.status ~= "completed" and row.status ~= "failed" and row.status ~= "interrupted" then return false end
+    local completed = row.status == "completed"
+    if completed then
+        if reading then
+            if row.nativeOwner ~= "ISReadABook.complete" or row.nativeStarted ~= true or row.nativeCompleted ~= true
+                or not finite(row.progress) or row.progress <= 0 or row.recipeKnown ~= true then return false end
+        else
+            if (row.operation ~= "inspect" and row.operation ~= "verify-power" and row.nativeAttempted ~= true)
+                or row.nativeCompleted ~= true or row.nativeCredit ~= row.id
+                or type(row.nativeOwner) ~= "string" or row.nativeOwner == "" then return false end
+            if row.operation == "inspect" and (not row.generatorAfter or row.generatorAfter.inspected ~= true) then return false end
+            if row.operation == "repair" and (not finite(row.beforeCondition) or not finite(row.afterCondition)
+                or row.afterCondition <= row.beforeCondition or row.inputConsumed ~= true) then return false end
+            if row.operation == "fuel" and (not finite(row.beforeFuel) or not finite(row.afterFuel)
+                or row.afterFuel <= row.beforeFuel or not finite(row.maxFuel) or row.afterFuel > row.maxFuel
+                or not finite(row.beforeInputAmount) or not finite(row.afterInputAmount)
+                or row.afterInputAmount >= row.beforeInputAmount or row.inputRetained ~= true) then return false end
+            if row.operation == "connect" and (row.beforeConnected ~= false or row.afterConnected ~= true) then return false end
+            if row.operation == "activate" and (row.beforeActive ~= false or row.afterActive ~= true or row.outside ~= true) then return false end
+            if row.operation == "verify-power" and (row.sourceCovered ~= true or row.consumerPowered ~= true) then return false end
+            if row.generatorAfter and not GeneratorPlanning.same(step.generator, row.generatorAfter, false) then return false end
+            if row.consumerAfter and not GeneratorPlanning.same(step.consumer, row.consumerAfter, false) then return false end
+        end
+    end
+    local accepted = P.recordResult(id, purpose.id, { owner = step.owner, token = step.token,
+        status = row.status, correlationId = row.id, reason = row.detail, atHours = row.atHours },
+        reading and GENERATOR_READING_RESULT or GENERATOR_RESULT)
+    if accepted and not reading and row.status == "failed" and step.operation == "verify-power"
+        and row.detail == "native-consumer-power-checked" and row.sourceCovered == false then
+        local request = purpose.generatorPower
+        request.rejectedGenerators = request.rejectedGenerators or {}
+        request.rejectedGenerators[step.generator.sourceId] = step.generator.fingerprint
+        local prior = {}
+        for sourceId in pairs(request.rejectedGenerators) do
+            if sourceId ~= step.generator.sourceId then prior[#prior+1] = sourceId end
+        end
+        table.sort(prior)
+        for index = 1, #prior - 31 do request.rejectedGenerators[prior[index]] = nil end
+        request.generator = nil
+        purpose.status, purpose.awaitingReassessment = "maintained", true
+    end
+    if accepted and completed and step.operation ~= "verify-power" then
+        purpose.status, purpose.awaitingReassessment = "maintained", true
+        if row.generatorAfter then purpose.generatorPower.generator = GeneratorPlanning.anchor(row.generatorAfter, "J:") end
+        if row.consumerAfter then purpose.generatorPower.consumer = GeneratorPlanning.anchor(row.consumerAfter, "E:") end
+    end
+    if accepted and completed and step.operation == "verify-power" and purpose.generatorPower.requestingActivity == "cooking" then
+        local request = purpose.generatorPower
+        local food = s.purposes[request.requestingPurposeId]
+        local pendingFood = food and food.steps[food.cursor]
+        if food and food.resourceCategory == "food" and not food.admission and food.status ~= "completed"
+            and food.status ~= "abandoned" and pendingFood and pendingFood.owner == "Cooking"
+            and tostring(pendingFood.acquiredItemId) == tostring(request.foodItemId) then
+            local ready = pendingFood.status == "available" or pendingFood.status == "dependent"
+            local unrelated = false
+            for _, failure in ipairs(food.routeFailures or {}) do
+                if failure.stepId == pendingFood.id and failure.reason == "appliance-unpowered" then
+                    failure.retryAt, failure.resolvedByUtility = row.atHours, row.id
+                    ready = true
+                elseif failure.stepId == pendingFood.id and finite(failure.retryAt) and failure.retryAt > row.atHours then
+                    unrelated = true
+                end
+            end
+            if ready and not unrelated then
+                food.status, pendingFood.status, food.blockers = "maintained", "available", {}
+                record(id).poweredMealReady = {purposeId=food.id,purposeStepId=pendingFood.id,
+                    foodItemId=request.foodItemId,foodItemType=request.foodItemType,applianceSourceId=request.applianceSourceId,
+                    utilityWorkId=row.id,consumerId=request.consumer.sourceId,consumer=dataCopy(request.consumer)}
+            end
+        end
+    end
+    return accepted
+end
+function P.poweredMeal(id)
+    local rec, s = record(id), state(id)
+    local pending = rec and rec.poweredMealReady
+    local purpose = pending and s and s.purposes[pending.purposeId]
+    local step = purpose and purpose.steps[purpose.cursor]
+    if not purpose or purpose.status == "completed" or purpose.status == "abandoned" or purpose.admission
+        or not step or step.id ~= pending.purposeStepId or step.owner ~= "Cooking"
+        or tostring(step.acquiredItemId) ~= tostring(pending.foodItemId) then return nil end
+    return dataCopy(pending)
+end
+function P.consumeGeneratorOutcome(id, sequence)
+    local owner = SAO.Generator
+    local row = owner and owner.outcome and owner.outcome(id, sequence)
+    if not row or row.actorId ~= id or row.sequence ~= sequence or row.id ~= "generator/" .. id .. "/" .. tostring(sequence)
+        or row.workId ~= row.id or row.token ~= GeneratorPlanning.tokens[row.operation] then return false end
+    return GeneratorPlanning.result(id, row, false)
+end
+function P.consumeGeneratorReading(id, outcomeId)
+    local owner = SAO.Study
+    local row = owner and owner.generatorOutcome and owner.generatorOutcome(id, outcomeId)
+    if not row or row.actorId ~= id or row.id ~= outcomeId or row.workId ~= row.id
+        or row.outcomeId ~= row.id then return false end
+    return GeneratorPlanning.result(id, row, true)
+end
+
 local function repairPolicy(recipeId)
     local owner = SAO.ResourceProduction
     local ok, policy
@@ -2788,6 +3082,8 @@ function P.noteAdmission(id, purposeId, owner, correlationId, stepId, authority)
     if purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
     if purpose.hobby and authority ~= HOBBY_RESULT then return false end
     local step = purpose.steps[purpose.cursor]
+    if purpose.generatorPower and (not step or step.status ~= "available" or step.owner ~= owner
+        or step.id ~= stepId or purpose.admission) then return false end
     if purpose.materialWork and (not step or step.status ~= "available" or step.owner ~= owner
         or stepId and stepId ~= step.id or step.verb == "acquire" and stepId ~= step.id
         or purpose.admission) then return false end
@@ -2817,6 +3113,12 @@ function P.recordResult(id, purposeId, result, authority)
     local s = state(id)
     local purpose = s and s.purposes[tostring(purposeId or "")]
     local step = purpose and purpose.steps[purpose.cursor]
+    if purpose and purpose.generatorPower then
+        if not step or step.owner == "SAO.SourceUse" and authority ~= RESOURCE_RESULT
+            or step.owner == "SAO.Study" and authority ~= GENERATOR_READING_RESULT
+            or step.owner == "SAO.Generator" and authority ~= GENERATOR_RESULT
+            or step.owner ~= "SAO.SourceUse" and step.owner ~= "SAO.Study" and step.owner ~= "SAO.Generator" then return false end
+    end
     if purpose and purpose.leisureAcquisition and not purpose.leisure and authority ~= RESOURCE_RESULT then return false end
     if purpose and purpose.conflict then return false end
     if purpose and purpose.resourceCategory and authority ~= RESOURCE_RESULT then return false end
@@ -2906,7 +3208,7 @@ function P.recordResult(id, purposeId, result, authority)
         purpose.resultReceipts[#purpose.resultReceipts + 1] = receiptKey
         if #purpose.resultReceipts > MAX_EVENTS then table.remove(purpose.resultReceipts, 1) end
     end
-    if purpose.resourceCategory or purpose.materialWork or purpose.windowRepair or purpose.leisure or purpose.leisureAcquisition then
+    if purpose.resourceCategory or purpose.materialWork or purpose.windowRepair or purpose.leisure or purpose.leisureAcquisition or purpose.generatorPower then
         purpose.lastAdmission = dataCopy(purpose.admission)
         purpose.admission = nil
     end
@@ -3036,6 +3338,13 @@ function P.consumeSourceResult(receipt)
         return true, "purpose-attempt-superseded"
     end
     local completed = authoritative.status == "completed"
+    if purpose.generatorPower and (authoritative.actorId ~= receipt.actorId
+        or authoritative.reservationId ~= receipt.reservationId or step.owner ~= "SAO.SourceUse"
+        or step.verb ~= "acquire" or step.token ~= "resource:acquired" or admission.owner ~= step.owner
+        or step.sourceId ~= authoritative.sourceId or step.sourceRevision ~= authoritative.preRevision
+        or step.itemId ~= authoritative.itemId or step.itemType ~= authoritative.itemType
+        or step.category ~= authoritative.category or not finite(authoritative.at)
+        or authoritative.at < admission.at or authoritative.at > nowHours()) then return false end
     if purpose.materialWork and (step.owner ~= "SAO.SourceUse" or step.verb ~= "acquire"
         or step.token ~= "resource:acquired" or admission.owner ~= "SAO.SourceUse"
         or step.sourceId ~= authoritative.sourceId or step.sourceRevision ~= authoritative.preRevision
@@ -3540,6 +3849,7 @@ function P.snapshot(id)
                 rationale = purpose.rationale, uncertainty = purpose.uncertainty,
                 appraisal = dataCopy(purpose.appraisal),
                 inquiry = dataCopy(purpose.inquiry),
+                generatorPower = dataCopy(purpose.generatorPower),
                 decisionAt = purpose.decisionAt, assessedAt = purpose.assessedAt,
                 sequence = dataCopy(purpose.steps), completedSteps = dataCopy(purpose.completedSteps),
                 alternatives = dataCopy(purpose.alternatives), omittedAlternatives = purpose.omittedAlternatives or 0,
