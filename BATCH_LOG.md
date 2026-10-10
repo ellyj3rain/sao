@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.8.1.0-pre-alpha` |
+| Version | `3.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -17,11 +17,18 @@ The 2026-10-03 map grouped the retained source history into 35 shared ownership 
 
 ## Development catalogue
 
+Active: [D3 — Construction, crafting, repair and utilities](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md)
+
 D1 is delivered and protected-merged through PR138. D2 Leisure delivers the
 integrated recreation, music, games, art and social-participation product, with
 private choice, native outcomes, interruption and durable experience. It closes
 at `3.8.1.0-pre-alpha`; protected publication has its own recorded result.
-D3 construction/crafting/repair/utilities is next in the established FIFO.
+D3 construction/crafting/repair/utilities is active and OPEN in the established
+FIFO. Its first material-work join is a local continuation within the whole
+product and receives no additional delivered-batch or version credit. Its
+[open record](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md)
+retains implementation, scoped evidence and continuing work outside the delivered
+catalogue below.
 Later Leisure improvements link back to the completed D2 product.
 
 | Batch | Date | Name | Threads |
@@ -191,6 +198,7 @@ Later Leisure improvements link back to the completed D2 product.
 | [C82](Batches/Products/C82-2026-10-03-private-entry-and-recovery-experience.md) | 2026-10-03 | Private entry and recovery experience | T-030 |
 | [D1](Batches/D1-20261004-0124Z-1824PST-shared-reasoning.md) | 2026-10-04 | Shared person-specific reasoning | [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-003`](Batches/THREADS.md#t-003) |
 | [D2](Batches/D2-20261005-2341Z-1641PST-leisure.md) | 2026-10-05 | Leisure | [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-006`](Batches/THREADS.md#t-006) |
+| [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) | 2026-10-10 | Native plank crafting for retained construction | [`T-008`](Batches/THREADS.md#t-008), [`T-006`](Batches/THREADS.md#t-006) |
 
 ### Current Simulation repair18 and approved artwork intake | 2026-10-07 00:30 UTC / 17:30 PST
 

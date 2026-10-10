@@ -236,6 +236,7 @@ NOT_DORMANT = {
     "ResourceProduction": "owns exact native fixture and carried-vessel transfers on materialised bodies; dormant counties have no native fixture or vessel executor",
     "ModMechanics": "advances installed carried-inventory physics and native body capture checkpoints; the bodyless county sweep has no loaded inventory processor",
     "WindowRepair": "executes native window and carried-pane actions on loaded bodies; the bodyless county sweep has no native window executor",
+    "Build": "prepares carried materials and equipment and executes native boarding on a loaded body; the bodyless county has no native aperture or action queue",
     "Study": "owns native skill-book timed actions on a loaded body; bodyless county sweeps have no native page-progress executor",
     "Handover": "executes native item actions between materialised bodies; dormant exchange remains unimplemented",
     "Treatment": "executes patient-bound native bandaging on materialised bodies; dormant treatment remains unimplemented",

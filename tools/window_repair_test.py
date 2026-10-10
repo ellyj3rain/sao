@@ -41,6 +41,8 @@ NATIVE = [GAME / "media/lua/shared/ISBaseObject.lua",
           GAME / "media/lua/client/TimedActions/ISTimedActionQueue.lua",
           GAME / "media/lua/shared/Util/AdjacentFreeTileFinder.lua", ACTION]
 BASE_CASES = {
+    "native_edge_facing_north_same_offered", "native_edge_facing_west_same_offered",
+    "native_edge_facing_north_opposite_offered", "native_edge_facing_west_opposite_offered",
     "installed_missing_pane_completes_before_material", "guard_installs_optional_native_api",
     "production_fortification_caller_admits", "admission_not_completion_or_practice",
     "planner_rejects_forged_completion", "installed_action_start_valid",
@@ -128,22 +130,24 @@ def controller(source: str) -> str:
     """Execute complete actual functions; unrelated controller services stay controlled."""
     state = section(source, "local function setState(agent, id, state, why, answer, repairingSourceProjection)",
                     "setStateRef = setState")
+    travel = section(source, "local function orderTravelState(agent, id, body, x, y, z, state, why, answer)",
+                     "local function startNearbyCollection")
+    home_number = section(source, "local function homeRouteNumber(value)", "local function homeRouteClock()")
     decision = section(source, "local function decideHomeAndEquipment(id, agent, body, tick, rec)",
                        "local function decideNightAndDrift(id, agent, body, tick, rec)")
     hold = section(source, '    if agent.state == "WINDOWREPAIR" then',
                    '    if agent.state == "BOARDING" then')
-    board_ticks = re.search(r"local BOARD_TICKS = (\d+)", source).group(1)
-    board_reach = re.search(r"local BOARD_REACH = (\d+)", source).group(1)
+    construction_ticks = re.search(r"local CONSTRUCTION_WORK_TICKS = (\d+)", source).group(1)
     forget = section(source, "function Ctl.forget(id)", "function Ctl.coordinationRuntimeCount()")
     deadwork = section(source, "local function retireDeadBodyWork(id, body, rec)", "-- A body may leave SAO")
     update = section(source, "local function updateAgent(id, agent)", "-- Hearing of a death")
     markdead = section(I.read_text(encoding="utf-8-sig"), "function Identity.markDead(rec, tick, cause)",
                        "function Identity.livingCount()")
-    return ("local Ctl={}\nlocal tickCount=50\nlocal BOARD_TICKS=" + board_ticks
-            + "\nlocal BOARD_REACH=" + board_reach
+    return ("local Ctl={}\nlocal tickCount=50\nlocal CONSTRUCTION_WORK_TICKS=" + construction_ticks
             + "\nlocal PRESSURE_ANSWER,CONTACT_STATES,MOVEMENT_STATES={},{},{}\n"
               "local function log() end\nlocal function knownSource() return nil end\n"
-            + state + "\n" + decision
+            + "local function mayEnterBelieved() return true end\n"
+            + state + "\n" + travel + "\n" + home_number + "\n" + decision
             + "\n__decideHome=decideHomeAndEquipment\n__setState=setState\n"
             + "__windowHold=function(id,agent,body,tick) tickCount=tick\n" + hold + "end\n"
             + "SAO.Controller=Ctl\nCtl.agents={}\nCtl.pendingCorpses={}\nCtl.coordinationRuntime={}\n"
@@ -233,22 +237,24 @@ def main() -> int:
          "dx * dx + dy * dy > NATIVE_WINDOW_INTERACTION_REACH * NATIVE_WINDOW_INTERACTION_REACH",
          "dx * dx + dy * dy > NATIVE_WINDOW_INTERACTION_REACH", "installed_player_diagonal_fallback_preserved"),
         ("precompletion-material-owner", "repair.lua",
-         'if not b or self.character ~= b.body or self.window ~= b.window or b.spent or b.cancelled or not bound(b, true, false) or not self.window:isSmashed() then',
+         'if not b or b.preparing or self.character ~= b.body or self.window ~= b.window or b.spent or b.cancelled or not bound(b, true, false) or not self.window:isSmashed() then',
          'if not b then', "removed_pane_prevents_native_effect"),
         ("planner-private-authority", "planner.lua",
          'if purpose and purpose.windowRepair and authority ~= WINDOW_REPAIR_RESULT then return false end',
          '-- restored untrusted generic completion', "planner_rejects_forged_completion"),
         ("per-body-visible-acquisition", "repair.lua", 'body:CanSee(window) ~= true', 'false', "unseen_window_not_offered"),
-        ("per-body-facing-acquisition", "repair.lua", 'dx * body:getForwardDirectionX() + dy * body:getForwardDirectionY() < 0',
+        ("per-body-facing-acquisition", "repair.lua", 'facingX * body:getForwardDirectionX() + facingY * body:getForwardDirectionY() < 0',
          'false', "behind_window_not_offered"),
+        ("native-edge-facing-acquisition", "repair.lua", 'local facingX, facingY = b.north and 0 or side, b.north and side or 0',
+         'local facingX, facingY = dx, dy', "native_edge_facing_north_same_offered"),
         ("foreign-native-owner", "repair.lua", 'and not (SAO.Body.foreign and SAO.Body.foreign[id])',
          'and true', "foreign_owner_not_admitted"),
         ("exact-cancellation", "repair.lua", 'q:onCompleted(self)',
          'q:resetQueue()', "controller_owner_change_cancels_exact_work"),
         ("north-side-neighbor", "repair.lua", 'if b.north then other = sq:getN() else other = sq:getW() end',
          'other = b.north and sq:getN() or sq:getW()', "noninteraction_side_not_offered"),
-        ("production-caller", "controller.lua", 'if Ctl.tryWindowRepair(id, agent, body, tick) then return true end',
-         'if false then return true end', "production_fortification_caller_admits"),
+        ("production-caller", "controller.lua", 'if Ctl.tryWindowRepair(id, agent, body, tick) then return true end\n                -- A blocked repair',
+         'if false then return true end\n                -- A blocked repair', "production_fortification_caller_admits"),
         ("living-native-cell-membership", "repair.lua", 'or body:getCell() ~= b.cell or not living or not here',
          'or body:getCell() ~= b.cell or not here', "changed_cell_membership_cannot_mutate"),
         ("native-first-valid-query", "repair.lua", 'and freezePane(b) and bound(b, true, false) and nativeValid(self)',
@@ -276,8 +282,8 @@ def main() -> int:
          'if ok and accepted == true and person(id) == r and ledger(r) == s',
          'if person(id) == r and ledger(r) == s', "window_disabled_learning_retains_unacknowledged_result"),
         ("pending-learning-omission-accounting", "repair.lua",
-         's.learningOmitted = math.min(999999999, (s.learningOmitted or 0) + 1)',
-         's.learningOmitted = s.learningOmitted or 0', "window_learning_retirement_records_omission"),
+         'if not first or first.planningAcknowledged ~= true then return false end\n        if first.status == "completed" and first.learningAcknowledged ~= true then\n            s.learningOmitted = math.min(999999999, (s.learningOmitted or 0) + 1)',
+         'if not first or first.planningAcknowledged ~= true then return false end\n        if first.status == "completed" and first.learningAcknowledged ~= true then\n            s.learningOmitted = s.learningOmitted or 0', "window_learning_retirement_records_omission"),
         ("independent-minute-learning-replay", "repair.lua",
          'Events.EveryOneMinute.Add(W.retryLearning)', 'do end', "window_replay_delivers_private_experience"),
         ("learning-scan-budget", "repair.lua", 'visited < MAX_LEARNING_SCANS', 'true', "window_learning_scan_budget"),
@@ -302,8 +308,8 @@ def main() -> int:
          'do end', "disposal_tick_expires_abandoned_offers"),
         ("unconsumed-offer-death-retirement", "repair.lua", 'function W.forget(id)\n    id = tostring(id)\n    retireOffer(id)',
          'function W.forget(id)\n    id = tostring(id)\n    do end', "disposal_death_retires_unconsumed_offer"),
-        ("per-person-offer-replacement", "repair.lua", 'function W.offer(id, body)\n    id = tostring(id)\n    retireOffer(id)',
-         'function W.offer(id, body)\n    id = tostring(id)\n    do end', "disposal_only_latest_offer_admits"),
+        ("per-person-offer-replacement", "repair.lua", 'function W.offer(id, body, entryKey)\n    id = tostring(id)\n    retireOffer(id)',
+         'function W.offer(id, body, entryKey)\n    id = tostring(id)\n    do end', "disposal_only_latest_offer_admits"),
         ("offer-finite-capacity", "repair.lua", 'offerCount >= MAX_OFFERS',
          'false', "disposal_offer_capacity_is_bounded"),
         ("native-constructor-argument-names", "repair.lua",

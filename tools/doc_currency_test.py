@@ -35,6 +35,7 @@ WHAT THIS HOLDS
 import pathlib
 import re
 import sys
+from catalogue import BATCH_ID_PATTERN
 
 # [C64] An optional argv[1] points the checker at another tree root,
 # which is how its control runs. It had none: ROOT was the tree this
@@ -67,7 +68,7 @@ def sayable(text):
 VERSION_ROW = re.compile(r"^\|\s*Version\s*\|\s*(.+?)\s*\|\s*$", re.M)
 # A currency claim names a batch and says it is where things stand.
 TIP_CLAIM = re.compile(r"(tip|next|closes at|era)\b", re.I)
-PROVENANCE = re.compile(r"authored at\s*`\[[A-Z]\d+\]`", re.I)
+PROVENANCE = re.compile(rf"authored at\s*`\[{BATCH_ID_PATTERN}\]`", re.I)
 # BATCH_LOG is where the tip lives.
 TIP_OWNER = "BATCH_LOG.md"
 

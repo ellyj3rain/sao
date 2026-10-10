@@ -18,17 +18,41 @@ SCHEMA = "sao.c-shared-boundaries/1"
 GENERATION = "20261003-shared-boundaries"
 SOURCE_IDS = {f"C{i}" for i in range(1, 121)}
 SHA256 = re.compile(r"[0-9a-f]{64}\Z")
+BATCH_ID_PATTERN = r"[A-Z]\d+(?:\.\d+)*"
+BATCH_ID = re.compile(BATCH_ID_PATTERN + r"\Z")
 INDEX_ROW = re.compile(
-    r"^\|\s*\[([A-Z]\d+)\]\(([^)]+)\)\s*\|\s*(\d{4}-\d{2}-\d{2})"
+    rf"^\|\s*\[({BATCH_ID_PATTERN})\]\(([^)]+)\)\s*\|\s*(\d{{4}}-\d{{2}}-\d{{2}})"
     r"\s*\|\s*([^|]+?)\s*\|\s*(.*?)\s*\|\s*$")
 INDEX_CANDIDATE = re.compile(r"^\|\s*[\[\x60\s]*[A-Z]\d+\b")
 RECORD_NAME = re.compile(
-    r"(?P<id>[A-Z]\d+)-(?:(?P<dashed>\d{4}-\d{2}-\d{2})-"
+    rf"(?P<id>{BATCH_ID_PATTERN})-(?:(?P<dashed>\d{{4}}-\d{{2}}-\d{{2}})-"
     r"|(?P<compact>\d{8})-\d{4}Z-\d{4}P(?:ST|DT)-).+\.md\Z")
 
 
 class CatalogueError(ValueError):
     pass
+
+
+def batch_parent(batch: str):
+    """Complete literal identity; dotted ancestry supplies no version tier."""
+    if not isinstance(batch, str) or not BATCH_ID.fullmatch(batch):
+        raise CatalogueError(f"malformed batch identifier: {batch}")
+    return batch.rsplit(".", 1)[0] if "." in batch else None
+
+
+def active_batch(text: str):
+    """Read the single active scope separately from closed catalogue rows."""
+    candidates = [line for line in text.splitlines() if line.startswith("Active:")]
+    if not candidates:
+        return None
+    match = re.fullmatch(rf"Active: \[({BATCH_ID_PATTERN}) — ([^\]]+)\]\(([^)]+)\)", candidates[0])
+    if len(candidates) != 1 or not match:
+        raise CatalogueError("invalid active batch index")
+    batch, name, path = match.groups()
+    if not path.startswith("Batches/") or ".." in PurePosixPath(path).parts:
+        raise CatalogueError(f"invalid active record path: {path}")
+    record_date(path, batch)
+    return batch, name, path
 
 
 def _object(pairs):

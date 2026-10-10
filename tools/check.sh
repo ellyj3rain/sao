@@ -2758,6 +2758,30 @@ if ! "$PY" tools/resource_production_test.py; then
     note "BORDER FINDING - native resource transformation, private fixture or production experience failed"
     fail=1
 fi
+
+# D3 native material work: installed producers report their actual availability;
+# each focused proof keeps an isolated output directory and its fault controls.
+sao_d3_proof="$(mktemp -d)"
+if ! "$PY" tools/d3_material_categories_test.py --out "$sao_d3_proof/materials"; then
+    note "BORDER FINDING - exact native construction-material admission differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_window_preparation_test.py --out "$sao_d3_proof/window"; then
+    note "BORDER FINDING - native window material preparation or saved custody differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_native_boarding_test.py --out "$sao_d3_proof/boarding"; then
+    note "BORDER FINDING - native boarding admission or measured effects differ"
+    fail=1
+fi
+if ! "$PY" tools/d3_construction_controller_test.py --out "$sao_d3_proof/controller"; then
+    note "BORDER FINDING - private material-work purpose or native continuation differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_native_handcraft_test.py --out "$sao_d3_proof/handcraft"; then
+    note "BORDER FINDING - exact native handcraft inputs, output or saved custody differs"
+    fail=1
+fi
 # Border 220 - shared native regions retain separate pixels, residency centers,
 # infrastructure exclusion and sealed lifecycle evidence under one world clock.
 if ! "$PY" tools/regional_observer_test.py; then

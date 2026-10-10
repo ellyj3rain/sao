@@ -127,6 +127,9 @@ def controller_anchors(text: str) -> dict[str, bool]:
 
 
 MUTATIONS = (
+    ("native-player-moddata-port", CASES,
+     "__player = {getUsername=function() return 'operator' end, getModData=function() return {} end}",
+     "__player = {getUsername=function() return 'operator' end}", "loaded_player_identity"),
     ("request-source-contract", STANDING,
      'speakerId, groupName, now, "requested", nil, "food",',
      'speakerId, groupName, now, "performed", nil, "food",',
@@ -145,7 +148,7 @@ MUTATIONS = (
      "and now - request.acquiredAt <= AID_REQUEST_HOURS",
      "request_expiry_uses_original_time"),
     ("loaded-native-admission", COMMUNICATION,
-     "return ok and heard == true", "return true", "loaded_listener_deaf_port_refusal"),
+     "    return ok and heard == true\nend\n", "    return true\nend\n", "loaded_listener_deaf_port_refusal"),
     ("dormant-floor", COMMUNICATION,
      "or az ~= bz then return false end", "then return false end",
      "dormant_floor_and_distance_refused"),
@@ -199,7 +202,7 @@ def _run(work: pathlib.Path, border, overrides=None):
             chunks.append(path)
     probe = work / "cases.lua"
     probe.write_text("local ok, result = pcall(function() return "
-        + CASES.read_text(encoding="utf-8") + "\nend)\n"
+        + overrides.get(CASES.name, CASES.read_text(encoding="utf-8")) + "\nend)\n"
         + "__deliveryIntegrationResult = ok and result or ('ERROR after ' .. "
         + "tostring(__deliveryIntegrationLast) .. ': ' .. tostring(result))\n",
         encoding="utf-8")

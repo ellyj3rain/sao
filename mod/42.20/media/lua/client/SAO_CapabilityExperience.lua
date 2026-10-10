@@ -54,6 +54,10 @@ local function finiteAmount(value)
 end
 SAO.ResourceProduction.onOutcome = function(id, receipt)
     local canonical = receipt and SAO.ResourceProduction.outcome(id, receipt.id)
+    if canonical and canonical.kind == "saw-logs" then
+        if not SAO.Cognition or not SAO.Cognition.materialCraftOutcome then return false end
+        return SAO.Cognition.materialCraftOutcome(id, canonical)
+    end
     if not canonical or canonical.actorId ~= id or canonical.kind ~= "refill-water"
         or canonical.token ~= "resource:filled" then return false end
     if canonical.experienceDelivered then return true end

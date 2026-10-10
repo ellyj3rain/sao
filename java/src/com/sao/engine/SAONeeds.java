@@ -1159,9 +1159,23 @@ public final class SAONeeds {
                         zombie.scripting.objects.ItemTag.IS_MEMENTO);
             case "reading":
                 return "Literature".equals(item.getDisplayCategory());
+            case "glass-pane":
+                return "RepairableWindows.LargeGlassPane".equals(item.getFullType());
+            case "hammer":
+                return item.hasTag(zombie.scripting.objects.ItemTag.HAMMER)
+                    && item.getCondition() > 0 && !item.isBroken()
+                    && !item.isRequiresEquippedBothHands()
+                    && !item.getIsCraftingConsumed();
             case "plank":
                 // The task names its object - identity, not a table.
                 return "Base.Plank".equals(item.getFullType());
+            case "log":
+                return "Base.Log".equals(item.getFullType())
+                    && !item.getIsCraftingConsumed();
+            case "saw":
+                return item.hasTag(zombie.scripting.objects.ItemTag.SAW)
+                    && item.getCondition() > 0 && !item.isBroken()
+                    && !item.getIsCraftingConsumed();
             case "nails":
                 return "Base.Nails".equals(item.getFullType())
                     || "Base.NailsBox".equals(item.getFullType());

@@ -1862,6 +1862,29 @@ public final class SAOBridge {
         return new java.util.ArrayList<>();
     }
 
+    /** Exact material item counts from this ordinary body's recursive inventory. */
+    public int constructionMaterialCount(Object object, String category) {
+        if (!(object instanceof zombie.characters.IsoPlayer person)
+                || category == null || !(category.equals("glass-pane")
+                    || category.equals("hammer") || category.equals("plank")
+                    || category.equals("nails") || category.equals("log")
+                    || category.equals("saw"))) return 0;
+        try {
+            int count = 0;
+            for (zombie.inventory.InventoryItem item
+                    : com.sao.engine.SAOPrivateInventory.carriedItems(person)) {
+                if (com.sao.engine.SAONeeds.wantsMaterial(item, category)
+                        && !item.getIsCraftingConsumed()
+                        && (!category.equals("nails")
+                            || "Base.Nails".equals(item.getFullType()))) count++;
+            }
+            return count;
+        } catch (Throwable error) {
+            SAOAgent.log("constructionMaterialCount refused: " + error);
+            return 0;
+        }
+    }
+
     /** [C71] Exact holder rows; this is a read and owns no inventory state. */
     public String privateInventoryLoaded(Object object, double radius) {
         try {
@@ -3984,6 +4007,13 @@ public final class SAOBridge {
     public boolean carriesTheMakings(Object object) {
         return object instanceof zombie.characters.IsoGameCharacter person
             && com.sao.engine.SAOBuild.carriesTheMakings(person);
+    }
+
+    /** This body's present native visibility of one boardable object. */
+    public boolean canSeeBoardable(Object body, Object target) {
+        return body instanceof zombie.characters.IsoGameCharacter person
+            && target instanceof zombie.iso.IsoObject object
+            && com.sao.engine.SAOBuild.canSeeBoardable(person, object);
     }
 
     /** [C44] The nearest window or door inside the given box that

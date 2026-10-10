@@ -53,7 +53,18 @@ SAOJavaBridge={isShell=function(_,body) return body.shell~=false end,
     hasPendingActions=function(_,body) return #ISTimedActionQueue.getTimedActionQueue(body).queue>0 end,
     carriesTheMakings=function(_,body) return body.boardKit==true end,
     findBoardable=function() return '0,0,0' end,
-    boardWindow=function(_,body) body.boarded=(body.boarded or 0)+1; return 1 end}
+    boardWindow=function() error('eager boarding is retired') end,
+    constructionMaterialCount=function(_,body,category)
+        if category=='glass-pane' then return body:getInventory():getFirstType('RepairableWindows.LargeGlassPane') and 1 or 0 end
+        return body.boardKit and (category=='nails' and 2 or 1) or 0
+    end}
+SAO.Build={offer=function(id,body,key)
+    local entry='barricade:0:0:0:0:true'
+    if body.boardKit and (key==nil or key==entry) then return {entryKey=entry} end
+end,destination=function(id,body,offer) return {key=offer.entryKey,x=0,y=0,z=0} end,
+    begin=function(id,body,offer,purposeId,stepId)
+        body.boardingAdmitted={purposeId=purposeId,stepId=stepId,entryKey=offer.entryKey};return true
+    end,interrupt=function() return true end,forget=function() return true end}
 SAO.Needs.queueVerified=function(action)
     if action.character.queueRefused then return false end
     ISTimedActionQueue.add(action)
@@ -106,6 +117,9 @@ local function fixture(id)
     function inv:getFirstType(t)
         for _,item in ipairs(self.items) do if item:getFullType()==t then return item end end
     end
+    function inv:getFirstTypeEval(t,predicate)
+        for _,item in ipairs(self.items) do if item:getFullType()==t and predicate(item) then return item end end
+    end
     function inv:contains(item) return list(self.items):contains(item) end
     function inv:containsType(t) return self:getFirstType(t)~=nil end
     function inv:containsTypeRecurse(t) return self:containsType(t) end
@@ -117,6 +131,7 @@ local function fixture(id)
     function pane:getID() return self.id end
     function pane:getFullType() return 'RepairableWindows.LargeGlassPane' end
     function pane:getContainer() return self.container end
+    function pane:getIsCraftingConsumed() return self.consumed==true end
     inv.items={pane}
     local w={kind='IsoWindow',sq=here,smashed=true,glass=true,index=0,north=true,mirror=false}
     function w:getSquare() return self.sq end
@@ -265,8 +280,18 @@ function __runWindowCases()
         and actorShadow.inventory:contains(actorShadow.pane) and actorOther.inventory:contains(actorOther.pane))
     local unseen=fixture('unseen');unseen.body.visible=false
     check('unseen_window_not_offered',W.offer(unseen.id,unseen.body)==nil)
-    local behind=fixture('behind');behind.body.x=.75;behind.body.dx=1
+    local behind=fixture('behind');behind.body.y=.25;behind.body.dx=0;behind.body.dy=1
     check('behind_window_not_offered',W.offer(behind.id,behind.body)==nil)
+    local northSame=fixture('native-north-same');northSame.body.y=.25;northSame.body.dx=0;northSame.body.dy=-1
+    check('native_edge_facing_north_same_offered',W.offer(northSame.id,northSame.body)~=nil)
+    local westSame=fixture('native-west-same');westSame.window.north=false;westSame.body.x=.25;westSame.body.dx=-1;westSame.body.dy=0
+    check('native_edge_facing_west_same_offered',W.offer(westSame.id,westSame.body)~=nil)
+    local northOpposite=fixture('native-north-opposite');northOpposite.body.here=northOpposite.cell:getGridSquare(0,-1,0)
+    northOpposite.body.y=-.25;northOpposite.body.dx=0;northOpposite.body.dy=1
+    check('native_edge_facing_north_opposite_offered',W.offer(northOpposite.id,northOpposite.body)~=nil)
+    local westOpposite=fixture('native-west-opposite');westOpposite.window.north=false;westOpposite.body.here=westOpposite.cell:getGridSquare(-1,0,0)
+    westOpposite.body.x=-.25;westOpposite.body.dx=1;westOpposite.body.dy=0
+    check('native_edge_facing_west_opposite_offered',W.offer(westOpposite.id,westOpposite.body)~=nil)
     local hidden=fixture('hidden');hidden.square.objects={};local far=hidden.cell:getGridSquare(1,0,0)
     hidden.window.sq=far;far.objects={hidden.window};hidden.window.north=true
     check('noninteraction_side_not_offered',W.offer(hidden.id,hidden.body)==nil)
@@ -316,7 +341,7 @@ function __runWindowCases()
         local exiting=fixture('hold-'..kind)
         __decideHome(exiting.id,exiting.agent,exiting.body,50,exiting.rec)
         if kind=='threat' then exiting.rec.threat={dist=3} end
-        __windowHold(exiting.id,exiting.agent,exiting.body,kind=='deadline' and 1000 or 60)
+        __windowHold(exiting.id,exiting.agent,exiting.body,kind=='deadline' and exiting.agent.taskDeadline or 60)
         check('production_'..kind..'_hold_interrupts',exiting.agent.state=='IDLE' and exiting.window.smashed
             and exiting.inventory:contains(exiting.pane) and W.outcome(exiting.id,1).status=='interrupted')
     end
@@ -339,8 +364,9 @@ function __runWindowCases()
         and rewind.rec.windowRepair.nextResult==0 and rewind.rec.windowRepairWork.status=='interrupted')
     __hours=101
     local saved=fixture('saved');saved.rec.windowRepairWork={status='repairing',purposeId='gone'}
-    check('saved_active_work_does_not_replay_effect',W.active(saved.id,saved.body)==false
-        and saved.rec.windowRepairWork.status=='interrupted' and saved.window.smashed)
+    check('saved_active_work_does_not_replay_effect',W.active(saved.id,saved.body)==true
+        and saved.rec.windowRepairWork.status=='repairing' and saved.window.smashed
+        and saved.rec.windowRepairWork.purposeId=='gone')
     for _,kind in ipairs({'sparse','duplicate','future'}) do
         local malformed=fixture('malformed-'..kind)
         malformed.rec.windowRepair={schema=1,nextWork=1,nextResult=1,outcomes={['1']={}},order={1}}
@@ -371,7 +397,8 @@ function __runWindowCases()
         and repeated.window.smashed and repeated.inventory:contains(repeated.pane) and repeated.rec.windowRepair.nextResult==34)
     local board=fixture('board');board.inventory.items={};board.body.boardKit=true
     check('production_native_boarding_still_available',__decideHome(board.id,board.agent,board.body,50,board.rec)==true
-        and board.body.boarded==1 and board.agent.state=='BOARDING' and board.rec.windowRepair==nil)
+        and board.body.boardingAdmitted~=nil and board.body.boarded==nil
+        and board.agent.state=='BOARDING' and board.rec.windowRepair==nil)
     local mirror=fixture('native-receivers');__nativeOp('reset');mirror.window.mirror=true;mirror.inventory.mirror=true
     check('actual_native_material_present',__nativeOp('contains') and __nativeOp('first') and __nativeOp('smashed') and __nativeOp('glass'))
     local na=admitted(mirror)

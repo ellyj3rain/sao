@@ -15,6 +15,7 @@ import unittest
 from unittest.mock import patch
 
 import development_graph as dg
+from catalogue import BATCH_ID_PATTERN
 
 
 def reseal(graph):
@@ -288,7 +289,9 @@ class ContinuityGraphChecks(unittest.TestCase):
             result = result[:match.start()] + result[match.end():]
             # This fixture reopens D1 before its successors exist. A later
             # closed batch cannot precede the reopened chronology owner.
-            result = re.sub(r"^\| \[[D-Z]\d+\].*$", "", result, flags=re.M)
+            result = re.sub(rf"^\| \[({BATCH_ID_PATTERN})\].*$",
+                            lambda row: "" if row[1][0] >= "D" else row[0], result, flags=re.M)
+            result = re.sub(r"^Active:.*$", "", result, flags=re.M)
             result += "\nActive: [D1 — " + match[2].strip() + "](" + match[1] + ")\n"
         elif path.startswith("Batches/D1-"):
             self.assertIn("| Status | CLOSED -", result)
@@ -303,12 +306,70 @@ class ContinuityGraphChecks(unittest.TestCase):
         node = next(n for n in graph["nodes"] if n["id"] == "batch:D1")
         self.assertEqual(node["kind"], "active-batch")
         self.assertTrue(node["recordedStatus"].startswith("OPEN -"))
+        self.assertEqual({n["id"] for n in graph["nodes"] if n["id"].startswith("batch:D")}, {"batch:D1"})
         self.assertEqual({e["to"] for e in graph["edges"]
                           if e["from"] == "batch:D1" and e["relation"] == "depends-on"},
                          {"contract:20261003:C" + str(n) for n in (23, 30, 32, 33, 34)})
         self.assertTrue(any(e["from"] == "event:catalogue-compression:C:20261003"
                             and e["to"] == "batch:D1" and e["relation"] == "chronology"
                             for e in graph["edges"]))
+
+    def child_fixture(self, alter=None):
+        """Detached complete child record plus open parent; no production edits."""
+        temp = tempfile.TemporaryDirectory(prefix="sao-child-graph-")
+        self.addCleanup(temp.cleanup)
+        root = Path(temp.name)
+        (root / "Batches").mkdir()
+        parent_path = "Batches/D3-20261010-0344Z-2044PST-parent.md"
+        child_path = "Batches/D3.1-20261010-0344Z-2044PST-child.md"
+        index = (f"| [D3.1]({child_path}) | 2026-10-10 | Child | T-001 |\n"
+                 f"Active: [D3 — Parent]({parent_path})\n")
+        common = ("| Shared contracts | C23 |\n| Implementation | Detached fixture |\n"
+                  "| Verification | Detached fixture |\n| Publication | local-unmerged |\n"
+                  "| Opened | Detached fixture timestamp |\n")
+        parent = "| Batch | D3 |\n| Name | Parent |\n| Status | OPEN - fixture |\n| Follows | batch:D2 |\n" + common
+        child = ("| Batch | D3.1 |\n| Parent | batch:D3 |\n| Name | Child |\n"
+                 "| Status | CLOSED - fixture |\n| Follows | batch:D3 |\n| Closed | Detached closure |\n") + common
+        sources = {"BATCH_LOG.md": index, parent_path: parent, child_path: child, "seed.md": "Detached graph fixture."}
+        if alter:
+            alter(sources, parent_path, child_path)
+        for path, content in sources.items():
+            (root / path).write_text(content, encoding="utf-8")
+        builder = dg.Builder(root)
+        source = builder.source("seed.md")
+        builder.node("batch:D2", "batch", "D2", "Fixture predecessor.", [source])
+        builder.node("contract:20261003:C23", "contract", "C23", "Fixture contract.", [source])
+        dg._active_batch(builder)
+        return builder
+
+    def test_closed_child_keeps_parent_open_and_explicit_hierarchy(self):
+        builder = self.child_fixture()
+        self.assertEqual(builder.nodes["batch:D3"]["kind"], "active-batch")
+        self.assertEqual(builder.nodes["batch:D3.1"]["kind"], "batch")
+        self.assertTrue(builder.nodes["batch:D3"]["recordedStatus"].startswith("OPEN -"))
+        edges = list(builder.edges.values())
+        self.assertTrue(any(e["from"] == "batch:D3" and e["to"] == "batch:D3.1" and e["relation"] == "chronology" for e in edges))
+        hierarchy = [e for e in edges if e["relation"] == "child-of"]
+        self.assertEqual([(e["from"], e["to"]) for e in hierarchy], [("batch:D3.1", "batch:D3")])
+        self.assertTrue(hierarchy[0]["provenance"][0]["path"].startswith("Batches/D3.1-"))
+
+    def test_parent_relation_does_not_invent_chronology(self):
+        builder = self.child_fixture(lambda sources, _parent, child: sources.update({child: sources[child].replace("Follows | batch:D3", "Follows | batch:D2")}))
+        self.assertFalse(any(e["from"] == "batch:D3" and e["to"] == "batch:D3.1" and e["relation"] == "chronology" for e in builder.edges.values()))
+        self.assertTrue(any(e["relation"] == "child-of" for e in builder.edges.values()))
+
+    def test_child_hierarchy_and_identity_controls(self):
+        cases = (
+            (lambda s, _p, c: s.update({c: s[c].replace("Parent | batch:D3", "Parent | batch:D2")}), "Parent"),
+            (lambda s, _p, c: s.update({c: s[c].replace("| Parent | batch:D3 |\n", "")}), "Parent"),
+            (lambda s, _p, _c: s.update({"BATCH_LOG.md": s["BATCH_LOG.md"].replace("D3.1", "D3..1")}), "unmatched"),
+            (lambda s, _p, _c: s.update({"BATCH_LOG.md": s["BATCH_LOG.md"] + s["BATCH_LOG.md"].splitlines()[0] + "\n"}), "duplicate"),
+            (lambda s, _p, _c: s.update({"BATCH_LOG.md": s["BATCH_LOG.md"].split("Active:")[0]}), "predecessor|parent"),
+            (lambda s, p, _c: s.update({p: s[p].replace("Follows | batch:D2", "Follows | batch:D3.1")}), "cycle"),
+        )
+        for alter, message in cases:
+            with self.subTest(message=message), self.assertRaisesRegex(dg.GraphError, message):
+                self.child_fixture(alter)
 
     def test_closed_batch_refuses_malformed_identity_status_or_dependency(self):
         self.check_batch_record_controls(False)
@@ -340,6 +401,9 @@ class ContinuityGraphChecks(unittest.TestCase):
     def test_all_input_revisions_match_actual_bytes(self):
         for source in self.graph["sourceVector"]:
             self.assertEqual(source["revision"], dg.digest((dg.ROOT / source["sourceRef"]).read_bytes()), source["sourceRef"])
+
+    def test_shared_identity_parser_is_a_pinned_input(self):
+        self.assertIn("tools/catalogue.py", {source["sourceRef"] for source in self.graph["sourceVector"]})
 
     def test_source_revisions_reject_stale_provenance_control(self):
         self.bad(lambda g: g["nodes"][0]["sources"][0].update(revision="sha256:" + "0" * 64), "Provenance revision")

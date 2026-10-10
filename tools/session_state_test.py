@@ -35,14 +35,15 @@ WHAT THIS HOLDS
 import pathlib
 import re
 import sys
+from catalogue import BATCH_ID_PATTERN
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 STATE = ROOT / "SESSION_STATE.md"
 BATCH_LOG = ROOT / "BATCH_LOG.md"
 VERSION_FILE = ROOT / "VERSION"
 
-AS_OF = re.compile(r"\*\*As of\*\*[^\n]*?`?\[([A-Z]\d+)\]`?")  # one alphanumeric batch sequence
-ROW = re.compile(r"^\|\s*\[?`?\[?([A-Z]\d+)\]?`?\]?\(", re.M)  # one alphanumeric batch sequence
+AS_OF = re.compile(rf"\*\*As of\*\*[^\n]*?`?\[({BATCH_ID_PATTERN})\]`?")
+ROW = re.compile(rf"^\|\s*\[?`?\[?({BATCH_ID_PATTERN})\]?`?\]?\(", re.M)
 # A version string anywhere in the prose. The pre-release suffix
 # contains its own hyphen - `0.6.0.0-pre-alpha` - so the class has to
 # admit one, or this reads the shipped version as `0.6.0.0-pre` and

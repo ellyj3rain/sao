@@ -29,8 +29,10 @@ A/B retain the tier table below. Current C product tiers and rationales
 come from Batches/C_PRODUCT_CATALOGUE.json. Its generation-qualified
 sources retain separate implementation, verification and publication
 status; a version tier does not close every remaining D obligation.
-Delivered D tiers follow the C catalogue in POST_C_UNITS.
-NEXT_BATCH names the next unconsumed D identifier.
+Delivered D capability tiers follow C in POST_C_UNITS. Closed parent
+aggregations are recorded separately in POST_C_AGGREGATIONS and grant no tier.
+NEXT_BATCH names the declared unconsumed scope; an explicit active parent keeps
+that identity while delivered children close independently.
 Names, dates and threads come from BATCH_LOG.md. The
 replay derives the coordinate; --write stamps VERSION and renders
 VERSION_MAP.md; the border refuses a tree whose VERSION, VERSION_MAP.md
@@ -46,7 +48,7 @@ import pathlib
 import re
 import sys
 
-from catalogue import (CatalogueError, MANIFEST, index_rows,
+from catalogue import (CatalogueError, MANIFEST, index_rows, active_batch, batch_parent,
                        validate_catalogue, PRODUCT_MANIFEST, load_product_catalogue,
                        validate_product_catalogue)
 
@@ -159,11 +161,15 @@ TIER_MEANINGS = [
 ]
 
 
-# Land this delivered unit only with D1's actual closure record and index row.
+# Add credit owners only with their actual closure record and index row.
 POST_C_UNITS = [
     ("D1", "minor", "Shared person-specific conceptual reasoning and source-bound prior-history admission establish a live authoring/runtime contract."),
     ("D2", "kohai", "Leisure integrates personally acquired recreation, music, games, art and social participation with native action ownership, interruption, durable purposes and consequential private experience."),
+    ("D3.1", "minor", "Native material crafting establishes an exact privately acquired-input, installed-recipe, measured-output and authenticated-experience runtime contract within retained construction. The first D3 window/boarding join supplies its required integration; the OPEN parent receives no repeated credit."),
 ]
+# A closed parent that only aggregates previously credited descendants maps to
+# their exact credit-owner IDs. It is a chronological record, never a new tier.
+POST_C_AGGREGATIONS = {}
 NEXT_BATCH = "D3"
 
 
@@ -243,27 +249,88 @@ def classified_units(manifest=None):
                     for unit in manifest["units"]] + POST_C_UNITS
 
 
+def post_c_faults(indexed, active, units=None, aggregations=None, next_batch=None):
+    """Separate explicit closed chronology from capability credit and open scope."""
+    units = POST_C_UNITS if units is None else units
+    aggregations = POST_C_AGGREGATIONS if aggregations is None else aggregations
+    next_batch = NEXT_BATCH if next_batch is None else next_batch
+    faults = []
+    valid_units = []
+    for unit in units:
+        if (not isinstance(unit, (tuple, list)) or len(unit) != 3
+                or not isinstance(unit[0], str)):
+            faults.append("delivered D units require identifier, scope tier and rationale")
+            continue
+        label, tier, rationale = unit
+        try:
+            batch_parent(label)
+        except CatalogueError as exc:
+            faults.append(str(exc))
+            continue
+        if not label.startswith("D"):
+            faults.append("post-C credit owners must be D identifiers")
+        if tier not in ("minor", "kohai", "patch", "hotfix") or not isinstance(rationale, str) or not rationale.strip():
+            faults.append("delivered D units require a scope tier and nonempty rationale")
+        valid_units.append(label)
+    if len(valid_units) != len(set(valid_units)):
+        faults.append("duplicate delivered D credit owner")
+    if not isinstance(aggregations, dict):
+        return faults + ["closed parent aggregations must be an explicit mapping"]
+    closed = [label for label in indexed if label.startswith("D")]
+    if set(valid_units) & set(aggregations):
+        faults.append("closed parent aggregation cannot also receive version credit")
+    if set(closed) != set(valid_units) | set(aggregations):
+        faults.append("closed D records and explicit credit/aggregation coverage disagree")
+    if [label for label in closed if label in valid_units] != valid_units:
+        faults.append("delivered D capability credit must follow indexed chronological order")
+    for parent, owners in aggregations.items():
+        try:
+            batch_parent(parent)
+        except CatalogueError as exc:
+            faults.append(str(exc))
+            continue
+        if (not parent.startswith("D") or not isinstance(owners, (tuple, list))
+                or not owners or any(not isinstance(owner, str) for owner in owners)
+                or len(owners) != len(set(owners))):
+            faults.append("closed parent aggregation requires unique descendant credit owners")
+            continue
+        # Freeze the parent's aggregation at its closure position. Later child
+        # work receives later credit without rewriting the closed parent history.
+        descendants = [owner for owner in valid_units if owner.startswith(parent + ".")
+                       and owner in closed and parent in closed
+                       and closed.index(owner) < closed.index(parent)]
+        if list(owners) != descendants:
+            faults.append("closed parent aggregation must name its exact credited descendants at closure in order")
+        if parent in closed and any(owner not in closed or closed.index(owner) >= closed.index(parent) for owner in owners):
+            faults.append("closed parent aggregation must follow its credited descendants")
+    try:
+        batch_parent(next_batch)
+    except CatalogueError as exc:
+        faults.append(str(exc))
+    if not isinstance(next_batch, str) or not next_batch.startswith("D"):
+        faults.append("NEXT_BATCH must name a declared unconsumed D scope")
+    if active is not None and active != next_batch:
+        faults.append("NEXT_BATCH must retain the explicitly active D scope")
+    if isinstance(next_batch, str) and next_batch in indexed:
+        faults.append("NEXT_BATCH must remain unconsumed in BATCH_LOG")
+    return faults
+
+
 def catalogue_inputs():
     """Validate source preservation and index agreement before any stamp write."""
     manifest = load_product_catalogue(ROOT)
     faults = validate_product_catalogue(ROOT, manifest)
     if faults:
         raise CatalogueError("; ".join(faults))
-    post_ids = [unit[0] for unit in POST_C_UNITS]
-    if post_ids != [f"D{i}" for i in range(1, len(POST_C_UNITS) + 1)]:
-        faults.append("delivered D units must be unique D1..Dn in chronological order")
-    if any(tier not in ("minor", "kohai", "patch", "hotfix")
-           or not isinstance(rationale, str) or not rationale.strip()
-           for _batch, tier, rationale in POST_C_UNITS):
-        faults.append("delivered D units require a scope tier and nonempty rationale")
-    if NEXT_BATCH != f"D{len(POST_C_UNITS) + 1}":
-        faults.append("NEXT_BATCH must name the next unconsumed D identifier")
-    indexed = index_rows(BATCH_LOG.read_text(encoding="utf-8"))
+    text = BATCH_LOG.read_text(encoding="utf-8")
+    indexed = index_rows(text)
+    active = active_batch(text)
+    faults.extend(post_c_faults(indexed, active[0] if active else None))
+    if faults:
+        raise CatalogueError("; ".join(faults))
     units = classified_units(manifest)
     ids = [unit[0] for unit in units]
-    if NEXT_BATCH in indexed:
-        faults.append("NEXT_BATCH must remain unconsumed in BATCH_LOG")
-    if ids != list(indexed):
+    if ids != [label for label in indexed if label not in POST_C_AGGREGATIONS]:
         faults.append("tier table and BATCH_LOG disagree about classified delivered scope coverage/order")
     for unit in manifest["units"]:
         row = indexed.get(unit["id"])
@@ -290,8 +357,9 @@ def render(inputs=None):
     manifest, units, rows = inputs if inputs is not None else catalogue_inputs()
     trace = replay(units)
     current = trace[-1][3]
-    tip = units[-1][0]
+    tip = next(reversed(rows))
     nxt = NEXT_BATCH
+    hierarchy = any("." in label for label in rows) or bool(POST_C_AGGREGATIONS)
     lines = [
         "# Version map",
         "",
@@ -323,7 +391,7 @@ def render(inputs=None):
         f"| Current version | `{current}` |",
         f"| Classified delivered scope | `A1-{tip}` |",
         f"| Current C generation | `{manifest['generation']}` |",
-        f"| Next batch | `{nxt}` |",
+        f"| {'Unconsumed scope' if hierarchy else 'Next batch'} | `{nxt}` |",
         "| Executable source | [`tools/version_replay.py`](tools/version_replay.py) |",
         "",
         "## Tier meanings",
@@ -343,6 +411,19 @@ def render(inputs=None):
     for batch, tier, rationale, version in trace:
         date, name, _threads = rows[batch]
         lines.append(f"| `{batch}` | {date} | {tier} | `{version}` | {name} | {rationale} |")
+    if hierarchy:
+        lines += ["", "Dotted labels record child scope. Each capability row above receives credit once;",
+                  "child delivery leaves its explicitly active parent open. Closed parent aggregation",
+                  "records name existing credit owners separately and grant no additional tier."]
+    if POST_C_AGGREGATIONS:
+        lines += ["", "## Closed parent aggregations", "",
+                  "These chronological closure records aggregate already credited descendants and grant no additional tier.", "",
+                  "| Parent | Date | Credited descendants | Name |", "|---|---|---|---|"]
+        for parent in rows:
+            if parent in POST_C_AGGREGATIONS:
+                day, name, _threads = rows[parent]
+                owners = ", ".join(f"`{owner}`" for owner in POST_C_AGGREGATIONS[parent])
+                lines.append(f"| `{parent}` | {day} | {owners} | {name} |")
     lines += [
         "", "## Current C products and retained source history", "",
         "Each C product tier credits its coherent capability once. Each retained",
@@ -381,11 +462,12 @@ def render(inputs=None):
         "",
         "## Next movement",
         "",
-        f"`{nxt}` is the next unused catalogue identifier. Current open extensions",
+        (f"`{nxt}` remains the declared unconsumed scope; subsequent delivered children or new capability units"
+         if hierarchy else f"`{nxt}` is the next unused catalogue identifier. Current open extensions"),
         "remain with their owners; this projection does not close them or start",
         "another batch. Subsequent delivered work determines its own tier:",
         "",
-        f"| If {nxt} is | Result |",
+        f"| {'If newly delivered scope is' if hierarchy else 'If ' + nxt + ' is'} | Result |",
         "|---|---|",
     ]
     v = parse_version(current)

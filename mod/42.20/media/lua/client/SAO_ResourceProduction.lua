@@ -3,6 +3,7 @@ require "TimedActions/ISTakeWaterAction"
 SAO = SAO or {}
 SAO.ResourceProduction = SAO.ResourceProduction or {}
 local R = SAO.ResourceProduction
+local craftBegin, craftInterrupt, craftTick, craftOutcome, craftRecover
 local KNOWN_FIXTURE_SEARCH_RADIUS = 32
 local MAX_CARRIED_RELIEF_ITEMS = 240
 local runtime = {}
@@ -191,17 +192,26 @@ end
 function R.outcome(id, workId)
     local rec = SAO.Identity.get(id)
     for _, receipt in ipairs(rec and rec.resourceProductionOutcomes or {}) do
-        if receipt.id == workId then return receipt end
+        if receipt.id == workId then
+            if receipt.kind == "saw-logs" then return craftOutcome(id, receipt) end
+            return receipt
+        end
     end
 end
 local function reconcile(id)
     local rec, planning = SAO.Identity.get(id), SAO.ProceduralPlanning
     for _, receipt in ipairs(rec and rec.resourceProductionOutcomes or {}) do
-        if receipt.purposeId and not receipt.purposeDelivered and planning and planning.consumeProductionResult
-            and planning.consumeProductionResult(id, receipt) then receipt.purposeDelivered = true end
+        local consumer = planning and (receipt.kind == "saw-logs" and planning.consumeCraftProductionResult
+            or receipt.kind ~= "saw-logs" and planning.consumeProductionResult)
+        local result = receipt.kind == "saw-logs" and craftOutcome(id, receipt) or receipt
+        if result and receipt.purposeId and not receipt.purposeDelivered and consumer
+            and consumer(id, result) then receipt.purposeDelivered = true end
         if not receipt.experienceDelivered and R.onOutcome then
-            local delivered, result = pcall(R.onOutcome, id, receipt)
-            if delivered and result == true then receipt.experienceDelivered = true end
+            if receipt.kind == "saw-logs" then result = craftOutcome(id, receipt) end
+            if result then
+                local delivered, accepted = pcall(R.onOutcome, id, result)
+                if delivered and accepted == true then receipt.experienceDelivered = true end
+            end
         end
     end
 end
@@ -292,8 +302,600 @@ local function queue(id, rt, work)
     work.stage = "filling"
     return true
 end
+-- SawLogs is one operation of this transformation owner. Native handles and
+-- exact input lists live only in its capsule, never in the person's save.
+local CRAFT_SEAL, CRAFT_RECIPE, CRAFT_LIMIT = {}, "Base.SawLogs", 32
+local craftInstalled = false
+local function finite(v) return type(v)=="number" and v==v and v~=math.huge and v~=-math.huge end
+local function integer(v) return finite(v) and v>=0 and v<1000000000 and v%1==0 end
+local function textId(v) return type(v)=="string" and #v>0 and #v<=256 end
+local function now() local v=hours(); return finite(v) and v>=0 and v or nil end
+local function craftLedger(rec)
+    if not rec or not integer(rec.resourceProductionSequence or 0) then return false end
+    local rows=rec.resourceProductionOutcomes
+    if rows==nil then return true end
+    if type(rows)~="table" or getmetatable(rows) or #rows>CRAFT_LIMIT then return false end
+    local count, previous, seen=0,0,{}
+    for k in pairs(rows) do if not integer(k) or k<1 or k>#rows then return false end; count=count+1 end
+    if count~=#rows then return false end
+    for _,row in ipairs(rows) do
+        if type(row)~="table" or getmetatable(row) or not integer(row.sequence) or row.sequence<1
+            or row.sequence<=previous or row.sequence>(rec.resourceProductionSequence or 0)
+            or row.actorId~=rec.id or row.id~="resource-production/"..tostring(rec.id).."/"..row.sequence
+            or seen[row.id] then return false end
+        previous,seen[row.id]=row.sequence,true
+    end
+    return true
+end
+local CRAFT_FIELDS={id=true,workId=true,sequence=true,actorId=true,kind=true,category=true,recipeId=true,
+    logItemId=true,logItemType=true,sawItemId=true,sawItemType=true,purposeId=true,purposeStepId=true,
+    requestedPurposeId=true,requestedPurposeStepId=true,token=true,status=true,detail=true,
+    startedAt=true,atHours=true,endedAt=true,world=true,bodyToken=true,x=true,y=true,z=true,entryKey=true,
+    beforeLogUses=true,afterLogUses=true,sawConditionBefore=true,sawConditionAfter=true,
+    logConsumed=true,sawRetained=true,held=true,nativeAttempted=true,nativeOwner=true,
+    outputCount=true,outputs=true,nativeCredit=true,nativeObservability=true,
+    purposeDelivered=true,experienceDelivered=true}
+local function craftIdentity(id, row)
+    return type(row)=="table" and not getmetatable(row) and row.actorId==id
+        and row.id=="resource-production/"..tostring(id).."/"..tostring(row.sequence)
+        and integer(row.sequence) and row.sequence>0 and row.kind=="saw-logs"
+        and row.recipeId==CRAFT_RECIPE and row.category=="plank" and row.token=="resource:crafted"
+        and textId(row.purposeId) and textId(row.purposeStepId) and textId(row.logItemId)
+        and row.logItemType=="Base.Log" and textId(row.sawItemId) and textId(row.sawItemType)
+        and row.logItemId~=row.sawItemId and textId(row.world) and (row.bodyToken==nil or textId(row.bodyToken))
+        and textId(row.entryKey) and finite(row.x) and row.x%1==0 and finite(row.y) and row.y%1==0
+        and finite(row.z) and row.z%1==0 and finite(row.startedAt) and row.startedAt>=0
+        and integer(row.beforeLogUses) and row.beforeLogUses==1
+        and integer(row.sawConditionBefore) and row.sawConditionBefore>0
+end
+craftOutcome=function(id,row)
+    local rec=SAO.Identity.get(id)
+    if not craftLedger(rec) or not craftIdentity(id,row) or row.sequence>rec.resourceProductionSequence
+        or row.workId~=row.id or row.nativeOwner~="ISHandcraftAction" or not textId(row.detail)
+        or not finite(row.atHours) or row.atHours<row.startedAt or row.endedAt~=row.atHours
+        or (row.status~="completed" and row.status~="interrupted" and row.status~="failed")
+        or type(row.nativeAttempted)~="boolean" or type(row.logConsumed)~="boolean"
+        or type(row.sawRetained)~="boolean" or type(row.held)~="boolean" or not integer(row.outputCount)
+        or type(row.outputs)~="table" or getmetatable(row.outputs) or #row.outputs>3
+        or row.outputCount~=#row.outputs then return nil end
+    local out, seen, count={}, {}, 0
+    for k,v in pairs(row) do
+        if not CRAFT_FIELDS[k] then return nil end
+        if k~="outputs" then
+            local kind=type(v)
+            if kind~="string" and kind~="number" and kind~="boolean" or kind=="number" and not finite(v)
+                or kind=="string" and #v>512 then return nil end
+            out[k]=v
+        end
+    end
+    out.outputs={}
+    for k,v in pairs(row.outputs) do
+        if not integer(k) or k<1 or k>#row.outputs or type(v)~="table" or getmetatable(v)
+            or not textId(v.itemId) or v.itemType~="Base.Plank" or seen[v.itemId]
+            or v.itemId==row.logItemId or v.itemId==row.sawItemId then return nil end
+        for field in pairs(v) do if field~="itemId" and field~="itemType" then return nil end end
+        count=count+1; seen[v.itemId]=true; out.outputs[k]={itemId=v.itemId,itemType=v.itemType}
+    end
+    if count~=#row.outputs or row.purposeDelivered~=nil and type(row.purposeDelivered)~="boolean"
+        or row.experienceDelivered~=nil and type(row.experienceDelivered)~="boolean" then return nil end
+    if row.nativeObservability~=nil then
+        if row.nativeObservability~="runtime-unavailable" or row.status~="interrupted"
+            or row.nativeAttempted or row.logConsumed or row.sawRetained or row.held or row.outputCount~=0
+            or row.afterLogUses~=nil or row.sawConditionAfter~=nil or row.nativeCredit~=nil then return nil end
+    elseif not integer(row.afterLogUses) or not integer(row.sawConditionAfter)
+        or row.sawConditionAfter>row.sawConditionBefore then return nil end
+    if row.status=="completed" and (not row.nativeAttempted or not row.logConsumed or not row.sawRetained
+        or not row.held or row.outputCount~=3 or row.afterLogUses~=0 or row.nativeCredit~=row.id) then return nil end
+    if row.status~="completed" and row.nativeCredit~=nil or row.logConsumed and not row.nativeAttempted
+        or row.outputCount>0 and not row.nativeAttempted then return nil end
+    return out
+end
+local function installCraft()
+    if craftInstalled then return true end
+    local action=pcall(require,"Entity/TimedActions/ISHandcraftAction")
+    local transfer=pcall(require,"TimedActions/ISInventoryTransferAction")
+    craftInstalled=action and transfer and type(ISHandcraftAction)=="table"
+        and type(ISHandcraftAction.new)=="function" and type(ISHandcraftAction.performRecipe)=="function"
+        and type(ISInventoryTransferAction)=="table" and type(ISInventoryTransferAction.perform)=="function"
+        and ScriptManager and ScriptManager.instance and HandcraftLogic and ArrayList and CraftRecipeManager
+    return craftInstalled and true or false
+end
+local function registeredRecipe()
+    return installCraft() and ScriptManager.instance:getCraftRecipe(CRAFT_RECIPE) or nil
+end
+local function craftPosition(id,body)
+    local world,sq=getWorld(),body:getCurrentSquare()
+    return world and sq and body:getCell()==world:getCell() and sq:canStand()
+        and body:getCell():getGridSquare(sq:getX(),sq:getY(),sq:getZ())==sq
+        and (body:getCell():getObjectList():contains(body) or body:getCell():getAddList():contains(body))
+        and SAO.Standing.mayTakeCurrent(id,sq:getX(),sq:getY(),"standing")==true
+end
+function R.craftingAvailable(id,body)
+    local ok,available=pcall(function()
+        local recipe=registeredRecipe()
+        if not owner(id,body) or not now() or not recipe or not craftPosition(id,body)
+            or not CraftRecipeManager.hasPlayerLearnedRecipe(recipe,body) then return false end
+        for i=0,recipe:getRequiredSkillCount()-1 do
+            if not CraftRecipeManager.hasPlayerRequiredSkill(recipe:getRequiredSkill(i),body) then return false end
+        end
+        return true
+    end)
+    return ok and available==true
+end
+local function craftCarried(body,itemId,itemType,maxItems)
+    local items=SAOJavaBridge:privateCarriedItems(body)
+    if items:size()>(maxItems or 512) then return nil end
+    local found
+    for i=0,items:size()-1 do
+        local item=items:get(i)
+        if same(item:getID(),itemId) then
+            if found or item:getFullType()~=itemType then return nil end
+            found=item
+        end
+    end
+    return found
+end
+local function ownItem(rt,item)
+    local container=item and item:getContainer()
+    return container and rt.inventory:containsRecursive(item)
+        and (container==rt.inventory or container:getOutermostContainer()==rt.inventory)
+end
+local function craftPurpose(rec,work)
+    local state=rec.proceduralPlanning
+    local p=state and state.purposes and state.purposes[work.purposeId]
+    local step=p and p.steps and p.steps[p.cursor]
+    local a=p and p.admission
+    if not p or p.status=="completed" or p.status=="abandoned" or not p.materialWork
+        or p.materialWork.operation~="board" or p.materialWork.entryKey~=work.entryKey
+        or not step or step.id~=work.purposeStepId or step.owner~="SAO.ResourceProduction"
+        or step.token~="resource:crafted" or step.productionKind~="saw-logs" or step.recipeId~=CRAFT_RECIPE
+        or step.logItemId~=work.logItemId or step.logItemType~=work.logItemType
+        or step.sawItemId~=work.sawItemId or step.sawItemType~=work.sawItemType
+        or not a or a.owner~=step.owner or a.correlationId~=work.id or a.stepId~=step.id
+        or a.target~=step.target or not finite(a.at) or a.at<work.startedAt then return nil end
+    return p,step,a
+end
+local function craftBound(rt,materials)
+    local rec,body,work=owner(rt.id,rt.body),rt.body,rt.work
+    local p,step
+    if rec then p,step=craftPurpose(rec,work) end
+    local world=getWorld()
+    if rec~=rt.record or runtime[rt.id]~=rt or rt.cancelling or rec.resourceProductionWork~=work
+        or not craftIdentity(rt.id,work) or work.id~=rt.workId or work.startedAt~=rt.startedAt
+        or work.bodyToken~=rt.token or work.world~=rt.world or not craftLedger(rec)
+        or work.entryKey~=rt.entryKey or work.x~=rt.square:getX() or work.y~=rt.square:getY() or work.z~=rt.square:getZ()
+        or work.beforeLogUses~=rt.beforeLogUses or work.sawConditionBefore~=rt.sawConditionBefore
+        or not now() or now()<rt.startedAt or not world or world:getWorld()~=rt.world
+        or world:getCell()~=rt.cell or body:getCell()~=rt.cell or body:getCurrentSquare()~=rt.square
+        or body:getInventory()~=rt.inventory or body:getModData().SAOExternalToken~=rt.token
+        or not craftPosition(rt.id,body) or math.abs(body:getX()-rt.x)>.01 or math.abs(body:getY()-rt.y)>.01
+        or math.floor(body:getZ())~=work.z or p~=rt.purpose or step~=rt.step
+        or ISTimedActionQueue.getTimedActionQueue(body)~=rt.queue or registeredRecipe()~=rt.recipe then return false end
+    if materials then
+        if not ownItem(rt,rt.log) or not ownItem(rt,rt.saw)
+            or craftCarried(body,work.logItemId,work.logItemType)~=rt.log
+            or craftCarried(body,work.sawItemId,work.sawItemType)~=rt.saw
+            or rt.log:getCurrentUses()~=work.beforeLogUses or rt.log:getIsCraftingConsumed()
+            or rt.saw:getCondition()~=work.sawConditionBefore or rt.saw:isBroken()
+            or rt.saw:getIsCraftingConsumed() or not rt.saw:hasTag(ItemTag.SAW)
+            or rt.prepared and (rt.log:getContainer()~=rt.inventory or rt.saw:getContainer()~=rt.inventory) then return false end
+    end
+    return true
+end
+local function craftSelection(rt)
+    local logic=HandcraftLogic.new(rt.body,nil,nil)
+    local containers=ArrayList.new(); containers:add(rt.inventory)
+    for _,item in ipairs({rt.log,rt.saw}) do
+        if item:getContainer()~=rt.inventory and not containers:contains(item:getContainer()) then containers:add(item:getContainer()) end
+    end
+    logic:setContainers(containers); logic:setRecipe(rt.recipe); logic:setTargetVariableInputRatio(1)
+    logic:setManualSelectInputs(true); logic:clearManualInputs()
+    local manual,inputs={},rt.recipe:getInputs()
+    if inputs:size()~=2 then return nil end
+    local seen={}
+    for _,item in ipairs({rt.log,rt.saw}) do
+        local input=CraftRecipeManager.getValidInputScriptForItem(rt.recipe,item,rt.body)
+        if not input or input:getResourceType()~=ResourceType.Item or input:getIntAmount()~=1
+            or input:isKeep()~=(item==rt.saw) or seen[input] then return nil end
+        seen[input]=true
+        local items=ArrayList.new(); items:add(item)
+        if logic:setManualInputsFor(input,items)~=true then return nil end
+        manual[rt.recipe:getIndexForIO(input)]=items
+    end
+    for i=0,inputs:size()-1 do if not seen[inputs:get(i)] then return nil end end
+    if logic:canPerformCurrentRecipe()~=true then return nil end
+    return logic,containers,manual,logic:getRecipeData():getAllInputItems()
+end
+local function craftExactInputs(c)
+    local a,rt=c.action,c.rt
+    if a.craftRecipe~=rt.recipe or a.character~=rt.body or a.isoObject~=nil or a.craftBench~=nil
+        or a.recipeItem~=nil or a.force or a.variableInputRatio~=1 or a.eatPercentage~=0
+        or a.manualInputs~=c.manual or a.containers~=c.containers or a.items~=c.items then return false end
+    local count,seen=0,{}
+    for index,items in pairs(a.manualInputs) do
+        local input=rt.recipe:getIOForIndex(index)
+        if not input or items:size()~=1 then return false end
+        local item=items:get(0)
+        if item~=rt.log and item~=rt.saw or seen[item]
+            or CraftRecipeManager.getValidInputScriptForItem(rt.recipe,item,rt.body)~=input then return false end
+        count=count+1;seen[item]=true
+    end
+    return count==2 and c.items:size()==2 and c.items:contains(rt.log) and c.items:contains(rt.saw)
+end
+local function craftCapsule(action)
+    local f=action and action._SAOCraftBinding
+    return type(f)=="function" and f(CRAFT_SEAL) or nil
+end
+local function craftCurrent(c)
+    return craftCapsule(c.action)==c and runtime[c.rt.id]==c.rt and c.rt.current==c
+        and c.rt.queue.current==c.action and c.rt.queue.queue[1]==c.action and c.rt.queue:indexOf(c.action)==1
+end
+local function craftNativeEnded(action)
+    local ok,ended=pcall(function() return action.action and action.action:isStarted()
+        and (action.action:finished() or action.action:isForceComplete()) end)
+    return ok and ended==true
+end
+local function craftRetired(rt)
+    for _,c in ipairs(rt.actions) do
+        if rt.queue:indexOf(c.action)~=-1 or rt.queue.current==c.action or c.action.action and not c.ack then return false end
+    end
+    return true
+end
+local function craftMeasurement(rt)
+    local work=rt.work
+    local measured={afterLogUses=math.max(0,rt.log:getCurrentUses()),sawConditionAfter=rt.saw:getCondition(),
+        logConsumed=rt.nativeAttempted==true and not rt.inventory:containsRecursive(rt.log) and rt.log:getCurrentUses()==0,
+        sawRetained=ownItem(rt,rt.saw) and same(rt.saw:getID(),work.sawItemId) and rt.saw:getFullType()==work.sawItemType,
+        held=true,outputs={},outputCount=0,nativeAttempted=rt.nativeAttempted==true}
+    local seen={}
+    for _,item in ipairs(rt.outputItems or {}) do
+        local id=tostring(item:getID())
+        if #measured.outputs>=3 or seen[id] or rt.beforeIds[id] or item:getFullType()~="Base.Plank" then measured.held=false; break end
+        seen[id]=true; measured.outputs[#measured.outputs+1]={itemId=id,itemType=item:getFullType()}
+        -- SawLogs consumes one admitted item and creates three; only its exact outputs allow that net gain.
+        if not ownItem(rt,item) or craftCarried(rt.body,id,"Base.Plank",514)~=item then measured.held=false end
+    end
+    measured.outputCount=#measured.outputs
+    return measured
+end
+local function craftDispose(rt)
+    runtime[rt.id]=nil
+    for _,c in ipairs(rt.actions) do
+        local a=c.action; a._SAOCraftBinding=false
+        a._SAOCraftRetireSaved=false
+        local function inert() return false end
+        a.isValidStart,a.isValid,a.start,a.serverStart,a.perform,a.performRecipe,a.complete,a.stop,a.forceCancel=
+            inert,inert,inert,inert,inert,inert,inert,inert,inert
+    end
+end
+local function craftClose(rt,status,detail)
+    local rec,work,t=rt.record,rt.work,now()
+    if not craftRetired(rt) or SAO.Identity.get(rt.id)~=rec or rec.resourceProductionWork~=work
+        or not craftIdentity(rt.id,work) or not craftLedger(rec) or not t or t<rt.startedAt then return false end
+    local rows=rec.resourceProductionOutcomes or {}
+    for _,row in ipairs(rows) do if row.id==work.id then return false end end
+    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    local m=craftMeasurement(rt)
+    if status=="completed" and (not rt.nativeCompleted or not rt.nativeAttempted or not rt.paymentMeasured
+        or not m.logConsumed or not m.sawRetained or not m.held or m.outputCount~=3) then
+        status,detail="failed","native-plank-output-not-proven"
+    end
+    local row={}
+    for key in pairs(CRAFT_FIELDS) do if key~="outputs" then row[key]=work[key] end end
+    row.workId,row.status,row.detail,row.nativeOwner=work.id,status,detail,"ISHandcraftAction"
+    row.atHours,row.endedAt=t,t
+    for k,v in pairs(m) do row[k]=v end
+    row.nativeCredit=status=="completed" and work.id or nil
+    rows[#rows+1]=row; rec.resourceProductionOutcomes=rows
+    if #rows>CRAFT_LIMIT then table.remove(rows,1) end
+    if not craftOutcome(rt.id,row) then table.remove(rows); return false end
+    rec.resourceProductionWork=nil; rt.closed=true; craftDispose(rt); reconcile(rt.id)
+    if SAO.Observation then pcall(SAO.Observation.record,rt.id,"ResourceProduction",status,
+        status=="completed" and "Sawed a carried log into planks" or "Plank crafting: "..detail) end
+    return true
+end
+local function craftRefuse(rt,reason)
+    rt.cancelling,rt.cancelReason=true,rt.cancelReason or reason
+    if rt.record.resourceProductionWork==rt.work then rt.work.status="interrupted" end
+    return false
+end
+local function craftRecoveryAnchor(rt,rec,work)
+    return SAO.Identity.get(rt.id)==rec and rec.id==rt.id and craftIdentity(rt.id,work) and work.id==rt.workId
+        and work.purposeId==rt.work.purposeId and work.purposeStepId==rt.work.purposeStepId
+        and work.logItemId==rt.work.logItemId and work.sawItemId==rt.work.sawItemId
+        and work.bodyToken==rt.token and work.world==rt.world and work.startedAt==rt.startedAt
+        and work.entryKey==rt.entryKey and work.x==rt.square:getX() and work.y==rt.square:getY() and work.z==rt.square:getZ()
+        and work.beforeLogUses==rt.beforeLogUses and work.sawConditionBefore==rt.sawConditionBefore
+end
+local function craftSavedRetirement(rt,c)
+    c.action.actorId,c.action.workId,c.action.bodyToken=rt.id,rt.workId,rt.token
+    c.action._SAOCraftRetireSaved=function(rec,work)
+        if craftCapsule(c.action)~=c or not craftRecoveryAnchor(rt,rec,work) then return false end
+        local closed=craftInterrupt(rt.id,rt.body,"craft-runtime-unavailable")
+        if not closed and craftRetired(rt) and rec.resourceProductionWork~=rt.work then craftDispose(rt);return true end
+        return closed
+    end
+end
+local craftEnqueue
+local function craftGuardStop(rt,c,transfer)
+    local a=c.action
+    function a:stop()
+        if c.ack or craftCapsule(self)~=c then return false end
+        local owned=craftCurrent(c)
+        craftRefuse(rt,"native-craft-stopped")
+        if owned and craftCurrent(c) then
+            if transfer then
+                pcall(function() self:playSourceContainerCloseSound() end)
+                pcall(function() self:playDestContainerCloseSound() end)
+                pcall(function() self:stopLoopingSound() end)
+                pcall(function() c.item:setJobDelta(0) end)
+                pcall(function() if self.action then self.action:setLoopedAction(false) end end)
+                pcall(function() removeItemTransaction(self.transactionId,true) end)
+                self.started=false
+            else
+                pcall(function() self:clearItemsProgressBar(false) end)
+                pcall(function() self:stopSound() end)
+            end
+            rt.body:setIsFarming(false)
+            c.ack=true; rt.queue:onCompleted(self)
+        else
+            c.ack=true; rt.queue:removeFromQueue(self)
+            if rt.queue.current==self then rt.queue.current=nil end
+        end
+        craftClose(rt,"interrupted",rt.cancelReason); return true
+    end
+    function a:forceCancel()
+        if c.ack or craftCapsule(self)~=c then return false end
+        craftRefuse(rt,"native-craft-force-cancel")
+        if not self.action then
+            c.ack=true; rt.queue:removeFromQueue(self)
+            if rt.queue.current==self then rt.queue.current=nil end
+        end
+        return false
+    end
+end
+local function craftTransfer(rt,item)
+    local source=item:getContainer()
+    local a=ISInventoryTransferAction:new(rt.body,item,source,rt.inventory)
+    local c={rt=rt,action=a,item=item,source=source,kind="transfer"}
+    a._SAOCraftBinding=function(seal) if seal==CRAFT_SEAL then return c end end
+    a.canMergeAction=function() return false end
+    local nativeValid,nativePerform=a.isValid,a.perform
+    local function valid()
+        return craftCapsule(a)==c and not c.done and craftBound(rt,true)
+            and a.item==item and a.srcContainer==source and a.destContainer==rt.inventory
+            and item:getContainer()==source and source:getOutermostContainer()==rt.inventory and source:contains(item)
+    end
+    function a:isValidStart() return valid() and nativeValid(self)==true or false end
+    function a:isValid() return valid() and nativeValid(self)==true or false end
+    function a:perform()
+        local ql=self.queueList
+        if c.performed or not craftCurrent(c) or not craftNativeEnded(self) or not valid()
+            or type(ql)~="table" or #ql~=1 or #ql[1].items~=1 or ql[1].items[1]~=item then
+            return craftRefuse(rt,"craft-transfer-owner-changed")
+        end
+        c.performed=true
+        local ok=pcall(nativePerform,self)
+        c.done,c.ack=true,true
+        if not ok or not craftBound(rt,true) or item:getContainer()~=rt.inventory or source:contains(item)
+            or rt.queue:indexOf(self)~=-1 or rt.queue.current==self then return craftRefuse(rt,"craft-transfer-unconfirmed") end
+        return craftEnqueue(rt,c.position+1)
+    end
+    function a:complete() return false end
+    craftGuardStop(rt,c,true)
+    c.position=#rt.actions+1;rt.actions[c.position]=c
+    craftSavedRetirement(rt,c)
+end
+local function craftAction(rt,containers,manual,items)
+    local a=ISHandcraftAction:new(rt.body,rt.recipe,containers,nil,nil,manual,items,nil,1,0)
+    local c={rt=rt,action=a,kind="craft",manual=a.manualInputs,containers=containers,items=items}
+    a._SAOCraftBinding=function(seal) if seal==CRAFT_SEAL then return c end end
+    local valid,start,perform,complete,performRecipe=a.isValid,a.start,a.perform,a.complete,a.performRecipe
+    function a:isValidStart() return not c.done and craftBound(rt,true) and craftExactInputs(c) and valid(self)==true or false end
+    function a:isValid() return not c.done and craftBound(rt,true) and craftExactInputs(c) and valid(self)==true or false end
+    function a:start()
+        if not craftCurrent(c) or not self:isValid() then return craftRefuse(rt,"craft-start-owner-changed") end
+        local ok=pcall(start,self)
+        c.logic=self.logic
+        if not ok or not self.craftStarted or not craftBound(rt,true) or not craftExactInputs(c)
+            or not c.logic or c.logic:isManualSelectInputs()~=true or c.logic:canPerformCurrentRecipe()~=true then
+            return craftRefuse(rt,"native-craft-start-refused")
+        end
+        rt.work.stage="crafting"; return true
+    end
+    function a:serverStart() return false end -- Owned shell work is admitted locally; no unbound network replay.
+    function a:performRecipe()
+        if c.effectInvoked or not c.performing or not craftCurrent(c) or not craftNativeEnded(self)
+            or not craftBound(rt,true) or not craftExactInputs(c) or self.logic~=c.logic
+            or not self.craftStarted or c.logic:isManualSelectInputs()~=true
+            or c.logic:canPerformCurrentRecipe()~=true then return craftRefuse(rt,"craft-effect-owner-changed") end
+        local applied=c.logic:getRecipeData():getAllInputItems()
+        if applied:size()~=2 or not applied:contains(rt.log) or not applied:contains(rt.saw) then
+            return craftRefuse(rt,"craft-applied-inputs-changed")
+        end
+        c.effectInvoked,rt.nativeAttempted=true,true
+        local ok=pcall(performRecipe,self)
+        local data=c.logic:getRecipeData()
+        local made,consumed=data:getAllCreatedItems(),data:getAllConsumedItems()
+        rt.outputItems={}
+        for i=0,math.min(made:size(),4)-1 do rt.outputItems[#rt.outputItems+1]=made:get(i) end
+        rt.paymentMeasured=consumed:contains(rt.log) and not rt.inventory:containsRecursive(rt.log)
+            and rt.log:getCurrentUses()==0 and ownItem(rt,rt.saw)
+        local m=craftMeasurement(rt)
+        rt.nativeCompleted=ok and not rt.cancelling and craftBound(rt,false) and rt.paymentMeasured
+            and m.logConsumed and m.sawRetained and m.held and made:size()==3 and m.outputCount==3
+        if not rt.nativeCompleted then craftRefuse(rt,"native-craft-effect-unconfirmed") end
+        return rt.nativeCompleted
+    end
+    function a:perform()
+        if c.performed or c.done or not craftCurrent(c) or not craftNativeEnded(self)
+            or not c.logic or not craftBound(rt,true) or not craftExactInputs(c) then
+            return craftRefuse(rt,"craft-perform-owner-changed")
+        end
+        c.performed,c.performing=true,true
+        local ok=pcall(perform,self); c.performing=false
+        if not ok or not c.effectInvoked then return craftRefuse(rt,"native-craft-perform-unconfirmed") end
+        return true
+    end
+    function a:complete()
+        if c.done or not c.performed or not c.effectInvoked or craftCapsule(self)~=c
+            or rt.queue:indexOf(self)~=-1 or rt.queue.current or #rt.queue.queue>0 then
+            return craftRefuse(rt,"craft-complete-owner-changed")
+        end
+        c.done,c.ack=true,true
+        local ok,result=pcall(complete,self)
+        local completed=ok and result==true and rt.nativeCompleted and not rt.cancelling and craftBound(rt,false)
+        return craftClose(rt,completed and "completed" or "interrupted",
+            completed and "native-log-payment-and-planks-measured" or rt.cancelReason or "native-craft-completion-unconfirmed")
+    end
+    craftGuardStop(rt,c,false)
+    c.position=#rt.actions+1;rt.actions[c.position]=c
+    craftSavedRetirement(rt,c)
+end
+craftEnqueue=function(rt,index)
+    local c=rt.actions[index]
+    if not c or not craftBound(rt,true) or rt.queue.current or #rt.queue.queue>0 then
+        return craftRefuse(rt,"craft-preparation-queue-changed")
+    end
+    if c.kind=="craft" then rt.prepared=true; if not craftBound(rt,true) then return craftRefuse(rt,"craft-material-preparation-changed") end end
+    rt.current=c;rt.action=c.action
+    if not SAO.Needs.queueVerified(c.action) then return craftRefuse(rt,"native-craft-queue-refused") end
+    return true
+end
+craftBegin=function(id,body,step,context)
+    local rec=owner(id,body)
+    if not rec or runtime[id] or rec.resourceProductionWork or rec.worldSourceReservation or rec.cookingWork
+        or not craftLedger(rec) or not R.craftingAvailable(id,body) or SAO.Needs.busy(body)
+        or step.owner~="SAO.ResourceProduction" or step.token~="resource:crafted" or step.recipeId~=CRAFT_RECIPE
+        or step.category~="plank" or not textId(step.logItemId) or not textId(step.sawItemId)
+        or step.logItemType~="Base.Log" or not textId(step.sawItemType) or isClient() or isServer() then return false end
+    local route=SAO.Locomotion.jobs[id]
+    if route and not route.done then return false end
+    local p=rec.proceduralPlanning and rec.proceduralPlanning.purposes[context.purposeId]
+    if not p or not p.materialWork or p.materialWork.operation~="board" or not textId(p.materialWork.entryKey)
+        or p.steps[p.cursor]~=step or step.id~=context.purposeStepId or p.admission then return false end
+    local log=craftCarried(body,step.logItemId,step.logItemType)
+    local saw=craftCarried(body,step.sawItemId,step.sawItemType)
+    local square,world=body:getCurrentSquare(),getWorld()
+    local rt={kind="saw-logs",id=id,body=body,record=rec,inventory=body:getInventory(),recipe=registeredRecipe(),
+        log=log,saw=saw,actions={},queue=ISTimedActionQueue.getTimedActionQueue(body),purpose=p,step=step,
+        square=square,cell=body:getCell(),world=world:getWorld(),token=body:getModData().SAOExternalToken,
+        x=body:getX(),y=body:getY(),startedAt=now(),beforeIds={}}
+    if not log or not saw or log==saw or not ownItem(rt,log) or not ownItem(rt,saw)
+        or log:getCurrentUses()~=1 or log:getIsCraftingConsumed() or not saw:hasTag(ItemTag.SAW)
+        or saw:getIsCraftingConsumed() or saw:getCondition()<=0 or saw:isBroken()
+        or rt.queue.current or #rt.queue.queue>0 then return false end
+    local logic,containers,manual,items=craftSelection(rt)
+    if not logic or items:size()~=2 or not items:contains(log) or not items:contains(saw) then return false end
+    local held=SAOJavaBridge:privateCarriedItems(body)
+    if held:size()>512 then return false end
+    for i=0,held:size()-1 do rt.beforeIds[tostring(held:get(i):getID())]=true end
+    local seq=(rec.resourceProductionSequence or 0)+1
+    local work={id="resource-production/"..tostring(id).."/"..seq,sequence=seq,actorId=id,kind="saw-logs",
+        recipeId=CRAFT_RECIPE,category="plank",token="resource:crafted",logItemId=step.logItemId,logItemType=step.logItemType,
+        sawItemId=step.sawItemId,sawItemType=step.sawItemType,requestedPurposeId=context.purposeId,
+        requestedPurposeStepId=context.purposeStepId,purposeId=context.purposeId,purposeStepId=context.purposeStepId,
+        entryKey=p.materialWork.entryKey,world=rt.world,bodyToken=rt.token,x=square:getX(),y=square:getY(),z=square:getZ(),
+        beforeLogUses=log:getCurrentUses(),sawConditionBefore=saw:getCondition(),startedAt=rt.startedAt,
+        stage="preparing",status="crafting"}
+    rt.work,rt.workId=work,work.id
+    rt.entryKey,rt.beforeLogUses,rt.sawConditionBefore=work.entryKey,work.beforeLogUses,work.sawConditionBefore
+    if not craftIdentity(id,work) then return false end
+    for _,item in ipairs({log,saw}) do if item:getContainer()~=rt.inventory then craftTransfer(rt,item) end end
+    craftAction(rt,containers,manual,items)
+    rec.resourceProductionSequence,rec.resourceProductionWork,runtime[id]=seq,work,rt
+    local planning=SAO.ProceduralPlanning
+    if not planning or not planning.admitCraftProduction or planning.admitCraftProduction(id,work)~=true then
+        rec.resourceProductionWork=nil;craftDispose(rt);return false
+    end
+    if not craftBound(rt,true) or not craftEnqueue(rt,1) then craftInterrupt(id,body,"native-craft-admission-refused");return false end
+    return true
+end
+craftRecover=function(id,body)
+    reconcile(id)
+    -- Quiescence is separate from permission to drive physical effects. An
+    -- adopting controller or pending body transfer still owns saved work.
+    local rec=SAO.Identity.get(id)
+    local work=rec and rec.resourceProductionWork
+    if not work then return true end
+    if runtime[id] then return craftInterrupt(id,body,"craft-owner-reconciled") end
+    local t=now()
+    if not craftLedger(rec) or not craftIdentity(id,work) or work.sequence>rec.resourceProductionSequence
+        or (work.status~="crafting" and work.status~="interrupted") or not t or t<work.startedAt
+        or not body or tostring(body:getModData().SAOPersonId or "")~=tostring(id)
+        or work.bodyToken~=body:getModData().SAOExternalToken or work.world~=getWorld():getWorld()
+        or not craftPurpose(rec,work) then return false end
+    for _,pendingQueue in pairs(ISTimedActionQueue.queues) do
+        local pending={}
+        for _,a in ipairs(pendingQueue.queue) do pending[#pending+1]=a end
+        if pendingQueue.current and pendingQueue:indexOf(pendingQueue.current)==-1 then pending[#pending+1]=pendingQueue.current end
+        for _,a in ipairs(pending) do
+            if a.actorId==id and a.workId==work.id and a.bodyToken==work.bodyToken then
+                if type(a._SAOCraftRetireSaved)~="function" then return false end
+                local ok,closed=pcall(a._SAOCraftRetireSaved,rec,work)
+                if not ok or not closed then return false end
+            end
+        end
+    end
+    if rec.resourceProductionWork==nil then return true end
+    if SAOJavaBridge:hasPendingActions(body) then return false end
+    local q=ISTimedActionQueue.getTimedActionQueue(body)
+    if q.current or #q.queue>0 then return false end
+    local rows=rec.resourceProductionOutcomes or {}
+    for _,row in ipairs(rows) do if row.id==work.id then return false end end
+    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    local row={}
+    for key in pairs(CRAFT_FIELDS) do if key~="outputs" then row[key]=work[key] end end
+    row.workId,row.status,row.detail,row.nativeOwner=work.id,"interrupted","craft-runtime-unavailable","ISHandcraftAction"
+    row.atHours,row.endedAt,row.nativeObservability=t,t,"runtime-unavailable"
+    row.nativeAttempted,row.logConsumed,row.sawRetained,row.held,row.outputCount,row.outputs=false,false,false,false,0,{}
+    rows[#rows+1]=row;rec.resourceProductionOutcomes=rows
+    if #rows>CRAFT_LIMIT then table.remove(rows,1) end
+    if not craftOutcome(id,row) then table.remove(rows);return false end
+    rec.resourceProductionWork=nil;reconcile(id);return true
+end
+craftInterrupt=function(id,body,reason)
+    local rt=runtime[id]
+    if not rt then return craftRecover(id,body) end
+    if rt.kind~="saw-logs" or body and rt.body~=body then return false end
+    if rt.nativeCompleted and craftRetired(rt) and not rt.cancelling then
+        return craftClose(rt,"completed","native-craft-completed-before-interruption")
+    end
+    craftRefuse(rt,reason or "higher-priority-work")
+    for _,c in ipairs(rt.actions) do
+        if not c.ack then
+            if c.action.action then pcall(function() c.action:forceStop() end)
+            else c.action:forceCancel() end
+        end
+    end
+    return rt.closed==true or craftClose(rt,"interrupted",rt.cancelReason)
+end
+craftTick=function(id,body)
+    local rt=runtime[id]
+    if not rt then return craftRecover(id,body) and "interrupted" or "cancelling" end
+    if rt.cancelling or rt.body~=body or not craftBound(rt,not rt.nativeAttempted)
+        or not now() or now()-rt.startedAt>.5 then
+        return craftInterrupt(id,rt.body,rt.cancelReason or "craft-owner-or-material-changed") and "interrupted" or "cancelling"
+    end
+    if queued(rt.action) then return rt.work.stage end
+    if not craftRetired(rt) then return craftInterrupt(id,body,"craft-native-acknowledgement-missing") and "interrupted" or "cancelling" end
+    return craftClose(rt,rt.nativeCompleted and "completed" or "failed","native-craft-ended") and "completed" or "cancelling"
+end
+function R.reconcileSaved(id,body)
+    local rec=SAO.Identity.get(id)
+    if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="saw-logs" then return craftRecover(id,body) end
+    reconcile(id);return true
+end
+function R.retryCraftCancellations()
+    for id,rt in pairs(runtime) do
+        if rt.kind=="saw-logs" and rt.cancelling then craftInterrupt(id,rt.body,rt.cancelReason) end
+    end
+end
+if Events and Events.OnTick then Events.OnTick.Add(R.retryCraftCancellations) end
+
 function R.begin(id, body, step, context)
     context = context or {}
+    if step and step.productionKind == "saw-logs" then return craftBegin(id, body, step, context) end
     refreshHandledSource(id)
     local rec = owner(id, body)
     local option = { kind = step and (step.kind or step.productionKind or step.target), category = "water",
@@ -351,6 +953,8 @@ function R.begin(id, body, step, context)
 end
 function R.interrupt(id, body, reason)
     local rec, rt = SAO.Identity.get(id), runtime[id]
+    if rt and rt.kind == "saw-logs" or rec and rec.resourceProductionWork
+        and rec.resourceProductionWork.kind == "saw-logs" then return craftInterrupt(id, body, reason) end
     if rt and body and rt.body ~= body then return false end
     if not rec or not rec.resourceProductionWork then
         retireRefresh(id, "handled-source-observation-retired")
@@ -434,6 +1038,7 @@ local function tick(id, body)
     local rec, rt = SAO.Identity.get(id), runtime[id]
     local work = rec and rec.resourceProductionWork
     if not work then return "idle" end
+    if work.kind == "saw-logs" then return craftTick(id, body) end
     if not rt then
         -- A module reload can leave the exact native action in the queue.
         -- Retire that action before releasing the durable body claim; missing

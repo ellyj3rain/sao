@@ -6,6 +6,7 @@ import zombie.inventory.ItemContainer;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoObject;
+import zombie.iso.LosUtil;
 import zombie.iso.objects.IsoBarricade;
 import zombie.iso.objects.interfaces.BarricadeAble;
 import zombie.scripting.objects.ItemTag;
@@ -20,22 +21,16 @@ import zombie.scripting.objects.ItemTag;
  * manage it or they do not; if they never manage it, that is a finding
  * about the systems rather than a reason to place a barricade by hand.
  *
- * So this class answers two questions and performs one act, and every
- * one of them is the game's own:
+ * Inventory and visible target queries support SAO.Build. The Lua owner
+ * admits and measures the installed ISBarricadeAction lifecycle.
  *
  *   is there anything here to board   a BarricadeAble on a nearby
  *                                     square that is not already full
  *   could this person do it           the exact requirements
  *                                     ISBarricadeAction.isValid checks -
  *                                     a hammer, a plank, two nails
- *   board it                          IsoBarricade.AddBarricadeToObject
- *                                     and addPlank, the same calls the
- *                                     player's own action makes
- *
- * NOTHING IS CONJURED. The plank and the two nails leave the person's
- * inventory, because a barricade that costs nothing is a decoration and
- * the whole point is to find out whether the county can gather what it
- * needs and use it.
+ * Native completion consumes the plank and nails. Admission never places
+ * a barricade or supplies physical completion.
  */
 public final class SAOBuild {
 
@@ -102,19 +97,14 @@ public final class SAOBuild {
             if (bag == null) {
                 return false;
             }
-            if (!person.hasEquippedTag(ItemTag.HAMMER)) {
-                InventoryItem hammer = bag.getFirstTagRecurse(ItemTag.HAMMER);
-                if (hammer != null) {
-                    person.setSecondaryHandItem(hammer);
-                }
-            }
-            if (!person.hasEquipped("Plank")) {
-                InventoryItem plank = bag.getFirstTypeRecurse("Base.Plank");
-                if (plank != null) {
-                    person.setPrimaryHandItem(plank);
-                }
-            }
-            return canBoard(person);
+            InventoryItem hammer = bag.getFirstTagRecurse(ItemTag.HAMMER);
+            InventoryItem plank = bag.getFirstTypeRecurse("Base.Plank");
+            if (hammer == null || plank == null) return false;
+            // ISBarricadeAction.complete reads its material from the secondary hand.
+            person.setPrimaryHandItem(hammer);
+            person.setSecondaryHandItem(plank);
+            return person.getPrimaryHandItem() == hammer
+                && person.getSecondaryHandItem() == plank && canBoard(person);
         } catch (Throwable throwable) {
             return false;
         }
@@ -129,6 +119,32 @@ public final class SAOBuild {
         }
         IsoBarricade already = IsoBarricade.GetBarricadeForCharacter(able, person);
         return already == null || already.canAddPlank();
+    }
+
+    /** A native sightline from this body, independent of local-player slots. */
+    public static boolean canSeeBoardable(IsoGameCharacter person, IsoObject object) {
+        if (person == null || object == null) return false;
+        try {
+            IsoGridSquare here = person.getCurrentSquare();
+            IsoGridSquare target = object.getSquare();
+            if (here == null || target == null || here.getCell() != target.getCell()
+                    || here.getZ() != target.getZ() || !boardable(object, person)) return false;
+            // Match IsoGameCharacter.faceThisObject for a native edge:
+            // north/west on its square, south/east on the opposite side.
+            BarricadeAble edge = (BarricadeAble) object;
+            double side = here == target ? -1 : 1;
+            boolean primarySide = here == target || here == edge.getOppositeSquare();
+            double dx = primarySide ? (edge.getNorth() ? 0 : side) : target.getX() + 0.5 - person.getX();
+            double dy = primarySide ? (edge.getNorth() ? side : 0) : target.getY() + 0.5 - person.getY();
+            if (!Double.isFinite(dx) || !Double.isFinite(dy)
+                    || dx * person.getForwardDirectionX() + dy * person.getForwardDirectionY() < 0) return false;
+            LosUtil.TestResults result = LosUtil.lineClear(here.getCell(), here.getX(), here.getY(),
+                here.getZ(), target.getX(), target.getY(), target.getZ(), false);
+            return result == LosUtil.TestResults.Clear || result == LosUtil.TestResults.ClearThroughOpenDoor
+                || result == LosUtil.TestResults.ClearThroughWindow;
+        } catch (Throwable throwable) {
+            return false;
+        }
     }
 
     /**
@@ -162,7 +178,7 @@ public final class SAOBuild {
                     }
                     for (int i = 0; i < square.getObjects().size(); i++) {
                         IsoObject object = square.getObjects().get(i);
-                        if (!boardable(object, person)) {
+                        if (!canSeeBoardable(person, object)) {
                             continue;
                         }
                         int dx = x - px;
@@ -182,58 +198,9 @@ public final class SAOBuild {
         }
     }
 
-    /**
-     * Put one plank on the window at (x,y,z), through the engine's own
-     * calls, and pay for it out of the person's inventory. Returns the
-     * plank count now on it, 0 when nothing happened.
-     */
+    /** Retained bridge signature. Physical work belongs to SAO.Build's native queue. */
+    @Deprecated
     public static int board(IsoGameCharacter person, int x, int y, int z) {
-        if (!canBoard(person)) {
-            return 0;
-        }
-        try {
-            IsoCell cell = cellOf(person);
-            if (cell == null) {
-                return 0;
-            }
-            IsoGridSquare square = cell.getGridSquare(x, y, z);
-            if (square == null) {
-                return 0;
-            }
-            for (int i = 0; i < square.getObjects().size(); i++) {
-                IsoObject object = square.getObjects().get(i);
-                if (!boardable(object, person)) {
-                    continue;
-                }
-                BarricadeAble able = (BarricadeAble) object;
-                IsoBarricade barricade = IsoBarricade.GetBarricadeForCharacter(able, person);
-                if (barricade == null) {
-                    barricade = IsoBarricade.AddBarricadeToObject(able, person);
-                }
-                if (barricade == null) {
-                    return 0;
-                }
-                ItemContainer bag = person.getInventory();
-                InventoryItem plank = bag.getFirstTypeRecurse("Base.Plank");
-                if (plank == null) {
-                    return 0;
-                }
-                barricade.addPlank(person, plank);
-                // Paid for. The engine's own action consumes the plank
-                // through the same add; the nails are ours to take, and
-                // a barricade that costs nothing is a decoration.
-                bag.Remove(plank);
-                for (int n = 0; n < NAILS_PER_PLANK; n++) {
-                    InventoryItem nail = bag.getFirstTypeRecurse("Base.Nails");
-                    if (nail != null) {
-                        bag.Remove(nail);
-                    }
-                }
-                return barricade.getNumPlanks();
-            }
-            return 0;
-        } catch (Throwable throwable) {
-            return 0;
-        }
+        return 0;
     }
 }

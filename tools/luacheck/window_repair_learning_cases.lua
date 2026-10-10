@@ -55,13 +55,13 @@ function __runWindowLearning()
         and s.models.ordinary.beliefs['direct:window-repair:'..x.sourceId..':'..x.itemType]~=nil
         and s.models.associative.beliefs['relation:transform:broken-glass:'..x.sourceId..':repaired-glass:'..x.sourceId]~=nil)
     check('window_private_experience_has_no_execution_credit',s and #s.episodes==0 and s.sequence==0 and noGoalCredit(s))
-    local prior=__nativeRoundtrip(s)
+    local prior=__nativeRoundtrip(s or {})
     __hours=201;W.flush(f.id);W.deliverLearning(f.id)
     check('window_learning_duplicate_is_inert',equal(prior,f.rec.cognition)
         and f.rec.cognition.experiences[1] and f.rec.cognition.experiences[1].worldHours==200)
     f.rec=__nativeRoundtrip(f.rec);__records[f.id]=f.rec;C.rebindWorld()
     f.rec.windowRepair.outcomes['1'].learningAcknowledged=nil
-    prior=__nativeRoundtrip(f.rec.cognition);__hours=202
+    prior=__nativeRoundtrip(f.rec.cognition or {});__hours=202
     for _,callback in ipairs(Events.OnGameStart.callbacks) do callback() end
     for _=1,8 do fireMinute() end
     check('window_native_restore_replay_is_inert',equal(prior,f.rec.cognition)

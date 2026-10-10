@@ -25,10 +25,10 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.8.1.0-pre-alpha` |
-| Classified delivered scope | `A1-D2` |
+| Current version | `3.9.0.0-pre-alpha` |
+| Classified delivered scope | `A1-D3.1` |
 | Current C generation | `20261005-product-consolidation` |
-| Next batch | `D3` |
+| Unconsumed scope | `D3` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -210,6 +210,11 @@ the machine. Names, dates, and threads below come from
 | `C82` | 2026-10-03 | kohai | `3.7.2.0-pre-alpha` | Private entry and recovery experience | Extends, integrates or structurally matures an existing capability. Entry comparison, bodily recovery arbitration and authenticated later-choice learning are one continuous residence/survival product arc. C120 native observation exposed a posture gap; later D1 repairs and bounded native recovery are separate dated evidence and do not rewrite the C-era verdict. |
 | `D1` | 2026-10-04 | minor | `3.8.0.0-pre-alpha` | Shared person-specific reasoning | Shared person-specific conceptual reasoning and source-bound prior-history admission establish a live authoring/runtime contract. |
 | `D2` | 2026-10-05 | kohai | `3.8.1.0-pre-alpha` | Leisure | Leisure integrates personally acquired recreation, music, games, art and social participation with native action ownership, interruption, durable purposes and consequential private experience. |
+| `D3.1` | 2026-10-10 | minor | `3.9.0.0-pre-alpha` | Native plank crafting for retained construction | Native material crafting establishes an exact privately acquired-input, installed-recipe, measured-output and authenticated-experience runtime contract within retained construction. The first D3 window/boarding join supplies its required integration; the OPEN parent receives no repeated credit. |
+
+Dotted labels record child scope. Each capability row above receives credit once;
+child delivery leaves its explicitly active parent open. Closed parent aggregation
+records name existing credit owners separately and grant no additional tier.
 
 ## Current C products and retained source history
 
@@ -323,12 +328,12 @@ and operator feedback.
 
 ## Next movement
 
-`D3` is the next unused catalogue identifier. Current open extensions
+`D3` remains the declared unconsumed scope; subsequent delivered children or new capability units
 remain with their owners; this projection does not close them or start
 another batch. Subsequent delivered work determines its own tier:
 
-| If D3 is | Result |
+| If newly delivered scope is | Result |
 |---|---|
-| patch or hotfix | `3.8.1.1-pre-alpha` |
-| kohai | `3.8.2.0-pre-alpha` |
-| minor | `3.9.0.0-pre-alpha` |
+| patch or hotfix | `3.9.0.1-pre-alpha` |
+| kohai | `3.9.1.0-pre-alpha` |
+| minor | `3.10.0.0-pre-alpha` |

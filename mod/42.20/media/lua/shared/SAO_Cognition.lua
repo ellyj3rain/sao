@@ -356,7 +356,7 @@ local HOBBY_KINDS={ ["leisure-meditation"]=true,["leisure-exercise"]=true,
     ["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true }
 local EXTENDED = { ["medication-use"] = true, ["physical-change"] = true, preparation = true,
-    ["animal-care"] = true, ["window-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
+    ["animal-care"] = true, ["window-repair"] = true, ["material-crafting"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
     ["weekone-performance-hearing"]=true }
@@ -432,7 +432,7 @@ local function sameData(a, b)
 end
 local BEHAVIOR_RESULT = {}
 function C.experience(id, supplied, authority)
-    if type(supplied)=="table" and (supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
+    if type(supplied)=="table" and (supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
         and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
     local now = clock()
     if not C.settings().enabled or not now then return false, "disabled" end
@@ -1115,6 +1115,37 @@ function C.windowRepairOutcome(id, receipt)
     local x = privateFact(id, "window-repair", "construction", receipt.id, now, receipt.endedAt)
     x.sourceId, x.itemId, x.itemType = receipt.entryKey, tonumber(receipt.itemId), receipt.fullType
     return nativeExperience(id, "window-repair", receipt.sequence, x)
+end
+
+-- The native transformation owner certifies exact inputs and held outputs.
+-- This private fact records performed crafting; competence stays native.
+function C.materialCraftOutcome(id, receipt)
+    local now = clock()
+    if not now or type(receipt) ~= "table" or receipt.actorId ~= id
+        or receipt.kind ~= "saw-logs" or receipt.recipeId ~= "Base.SawLogs"
+        or receipt.nativeOwner ~= "ISHandcraftAction" or receipt.token ~= "resource:crafted"
+        or not finite(receipt.sequence, 1, 9007199254740991) or receipt.sequence ~= math.floor(receipt.sequence)
+        or receipt.id ~= "resource-production/" .. id .. "/" .. tostring(receipt.sequence)
+        or not finite(receipt.atHours, 0, now) or not finite(receipt.startedAt, 0, receipt.atHours) then
+        return false, "unqualified-material-crafting"
+    end
+    local owner = SAO.ResourceProduction
+    local canonical = owner and owner.outcome and owner.outcome(id, receipt.id)
+    if not canonical or not sameData(canonical, receipt) then return false, "craft-owner-unavailable" end
+    if receipt.status == "failed" or receipt.status == "interrupted" then return true, "unfinished-craft-retained-by-planner" end
+    if receipt.status ~= "completed" or receipt.nativeCredit ~= receipt.id or receipt.nativeAttempted ~= true
+        or receipt.logConsumed ~= true or receipt.sawRetained ~= true or receipt.held ~= true
+        or receipt.outputCount ~= 3 or type(receipt.outputs) ~= "table" or #receipt.outputs ~= 3 then return false end
+    local ids = {}
+    for _, output in ipairs(receipt.outputs) do
+        local itemId = type(output) == "table" and tonumber(output.itemId) or nil
+        if not itemId or not finite(itemId, -2147483648, 2147483647) or itemId ~= math.floor(itemId)
+            or output.itemType ~= "Base.Plank" or ids[itemId] then return false end
+        ids[itemId] = true
+    end
+    local x = privateFact(id, "material-crafting", "construction", receipt.id, now, receipt.atHours)
+    x.sourceId, x.itemId, x.itemType = receipt.recipeId, tonumber(receipt.outputs[1].itemId), "Base.Plank"
+    return nativeExperience(id, "material-crafting", receipt.sequence, x)
 end
 
 function C.preparationOutcome(id, receipt)

@@ -1860,7 +1860,11 @@ public final class SAOWorldSources {
             if (SAOLeisureMaterials.recognizes(item.getFullType())) out.add("leisure-material");
             if (SAONeeds.wantsMaterial(item, "memento")) out.add("memento");
             if (SAONeeds.wantsMaterial(item, "reading")) out.add("reading");
+            if (SAONeeds.wantsMaterial(item, "glass-pane")) out.add("glass-pane");
+            if (SAONeeds.wantsMaterial(item, "hammer")) out.add("hammer");
             if (SAONeeds.wantsMaterial(item, "plank")) out.add("plank");
+            if (SAONeeds.wantsMaterial(item, "log")) out.add("log");
+            if (SAONeeds.wantsMaterial(item, "saw")) out.add("saw");
             if (SAONeeds.wantsMaterial(item, "nails")) out.add("nails");
             if (SAONeeds.wantsMaterial(item, "fuel")) out.add("fuel");
             Collections.sort(out);
