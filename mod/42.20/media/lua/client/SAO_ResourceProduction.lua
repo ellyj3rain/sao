@@ -5,6 +5,7 @@ SAO.ResourceProduction = SAO.ResourceProduction or {}
 local R = SAO.ResourceProduction
 local craftBegin, craftInterrupt, craftTick, craftOutcome, craftRecover
 local plumbBegin, plumbInterrupt, plumbTick, plumbOutcome, plumbRecover, plumbOptions
+local collector
 local function nativeCraftKind(kind) return kind=="saw-logs" or kind=="repair-held-item" end
 local KNOWN_FIXTURE_SEARCH_RADIUS = 32
 local MAX_CARRIED_RELIEF_ITEMS = 240
@@ -44,14 +45,16 @@ local function admitted(belief, id, revision)
     return false
 end
 function R.privatelyKnown(id, option)
-    if type(option) ~= "table" or (option.kind ~= "refill-water" and option.kind ~= "plumb-fixture") or option.category ~= "water"
+    if type(option) ~= "table" or (option.kind ~= "refill-water" and option.kind ~= "plumb-fixture" and option.kind ~= "build-rain-collector") or option.category ~= "water"
         or type(option.sourceId) ~= "string" or string.sub(option.sourceId, 1, 2) ~= "F:"
         or type(option.place) ~= "table" then return false end
     local known = SAO.Perception.knownPlaces(id, true) or {}
     local belief = known[option.place.id] or known[tostring(option.place.id)]
     local fact = belief and belief.sourceFacts and belief.sourceFacts[option.sourceId]
+    if option.kind=="build-rain-collector" and (not collector or not SAO.Body.get(id)
+        or not collector.site(id,SAO.Body.get(id),option.site,option.sourceX,option.sourceY,option.sourceZ)) then return false end
     return fact ~= nil and fact.kind == "fluid"
-        and (option.kind == "plumb-fixture" and fact.plumbing == "unconnected"
+        and ((option.kind == "plumb-fixture" or option.kind == "build-rain-collector") and fact.plumbing == "unconnected"
             or option.kind == "refill-water" and fact.state == "available" and tonumber(fact.quantities and fact.quantities.water or 0) > 0)
         and same(fact.id, option.sourceId) and fact.fingerprint == option.fingerprint
         and fact.revision == option.sourceRevision and admitted(belief, option.sourceId, option.sourceRevision)
@@ -115,6 +118,7 @@ function R.options(id, body, category)
             end
         end
     end
+    if collector and #options<16 then collector.options(id, body, vessels, options) end
     if plumbOptions and #options<16 then plumbOptions(id, body, vessels, options) end
     return options
 end
@@ -202,6 +206,7 @@ function R.outcome(id, workId)
     local rec = SAO.Identity.get(id)
     for _, receipt in ipairs(rec and rec.resourceProductionOutcomes or {}) do
         if receipt.id == workId then
+            if receipt.kind == "build-rain-collector" then return collector.outcome(id, receipt) end
             if receipt.kind == "plumb-fixture" then return plumbOutcome(id, receipt) end
             if nativeCraftKind(receipt.kind) then return craftOutcome(id, receipt) end
             return receipt
@@ -216,10 +221,12 @@ local function reconcile(id)
             or not nativeCraftKind(receipt.kind) and planning.consumeProductionResult)
         local result = receipt.kind == "plumb-fixture" and plumbOutcome(id, receipt)
             or nativeCraftKind(receipt.kind) and craftOutcome(id, receipt) or receipt
+        if receipt.kind == "build-rain-collector" then result = collector.outcome(id,receipt) end
         if receipt.kind == "plumb-fixture" and not plumbOutcome(id, receipt) then result = nil end
         if result and receipt.purposeId and not receipt.purposeDelivered and consumer
             and consumer(id, result) then receipt.purposeDelivered = true end
         if not receipt.experienceDelivered and R.onOutcome then
+            if receipt.kind == "build-rain-collector" then result = collector.outcome(id, receipt) end
             if receipt.kind == "plumb-fixture" then result = plumbOutcome(id, receipt)
             elseif nativeCraftKind(receipt.kind) then result = craftOutcome(id, receipt) end
             if result then
@@ -1195,6 +1202,7 @@ local function plumbCopy(value,depth)
     return out
 end
 local function plumbIdentity(id,w)
+    if w and w.kind=="build-rain-collector" then return collector.identity(id,w) end
     return type(w)=="table" and not getmetatable(w) and w.actorId==id and integer(w.sequence) and w.sequence>0
         and w.id=="resource-production/"..tostring(id).."/"..w.sequence and w.kind=="plumb-fixture"
         and w.category=="water" and w.token=="resource:plumbed" and textId(w.purposeId) and textId(w.purposeStepId)
@@ -1281,6 +1289,7 @@ plumbOptions=function(id,body,vessels,options)
     end
 end
 local function plumbPurpose(rec,w)
+    if w and w.kind=="build-rain-collector" then return collector.purpose(rec,w) end
     local state=rec and rec.proceduralPlanning
     local p=state and state.purposes and state.purposes[w.purposeId]
     local s=p and p.steps and p.steps[p.cursor]
@@ -1296,6 +1305,7 @@ local function plumbPurpose(rec,w)
     return p,s
 end
 local function plumbBound(rt,pre)
+    if rt.kind=="build-rain-collector" then return collector.bound(rt,pre) end
     if not rt.body or rt.closed then return false end
     local rec,w,body=owner(rt.id,rt.body),rt.work,rt.body
     local p,s=plumbPurpose(rec,w)
@@ -1336,6 +1346,10 @@ local function plumbDispose(rt)
     for _,c in ipairs(rt.actions) do c.action._SAOPlumbBinding=function() return nil end;c.action._SAOPlumbRetireSaved=nil end
     if runtime[rt.id]==rt then runtime[rt.id]=nil end
     rt.body,rt.fixture,rt.tool,rt.item,rt.record,rt.purpose,rt.step,rt.current,rt.route=nil,nil,nil,nil,nil,nil,nil,nil,nil
+    if rt.kind=="build-rain-collector" then
+        if rt.builder then rt.builder.character,rt.builder.buildPanelLogic,rt.builder.saoCreated=nil,nil,nil end
+        rt.builder,rt.logic,rt.materials,rt.siteSquare,rt.square,rt.cell,rt.inventory=nil,nil,nil,nil,nil,nil,nil
+    end
 end
 local function plumbRefuse(rt,reason)
     rt.cancelling,rt.cancelReason=true,rt.cancelReason or reason
@@ -1343,6 +1357,7 @@ local function plumbRefuse(rt,reason)
     return false
 end
 local function plumbClose(rt,status,detail)
+    if rt.kind=="build-rain-collector" then return collector.close(rt,status,detail) end
     if rt.closed then return true end
     local rec,w,t=SAO.Identity.get(rt.id),rt.work,now()
     if not plumbRetired(rt) or rec~=rt.record or rec.resourceProductionWork~=w or not plumbIdentity(rt.id,w)
@@ -1382,7 +1397,8 @@ local function plumbGuard(rt,a,kind,item)
     local valid,perform,complete,start=a.isValid,a.perform,a.complete,a.start
     local function exact()
         return plumbCapsule(a)==c and a.character==rt.body and a.actorId==rt.id and a.workId==rt.workId and a.bodyToken==rt.token
-            and (kind=="plumb" and a.itemToPipe==rt.fixture and a.wrench==rt.tool
+            and (kind=="collector" and collector.exact(rt,a)
+                or kind=="plumb" and a.itemToPipe==rt.fixture and a.wrench==rt.tool
                 or kind=="equip" and a.item==item and a.primary==true
                 or kind=="transfer" and a.item==item and a.srcContainer==c.source and a.destContainer==rt.inventory)
     end
@@ -1401,8 +1417,15 @@ local function plumbGuard(rt,a,kind,item)
             if type(ql)~="table" or #ql~=1 or #ql[1].items~=1 or ql[1].items[1]~=item then return plumbRefuse(rt,"plumbing-transfer-selection-changed") end
         end
         c.performed=true
+        if kind=="collector" then c.performing=true end
         local ok,result=pcall(perform,self)
+        c.performing=false
         if not ok then return plumbRefuse(rt,"native-plumbing-perform-failed") end
+        if kind=="collector" then
+            c.done,c.ack=true,true
+            rt.nativeCompleted=collector.measure(rt)
+            return plumbClose(rt,rt.nativeCompleted and "completed" or "failed","native-collector-build-ended")
+        end
         if kind=="transfer" then
             c.done,c.ack=true,true
             if not exact() or not plumbBound(rt,true) or item:getContainer()~=rt.inventory or c.source:contains(item)
@@ -1412,6 +1435,7 @@ local function plumbGuard(rt,a,kind,item)
         return result
     end
     function a:complete()
+        if kind=="collector" then return false end
         if kind=="transfer" then return false end
         if c.done or not c.performed or not exact() or not plumbBound(rt,true) or valid(self)~=true or not exact()
             or rt.queue:indexOf(self)~=-1 or rt.queue.current or #rt.queue.queue>0 then return plumbRefuse(rt,"plumbing-complete-owner-changed") end
@@ -1438,6 +1462,7 @@ local function plumbGuard(rt,a,kind,item)
             elseif kind=="equip" then
                 pcall(function() if self.sound then rt.body:getEmitter():stopSound(self.sound);self.sound=nil end end)
                 pcall(function() item:setJobDelta(0) end);pcall(function() self:restoreWeaponType() end)
+            elseif kind=="collector" then collector.cleanup(rt,self)
             else pcall(function() rt.body:stopOrTriggerSound(self.sound) end) end
             rt.body:setIsFarming(false);c.ack=true;rt.queue:onCompleted(self)
         else
@@ -1461,6 +1486,7 @@ local function plumbGuard(rt,a,kind,item)
             or w.sourceX~=rt.sx or w.sourceY~=rt.sy or w.sourceZ~=rt.sz
             or w.itemId~=rt.itemId or w.itemType~=rt.itemType or w.toolItemId~=rt.toolId or w.toolItemType~=rt.toolType
             or w.beforeAmount~=rt.beforeAmount or w.capacity~=rt.capacity or w.beforeCanBeWaterPiped~=rt.beforeCanBeWaterPiped then return false end
+        if rt.kind=="build-rain-collector" and not collector.anchors(rt,w) then return false end
         local closed=plumbInterrupt(rt.id,rt.body,"plumbing-runtime-unavailable")
         if not closed and plumbRetired(rt) and rec.resourceProductionWork~=rt.work then plumbDispose(rt);return true end
         return closed
@@ -1470,7 +1496,7 @@ end
 plumbEnqueue=function(rt,index)
     local c=rt.actions[index]
     if not c or not plumbBound(rt,true) or rt.queue.current or #rt.queue.queue>0 then return plumbRefuse(rt,"plumbing-preparation-queue-changed") end
-    rt.current,rt.action=c,c.action;rt.work.stage=c.kind=="plumb" and "plumbing" or "preparing"
+    rt.current,rt.action=c,c.action;rt.work.stage=c.kind=="collector" and "building" or c.kind=="plumb" and "plumbing" or "preparing"
     return SAO.Needs.queueVerified(c.action)==true or plumbRefuse(rt,"native-plumbing-queue-refused")
 end
 local function plumbQueue(rt)
@@ -1568,7 +1594,7 @@ end
 plumbInterrupt=function(id,body,reason)
     local rt=runtime[id]
     if not rt then return plumbRecover(id,body) end
-    if rt.kind~="plumb-fixture" or body and rt.body~=body then return false end
+    if rt.kind~="plumb-fixture" and rt.kind~="build-rain-collector" or body and rt.body~=body then return false end
     if rt.nativeCompleted and not rt.cancelling and plumbRetired(rt) then return plumbClose(rt,"completed","native-plumbing-completed-before-interruption") end
     plumbRefuse(rt,reason or "higher-priority-work")
     if rt.route and not rt.route.done then
@@ -1597,15 +1623,667 @@ plumbTick=function(id,body)
     if queued(rt.action) then return rt.work.stage end
     return plumbInterrupt(id,body,"native-plumbing-acknowledgement-missing") and "interrupted" or "cancelling"
 end
+-- Finite native entity construction shares the water owner's exact preparation
+-- and cancellation custody; recipe payment and placement remain engine effects.
+collector={entities={"Base.RainCollector","Base.RainCollectorRound","Base.RainCollector_Tarp","Base.RainCollectorRound_Tarp"}}
+function collector.copy(v,depth)
+    if type(v)~="table" then return plumbCopy(v,0) end
+    if getmetatable(v) or (depth or 0)>5 then return nil end
+    local out,n={},0
+    for k,x in pairs(v) do
+        n=n+1;if n>((depth or 0)==0 and 96 or 32) or type(k)~="string" and not integer(k) then return nil end
+        local y=collector.copy(x,(depth or 0)+1);if y==nil then return nil end;out[k]=y
+    end
+    return out
+end
+function collector.install()
+    if isClient() or isServer() or not ItemTag or not ItemTag.HAMMER then return false end
+    local ok=pcall(function()
+        require "BuildingObjects/ISBuildingObject"
+        require "BuildingObjects/ISBuildIsoEntity"
+        require "BuildingObjects/TimedActions/ISBuildAction"
+        require "TimedActions/ISInventoryTransferAction"
+        require "TimedActions/ISEquipWeaponAction"
+    end)
+    return ok and BuildLogic and SpriteConfigManager and ISBuildIsoEntity and ISBuildAction and CraftRecipeManager and ArrayList
+end
+function collector.recipe(entityId,body)
+    local allowed=false;for _,id in ipairs(collector.entities) do if id==entityId then allowed=true end end
+    if not allowed or not collector.install() then return nil end
+    local infos=SpriteConfigManager.GetObjectInfoList()
+    for i=0,infos:size()-1 do
+        local info=infos:get(i);local script=info:getScript()
+        if script and script:getParent():getScriptObjectFullType()==entityId and info:getRecipe() then
+            local recipe=info:getRecipe():getCraftRecipe()
+            if not recipe or not CraftRecipeManager.hasPlayerLearnedRecipe(recipe,body) then return nil end
+            for j=0,recipe:getRequiredSkillCount()-1 do
+                if not CraftRecipeManager.hasPlayerRequiredSkill(recipe:getRequiredSkill(j),body) then return nil end
+            end
+            local requirements={}
+            if recipe:getInputs():size()~=4 then return nil end
+            for j=0,3 do
+                local input=recipe:getInputs():get(j)
+                local category=j==0 and "hammer" or j==1 and "plank" or j==2 and "nails"
+                    or entityId:find("_Tarp",1,true) and "tarp" or "garbage-bag"
+                if input:getResourceType()~=ResourceType.Item or input:getIntAmount()<1 or input:getIntAmount()>16
+                    or input:isKeep()~=(j==0) then return nil end
+                requirements[#requirements+1]={inputIndex=j,mode=input:isKeep() and "keep" or "consume",
+                    count=input:getIntAmount(),category=category}
+            end
+            local fluid=script:getParent():getComponentScriptFor(ComponentType.FluidContainer)
+            local face=info:getFace("S")
+            if not fluid or not face or face:getWidth()~=1 or face:getHeight()~=1 or face:getzLayers()~=1 then return nil end
+            return {info=info,recipe=recipe,recipeId=recipe:getScriptObjectFullType(),requirements=requirements,capacity=fluid:getCapacity()}
+        end
+    end
+end
+function collector.inputs(policy,body)
+    local rows,items,seen={},SAOJavaBridge:privateCarriedItems(body),{}
+    if items:size()>512 then return rows end
+    for _,requirement in ipairs(policy.requirements) do
+        local input=policy.recipe:getInputs():get(requirement.inputIndex);local count=0
+        for i=0,items:size()-1 do
+            local item=items:get(i);local id=tostring(item:getID())
+            if not seen[id] and not item:getIsCraftingConsumed() and ISBuildIsoEntity.predicateMaterial(item)
+                and ownItem({inventory=body:getInventory()},item)
+                and CraftRecipeManager.getValidInputScriptForItem(policy.recipe,item,body)==input
+                and (requirement.mode~="keep" or item:hasTag(ItemTag.HAMMER) and not item:isBroken() and item:getCondition()>0) then
+                rows[#rows+1]={inputIndex=requirement.inputIndex,itemId=id,itemType=item:getFullType(),mode=requirement.mode}
+                seen[id],count=true,count+1;if count==requirement.count then break end
+            end
+        end
+    end
+    return rows
+end
+function collector.rowsEqual(a,b)
+    if type(a)~="table" or type(b)~="table" or getmetatable(a) or getmetatable(b) or #a~=#b then return false end
+    for i,v in ipairs(a) do for _,k in ipairs({"inputIndex","itemId","itemType","mode","count","category"}) do
+        if v[k]~=b[i][k] then return false end
+    end end
+    return true
+end
+function collector.site(id,body,site,sourceX,sourceY,sourceZ)
+    if type(site)~="table" or not textId(site.key) or not textId(site.revision) or not finite(site.observedAtHours)
+        or not now() or site.observedAtHours>now() or site.observedAtHours<0 or not finite(site.x) or site.x%1~=0
+        or not finite(site.y) or site.y%1~=0 or not finite(site.z) or site.z%1~=0
+        or math.abs(site.x-sourceX)>1 or math.abs(site.y-sourceY)>1 or site.z~=sourceZ+1 then return false end
+    for _,known in ipairs(SAO.Perception.collectorSites(id,body) or {}) do
+        if known.key==site.key and known.revision==site.revision and known.x==site.x and known.y==site.y
+            and known.z==site.z and known.observedAtHours>=site.observedAtHours and known.observedAtHours<=now() then return true end
+    end
+    return false
+end
+function collector.options(id,body,vessels,options)
+    if not collector.install() or not SAO.Perception.collectorSites then return end
+    local limit=math.min(16,#options+4)
+    local policies={}
+    for _,entityId in ipairs(collector.entities) do local p=collector.recipe(entityId,body);if p then
+        p.inputs=collector.inputs(p,body);policies[#policies+1]=p
+    end end
+    local checked=0
+    for placeId,belief in pairs(SAO.Perception.knownPlaces(id,true) or {}) do
+        for sourceId,fact in pairs(belief.sourceFacts or {}) do
+            checked=checked+1;if checked>128 then return end
+            if fact.kind=="fluid" and fact.plumbing=="unconnected" and admitted(belief,sourceId,fact.revision)
+                and (tonumber(fact.quantities and fact.quantities.water) or 0)<=0
+                and finite(fact.x) and finite(fact.y) and finite(fact.z)
+                and SAO.Standing.mayAttemptBelieved(id,fact.x,fact.y,"standing")==true then
+                for _,site in ipairs(SAO.Perception.collectorSites(id,body) or {}) do
+                    if collector.site(id,body,site,fact.x,fact.y,fact.z)
+                        and SAO.Standing.mayAttemptBelieved(id,site.x,site.y,"standing")==true then
+                        for _,held in ipairs(vessels) do for _,p in ipairs(policies) do
+                            options[#options+1]={kind="build-rain-collector",owner="SAO.ResourceProduction",category="water",
+                                token="resource:collector-built",known=true,sourceId=sourceId,sourceRevision=fact.revision,
+                                fingerprint=fact.fingerprint,sourceX=fact.x,sourceY=fact.y,sourceZ=fact.z,
+                                place={id=placeId,sourceId=belief.sourceId,cx=belief.cx,cy=belief.cy,z=belief.z,
+                                    minX=belief.minX,maxX=belief.maxX,minY=belief.minY,maxY=belief.maxY},
+                                itemId=held.itemId,itemType=held.itemType,beforeAmount=held.beforeAmount,capacity=held.capacity,
+                                entityId=p.info:getScript():getParent():getScriptObjectFullType(),recipeId=p.recipeId,
+                                requirements=collector.copy(p.requirements),inputs=collector.copy(p.inputs),site=collector.copy(site),
+                                distance=math.sqrt((site.x+.5-body:getX())^2+(site.y+.5-body:getY())^2)}
+                            if #options>=limit then return end
+                        end end
+                    end
+                end
+            end
+        end
+    end
+end
+function collector.identity(id,w)
+    if type(w)~="table" or getmetatable(w) or w.kind~="build-rain-collector" or w.category~="water"
+        or w.token~="resource:collector-built" or w.actorId~=id or not integer(w.sequence) or w.sequence<1
+        or w.id~="resource-production/"..tostring(id).."/"..w.sequence or not textId(w.purposeId) or not textId(w.purposeStepId)
+        or not textId(w.entityId) or not textId(w.recipeId) or not textId(w.sourceId) or w.sourceId:sub(1,2)~="F:"
+        or not textId(w.sourceRevision) or not textId(w.fingerprint) or type(w.place)~="table"
+        or not textId(w.world) or w.bodyToken~=nil and not textId(w.bodyToken)
+        or not finite(w.startedAt) or w.startedAt<0 or not finite(w.itemId) or w.itemId%1~=0 or not textId(w.itemType)
+        or not textId(w.toolItemId) or not textId(w.toolItemType) or w.toolCategory~="hammer"
+        or not finite(w.beforeAmount) or w.beforeAmount<0 or not finite(w.capacity) or w.capacity<=w.beforeAmount
+        or not textId(w.siteKey) or not textId(w.siteRevision) or not finite(w.siteObservedAtHours)
+        or type(w.inputs)~="table" or getmetatable(w.inputs) or #w.inputs<1 or #w.inputs>16
+        or type(w.requirements)~="table" or #w.requirements~=4 or not finite(w.collectorCapacity) or w.collectorCapacity<=0 then return false end
+    for _,k in ipairs({"sourceX","sourceY","sourceZ","siteX","siteY","siteZ","sourceChunkX","sourceChunkY"}) do
+        if not finite(w[k]) or w[k]%1~=0 then return false end
+    end
+    local counts,seen={},{}
+    for _,row in ipairs(w.inputs) do
+        if type(row)~="table" or not integer(row.inputIndex) or row.inputIndex>3 or not textId(row.itemId)
+            or not textId(row.itemType) or row.mode~="keep" and row.mode~="consume" or seen[row.itemId] then return false end
+        seen[row.itemId]=true;counts[row.inputIndex]=(counts[row.inputIndex] or 0)+1
+    end
+    for i,r in ipairs(w.requirements) do
+        if r.inputIndex~=i-1 or not integer(r.count) or r.count<1 or counts[r.inputIndex]~=r.count
+            or r.mode~=(i==1 and "keep" or "consume") or not textId(r.category) then return false end
+    end
+    return counts[0]==1 and w.inputs[1].itemId==w.toolItemId and w.inputs[1].itemType==w.toolItemType
+end
+function collector.purpose(rec,w)
+    local state=rec and rec.proceduralPlanning
+    local p=state and state.purposes and state.purposes[w.purposeId];local s=p and p.steps[p.cursor];local a=p and p.admission
+    if not p or not p.collector or p.status=="completed" or p.status=="abandoned" or not s or not a
+        or p.resourceCategory~="water" or s.owner~="SAO.ResourceProduction" or s.productionKind~=w.kind or s.token~=w.token
+        or s.id~=w.purposeStepId or a.owner~=s.owner or a.stepId~=s.id or a.target~=s.target or a.correlationId~=w.id
+        or not finite(a.at) or a.at<w.startedAt or s.entityId~=w.entityId or s.recipeId~=w.recipeId
+        or s.sourceId~=w.sourceId or s.sourceRevision~=w.sourceRevision or s.fingerprint~=w.fingerprint
+        or s.sourceX~=w.sourceX or s.sourceY~=w.sourceY or s.sourceZ~=w.sourceZ
+        or s.itemId~=w.itemId or s.itemType~=w.itemType or not s.site or s.site.key~=w.siteKey or s.site.revision~=w.siteRevision
+        or s.site.x~=w.siteX or s.site.y~=w.siteY or s.site.z~=w.siteZ or s.site.observedAtHours~=w.siteObservedAtHours
+        or not collector.rowsEqual(s.inputs,w.inputs) or not collector.rowsEqual(s.requirements,w.requirements) then return nil end
+    return p,s
+end
+function collector.anchors(rt,w)
+    return w.entityId==rt.policy.info:getScript():getParent():getScriptObjectFullType() and w.recipeId==rt.policy.recipeId
+        and w.siteKey==rt.site.key and w.siteRevision==rt.site.revision and w.siteX==rt.site.x and w.siteY==rt.site.y
+        and w.siteZ==rt.site.z and w.siteObservedAtHours==rt.site.observedAtHours and w.collectorCapacity==rt.policy.capacity
+        and collector.rowsEqual(w.inputs,rt.inputs) and collector.rowsEqual(w.requirements,rt.policy.requirements)
+end
+function collector.bound(rt,pre)
+    local body,w=rt.body,rt.work
+    if not body or rt.closed or rt.cancelling or runtime[rt.id]~=rt then return false end
+    local rec=owner(rt.id,body);local p,s=collector.purpose(rec,w)
+    local fluid,amount=vessel(body,rt.item);local world=getWorld()
+    if rec~=rt.record or rec.resourceProductionWork~=w or not collector.identity(rt.id,w) or not craftLedger(rec)
+        or not collector.anchors(rt,w) or w.id~=rt.workId or w.startedAt~=rt.startedAt
+        or w.sourceId~=rt.sourceId or w.sourceRevision~=rt.sourceRevision or w.fingerprint~=rt.fingerprint
+        or w.sourceX~=rt.sx or w.sourceY~=rt.sy or w.sourceZ~=rt.sz or w.itemId~=rt.itemId or w.itemType~=rt.itemType
+        or w.toolItemId~=rt.toolId or w.toolItemType~=rt.toolType or w.bodyToken~=rt.token or w.world~=rt.world
+        or p~=rt.purpose or s~=rt.step or not now() or now()<rt.startedAt or not world or world:getWorld()~=rt.world
+        or world:getCell()~=rt.cell or body:getCell()~=rt.cell or body:getInventory()~=rt.inventory
+        or ISTimedActionQueue.getTimedActionQueue(body)~=rt.queue or body:getModData().SAOExternalToken~=rt.token
+        or not fluid or carried(body,w.itemId,w.itemType)~=rt.item or amount~=rt.beforeAmount or fluid:getCapacity()~=rt.capacity
+        or not permission(rt.id,w) or SAO.Standing.mayTakeCurrent(rt.id,w.siteX,w.siteY,"standing")~=true
+        or not collector.site(rt.id,body,rt.site,w.sourceX,w.sourceY,w.sourceZ)
+        or w.stage~="approaching" and (body:getCurrentSquare()~=rt.square or math.abs(body:getX()-rt.x)>.01 or math.abs(body:getY()-rt.y)>.01) then return false end
+    if not pre then return true end
+    if rt.nativeAttempted or body:isBuildCheat() or w.stage~="approaching"
+        and SAOJavaBridge:worldCollectorPlacementSquare(body,w.siteX,w.siteY,w.siteZ,w.siteRevision)~=rt.siteSquare then return false end
+    for i,row in ipairs(rt.inputs) do local item=rt.materials[i]
+        if craftCarried(body,row.itemId,row.itemType)~=item or not ownItem(rt,item) or item:getIsCraftingConsumed()
+            or not ISBuildIsoEntity.predicateMaterial(item)
+            or CraftRecipeManager.getValidInputScriptForItem(rt.policy.recipe,item,body)~=rt.policy.recipe:getInputs():get(row.inputIndex)
+            or row.mode=="keep" and (item:isBroken() or item:getCondition()<=0) then return false end
+    end
+    return true
+end
+function collector.exact(rt,a)
+    return a.item==rt.builder and a.x==rt.site.x and a.y==rt.site.y and a.z==rt.site.z and a.spriteName==rt.sprite
+        and rt.builder.character==rt.body and rt.builder.objectInfo==rt.policy.info and rt.builder.buildPanelLogic==rt.logic
+        and rt.logic:getRecipe()==rt.policy.recipe and rt.builder.craftRecipe==rt.policy.recipe
+        and rt.builder:isValid(rt.siteSquare)==true and collector.manualExact(rt)
+end
+function collector.manualExact(rt)
+    if not rt.logic:isManualSelectInputs() or rt.logic:getRecipeDataInProgress():getRecipe()~=rt.policy.recipe then return false end
+    for _,r in ipairs(rt.policy.requirements) do
+        local input=rt.policy.recipe:getInputs():get(r.inputIndex)
+        for _,data in ipairs({rt.logic:getRecipeData(),rt.logic:getRecipeDataInProgress()}) do
+            local actual=data:getManualInputsFor(input,ArrayList.new())
+            if actual:size()~=r.count then return false end
+            local n=0;for i,row in ipairs(rt.inputs) do if row.inputIndex==r.inputIndex then
+                n=n+1;if actual:get(n-1)~=rt.materials[i] then return false end
+            end end
+        end
+    end
+    return true
+end
+function collector.payment(rt)
+    local data=rt.logic:getRecipeDataInProgress()
+    local consumed,kept=data:getAllConsumedItems(),data:getAllKeepInputItems();local expected=0
+    for i,row in ipairs(rt.inputs) do local item=rt.materials[i]
+        if row.mode=="consume" then
+            expected=expected+1
+            if not consumed:contains(item) or craftCarried(rt.body,row.itemId,row.itemType)~=nil or ownItem(rt,item) then return false end
+        elseif not kept:contains(item) or craftCarried(rt.body,row.itemId,row.itemType)~=item or not ownItem(rt,item) then return false end
+    end
+    return consumed:size()==expected and kept:size()==1
+end
+function collector.measure(rt)
+    local object=rt.builder.saoCreated;local data=rt.logic:getRecipeDataInProgress()
+    if not object or rt.beforeObjects[object] or SAOJavaBridge:worldCollectorCreated(rt.body,object,rt.work.entityId,rt.site.x,rt.site.y,rt.site.z)~=true then return false end
+    local fluid=object:getFluidContainer()
+    if not fluid or fluid:getCapacity()~=rt.policy.capacity or rt.builder.saoInitialAmount~=0 then return false end
+    return collector.payment(rt)
+end
+function collector.cleanup(rt,a)
+    rt.builder.ghostSprite=nil
+    for _,key in ipairs({"sawSound","hammerSound","craftingSound"}) do
+        local sound=a[key];if sound and sound~=0 and rt.body:getEmitter():isPlaying(sound) then rt.body:getEmitter():stopSound(sound) end
+    end
+    pcall(function() removeAction(rt.body,a.transactionId,true) end)
+    rt.logic:stopCraftAction()
+end
+function collector.outcome(id,row)
+    local rec,t=SAO.Identity.get(id),now()
+    if not craftLedger(rec) or not collector.identity(id,row) or row.sequence>rec.resourceProductionSequence
+        or row.workId~=row.id or row.nativeOwner~="ISBuildAction" or not t or not finite(row.atHours)
+        or row.atHours<row.startedAt or row.atHours>t or row.endedAt~=row.atHours then return nil end
+    for _,k in ipairs({"nativeAttempted","nativeCompleted","constructed","placed","exactInputs","inputsConsumed","toolRetained","feedsFixture"}) do
+        if type(row[k])~="boolean" then return nil end
+    end
+    if row.status~="completed" and row.status~="failed" and row.status~="interrupted" then return nil end
+    if row.status=="completed" then
+        if not row.nativeAttempted or not row.nativeCompleted or not row.constructed or not row.placed or not row.exactInputs
+            or not row.inputsConsumed or not row.toolRetained or row.nativeCredit~=row.id or row.beforeCollectorAmount~=0
+            or not finite(row.afterCollectorAmount) or row.afterCollectorAmount<0 or row.afterCollectorAmount>row.collectorCapacity then return nil end
+    elseif row.nativeCredit~=nil then return nil end
+    if row.nativeObservability~=nil and (row.nativeObservability~="runtime-unavailable" or row.status~="interrupted"
+        or row.nativeAttempted or row.nativeCompleted or row.constructed or row.placed or row.inputsConsumed or row.toolRetained
+        or row.afterCollectorAmount~=nil or row.beforeCollectorAmount~=nil) then return nil end
+    return collector.copy(row)
+end
+function collector.refresh(rt,row)
+    row.sourceObservation={status="unconfirmed",detail="native-created-source-unconfirmed",attempts=1}
+    local object=rt.builder.saoCreated
+    local identity=SAOJavaBridge:worldCollectorSource(rt.body,object,row.entityId,row.siteX,row.siteY,row.siteZ)
+    local sourceId,fp=tostring(identity):match("^([^|]+)|([^|]+)$")
+    if not sourceId or sourceId:sub(1,2)~="F:" then return end
+    row.collectorSourceId,row.collectorFingerprint=sourceId,fp
+    local W,M=SAO.WorldSources,SAO.Perception
+    local ok=pcall(function()
+        if W.observeChunk(math.floor(row.siteX/8),math.floor(row.siteY/8))~=true then return end
+        local fact=W.beliefFact(sourceId)
+        if not fact or fact.fingerprint~=fp or fact.x~=row.siteX or fact.y~=row.siteY or fact.z~=row.siteZ then return end
+        local place={id="source:"..sourceId,sourceId=sourceId,cx=row.siteX+.5,cy=row.siteY+.5,z=row.siteZ,
+            minX=row.siteX,maxX=row.siteX,minY=row.siteY,maxY=row.siteY}
+        if M.learnInspectedSource(rt.id,place,sourceId,SAO.History.ticks and SAO.History.ticks() or math.floor(now()*9000),"observed-native-construction")~=true then return end
+        row.sourceObservation={status="confirmed",detail="observed-native-construction",attempts=1,revision=fact.revision,atHours=now()}
+    end)
+    if not ok then row.sourceObservation.detail="created-source-observation-unavailable" end
+end
+function collector.close(rt,status,detail)
+    if rt.closed then return true end
+    local rec,w,t=SAO.Identity.get(rt.id),rt.work,now()
+    if not plumbRetired(rt) or rec~=rt.record or rec.resourceProductionWork~=w or not collector.identity(rt.id,w)
+        or not collector.purpose(rec,w) or not collector.anchors(rt,w) or not craftLedger(rec) or not t or t<w.startedAt then return false end
+    local rows=rec.resourceProductionOutcomes or {}
+    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    local row=collector.copy(w);row.stage,row.admittedNeeds,row.admittedHealth=nil,nil,nil
+    row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISBuildAction",status,detail,t,t
+    row.nativeAttempted,row.nativeCompleted=rt.nativeAttempted==true,rt.nativeCompleted==true
+    row.exactInputs=true;row.constructed,row.placed=rt.nativeCompleted==true,rt.nativeCompleted==true
+    row.inputsConsumed=rt.nativeAttempted==true and collector.payment(rt)
+    row.toolRetained=craftCarried(rt.body,w.toolItemId,w.toolItemType)==rt.tool and ownItem(rt,rt.tool)
+    row.feedsFixture=false
+    if rt.nativeCompleted then
+        row.beforeCollectorAmount=rt.builder.saoInitialAmount;row.afterCollectorAmount=rt.builder.saoCreated:getFluidContainer():getAmount()
+        row.feedsFixture=SAOJavaBridge:worldCollectorFeedsFixture(rt.body,rt.builder.saoCreated,w.sourceId,w.fingerprint,w.sourceX,w.sourceY,w.sourceZ)==true
+        collector.refresh(rt,row)
+    end
+    if row.status=="completed" and (not row.toolRetained or not collector.bound(rt,false)) then row.status="failed" end
+    row.nativeCredit=row.status=="completed" and w.id or nil
+    if not collector.outcome(rt.id,row) then return false end
+    rows[#rows+1]=row;rec.resourceProductionOutcomes=rows;if #rows>CRAFT_LIMIT then table.remove(rows,1) end
+    rt.logic:stopCraftAction();rec.resourceProductionWork=nil;rt.closed=true;plumbDispose(rt);reconcile(rt.id);return true
+end
+function collector.begin(id,body,step,context)
+    local rec,t=owner(id,body),now();local policy=rec and collector.recipe(step.entityId,body)
+    if not policy or not t or not craftLedger(rec) or rec.resourceProductionWork or rec.worldSourceReservation or rec.cookingWork
+        or SAO.Needs.busy(body) or SAOJavaBridge:hasPendingActions(body) or step.recipeId~=policy.recipeId
+        or step.owner~="SAO.ResourceProduction" or step.token~="resource:collector-built" or step.category~="water"
+        or not R.privatelyKnown(id,{kind="build-rain-collector",category="water",sourceId=step.sourceId,sourceRevision=step.sourceRevision,
+            fingerprint=step.fingerprint,sourceX=step.sourceX,sourceY=step.sourceY,sourceZ=step.sourceZ,place=step.place,site=step.site})
+        or not collector.site(id,body,step.site,step.sourceX,step.sourceY,step.sourceZ) then return false end
+    local p=rec.proceduralPlanning and rec.proceduralPlanning.purposes[context.purposeId]
+    if not p or not p.collector or p.collector.constructedWorkId or p.admission or p.steps[p.cursor]~=step or step.id~=context.purposeStepId then return false end
+    for _,old in ipairs(rec.resourceProductionOutcomes or {}) do
+        if old.kind=="build-rain-collector" and old.purposeId==p.id and old.status=="completed" then return false end
+    end
+    local selected=collector.inputs(policy,body)
+    if not collector.rowsEqual(selected,step.inputs) or not collector.rowsEqual(policy.requirements,step.requirements) then return false end
+    local item=carried(body,step.itemId,step.itemType);local fluid,amount=vessel(body,item)
+    local sq=SAOJavaBridge:worldCollectorPlacementSquare(body,step.site.x,step.site.y,step.site.z,step.site.revision)
+    if not fluid then return false end
+    local route=SAO.Locomotion.jobs[id];if route and not route.done then return false end
+    local world=getWorld();if not world then return false end
+    local rt={kind="build-rain-collector",id=id,record=rec,body=body,item=item,policy=policy,inputs=collector.copy(selected),
+        materials={},site=collector.copy(step.site),siteSquare=sq,inventory=body:getInventory(),
+        square=body:getCurrentSquare(),x=body:getX(),y=body:getY(),world=world:getWorld(),cell=body:getCell(),
+        queue=ISTimedActionQueue.getTimedActionQueue(body),token=body:getModData().SAOExternalToken,startedAt=t,actions={},beforeObjects={},
+        sourceId=step.sourceId,sourceRevision=step.sourceRevision,fingerprint=step.fingerprint,sx=step.sourceX,sy=step.sourceY,sz=step.sourceZ,
+        itemId=item:getID(),itemType=item:getFullType(),beforeAmount=amount,capacity=fluid:getCapacity()}
+    local containers=ArrayList.new();containers:add(rt.inventory)
+    local logic=BuildLogic.new(body,nil,nil);logic:setContainers(containers);logic:setRecipe(policy.recipe);logic:setManualSelectInputs(true);logic:clearManualInputs()
+    for _,r in ipairs(policy.requirements) do local manual=ArrayList.new()
+        for _,row in ipairs(selected) do if row.inputIndex==r.inputIndex then
+            local material=craftCarried(body,row.itemId,row.itemType);if not material then return false end
+            manual:add(material);rt.materials[#rt.materials+1]=material
+        end end
+        if manual:size()~=r.count or logic:setManualInputsFor(policy.recipe:getInputs():get(r.inputIndex),manual)~=true then return false end
+    end
+    if not logic:canPerformCurrentRecipe() then return false end
+    rt.logic,rt.tool=logic,rt.materials[1];rt.toolId,rt.toolType=selected[1].itemId,selected[1].itemType
+    local place,cx,cy=rememberedPlace(id,step)
+    local seq=(rec.resourceProductionSequence or 0)+1
+    local needs=SAO.Needs.read(body) or {};local ok,health=pcall(function() return body:getBodyDamage():getOverallBodyHealth() end)
+    local w={id="resource-production/"..id.."/"..seq,sequence=seq,actorId=id,kind=rt.kind,category="water",token="resource:collector-built",
+        purposeId=context.purposeId,purposeStepId=context.purposeStepId,requestedPurposeId=context.purposeId,requestedPurposeStepId=context.purposeStepId,
+        sourceId=rt.sourceId,sourceRevision=rt.sourceRevision,fingerprint=rt.fingerprint,sourceX=rt.sx,sourceY=rt.sy,sourceZ=rt.sz,
+        sourceChunkX=cx,sourceChunkY=cy,place=place,itemId=rt.itemId,itemType=rt.itemType,beforeAmount=amount,capacity=rt.capacity,
+        toolCategory="hammer",toolItemId=rt.toolId,toolItemType=rt.toolType,entityId=step.entityId,recipeId=policy.recipeId,
+        requirements=collector.copy(policy.requirements),inputs=collector.copy(selected),collectorCapacity=policy.capacity,
+        siteKey=rt.site.key,siteRevision=rt.site.revision,siteX=rt.site.x,siteY=rt.site.y,siteZ=rt.site.z,siteObservedAtHours=rt.site.observedAtHours,
+        world=rt.world,bodyToken=rt.token,startedAt=t,status="constructing",stage="approaching",
+        admittedNeeds={hunger=tonumber(needs.hunger),thirst=tonumber(needs.thirst),fatigue=tonumber(needs.fatigue)},admittedHealth=ok and tonumber(health) or nil}
+    rt.work,rt.workId=w,w.id
+    if not collector.identity(id,w) then return false end
+    rt.containers=containers
+    rec.resourceProductionSequence,rec.resourceProductionWork,runtime[id]=seq,w,rt
+    if SAO.ProceduralPlanning.admitProduction(id,w)~=true then rec.resourceProductionWork=nil;plumbDispose(rt);return false end
+    rt.purpose,rt.step=collector.purpose(rec,w)
+    if sq then return collector.queue(rt) end
+    local destination=collector.destination(rt)
+    if destination and SAO.Locomotion.order(id,body,destination.x,destination.y,destination.z) then
+        rt.route=SAO.Locomotion.jobs[id]
+        if rt.route and rt.route.body==body then return true end
+    end
+    plumbInterrupt(id,body,"native-collector-approach-refused");return false
+end
+function collector.destination(rt)
+    local site=rt.site
+    for _,known in ipairs(SAO.Perception.collectorSites(rt.id,rt.body) or {}) do
+        if known.z==site.z and math.abs(known.x-site.x)<=1 and math.abs(known.y-site.y)<=1
+            and (known.x~=site.x or known.y~=site.y) and SAO.Standing.mayAttemptBelieved(rt.id,known.x,known.y,"standing")==true then return known end
+    end
+    if rt.body:getZ()~=site.z then return site end
+end
+function collector.queue(rt)
+    local w,body,policy,id=rt.work,rt.body,rt.policy,rt.id
+    local sq=SAOJavaBridge:worldCollectorPlacementSquare(body,w.siteX,w.siteY,w.siteZ,w.siteRevision)
+    if not sq then return false end
+    rt.siteSquare,rt.square,rt.x,rt.y=sq,body:getCurrentSquare(),body:getX(),body:getY()
+    w.stage="preparing"
+    rt.builder=collector.newEntity(rt,rt.containers);rt.sprite=rt.builder:getSprite()
+    local objects=sq:getObjects();for i=0,objects:size()-1 do rt.beforeObjects[objects:get(i)]=true end
+    for _,material in ipairs(rt.materials) do if material:getContainer()~=rt.inventory then
+        plumbGuard(rt,ISInventoryTransferAction:new(body,material,material:getContainer(),rt.inventory),"transfer",material)
+    end end
+    if body:getPrimaryHandItem()~=rt.tool then plumbGuard(rt,ISEquipWeaponAction:new(body,rt.tool,50,true,false),"equip",rt.tool) end
+    local a=ISBuildAction:new(body,rt.builder,rt.site.x,rt.site.y,rt.site.z,rt.builder.north,rt.sprite,policy.recipe:getTime(body))
+    -- BuildLogic copies its exact manual slots from the native multicraft
+    -- selection cache when starting construction.
+    if rt.logic:getPossibleCraftCount(true)<1 then plumbInterrupt(id,body,"native-collector-inputs-refused");return false end
+    rt.logic:startCraftAction(a);plumbGuard(rt,a,"collector",rt.tool)
+    if not collector.bound(rt,true) or not plumbEnqueue(rt,1) then plumbInterrupt(id,body,"native-collector-admission-refused");return false end
+    return true
+end
+function collector.recover(id,body)
+    reconcile(id);local rec=SAO.Identity.get(id);local w=rec and rec.resourceProductionWork
+    if not w then return true end
+    if runtime[id] then return plumbInterrupt(id,body,"collector-owner-reconciled") end
+    local t=now();local world=getWorld()
+    if not craftLedger(rec) or not collector.identity(id,w) or w.sequence>rec.resourceProductionSequence or not collector.purpose(rec,w)
+        or w.status~="constructing" and w.status~="interrupted" or not t or t<w.startedAt or not world or world:getWorld()~=w.world
+        or not body or tostring(body:getModData().SAOPersonId or "")~=tostring(id) or body:getModData().SAOExternalToken~=w.bodyToken then return false end
+    for _,q in pairs(ISTimedActionQueue.queues) do
+        local pending={};for _,a in ipairs(q.queue) do pending[#pending+1]=a end
+        if q.current and q:indexOf(q.current)==-1 then pending[#pending+1]=q.current end
+        for _,a in ipairs(pending) do if a.actorId==id and a.workId==w.id and a.bodyToken==w.bodyToken then
+            if type(a._SAOPlumbRetireSaved)~="function" then return false end
+            local ok,closed=pcall(a._SAOPlumbRetireSaved,rec,w);if not ok or not closed then return false end
+        end end
+    end
+    if not rec.resourceProductionWork then return true end
+    local q=ISTimedActionQueue.getTimedActionQueue(body)
+    if SAOJavaBridge:hasPendingActions(body) or q.current or #q.queue>0 then return false end
+    local rows=rec.resourceProductionOutcomes or {}
+    for _,r in ipairs(rows) do if r.id==w.id then return false end end
+    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    local row=collector.copy(w);row.stage,row.admittedNeeds,row.admittedHealth=nil,nil,nil
+    row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISBuildAction","interrupted","collector-runtime-unavailable",t,t
+    row.nativeObservability="runtime-unavailable"
+    row.nativeAttempted,row.nativeCompleted,row.constructed,row.placed,row.exactInputs,row.inputsConsumed,row.toolRetained,row.feedsFixture=false,false,false,false,false,false,false,false
+    if not collector.outcome(id,row) then return false end
+    rows[#rows+1]=row;rec.resourceProductionOutcomes=rows;if #rows>CRAFT_LIMIT then table.remove(rows,1) end
+    rec.resourceProductionWork=nil;reconcile(id);return true
+end
+function collector.tick(id,body)
+    local rt=runtime[id]
+    if not rt then return collector.recover(id,body) and "interrupted" or "cancelling" end
+    if rt.cancelling or rt.body~=body or not collector.bound(rt,not rt.nativeAttempted) or not now() or now()-rt.startedAt>.5 then
+        return plumbInterrupt(id,rt.body,rt.cancelReason or "collector-owner-changed") and "interrupted" or "cancelling"
+    end
+    if rt.work.stage=="approaching" then
+        if not rt.route or SAO.Locomotion.jobs[id]~=rt.route then return plumbInterrupt(id,body,"collector-route-owner-lost") and "interrupted" or "cancelling" end
+        SAO.Locomotion.tick(id)
+        if not rt.route.done then return "moving" end
+        if rt.route.result=="arrived" then
+            if collector.queue(rt) then return rt.work.stage end
+            if SAO.Perception.observeCollectorSites then SAO.Perception.observeCollectorSites(id,body,now()) end
+            local destination=collector.destination(rt)
+            if destination and not rt.interactionReturn and SAO.Locomotion.order(id,body,destination.x,destination.y,destination.z) then
+                rt.route=SAO.Locomotion.jobs[id];rt.interactionReturn=true;return "moving"
+            end
+        end
+        return plumbInterrupt(id,body,"native-collector-approach-refused") and "interrupted" or "cancelling"
+    end
+    if queued(rt.action) then return rt.work.stage end
+    return plumbInterrupt(id,body,"native-collector-acknowledgement-missing") and "interrupted" or "cancelling"
+end
+-- Installed ISBuildIsoEntity.setInfo adapted only at exact actor and measured
+-- created-object boundaries. The native constructor/factory/place path is retained.
+function collector.setInfo(self, square, north, sprite, openSprite)
+
+	if self.objectInfo:getScript():isProp() then
+		local props = ISMoveableSpriteProps.new(IsoObject.new(square, sprite):getSprite())
+		props.rawWeight = 10
+		props:placeMoveableInternal(self.character, square, instanceItem(ItemKey.Weapon.PLANK), sprite)
+		return;
+	end
+
+	-- get correct thumpable
+	local thumpable;
+	if openSprite then
+		thumpable = IsoThumpable.new(getCell(), square, sprite, openSprite, north, self);
+	else
+		thumpable = IsoThumpable.new(getCell(), square, sprite, north, self);
+	end
+
+	-- set property flags
+	local spriteType = thumpable:getType();
+	local thumpableProps = thumpable:getProperties();
+	self.blockAllTheSquare = thumpableProps and thumpableProps:has(IsoPropertyType.BLOCKS_PLACEMENT); -- need to consider prop IsHigh and IsLow here
+	self.canPassThrough = thumpableProps and not (thumpableProps:has(IsoFlagType.solid) or thumpableProps:has(IsoFlagType.solidtrans) or
+		thumpableProps:has(IsoFlagType.doorN) or thumpableProps:has(IsoFlagType.doorW) or
+		thumpableProps:has(IsoFlagType.WallN) or thumpableProps:has(IsoFlagType.WallNTrans) or thumpableProps:has(IsoFlagType.WallW) or
+		thumpableProps:has(IsoFlagType.WallWTrans) or thumpableProps:has(IsoFlagType.WallNW));
+	self.hoppable = thumpableProps and (thumpableProps:has(IsoFlagType.HoppableN) or thumpableProps:has(IsoFlagType.HoppableW) or thumpableProps:has(IsoFlagType.TallHoppableN) or thumpableProps:has(IsoFlagType.TallHoppableW));
+	self.isStairs = spriteType and (spriteType == IsoObjectType.stairsTW or spriteType == IsoObjectType.stairsTN or spriteType == IsoObjectType.stairsMW or spriteType == IsoObjectType.stairsMN or spriteType == IsoObjectType.stairsBW or spriteType == IsoObjectType.stairsBN);
+	self.isDoorFrame = spriteType and (spriteType == IsoObjectType.doorFrN or spriteType == IsoObjectType.doorFrW);
+	self.isDoor = spriteType and (spriteType == IsoObjectType.doorN or spriteType == IsoObjectType.doorW);
+	self.isFloor = thumpableProps and thumpableProps:has(IsoFlagType.solidfloor);
+	if self.isDoor then	-- set thumpDmg override for doors
+		self.thumpDmg = 5;
+	end
+	self.canBarricade = ((spriteType and (spriteType == IsoObjectType.doorN or spriteType == IsoObjectType.doorW)) or (thumpableProps and (thumpableProps:has(IsoFlagType.WindowN) or thumpableProps:has(IsoFlagType.WindowW) or thumpableProps:has(IsoFlagType.windowN) or thumpableProps:has(IsoFlagType.windowW))))
+			and thumpableProps and not (thumpableProps:has(IsoPropertyType.DOUBLE_DOOR) or thumpableProps:has(IsoPropertyType.GARAGE_DOOR));
+
+	buildUtil.setInfo(thumpable, self);
+
+	if self.isDoor and self.modData["keyId"] ~= nil then
+		thumpable:setKeyId(self.modData["keyId"])
+	end
+
+	local playerObj = self.character
+	local craftRecipe = self.objectInfo:getRecipe():getCraftRecipe()
+	local perk = craftRecipe:getHighestRelevantSkill(playerObj)
+	local perkLevel = playerObj:getPerkLevel(perk)
+
+	-- Use at least the minimum required perk level in cheat mode, to avoid zero-health thumpables.
+	if playerObj:isBuildCheat() then
+		for i=1,craftRecipe:getRequiredSkillCount() do
+			local requiredSkill = craftRecipe:getRequiredSkill(i-1)
+			if (requiredSkill:getPerk() ~= nil) and (requiredSkill:getLevel() > perkLevel) then
+				perkLevel = requiredSkill:getLevel()
+			end
+		end
+	end
+
+	local bonusHealth = self.objectInfo:getScript():getBonusHealth();
+	local skillBonus = craftRecipe:getHighestRelevantSkillLevel(playerObj) * self.objectInfo:getScript():getSkillBaseHealth();
+	local baseHealth = math.max(self.objectInfo:getScript():getHealth(), 0);
+	-- MULTIPLY BONUS HEALTH
+	local bonusHealthMultiplier = getSandboxOptions():getOptionByName("ConstructionBonusPoints"):getValue()
+	if bonusHealthMultiplier == 1 then bonusHealth = bonusHealth * 0.5; end
+	if bonusHealthMultiplier == 2 then bonusHealth = bonusHealth * 0.7; end
+	if bonusHealthMultiplier == 4 then bonusHealth = bonusHealth * 1.3; end
+	if bonusHealthMultiplier == 5 then bonusHealth = bonusHealth * 1.5; end
+	local totalHealth = baseHealth + bonusHealth + skillBonus;
+	thumpable:setMaxHealth(totalHealth);
+	thumpable:setHealth(thumpable:getMaxHealth())
+
+	thumpable:setBreakSound(self.objectInfo:getScript():getBreakSound());
+
+	if thumpableProps and thumpableProps:has(IsoPropertyType.IS_STACKABLE) then
+		local props = ISMoveableSpriteProps.new(thumpable:getSprite())
+		local offsetY = props:getTotalTableHeight(square)
+		thumpable:setRenderYOffset(offsetY)
+	end
+
+	if self.objectInfo:getScript() and self.objectInfo:getScript():getParent() then
+		local gameEntityScript = self.objectInfo:getScript():getParent();
+		local isFirstTimeCreated = true;
+		GameEntityFactory.CreateIsoObjectEntity(thumpable, gameEntityScript, isFirstTimeCreated);
+        self.saoInitialAmount=thumpable:getFluidContainer():getAmount()
+	else
+		if SAO.Log and SAO.Log.line then SAO.Log.line("RESOURCE", "Collector entity script missing") end
+	end
+
+	local replacedObjectIndex = -1;
+	if self.previousStageObject and self.previousStageObject:getSquare() == square then
+		replacedObjectIndex = self.previousStageObject:getSquare():transmitRemoveItemFromSquare(self.previousStageObject);
+		self.previousStageObject = nil;
+	end
+
+	-- lightsource properties
+	if self.objectInfo:getScript():getLightRadius() then
+		local script = self.objectInfo:getScript();
+
+		-- get our FaceScript (not FaceInfo!)
+		local index = self.nSprite; -- W and E
+		if index == 2 then index = 0 end -- N
+		if index == 4 then index = 2 end -- S
+		local face = script:getFace(index);
+		-- to build a lamp on pillar for ex. we need to check the torch used to add it's battery remaining values in the thumpable, we need to find what items has been used for it
+		local consumedItems = self.buildPanelLogic:getAllConsumedItems();
+		local torchUsed = nil;
+		if consumedItems then
+			for i=0, consumedItems:size() -1 do
+				-- we can either have a full type (Base.Torch) or a list of tags
+				local item = consumedItems:get(i);
+				if script:getLightsourceItem() and item:getFullType() == script:getLightsourceItem() then
+					torchUsed = item;
+					break;
+				end
+				if script:getLightsourceTagItem() then
+					for j=0, script:getLightsourceTagItem():size()-1 do
+						local tag = script:getLightsourceTagItem():get(j);
+						if item:hasTag(ItemTag.get(ResourceLocation.of(tag))) then
+							torchUsed = item;
+							break;
+						end
+					end
+				end
+			end
+		end
+
+		if not torchUsed and self.character:isBuildCheat() and self.objectInfo:getScript():getDebugItem() then
+			torchUsed = instanceItem(self.objectInfo:getScript():getDebugItem());
+		end
+
+		if torchUsed then
+			thumpable:createLightSource(script:getLightRadius(), face:getLightsourceOffsetX(), face:getLightsourceOffsetY(), face:getLightsourceOffsetZ(), 0, script:getLightsourceFuel(), torchUsed, playerObj)
+		end
+	end
+
+	square:AddSpecialObject(thumpable, replacedObjectIndex);
+    self.saoCreated=thumpable
+	buildUtil.checkCorner(square:getX(), square:getY(), square:getZ(), north, thumpable, self);
+
+	-- This is so any containers that are in a tile are flagged as "already explored" so they don't spawn loot in them
+	thumpable:setExplored(true)
+
+	local result = nil;
+	if self.objectInfo:getScript():getOnCreate() then
+        local facing = self:getFace():getFaceName();
+		local func = self.objectInfo:getScript():getOnCreate();
+		result = BaseCraftingLogic.callLuaObject(func, {thumpable = thumpable, craftRecipeData = self.buildPanelLogic:getRecipeData(), character = playerObj, facing = facing});
+	end
+
+	square:RecalcAllWithNeighbours(true);
+	if result ~= nil then
+		-- object transmitted somewhere in OnCreate function, don't send again
+		-- can be used when you have to transmit not just one object
+		if result.objectAlreadyTransmitted then
+			return;
+		end
+
+		-- transmitted object is not just isoThumpable,
+		-- replace it to make sure client will get correct instance of the object
+		if (result.replaceObject and result.object ~= nil) then
+			result.object:transmitCompleteItemToClients();
+		end
+		return;
+	end
+
+	thumpable:transmitCompleteItemToClients();
+end
+
+function collector.newEntity(rt,containers)
+    if not collector.entityClass then
+        collector.entityClass=ISBuildIsoEntity:derive("SAORainCollectorEntity")
+        collector.entityClass.setInfo=collector.setInfo
+    end
+    local builder=ISBuildIsoEntity.new(collector.entityClass,rt.body,rt.policy.info,4,containers,rt.logic)
+    local nativeCreate=ISBuildIsoEntity.create
+    function builder:create(x,y,z,north,sprite)
+        local c=rt.current
+        if not c or not c.performing or not plumbCurrent(c) or not collector.bound(rt,true)
+            or not collector.exact(rt,c.action) or x~=rt.site.x or y~=rt.site.y or z~=rt.site.z or sprite~=rt.sprite then return false end
+        rt.nativeAttempted=true
+        return nativeCreate(self,x,y,z,north,sprite)
+    end
+    function builder:setInfo(square,north,sprite,openSprite)
+        local c=rt.current
+        if not c or not c.performing or not plumbCurrent(c) or not rt.nativeAttempted or not collector.bound(rt,false)
+            or not collector.payment(rt) or square~=rt.siteSquare or sprite~=rt.sprite then return false end
+        return collector.setInfo(self,square,north,sprite,openSprite)
+    end
+    local face=builder:getFace()
+    local sprite=face:getTileInfo(0,0,0):getSpriteName()
+    builder:setSprite(sprite);builder:setSouthSprite(sprite);builder:setNorthSprite(sprite)
+    builder.dragNilAfterPlace=false
+    return builder
+end
+
 function R.reconcileSaved(id,body)
     local rec=SAO.Identity.get(id)
+    if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="build-rain-collector" then return collector.recover(id,body) end
     if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="plumb-fixture" then return plumbRecover(id,body) end
     if rec and rec.resourceProductionWork and nativeCraftKind(rec.resourceProductionWork.kind) then return craftRecover(id,body) end
     reconcile(id);return true
 end
 function R.retryCraftCancellations()
     for id,rt in pairs(runtime) do
-        if rt.kind=="plumb-fixture" and rt.cancelling then plumbInterrupt(id,rt.body,rt.cancelReason)
+        if (rt.kind=="plumb-fixture" or rt.kind=="build-rain-collector") and rt.cancelling then plumbInterrupt(id,rt.body,rt.cancelReason)
         elseif nativeCraftKind(rt.kind) and rt.cancelling then craftInterrupt(id,rt.body,rt.cancelReason) end
     end
 end
@@ -1613,6 +2291,7 @@ if Events and Events.OnTick then Events.OnTick.Add(R.retryCraftCancellations) en
 
 function R.begin(id, body, step, context)
     context = context or {}
+    if step and step.productionKind == "build-rain-collector" then return collector.begin(id, body, step, context) end
     if step and step.productionKind == "plumb-fixture" then return plumbBegin(id, body, step, context) end
     if step and step.productionKind == "saw-logs" then return craftBegin(id, body, step, context) end
     if step and step.productionKind == "repair-held-item" then return repairBegin(id, body, step, context) end
@@ -1673,6 +2352,11 @@ function R.begin(id, body, step, context)
 end
 function R.interrupt(id, body, reason)
     local rec, rt = SAO.Identity.get(id), runtime[id]
+    if rt and rt.kind=="build-rain-collector" or rec and rec.resourceProductionWork
+        and rec.resourceProductionWork.kind=="build-rain-collector" then
+        if not rt then return collector.recover(id,body) end
+        return plumbInterrupt(id,body,reason)
+    end
     if rt and rt.kind == "plumb-fixture" or rec and rec.resourceProductionWork
         and rec.resourceProductionWork.kind == "plumb-fixture" then return plumbInterrupt(id, body, reason) end
     if rt and nativeCraftKind(rt.kind) or rec and rec.resourceProductionWork
@@ -1718,7 +2402,7 @@ end
 function R.servesNeed(id, body, category)
     local rec, rt = owner(id, body), runtime[id]
     local work = rec and rec.resourceProductionWork
-    if category ~= "water" or not work or (work.kind ~= "refill-water" and work.kind ~= "plumb-fixture")
+    if category ~= "water" or not work or (work.kind ~= "refill-water" and work.kind ~= "plumb-fixture" and work.kind ~= "build-rain-collector")
         or not rt or rt.body ~= body or rt.workId ~= work.id or rt.cancelling
         or not SAO.Needs.portableWaterItem then return false end
     local items = SAOJavaBridge:privateCarriedItems(body)
@@ -1760,6 +2444,7 @@ local function tick(id, body)
     local rec, rt = SAO.Identity.get(id), runtime[id]
     local work = rec and rec.resourceProductionWork
     if not work then return "idle" end
+    if work.kind == "build-rain-collector" then return collector.tick(id, body) end
     if work.kind == "plumb-fixture" then return plumbTick(id, body) end
     if nativeCraftKind(work.kind) then return craftTick(id, body) end
     if not rt then

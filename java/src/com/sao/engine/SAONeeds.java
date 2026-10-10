@@ -9,6 +9,7 @@ import zombie.characters.IsoPlayer;
 import zombie.inventory.InventoryItem;
 import zombie.inventory.ItemContainer;
 import zombie.inventory.types.Food;
+import zombie.inventory.types.InventoryContainer;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoObject;
@@ -1161,6 +1162,15 @@ public final class SAONeeds {
                 return "Literature".equals(item.getDisplayCategory());
             case "glass-pane":
                 return "RepairableWindows.LargeGlassPane".equals(item.getFullType());
+            case "garbage-bag":
+                return item.hasTag(zombie.scripting.objects.ItemTag.GARBAGE_BAG)
+                    && item instanceof InventoryContainer bag && bag.getInventory().isEmpty()
+                    && item.getCondition() > 0 && !item.isBroken()
+                    && !item.getIsCraftingConsumed();
+            case "tarp":
+                return "Base.Tarp".equals(item.getFullType())
+                    && item.getCondition() > 0 && !item.isBroken()
+                    && !item.getIsCraftingConsumed();
             case "hammer":
                 return item.hasTag(zombie.scripting.objects.ItemTag.HAMMER)
                     && item.getCondition() > 0 && !item.isBroken()

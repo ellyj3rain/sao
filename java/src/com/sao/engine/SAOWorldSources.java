@@ -68,6 +68,8 @@ public final class SAOWorldSources {
         new WeakHashMap<>();
     private static final Map<IsoPlayer, se.krka.kahlua.vm.KahluaTable> INSPECTION_MEMORY =
         new WeakHashMap<>();
+    private static final Map<IsoPlayer, LinkedHashMap<String, CollectorSiteBinding>> COLLECTOR_SITES =
+        new WeakHashMap<>();
     private static boolean transactionActive;
 
     private SAOWorldSources() {
@@ -88,6 +90,7 @@ public final class SAOWorldSources {
         ACTIONS.clear();
         INSPECTIONS.clear();
         INSPECTION_MEMORY.clear();
+        COLLECTOR_SITES.clear();
     }
 
     /** Kahlua does not implement Lua weak tables. Keep body keys on the JVM;
@@ -518,6 +521,130 @@ public final class SAOWorldSources {
             + (zombie.SandboxOptions.instance.getTimeSinceApo() - 1) * 30;
         return pipedSprite && marked && square.getRoom() != null
             && days < zombie.SandboxOptions.instance.waterShutModifier.getValue();
+    }
+
+    /** Visible current-floor sites. Recipe-specific clearance remains native build authority. */
+    public static synchronized String collectorSites(SAOIsoPlayerShell shell) {
+        String actor = SAOConceptObservation.actor(shell);
+        if (actor == null || transactionActive) return "";
+        var remembered = COLLECTOR_SITES.computeIfAbsent(shell, ignored -> new LinkedHashMap<>());
+        var eye = shell.getCurrentSquare();
+        StringBuilder out = new StringBuilder();
+        int count = 0;
+        for (int distance = 0; distance <= INSPECTION_RANGE && count < 32; distance++) {
+            for (int dy = -distance; dy <= distance && count < 32; dy++) {
+                for (int dx = -distance; dx <= distance && count < 32; dx++) {
+                    if (Math.max(Math.abs(dx), Math.abs(dy)) != distance) continue;
+                    var square = shell.getCell().getGridSquare(eye.getX() + dx, eye.getY() + dy, eye.getZ());
+                    if (!collectorSiteUsable(square)
+                            || !SAOPerceptionScanner.canSeeWorldSquareNow(shell, square, INSPECTION_RANGE)) continue;
+                    String key = square.getX() + ":" + square.getY() + ":" + square.getZ();
+                    var binding = remembered.get(key);
+                    if (binding == null || !binding.matches(actor, square)) {
+                        binding = new CollectorSiteBinding(actor, square);
+                        remembered.put(key, binding);
+                    }
+                    if (out.length() > 0) out.append('|');
+                    out.append(square.getX()).append(',').append(square.getY()).append(',')
+                        .append(square.getZ()).append(',').append(binding.revision.replace('|', '_').replace(',', '_'));
+                    count++;
+                }
+            }
+        }
+        while (remembered.size() > MAX_INSPECTION_OPTIONS)
+            remembered.remove(remembered.keySet().iterator().next());
+        return out.toString();
+    }
+
+    public static synchronized IsoGridSquare collectorPlacementSquare(SAOIsoPlayerShell shell,
+            int x, int y, int z, String revision) {
+        String actor = SAOConceptObservation.actor(shell);
+        var remembered = COLLECTOR_SITES.get(shell);
+        var binding = remembered == null ? null : remembered.get(x + ":" + y + ":" + z);
+        var square = actor == null ? null : shell.getCell().getGridSquare(x, y, z);
+        return binding != null && binding.revision.equals(revision)
+            && binding.matches(actor, square) && collectorSiteUsable(square)
+            && SAOPerceptionScanner.canSeeWorldSquareNow(shell, square, INSPECTION_RANGE)
+            && refillWithinReach(shell, square) ? square : null;
+    }
+
+    /** Physical validation; the native action owner proves this object's creation. */
+    public static synchronized boolean collectorCreated(SAOIsoPlayerShell shell, IsoThumpable collector,
+            String entityId, int x, int y, int z) {
+        if (SAOConceptObservation.actor(shell) == null || collector == null || entityId == null
+                || !(entityId.equals("Base.RainCollector") || entityId.equals("Base.RainCollectorRound")
+                    || entityId.equals("Base.RainCollector_Tarp") || entityId.equals("Base.RainCollectorRound_Tarp"))) return false;
+        var square = shell.getCell().getGridSquare(x, y, z);
+        var script = collector.getEntityScript();
+        var fluid = collector.getFluidContainer();
+        return square != null && square.getCell() == shell.getCell() && collector.getCell() == shell.getCell()
+            && collector.getSquare() == square && square.getObjects().contains(collector)
+            && collector.getObjectIndex() >= 0 && !collector.getUsesExternalWaterSource()
+            && script != null && entityId.equals(script.getFullName())
+            && fluid != null && fluid.getGameEntity() == collector && fluid.getCapacity() > 0
+            && fluid.getRainCatcher() > 0 && collector.getFluidCapacity() == fluid.getCapacity();
+    }
+
+    public static synchronized String collectorSource(SAOIsoPlayerShell shell, IsoThumpable collector,
+            String entityId, int x, int y, int z) {
+        if (!collectorCreated(shell, collector, entityId, x, y, z)) return "";
+        Source source = objectFluidSource(new Snapshot(Math.floorDiv(x, CHUNK_SIZE), Math.floorDiv(y, CHUNK_SIZE)),
+            collector.getSquare(), collector);
+        return source.id + "|" + source.fingerprint;
+    }
+
+    public static synchronized boolean collectorFeedsFixture(SAOIsoPlayerShell shell, IsoThumpable collector,
+            String sourceId, String fingerprint, int x, int y, int z) {
+        if (SAOConceptObservation.actor(shell) == null || collector == null || collector.getSquare() == null
+                || sourceId == null || !sourceId.startsWith("F:") || sourceId.length() <= 2 || fingerprint == null
+                || rememberedContainerRevisions(shell, sourceId, fingerprint).isEmpty()) return false;
+        var roof = collector.getSquare();
+        var script = collector.getEntityScript();
+        if (script == null || !collectorCreated(shell, collector, script.getFullName(), roof.getX(), roof.getY(), roof.getZ())) return false;
+        var square = shell.getCell().getGridSquare(x, y, z);
+        if (square == null || square.getCell() != shell.getCell()) return false;
+        for (int index = 0; index < square.getObjects().size(); index++) {
+            var fixture = square.getObjects().get(index);
+            if (fixture == null || fixture.getSquare() != square
+                    || !sourceId.substring(2).equals(fixture.getModData().rawget(SOURCE_TOKEN))) continue;
+            Source source = objectFluidSource(new Snapshot(Math.floorDiv(x, CHUNK_SIZE), Math.floorDiv(y, CHUNK_SIZE)), square, fixture);
+            if (!source.fingerprint.equals(fingerprint)
+                    || fixture instanceof IsoThumpable locked && locked.isLockedToCharacter(shell)
+                    || GameClient.client && !zombie.iso.areas.SafeHouse.isSafehouseAllowInteract(square, shell)) return false;
+            return fixture.FindExternalWaterSource() == collector;
+        }
+        return false;
+    }
+
+    private static boolean collectorSiteUsable(IsoGridSquare square) {
+        return square != null && square.isOutside() && square.isSolidFloor()
+            && square.isFree(false) && !square.HasStairs() && !square.HasTree()
+            && square.getMovingObjects().isEmpty() && !square.isVehicleIntersecting() && !square.haveFire();
+    }
+
+    private static final class CollectorSiteBinding {
+        final String actor, revision = UUID.randomUUID().toString();
+        final java.lang.ref.WeakReference<IsoGridSquare> square;
+        final ArrayList<java.lang.ref.WeakReference<IsoObject>> objects = new ArrayList<>();
+        final ArrayList<String> sprites = new ArrayList<>();
+        CollectorSiteBinding(String actor, IsoGridSquare square) {
+            this.actor = actor; this.square = new java.lang.ref.WeakReference<>(square);
+            for (int index = 0; index < square.getObjects().size(); index++) {
+                var object = square.getObjects().get(index);
+                objects.add(new java.lang.ref.WeakReference<>(object));
+                sprites.add(object.getSpriteName());
+            }
+        }
+        boolean matches(String actor, IsoGridSquare square) {
+            if (!this.actor.equals(actor) || this.square.get() != square || square == null
+                    || objects.size() != square.getObjects().size()) return false;
+            for (int index = 0; index < objects.size(); index++) {
+                var object = square.getObjects().get(index);
+                if (objects.get(index).get() != object
+                        || !java.util.Objects.equals(sprites.get(index), object.getSpriteName())) return false;
+            }
+            return true;
+        }
     }
 
     /** Bind the exact source only after the actor has reached its interaction point. */
@@ -1960,6 +2087,8 @@ public final class SAOWorldSources {
             if (SAONeeds.wantsMaterial(item, "glass-pane")) out.add("glass-pane");
             if (SAONeeds.wantsMaterial(item, "hammer")) out.add("hammer");
             if (SAONeeds.wantsMaterial(item, "pipe-wrench")) out.add("pipe-wrench");
+            if (SAONeeds.wantsMaterial(item, "garbage-bag")) out.add("garbage-bag");
+            if (SAONeeds.wantsMaterial(item, "tarp")) out.add("tarp");
             if (SAONeeds.wantsMaterial(item, "plank")) out.add("plank");
             if (SAONeeds.wantsMaterial(item, "log")) out.add("log");
             if (SAONeeds.wantsMaterial(item, "saw")) out.add("saw");

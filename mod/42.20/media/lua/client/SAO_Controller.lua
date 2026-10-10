@@ -2599,6 +2599,9 @@ end
 
 local function hydrationProductionContext(id, agent, body, context)
     local production = SAO.ResourceProduction
+    if context.category == "water" and SAO.Perception.observeCollectorSites then
+        SAO.Perception.observeCollectorSites(id, body, context.atHours)
+    end
     context.productionOptions = production and production.options and production.options(id, body, context.category) or {}
     if context.category == "water" then
         local plumbing = SAO.ProceduralPlanning and SAO.ProceduralPlanning.resourceDemand(id, "water")
@@ -2609,10 +2612,50 @@ local function hydrationProductionContext(id, agent, body, context)
         if needsTool then
             context.toolSources = Ctl.resourceContext(id, agent, body, context.needs, "pipe-wrench", context.pressure).sources
         end
+        local materials = {}
+        for _, option in ipairs(context.productionOptions) do
+            if option.kind == "build-rain-collector" then
+                local _, missing = SAO.ProceduralPlanning.collectorReady(option)
+                if missing and missing[1] then materials[missing[1].category] = true end
+            end
+        end
+        context.materialSources = {}
+        for _, category in ipairs({ "hammer", "plank", "nails", "garbage-bag", "tarp" }) do
+            if materials[category] then
+                for _, source in ipairs(Ctl.resourceContext(id, agent, body, context.needs, category, context.pressure).sources) do
+                    if #context.materialSources < 128 then context.materialSources[#context.materialSources + 1] = source end
+                end
+            end
+        end
     end
 end
 
 local function retainedHydrationMeans(id, body, purpose, step)
+    if purpose and purpose.collector and not purpose.collector.constructedWorkId and step
+        and step.productionKind == "build-rain-collector" and step.status == "available"
+        and SAO.ResourceProduction and SAO.ResourceProduction.options then
+        local acquired = false
+        for _, ledger in ipairs({ purpose.steps or {}, purpose.completedSteps or {} }) do
+            for _, prior in ipairs(ledger) do
+                if prior.owner == "SAO.SourceUse" and prior.status == "completed" then
+                    for _, input in ipairs(step.inputs or {}) do
+                        if tostring(prior.itemId) == tostring(input.itemId) and prior.itemType == input.itemType then acquired = true; break end
+                    end
+                end
+            end
+        end
+        if acquired then
+            for _, option in ipairs(SAO.ResourceProduction.options(id, body, "water") or {}) do
+                if option.kind == "build-rain-collector" and option.sourceId == step.sourceId
+                    and option.sourceRevision == step.sourceRevision and option.fingerprint == step.fingerprint
+                    and option.itemId == step.itemId and option.itemType == step.itemType
+                    and option.entityId == step.entityId and option.recipeId == step.recipeId and option.site and step.site
+                    and option.site.key == step.site.key and option.site.revision == step.site.revision
+                    and option.site.x == step.site.x and option.site.y == step.site.y and option.site.z == step.site.z
+                    and SAO.ProceduralPlanning.collectorReady(option) then return true end
+            end
+        end
+    end
     if not purpose or not purpose.plumbing or purpose.plumbing.connectedWorkId or not step
         or step.productionKind ~= "plumb-fixture" or step.status ~= "available" and step.status ~= "dependent"
         or not SAO.ResourceProduction or not SAO.ResourceProduction.options then return false end
@@ -2642,7 +2685,8 @@ function Ctl.beginHydrationAcquisition(id, agent, body, tick, needs)
     if not purpose or not step or step.status ~= "available" then return false end
     if step.verb == "produce" and step.owner == "SAO.ResourceProduction" and SAO.ResourceProduction then
         if SAO.ResourceProduction.begin(id, body, step, { purposeId = purpose.id, purposeStepId = step.id }) then
-            setState(agent, id, "RESOURCE", step.productionKind == "plumb-fixture"
+            setState(agent, id, "RESOURCE", step.productionKind == "build-rain-collector"
+                and "thirst: constructs a rain collector at a personally observed site" or step.productionKind == "plumb-fixture"
                 and "thirst: connects a privately observed water fixture" or "thirst: fills a carried water vessel", "need")
             return true
         end
@@ -2659,7 +2703,8 @@ function Ctl.beginHydrationAcquisition(id, agent, body, tick, needs)
         return false
     end
     agent.taskDeadline = tick + 5400
-    setState(agent, id, "SOURCEWARD", step.category == "pipe-wrench"
+    setState(agent, id, "SOURCEWARD", purpose.collector and step.category ~= "pipe-wrench"
+        and "thirst: acquires exact material for the retained rain collector" or step.category == "pipe-wrench"
         and "thirst: acquires a privately observed pipe wrench for the retained water fixture"
         or "thirst: acquires a privately observed drink", "need")
     return true
@@ -2725,14 +2770,15 @@ function Ctl.advanceResourcePurpose(id, agent, body, tick, needs)
         if started then
             agent.taskDeadline = tick + 5400
             setState(agent, id, "SOURCEWARD", "collects " .. (step.hydrationIntent and "a drink" or step.category == "pipe-wrench"
-                and "a pipe wrench for the retained water fixture" or category)
+                and "a pipe wrench for the retained water fixture" or purpose.collector and step.category or category)
                 .. " for an anticipated shortage", answer)
             return true
         end
         planning.deferResourceRoute(id, purpose.id, step.id, "the privately remembered item could not be acquired")
     elseif step.verb == "produce" and step.owner == "SAO.ResourceProduction" and SAO.ResourceProduction then
         if SAO.ResourceProduction.begin(id, body, step, { purposeId = purpose.id, purposeStepId = step.id }) then
-            setState(agent, id, "RESOURCE", step.productionKind == "plumb-fixture"
+            setState(agent, id, "RESOURCE", step.productionKind == "build-rain-collector"
+                and "constructs a rain collector at a personally observed site for anticipated water need" or step.productionKind == "plumb-fixture"
                 and "connects a privately observed fixture for anticipated water need"
                 or "collects water in a carried vessel for an anticipated shortage", answer)
             return true

@@ -936,6 +936,70 @@ local function plumbingStep(option, status)
         toolItemType = option.toolItemType }
 end
 
+local COLLECTOR_MATERIALS = { hammer = true, plank = true, nails = true, ["garbage-bag"] = true, tarp = true }
+local function collectorDeficits(option)
+    if type(option.requirements) ~= "table" or #option.requirements < 1 or #option.requirements > 8
+        or type(option.inputs) ~= "table" or #option.inputs > 16 then return nil end
+    local slots, counts, identities = {}, {}, {}
+    for _, required in ipairs(option.requirements) do
+        if type(required) ~= "table" or not finite(required.inputIndex) or required.inputIndex < 0
+            or required.inputIndex ~= math.floor(required.inputIndex) or slots[required.inputIndex]
+            or not COLLECTOR_MATERIALS[required.category] or not finite(required.count)
+            or required.count < 1 or required.count > 16 or required.count ~= math.floor(required.count)
+            or required.mode ~= "keep" and required.mode ~= "consume" then return nil end
+        slots[required.inputIndex], counts[required.inputIndex] = required, 0
+    end
+    for _, input in ipairs(option.inputs) do
+        local required = type(input) == "table" and slots[input.inputIndex]
+        local identity = type(input) == "table" and (finite(input.itemId) or type(input.itemId) == "string" and input.itemId ~= "")
+            and tostring(input.itemId)
+        if not required or not identity or identities[identity] or type(input.itemType) ~= "string" or input.itemType == ""
+            or input.mode ~= required.mode then return nil end
+        identities[identity] = true
+        counts[input.inputIndex] = counts[input.inputIndex] + 1
+        if counts[input.inputIndex] > required.count then return nil end
+    end
+    local missing = {}
+    for _, required in ipairs(option.requirements) do
+        if counts[required.inputIndex] < required.count then missing[#missing + 1] = required end
+    end
+    return missing
+end
+function P.collectorReady(option)
+    local missing = type(option) == "table" and collectorDeficits(option)
+    return missing ~= nil and #missing == 0, missing and dataCopy(missing) or nil
+end
+local function collectorSite(row)
+    return row and (row.site or { key = row.siteKey, revision = row.siteRevision,
+        x = row.siteX, y = row.siteY, z = row.siteZ, observedAtHours = row.siteObservedAtHours })
+end
+local function collectorSame(a, b)
+    local first, second = collectorSite(a), collectorSite(b)
+    return a and b and a.entityId == b.entityId and a.recipeId == b.recipeId
+        and a.sourceId == b.sourceId and a.sourceRevision == b.sourceRevision and a.fingerprint == b.fingerprint
+        and a.itemId == b.itemId and a.itemType == b.itemType and first and second
+        and first.key == second.key and first.revision == second.revision
+        and first.x == second.x and first.y == second.y and first.z == second.z
+end
+local function collectorStep(option, status)
+    local step = plumbingStep(option, status)
+    step.id = "collector:" .. option.sourceId .. ":" .. option.sourceRevision .. ":" .. tostring(option.itemId)
+        .. ":" .. option.entityId .. ":" .. option.site.key .. ":" .. tostring(option.site.revision)
+    step.target, step.productionKind, step.token = option.entityId, "build-rain-collector", "resource:collector-built"
+    step.entityId, step.recipeId, step.site = option.entityId, option.recipeId, dataCopy(option.site)
+    step.requirements, step.inputs = dataCopy(option.requirements), dataCopy(option.inputs)
+    step.toolCategory, step.toolItemId, step.toolItemType = nil, nil, nil
+    return step
+end
+local function collectorMeans(purpose, option, sources, at)
+    local missing = collectorDeficits(option)
+    if not missing then return nil, "invalid-native-collector-inputs" end
+    if #missing == 0 then return nil, nil, true end
+    local required = missing[1]
+    local source, delayed = materialSource(purpose, sources, required.category, at)
+    return source, not source and (delayed and "known-route-retry-delayed" or "missing-private-collector-" .. required.category) or nil, false
+end
+
 function P.planResource(id, context)
     context = type(context) == "table" and context or {}
     if not SAO.Labor or not SAO.Labor.assess then return nil, "labor-unavailable" end
@@ -1049,7 +1113,15 @@ function P.planResource(id, context)
     if suppliedGoal() then return purpose, nil end
     local executable = false
     for _, option in ipairs(assessment.options) do
-        if option.kind == "plumb-fixture" then
+        if option.kind == "build-rain-collector" then
+            local built = purpose.collector and purpose.collector.constructedWorkId and purpose.collector.sourceId == option.sourceId
+            if built then option.collectorUnavailable = true
+            else
+                option.materialSource, option.materialBlocker, option.collectorReady = collectorMeans(purpose, option, assessment.materialSources, at)
+                option.collectorUnavailable = not option.collectorReady and not option.materialSource
+                if not option.collectorUnavailable then executable = true end
+            end
+        elseif option.kind == "plumb-fixture" then
             local held = plumbingTool(option)
             local source, delayed
             if not held then source, delayed = materialSource(purpose, assessment.toolSources, "pipe-wrench", at) end
@@ -1057,6 +1129,31 @@ function P.planResource(id, context)
             option.toolUnavailable = not held and not source
             if held or source then executable = true end
         else executable = true end
+    end
+    if purpose.collector and not purpose.collector.constructedWorkId and current then
+        local retry = false
+        for _, failure in ipairs(purpose.routeFailures or {}) do
+            if failure.stepId == current.id and finite(failure.retryAt) and at < failure.retryAt then retry = true end
+        end
+        if not retry then
+            for _, option in ipairs(assessment.options) do
+                if option.kind == "build-rain-collector" and collectorSame(purpose.collector, option)
+                    and (option.collectorReady or option.materialSource) then
+                    local steps = {}
+                    if option.materialSource then
+                        local source = option.materialSource
+                        steps[1] = { id = materialAcquisitionId(source), verb = "acquire", owner = "SAO.SourceUse",
+                            token = "resource:acquired", target = source.sourceId .. ":" .. tostring(source.itemId),
+                            status = "available", category = source.category, sourceId = source.sourceId,
+                            sourceRevision = source.revision, place = dataCopy(source.place), itemId = source.itemId,
+                            itemType = source.itemType, quantity = 1, quantityUnit = "item" }
+                    end
+                    steps[#steps + 1] = collectorStep(option, #steps > 0 and "dependent" or "available")
+                    setPlan(purpose, steps, {}, purpose.interpretations, at)
+                    return purpose, purpose.steps[purpose.cursor]
+                end
+            end
+        end
     end
     -- Exact acquired means retain their personally observed fixture while the
     -- native owner takes the return route. Carried water can satisfy the parent
@@ -1098,7 +1195,12 @@ function P.planResource(id, context)
             appraisal = dataCopy(option.appraisal), consequences = dataCopy(option.consequences) }
         if failure then candidate.evidence = math.max(0, candidate.evidence - math.min(0.4, failure.attempts * 0.1)) end
         if purpose.selectedStrategy == option.id and not failure then candidate.continuity = 1 end
-        if option.kind == "plumb-fixture" and option.toolDelayed then
+        if option.kind == "build-rain-collector" and (purpose.collector and purpose.collector.constructedWorkId
+            and purpose.collector.sourceId == option.sourceId or option.collectorUnavailable and executable) then
+            option.retryDelayed = true
+        elseif option.kind == "build-rain-collector" and option.materialBlocker == "known-route-retry-delayed" then
+            option.retryDelayed, delayed = true, true
+        elseif option.kind == "plumb-fixture" and option.toolDelayed then
             option.retryDelayed, delayed = true, true
         elseif option.kind == "plumb-fixture" and option.toolUnavailable and executable then
             option.retryDelayed = true
@@ -1171,6 +1273,18 @@ function P.planResource(id, context)
                 target = option.place.sourceId, sourceId = option.place.sourceId, fingerprint = option.fingerprint,
                 sourceX = option.sourceX, sourceY = option.sourceY, sourceZ = option.sourceZ,
                 status = "available", category = assessment.category, place = dataCopy(option.place) }
+        elseif option.kind == "build-rain-collector" then
+            local source = option.materialSource
+            if source then
+                steps[#steps + 1] = { id = materialAcquisitionId(source), verb = "acquire", owner = "SAO.SourceUse",
+                    token = "resource:acquired", target = source.sourceId .. ":" .. tostring(source.itemId),
+                    status = "available", category = source.category, sourceId = source.sourceId,
+                    sourceRevision = source.revision, place = dataCopy(source.place), itemId = source.itemId,
+                    itemType = source.itemType, quantity = 1, quantityUnit = "item" }
+            elseif option.materialBlocker then blockers[#blockers + 1] = option.materialBlocker end
+            local step = collectorStep(option, #blockers > 0 and "blocked" or #steps > 0 and "dependent" or "available")
+            steps[#steps + 1] = step
+            purpose.collector = dataCopy(step)
         elseif option.kind == "plumb-fixture" then
             local source = option.toolSource
             local selected = plumbingStep(option, "available")
@@ -2935,6 +3049,13 @@ function P.consumeSourceResult(receipt)
         or step.itemId ~= authoritative.itemId or step.itemType ~= authoritative.itemType
         or step.category ~= authoritative.category or not finite(authoritative.at)
         or authoritative.at < admission.at or authoritative.at > nowHours()) then return false end
+    if purpose.collector and (authoritative.actorId ~= receipt.actorId
+        or authoritative.reservationId ~= receipt.reservationId or step.owner ~= "SAO.SourceUse"
+        or step.verb ~= "acquire" or step.token ~= "resource:acquired" or admission.owner ~= step.owner
+        or step.sourceId ~= authoritative.sourceId or step.sourceRevision ~= authoritative.preRevision
+        or step.itemId ~= authoritative.itemId or step.itemType ~= authoritative.itemType
+        or step.category ~= authoritative.category or not finite(authoritative.at)
+        or authoritative.at < admission.at or authoritative.at > nowHours()) then return false end
     if completed and (authoritative.measurement ~= "native-item-transfer"
         or (tonumber(authoritative.observedQuantity) or 0) <= 0) then return false end
     if completed and purpose.resourceCategory and (step.sourceId ~= authoritative.sourceId
@@ -3181,10 +3302,31 @@ function P.consumeRepairProductionResult(id, receipt)
         atHours = canonical.atHours }, REPAIR_RESULT)
 end
 
+local function collectorAttempt(step, work)
+    if not collectorSame(step, work) or not P.collectorReady(step) or not P.collectorReady(work)
+        or work.sourceX ~= step.sourceX or work.sourceY ~= step.sourceY or work.sourceZ ~= step.sourceZ
+        or collectorSite(work).observedAtHours ~= step.site.observedAtHours or #work.requirements ~= #step.requirements then return false end
+    local slots, selected = {}, {}
+    for _, required in ipairs(step.requirements) do slots[required.inputIndex] = required end
+    for _, required in ipairs(work.requirements) do
+        local expected = slots[required.inputIndex]
+        if not expected or expected.mode ~= required.mode or expected.count ~= required.count
+            or expected.category ~= required.category then return false end
+    end
+    for _, input in ipairs(step.inputs) do selected[tostring(input.itemId)] = input end
+    for _, input in ipairs(work.inputs) do
+        local expected = selected[tostring(input.itemId)]
+        if not expected or expected.inputIndex ~= input.inputIndex or expected.mode ~= input.mode
+            or expected.itemType ~= input.itemType then return false end
+    end
+    return true
+end
+
 function P.admitProduction(id, work)
     if type(work) ~= "table" or type(work.id) ~= "string" or work.actorId ~= id
-        or work.kind ~= "refill-water" and work.kind ~= "plumb-fixture" then return false end
+        or work.kind ~= "refill-water" and work.kind ~= "plumb-fixture" and work.kind ~= "build-rain-collector" then return false end
     local plumbing = work.kind == "plumb-fixture"
+    local collector = work.kind == "build-rain-collector"
     local s = state(id)
     local purposeId = work.requestedPurposeId or work.purposeId
     local stepId = work.requestedPurposeStepId or work.purposeStepId
@@ -3193,7 +3335,7 @@ function P.admitProduction(id, work)
     if not purpose or purpose.status == "completed" or purpose.status == "abandoned"
         or purpose.resourceCategory ~= "water" or not step
         or step.id ~= stepId or step.owner ~= "SAO.ResourceProduction"
-        or step.productionKind ~= work.kind or step.token ~= (plumbing and "resource:plumbed" or "resource:filled")
+        or step.productionKind ~= work.kind or step.token ~= (collector and "resource:collector-built" or plumbing and "resource:plumbed" or "resource:filled")
         or step.itemId ~= work.itemId or step.itemType ~= work.itemType
         or step.sourceId ~= work.sourceId or step.sourceRevision ~= work.sourceRevision
         or step.fingerprint ~= work.fingerprint then return false end
@@ -3201,6 +3343,7 @@ function P.admitProduction(id, work)
         or not plumbingTool(work) or tostring(work.toolItemId) ~= step.toolItemId
         or work.toolItemType ~= step.toolItemType or work.sourceX ~= step.sourceX
         or work.sourceY ~= step.sourceY or work.sourceZ ~= step.sourceZ) then return false end
+    if collector and (not purpose.collector or not collectorAttempt(step, work)) then return false end
     if purpose.admission and (purpose.admission.owner ~= step.owner
         or purpose.admission.correlationId ~= work.id) then return false end
     local admitted = P.noteAdmission(id, purpose.id, step.owner, work.id, step.id)
@@ -3213,9 +3356,10 @@ function P.consumeProductionResult(id, receipt)
     local owner = SAO.ResourceProduction
     local canonical = owner and owner.outcome and owner.outcome(id, receipt.id)
     local plumbing = canonical and canonical.kind == "plumb-fixture"
+    local collector = canonical and canonical.kind == "build-rain-collector"
     if not canonical or canonical.actorId ~= id or canonical.id ~= receipt.id
-        or canonical.purposeId ~= receipt.purposeId or canonical.kind ~= "refill-water" and not plumbing
-        or canonical.token ~= (plumbing and "resource:plumbed" or "resource:filled")
+        or canonical.purposeId ~= receipt.purposeId or canonical.kind ~= "refill-water" and not plumbing and not collector
+        or canonical.token ~= (collector and "resource:collector-built" or plumbing and "resource:plumbed" or "resource:filled")
         or (canonical.status ~= "completed" and canonical.status ~= "interrupted"
             and canonical.status ~= "failed") then return false end
     local s = state(id)
@@ -3235,13 +3379,23 @@ function P.consumeProductionResult(id, receipt)
         or canonical.sourceX ~= step.sourceX or canonical.sourceY ~= step.sourceY
         or canonical.sourceZ ~= step.sourceZ or not finite(canonical.atHours)
         or canonical.atHours < admission.at or canonical.atHours > nowHours()) then return false end
+    if collector and (not purpose.collector or not collectorAttempt(step, canonical)
+        or not finite(canonical.atHours) or canonical.atHours < admission.at
+        or canonical.atHours > nowHours()) then return false end
     if completed and plumbing and (canonical.nativeCredit ~= canonical.id or canonical.nativeOwner ~= "ISPlumbItem"
         or canonical.nativeAttempted ~= true or canonical.nativeCompleted ~= true or canonical.toolRetained ~= true
         or canonical.connected ~= true or canonical.beforeUsesExternalWaterSource ~= false
         or canonical.afterUsesExternalWaterSource ~= true or type(canonical.beforeCanBeWaterPiped) ~= "boolean"
         or canonical.beforePlumbingEligible ~= true
         or canonical.afterCanBeWaterPiped ~= false) then return false end
-    if completed and not plumbing and (not (canonical.nativeCredit == canonical.id) or canonical.held ~= true
+    if completed and collector and (canonical.nativeCredit ~= canonical.id or canonical.nativeOwner ~= "ISBuildAction"
+        or canonical.nativeAttempted ~= true or canonical.nativeCompleted ~= true or canonical.constructed ~= true
+        or canonical.placed ~= true or canonical.exactInputs ~= true or canonical.inputsConsumed ~= true
+        or canonical.toolRetained ~= true or canonical.beforeCollectorAmount ~= 0
+        or not finite(canonical.collectorCapacity) or canonical.collectorCapacity <= 0
+        or not finite(canonical.afterCollectorAmount) or canonical.afterCollectorAmount < 0
+        or canonical.afterCollectorAmount > canonical.collectorCapacity) then return false end
+    if completed and not plumbing and not collector and (not (canonical.nativeCredit == canonical.id) or canonical.held ~= true
         or canonical.clean ~= true or not finite(canonical.nativeGain) or canonical.nativeGain <= 0
         or not finite(canonical.beforeAmount) or not finite(canonical.afterAmount)
         or canonical.afterAmount <= canonical.beforeAmount) then return false end
@@ -3251,6 +3405,11 @@ function P.consumeProductionResult(id, receipt)
     if consumed and completed and plumbing then
         purpose.status, purpose.awaitingStock, purpose.awaitingReassessment = "maintained", nil, true
         purpose.plumbing.connectedWorkId, purpose.plumbing.connectedAt = canonical.id, canonical.atHours
+    end
+    if consumed and completed and collector then
+        purpose.status, purpose.awaitingStock, purpose.awaitingReassessment = "maintained", nil, true
+        purpose.collector.constructedWorkId, purpose.collector.constructedAt = canonical.id, canonical.atHours
+        purpose.collector.collectorSourceId, purpose.collector.collectorFingerprint = canonical.collectorSourceId, canonical.collectorFingerprint
     end
     return consumed
 end

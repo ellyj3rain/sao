@@ -9,10 +9,10 @@
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C12, C18, C20, C21, C24, C30, C31, C32, C33 |
-| Implementation | Observed window and boarding purposes join exact private acquisition, native preparation, measured effects and saved recovery; other D3 procedures remain open. |
-| Verification | First-join evidence remains dated below. CLOSED D3.1 through D3.4 link native crafting, maintenance and plumbing-to-water outcomes with private planning, lifecycle, cognition and persistence evidence. |
-| Version | 3.11.0.0-pre-alpha through D3.1-D3.4; this OPEN parent receives no duplicate capability credit. |
-| Publication | D3.1, D3.2 and D3.3 are self-merged through PR142, PR143 and PR144. D3.4 follows the established protected child workflow. The whole parent remains OPEN. |
+| Implementation | Closed children deliver native material crafting, held-tool maintenance, plumbing and rain-collector construction with private acquisition, measured effects and saved continuity. Remaining whole-domain work keeps the parent OPEN. |
+| Verification | First-join evidence remains dated below. CLOSED D3.1 through D3.5 link native crafting, maintenance, plumbing and collector construction to private planning, lifecycle, cognition, persistence and usable-water evidence. |
+| Version | 3.12.0.0-pre-alpha through D3.1-D3.5; this OPEN parent receives no duplicate capability credit. |
+| Publication | D3.1-D3.4 are self-merged through PR142-PR145. D3.5 follows the established protected child workflow; actual merge evidence belongs to its publication receipt. The whole parent remains OPEN. |
 
 ## Product and current implementation
 
@@ -175,3 +175,11 @@ The CLOSED saw-maintenance child joins exact private file acquisition and native
 ## D3.4 closure - 2026-10-10 07:30 UTC / 23:30 PST
 
 [D3.4-20261010-0701Z-2301PST-plumbing-to-usable-water.md](D3.4-20261010-0701Z-2301PST-plumbing-to-usable-water.md) is CLOSED: exact private pipe-wrench acquisition, installed connection, handled-source refresh and actual clean held-water gain continue the same hydration purpose. Its evidence separates native geometry/fluid ports from controlled installed lifecycle receivers, with ordinary arbitration and saved continuity. The new native utility contract receives one minor credit. This parent keeps its complete remaining scope and stays OPEN.
+
+## D3.5 rain-collector continuation
+
+[D3.5](D3.5-20261010-0813Z-0113PST-rain-collector-construction.md) is OPEN for native rain-collector construction and personally observed placement feeding the existing plumbing and usable-water purpose. Its reason, complete four-variant native scope, owners, interfaces, dependencies and required closure evidence are recorded before implementation. D3.4 reached origin/main through self-merged [PR145](https://github.com/ellyj3rain/sao/pull/145), commit `3120fae3e9d71f3f5664bad48cfa0e409a3e41d7`. The full D3 parent remains OPEN.
+
+## D3.5 closure - 2026-10-10 09:07 UTC / 02:07 PST
+
+[D3.5](D3.5-20261010-0813Z-0113PST-rain-collector-construction.md) is CLOSED: exact recipe-derived materials, personally observed placement and native rain-collector construction feed the original plumbing and usable-water purpose. Its record links the current native construction, site/rain/fluid, private planning, cognition and saved-continuity evidence. The world-entity construction boundary receives one minor credit. This parent retains all general entity placement, other recipes/pane integration, general fixing, generator and native-server obligations and remains OPEN.

@@ -15,6 +15,8 @@ local FRAME_KEYS = { id=true, actorId=true, worldHours=true, hunger=true,
     waterAllowed=true, inspectionAllowed=true, knownFood=true, knownWater=true,
     knownPlaces=true, capabilities=true, priorIntent=true }
 local EVENT_KEYS = { id=true, actorId=true, observerId=true, worldHours=true,
+    entityId=true, recipeId=true, originalFixtureSourceId=true,
+    siteKey=true, siteX=true, siteY=true, siteZ=true, feedsFixture=true,
     kind=true, category=true, sourceId=true, itemType=true, perspective=true,
     status=true, foodPresent=true, waterPresent=true, hungerDelta=true,
     thirstDelta=true, detail=true, capabilities=true, itemId=true,
@@ -57,7 +59,9 @@ for _,machine in ipairs({"ArcadeMachine1","ArcadeMachine2","ArcadeStreetFighter"
     "PinballFunHouse","PinballElviraPartyMonsters","PinballMarioBros"}) do
     HOBBY_SOURCES["ProjectArcade:ProjectArcade_PlayArcadeTimedAction:"..machine]=true
 end
-local EXTENDED = { ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true,
+local COLLECTOR_ENTITIES = { ["Base.RainCollector"]=true, ["Base.RainCollectorRound"]=true,
+    ["Base.RainCollector_Tarp"]=true, ["Base.RainCollectorRound_Tarp"]=true }
+local EXTENDED = { ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["collector-construction"]=true,
     ["animal-care"]=true, ["window-repair"]=true, ["material-crafting"]=true, ["tool-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -111,7 +115,7 @@ local function occurrencePosition(e)
         or e.kind=="animal-care" and ("animal-care/"..e.actorId.."/")
         or e.kind=="window-repair" and (e.actorId.."/window-result/")
         or e.kind=="material-crafting" and ("resource-production/"..e.actorId.."/")
-        or (e.kind=="tool-repair" or e.kind=="plumbing") and ("resource-production/"..e.actorId.."/")
+        or (e.kind=="tool-repair" or e.kind=="plumbing" or e.kind=="collector-construction") and ("resource-production/"..e.actorId.."/")
         or e.kind=="entry-outcome" and ("entry/"..e.actorId.."/")
         or e.kind=="recovery-outcome" and ("recovery/"..e.actorId.."/")
         or e.kind=="study-outcome" and ("study/"..e.actorId.."/")
@@ -168,6 +172,9 @@ local function validEvent(e)
             and e.status~="interrupted" and e.status~="unavailable")
         or (e.perspective~="performed" and e.perspective~="observed") then return false end
     if e.kind ~= "tool-repair" and (e.effectMetric ~= nil or e.conditionLoss ~= nil or e.headConditionLoss ~= nil) then return false end
+    if e.kind ~= "collector-construction" and (e.entityId ~= nil or e.recipeId ~= nil
+        or e.originalFixtureSourceId ~= nil or e.siteKey ~= nil or e.siteX ~= nil
+        or e.siteY ~= nil or e.siteZ ~= nil or e.feedsFixture ~= nil) then return false end
     local behavior=e.kind=="entry-outcome" or e.kind=="recovery-outcome"
     if not behavior and (e.kind~="commitment-outcome" and e.kind~="instrument-use" and e.kind~="leisure-reading" and e.kind~="weekone-instrument-performance" and not HOBBY_KINDS[e.kind] and (e.actionKind~=nil or e.succeeded~=nil) or e.apertureState~=nil
         or e.kind~="study-outcome" and e.kind~="tool-repair" and (e.beforeValue~=nil or e.afterValue~=nil) or e.durationHours~=nil) then return false end
@@ -234,7 +241,7 @@ local function validEvent(e)
         or e.startedAtHours~=nil or e.nativeCompletedAtHours~=nil) then return false end
     if e.kind~="animal-care" and (e.consumedAmount~=nil or e.quantityUnit~=nil) then return false end
     if e.category=="animal" and e.kind~="animal-care" then return false end
-    if e.category=="construction" and e.kind~="window-repair" and e.kind~="material-crafting" and e.kind~="tool-repair" and e.kind~="plumbing" then return false end
+    if e.category=="construction" and e.kind~="window-repair" and e.kind~="material-crafting" and e.kind~="tool-repair" and e.kind~="plumbing" and e.kind~="collector-construction" then return false end
     if e.capabilities~=nil and not capabilities(e.capabilities) then return false end
     for _, key in ipairs({"sourceId","itemType"}) do
         if e[key]~=nil and not text(e[key],160) then return false end
@@ -404,6 +411,17 @@ local function validEvent(e)
                 and (string.match(e.sourceId,"^window:%-?%d+:%-?%d+:%-?%d+:%d+:true$")~=nil
                     or string.match(e.sourceId,"^window:%-?%d+:%-?%d+:%-?%d+:%d+:false$")~=nil)
                 and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
+        end
+        if e.kind=="collector-construction" then
+            if e.category~="construction" or e.status~="completed" or not COLLECTOR_ENTITIES[e.entityId]
+                or not text(e.recipeId,160) or not text(e.sourceId,160) or e.sourceId:sub(1,2)~="F:"
+                or not text(e.originalFixtureSourceId,160) or e.originalFixtureSourceId:sub(1,2)~="F:"
+                or not text(e.siteKey,160) or type(e.feedsFixture)~="boolean"
+                or e.beforeCookingTime~=nil or e.afterCookingTime~=nil or e.heatObserved~=nil then return false end
+            for _,key in ipairs({"siteX","siteY","siteZ"}) do
+                if not finite(e[key]) or e[key]~=math.floor(e[key]) or math.abs(e[key])>2147483647 then return false end
+            end
+            return e.siteKey==string.format("collector-site:%d:%d:%d",e.siteX,e.siteY,e.siteZ)
         end
         if e.kind=="plumbing" then
             return e.category=="construction" and e.status=="completed" and text(e.sourceId,160)
@@ -737,6 +755,10 @@ local function rememberPlanEvidence(state, e, yes)
     if e.kind == "acquire" then retain("acquire", e.category, yes)
     elseif e.kind == "preparation" then retain("prepare", "food", true)
     elseif e.kind == "plumbing" then retain("plumb", "construction", true)
+    elseif e.kind == "collector-construction" then
+        local b = remember(state, planBeliefKey("construct", "construction", e.originalFixtureSourceId, e.entityId),
+            "Personally acquired collector construction evidence", true, e)
+        b.planKind, b.category, b.sourceId, b.itemType = "construct", "construction", e.originalFixtureSourceId, e.entityId
     elseif e.kind == "tool-repair" then
         retain("tool-repair", "construction", e.afterValue>e.beforeValue)
         if e.effectMetric=="sharpness" then
@@ -832,6 +854,11 @@ local function extendedEvidence(modelId,state,e)
                     (e.conditionLoss or 0)>0 or (e.headConditionLoss or 0)>0,e,"manufacturing")
             end
         end
+    elseif e.kind=="collector-construction" then
+        if modelId=="ordinary" then
+            remember(state,"direct:collector-construction:"..e.sourceId..":"..e.entityId,
+                "Constructed "..e.entityId.." at "..e.siteKey,true,e)
+        else relation(state,"transform","recipe:"..e.recipeId,"collector:"..e.sourceId,true,e,"manufacturing") end
     elseif e.kind=="plumbing" then
         if modelId=="ordinary" then
             remember(state,"direct:plumbing:"..e.sourceId..":"..e.itemType,
@@ -1084,6 +1111,10 @@ local function validConsequences(candidate)
         elseif c.kind == "plumb" then
             if c.category ~= "construction" or not text(c.sourceId,160)
                 or string.sub(c.sourceId,1,2) ~= "F:" or c.condition ~= nil then return false end
+        elseif c.kind == "construct" then
+            if c.category ~= "construction" or not text(c.sourceId,160)
+                or c.sourceId:sub(1,2) ~= "F:" or not COLLECTOR_ENTITIES[c.itemType]
+                or c.condition ~= nil then return false end
         elseif c.kind == "tool-repair" then
             if c.category ~= "construction" or (c.sourceId ~= "Base.FixSaw" and c.sourceId ~= "Base.SharpenBlade"
                 and c.sourceId ~= "Base.SharpenBladePoorlyWithFile") or not text(c.itemType,160)

@@ -9,9 +9,9 @@ Material.reconciliations = Material.reconciliations or {}
 Material.sourceOwners = Material.sourceOwners or {}
 
 local SOURCE_CATEGORY_ORDER = {
-    "device", "drink", "file", "food", "fuel", "glass-pane", "hammer", "instrument", "medical",
+    "device", "drink", "file", "food", "fuel", "garbage-bag", "glass-pane", "hammer", "instrument", "medical",
     "log", "memento", "nails", "pipe-wrench", "plank", "reading", "saw", "smokes", "tools", "whetstone",
-    "water", "weapons",
+    "tarp", "water", "weapons",
 }
 local MAX_NATIVE_SOURCES = 256
 

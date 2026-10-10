@@ -3710,6 +3710,101 @@ local function sourceConceptView(id,body)
         status="available",coverage="source-current-visible-ground",
         observations={},frontiers={},approaches=approaches},brain
 end
+-- Collector sites are acquired on the observer's floor. Their relationship to
+-- a remembered fixture is an expectation until native placement and plumbing
+-- establish it. Only detached scalar rows enter this person's saved beliefs.
+local COLLECTOR_SITE_LIMIT = 96
+local function collectorObserver(id, body)
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id)
+    if not rec or rec.dead or rec.bodyOwner ~= nil or rec.zaoTransferPending
+        or rec.crossedTransferPending or not body or not SAO.Body
+        or not SAO.Body.get or SAO.Body.get(id) ~= body
+        or SAO.Body.active and SAO.Body.active[id] ~= body
+        or SAO.Body.foreign and SAO.Body.foreign[id] ~= nil then return nil end
+    local ok, valid = pcall(function()
+        local data = body:getModData()
+        return tostring(data.SAOPersonId or "") == tostring(id)
+            and data.SAOExternalToken == rec.bodyOwnerToken
+            and data.SAOExternalOwner == nil and data.ZAOOwned ~= true
+            and body:isExistInTheWorld() and not body:isDead() and not body:isAsleep()
+            and body:getCurrentSquare() ~= nil
+    end)
+    return ok and valid and rec or nil
+end
+local function collectorSiteCopy(id, row)
+    if type(row) ~= "table" or row.actorId ~= id or row.observed ~= true
+        or row.source ~= "native-personal-visibility"
+        or type(row.revision) ~= "string" or #row.revision == 0 or #row.revision > 160
+        or row.revision:find("[,|%c]") or not finiteSoundNumber(row.x)
+        or not finiteSoundNumber(row.y) or not finiteSoundNumber(row.z)
+        or math.abs(row.x) > 2147483647 or math.abs(row.y) > 2147483647
+        or math.abs(row.z) > 2147483647
+        or row.x ~= math.floor(row.x) or row.y ~= math.floor(row.y)
+        or row.z ~= math.floor(row.z) or not finiteSoundNumber(row.observedAtHours)
+        or row.observedAtHours < 0 then return nil end
+    local key = string.format("collector-site:%d:%d:%d", row.x, row.y, row.z)
+    if row.key ~= key then return nil end
+    return {key=key, actorId=id, revision=row.revision, x=row.x, y=row.y, z=row.z,
+        observed=true, observedAtHours=row.observedAtHours, source=row.source}
+end
+function P.observeCollectorSites(id, body, atHours)
+    if not collectorObserver(id, body) or not SAOJavaBridge
+        or not SAOJavaBridge.worldCollectorSites or not SAO.History
+        or not SAO.History.countyHours then return false, "collector-observer-unavailable" end
+    local at = SAO.History.countyHours()
+    if not finiteSoundNumber(at) or at < 0
+        or atHours ~= nil and (not finiteSoundNumber(atHours)
+            or math.abs(atHours-at) > 1/9000) then return false, "collector-observation-clock-changed" end
+    local located, observedZ = pcall(function() return body:getZ() end)
+    if not located or not finiteSoundNumber(observedZ) then
+        return false, "collector-observer-floor-unavailable"
+    end
+    observedZ = math.floor(observedZ)
+    local ok, encoded = pcall(function() return SAOJavaBridge:worldCollectorSites(body) end)
+    if not ok or type(encoded) ~= "string" or #encoded > 32768
+        or not collectorObserver(id, body) then return false, "collector-observation-unavailable" end
+    local b, changed, count = store(id), false, 0
+    b.collectorSites = type(b.collectorSites) == "table" and b.collectorSites or {}
+    b.collectorSiteOrder = type(b.collectorSiteOrder) == "table" and b.collectorSiteOrder or {}
+    for encodedRow in encoded:gmatch("[^|]+") do
+        count = count + 1
+        if count > COLLECTOR_SITE_LIMIT then break end
+        local sx, sy, sz, revision = encodedRow:match("^([^,]+),([^,]+),([^,]+),([^,]+)$")
+        local x, y, z = tonumber(sx), tonumber(sy), tonumber(sz)
+        local row = finiteSoundNumber(x) and finiteSoundNumber(y) and finiteSoundNumber(z)
+            and math.abs(x) <= 2147483647 and math.abs(y) <= 2147483647
+            and math.abs(z) <= 2147483647 and x == math.floor(x) and y == math.floor(y)
+            and z == observedZ and collectorSiteCopy(id, {
+            key=string.format("collector-site:%d:%d:%d", x, y, z), actorId=id,
+            x=x, y=y, z=z, revision=revision, observed=true, observedAtHours=at,
+            source="native-personal-visibility"})
+        if row then
+            local key = row.key
+            if not b.collectorSites[key] then
+                if #b.collectorSiteOrder >= COLLECTOR_SITE_LIMIT then
+                    b.collectorSites[table.remove(b.collectorSiteOrder, 1)] = nil
+                end
+                b.collectorSiteOrder[#b.collectorSiteOrder+1] = key
+            end
+            b.collectorSites[key] = row
+            changed = true
+        end
+    end
+    if changed then P.beliefVersion = P.beliefVersion + 1 end
+    return true, changed and "observed-collector-sites" or "no-observed-collector-site"
+end
+function P.collectorSites(id, body)
+    if not collectorObserver(id, body) then return {} end
+    local b, out = P.beliefs[id], {}
+    local at = SAO.History and SAO.History.countyHours and SAO.History.countyHours()
+    if not b or not finiteSoundNumber(at) then return out end
+    for index, key in ipairs(type(b.collectorSiteOrder) == "table" and b.collectorSiteOrder or {}) do
+        if index > COLLECTOR_SITE_LIMIT then break end
+        local row = b.collectorSites and collectorSiteCopy(id, b.collectorSites[key])
+        if row and row.key == key and row.observedAtHours <= at then out[#out+1] = row end
+    end
+    return out
+end
 function P.observeConcepts(id,body,tick)
     if not finiteSoundNumber(tick) then return false,"concept-observer-unavailable" end
     local ordinary=SAO.Needs and SAO.Needs.ownsRecoveryBody
