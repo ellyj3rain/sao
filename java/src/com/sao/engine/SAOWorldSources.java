@@ -1866,6 +1866,7 @@ public final class SAOWorldSources {
             if (SAONeeds.wantsMaterial(item, "log")) out.add("log");
             if (SAONeeds.wantsMaterial(item, "saw")) out.add("saw");
             if (SAONeeds.wantsMaterial(item, "file")) out.add("file");
+            if (SAONeeds.wantsMaterial(item, "whetstone")) out.add("whetstone");
             if (SAONeeds.wantsMaterial(item, "nails")) out.add("nails");
             if (SAONeeds.wantsMaterial(item, "fuel")) out.add("fuel");
             Collections.sort(out);

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `3.10.0.0-pre-alpha` |
+| Version | `3.10.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -102,4 +102,4 @@ Current verification assessment is Neo-owned through `neo-verification-assessmen
 is OPEN. Its first material-work join and scoped native evidence are recorded
 there; the whole domain continues before D4-D6. [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is CLOSED with exact private input acquisition, native plank crafting and retained construction integration. SESSION_STATE describes current standing and the child's once-only delivered version credit.
 
-The CLOSED [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md) adds exact native saw maintenance, private file acquisition, measured tool effects and authenticated feedback within the same construction purpose. The OPEN D3 parent retains full module scope and remaining obligations.
+The CLOSED [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md) adds exact native saw maintenance, private file acquisition, measured tool effects and authenticated feedback within the same construction purpose. The CLOSED [D3.3](Batches/D3.3-20261010-0622Z-2222PST-portable-tool-maintenance.md) extends held-tool upkeep to portable blade sharpening and ordinary kit tending with private file/whetstone means, distinct measured benefit/damage and authenticated saved experience. The OPEN D3 parent retains full module scope and remaining obligations.

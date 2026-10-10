@@ -320,7 +320,7 @@ function __runD3MaterialPlanningCases()
     mp,ms=P.planFortification(maintenanceId,m)
     check("d3_acquired_file_retains_original_construction_purpose",madmitted and macquired
         and mp.id==pressured.id and ms.productionKind=="repair-held-item")
-    local mw={id="native-repair",actorId=maintenanceId,kind="repair-held-item",recipeId="Base.FixSaw",
+    local mw={id="native-repair",actorId=maintenanceId,kind="repair-held-item",recipeId="Base.FixSaw",category="saw",
         targetItemId=ms.targetItemId,targetItemType=ms.targetItemType,toolItemId=ms.toolItemId,toolItemType=ms.toolItemType,
         requestedPurposeId=mp.id,requestedPurposeStepId=ms.id}
     mw.targetItemId="999"
@@ -335,7 +335,7 @@ function __runD3MaterialPlanningCases()
     local retained, pending=P.planFortification(maintenanceId,m)
     check("d3_repair_admission_retains_exact_work",retained.id==mp.id and pending.id==ms.id and retained.admission.correlationId==mw.id)
     craftResult={id=mw.id,actorId=maintenanceId,purposeId=mp.id,purposeStepId=ms.id,kind="repair-held-item",
-        recipeId="Base.FixSaw",token="resource:repaired",nativeOwner="ISHandcraftAction",atHours=__hours,status="completed",
+        recipeId="Base.FixSaw",category="saw",token="resource:repaired",nativeOwner="ISHandcraftAction",atHours=__hours,status="completed",
         targetItemId="999",targetItemType="Base.Saw",toolItemId="603",toolItemType="Base.File",
         nativeAttempted=true,nativeCompleted=true,nativeCredit=mw.id,targetRetained=true,held=true,improved=true,
         beforeCondition=2,afterCondition=8,maxCondition=10}

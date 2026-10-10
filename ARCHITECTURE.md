@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.10.0.0-pre-alpha` |
+| Version | `3.10.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -336,6 +336,8 @@ craft effects require their own bound execution path under the continuing D3
 scope.
 
 `SAO_ResourceProduction` also owns `repair-held-item` for installed `Base.FixSaw`. Finite usable `ItemTag.FILE` stock joins private SourceUse. Planner compares native maintenance with continued plank work through the person's interpreter, binds exact held saw/file identities and preserves the original destination. Installed handcraft uses every exact kept manual slot; ResourceProduction measures native target condition/repair count and signed file wear. Canonical `resource:repaired` completion requires a retained improved target. Native completion without gain records failure and qualified negative feedback; interrupted recovery invents no effects. Owner-authenticated tool-repair facts reach both private models once. The same native custody, transfer, acknowledgement and scalar recovery discipline applies.
+
+Portable maintenance also admits `Base.SharpenBlade` and `Base.SharpenBladePoorlyWithFile` through the same owner. Finite native whetstone categories join private SourceUse alongside files. Ordinary idle interpretation can retain a self-owned `maintain-tool` purpose under its exact carried target identity. Native eligibility distinguishes condition from sharpness; a full-condition dull blade may be sharpenable. Kept recipe inputs, skill and knowledge gates, actual native effects and bounded inventory scans govern execution. Canonical measurements separate sharpness gain, condition/head damage and tool wear, retaining admission-time maxima. Both private models receive independently authenticated benefit and damage consequences; no-effect and interrupted attempts grant no improvement credit. Executable means take precedence over unavailable maintenance alternatives within the private comparison. Existing construction upkeep retains its purpose and destination.
 
 These work owners persist plain bounded result ledgers and scalar work anchors.
 Controller adoption and IDLE continuation flush saved authentic results before

@@ -5950,13 +5950,66 @@ function Ctl.constructionContext(id, agent, body, operation, entryKey, destinati
     return context
 end
 
+function Ctl.toolMaintenanceContext(id, agent, body)
+    local context = { options = {}, sources = {}, pressure = 0 }
+    local production = SAO.ResourceProduction
+    if not production or not production.maintenanceOptions then return context end
+    local offered, options = pcall(production.maintenanceOptions, id, body)
+    local read, items = pcall(function() return SAOJavaBridge:privateCarriedItems(body) end)
+    if not offered or type(options) ~= "table" or #options > 32 or not read or not items
+        or items:size() > 512 then return context end
+    local tools = {}
+    for index = 0, items:size() - 1 do
+        local item = items:get(index)
+        if not item:getIsCraftingConsumed() and item:getCondition() > 0 and not item:isBroken() then
+            local category = item:hasTag(ItemTag.FILE) and "file"
+                or item:hasTag(ItemTag.WHETSTONE) and "whetstone" or nil
+            if category and not tools[category] then
+                tools[category] = { itemId = tostring(item:getID()), itemType = item:getFullType() }
+            end
+        end
+    end
+    for _, option in ipairs(options) do
+        if type(option) ~= "table" or (option.toolCategory ~= "file" and option.toolCategory ~= "whetstone") then return context end
+        local copy = {}
+        for _, field in ipairs({ "recipeId", "category", "toolCategory", "effectMetric", "targetItemId",
+            "targetItemType", "condition", "maxCondition", "sharpness", "maxSharpness" }) do copy[field] = option[field] end
+        local tool = tools[copy.toolCategory]
+        if tool and tool.itemId ~= copy.targetItemId then
+            copy.toolItemId, copy.toolItemType = tool.itemId, tool.itemType
+        elseif not context.sources[copy.toolCategory] and SAO.WorldSources and SAO.SourceUse then
+            context.sources[copy.toolCategory] = Ctl.resourceContext(id, agent, body, {}, copy.toolCategory, 0.5).sources
+        end
+        context.options[#context.options + 1] = copy
+    end
+    if SAO.Needs and SAO.Needs.read then
+        local checked, needs = pcall(SAO.Needs.read, body)
+        if checked and type(needs) == "table" then context.pressure = tonumber(needs.fatigue) or 0 end
+    end
+    return context
+end
+
+function Ctl.tryToolMaintenance(id, agent, body, tick, context)
+    local planning, production = SAO.ProceduralPlanning, SAO.ResourceProduction
+    if not planning or not production or not production.maintenanceOptions or agent.state ~= "IDLE"
+        or agent.passive or not SAO.Needs.workAvailable(body) then return false end
+    if not Ctl.reconcileConstruction(id, body) then return true end
+    if agent.rec.resourceProductionWork or agent.rec.worldSourceReservation then return true end
+    local retained = planning.maintenancePurpose(id)
+    if retained and retained.admission then return true end
+    local purpose, step = planning.planToolMaintenance(id, context or Ctl.toolMaintenanceContext(id, agent, body))
+    if not purpose or not step or step.status ~= "available" then return false end
+    if step.verb == "acquire" then return Ctl.beginConstructionAcquisition(id, agent, body, tick, purpose, step) end
+    return Ctl.beginConstructionProduction(id, agent, body, tick, purpose, step)
+end
+
 function Ctl.beginConstructionProduction(id, agent, body, tick, purpose, step)
     local production = SAO.ResourceProduction
     if not production or not step or step.status ~= "available" or step.verb ~= "produce"
         or step.owner ~= "SAO.ResourceProduction" or (step.productionKind ~= "saw-logs"
             and step.productionKind ~= "repair-held-item") then return false end
     local repairing = step.productionKind == "repair-held-item"
-    if not setState(agent, id, "RESOURCE", repairing and "maintains a carried saw for retained construction"
+    if not setState(agent, id, "RESOURCE", repairing and "maintains an exact carried tool"
         or "makes native planks for a retained boarding task") then return false end
     if production.begin(id, body, step, { purposeId = purpose.id, purposeStepId = step.id })
         or agent.rec.resourceProductionWork then
@@ -5975,11 +6028,11 @@ function Ctl.beginConstructionAcquisition(id, agent, body, tick, purpose, step)
         sourceRevision = step.sourceRevision, itemId = step.itemId, itemType = step.itemType })
     if not started then
         SAO.ProceduralPlanning.deferResourceRoute(id, purpose.id, step.id,
-            "the privately remembered construction material could not be acquired")
+            "the privately remembered material could not be acquired")
         return false
     end
     agent.taskDeadline = tick + 5400
-    return setState(agent, id, "SOURCEWARD", "acquires a privately observed construction material")
+    return setState(agent, id, "SOURCEWARD", "acquires a privately observed material for retained work")
 end
 
 local function rememberConstructionDestination(id, operation, destination)
@@ -6394,6 +6447,34 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
                 offered[key]={kind="acquire",materialKind=row.kind,option=row.option,place=row.place}
             end
         end
+        local maintenanceContext
+        if idleRec and SAO.Disposition.traits(id).discipline > 0.5 then
+            maintenanceContext = Ctl.toolMaintenanceContext(id, agent, body)
+            local best, value
+            for _, option in ipairs(maintenanceContext.options) do
+                local before, maximum = option.condition, option.maxCondition
+                if option.effectMetric == "sharpness" then before, maximum = option.sharpness, option.maxSharpness end
+                if type(before) == "number" and type(maximum) == "number" and maximum > 0 and before < maximum then
+                    local deficit = 1 - before / maximum
+                    if not best or deficit > value then best, value = option, deficit end
+                end
+            end
+            if best and #candidates < 16 then
+                local sources = maintenanceContext.sources[best.toolCategory]
+                local consequences = {{ kind = "tool-repair", category = "construction", sourceId = best.recipeId,
+                    itemType = best.targetItemType, value = value }}
+                if best.effectMetric == "sharpness" then
+                    consequences[#consequences + 1] = { kind = "tool-repair", category = "construction", sourceId = best.recipeId,
+                        itemType = best.targetItemType, condition = "damage", value = -0.25 }
+                end
+                candidates[#candidates + 1] = { id = "kit-tending", kind = "maintenance", evidence = 1,
+                    continuity = planning and planning.maintenancePurpose(id) and 1 or 0.7,
+                    novelty = 0.1, informationGain = 0.2, utility = value,
+                    blockers = (best.toolItemId or sources and #sources > 0) and 0 or 1,
+                    consequences = consequences }
+                offered["kit-tending"] = { kind = "maintenance" }
+            end
+        end
         local views = #candidates > 0 and SAO.Cognition and SAO.Cognition.interpretPlans
             and SAO.Cognition.interpretPlans(id, candidates, { domain = "leisure-action", pressure = 0 })
         local chosen = views and offered[views.selected]
@@ -6402,7 +6483,11 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
         agent.rec.leisureDecision = { atHours = SAO.History.countyHours(),
             selected = chosen and views.selected or nil, status = chosen and "selected" or "unavailable",
             alternatives = candidates, interpretations = views or nil }
-        if chosen and chosen.kind == "acquire" then
+        if chosen and chosen.kind == "maintenance" then
+            local admitted = Ctl.tryToolMaintenance(id, agent, body, tick, maintenanceContext)
+            agent.rec.leisureDecision.status = admitted and "admitted" or "refused"
+            return admitted
+        elseif chosen and chosen.kind == "acquire" then
             local purpose,step,place=planning.planLeisureAcquisition(id,body,chosen.option,chosen.materialKind,chosen.place)
             local p=chosen.option.parameters
             local started=purpose and step and SAO.SourceUse and SAO.SourceUse.beginAcquisition(id,body,place,p.category,{
@@ -6607,6 +6692,7 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
                 detail = "wants something to do; no activity admitted"
             end
         elseif SAO.Disposition.traits(id).discipline > 0.5 then
+            if Ctl.tryToolMaintenance(id, agent, body, tick) then return true end
             detail = "wants to tend their kit; no maintenance action admitted"
         else
             detail = "wants a short rest; no resting posture admitted"
