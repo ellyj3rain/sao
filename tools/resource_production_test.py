@@ -354,7 +354,7 @@ CONTROLS = [
     ('production', 'if queued(rt.action) then return false end', 'if false then return false end', 'refused_native_cancellation_keeps_body_and_admission'),
     ('controller', 'context.productionOptions = SAO.ResourceProduction and SAO.ResourceProduction.options(id, body, category) or {}', 'context.productionOptions = {}', 'private_sink_empty_vessel_drives_real_native_action'),
     ('production', 'if not rt.route.done then return "moving" end', 'if false then return "moving" end', 'real_locomotion_pending_job_keeps_production_route'),
-    ('controller', 'organization.workPlan(commitment.id, id)', 'organization.workPlan(id, commitment.id)', 'actual_accepted_ready_shared_work_preempts_refill'),
+    ('controller', 'local plan = organization.workPlan(commitment.id, id)', 'local plan = organization.workPlan(id, commitment.id)', 'actual_accepted_ready_shared_work_preempts_refill'),
     ('controller', 'and not (commitment.work and commitment.work.pendingReceiptId)', 'and not (commitment.work and commitment.work.nativeReceiptPending)', 'pending_shared_native_receipt_preserves_refill'),
     ('controller', 'or commitment.work.owner == "Locomotion")', 'or commitment.work.owner == "SAO.Locomotion")', 'actual_locomotion_shared_owner_can_preempt_refill'),
     ('production','and not R.servesNeed(id, body, "water")',
@@ -591,7 +591,7 @@ def main():
                     drop=code['controller'].split('function Ctl.drop(id)',1)[1].split('local setStateRef',1)[0]
                     add('drop-controller','local Ctl=SAO.Controller\nlocal clearLoadedContact=function() end\nlocal log=function() end\nfunction Ctl.drop(id)'+drop)
                 add('controller',execution.controller_phases(code['controller']))
-                phase=code['controller'].split('-- Native production owns its exact fixture/vessel action until it retires.',1)[1].split(
+                phase=code['controller'].split('-- Native production owns its exact resource-transformation action until it retires.',1)[1].split(
                     '-- Food preparation owns its routes and exact transfers as one operation.',1)[0]
                 add('production-controller',"local selectedThreat=function() return nil end\nfunction resourceOwnerTick(id,agent,body,tickCount)\n"+execution.COMMON+phase+'\nend\n')
                 cases=REFRESH_CASES if refresh else CASES
@@ -607,7 +607,7 @@ def main():
             failures=[name for name,value in checks.items() if value!='true']
             if failures: raise RuntimeError('cases: '+', '.join(failures))
             for name,before,after,target in CONTROLS:
-                expected_count=2 if target=='actual_accepted_ready_shared_work_preempts_refill' else 1
+                expected_count=1
                 if texts[name].count(before)!=expected_count: raise RuntimeError(target+': mutation anchor differs')
                 changed=texts[name].rsplit(before,1)
                 if run({name:after.join(changed)},target)[target]!='false':

@@ -1,13 +1,13 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.8.1.0-pre-alpha` |
+| Version | `3.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
-**As of** `[D2]`, 165 delivered batches: 29 A, 52 B, 82 C products and two D products.
+**As of** `[D3.1]`, 166 delivered batches: 29 A, 52 B, 82 C products and three delivered D records. D3 is the active OPEN parent.
 
 ## Delivered product
 
@@ -33,8 +33,7 @@ directory. Original source bytes and earlier package observations remain retaine
 The closure reuses applicable owner/consumer/native-runtime and simulation
 results, including the later recorded-music, paired participation and supply
 extensions. Source package integrity and exact installed-leaf receipts are
-retained. The 143,840,426-byte artwork pack uses Git LFS. The existing version
-machine credits the coherent integration once at `3.8.1.0-pre-alpha`.
+retained. The 143,840,426-byte artwork pack uses Git LFS. Leisure's delivered version and once-only credit remain in its CLOSED record. The current replay adds D3.1's native crafting boundary once.
 
 Publication maintenance now preserves native source domains in the static
 scanners and reports absent installed inputs correctly on Linux. Two radio
@@ -67,9 +66,26 @@ and [the batch index](BATCH_LOG.md) describe the delivered product.
 
 ## Continuing outcomes and FIFO
 
+[D3's current record](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md)
+tracks the first material-work join. Observed permitted window and boarding
+needs survive missing supplies; exact private acquisition, native preparation,
+return to the retained destination and measured native completion share their
+original purpose. Adoption and IDLE recovery reconcile lost native admissions
+without inventing effects or completion. Focused native and Controller proofs
+retain their exact inputs and boundaries. Final regression and review results
+live in the D3 record. The whole construction, crafting, repair and utilities
+parent remains OPEN. Its CLOSED D3.1 child adds one native crafting capability at the derived `3.9.0.0-pre-alpha`.
+
+[D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is the
+CLOSED child for native plank crafting. Exact private log and saw
+acquisition, installed handcraft, measured plank output and return to the
+original boarding destination form its delivered behavior. The parent retains
+the complete construction, crafting, repair and utility scope. Child identities
+and delivered version credit follow the canonical module rule independently.
+
 | Outcome | Standing and responsibility |
 |---|---|
-| D3 construction/crafting/repair/utilities | Next SAO product in the established FIFO. |
+| D3 construction/crafting/repair/utilities | Active OPEN parent; D3.1 native plank crafting is CLOSED and proceeding through protected publication. Entity placement, other recipes and pane integration, general item repair, plumbing and generators remain with D3. |
 | D4 whole food/preservation | Follows D3; retains the complete installed domain and adjacent food mechanics. |
 | D5 comprehensive animal care | Follows D4; species and supported actions retain actual source admission. |
 | D6 assessed K-through-college learning | Follows D5; literal sources, comprehension, retention and transfer remain the outcome. |

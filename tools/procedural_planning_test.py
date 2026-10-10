@@ -12,6 +12,7 @@ import tempfile
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LUA = ROOT / "mod/42.20/media/lua"
 PLANNER = LUA / "shared/SAO_ProceduralPlanning.lua"
+D3_CASES = ROOT / "tools/d3_material_planning_cases.lua"
 MODELS = LUA / "shared/SAO_CognitiveModels.lua"
 COGNITION = LUA / "shared/SAO_Cognition.lua"
 COORDINATION = LUA / "shared/SAO_Coordination.lua"
@@ -169,6 +170,64 @@ EXPECTED = {
     "leisure_reward_follows_performed_event",
     "withdrawal_prefers_known_cover_and_route",
     "planning_state_is_data_only_and_persistent",
+    "d3_missing_pane_has_exact_acquisition",
+    "d3_unknown_material_source_refused",
+    "d3_return_destination_is_plain_exact_and_detached",
+    "d3_forged_acquisition_refused",
+    "d3_forged_admitted_acquisition_refused",
+    "d3_pending_admission_preserves_exact_step",
+    "d3_wrong_source_result_refused",
+    "d3_wrong_revision_result_refused",
+    "d3_wrong_item_type_result_refused",
+    "d3_acquisition_preserves_repair_purpose",
+    "d3_resource_authority_cannot_complete_repair",
+    "d3_native_window_result_after_acquisition",
+    "d3_window_duplicate_acknowledges_without_credit",
+    "d3_one_nail_cannot_complete_recipe",
+    "d3_second_nail_requires_new_exact_acquisition",
+    "d3_two_native_nails_open_boarding",
+    "d3_forged_board_completion_refused",
+    "d3_board_requires_two_consumed_nails",
+    "d3_board_wrong_aperture_refused",
+    "d3_board_wrong_actor_refused",
+    "d3_exact_native_boarding_advances_once",
+    "d3_new_aperture_does_not_inherit_completed_board",
+    "d3_interruption_keeps_purpose_and_delays_retry",
+    "d3_retry_resumes_same_exact_unfinished_step",
+    "d3_unavailable_entry_defers_without_losing_purpose",
+    "d3_fresh_observation_revises_same_security_purpose",
+    "d3_target_refusal_cannot_displace_native_admission",
+    "d3_loose_nails_precede_nearer_box",
+    "d3_box_without_unpacking_stays_blocked",
+    "d3_available_material_work_precedes_blocked_repair",
+    "d3_pending_material_admission_precedes_available_work",
+    "d3_reload_preserves_pending_admission",
+    "d3_reload_consumes_exact_terminal_once",
+    "d3_craft_finished_plank_remains_direct_means",
+    "d3_craft_acquires_exact_known_log",
+    "d3_craft_acquisition_pins_original_purpose",
+    "d3_craft_next_acquires_exact_known_saw",
+    "d3_craft_exact_inputs_open_native_recipe",
+    "d3_craft_unavailable_recipe_remains_blocked",
+    "d3_craft_unknown_material_means_remain_blocked",
+    "d3_craft_admission_pins_step_without_output_credit",
+    "d3_craft_generic_completion_refused",
+    "d3_craft_rejects_recipeid",
+    "d3_craft_rejects_actorid",
+    "d3_craft_rejects_logitemid",
+    "d3_craft_rejects_sawitemid",
+    "d3_craft_rejects_nativecredit",
+    "d3_craft_rejects_outputcount",
+    "d3_craft_rejects_nativeattempted",
+    "d3_craft_rejects_logconsumed",
+    "d3_craft_rejects_sawretained",
+    "d3_craft_rejects_held",
+    "d3_craft_duplicate_output_identity_refused",
+    "d3_craft_wrong_output_type_refused",
+    "d3_craft_measured_native_result_advances_once",
+    "d3_craft_returns_to_original_boarding_purpose",
+    "d3_craft_failure_retains_purpose_and_retry",
+    "d3_craft_retry_preserves_exact_means",
 }
 
 
@@ -191,7 +250,11 @@ def run_probe(planner_source: str) -> tuple[str | None, str]:
             "models.lua": MODELS.read_text(encoding="utf-8-sig"),
             "cognition.lua": COGNITION.read_text(encoding="utf-8-sig"),
             "planner.lua": planner_source,
-            "probe.lua": "__result = " + PROBE,
+            "d3-cases.lua": D3_CASES.read_text(encoding="utf-8-sig"),
+            "d3-probe.lua": "__d3Result=__runD3MaterialPlanningCases()\n__prepareD3MaterialReload()",
+            "planner-reload.lua": planner_source,
+            "d3-reload.lua": "__d3Result=__d3Result..','..__finishD3MaterialReload()",
+            "probe.lua": "__result = " + PROBE + "\n__result=__result..','..__d3Result",
         }
         for name, source in files.items():
             (work / name).write_text(source, encoding="utf-8")
@@ -248,7 +311,7 @@ def main() -> int:
     print("=" * 74)
     print("PRIVATE PURPOSES, SPATIAL PLANS AND RECEIPT-BOUND LEARNING")
     print("=" * 74)
-    required = [PLANNER, MODELS, COGNITION, COORDINATION, CONTROLLER,
+    required = [PLANNER, D3_CASES, MODELS, COGNITION, COORDINATION, CONTROLLER,
                 POPULATION, OBSERVATION, GESTURE, CHECK, RUNNER]
     missing = [path for path in required if not path.is_file()]
     if missing:
@@ -269,30 +332,54 @@ def main() -> int:
     failed = sorted(name for name, result in found.items() if result != "true")
     controls_ok = True
     controls = (
-        ("receipt ownership", 'step.owner ~= result.owner', 'false'),
-        ("receipt token", 'step.token ~= result.token', 'false'),
+        ("receipt ownership", 'step.owner ~= result.owner', 'false', "wrong_owner_cannot_advance"),
+        ("receipt token", 'step.token ~= result.token', 'false', "mismatched_result_cannot_advance"),
         ("private spatial store", 'function P.rememberSpatial(id, fact)\n    local s = state(id, true)',
-         'function P.rememberSpatial(id, fact)\n    local s = state("a", true)'),
+         'function P.rememberSpatial(id, fact)\n    local s = state("a", true)', "spatial_knowledge_is_person_private"),
+        ("exact acquisition revision", 'or step.sourceId ~= authoritative.sourceId or step.sourceRevision ~= authoritative.preRevision',
+         'or step.sourceId ~= authoritative.sourceId', "d3_wrong_revision_result_refused"),
+        ("material acquisition authority", 'or authority ~= RESOURCE_RESULT) then return false end',
+         ') then return false end', "d3_forged_admitted_acquisition_refused"),
+        ("native nail consumption", 'result.plankConsumed ~= true or result.nailsConsumed ~= 2',
+         'result.plankConsumed ~= true', "d3_board_requires_two_consumed_nails"),
+        ("construction target revalidation", 'and (purpose.admission or not waiting)',
+         'and true', "d3_unavailable_entry_defers_without_losing_purpose"),
+        ("usable loose nail source", 'and (category ~= "nails" or source.itemType == "Base.Nails")',
+         'and true', "d3_loose_nails_precede_nearer_box"),
+        ("construction purpose priority", 'if not selected or rank < priority then selected, priority = purpose, rank end',
+         'if not selected then selected, priority = purpose, rank end',
+         "d3_available_material_work_precedes_blocked_repair"),
+        ("native craft authority", 'or step.verb ~= "produce" or authority ~= CRAFT_RESULT)',
+         'or step.verb ~= "produce")', "d3_craft_generic_completion_refused"),
+        ("native craft output custody", 'or canonical.sawRetained ~= true or canonical.held ~= true',
+         'or canonical.sawRetained ~= true', "d3_craft_rejects_held"),
+        ("native craft output identity", 'or item.itemId == "" or outputs[item.itemId]',
+         'or item.itemId == ""', "d3_craft_duplicate_output_identity_refused"),
     )
-    for name, old, new in controls:
+    for name, old, new, expected_failure in controls:
         if old not in source:
             print(f"  FAULT: {name} mutation seam changed")
             controls_ok = False
             continue
-        mutant_value, _ = run_probe(source.replace(old, new, 1))
+        mutated = source.replace(old, new, 1)
+        if mutated == source:
+            print(f"  FAULT: {name} mutation did not land")
+            controls_ok = False
+            continue
+        mutant_value, mutant_detail = run_probe(mutated)
         mutant_found = verdicts(mutant_value)
-        if (set(mutant_found) == EXPECTED
-                and all(result == "true" for result in mutant_found.values())):
-            print(f"  FAULT: {name} mutation survived")
+        if set(mutant_found) != EXPECTED or mutant_found.get(expected_failure) != "false":
+            print(f"  FAULT: {name} mutation did not fail {expected_failure}")
+            print("  " + mutant_detail[-1000:].replace("\n", " "))
             controls_ok = False
     print("  mutation controls: " + ("PASS" if controls_ok else "FAIL")
-          + " (ownership, token and private-store controls)")
+          + " (ownership, token, private store, acquisition revision and authority, native nails, loose sources, target revalidation, purpose priority)")
     if not static_ok or not controls_ok or set(found) != EXPECTED or failed:
         print("  FAULT: missing=" + repr(sorted(EXPECTED - set(found)))
               + " failed=" + repr(failed) + " value=" + repr(value))
         print("  " + detail[-3000:].replace("\n", " "))
         return 1
-    print("  verdicts: PASS (17 planning, privacy, persistence and receipt cases)")
+    print(f"  verdicts: PASS ({len(EXPECTED)} planning, material, privacy, persistence and receipt cases)")
     print("  211) purposes persist across recomputation; private spatial evidence")
     print("       and independent model tension guide native receipt-bound work")
     return 0

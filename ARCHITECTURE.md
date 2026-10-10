@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.8.1.0-pre-alpha` |
+| Version | `3.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -256,17 +256,21 @@ establishes the actor/object binding, relocation measurement and utility guards.
 The Controller's existing fortification decision asks `SAO_WindowRepair` for
 an actor-bound adjoining-window offer. This body must currently see and face
 the broken window, stand on a native interaction tile within reach, belong to
-the current cell and have Standing permission and the exact carried pane.
-The scan admits no hidden building layout. The maintained purpose records an
-accepted work identity; admission alone advances no completed step.
+the current cell and have Standing permission. Observation is independent of
+carried-pane readiness. The sealed offer provides a detached private destination;
+the maintained purpose compiles exact personally acquired material sources,
+SourceUse acquisition, return and native preparation before repair admission.
+The scan admits no hidden building layout. Admission records accepted work
+identity and advances no completed construction step.
 
 The optional installed AddWindowAction remains the physical completion owner.
 Its bespoke wrapper freezes the exact pane on the first native validity query
 and checks actor, record, world, cell, queue, window, inventory and material
 again immediately before completion. A completed canonical result requires
-both native pane consumption and measured restored glass. The existing native
-boarding route remains separate. Valid player queues use the same physical
-action and material guard.
+both native pane consumption and measured restored glass. An exact nested pane
+first moves into the root inventory through installed native transfer; repair
+starts only after its measured transfer state. Valid player queues use the same
+physical action and material guard.
 
 Each action owns a private token-checked binding capsule holding the exact
 native handles. NPC runtime retains that capsule and original queue until
@@ -299,6 +303,46 @@ independently authenticates the completed receipt and projects performed
 replacement into ordinary and associative model state, with separate replay
 cursors. The private projection carries no native handles, internal completion
 token, hidden source facts or new XP/recipe permission.
+
+`SAO_Build` owns native boarding under the same material-work procedure. Its
+private capsule binds the observed entry, actor, queue, purpose and exact tools
+and materials. Installed transfer and equipment actions prepare nested items,
+then installed `ISBarricadeAction` performs the physical work. Canonical
+completion measures one consumed plank, two loose nails and changed barricade
+state. The former eager Java call is inert. Cancellation retains old work until
+native acknowledgement and preserves successor custody.
+
+`SAO_ResourceProduction` owns the `Base.SawLogs` extension under that retained
+boarding purpose. Exact `Base.Log` and usable native `ItemTag.SAW` categories
+join the person's private SourceUse means. If finished planks are unavailable,
+the planner can acquire a remembered log and saw, then bind their exact carried
+identities to the installed recipe's manual input slots. Installed handcraft
+logic, `ISHandcraftAction` and native inventory transfer own consumption, tool
+wear, duration and outputs. Completion requires measured log consumption, the
+retained saw and three distinct actual `Base.Plank` items held by that person.
+The same purpose then returns to its original observed boarding entry.
+
+The craft capsule uses ResourceProduction's existing scalar work and bounded
+outcome ledger. Private native handles, current queue custody and cleanup
+acknowledgement remain with the action owner. Ordinary bodies may have nil
+external-owner tokens; exact body custody still governs execution. Saved work
+cleanup remains available after runtime loss or a pending ownership transfer,
+independently of permission to drive the actor. Canonical `resource:crafted`
+results advance the exact craft step once; Cognition and both private models
+receive authenticated performed-material experience. Queue admission and
+interrupted work provide no manufactured stock or completed-craft credit.
+This native craft adapter admits the installed single-player path; server-owned
+craft effects require their own bound execution path under the continuing D3
+scope.
+
+These work owners persist plain bounded result ledgers and scalar work anchors.
+Controller adoption and IDLE continuation flush saved authentic results before
+reconciling lost runtime ownership. Exact pending work with settled native queues
+can become an interrupted recovery result; it grants no effects or completion
+and retains the purpose and destination. Existing private owners cancel through
+normal acknowledgement. Invalid clocks, ledgers or correlations retain blocked
+inspectable work. A temporarily unavailable boarding entry yields to other
+visible work while keeping its maintained purpose and bounded retry.
 
 Learning acknowledges only an accepted unchanged canonical row. Automatic
 EveryOneMinute/OnGameStart replay bounds each pass to 256 record lookups and
@@ -1337,9 +1381,11 @@ Already appraised pressure without executable competing relief preserves its
 selected action. Partial gain in the bound vessel remains owned progress;
 distinct usable relief and new physiological danger can interrupt it.
 
-Fortification compiles survey, construction and verification over held ground.
-The existing SAOBuild native bridge still owns material checks, aperture choice,
-engine barricading and consumption. Instrument recreation records its physical
+Fortification compiles personally observed work, exact missing-material
+acquisition and native construction over permitted held ground. `SAO_Build`
+owns preparation, native action custody and measured completion; `SAOBuild`
+provides current native visibility and readiness. Authentic canonical completion
+closes the exact construction purpose. Instrument recreation records its physical
 activity site and exact carried affordance. `SAO_Gesture` owns the supported
 native instrument sound, its queue action and terminal result. Planning binds
 the person, exact item and work occurrence before native queue admission can

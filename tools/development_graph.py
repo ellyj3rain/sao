@@ -16,6 +16,7 @@ import posixpath
 import re
 import sys
 from urllib.parse import unquote
+from catalogue import CatalogueError, active_batch, batch_parent, index_rows
 
 ROOT = Path(__file__).resolve().parent.parent
 SCHEMA = "development.continuity-graph/1"
@@ -30,7 +31,7 @@ PRODUCT_APPLICATION = "artifacts/audits/20261005-c-product-consolidation/applica
 PRODUCT_PUBLICATION = "artifacts/audits/20261005-c-product-consolidation/pr137-publication.json"
 OUTPUT = "artifacts/continuity"
 RELATIONS = {"chronology", "contributes-to", "depends-on", "corrects", "supersedes",
-             "shares-owner", "concept-membership", "records", "product-contribution"}
+             "shares-owner", "concept-membership", "records", "product-contribution", "child-of"}
 EVIDENCE = {"source-fact", "deterministic-projection", "derived-summary", "illustration", "unknown"}
 SHA = re.compile(r"sha256:[0-9a-f]{64}\Z")
 ROW = re.compile(r"^\|\s*\[([ABC]\d+)\]\(([^)]+)\)\s*\|\s*([^|]+)\|\s*([^|]+)\|([^\n]*)", re.M)
@@ -522,16 +523,35 @@ def _active_batch(b):
     """
     index = "BATCH_LOG.md"
     text = b.read(index)
-    active = re.findall(r"^Active: \[([A-Z]\d+) — ([^\]]+)\]\(([^)]+)\)", text, re.M)
-    if len(active) > 1 or text.count("Active:") != len(active):
-        raise GraphError("Invalid active batch index")
-    delivered = re.findall(r"^\| \[([D-Z]\d+)\]\(([^)]+)\) \| [^|]+ \| ([^|]+) \|", text, re.M)
-    entries = [(label, name.strip(), path, False) for label, path, name in delivered]
-    entries.extend((label, name, path, True) for label, name, path in active)
+    try:
+        active = active_batch(text)
+        delivered = index_rows(text)
+    except CatalogueError as exc:
+        raise GraphError(str(exc)) from exc
+    entries = [(label, row["name"], row["path"], False)
+               for label, row in delivered.items() if label[0] in "DEFGHIJKLMNOPQRSTUVWXYZ"]
+    if active:
+        entries.append((*active, True))
     if len({label for label, _, _, _ in entries}) != len(entries):
         raise GraphError("Duplicate indexed batch identity")
-    for label, name, path, is_active in entries:
-        _indexed_batch(b, index, label, name, path, is_active)
+    links = [_indexed_batch(b, index, label, name, path, is_active)
+             for label, name, path, is_active in entries]
+    predecessors = {node: previous for node, previous, _parent, _source in links}
+    for node, previous, parent, source in links:
+        if previous not in b.nodes:
+            raise GraphError("Active batch has an absent chronology predecessor")
+        seen, cursor = {node}, previous
+        while cursor in predecessors:
+            if cursor in seen:
+                raise GraphError("Indexed batch chronology has a cycle")
+            seen.add(cursor)
+            cursor = predecessors[cursor]
+        b.edge(previous, node, "chronology", [source], "The batch explicitly follows this preserved event or record.")
+        if parent:
+            if parent not in b.nodes:
+                raise GraphError("Child batch has an absent declared parent")
+            b.edge(node, parent, "child-of", [source],
+                   "The record explicitly names this parent scope; child delivery does not close or credit the parent.")
 
 
 def _indexed_batch(b, index, label, name, path, is_active):
@@ -542,8 +562,10 @@ def _indexed_batch(b, index, label, name, path, is_active):
             or "batch:" + label in b.nodes or label.startswith("C")):
         raise GraphError("Indexed batch identity or " + ("open status" if is_active else "closed status") + " disagrees with its record")
     previous = metadata(record, "Follows")
-    if previous not in b.nodes:
-        raise GraphError("Active batch has an absent chronology predecessor")
+    expected_parent = batch_parent(label)
+    parent = metadata(record, "Parent")
+    if parent != ("batch:" + expected_parent if expected_parent else ""):
+        raise GraphError("Indexed child Parent disagrees with its dotted identity")
     fields = [metadata(record, key) for key in ("Implementation", "Verification", "Publication")]
     if not all(fields):
         raise GraphError("Active batch needs explicit implementation, verification and publication status")
@@ -561,7 +583,6 @@ def _indexed_batch(b, index, label, name, path, is_active):
                   [label[0], "active" if is_active else "delivered"], status(*fields),
                   recordedStatus=metadata(record, "Status"), recordedAt=metadata(record, "Opened"),
                   closedAt=metadata(record, "Closed") if not is_active else "")
-    b.edge(previous, node, "chronology", [source], "The batch explicitly follows this preserved event or record.")
     b.edge(node, era, "concept-membership", [source], "The authoritative index records this numbered batch in its letter era.")
     for contract in contracts:
         b.edge(node, "contract:20261003:" + contract, "depends-on", [source],
@@ -569,13 +590,14 @@ def _indexed_batch(b, index, label, name, path, is_active):
     branch = metadata(record, "Branch")
     if branch:
         b.named_ref(node, "branch", branch, source, "Working branch recorded for the active batch; no publication is inferred.")
+    return node, previous, parent, source
 
 
 def build_graph(root=ROOT, require_manifest=True):
     b = Builder(root)
-    producer = "tools/development_graph.py"
-    if (b.root / producer).is_file():
-        b.read(producer)
+    for producer in ("tools/development_graph.py", "tools/catalogue.py"):
+        if (b.root / producer).is_file():
+            b.read(producer)
     by_label, texts = _historical_records(b)
     _threads(b, by_label, texts)
     _raw_generation(b, by_label)
@@ -597,8 +619,8 @@ def build_graph(root=ROOT, require_manifest=True):
              "views": [
                  {"id": "contracts", "label": "Current shared contracts", "nodeKinds": ["contract", "extension", "batch", "active-batch"], "relations": ["depends-on", "contributes-to", "records"]},
                  {"id": "ownership", "label": "Contracts, owners and interfaces", "nodeKinds": ["contract", "owner", "interface", "extension", "batch", "active-batch"], "relations": ["shares-owner", "depends-on", "records"]},
-                 {"id": "continuity", "label": "Contribution continuity", "nodeKinds": ["raw-record", "source-record", "contract", "extension", "catalogue-event", "batch", "active-batch"], "relations": ["contributes-to", "records", "depends-on", "chronology"]},
-                 {"id": "chronology", "label": "Recorded source chronology", "nodeKinds": ["batch", "source-record", "era", "extension", "catalogue-event", "active-batch"], "relations": ["chronology", "concept-membership"]},
+                 {"id": "continuity", "label": "Contribution continuity", "nodeKinds": ["raw-record", "source-record", "contract", "extension", "catalogue-event", "batch", "active-batch"], "relations": ["contributes-to", "records", "depends-on", "chronology", "child-of"]},
+                 {"id": "chronology", "label": "Recorded source chronology", "nodeKinds": ["batch", "source-record", "era", "extension", "catalogue-event", "active-batch"], "relations": ["chronology", "concept-membership", "child-of"]},
                  {"id": "concepts", "label": "Recorded concepts and threads", "nodeKinds": ["batch", "source-record", "concept", "era", "active-batch"], "relations": ["concept-membership"]},
                  {"id": "provenance", "label": "Recorded branches and commits", "nodeKinds": ["branch", "commit", "batch", "raw-record", "source-record", "extension", "era", "active-batch"], "relations": ["records"]},
                  {"id": "all", "label": "All recorded relations", "nodeKinds": sorted({n["kind"] for n in b.nodes.values()}), "relations": sorted(RELATIONS)}]}

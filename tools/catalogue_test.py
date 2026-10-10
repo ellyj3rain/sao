@@ -31,6 +31,7 @@ def main():
     products = c.load_product_catalogue(ROOT)
     files = [ROOT / name for name in (c.MANIFEST, "BATCH_LOG.md", "tools/catalogue.py",
              "tools/version_replay.py", "tools/map_reference_test.py", "tools/receipts_test.py",
+             "tools/session_state_test.py", "tools/doc_currency_test.py",
              "Batches/C_RECATALOG.json", "Batches/history/c-20261003-source/tools/version_replay.py")]
     files.append(Path(__file__).resolve())
     files.append(ROOT / c.PRODUCT_MANIFEST)
@@ -59,7 +60,8 @@ def main():
         print(json.dumps({"status": "FAIL", "checks": results}, indent=2))
         return 1
     _data, units, rows = v.catalogue_inputs()
-    check("production replay and index coverage", [unit[0] for unit in units] == list(rows))
+    check("production replay and index coverage", [unit[0] for unit in units] ==
+          [label for label in rows if label not in v.POST_C_AGGREGATIONS])
     previous = ast.parse(
         (ROOT / "Batches/history/c-20261003-source/tools/version_replay.py").read_text(encoding="utf-8-sig"))
     old_units = next(ast.literal_eval(node.value) for node in previous.body
@@ -149,6 +151,74 @@ def main():
     dashed = "| [C1](Batches/Catalogue/C1-2026-10-03-scope.md) | 2026-10-03 | Scope | T-001 |"
     compact = "| [C1](Batches/Catalogue/C1-20261003-2230Z-1530PST-scope.md) | 2026-10-03 | Scope | T-001 |"
     check("preserved filename formats", len(c.index_rows(dashed)) == 1 and len(c.index_rows(compact)) == 1 and len(c.index_rows(compact.replace("PST", "PDT"))) == 1)
+    child = compact.replace("C1", "D3.1")
+    nested = child.replace("D3.1", "D3.1.2")
+    check("complete dotted record identities", list(c.index_rows(child + "\n" + nested)) == ["D3.1", "D3.1.2"]
+          and c.batch_parent("D3.1.2") == "D3.1" and c.batch_parent("D3") is None)
+    active_text = "Active: [D3 — Parent](Batches/D3-20261003-2230Z-1530PST-parent.md)"
+    check("active parent is separate from delivered child", c.active_batch(child + "\n" + active_text)[0] == "D3"
+          and list(c.index_rows(child + "\n" + active_text)) == ["D3.1"])
+    with patch.object(sys, "argv", [sys.argv[0]]):
+        import session_state_test as state
+        import receipts_test as receipts
+        import doc_currency_test as docs
+    check("state tip reads complete child identity", state.ROW.findall(child) == ["D3.1"]
+          and state.AS_OF.search("**As of** [D3.1], parent D3 continues").group(1) == "D3.1")
+    check("receipt citations retain complete child identities",
+          receipts.BATCH_CITATION.findall("[D3] [D3.1] [D3.1.2]") == ["D3", "D3.1", "D3.1.2"])
+    check("dotted authorship remains provenance", docs.PROVENANCE.sub("", "authored at `[D3.1]`") == "")
+    # Detached chronology owns its predecessor credit. A real child closing in
+    # POST_C_UNITS must not pre-credit or duplicate this fixture's child.
+    fixture_predecessors = [("D1", "minor", "Detached predecessor capability."),
+                            ("D2", "kohai", "Detached predecessor extension.")]
+    fixture_units = fixture_predecessors + [("D3.1", "patch", "Detached child-credit control.")]
+    fixture_rows = dict.fromkeys(["D1", "D2", "D3.1"])
+    check("child closure preserves active parent", not v.post_c_faults(fixture_rows, "D3", fixture_units, {}, "D3"))
+    aggregate_rows = dict.fromkeys(["D1", "D2", "D3.1", "D3"])
+    aggregate = {"D3": ("D3.1",)}
+    with patch.object(v, "POST_C_UNITS", fixture_predecessors):
+        predecessor_trace = v.replay()
+    with patch.object(v, "POST_C_UNITS", fixture_units):
+        credited_trace = v.replay()
+        with patch.object(v, "POST_C_AGGREGATIONS", aggregate):
+            aggregated_trace = v.replay()
+    check("closed parent aggregation owns no additional tier",
+          not v.post_c_faults(aggregate_rows, "D4", fixture_units, aggregate, "D4")
+          and aggregated_trace == credited_trace and len(credited_trace) == len(predecessor_trace) + 1)
+    later_units = fixture_units + [("D3.2", "patch", "Detached later improvement control.")]
+    check("later child preserves closed aggregation history",
+          not v.post_c_faults(dict.fromkeys(["D1", "D2", "D3.1", "D3", "D3.2"]),
+                              "D4", later_units, aggregate, "D4"))
+    check("closed parent can declare next scope before it opens",
+          not v.post_c_faults(aggregate_rows, None, fixture_units, aggregate, "D4"))
+    for name, indexed, credit, aggregations, active, expected in (
+        ("duplicate child credit refuses", fixture_rows, fixture_units + [fixture_units[-1]], {}, "D3", "duplicate"),
+        ("unclassified child closure refuses", fixture_rows, fixture_predecessors, {}, "D3", "coverage"),
+        ("reordered child credit refuses", fixture_rows, list(reversed(fixture_units)), {}, "D3", "chronological"),
+        ("parent double credit refuses", aggregate_rows, fixture_units + [("D3", "minor", "Invalid repeated child credit.")], aggregate, "D4", "cannot also receive"),
+        ("missing aggregation owner refuses", aggregate_rows, fixture_units, {"D3": ("D3.2",)}, "D4", "exact credited descendants"),
+        ("duplicate aggregation owner refuses", aggregate_rows, fixture_units, {"D3": ("D3.1", "D3.1")}, "D4", "unique descendant"),
+        ("parent before children refuses", dict.fromkeys(["D1", "D2", "D3", "D3.1"]), fixture_units, aggregate, "D4", "follow its credited descendants"),
+        ("consumed active parent refuses", aggregate_rows, fixture_units, aggregate, "D3", "unconsumed"),
+        ("malformed child credit refuses", fixture_rows, fixture_units[:-1] + [("D3..1", "patch", "Malformed control.")], {}, "D3", "malformed"),
+        ("unknown child tier refuses", fixture_rows, fixture_units[:-1] + [("D3.1", "parent", "Unknown tier control.")], {}, "D3", "scope tier"),
+    ):
+        findings = v.post_c_faults(indexed, active, credit, aggregations, active)
+        check(name, any(expected in finding for finding in findings), findings)
+    findings = v.post_c_faults(fixture_rows, "D3", fixture_units, {}, "D3.2")
+    check("child label cannot replace active parent implicitly", any("explicitly active" in finding for finding in findings), findings)
+    for malformed in ("D3.", "D3..1", "D3.a", "D3.1x"):
+        try:
+            c.batch_parent(malformed)
+            check("malformed complete identity " + malformed, False)
+        except c.CatalogueError:
+            check("malformed complete identity " + malformed, True)
+    for bad_active in (active_text + "\n" + active_text, active_text.replace("D3 —", "D3..1 —")):
+        try:
+            c.active_batch(bad_active)
+            check("malformed or duplicate active scope refuses", False)
+        except c.CatalogueError:
+            check("malformed or duplicate active scope refuses", True)
     for name, text, expected in (
         ("duplicate indexed identifier", dashed + "\n" + dashed, "duplicate BATCH_LOG"),
         ("dashed date mismatch", dashed.replace("| 2026-10-03 |", "| 2026-10-02 |"), "filename carries"),
@@ -156,6 +226,10 @@ def main():
         ("malformed indexed row", "| [C1] missing-record |", "unmatched BATCH_LOG"),
         ("record identity mismatch", dashed.replace("/C1-", "/C2-"), "does not identify"),
         ("empty index", "# Batch log\n", "zero indexed rows"),
+        ("duplicate dotted indexed identifier", child + "\n" + child, "duplicate BATCH_LOG"),
+        ("malformed dotted indexed identifier", child.replace("D3.1", "D3..1"), "unmatched BATCH_LOG"),
+        ("dotted record identity mismatch", child.replace("/D3.1-", "/D3.2-"), "does not identify"),
+        ("dotted record date mismatch", child.replace("| 2026-10-03 |", "| 2026-10-02 |"), "filename carries"),
     ):
         try:
             c.index_rows(text)

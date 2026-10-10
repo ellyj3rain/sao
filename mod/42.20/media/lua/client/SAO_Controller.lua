@@ -40,6 +40,7 @@ if not SAO.LeisureAcquisition and type(require) == "function" then pcall(require
 if not SAO.LeisureLifestyle and type(require) == "function" then pcall(require, "SAO_LeisureLifestyle") end
 if not SAO.ResourceProduction and type(require) == "function" then pcall(require, "SAO_ResourceProduction") end
 if not SAO.WindowRepair and type(require) == "function" then pcall(require, "SAO_WindowRepair") end
+if not SAO.Build and type(require) == "function" then pcall(require, "SAO_Build") end
 if not SAO.ConceptKnowledge and type(require) == "function" then pcall(require, "SAO_ConceptKnowledge") end
 if not SAO.ConflictResponse and type(require) == "function" then pcall(require, "SAO_ConflictResponse") end
 
@@ -171,13 +172,9 @@ local ARRIVAL_REACH = 3       -- tiles: close enough to have got there
 local TALK_REACH = 6          -- tiles: close enough to be company
 -- [C35] Already at the porch when the tune starts: close enough to
 -- dance or clap where they stand rather than be drawn over.
--- [C44] How far from where they are standing a window counts as one
--- of theirs to board. Arm's reach plus a room: a person fortifies
--- the place they are in, not the far side of the claim.
-local BOARD_REACH = 6 -- tiles
--- How long they stand at the window having done it, before the
--- next decision is theirs again.
-local BOARD_TICKS = 300
+-- Native preparation and construction own their durations. This bounded
+-- controller deadline ends stalled work through its exact native owner.
+local CONSTRUCTION_WORK_TICKS = 5400
 local PORCH_REACH = 4         -- tiles
 -- [C4] tiles: a follow target this close on this floor whose walk
 -- failed is behind ONE edge - the window they climbed, the fence they
@@ -391,6 +388,9 @@ function Ctl.adopt(rec)
     end
     if not Ctl.agents[rec.id] then
         closeUnownedCognitionOnAdoption(rec.id)
+        if Ctl.reconcileConstruction then
+            Ctl.reconcileConstruction(rec.id, SAO.Body.get(rec.id))
+        end
         if SAO.ProceduralPlanning and SAO.ProceduralPlanning.reconcileConflict then
             SAO.ProceduralPlanning.reconcileConflict(rec.id,"loaded owner was absent at adoption; prior outcome is unobserved")
         end
@@ -403,6 +403,8 @@ function Ctl.adopt(rec)
         rec = rec, state = "IDLE", stateSince = tickCount, nextDecisionAt = 0,
     }
     local agent = Ctl.agents[rec.id]
+    if rec.boarded == nil then rec.boarded = tonumber(agent.boarded) or 0 end
+    agent.boarded = tonumber(rec.boarded) or 0
     local player = (SAO.Participants and SAO.Participants.player
         or getSpecificPlayer)(0)
     Ctl.reconcileWeekOneCompanion(rec, agent, player)
@@ -485,6 +487,9 @@ function Ctl.drop(id)
         end
         if SAO.ConflictResponse and not SAO.ConflictResponse.detach(id,Ctl.agents[id],body,"controller detached") then
             return false,"conflict-native-action-pending"
+        end
+        if SAO.Build and SAO.Build.interrupt(id, body, "controller-drop") ~= true then
+            return false, "barricade-action-pending"
         end
         if SAO.WindowRepair and SAO.WindowRepair.interrupt(id, body, "controller-drop") ~= true then
             return false, "window-repair-action-pending"
@@ -859,6 +864,10 @@ end
 local function setState(agent, id, state, why, answer, repairingSourceProjection)
     if agent.state ~= state and not repairingSourceProjection then
         local sourceBody = SAO.Body.get(id)
+        if state ~= "BOARDING" and SAO.Build
+            and SAO.Build.interrupt(id, sourceBody, "state-change:" .. tostring(state)) ~= true then
+            return false
+        end
         if state ~= "WINDOWREPAIR" and SAO.WindowRepair
             and SAO.WindowRepair.interrupt(id, sourceBody, "state-change:" .. tostring(state)) ~= true then
             return false
@@ -1041,6 +1050,7 @@ setStateRef = setState
 -- source action and accidentally cancel the brand-new route with it.
 local function orderTravelState(agent, id, body, x, y, z, state, why, answer)
     id = tostring(id)
+    if SAO.Build and SAO.Build.interrupt(id, body, "replacement-route") ~= true then return false end
     if SAO.WindowRepair and SAO.WindowRepair.interrupt(id, body, "replacement-route") ~= true then return false end
     if SAO.SourceUse and SAO.SourceUse.beforeStateChange
         and SAO.SourceUse.beforeStateChange(id, body, agent.state,
@@ -5811,105 +5821,258 @@ local function decideHomeAndEquipment(id, agent, body, tick, rec)
         end
     end
 
-    -- [C44] THE PLACE THEY HOLD, MADE HARDER TO GET INTO.
-    --
-    -- The operator's ruling (DR-036, Crucible): nothing is forced.
-    -- Nobody is handed a fortification and no pass authors one - the
-    -- people are given what they need and either they manage it or
-    -- they do not. So this is a decision like any other and every
-    -- clause of it can fail: they must hold ground, the fall must
-    -- have come, they must be standing on their own claim, they must
-    -- be carrying a hammer, a plank and two nails they found
-    -- themselves, and there must be a window left to board. A county
-    -- that never boards a single window is telling us something
-    -- about the systems, and that is the point of being able to look.
-    --
-    -- The act itself is the engine's own - the same barricade the
-    -- player's own action builds, at the same price in materials.
+    -- Held-ground work begins with an observed aperture. The person's purpose
+    -- survives a missing kit; exact private sources can supply it, and only
+    -- the native work owner's completed result advances construction.
     if agent.state == "IDLE" and SAO.Standing.fallHasCome() then
-        local claim = SAO.Standing.claimOf(id)
-        if claim and SAO.Standing.insideClaim(id, body:getX(), body:getY())
-            and SAOJavaBridge then
-            if Ctl.tryWindowRepair(id, agent, body, tick) then return true end
-            local makings = false
-            pcall(function()
-                makings = SAOJavaBridge:carriesTheMakings(body)
-            end)
-            if makings then
-                local fortify95 = nil
-                if SAO.ProceduralPlanning then
-                    fortify95 = SAO.ProceduralPlanning.planFortification(id, {
-                        insideOwnedGround = true, hasKit = true,
-                        knownGround = rec and rec.groundSeenOnDay ~= nil,
-                    })
+        if not Ctl.reconcileConstruction(id, body) then return false end
+        local retained = SAO.ProceduralPlanning and SAO.ProceduralPlanning.constructionDestination(id)
+        if retained then
+            if Ctl.advanceConstruction(id, agent, body, tick, retained) then return true end
+            if not retained.pendingAdmission and retained.operation == "repair"
+                and Ctl.tryBoarding(id, agent, body, tick) then return true end
+            if not retained.pendingAdmission and retained.operation == "board"
+                and Ctl.tryWindowRepair(id, agent, body, tick) then return true end
+        else
+            local claim = SAO.Standing.claimOf(id)
+            if claim and SAO.Standing.insideClaim(id, body:getX(), body:getY()) and SAOJavaBridge then
+                if Ctl.tryWindowRepair(id, agent, body, tick) then return true end
+                -- A blocked repair remains its own purpose while another
+                -- observed, feasible held-ground job may still be attempted.
+                if Ctl.tryBoarding(id, agent, body, tick) then return true end
+            end
+        end
+    end
+end
+
+function Ctl.reconcileBoardingInspection(id)
+    local rec = SAO.Identity.get(id)
+    if not rec then return 0 end
+    local agent = Ctl.agents[id]
+    local count = tonumber(rec.boarded) or agent and tonumber(agent.boarded) or 0
+    local cursor = tonumber(rec.boardedResultSequence) or 0
+    local owner, ledger = SAO.Build, rec.barricade
+    if owner and owner.outcome and type(ledger) == "table" and type(ledger.order) == "table" then
+        for index, sequence in ipairs(ledger.order) do
+            if index > 32 then break end
+            if type(sequence) == "number" and sequence > cursor then
+                local outcome = owner.outcome(id, sequence)
+                -- The native owner validates the physical result. Its planner
+                -- acknowledgement precedes this persisted inspection cursor.
+                if not outcome or outcome.planningAcknowledged ~= true then break end
+                if outcome.status == "completed" then count = count + 1 end
+                cursor = sequence
+            end
+        end
+    end
+    rec.boarded, rec.boardedResultSequence = count, cursor
+    if agent then agent.boarded = count end
+    return count
+end
+
+function Ctl.reconcileConstruction(id, body)
+    local ready = true
+    for _, owner in ipairs({ SAO.WindowRepair or {}, SAO.Build or {}, SAO.ResourceProduction or {} }) do
+        if owner.reconcileSaved then
+            local ok, settled = pcall(owner.reconcileSaved, id, body)
+            if not ok or settled ~= true then ready = false end
+        end
+    end
+    Ctl.reconcileBoardingInspection(id)
+    return ready
+end
+
+function Ctl.constructionContext(id, agent, body, operation, entryKey, destination)
+    local context = { operation = operation, entryKey = entryKey, destination = destination,
+        knownGround = destination ~= nil, insideOwnedGround = false, materials = {}, sources = {} }
+    local claim = SAO.Standing.claimOf(id)
+    if destination and claim then
+        context.insideOwnedGround = SAO.Standing.insideClaim(id, destination.x, destination.y) == true
+            and destination.z == (claim.z or 0)
+    end
+    local recipe = operation == "repair" and {{ "glass-pane", 1 }}
+        or {{ "hammer", 1 }, { "plank", 1 }, { "nails", 2 }}
+    for _, need in ipairs(recipe) do
+        local ok, count = pcall(function() return SAOJavaBridge:constructionMaterialCount(body, need[1]) end)
+        context.materials[need[1]] = ok and type(count) == "number" and count or 0
+        if context.materials[need[1]] < need[2] and SAO.WorldSources and SAO.SourceUse then
+            local resources = Ctl.resourceContext(id, agent, body, {}, need[1], 0.5)
+            context.sources[need[1]] = resources.sources
+        end
+    end
+    if operation == "board" and context.materials.plank < 1 and SAO.ResourceProduction
+        and SAO.ResourceProduction.craftingAvailable then
+        local eligible, available = pcall(SAO.ResourceProduction.craftingAvailable, id, body)
+        local read, items = pcall(function() return SAOJavaBridge:privateCarriedItems(body) end)
+        context.craftingAvailable = eligible and available == true and read and items and items:size() <= 512
+        if context.craftingAvailable then
+            context.craftInputs = {}
+            for _, category in ipairs({ "log", "saw" }) do
+                local counted, count = pcall(function() return SAOJavaBridge:constructionMaterialCount(body, category) end)
+                context.materials[category] = counted and type(count) == "number" and count or 0
+                if context.materials[category] < 1 and SAO.WorldSources and SAO.SourceUse then
+                    context.sources[category] = Ctl.resourceContext(id, agent, body, {}, category, 0.5).sources
                 end
-                local spot = ""
-                pcall(function()
-                    spot = tostring(SAOJavaBridge:findBoardable(body,
-                        claim.minX, claim.minY, claim.maxX, claim.maxY,
-                        claim.z or 0, BOARD_REACH))
-                end)
-                local bx, by, bz = spot:match("^(-?%d+),(-?%d+),(-?%d+)$")
-                if bx then
-                    local entryKey95 = "entry:" .. tostring(bx) .. ":"
-                        .. tostring(by) .. ":" .. tostring(bz)
-                    if SAO.ProceduralPlanning and fortify95 then
-                        SAO.ProceduralPlanning.rememberSpatial(id, {
-                            key = entryKey95, kind = "boardable-entry",
-                            x = tonumber(bx), y = tonumber(by), z = tonumber(bz),
-                            source = "native-boardable-inspection", confidence = 1,
-                            familiarity = 0.75, routeKnown = true, owned = true,
-                            usable = true, tags = { "entrance", "fortification" },
-                        })
-                        local first95 = fortify95.steps[fortify95.cursor]
-                        if first95 and first95.id == "survey-entrances" then
-                            SAO.ProceduralPlanning.recordResult(id, fortify95.id, {
-                                owner = "SAOBuild", token = "ground:surveyed",
-                                status = "completed" })
+            end
+            if read and items then
+                for index = 0, math.min(items:size(), 512) - 1 do
+                    local item = items:get(index)
+                    if not item:getIsCraftingConsumed() then
+                        if not context.craftInputs.logItemId and item:getFullType() == "Base.Log" then
+                            context.craftInputs.logItemId, context.craftInputs.logItemType = tostring(item:getID()), item:getFullType()
+                        elseif not context.craftInputs.sawItemId and item:hasTag(ItemTag.SAW)
+                            and item:getCondition() > 0 and not item:isBroken() then
+                            context.craftInputs.sawItemId, context.craftInputs.sawItemType = tostring(item:getID()), item:getFullType()
                         end
-                        fortify95 = SAO.ProceduralPlanning.planFortification(id, {
-                            insideOwnedGround = true, hasKit = true,
-                            knownGround = true, entryKey = entryKey95,
-                        })
-                    end
-                    local planks = 0
-                    pcall(function()
-                        planks = SAOJavaBridge:boardWindow(body,
-                            tonumber(bx), tonumber(by), tonumber(bz))
-                    end)
-                    if planks and planks > 0 then
-                        if SAO.ProceduralPlanning and fortify95 then
-                            SAO.ProceduralPlanning.recordResult(id, fortify95.id, {
-                                owner = "SAOBuild", token = "construction:boarded",
-                                status = "completed" })
-                        end
-                        agent.boarded = (agent.boarded or 0) + 1
-                        agent.taskDeadline = tick + BOARD_TICKS
-                        setState(agent, id, "BOARDING",
-                            "boards a window on their own ground ("
-                            .. planks .. " plank(s) on it)")
-                        return true
                     end
                 end
             end
         end
     end
-
+    return context
 end
 
--- This is called by the existing held-ground fortification decision.
-function Ctl.tryWindowRepair(id, agent, body, tick)
-    if not SAO.WindowRepair or agent.state ~= "IDLE" or agent.passive
-        or not SAO.Standing.fallHasCome() or not SAO.Standing.claimOf(id)
-        or not SAO.Standing.insideClaim(id, body:getX(), body:getY()) then return false end
-    local offer = SAO.WindowRepair.offer(id, body)
-    if not offer then return false end
-    if not setState(agent, id, "WINDOWREPAIR", "replaces glass in an observed damaged window") then return false end
-    if SAO.WindowRepair.begin(id, body, offer) then
-        agent.taskDeadline = tick + BOARD_TICKS
+function Ctl.beginConstructionProduction(id, agent, body, tick, purpose, step)
+    local production = SAO.ResourceProduction
+    if not production or not step or step.status ~= "available" or step.verb ~= "produce"
+        or step.owner ~= "SAO.ResourceProduction" or step.productionKind ~= "saw-logs" then return false end
+    if not setState(agent, id, "RESOURCE", "makes native planks for a retained boarding task") then return false end
+    if production.begin(id, body, step, { purposeId = purpose.id, purposeStepId = step.id })
+        or agent.rec.resourceProductionWork then
+        agent.taskDeadline = tick + 5400
         return true
     end
+    SAO.ProceduralPlanning.deferResourceRoute(id, purpose.id, step.id, "native plank crafting refused the exact admitted means")
+    setState(agent, id, "IDLE", "native plank crafting could not begin")
+    return false
+end
+
+function Ctl.beginConstructionAcquisition(id, agent, body, tick, purpose, step)
+    if not SAO.SourceUse or not step or step.status ~= "available" or step.verb ~= "acquire" then return false end
+    local started = SAO.SourceUse.beginAcquisition(id, body, step.place, step.category, {
+        purposeId = purpose.id, purposeStepId = step.id, sourceId = step.sourceId,
+        sourceRevision = step.sourceRevision, itemId = step.itemId, itemType = step.itemType })
+    if not started then
+        SAO.ProceduralPlanning.deferResourceRoute(id, purpose.id, step.id,
+            "the privately remembered construction material could not be acquired")
+        return false
+    end
+    agent.taskDeadline = tick + 5400
+    return setState(agent, id, "SOURCEWARD", "acquires a privately observed construction material")
+end
+
+local function rememberConstructionDestination(id, operation, destination)
+    SAO.ProceduralPlanning.rememberSpatial(id, { key = destination.key,
+        kind = operation == "repair" and "damaged-window" or "boardable-entry",
+        x = destination.x, y = destination.y, z = destination.z,
+        source = "visible-native-aperture", confidence = 1, familiarity = 0.75,
+        routeKnown = true, owned = true, usable = true, tags = { "entrance", "construction" } })
+end
+
+function Ctl.tryWindowRepair(id, agent, body, tick, entryKey)
+    local owner, planning = SAO.WindowRepair, SAO.ProceduralPlanning
+    if not owner or not planning or agent.state ~= "IDLE" or agent.passive
+        or not SAO.Standing.fallHasCome() or not SAO.Standing.claimOf(id)
+        or not SAO.Standing.insideClaim(id, body:getX(), body:getY()) then return false end
+    local offer = owner.offer(id, body, entryKey)
+    if not offer then return false end
+    local destination = owner.destination(id, body, offer)
+    if not destination then return false end
+    rememberConstructionDestination(id, "repair", destination)
+    local context = Ctl.constructionContext(id, agent, body, "repair", offer.entryKey, destination)
+    context.observedEntry = true
+    local purpose, step = planning.planFortification(id, context)
+    if not purpose or not step or step.status ~= "available" then return false end
+    if step.verb == "acquire" then return Ctl.beginConstructionAcquisition(id, agent, body, tick, purpose, step) end
+    if step.owner ~= "SAO.WindowRepair" then return false end
+    if not setState(agent, id, "WINDOWREPAIR", "replaces glass in an observed damaged window") then return false end
+    if owner.begin(id, body, offer) then agent.taskDeadline = tick + CONSTRUCTION_WORK_TICKS; return true end
     setState(agent, id, "IDLE", "window repair could not enter native work")
+    return false
+end
+
+function Ctl.tryBoarding(id, agent, body, tick, entryKey)
+    local owner, planning = SAO.Build, SAO.ProceduralPlanning
+    if not owner or not planning or agent.state ~= "IDLE" or agent.passive
+        or not SAO.Standing.fallHasCome() or not SAO.Standing.claimOf(id)
+        or not SAO.Standing.insideClaim(id, body:getX(), body:getY()) then return false end
+    local offer = owner.offer(id, body, entryKey)
+    if not offer then return false end
+    local destination = owner.destination(id, body, offer)
+    if not destination then return false end
+    rememberConstructionDestination(id, "board", destination)
+    local context = Ctl.constructionContext(id, agent, body, "board", offer.entryKey, destination)
+    context.observedEntry = true
+    local purpose, step = planning.planFortification(id, context)
+    if not purpose or not step or step.status ~= "available" then return false end
+    if step.verb == "acquire" then return Ctl.beginConstructionAcquisition(id, agent, body, tick, purpose, step) end
+    if step.verb == "produce" then return Ctl.beginConstructionProduction(id, agent, body, tick, purpose, step) end
+    if step.owner ~= "SAOBuild" then return false end
+    if not setState(agent, id, "BOARDING", "boards an observed entrance on held ground") then return false end
+    if owner.begin(id, body, offer, purpose.id, step.id) then agent.taskDeadline = tick + CONSTRUCTION_WORK_TICKS; return true end
+    setState(agent, id, "IDLE", "boarding could not enter native work")
+    return false
+end
+
+function Ctl.orientConstructionEntry(body, retained)
+    -- The person returns to the recorded interaction tile, then uses the
+    -- native turn toward that exact previously observed aperture. Turning
+    -- remains preparation; the owner still reacquires its full native offer.
+    if not body or body:isDead() or SAOJavaBridge:hasPendingActions(body)
+        or type(retained.entryKey) ~= "string" then return false end
+    local kind, x, y, z, index, north = retained.entryKey:match("^(%a+):(-?%d+):(-?%d+):(-?%d+):(%d+):(%a+)$")
+    if kind ~= (retained.operation == "repair" and "window" or "barricade")
+        or (north ~= "true" and north ~= "false") then return false end
+    x, y, z, index = tonumber(x), tonumber(y), tonumber(z), tonumber(index)
+    if not x or not y or not z or not index or index >= 128 or math.floor(body:getZ()) ~= z then return false end
+    local cell = body:getCell()
+    local square = cell and cell:getGridSquare(x, y, z)
+    local objects = square and square:getObjects()
+    local target = objects and index < objects:size() and objects:get(index)
+    if not target or target:getSquare() ~= square or target:getObjectIndex() ~= index
+        or target:getNorth() ~= (north == "true") then return false end
+    local here = body:getCurrentSquare()
+    local other = north == "true" and square:getN() or square:getW()
+    if not here or not here:canStand() or (here ~= square and here ~= other) then return false end
+    if retained.operation == "repair" then
+        if not instanceof(target, "IsoWindow") or not target:isSmashed() then return false end
+    elseif not (instanceof(target, "IsoWindow") or instanceof(target, "IsoDoor")
+        or instanceof(target, "IsoThumpable") and (target:isDoor() or target:isWindow())) then return false end
+    local turned, pending = pcall(function()
+        body:faceThisObject(target)
+        return body:shouldBeTurning()
+    end)
+    return turned and pending == true
+end
+
+function Ctl.advanceConstruction(id, agent, body, tick, retained)
+    if agent.passive or retained.pendingAdmission then return false end
+    local destination = { key = retained.entryKey, x = retained.x, y = retained.y, z = retained.z }
+    local purpose, step = SAO.ProceduralPlanning.planFortification(id,
+        Ctl.constructionContext(id, agent, body, retained.operation, retained.entryKey, destination))
+    if not purpose or not step or step.status ~= "available" then return false end
+    if step.verb == "acquire" then return Ctl.beginConstructionAcquisition(id, agent, body, tick, purpose, step) end
+    if step.verb == "produce" then return Ctl.beginConstructionProduction(id, agent, body, tick, purpose, step) end
+    if math.floor(body:getX()) ~= destination.x or math.floor(body:getY()) ~= destination.y
+        or math.floor(body:getZ()) ~= destination.z then
+        if tick < (agent.nextConstructionRouteAt or 0) then return false end
+        agent.nextConstructionRouteAt = tick + 600
+        if not mayEnterBelieved(id, destination.x, destination.y) then return false end
+        if orderTravelState(agent, id, body, destination.x, destination.y, destination.z,
+            "TRAVEL", "returns to an observed construction task") then
+            agent.taskDeadline = tick + 5400
+            return true
+        end
+        return false
+    end
+    if Ctl.orientConstructionEntry(body, retained) then return true end
+    if retained.operation == "repair" then return Ctl.tryWindowRepair(id, agent, body, tick, retained.entryKey) end
+    if Ctl.tryBoarding(id, agent, body, tick, retained.entryKey) then return true end
+    if SAO.ProceduralPlanning.deferConstructionTarget(id, purpose.id, retained.entryKey,
+        "the observed boarding entry is not currently offered by its native owner") then
+        if Ctl.tryWindowRepair(id, agent, body, tick) then return true end
+        return Ctl.tryBoarding(id, agent, body, tick)
+    end
     return false
 end
 
@@ -8799,6 +8962,8 @@ end
 local function retireDeadBodyWork(id, body, rec)
     if Ctl.retireLeisureWork then Ctl.retireLeisureWork(id,Ctl.agents[id],body,"death")end
     if SAO.ConflictResponse then SAO.ConflictResponse.detach(id,Ctl.agents[id],body,"person died",true) end
+    if SAO.Build then SAO.Build.interrupt(id, body, "death") end
+    if SAO.WindowRepair then SAO.WindowRepair.interrupt(id, body, "death") end
     if SAO.Needs.retireRecovery then SAO.Needs.retireRecovery(id, "death") end
     if SAO.ProceduralPlanning and SAO.ProceduralPlanning.detachResidence then
         SAO.ProceduralPlanning.detachResidence(id, "death")
@@ -9640,6 +9805,7 @@ local function updateAgent(id, agent)
         -- checks. The transfer module still refuses a canonically dead record.
         if zaoPending and not pendingSource
             and SAO.CrossedTransfer and SAO.CrossedTransfer.resumePending then
+            if SAO.Build and SAO.Build.interrupt(id, nil, "zao-person-ownership-transfer") ~= true then return end
             if SAO.WindowRepair and SAO.WindowRepair.interrupt(id, nil, "zao-person-ownership-transfer") ~= true then return end
             pcall(SAO.CrossedTransfer.resumePending)
         end
@@ -9742,6 +9908,7 @@ local function updateAgent(id, agent)
     pendingSource = SAO.WorldSources and SAO.WorldSources.pendingActionFor
         and SAO.WorldSources.pendingActionFor(id) or nil
     if agent.rec.zaoTransferPending or agent.rec.crossedTransferPending then
+        if SAO.Build and SAO.Build.interrupt(id, body, "zao-person-ownership-transfer") ~= true then return end
         if SAO.WindowRepair and SAO.WindowRepair.interrupt(id, body, "zao-person-ownership-transfer") ~= true then return end
         if SAO.Posture and SAO.Posture.jobs and SAO.Posture.jobs[id] then
             SAO.Posture.interrupt(id, body, "zao-person-ownership-transfer")
@@ -9776,7 +9943,7 @@ local function updateAgent(id, agent)
         if SAO.ConflictResponse.pendingTransfer(id,agent,body,threat,count,personKey) then return end
     end
 
-    -- Native production owns its exact fixture/vessel action until it retires.
+    -- Native production owns its exact resource-transformation action until it retires.
     if agent.rec.resourceProductionWork and SAO.ResourceProduction then
         local threat = selectedThreat(id, tickCount, body:getX(), body:getY())
         local reason = agent.passive and "owner-interrupted" or threat
@@ -9818,7 +9985,7 @@ local function updateAgent(id, agent)
         local result = SAO.ResourceProduction.tick(id, body)
         if not agent.rec.resourceProductionWork then
             agent.nextDecisionAt = 0
-            setState(agent, id, "IDLE", "water collection: " .. tostring(result))
+            setState(agent, id, "IDLE", "native resource production: " .. tostring(result))
         end
         return
     elseif agent.state == "RESOURCE" then
@@ -10155,15 +10322,15 @@ local function updateAgent(id, agent)
         return
     end
     if agent.state == "BOARDING" then
-        local bThreat = SAO.Perception.nearestBelievedZombie(
-            id, tickCount, body:getX(), body:getY())
-        if bThreat and bThreat.dist <= SAO.Disposition.fleeDistance(id) then
-            setState(agent, id, "IDLE", "leaves the window - something close")
-            return
-        end
-        if tickCount >= (agent.taskDeadline or 0) then
-            setState(agent, id, "IDLE", "done at that window")
-            return
+        local threat = SAO.Perception.nearestBelievedZombie(id, tickCount, body:getX(), body:getY())
+        if not SAO.Build then setState(agent, id, "IDLE", "native boarding owner unavailable"); return end
+        SAO.Build.flush(id)
+        Ctl.reconcileBoardingInspection(id)
+        if threat and threat.dist <= SAO.Disposition.fleeDistance(id)
+            or tickCount >= (agent.taskDeadline or 0) then
+            setState(agent, id, "IDLE", "leaves the boarding work")
+        elseif not SAO.Build.active(id, body) then
+            setState(agent, id, "IDLE", "native boarding work closed")
         end
         return
     end
@@ -10914,6 +11081,7 @@ local agentFaults = {}
 -- inline at the two death branches, where the order matters; this is
 -- for the caches that just need to stop existing.
 function Ctl.forget(id)
+    if SAO.Build then SAO.Build.forget(id) end
     if SAO.WindowRepair then SAO.WindowRepair.forget(id) end
     if SAO.Needs.retireRecovery then SAO.Needs.retireRecovery(id, "controller-forget") end
     agentFaults[tostring(id)] = nil

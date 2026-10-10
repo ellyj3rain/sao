@@ -42,6 +42,7 @@ ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 BUILD = ROOT / "java" / "src" / "com" / "sao" / "engine" / "SAOBuild.java"
+NATIVE_BUILD = LUA / "client" / "SAO_Build.lua"
 BRIDGE = ROOT / "java" / "src" / "com" / "sao" / "bridge" / "SAOBridge.java"
 CONTROLLER = LUA / "client" / "SAO_Controller.lua"
 INSPECT = LUA / "client" / "SAO_Inspect.lua"
@@ -61,49 +62,63 @@ def main():
     print("THEY EITHER BUILD OR THEY DO NOT")
     print("=" * 74)
 
-    if not BUILD.exists():
+    if not BUILD.exists() or not NATIVE_BUILD.exists():
         print("  FAULT: there is no build capability at all, so the county "
               "cannot fortify anything and the question of whether it would "
               "cannot be asked")
         return 1
     build, bridge = read(BUILD), read(BRIDGE)
+    native_build = read(NATIVE_BUILD)
     controller, inspect = read(CONTROLLER), read(INSPECT)
 
     checks = {
         # 1. The engine's own act, with the shipped action's own gate.
         "the act is the engine's own barricade":
-            "IsoBarricade.AddBarricadeToObject" in build
-            and "barricade.addPlank(person, plank)" in build,
+            'ISBarricadeAction:new(body,b.target,false,false)' in native_build
+            and 'pcall(nativeComplete,self)' in native_build,
         "a hammer is required, by the engine's own tag":
-            "hasEquippedTag(ItemTag.HAMMER)" in build,
+            "hasEquippedTag(ItemTag.HAMMER)" in native_build,
         "a plank is required":
-            'hasEquipped("Plank")' in build,
+            'hasEquipped("Plank")' in native_build,
         "two nails are required, and the number is the action's":
-            "NAILS_PER_PLANK = 2" in build
-            and 'getNumberOfItem("Base.Nails", true) >= NAILS_PER_PLANK' in build,
+            'getItemCount("Base.Nails",true)<2' in native_build
+            and '#picked<2' in native_build,
         "a full window is refused":
-            "canAddPlank()" in build,
+            "canAddPlank()" in native_build,
 
         # 2. Paid for.
         "the plank leaves their inventory":
-            re.search(r"bag\.Remove\(plank\)", build) is not None,
+            'b.plankConsumed=not b.inventory:contains(b.plank)' in native_build
+            and 'and b.plankConsumed and b.nailsConsumed==2' in native_build,
         "and both nails do":
-            re.search(r"for \(int n = 0; n < NAILS_PER_PLANK; n\+\+\)", build) is not None
-            and re.search(r"bag\.Remove\(nail\)", build) is not None,
+            'for i=1,2 do if not b.inventory:contains(b.nails[i])' in native_build
+            and 'b.nailsConsumed==2' in native_build,
+        "completed work measures changed barricade state":
+            'b.barricadeChanged=b.planksAfter==b.planksBefore+1' in native_build
+            and 'and b.barricadeChanged' in native_build,
+        "the former Java producer is inert":
+            re.search(r'public static int board\([^)]*\)\s*\{\s*return 0;\s*\}', build) is not None,
+        "the adapter delegates physical payment and placement":
+            not re.search(r'\b(?:Remove|AddBarricadeToObject|addPlank)\s*\(', native_build),
 
         # 3. Every clause can fail.
         "they must hold ground":
-            "SAO.Standing.claimOf(id)" in controller,
+            "SAO.Standing.claimOf(id)" in controller and 'S.claimOf(id)' in native_build,
         "the fall must have come":
             'agent.state == "IDLE" and SAO.Standing.fallHasCome()' in controller,
         "they must be standing on their own claim":
             "SAO.Standing.insideClaim(id, body:getX(), body:getY())" in controller,
         "they must be carrying the makings":
-            "carriesTheMakings(body)" in controller,
+            "constructionMaterialCount(body, need[1])" in controller
+            and 'if not b.plank or not b.hammer or #picked<2' in native_build,
         "and a window must be left to board":
-            "findBoardable(body," in controller,
+            "owner.offer(id, body, entryKey)" in controller and 'boardable(b.target,body)' in native_build,
         "the reach is named, not spelled":
-            re.search(r"local BOARD_REACH = \d+ -- tiles", controller) is not None,
+            re.search(r'local BOARDING_REACH_SQ = \d+', native_build) is not None
+            and 'dx*dx+dy*dy>BOARDING_REACH_SQ' in native_build,
+        "the native admission retains exact private purpose":
+            'SAO.ProceduralPlanning.noteAdmission(id,purposeId,"SAOBuild",b.workId,stepId)' in native_build
+            and 'a.correlationId==b.workId and a.stepId==b.stepId' in native_build,
 
         # 4. Nothing else places one.
         "the panel reports what was built and builds nothing":

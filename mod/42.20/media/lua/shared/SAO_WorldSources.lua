@@ -40,8 +40,8 @@ local MAX_PROJECTION_CHANGES = 2048
 local MAX_ACTION_OPTIONS = 128
 local RESULT_CONSUMER = "provisioning"
 local SOURCE_CATEGORY_ORDER = {
-    "device", "drink", "food", "fuel", "instrument", "leisure-material", "medical",
-    "medicine", "memento", "nails", "plank", "reading", "smokes", "tools",
+    "device", "drink", "food", "fuel", "glass-pane", "hammer", "instrument", "leisure-material", "medical",
+    "log", "medicine", "memento", "nails", "plank", "reading", "saw", "smokes", "tools",
     "water", "weapons",
 }
 local SOURCE_CATEGORIES = {}
@@ -1107,7 +1107,8 @@ function WS.beliefFact(sourceId, observationKind)
             local item = source.items[key]
             if item then
                 fact.visibleItem={id=item.id,type=item.type}
-                for _, category in ipairs({"reading","instrument","leisure-material"}) do
+                for _, category in ipairs({"reading","instrument","leisure-material",
+                    "glass-pane","hammer","plank","nails","log","saw"}) do
                     if item.categories[category] then
                         fact.quantities[category]=1
                         fact.candidates[category]={id=item.id,type=item.type,categories={[category]=true}}

@@ -20,13 +20,23 @@ local MAX_CANCELLATIONS_PER_TICK = 32
 local MAX_LEARNING_SCANS, MAX_LEARNING_OWNERS = 256, 32
 local learningRecords, learningIterator = nil, nil
 local PANE = "RepairableWindows.LargeGlassPane"
+local function availablePane(item)
+    return item and item:getFullType() == PANE and item:getIsCraftingConsumed() ~= true
+end
 local NATIVE_WINDOW_INTERACTION_REACH = 2
 local MAX_RESULTS = 32
 local RESULT_FIELDS = { id=true, sequence=true, actorId=true, workId=true, purposeId=true,
     entryKey=true, itemId=true, fullType=true, world=true, bodyToken=true, x=true, y=true, z=true,
     windowIndex=true, north=true, startedAt=true, endedAt=true, status=true, reason=true,
     paneConsumed=true, nativeAttempted=true, smashedBefore=true, smashedAfter=true, glassRemovedAfter=true,
-    nativeOwner=true, planningAcknowledged=true, learningAcknowledged=true }
+    nativeOwner=true, planningAcknowledged=true, learningAcknowledged=true,
+    stepId=true, recoveryOnly=true, nativeObservability=true }
+local WORK_FIELDS = { id=true, purposeId=true, entryKey=true, status=true, startedAt=true, itemId=true,
+    actorId=true, stepId=true, nativeOwner=true, world=true, bodyToken=true, x=true, y=true, z=true,
+    windowIndex=true, north=true, reason=true, resultSequence=true }
+local function finite(value)
+    return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
+end
 
 local function copy(value)
     if type(value) ~= "table" then return value end
@@ -36,7 +46,7 @@ local function copy(value)
 end
 local function hours()
     local value = SAO.History and SAO.History.countyHours()
-    return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge and value or nil
+    return finite(value) and value or nil
 end
 local function person(id) return SAO.Identity and SAO.Identity.get(id) end
 local function binding(action)
@@ -51,6 +61,27 @@ local function releaseBinding(action, b)
     action._SAOWindowRepairBinding = false
     return true
 end
+local function preparationBinding(action)
+    local getter = action and rawget(action, "_SAOWindowRepairPreparation")
+    if type(getter) ~= "function" then return nil end
+    local c = getter(BINDING_TOKEN)
+    return type(c) == "table" and c.seal == BINDING_TOKEN and c.action == action and c or nil
+end
+local function preparationQueued(c)
+    local q = c.binding.queue
+    return q:indexOf(c.action) ~= -1 or q.current == c.action
+end
+local function preparationRefused() return false end
+local function releasePreparation(c)
+    c.action._SAOWindowRepairPreparation = false
+    for _, name in ipairs({"isValidStart", "isValid", "complete", "perform", "stop", "forceCancel"}) do
+        c.action[name] = preparationRefused
+    end
+end
+local function currentAction(active)
+    local c = active.preparation
+    return c and not c.acknowledged and c.action or active.action
+end
 local function retireOffer(id)
     if offers[id] then offerCount = offerCount - 1 end
     offers[id] = nil
@@ -63,13 +94,23 @@ function W.expireOffers()
 end
 function W.offerCount() return offerCount end
 local function integer(value) return type(value) == "number" and value == value and value >= 0 and value < 1000000000 and value % 1 == 0 end
+local function windowEntry(entry)
+    if type(entry) ~= "string" then return false end
+    local x, y, z, index, north = entry:match("^window:(%-?%d+):(%-?%d+):(%-?%d+):(%d+):(%a+)$")
+    x, y, z, index = tonumber(x), tonumber(y), tonumber(z), tonumber(index)
+    return finite(x) and finite(y) and finite(z) and integer(index)
+        and (north == "true" or north == "false")
+        and entry == "window:" .. x .. ":" .. y .. ":" .. z .. ":" .. index .. ":" .. north
+end
 local function ledger(rec, create)
     local s = rec and rec.windowRepair
     if s == nil and create then
         s = { schema = 1, nextWork = 0, nextResult = 0, outcomes = {}, order = {}, learningOmitted = 0 }
         rec.windowRepair = s
     end
-    if type(s) ~= "table" or s.schema ~= 1 or type(s.outcomes) ~= "table" or type(s.order) ~= "table"
+    if type(s) ~= "table" or getmetatable(s) or s.schema ~= 1
+        or type(s.outcomes) ~= "table" or getmetatable(s.outcomes)
+        or type(s.order) ~= "table" or getmetatable(s.order)
         or #s.order > MAX_RESULTS or type(s.nextWork) ~= "number" or s.nextWork < 0
         or s.nextWork % 1 ~= 0 or s.nextWork >= 1000000000
         or type(s.nextResult) ~= "number" or s.nextResult < 0 or s.nextResult % 1 ~= 0
@@ -146,8 +187,10 @@ local function geometry(b, sight)
     if not here:canStand() then return false end
     local dx, dy = sq:getX() + 0.5 - body:getX(), sq:getY() + 0.5 - body:getY()
     if dx * dx + dy * dy > NATIVE_WINDOW_INTERACTION_REACH * NATIVE_WINDOW_INTERACTION_REACH then return false end
+    local side = here == sq and -1 or 1
+    local facingX, facingY = b.north and 0 or side, b.north and side or 0
     if sight and (body:CanSee(window) ~= true
-        or dx * body:getForwardDirectionX() + dy * body:getForwardDirectionY() < 0) then return false end
+        or facingX * body:getForwardDirectionX() + facingY * body:getForwardDirectionY() < 0) then return false end
     return true
 end
 local function bound(b, material, sight)
@@ -164,9 +207,25 @@ local function bound(b, material, sight)
         or b.work.entryKey ~= b.entryKey or b.work.itemId ~= b.itemId
         or b.work.startedAt ~= b.startedAt or not hours() or hours() < b.startedAt
         or claimKey(b.personId, b.body, b.window) ~= b.claim) then return false end
-    if material and (not b.pane or tostring(b.pane:getID()) ~= b.itemId
-        or b.pane:getFullType() ~= PANE or b.pane:getContainer() ~= b.inventory
-        or not b.inventory:contains(b.pane) or b.inventory:getFirstType(PANE) ~= b.pane) then return false end
+    if b.purpose then
+        local state = b.record.proceduralPlanning
+        local p = state and state.purposes and state.purposes[b.purposeId]
+        local step = p and p.steps and p.steps[p.cursor]
+        local admission = p and p.admission
+        if p ~= b.purpose or step ~= b.step or not admission
+            or admission.owner ~= "SAO.WindowRepair" or admission.correlationId ~= b.workId
+            or admission.stepId ~= step.id or step.owner ~= "SAO.WindowRepair"
+            or step.target ~= b.entryKey or step.token ~= "construction:window-repaired" then return false end
+    end
+    if material then
+        if not b.pane or tostring(b.pane:getID()) ~= b.itemId or not availablePane(b.pane) then return false end
+        if b.preparing then
+            local source = b.preparationSource
+            if not source or source == b.inventory or b.pane:getContainer() ~= source
+                or source:getOutermostContainer() ~= b.inventory or not source:contains(b.pane) then return false end
+        elseif b.pane:getContainer() ~= b.inventory or not b.inventory:contains(b.pane)
+            or b.inventory:getFirstType(PANE) ~= b.pane then return false end
+    end
     return true
 end
 local function queued(action)
@@ -183,10 +242,13 @@ end
 local function retireAcknowledged(id, active)
     if runtime[id] ~= active then return runtime[id] == nil end
     local b, action = active.binding, active.action
+    local c = active.preparation
+    if c and (preparationQueued(c) or c.action.action and not c.acknowledged) then return false end
     -- Removing a Lua queue entry is not acknowledgement from a started native action.
     if queued(action) or (b.cancelled and action.action and not b.stopAcknowledged) then return false end
     runtime[id] = nil
     releaseBinding(action, b)
+    if c then releasePreparation(c) end
     active.retryQueued = false
     for i = #cancellationOrder, 1, -1 do
         if cancellationOrder[i] == active then table.remove(cancellationOrder, i) end
@@ -201,15 +263,9 @@ function W.outcome(id, sequence)
         or (row.status ~= "completed" and row.status ~= "interrupted")
         or type(row.workId) ~= "string" or type(row.purposeId) ~= "string"
         or not integer(sequence) or sequence < 1 or type(row.entryKey) ~= "string"
-        or row.fullType ~= PANE or type(row.itemId) ~= "string" or type(row.world) ~= "string"
-        or type(row.startedAt) ~= "number" or type(row.endedAt) ~= "number"
-        or row.startedAt ~= row.startedAt or row.endedAt ~= row.endedAt
-        or row.endedAt == math.huge or row.startedAt == -math.huge or row.endedAt < row.startedAt
-        or row.nativeOwner ~= "AddWindowAction.complete" or type(row.paneConsumed) ~= "boolean" or type(row.nativeAttempted) ~= "boolean"
-        or type(row.smashedAfter) ~= "boolean" or type(row.glassRemovedAfter) ~= "boolean"
-        or (row.status == "completed" and (not row.nativeAttempted or not row.paneConsumed or row.smashedBefore ~= true
-            or row.smashedAfter or row.glassRemovedAfter))
-        or (row.paneConsumed and not row.nativeAttempted)
+        or row.fullType ~= PANE or type(row.itemId) ~= "string" or not windowEntry(row.entryKey)
+        or not finite(row.startedAt) or not finite(row.endedAt) or row.endedAt < row.startedAt
+        or type(row.reason) ~= "string" or (row.bodyToken ~= nil and type(row.bodyToken) ~= "string")
         or (row.planningAcknowledged ~= nil and type(row.planningAcknowledged) ~= "boolean")
         or (row.learningAcknowledged ~= nil and type(row.learningAcknowledged) ~= "boolean") then return nil end
     if getmetatable(row) then return nil end
@@ -221,7 +277,28 @@ function W.outcome(id, sequence)
     end
     local workSequence = tonumber(row.workId:match("/window%-work/(%d+)$"))
     if not integer(workSequence) or workSequence < 1 or workSequence > s.nextWork
-        or row.workId ~= id .. "/window-work/" .. tostring(workSequence)
+        or row.workId ~= id .. "/window-work/" .. tostring(workSequence) then return nil end
+    if row.recoveryOnly == true then
+        -- Lost runtime establishes interrupted execution, never a material/window poststate.
+        if row.status ~= "interrupted" or row.reason ~= "window-runtime-unavailable"
+            or row.nativeOwner ~= "SAO.WindowRepair.reconcileSaved" or row.nativeObservability ~= "runtime-unavailable"
+            or type(row.stepId) ~= "string" or row.stepId == ""
+            or row.paneConsumed ~= nil or row.nativeAttempted ~= nil or row.smashedBefore ~= nil
+            or row.smashedAfter ~= nil or row.glassRemovedAfter ~= nil or row.learningAcknowledged ~= nil then return nil end
+        if row.world ~= nil then
+            if type(row.world) ~= "string" or not finite(row.x) or not finite(row.y) or not finite(row.z)
+                or row.x % 1 ~= 0 or row.y % 1 ~= 0 or row.z % 1 ~= 0
+                or not integer(row.windowIndex) or type(row.north) ~= "boolean"
+                or row.entryKey ~= "window:" .. row.x .. ":" .. row.y .. ":" .. row.z .. ":" .. row.windowIndex .. ":" .. tostring(row.north) then return nil end
+        elseif row.x ~= nil or row.y ~= nil or row.z ~= nil or row.windowIndex ~= nil or row.north ~= nil or row.bodyToken ~= nil then return nil end
+        return copy(row)
+    end
+    if row.recoveryOnly ~= nil or row.nativeObservability ~= nil or type(row.world) ~= "string"
+        or row.nativeOwner ~= "AddWindowAction.complete" or type(row.paneConsumed) ~= "boolean" or type(row.nativeAttempted) ~= "boolean"
+        or type(row.smashedAfter) ~= "boolean" or type(row.glassRemovedAfter) ~= "boolean"
+        or (row.status == "completed" and (not row.nativeAttempted or not row.paneConsumed or row.smashedBefore ~= true
+            or row.smashedAfter or row.glassRemovedAfter))
+        or (row.paneConsumed and not row.nativeAttempted)
         or type(row.x) ~= "number" or type(row.y) ~= "number" or type(row.z) ~= "number"
         or row.x % 1 ~= 0 or row.y % 1 ~= 0 or row.z % 1 ~= 0
         or not integer(row.windowIndex) or type(row.north) ~= "boolean" or row.smashedBefore ~= true
@@ -271,7 +348,7 @@ local function close(b, status, reason)
     end
     s.nextResult = s.nextResult + 1
     local row = { id = b.personId .. "/window-result/" .. tostring(s.nextResult), sequence = s.nextResult,
-        actorId = b.personId, workId = work.id, purposeId = work.purposeId, entryKey = work.entryKey,
+        actorId = b.personId, workId = work.id, purposeId = work.purposeId, stepId = work.stepId, entryKey = work.entryKey,
         itemId = b.itemId, fullType = PANE, world = b.world, bodyToken = b.token,
         x = b.square:getX(), y = b.square:getY(), z = b.square:getZ(), windowIndex = b.index, north = b.north,
         startedAt = work.startedAt, endedAt = at, status = status, reason = reason,
@@ -297,8 +374,8 @@ local function refuse(b, reason)
     return false
 end
 local function freezePane(b)
-    if b.pane then return true end
-    local pane = b.inventory:getFirstType(PANE)
+    if b.pane then return availablePane(b.pane) and true or false end
+    local pane = b.inventory:getFirstTypeEval(PANE, availablePane)
     if not pane then return false end
     b.pane, b.itemId = pane, tostring(pane:getID())
     return true
@@ -325,17 +402,17 @@ function W.install()
     end
     function base:isValidStart()
         local b = binding(self)
-        return b and self.character == b.body and self.window == b.window and not b.spent and not b.cancelled and freezePane(b)
+        return b and not b.preparing and self.character == b.body and self.window == b.window and not b.spent and not b.cancelled and freezePane(b)
             and bound(b, true, false) and self.window:isSmashed() and nativeStart(self) == true or false
     end
     function base:isValid()
         local b = binding(self)
-        return b and self.character == b.body and self.window == b.window and not b.spent and not b.cancelled
+        return b and not b.preparing and self.character == b.body and self.window == b.window and not b.spent and not b.cancelled
             and freezePane(b) and bound(b, true, false) and nativeValid(self) and true or false
     end
     function base:complete()
         local b = binding(self)
-        if not b or self.character ~= b.body or self.window ~= b.window or b.spent or b.cancelled or not bound(b, true, false) or not self.window:isSmashed() then
+        if not b or b.preparing or self.character ~= b.body or self.window ~= b.window or b.spent or b.cancelled or not bound(b, true, false) or not self.window:isSmashed() then
             refuse(b, "window-material-or-owner-changed")
             return false
         end
@@ -436,15 +513,114 @@ function W.install()
     installed = base
     return true
 end
-function W.offer(id, body)
+local function preparePane(active)
+    local b = active.binding
+    local action = ISInventoryTransferAction:new(b.body, b.pane, b.preparationSource, b.inventory)
+    local c = { seal = BINDING_TOKEN, action = action, binding = b, item = b.pane,
+        source = b.preparationSource, purpose = b.purpose, step = b.step }
+    action._SAOWindowRepairPreparation = function(token) if token == BINDING_TOKEN then return c end end
+    action.canMergeAction = function() return false end
+    active.preparation = c
+    local nativeValid, nativePerform = action.isValid, action.perform
+    local function exact()
+        return preparationBinding(action) == c and action.character == b.body and action.item == c.item
+            and action.srcContainer == c.source and action.destContainer == b.inventory
+    end
+    local function purposeOwned()
+        local state = b.record.proceduralPlanning
+        local p = state and state.purposes and state.purposes[b.purposeId]
+        local step = p and p.steps and p.steps[p.cursor]
+        local admission = p and p.admission
+        return p == c.purpose and step == c.step and admission
+            and admission.owner == "SAO.WindowRepair" and admission.correlationId == b.workId
+            and admission.stepId == step.id and step.owner == "SAO.WindowRepair"
+            and step.target == b.entryKey and step.token == "construction:window-repaired"
+    end
+    local function ownsQueue()
+        return exact() and ISTimedActionQueue.getTimedActionQueue(b.body) == b.queue
+            and b.queue.current == action and b.queue:indexOf(action) == 1
+    end
+    local function valid()
+        return exact() and not c.done and not active.closed and not b.cancelled and b.preparing
+            and purposeOwned() and bound(b, true, false)
+            and ISTimedActionQueue.getTimedActionQueue(b.body) == b.queue
+    end
+    c.valid = valid
+    local function nativeEnded()
+        local ok, ended = pcall(function()
+            return action.action and action.action:isStarted()
+                and (action.action:finished() or action.action:isForceComplete())
+        end)
+        return ok and ended == true
+    end
+    function action:isValidStart() return valid() and nativeValid(self) == true or false end
+    function action:isValid() return valid() and nativeValid(self) == true or false end
+    function action:complete() return false end
+    function action:perform()
+        local ql = self.queueList
+        if c.performed or not ownsQueue() or not nativeEnded() or not valid() or type(ql) ~= "table" or #ql ~= 1
+            or type(ql[1].items) ~= "table" or #ql[1].items ~= 1 or ql[1].items[1] ~= c.item then
+            refuse(b, "window-pane-preparation-owner-changed")
+            W.interrupt(b.personId, b.body, "window-pane-preparation-owner-changed")
+            return false
+        end
+        c.performed = true
+        local ok = pcall(nativePerform, self)
+        c.done = true
+        c.acknowledged = ok and not preparationQueued(c)
+        b.preparing = false
+        local measured = ok and exact() and purposeOwned() and not active.closed and not b.cancelled
+            and bound(b, true, false) and c.item:getContainer() == b.inventory
+            and not c.source:contains(c.item) and not preparationQueued(c)
+            and ISTimedActionQueue.getTimedActionQueue(b.body) == b.queue
+            and b.queue.current == nil and #b.queue.queue == 0
+        if not measured or not SAO.Needs.queueVerified(active.action) then
+            refuse(b, "native-window-pane-preparation-unconfirmed")
+            W.interrupt(b.personId, b.body, "native-window-pane-preparation-unconfirmed")
+            return false
+        end
+        releasePreparation(c)
+        return true
+    end
+    function action:stop()
+        if c.acknowledged or preparationBinding(self) ~= c then return false end
+        local current = ownsQueue()
+        refuse(b, "native-window-pane-preparation-stopped")
+        c.acknowledged = true
+        if current then
+            pcall(function()
+                self:playSourceContainerCloseSound()
+                self:playDestContainerCloseSound()
+                self:stopLoopingSound()
+                c.item:setJobDelta(0)
+                if self.action then self.action:setLoopedAction(false) end
+                self.started = false
+            end)
+            b.queue:onCompleted(self)
+        else
+            b.queue:removeFromQueue(self)
+            if b.queue.current == self then b.queue.current = nil end
+        end
+        return retireAcknowledged(b.personId, active)
+    end
+    function action:forceCancel()
+        if c.acknowledged or preparationBinding(self) ~= c then return false end
+        refuse(b, "native-window-pane-preparation-force-cancel")
+        scheduleCancellation(active)
+        if not self.action then c.acknowledged = true end
+        return false
+    end
+    return action
+end
+function W.offer(id, body, entryKey)
     id = tostring(id)
     retireOffer(id)
     if offerCount >= MAX_OFFERS then return nil end
     if not W.install() or not ordinary(id, body) or not hours() or runtime[id] then return nil end
     if SAOJavaBridge:hasPendingActions(body) then return nil end
     local inv, here = body:getInventory(), body:getCurrentSquare()
-    local pane = inv and inv:getFirstType(PANE)
-    if not pane or not here then return nil end
+    local pane = inv and inv:getFirstTypeEval(PANE, availablePane)
+    if not here then return nil end
     -- Three loaded tiles contain the apertures whose primary interaction side is this tile.
     for _, offset in ipairs({{0,0}, {0,1}, {1,0}}) do
         local sq = body:getCell():getGridSquare(here:getX()+offset[1], here:getY()+offset[2], here:getZ())
@@ -457,16 +633,27 @@ function W.offer(id, body)
                     if b and geometry(b, true) and claimKey(id, body, window) then
                         local key = "window:" .. sq:getX() .. ":" .. sq:getY() .. ":" .. sq:getZ()
                             .. ":" .. b.index .. ":" .. tostring(b.north)
+                        if entryKey == nil or entryKey == key then
                         local offer = { entryKey = key }
-                        b.pane, b.itemId, b.claim, b.entryKey = pane, tostring(pane:getID()), claimKey(id, body, window), key
+                        b.pane, b.itemId, b.claim, b.entryKey = pane, pane and tostring(pane:getID()), claimKey(id, body, window), key
                         offers[id] = { offer = offer, binding = b }
                         offerCount = offerCount + 1
                         return offer
+                        end
                     end
                 end
             end
         end
     end
+end
+function W.destination(id, body, offer)
+    id = tostring(id)
+    local slot = offers[id]
+    local b = slot and slot.offer == offer and slot.binding
+    if not b or not ordinary(id, body) or b.body ~= body or offer.entryKey ~= b.entryKey
+        or not bound(b, false, true) or claimKey(id, body, b.window) ~= b.claim then return nil end
+    return { key = b.entryKey, x = math.floor(body:getX()), y = math.floor(body:getY()),
+        z = math.floor(body:getZ()) }
 end
 function W.begin(id, body, offer)
     id = tostring(id)
@@ -474,9 +661,27 @@ function W.begin(id, body, offer)
     local observed = slot and slot.offer == offer and slot.binding
     retireOffer(id)
     local r = ordinary(id, body)
-    if not observed or not r or observed.body ~= body or offer.entryKey ~= observed.entryKey or not bound(observed, true, true)
+    if not observed or not r or observed.body ~= body or offer.entryKey ~= observed.entryKey or not bound(observed, false, true)
         or claimKey(id, body, observed.window) ~= observed.claim or SAOJavaBridge:hasPendingActions(body)
         or not SAO.ProceduralPlanning or runtime[id] then return false end
+    if not observed.pane then
+        observed.pane = observed.inventory:getFirstTypeEval(PANE, availablePane)
+        if not observed.pane then
+            local ok, pane = pcall(function() return observed.inventory:getFirstTypeEvalRecurse(PANE, availablePane) end)
+            if ok then observed.pane = pane end
+        end
+        observed.itemId = observed.pane and tostring(observed.pane:getID())
+    end
+    if not observed.pane then return false end
+    observed.preparationSource = observed.pane:getContainer()
+    observed.preparing = observed.preparationSource ~= observed.inventory
+    if not bound(observed, true, true) then return false end
+    if observed.preparing then
+        if isClient() or isServer() then return false end
+        local ok = pcall(require, "TimedActions/ISInventoryTransferAction")
+        if not ok or type(ISInventoryTransferAction) ~= "table" or type(ISInventoryTransferAction.new) ~= "function"
+            or type(ISInventoryTransferAction.perform) ~= "function" then return false end
+    end
     local at = hours()
     if not at then return false end
     local s = ledger(r, true)
@@ -494,16 +699,27 @@ function W.begin(id, body, offer)
     if not purpose then return false end
     s.nextWork = s.nextWork + 1
     local work = { id = id .. "/window-work/" .. s.nextWork, purposeId = purpose.id, entryKey = offer.entryKey,
-        status = "repairing", startedAt = at, itemId = observed.itemId }
+        status = "repairing", startedAt = at, itemId = observed.itemId,
+        actorId = id, stepId = purpose.steps[purpose.cursor].id, nativeOwner = "AddWindowAction.complete",
+        world = observed.world, bodyToken = observed.token, x = observed.square:getX(), y = observed.square:getY(),
+        z = observed.square:getZ(), windowIndex = observed.index, north = observed.north }
     local action = installed:new(body, observed.window)
     local b = binding(action)
     if not b then return false end
     b.pane, b.itemId, b.claim, b.work = observed.pane, observed.itemId, observed.claim, work
     b.state, b.workId, b.purposeId, b.entryKey, b.startedAt = s, work.id, work.purposeId, work.entryKey, at
+    b.preparing, b.preparationSource = observed.preparing, observed.preparationSource
+    b.purpose, b.step = purpose, purpose.steps[purpose.cursor]
     b.queue = ISTimedActionQueue.getTimedActionQueue(body)
-    r.windowRepairWork, runtime[id] = work, { action = action, binding = b }
-    if not SAO.ProceduralPlanning.noteAdmission(id, purpose.id, "SAO.WindowRepair", work.id)
-        or not SAO.Needs.queueVerified(action) then
+    local active = { action = action, binding = b }
+    r.windowRepairWork, runtime[id] = work, active
+    local admitted = SAO.ProceduralPlanning.noteAdmission(id, purpose.id, "SAO.WindowRepair", work.id)
+    local queuedAction = action
+    if admitted and b.preparing then
+        local ok, prepared = pcall(preparePane, active)
+        if ok then queuedAction = prepared else admitted = false end
+    end
+    if not admitted or not SAO.Needs.queueVerified(queuedAction) then
         refuse(b, "native-window-queue-refused")
         W.interrupt(id, body, "native-window-queue-refused")
         return false
@@ -514,18 +730,25 @@ function W.interrupt(id, body, reason)
     id = tostring(id)
     local active = runtime[id]
     if not active then return true end
-    local action, b = active.action, active.binding
-    if active.closed and b.work.status == "completed" and not queued(action) then
+    local action, b = currentAction(active), active.binding
+    if active.closed and b.work.status == "completed" and not queued(active.action) then
         return retireAcknowledged(id, active)
     end
     refuse(b, reason or "window-repair-interrupted")
     scheduleCancellation(active)
     pcall(function()
         local q = b.queue
-        if action.action and not b.stopAcknowledged then
+        local c = active.preparation
+        local acknowledged = c and action == c.action and c.acknowledged or b.stopAcknowledged
+        if action.action and not acknowledged then
             action.action:forceStop()
-        elseif q.current == action then q:onCompleted(action)
-        else q:removeFromQueue(action) end
+        elseif q.current == action then
+            if c and action == c.action then c.acknowledged = true end
+            q:onCompleted(action)
+        else
+            q:removeFromQueue(action)
+            if c and action == c.action and not action.action then c.acknowledged = true end
+        end
     end)
     return retireAcknowledged(id, active)
 end
@@ -555,15 +778,12 @@ function W.active(id, body)
     id = tostring(id)
     local active = runtime[id]
     if not active then
-        local r = person(id)
-        if r and r.windowRepairWork and r.windowRepairWork.status == "repairing" then
-            r.windowRepairWork.status, r.windowRepairWork.reason = "interrupted", "window-runtime-unavailable"
-            SAO.ProceduralPlanning.interrupt(id, r.windowRepairWork.purposeId, "window-runtime-unavailable", hours())
-        end
-        return false
+        return not W.reconcileSaved(id, body)
     end
     if active.closed or active.binding.body ~= body or not bound(active.binding, true, false)
-        or not queued(active.action) then
+        or (active.preparation and not active.preparation.acknowledged
+            and (not active.preparation.valid() or not preparationQueued(active.preparation)))
+        or (not active.preparation or active.preparation.acknowledged) and not queued(active.action) then
         return not W.interrupt(id, body, "window-owner-or-queue-changed")
     end
     return true
@@ -580,6 +800,79 @@ function W.flush(id)
         end
     end
     W.deliverLearning(id)
+end
+function W.reconcileSaved(id, body)
+    id = tostring(id)
+    -- Authentic terminal evidence is replayed before considering a lost owner.
+    W.flush(id)
+    if runtime[id] then return W.interrupt(id, body, "window-adoption-reconciliation") end
+    local r = person(id)
+    local work = r and r.windowRepairWork
+    if work == nil then return true end
+    if type(work) ~= "table" then return false end
+    local ps = r.proceduralPlanning
+    local p = ps and ps.purposes and ps.purposes[work.purposeId]
+    local admission = p and p.admission
+    local pinned = admission and admission.owner == "SAO.WindowRepair" and admission.correlationId == work.id
+    if work.status ~= "repairing" and work.status ~= "interrupted" then return not pinned end
+    if not pinned then return work.status == "interrupted" or work.resultSequence ~= nil end
+    local s, at = ledger(r), hours()
+    local step = p.steps and p.steps[p.cursor]
+    local n = type(work.id) == "string" and tonumber(work.id:match("/window%-work/(%d+)$"))
+    if ordinary(id, body) ~= r or r.id ~= id or getmetatable(work) or not s or not at or s.nextResult >= 999999999
+        or not integer(n) or n < 1 or n ~= s.nextWork or work.id ~= id .. "/window-work/" .. n
+        or type(work.purposeId) ~= "string" or type(work.itemId) ~= "string" or work.itemId == ""
+        or not windowEntry(work.entryKey) or not finite(work.startedAt) or work.startedAt > at
+        or p.id ~= work.purposeId or p.status == "completed" or p.status == "abandoned" or not p.windowRepair
+        or not step or step.owner ~= "SAO.WindowRepair" or step.token ~= "construction:window-repaired"
+        or step.target ~= work.entryKey or step.status == "completed"
+        or admission.stepId ~= step.id or admission.target ~= work.entryKey or admission.token ~= step.token
+        or not finite(admission.at) or admission.at ~= work.startedAt or work.resultSequence ~= nil then return false end
+    for key, value in pairs(work) do
+        local kind = type(value)
+        if not WORK_FIELDS[key] or (kind ~= "string" and kind ~= "number" and kind ~= "boolean")
+            or (kind == "number" and not finite(value)) or (kind == "string" and #value > 512) then return false end
+    end
+    -- Original schema-1 work has only the six admission scalars above. New
+    -- work also preserves detached native anchors, whose complete shape is checked.
+    if work.actorId ~= nil or work.world ~= nil or work.nativeOwner ~= nil or work.stepId ~= nil then
+        if work.actorId ~= id or work.stepId ~= step.id or work.nativeOwner ~= "AddWindowAction.complete"
+            or type(work.world) ~= "string" or work.world ~= getWorld():getWorld()
+            or work.bodyToken ~= nil and type(work.bodyToken) ~= "string"
+            or not finite(work.x) or not finite(work.y) or not finite(work.z)
+            or work.x % 1 ~= 0 or work.y % 1 ~= 0 or work.z % 1 ~= 0
+            or not integer(work.windowIndex) or type(work.north) ~= "boolean"
+            or work.entryKey ~= "window:" .. work.x .. ":" .. work.y .. ":" .. work.z .. ":" .. work.windowIndex .. ":" .. tostring(work.north) then return false end
+    elseif work.bodyToken ~= nil or work.x ~= nil or work.y ~= nil or work.z ~= nil or work.windowIndex ~= nil or work.north ~= nil then return false end
+    local ok, pending = pcall(function() return SAOJavaBridge:hasPendingActions(body) end)
+    if not ok or pending ~= false then return false end
+    local q = ISTimedActionQueue.getTimedActionQueue(body)
+    if q.current or #q.queue > 0 then return false end
+    for _, sequence in ipairs(s.order) do
+        local row = W.outcome(id, sequence)
+        if not row or row.workId == work.id then return false end
+    end
+    while #s.order >= MAX_RESULTS do
+        local first = s.outcomes[tostring(s.order[1])]
+        if first.planningAcknowledged ~= true then return false end
+        if first.status == "completed" and first.learningAcknowledged ~= true then
+            s.learningOmitted = math.min(999999999, (s.learningOmitted or 0) + 1)
+        end
+        s.outcomes[tostring(table.remove(s.order, 1))] = nil
+    end
+    s.nextResult = s.nextResult + 1
+    local row = { id = id .. "/window-result/" .. s.nextResult, sequence = s.nextResult, actorId = id,
+        workId = work.id, purposeId = work.purposeId, stepId = step.id, entryKey = work.entryKey,
+        itemId = work.itemId, fullType = PANE, status = "interrupted", reason = "window-runtime-unavailable",
+        startedAt = work.startedAt, endedAt = at, recoveryOnly = true,
+        nativeOwner = "SAO.WindowRepair.reconcileSaved", nativeObservability = "runtime-unavailable",
+        world = work.world, bodyToken = work.bodyToken, x = work.x, y = work.y, z = work.z,
+        windowIndex = work.windowIndex, north = work.north }
+    s.outcomes[tostring(s.nextResult)] = row
+    s.order[#s.order + 1] = s.nextResult
+    work.status, work.reason, work.resultSequence = "interrupted", row.reason, s.nextResult
+    W.flush(id)
+    return row.planningAcknowledged == true and p.admission == nil
 end
 function W.retryLearning()
     local cognition, identity = SAO.Cognition, SAO.Identity

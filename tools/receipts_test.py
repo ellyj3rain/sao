@@ -41,7 +41,7 @@ import pathlib
 import re
 import sys
 
-from catalogue import (CatalogueError, MANIFEST, historical_generations,
+from catalogue import (BATCH_ID_PATTERN, CatalogueError, MANIFEST, historical_generations,
                        index_rows, load_catalogue, validate_catalogue)
 
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
@@ -49,6 +49,7 @@ ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
 RECEIPTS = ROOT / "RECEIPTS.md"
 FINDINGS = ROOT / "FINDINGS.md"
 BATCH_LOG = ROOT / "BATCH_LOG.md"
+BATCH_CITATION = re.compile(rf"\[({BATCH_ID_PATTERN})\]")
 
 # \s+ between the words, not a literal space: the first control run
 # passed against the OLD document because "play receipt" wrapped
@@ -156,7 +157,7 @@ def main():
             if f"## {f}" not in findings:
                 faults.append(f"{rid} cites {f} and FINDINGS.md has no "
                               "such finding")
-        for b in set(re.findall(r"\[([A-Z]\d+)\]", body)):
+        for b in set(BATCH_CITATION.findall(body)):
             if b not in current_batches and b not in historical_batches:
                 faults.append(f"{rid} cites [{b}] and neither the current catalogue "
                               "nor its retained source generations has that batch")

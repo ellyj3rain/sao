@@ -57,7 +57,7 @@ for _,machine in ipairs({"ArcadeMachine1","ArcadeMachine2","ArcadeStreetFighter"
     HOBBY_SOURCES["ProjectArcade:ProjectArcade_PlayArcadeTimedAction:"..machine]=true
 end
 local EXTENDED = { ["medication-use"]=true, ["physical-change"]=true, preparation=true,
-    ["animal-care"]=true, ["window-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
+    ["animal-care"]=true, ["window-repair"]=true, ["material-crafting"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
     ["weekone-performance-hearing"]=true }
@@ -109,6 +109,7 @@ local function occurrencePosition(e)
         or e.kind=="preparation" and ("cooking/"..e.actorId.."/")
         or e.kind=="animal-care" and ("animal-care/"..e.actorId.."/")
         or e.kind=="window-repair" and (e.actorId.."/window-result/")
+        or e.kind=="material-crafting" and ("resource-production/"..e.actorId.."/")
         or e.kind=="entry-outcome" and ("entry/"..e.actorId.."/")
         or e.kind=="recovery-outcome" and ("recovery/"..e.actorId.."/")
         or e.kind=="study-outcome" and ("study/"..e.actorId.."/")
@@ -230,7 +231,7 @@ local function validEvent(e)
         or e.startedAtHours~=nil or e.nativeCompletedAtHours~=nil) then return false end
     if e.kind~="animal-care" and (e.consumedAmount~=nil or e.quantityUnit~=nil) then return false end
     if e.category=="animal" and e.kind~="animal-care" then return false end
-    if e.category=="construction" and e.kind~="window-repair" then return false end
+    if e.category=="construction" and e.kind~="window-repair" and e.kind~="material-crafting" then return false end
     if e.capabilities~=nil and not capabilities(e.capabilities) then return false end
     for _, key in ipairs({"sourceId","itemType"}) do
         if e[key]~=nil and not text(e[key],160) then return false end
@@ -400,6 +401,10 @@ local function validEvent(e)
                 and (string.match(e.sourceId,"^window:%-?%d+:%-?%d+:%-?%d+:%d+:true$")~=nil
                     or string.match(e.sourceId,"^window:%-?%d+:%-?%d+:%-?%d+:%d+:false$")~=nil)
                 and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
+        end
+        if e.kind=="material-crafting" then
+            return e.category=="construction" and e.status=="completed" and e.sourceId=="Base.SawLogs"
+                and e.itemType=="Base.Plank" and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
         end
         if e.kind=="medication-use" then
             return e.category=="medicine" and e.sourceId==nil
@@ -783,6 +788,11 @@ local function extendedEvidence(modelId,state,e)
                 end
             end
         end
+    elseif e.kind=="material-crafting" then
+        if modelId=="ordinary" then
+            remember(state,"direct:material-crafting:"..e.sourceId..":"..e.itemType,
+                "Made held "..e.itemType.." through native "..e.sourceId,true,e)
+        else relation(state,"transform","recipe:"..e.sourceId,"output:"..e.itemType,true,e,"manufacturing") end
     elseif e.kind=="window-repair" then
         if modelId=="ordinary" then
             remember(state,"direct:window-repair:"..e.sourceId..":"..e.itemType,

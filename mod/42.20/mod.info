@@ -1,7 +1,7 @@
 name=Survivor Awareness Overhaul
 id=SurvivorAwareness
 author=ellyj3rain
-modversion=3.8.1.0-pre-alpha
+modversion=3.9.0.0-pre-alpha
 description=Persistent survivors who perceive, believe and act. What a survivor knows comes from what they have seen, heard or been told, and what they do follows from temperament, standing, and the work a place actually needs - nothing is scripted and no behaviour table is authored. People can propose, refuse, contest and perform shared work; broader institutions remain pre-alpha. Once the helicopter has stopped coming, newcomers walk in from outside. Recreation joins personally acquired purposes, native actions, outcomes and durable private experience. Requires ZombieBuddy, which loads the Java component. Ground recovery integrates source-derived Lean & Lie mechanics with SAO-owned animation nodes and native game clips: the conditions the county's people carry are the mod's own traits, and other survivor mods are recognised where present and never depended on. SAO's license and source attribution are in LICENSE and CREDITS.md; Project Viewpoint's original notice is in VIEWPOINT-LICENSE.txt.
 icon=icon.png
 poster=poster.png

@@ -161,7 +161,7 @@
     SAO.Controller.agents.witness = nil
     __bodies.witness = nil
     check('loaded_missing_body_refused',not C.canConverse('actor','witness'))
-    __player = {getUsername=function() return 'operator' end}
+    __player = {getUsername=function() return 'operator' end, getModData=function() return {} end}
     local playerHeard = C.canConverse('actor','player:operator')
     check('loaded_player_identity',playerHeard and __nativeCalls[#__nativeCalls].listener == __player
         and not C.canConverse('actor','player:someone-else'))

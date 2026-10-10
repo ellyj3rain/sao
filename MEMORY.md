@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `3.8.1.0-pre-alpha` |
+| Version | `3.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -83,8 +83,9 @@ current. Nothing at the root is unclassified.
 - [PUBLISHING.md](PUBLISHING.md) - what a Workshop upload needs, read from the game's own template; blocked on art, deliberately not staged.
 - [GROUNDED_DEAD_PROPOSAL.md](GROUNDED_DEAD_PROPOSAL.md) - PROPOSED: the zombie-population derivation (demography x lore x mechanism fork) awaiting the operator's ratification; nothing in it is behavior.
 
-`artifacts/docx/` holds generated readable exports and historical snapshots.
-Its README states export currency; corresponding Markdown is the current source.
+Ordinary project documentation has one current Markdown source. Separately
+requested formats belong to that request and receive no automatic companion
+generation or current-document status.
 
 
 ### 2026-10-09 10:17 UTC / 03:17 PST — observed restored-body inquiry recovery and connected asset library
@@ -95,33 +96,8 @@ The full inherited 35-contract/shared-goal mandate and FIFO continue: D3 constru
 
 Current verification assessment is Neo-owned through `neo-verification-assessment`. The D2-preclosure session snapshot under `Batches/history/d2-before-closure/` is dated history; SESSION_STATE is the current concise source.
 
-## Generated current DOCX companions
+## Current D3 record
 
-Markdown owns the current text; these are generated human-readable companions.
-
-| File | Status | Role |
-|---|---|---|
-| `ARCHITECTURE.docx` | GENERATED | Current named Markdown companion. |
-| `BATCH_LOG.docx` | GENERATED | Current named Markdown companion. |
-| `BRANCHING.docx` | GENERATED | Current named Markdown companion. |
-| `CORE.docx` | GENERATED | Current named Markdown companion. |
-| `DECISION_REGISTRY.docx` | GENERATED | Current named Markdown companion. |
-| `ENGINE_CONTRACT.docx` | GENERATED | Current named Markdown companion. |
-| `FINDINGS.docx` | GENERATED | Current named Markdown companion. |
-| `GOVERNANCE.docx` | GENERATED | Current named Markdown companion. |
-| `GROUNDED_DEAD_PROPOSAL.docx` | GENERATED | Current named Markdown companion. |
-| `KNOX_SOCIAL_AUDIT.docx` | GENERATED | Current named Markdown companion. |
-| `MAPS.docx` | GENERATED | Current named Markdown companion. |
-| `MEMORY.docx` | GENERATED | Current named Markdown companion. |
-| `NEO.docx` | GENERATED | Current named Markdown companion. |
-| `ORGANIZATION.docx` | GENERATED | Current named Markdown companion. |
-| `PLAYABILITY.docx` | GENERATED | Current named Markdown companion. |
-| `POSITION.docx` | GENERATED | Current named Markdown companion. |
-| `PROJECTS.docx` | GENERATED | Current named Markdown companion. |
-| `README.docx` | GENERATED | Current named Markdown companion. |
-| `RECEIPTS.docx` | GENERATED | Current named Markdown companion. |
-| `REPRESENTATION.docx` | GENERATED | Current named Markdown companion. |
-| `ROADMAP.docx` | GENERATED | Current named Markdown companion. |
-| `SESSION_STATE.docx` | GENERATED | Current named Markdown companion. |
-| `SUBSTRATE.docx` | GENERATED | Current named Markdown companion. |
-| `VERSION_MAP.docx` | GENERATED | Current named Markdown companion. |
+[D3 construction, crafting, repair and utilities](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md)
+is OPEN. Its first material-work join and scoped native evidence are recorded
+there; the whole domain continues before D4-D6. [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is CLOSED with exact private input acquisition, native plank crafting and retained construction integration. SESSION_STATE describes current standing and the child's once-only delivered version credit.

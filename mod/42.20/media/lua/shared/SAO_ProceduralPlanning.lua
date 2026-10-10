@@ -13,6 +13,8 @@ if not SAO.SituationAppraisal and type(require)=="function" then pcall(require,"
 local retainSituation=SAO.SituationAppraisal and SAO.SituationAppraisal.bindPlanner(P)
 local RESOURCE_RESULT = {}
 local WINDOW_REPAIR_RESULT = {}
+local BARRICADE_RESULT = {}
+local CRAFT_RESULT = {}
 local INSTRUMENT_RESULT = {}
 local NOTE_RESULT = {}
 local HOBBY_RESULT = {}
@@ -528,11 +530,16 @@ end
 local function setPlan(purpose, steps, blockers, interpretations, at)
     local prior = {}
     for _, step in ipairs(purpose.steps or {}) do prior[step.id] = step end
-    if purpose.resourceCategory then
+    if purpose.resourceCategory or purpose.materialWork then
         local kept = {}
         for _, step in ipairs(steps) do kept[step.id] = true end
         for _, old in ipairs(purpose.steps or {}) do
-            if old.status == "completed" and not kept[old.id] then
+            local replacement = nil
+            if purpose.materialWork then
+                for _, step in ipairs(steps) do if step.id == old.id then replacement = step; break end end
+            end
+            if old.status == "completed" and (not kept[old.id]
+                or replacement and replacement.target ~= old.target) then
                 purpose.completedSteps = purpose.completedSteps or {}
                 purpose.completedSteps[#purpose.completedSteps + 1] = dataCopy(old)
                 if #purpose.completedSteps > 16 then table.remove(purpose.completedSteps, 1) end
@@ -541,7 +548,10 @@ local function setPlan(purpose, steps, blockers, interpretations, at)
     end
     for _, step in ipairs(steps) do
         local old = prior[step.id]
-        if old and old.status == "completed" then
+        if old and old.status == "completed" and (not purpose.materialWork
+            or old.owner == step.owner and old.target == step.target
+                and old.sourceId == step.sourceId and old.sourceRevision == step.sourceRevision
+                and old.itemId == step.itemId and old.itemType == step.itemType) then
             step.status, step.completedAt = old.status, old.completedAt
         end
     end
@@ -896,7 +906,7 @@ function P.deferResourceRoute(id, purposeId, stepId, reason, atHours)
     local s = state(id)
     local purpose = s and s.purposes[purposeId]
     local step = purpose and purpose.steps[purpose.cursor]
-    if not purpose or not purpose.resourceCategory or purpose.admission
+    if not purpose or not (purpose.resourceCategory or purpose.materialWork) or purpose.admission
         or purpose.status == "completed" or purpose.status == "abandoned"
         or not step or step.id ~= stepId then return false end
     local at = finite(atHours) and atHours or nowHours()
@@ -1218,55 +1228,194 @@ function P.planStudy(id, designation, context)
     return purpose, purpose.steps[purpose.cursor]
 end
 
+local function materialAcquisitionId(source)
+    return "acquire:" .. source.category .. ":" .. tostring(source.sourceId)
+        .. ":" .. tostring(source.revision) .. ":" .. tostring(source.itemId)
+end
+
+local function materialSource(purpose, sources, category, at)
+    local best, bestDistance, delayed
+    for index, source in ipairs(type(sources) == "table" and sources or {}) do
+        if index > 128 then break end
+        if type(source) == "table" and source.known == true and source.category == category
+            and type(source.sourceId) == "string" and source.sourceId ~= ""
+            and source.revision ~= nil and (type(source.revision) == "string" or finite(source.revision))
+            and (type(source.itemId) == "string" or finite(source.itemId))
+            and type(source.itemType) == "string" and source.itemType ~= ""
+            and type(source.place) == "table"
+            and (category ~= "glass-pane" or source.itemType == "RepairableWindows.LargeGlassPane")
+            and (category ~= "nails" or source.itemType == "Base.Nails")
+            and (category ~= "log" or source.itemType == "Base.Log") then
+            local stepId, used, retry = materialAcquisitionId(source), false, false
+            for _, ledger in ipairs({ purpose.steps or {}, purpose.completedSteps or {} }) do
+                for _, old in ipairs(ledger) do
+                    if old.id == stepId and old.status == "completed" then used = true; break end
+                end
+            end
+            for _, failure in ipairs(purpose.routeFailures or {}) do
+                if failure.stepId == stepId and finite(failure.retryAt) and at < failure.retryAt then retry = true end
+            end
+            local distance = finite(source.distance) and math.max(0, source.distance) or math.huge
+            if not used and not retry and (not best or distance < bestDistance) then
+                best, bestDistance = source, distance
+            elseif not used and retry then delayed = true end
+        end
+    end
+    return best, delayed
+end
+
 function P.planFortification(id, context)
     context = type(context) == "table" and context or {}
-    if context.operation == "repair" then
-        if type(context.entryKey) ~= "string" then return nil, "window-not-observed" end
-        local purpose = P.maintain(id, { key = "repair:" .. context.entryKey,
-            objective = "replace glass in a damaged entrance on held ground",
-            domain = "construction", origin = "place-security", atHours = context.atHours })
-        if not purpose then return nil, "person-unavailable" end
-        local blockers = {}
-        if not context.insideOwnedGround then blockers[#blockers + 1] = "not-on-owned-ground" end
-        if not context.knownGround then blockers[#blockers + 1] = "window-not-observed" end
-        if not context.hasPane then blockers[#blockers + 1] = "missing-carried-glass" end
-        setPlan(purpose, {{ id = "repair-known-window", verb = "construct", owner = "SAO.WindowRepair",
-            status = #blockers == 0 and "available" or "blocked", token = "construction:window-repaired",
-            target = context.entryKey }}, blockers, interpretations(id, {
-                { id = "repair", evidence = context.knownGround and 0.9 or 0.1,
-                  continuity = 0.7, novelty = 0.1, informationGain = 0.3, blockers = #blockers }
-            }, { domain = "construction", pressure = tonumber(context.pressure) or 0 }),
-            finite(context.atHours) and context.atHours or nowHours())
-        purpose.windowRepair = true
-        return purpose, purpose.steps[purpose.cursor]
+    local repair = context.operation == "repair"
+    if repair and (type(context.entryKey) ~= "string" or context.entryKey == "") then
+        return nil, "window-not-observed"
     end
-    local purpose = P.maintain(id, { key = "fortify-home",
-        objective = "reduce exposed entrances on held ground",
+    local purpose = P.maintain(id, { key = repair and "repair:" .. context.entryKey or "fortify-home",
+        objective = repair and "replace glass in a damaged entrance on held ground"
+            or "reduce exposed entrances on held ground",
         domain = "construction", origin = "place-security", atHours = context.atHours })
     if not purpose then return nil, "person-unavailable" end
+    local current = purpose.steps[purpose.cursor]
+    -- Native admission fixes the exact material or aperture until its owner
+    -- hands back a terminal result, even when newer observations arrive.
+    if purpose.admission then return purpose, current end
+    local at = finite(context.atHours) and context.atHours or nowHours()
+    purpose.windowRepair = repair or nil
+    purpose.materialWork = { operation = repair and "repair" or "board", entryKey = context.entryKey }
+    if context.observedEntry == true then purpose.constructionTargetRefusal = nil end
+    local destination = context.destination
+    if type(destination) == "table" and destination.key == context.entryKey
+        and finite(destination.x) and finite(destination.y) and finite(destination.z) then
+        purpose.constructionDestination = { key = destination.key, x = destination.x,
+            y = destination.y, z = destination.z }
+    elseif purpose.constructionDestination and purpose.constructionDestination.key ~= context.entryKey then
+        purpose.constructionDestination = nil
+    end
     local steps, blockers = {}, {}
     if not context.insideOwnedGround then blockers[#blockers + 1] = "not-on-owned-ground" end
     if not context.knownGround then
-        steps[#steps + 1] = { id = "survey-entrances", verb = "inspect",
-            owner = "SAOBuild", status = "available", token = "ground:surveyed" }
+        if repair then blockers[#blockers + 1] = "window-not-observed"
+        else steps[#steps + 1] = { id = "survey-entrances", verb = "inspect", owner = "SAOBuild",
+            status = context.insideOwnedGround and "available" or "blocked", token = "ground:surveyed" } end
     end
-    if not context.hasKit then blockers[#blockers + 1] = "missing-barricade-materials" end
-    steps[#steps + 1] = { id = "board-known-entry", verb = "construct",
-        owner = "SAOBuild", status = (#blockers == 0 and context.entryKey)
-            and "available" or "blocked", token = "construction:boarded",
-        target = context.entryKey }
-    steps[#steps + 1] = { id = "inspect-result", verb = "verify",
-        owner = "SAOGround", status = "dependent", token = "ground:verified" }
+    local recipe = repair and {{ "glass-pane", 1 }} or {{ "hammer", 1 }, { "plank", 1 }, { "nails", 2 }}
+    local supplied, selected, craftStep = true, nil, nil
+    for _, need in ipairs(recipe) do
+        local category, count = need[1], nil
+        if type(context.materials) == "table" then count = context.materials[category]
+        elseif repair and context.hasPane or not repair and context.hasKit then count = need[2] end
+        count = finite(count) and math.max(0, math.floor(count)) or 0
+        if count < need[2] then
+            supplied = false
+            local source, delayed = materialSource(purpose, context.sources and context.sources[category], category, at)
+            if category == "plank" and not source and context.craftingAvailable == true then
+                local craftReady, means = true, nil
+                for _, input in ipairs({ "log", "saw" }) do
+                    local held = context.materials and context.materials[input] or 0
+                    if not finite(held) or held < 1 then
+                        craftReady = false
+                        local known, wait = materialSource(purpose, context.sources and context.sources[input], input, at)
+                        if not means and known then means = known end
+                        if not known then blockers[#blockers + 1] = wait and "known-route-retry-delayed"
+                            or "missing-known-" .. input end
+                    end
+                end
+                if craftReady and type(context.craftInputs) == "table" then
+                    local inputs = context.craftInputs
+                    if inputs.logItemId and inputs.logItemType == "Base.Log" and inputs.sawItemId
+                        and type(inputs.sawItemType) == "string" then
+                        local stepId = "craft-planks:" .. tostring(inputs.logItemId) .. ":" .. tostring(inputs.sawItemId)
+                        local waiting = false
+                        for _, failure in ipairs(purpose.routeFailures or {}) do
+                            if failure.stepId == stepId and finite(failure.retryAt) and at < failure.retryAt then waiting = true end
+                        end
+                        craftStep = { id = stepId, verb = "produce", owner = "SAO.ResourceProduction",
+                            token = "resource:crafted", target = "Base.SawLogs", recipeId = "Base.SawLogs",
+                            productionKind = "saw-logs", category = "plank", quantity = 3,
+                            logItemId = tostring(inputs.logItemId), logItemType = inputs.logItemType,
+                            sawItemId = tostring(inputs.sawItemId), sawItemType = inputs.sawItemType,
+                            status = waiting and "blocked" or "available" }
+                        if waiting then blockers[#blockers + 1] = "native-craft-retry-delayed" end
+                    end
+                end
+                source = means
+            end
+            if not source and not craftStep then blockers[#blockers + 1] = delayed and "known-route-retry-delayed"
+                or "missing-known-" .. category end
+            if not selected and source and context.insideOwnedGround and context.knownGround and context.entryKey then
+                selected = source
+            end
+        end
+    end
+    if selected then
+        steps[#steps + 1] = { id = materialAcquisitionId(selected), verb = "acquire", owner = "SAO.SourceUse",
+            token = "resource:acquired", target = selected.sourceId .. ":" .. tostring(selected.itemId),
+            category = selected.category, sourceId = selected.sourceId, sourceRevision = selected.revision,
+            itemId = selected.itemId, itemType = selected.itemType, place = dataCopy(selected.place),
+            quantity = 1, quantityUnit = "item", status = "available" }
+    elseif craftStep and context.insideOwnedGround and context.knownGround and context.entryKey then
+        steps[#steps + 1] = craftStep
+    end
+    local ready = supplied and context.knownGround and context.insideOwnedGround and context.entryKey
+    local constructionId = repair and "repair-known-window" or "board-known-entry"
+    if not repair and type(context.materials) == "table" then
+        constructionId = constructionId .. ":" .. tostring(context.entryKey) .. ":" .. purpose.id
+    end
+    steps[#steps + 1] = { id = constructionId, verb = "construct",
+        owner = repair and "SAO.WindowRepair" or "SAOBuild",
+        token = repair and "construction:window-repaired" or "construction:boarded", target = context.entryKey,
+        status = ready and "available" or (selected or craftStep) and "dependent" or "blocked" }
     setPlan(purpose, steps, blockers, interpretations(id, {
-        { id = "board", evidence = context.entryKey and 0.9 or 0.2,
-            continuity = 0.7, novelty = 0.1, informationGain = 0.3,
-            blockers = #blockers },
+        { id = repair and "repair" or "board", evidence = context.knownGround and 0.9 or 0.2,
+            continuity = 0.7, novelty = 0.1, informationGain = 0.3, blockers = #blockers },
         { id = "survey", evidence = context.knownGround and 0.8 or 0.4,
             continuity = 0.4, novelty = 0.2, informationGain = 0.9,
             blockers = context.insideOwnedGround and 0 or 1 },
-    }, { domain = "construction", pressure = tonumber(context.pressure) or 0 }),
-        finite(context.atHours) and context.atHours or nowHours())
+    }, { domain = "construction", pressure = tonumber(context.pressure) or 0 }), at)
+    purpose.selectedStrategy = selected and materialAcquisitionId(selected) or craftStep and craftStep.id or nil
     return purpose, purpose.steps[purpose.cursor]
+end
+
+function P.deferConstructionTarget(id, purposeId, entryKey, reason)
+    local s = state(id)
+    local purpose = s and s.purposes[purposeId]
+    local step = purpose and purpose.steps[purpose.cursor]
+    local at = nowHours()
+    if not purpose or purpose.admission or not purpose.materialWork
+        or purpose.materialWork.entryKey ~= entryKey or not step or step.verb ~= "construct"
+        or step.target ~= entryKey or not finite(at) then return false end
+    purpose.constructionTargetRefusal = { entryKey = entryKey, atHours = at, retryAt = at + 0.1 }
+    step.status, purpose.status = "blocked", "blocked"
+    purpose.blockers = { "native-entry-revalidation-required" }
+    addEvent(purpose, "construction-target-refused", tostring(reason or "native-entry-unavailable"), at)
+    return true
+end
+
+function P.constructionDestination(id)
+    local s = state(id)
+    local selected, priority
+    for _, key in ipairs(s and s.order or {}) do
+        local purpose = s.purposes[key]
+        local work, destination = purpose and purpose.materialWork, purpose and purpose.constructionDestination
+        local refusal = purpose and purpose.constructionTargetRefusal
+        local at = nowHours()
+        local waiting = type(refusal) == "table" and work and refusal.entryKey == work.entryKey
+            and finite(refusal.atHours) and finite(refusal.retryAt)
+            and at >= refusal.atHours and at < refusal.retryAt
+        if work and destination and destination.key == work.entryKey
+            and purpose.status ~= "completed" and purpose.status ~= "abandoned"
+            and (purpose.admission or not waiting) then
+            local step = purpose.steps[purpose.cursor]
+            local rank = purpose.admission and 1 or step and step.status == "available" and 2 or 3
+            if not selected or rank < priority then selected, priority = purpose, rank end
+        end
+    end
+    if selected then
+        local work, destination = selected.materialWork, selected.constructionDestination
+        return { purposeId = selected.id, operation = work.operation, entryKey = work.entryKey,
+            x = destination.x, y = destination.y, z = destination.z,
+            pendingAdmission = selected.admission ~= nil, status = selected.status }
+    end
 end
 
 local function leisurePurpose(id, activity, itemKey, unfinishedInstrument)
@@ -2257,6 +2406,9 @@ function P.noteAdmission(id, purposeId, owner, correlationId, stepId, authority)
     if purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
     if purpose.hobby and authority ~= HOBBY_RESULT then return false end
     local step = purpose.steps[purpose.cursor]
+    if purpose.materialWork and (not step or step.status ~= "available" or step.owner ~= owner
+        or stepId and stepId ~= step.id or step.verb == "acquire" and stepId ~= step.id
+        or purpose.admission) then return false end
     if purpose.resourceCategory and (not step or step.owner ~= owner) then return false end
     if purpose.resourceCategory and step.owner == "SAO.WorldSources" and not step.sourceId then return false end
     if stepId and (not step or step.id ~= stepId or step.owner ~= owner) then return false end
@@ -2282,10 +2434,22 @@ end
 function P.recordResult(id, purposeId, result, authority)
     local s = state(id)
     local purpose = s and s.purposes[tostring(purposeId or "")]
+    local step = purpose and purpose.steps[purpose.cursor]
     if purpose and purpose.leisureAcquisition and not purpose.leisure and authority ~= RESOURCE_RESULT then return false end
     if purpose and purpose.conflict then return false end
     if purpose and purpose.resourceCategory and authority ~= RESOURCE_RESULT then return false end
-    if purpose and purpose.windowRepair and authority ~= WINDOW_REPAIR_RESULT then return false end
+    if purpose and purpose.windowRepair and (not step or step.owner ~= "SAO.SourceUse") then
+        if purpose and purpose.windowRepair and authority ~= WINDOW_REPAIR_RESULT then return false end
+    end
+    if purpose and purpose.materialWork then
+        if not step then return false end
+        if step.owner == "SAO.SourceUse" and (step.verb ~= "acquire" or step.token ~= "resource:acquired"
+            or authority ~= RESOURCE_RESULT) then return false end
+        if step.owner == "SAOBuild" and step.token == "construction:boarded"
+            and authority ~= BARRICADE_RESULT then return false end
+        if step.owner == "SAO.ResourceProduction" and (step.token ~= "resource:crafted"
+            or step.verb ~= "produce" or authority ~= CRAFT_RESULT) then return false end
+    end
     if purpose and purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
     if purpose and purpose.noteReading and authority ~= NOTE_RESULT then return false end
     if purpose and purpose.hobby and authority ~= HOBBY_RESULT then return false end
@@ -2300,8 +2464,8 @@ function P.recordResult(id, purposeId, result, authority)
     for _, key in ipairs(purpose.resultReceipts or {}) do
         if key == receiptKey then return true end
     end
-    local step = purpose.steps[purpose.cursor]
     if not step or step.owner ~= result.owner or step.token ~= result.token then return false end
+    if purpose.materialWork and step.verb ~= "inspect" and not result.correlationId then return false end
     if result.correlationId and (not purpose.admission
         or purpose.admission.owner ~= result.owner
         or purpose.admission.correlationId ~= result.correlationId
@@ -2347,8 +2511,9 @@ function P.recordResult(id, purposeId, result, authority)
             practice.failed, practice.lastAt = practice.failed + 1, at
             s.practice[key] = practice
         end
-        if purpose.resourceCategory and (result.status == "failed" or result.routeFailure == true) then
-            resourceFailure(purpose, purpose.selectedStrategy, result.reason, at, step.id)
+        if (purpose.resourceCategory or purpose.materialWork) and (result.status == "failed"
+            or result.routeFailure == true or purpose.materialWork and result.status == "interrupted") then
+            resourceFailure(purpose, purpose.selectedStrategy or step.id, result.reason, at, step.id)
         end
     end
     purpose.updatedAt = at
@@ -2357,7 +2522,7 @@ function P.recordResult(id, purposeId, result, authority)
         purpose.resultReceipts[#purpose.resultReceipts + 1] = receiptKey
         if #purpose.resultReceipts > MAX_EVENTS then table.remove(purpose.resultReceipts, 1) end
     end
-    if purpose.resourceCategory or purpose.windowRepair or purpose.leisure or purpose.leisureAcquisition then
+    if purpose.resourceCategory or purpose.materialWork or purpose.windowRepair or purpose.leisure or purpose.leisureAcquisition then
         purpose.lastAdmission = dataCopy(purpose.admission)
         purpose.admission = nil
     end
@@ -2408,7 +2573,8 @@ function P.consumeWindowRepairOutcome(id, sequence)
     local result = owner and owner.outcome(id, sequence)
     local s = state(id)
     local purpose = result and s and s.purposes[result.purposeId]
-    if not result or not purpose or not purpose.windowRepair then return false end
+    if not result or not purpose or not purpose.windowRepair or result.actorId ~= id
+        or result.sequence ~= sequence then return false end
     local admission = purpose.admission or purpose.lastAdmission
     if not admission or admission.owner ~= "SAO.WindowRepair"
         or admission.correlationId ~= result.workId
@@ -2418,8 +2584,40 @@ function P.consumeWindowRepairOutcome(id, sequence)
         atHours = result.endedAt }
     if result.status == "completed" and (result.paneConsumed ~= true or result.smashedBefore ~= true
         or result.smashedAfter ~= false or result.glassRemovedAfter ~= false) then return false end
+    for _, key in ipairs(purpose.resultReceipts or {}) do
+        if key == "SAO.WindowRepair:" .. tostring(result.workId) then return owner.acknowledge(id, sequence) end
+    end
     if not P.recordResult(id, purpose.id, receipt, WINDOW_REPAIR_RESULT) then return false end
     return owner.acknowledge(id, sequence)
+end
+
+function P.consumeBarricadeOutcome(id, sequence)
+    local owner = SAO.Build
+    local result = owner and owner.outcome and owner.outcome(id, sequence)
+    local s = state(id)
+    local purpose = result and s and s.purposes[result.purposeId]
+    local work = purpose and purpose.materialWork
+    local admission = purpose and (purpose.admission or purpose.lastAdmission)
+    local step = purpose and purpose.steps[purpose.cursor]
+    if not result or not work or work.operation ~= "board" or result.actorId ~= id
+        or result.sequence ~= sequence or result.nativeOwner ~= "ISBarricadeAction"
+        or not admission or admission.owner ~= "SAOBuild" or admission.correlationId ~= result.workId
+        or admission.target ~= result.entryKey or work.entryKey ~= result.entryKey
+        or not finite(result.endedAt) or result.endedAt < admission.at or result.endedAt > nowHours()
+        or result.status ~= "completed" and result.status ~= "failed" and result.status ~= "interrupted" then return false end
+    if result.status == "completed" and (result.plankConsumed ~= true or result.nailsConsumed ~= 2
+        or result.barricadeChanged ~= true) then return false end
+    for _, key in ipairs(purpose.resultReceipts or {}) do
+        if key == "SAOBuild:" .. tostring(result.workId) then
+            return owner.acknowledge and owner.acknowledge(id, sequence) == true
+        end
+    end
+    if not step or step.owner ~= "SAOBuild" or step.token ~= "construction:boarded"
+        or admission.stepId ~= step.id or step.target ~= result.entryKey then return false end
+    if not P.recordResult(id, purpose.id, { owner = "SAOBuild", token = "construction:boarded",
+        correlationId = result.workId, status = result.status, reason = result.reason,
+        atHours = result.endedAt }, BARRICADE_RESULT) then return false end
+    return owner.acknowledge and owner.acknowledge(id, sequence) == true
 end
 
 function P.consumeSourceResult(receipt)
@@ -2435,6 +2633,8 @@ function P.consumeSourceResult(receipt)
     if authoritative.operation ~= "acquire" then return false end
     local step = purpose.steps[purpose.cursor]
     local admission = purpose.admission
+    if purpose.materialWork and (authoritative.actorId ~= receipt.actorId
+        or authoritative.reservationId ~= receipt.reservationId) then return false end
     if not step or not admission or step.id ~= authoritative.purposeStepId
         or admission.correlationId ~= authoritative.reservationId
         or admission.stepId ~= step.id or admission.target ~= step.target then
@@ -2452,6 +2652,12 @@ function P.consumeSourceResult(receipt)
         return true, "purpose-attempt-superseded"
     end
     local completed = authoritative.status == "completed"
+    if purpose.materialWork and (step.owner ~= "SAO.SourceUse" or step.verb ~= "acquire"
+        or step.token ~= "resource:acquired" or admission.owner ~= "SAO.SourceUse"
+        or step.sourceId ~= authoritative.sourceId or step.sourceRevision ~= authoritative.preRevision
+        or step.itemId ~= authoritative.itemId or step.itemType ~= authoritative.itemType
+        or step.category ~= authoritative.category or not finite(authoritative.at)
+        or authoritative.at < admission.at or authoritative.at > nowHours()) then return false end
     if completed and (authoritative.measurement ~= "native-item-transfer"
         or (tonumber(authoritative.observedQuantity) or 0) <= 0) then return false end
     if completed and purpose.resourceCategory and (step.sourceId ~= authoritative.sourceId
@@ -2558,6 +2764,66 @@ function P.consumeInspectionResult(id, receipt)
         purpose.status, purpose.awaitingStock, purpose.awaitingReassessment = "maintained", nil, true
     end
     return consumed
+end
+
+function P.admitCraftProduction(id, work)
+    if type(work) ~= "table" or type(work.id) ~= "string" or work.actorId ~= id
+        or work.kind ~= "saw-logs" or work.recipeId ~= "Base.SawLogs" then return false end
+    local s = state(id)
+    local purpose = s and s.purposes[work.requestedPurposeId or work.purposeId]
+    local step = purpose and purpose.steps[purpose.cursor]
+    if not purpose or not purpose.materialWork or purpose.materialWork.operation ~= "board"
+        or purpose.status == "completed" or purpose.status == "abandoned" or not step
+        or step.id ~= (work.requestedPurposeStepId or work.purposeStepId)
+        or step.owner ~= "SAO.ResourceProduction" or step.verb ~= "produce"
+        or step.productionKind ~= work.kind or step.recipeId ~= work.recipeId
+        or step.token ~= "resource:crafted" or step.status ~= "available"
+        or step.logItemId ~= work.logItemId or step.logItemType ~= work.logItemType
+        or step.sawItemId ~= work.sawItemId or step.sawItemType ~= work.sawItemType then return false end
+    if purpose.admission then return false end
+    local admitted = P.noteAdmission(id, purpose.id, step.owner, work.id, step.id)
+    if admitted then work.purposeId, work.purposeStepId = purpose.id, step.id end
+    return admitted
+end
+
+function P.consumeCraftProductionResult(id, receipt)
+    if type(receipt) ~= "table" or type(receipt.id) ~= "string" then return false end
+    local owner = SAO.ResourceProduction
+    local canonical = owner and owner.outcome and owner.outcome(id, receipt.id)
+    if not canonical or canonical.actorId ~= id or canonical.id ~= receipt.id
+        or canonical.purposeId ~= receipt.purposeId or canonical.kind ~= "saw-logs"
+        or canonical.recipeId ~= "Base.SawLogs" or canonical.token ~= "resource:crafted"
+        or canonical.nativeOwner ~= "ISHandcraftAction" or not finite(canonical.atHours)
+        or canonical.atHours > nowHours() or (canonical.status ~= "completed"
+            and canonical.status ~= "interrupted" and canonical.status ~= "failed") then return false end
+    local s = state(id)
+    local purpose = s and s.purposes[canonical.purposeId]
+    if not purpose or purpose.status == "abandoned" then return true, "purpose-retired" end
+    local receiptKey = "SAO.ResourceProduction:" .. canonical.id
+    for _, seen in ipairs(purpose.resultReceipts or {}) do if seen == receiptKey then return true end end
+    local step, admission = purpose.steps[purpose.cursor], purpose.admission
+    if not purpose.materialWork or purpose.materialWork.operation ~= "board" or not step or not admission
+        or step.owner ~= "SAO.ResourceProduction" or step.token ~= "resource:crafted"
+        or step.id ~= canonical.purposeStepId or admission.stepId ~= step.id
+        or admission.owner ~= step.owner or admission.correlationId ~= canonical.id
+        or admission.target ~= step.target or canonical.atHours < admission.at
+        or canonical.recipeId ~= step.recipeId or canonical.kind ~= step.productionKind
+        or canonical.logItemId ~= step.logItemId or canonical.logItemType ~= step.logItemType
+        or canonical.sawItemId ~= step.sawItemId or canonical.sawItemType ~= step.sawItemType then return false end
+    if canonical.status == "completed" then
+        if canonical.nativeCredit ~= canonical.id or canonical.nativeAttempted ~= true
+            or canonical.logConsumed ~= true or canonical.sawRetained ~= true or canonical.held ~= true
+            or canonical.outputCount ~= 3 or type(canonical.outputs) ~= "table" or #canonical.outputs ~= 3 then return false end
+        local outputs = {}
+        for _, item in ipairs(canonical.outputs) do
+            if type(item) ~= "table" or item.itemType ~= "Base.Plank" or type(item.itemId) ~= "string"
+                or item.itemId == "" or outputs[item.itemId] then return false end
+            outputs[item.itemId] = true
+        end
+    end
+    return P.recordResult(id, purpose.id, { owner = "SAO.ResourceProduction", token = "resource:crafted",
+        status = canonical.status, correlationId = canonical.id, reason = canonical.detail,
+        atHours = canonical.atHours }, CRAFT_RESULT)
 end
 
 function P.admitProduction(id, work)
