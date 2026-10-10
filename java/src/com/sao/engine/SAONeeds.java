@@ -1176,6 +1176,10 @@ public final class SAONeeds {
                 return item.hasTag(zombie.scripting.objects.ItemTag.SAW)
                     && item.getCondition() > 0 && !item.isBroken()
                     && !item.getIsCraftingConsumed();
+            case "file":
+                return item.hasTag(zombie.scripting.objects.ItemTag.FILE)
+                    && item.getCondition() > 0 && !item.isBroken()
+                    && !item.getIsCraftingConsumed();
             case "nails":
                 return "Base.Nails".equals(item.getFullType())
                     || "Base.NailsBox".equals(item.getFullType());

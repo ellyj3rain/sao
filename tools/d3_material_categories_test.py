@@ -156,11 +156,22 @@ public final class D3MaterialProbe {
         log.setIsCraftingConsumed(true);check("consumed_log_refused",!SAONeeds.wantsMaterial(log,"log"));log.setIsCraftingConsumed(false);
         check("source_log_category",List.of(cats(log).split(",")).contains("log"));
         check("source_saw_category",List.of(cats(saw).split(",")).contains("saw"));
+        var file=nativeItems.get("Base.File");file.setID(77110003);
+        for(var type:List.of("Base.File","Base.SmallFileSet"))
+            check("native_file_"+type,SAONeeds.wantsMaterial(nativeItems.get(type),"file"));
+        for(var item:List.of(hammer,saw,nativeItems.get("Base.Plank"),nativeItems.get("Base.GlassPanel")))
+            check("nonfile_"+item.getFullType(),!SAONeeds.wantsMaterial(item,"file"));
+        int fileCondition=file.getCondition();file.setCondition(0);
+        check("zero_condition_file_refused",!SAONeeds.wantsMaterial(file,"file"));file.setCondition(fileCondition);
+        broken.setBoolean(file,true);check("broken_file_refused",!SAONeeds.wantsMaterial(file,"file"));broken.setBoolean(file,false);
+        file.setIsCraftingConsumed(true);check("consumed_file_refused",!SAONeeds.wantsMaterial(file,"file"));file.setIsCraftingConsumed(false);
+        check("source_file_category",List.of(cats(file).split(",")).contains("file"));
         check("source_pane_category",cats(pane).contains("glass-pane"));
         check("source_hammer_category",List.of(cats(hammer).split(",")).contains("hammer"));
         var bag=(InventoryContainer)nativeItems.get("Base.Bag_Schoolbag");
         body.getInventory().AddItem(bag);bag.getInventory().AddItem(pane);bag.getInventory().AddItem(hammer);
         bag.getInventory().AddItem(log);bag.getInventory().AddItem(saw);
+        bag.getInventory().AddItem(file);
         var plank=nativeItems.get("Base.Plank");var nails=nativeItems.get("Base.Nails");
         body.getInventory().AddItem(plank);bag.getInventory().AddItem(nails);
         var nailsBox=nativeItems.get("Base.NailsBox");other.getInventory().AddItem(nailsBox);
@@ -168,6 +179,7 @@ public final class D3MaterialProbe {
         check("nested_hammer_count",SAOBridge.INSTANCE.constructionMaterialCount(body,"hammer")==1);
         check("nested_log_count",SAOBridge.INSTANCE.constructionMaterialCount(body,"log")==1);
         check("nested_saw_count",SAOBridge.INSTANCE.constructionMaterialCount(body,"saw")==1);
+        check("nested_file_count",SAOBridge.INSTANCE.constructionMaterialCount(body,"file")==1);
         check("plank_count",SAOBridge.INSTANCE.constructionMaterialCount(body,"plank")==1);
         check("nails_count",SAOBridge.INSTANCE.constructionMaterialCount(body,"nails")==1);
         nails.setIsCraftingConsumed(true);
@@ -181,12 +193,15 @@ public final class D3MaterialProbe {
         var dormant=SAOPrivateInventory.encodeDormant("opaque-person",packed);
         check("dormant_exact_pane",dormant.contains("id=918273645|type=RepairableWindows.LargeGlassPane"));
         check("dormant_exact_hammer",dormant.contains("id=87123456|type=Base.Hammer"));
+        check("dormant_exact_file",dormant.contains("id=77110003|type=Base.File"));
         var restored=(SAOIsoPlayerShell)person.invoke(null,cell);SAONativeSnapshot.restoreStaged(restored,packed);
         check("restored_pane_count",SAOBridge.INSTANCE.constructionMaterialCount(restored,"glass-pane")==1);
         check("restored_hammer_count",SAOBridge.INSTANCE.constructionMaterialCount(restored,"hammer")==1);
         check("restored_log_count",SAOBridge.INSTANCE.constructionMaterialCount(restored,"log")==1);
         check("restored_saw_count",SAOBridge.INSTANCE.constructionMaterialCount(restored,"saw")==1);
-        var snapshot=source("container","C:opaque-material-owner:0",pane,hammer,plank,nails,log,saw);
+        check("restored_file_count",SAOBridge.INSTANCE.constructionMaterialCount(restored,"file")==1);
+        var snapshot=source("container","C:opaque-material-owner:0",pane,hammer,plank,nails,log,saw,file);
+        check("offscreen_source_file",snapshot.contains("|q:file=1.000000"));
         check("offscreen_source_pane",snapshot.contains("|q:glass-pane=1.000000"));
         check("offscreen_source_hammer",snapshot.contains("|q:hammer=1.000000"));
         env.rawset("__nativeSnapshot",snapshot);
@@ -194,6 +209,7 @@ public final class D3MaterialProbe {
         env.rawset("__groundHammer",source("ground","G:opaque-hammer",hammer));
         env.rawset("__groundLog",source("ground","G:opaque-log",log));
         env.rawset("__groundSaw",source("ground","G:opaque-saw",saw));
+        env.rawset("__groundFile",source("ground","G:opaque-file",file));
         env.rawset("print",(JavaFunction)(f,n)->{System.out.println(f.get(0));return 0;});
         env.rawset("__roundTrip",(JavaFunction)(f,n)->{try{var bytes=java.nio.ByteBuffer.allocate(1024*1024);
             ((KahluaTable)f.get(0)).save(bytes);bytes.flip();var value=platform.newTable();value.load(bytes,249);return f.push(value);
@@ -251,9 +267,10 @@ check("saved_pane_category",saved.items["918273645"].categories["glass-pane"] an
 check("saved_hammer_category",saved.items["87123456"].categories.hammer and saved.quantities.hammer==1)
 check("saved_log_category",saved.items["77110001"].categories.log and saved.quantities.log==1)
 check("saved_saw_category",saved.items["77110002"].categories.saw and saved.quantities.saw==1)
+check("saved_file_category",saved.items["77110003"].categories.file and saved.quantities.file==1)
 options=W.actionOptions(place,"hammer","a",__bodyA,1,"standing","acquire")
 check("saved_private_hammer_option_exact",options and #options.options==1 and options.options[1].parameters.itemId==87123456)
-for _,entry in ipairs({{"log",77110001},{"saw",77110002}})do
+for _,entry in ipairs({{"log",77110001},{"saw",77110002},{"file",77110003}})do
  local own=W.actionOptions(place,entry[1],"a",__bodyA,1,"standing","acquire")
  local other,reason=W.actionOptions(place,entry[1],"b",__bodyB,1,"standing","acquire")
  check("saved_private_option_"..entry[1],own and #own.options==1 and own.options[1].parameters.itemId==entry[2])
@@ -262,7 +279,7 @@ end
 local _,unknownWhy=W.actionOptions(place,"imaginary-material","a",__bodyA,1,"standing","acquire")
 check("unknown_category_refused",unknownWhy=="unsupported-category")
 for _,entry in ipairs({{__groundPane,"G:opaque-pane","glass-pane",918273645},{__groundHammer,"G:opaque-hammer","hammer",87123456},
- {__groundLog,"G:opaque-log","log",77110001},{__groundSaw,"G:opaque-saw","saw",77110002}})do
+ {__groundLog,"G:opaque-log","log",77110001},{__groundSaw,"G:opaque-saw","saw",77110002},{__groundFile,"G:opaque-file","file",77110003}})do
  check("ground_native_snapshot_applies_"..entry[3],W.applySnapshot(W.parse(entry[1])))
  local fact=W.beliefFact(entry[2],"visible-ground")
  check("ground_private_category_"..entry[3],fact and fact.candidates[entry[3]] and fact.candidates[entry[3]].id==entry[4]
@@ -275,8 +292,10 @@ check("material_pane_category",ok and store.categories["glass-pane"]==1 and stor
 check("material_hammer_category",store.categories.hammer==1 and store.nativeSources[id].items["87123456"].categories.hammer)
 check("material_log_category",store.categories.log==1 and store.nativeSources[id].items["77110001"].categories.log)
 check("material_saw_category",store.categories.saw==1 and store.nativeSources[id].items["77110002"].categories.saw)
+check("material_file_category",store.categories.file==1 and store.nativeSources[id].items["77110003"].categories.file)
 local persisted=__roundTrip(SAO.Material.stores)
 check("material_saved_categories",persisted["house:controlled-group"].categories["glass-pane"]==1 and persisted["house:controlled-group"].categories.hammer==1)
+check("material_saved_file",persisted["house:controlled-group"].categories.file==1)
 print("PASS D3 source material categories "..checks)
 '''
 
@@ -303,7 +322,7 @@ def main():
         ('weapon.txt','Hammer'), ('weapon.txt','BallPeenHammer'), ('weapon.txt','HammerStone'),
         ('normal.txt','BallPeenHammerHead'), ('normal.txt','Saw'), ('normal.txt','GardenSaw'), ('normal.txt','Log'), ('normal.txt','GlassPanel'),
         ('normal.txt','GlassTumbler'), ('weapon.txt','Plank'), ('normal.txt','Nails'),
-        ('normal.txt','NailsBox'), ('container.txt','Bag_Schoolbag')]]
+        ('normal.txt','NailsBox'), ('container.txt','Bag_Schoolbag'), ('weapon.txt','File'), ('normal.txt','SmallFileSet')]]
     inputs = list(dict.fromkeys([Path(__file__), NEEDS, WORLD, BRIDGE, BUILD, LUA, MATERIAL, metadata,
         ROOT/'java/src/com/sao/engine/SAOPrivateInventory.java', ROOT/'java/src/com/sao/engine/SAONativeSnapshot.java',
         *helpers, *jars, GAME/'stdlib.lua', *[row[0] for row in rows]]))
@@ -365,10 +384,16 @@ def main():
                     ('saw-condition',NEEDS,'&& item.getCondition() > 0 && !item.isBroken()','', 'zero_condition_saw_refused'),
                     ('saw-broken',NEEDS,'&& !item.isBroken()','', 'broken_saw_refused'),
                     ('saw-consumed',NEEDS,'&& !item.getIsCraftingConsumed();',';', 'consumed_saw_refused'),
+                    ('file-tag',NEEDS,'item.hasTag(zombie.scripting.objects.ItemTag.FILE)','true','nonfile_Base.Hammer'),
+                    ('file-condition',NEEDS,'&& item.getCondition() > 0 && !item.isBroken()','', 'zero_condition_file_refused'),
+                    ('file-broken',NEEDS,'&& !item.isBroken()','', 'broken_file_refused'),
+                    ('file-consumed',NEEDS,'&& !item.getIsCraftingConsumed();',';', 'consumed_file_refused'),
                     ('pane-source',WORLD,'if (SAONeeds.wantsMaterial(item, "glass-pane")) out.add("glass-pane");','', 'source_pane_category'),
                     ('hammer-source',WORLD,'if (SAONeeds.wantsMaterial(item, "hammer")) out.add("hammer");','', 'source_hammer_category'),
                     ('log-source',WORLD,'if (SAONeeds.wantsMaterial(item, "log")) out.add("log");','', 'source_log_category'),
                     ('saw-source',WORLD,'if (SAONeeds.wantsMaterial(item, "saw")) out.add("saw");','', 'source_saw_category'),
+                    ('file-source',WORLD,'if (SAONeeds.wantsMaterial(item, "file")) out.add("file");','', 'source_file_category'),
+                    ('file-count',BRIDGE,'|| category.equals("file")','', 'nested_file_count'),
                     ('recursive-count',BRIDGE,'com.sao.engine.SAOPrivateInventory.carriedItems(person)) {',
                      'new java.util.ArrayList<>(person.getInventory().getItems())) {','nested_pane_count'),
                     ('boxed-nails-count',BRIDGE,'&& (!category.equals("nails")\n                            || "Base.Nails".equals(item.getFullType()))','',
@@ -377,7 +402,7 @@ def main():
                 for name,source,old,new,marker in controls:
                     production = source.read_text(encoding='utf-8')
                     start, end = 0, len(production)
-                    if source == NEEDS and name.split('-')[0] in ('hammer', 'saw', 'log'):
+                    if source == NEEDS and name.split('-')[0] in ('hammer', 'saw', 'log', 'file'):
                         start = production.index('case "'+name.split('-')[0]+'":')
                         end = production.index('case ', start + 6)
                     target = production[start:end]
@@ -411,6 +436,18 @@ def main():
                 code, log = probe('material-pane-admission',material=material)
                 assert code != 0 and 'D3_MATERIALS:material_pane_category' in log, log
                 receipt['controls'].append({'name':'material-pane-admission','expectedFailure':'material_pane_category'})
+                for name, source, old, new, marker, key in (
+                    ('lua-file-admission', LUA, '"drink", "file", "food"', '"drink", "food"', 'native_snapshot_parses', 'owner'),
+                    ('ground-file-admission', LUA, '"nails","log","saw","file"', '"nails","log","saw"', 'ground_private_category_file', 'owner'),
+                    ('material-file-admission', MATERIAL, '"drink", "file", "food"', '"drink", "food"', 'material_file_category', 'material'),
+                ):
+                    production = source.read_text(encoding='utf-8')
+                    assert production.count(old) == 1, (name, production.count(old))
+                    variant = out/(name+'.lua')
+                    variant.write_text(production.replace(old,new,1), encoding='utf-8')
+                    code, log = probe(name, **{key:variant})
+                    assert code != 0 and 'D3_MATERIALS:'+marker in log, (name,log)
+                    receipt['controls'].append({'name':name,'expectedFailure':marker})
             receipt['inputsAfter'] = {str(p):sha(p) for p in inputs}
             assert receipt['inputsAfter'] == receipt['inputsBefore'], 'changed input during proof'
             receipt['status'] = 'PASS';save()

@@ -166,6 +166,7 @@ POST_C_UNITS = [
     ("D1", "minor", "Shared person-specific conceptual reasoning and source-bound prior-history admission establish a live authoring/runtime contract."),
     ("D2", "kohai", "Leisure integrates personally acquired recreation, music, games, art and social participation with native action ownership, interruption, durable purposes and consequential private experience."),
     ("D3.1", "minor", "Native material crafting establishes an exact privately acquired-input, installed-recipe, measured-output and authenticated-experience runtime contract within retained construction. The first D3 window/boarding join supplies its required integration; the OPEN parent receives no repeated credit."),
+    ("D3.2", "minor", "Exact held-tool repair establishes native FixSaw eligibility, private file acquisition and competing maintenance means, kept manual inputs, measured condition/wear, retained construction continuation and authenticated positive/negative private feedback. The OPEN D3 parent receives no repeated credit."),
 ]
 # A closed parent that only aggregates previously credited descendants maps to
 # their exact credit-owner IDs. It is a chronological record, never a new tier.

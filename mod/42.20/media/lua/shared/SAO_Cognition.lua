@@ -356,7 +356,7 @@ local HOBBY_KINDS={ ["leisure-meditation"]=true,["leisure-exercise"]=true,
     ["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true }
 local EXTENDED = { ["medication-use"] = true, ["physical-change"] = true, preparation = true,
-    ["animal-care"] = true, ["window-repair"] = true, ["material-crafting"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
+    ["animal-care"] = true, ["window-repair"] = true, ["material-crafting"] = true, ["tool-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
     ["weekone-performance-hearing"]=true }
@@ -409,7 +409,7 @@ local function experienceCopy(id, x, now)
 end
 local function qualified(x)
     if x.status ~= "completed" and x.status ~= "no-effect" then return false end
-    if EXTENDED[x.kind] then return x.status == "completed" end
+    if EXTENDED[x.kind] then return x.status == "completed" or x.kind == "tool-repair" and x.status == "no-effect" end
     if x.kind == "inspection" then return type(x.foodPresent) == "boolean" and type(x.waterPresent) == "boolean" end
     if x.kind == "consume" then
         return x.category == "food" and x.hungerDelta ~= nil
@@ -432,7 +432,7 @@ local function sameData(a, b)
 end
 local BEHAVIOR_RESULT = {}
 function C.experience(id, supplied, authority)
-    if type(supplied)=="table" and (supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
+    if type(supplied)=="table" and (supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
         and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
     local now = clock()
     if not C.settings().enabled or not now then return false, "disabled" end
@@ -1146,6 +1146,37 @@ function C.materialCraftOutcome(id, receipt)
     local x = privateFact(id, "material-crafting", "construction", receipt.id, now, receipt.atHours)
     x.sourceId, x.itemId, x.itemType = receipt.recipeId, tonumber(receipt.outputs[1].itemId), "Base.Plank"
     return nativeExperience(id, "material-crafting", receipt.sequence, x)
+end
+
+function C.toolRepairOutcome(id, receipt)
+    local now = clock()
+    if not now or type(receipt) ~= "table" or receipt.actorId ~= id
+        or receipt.kind ~= "repair-held-item" or receipt.recipeId ~= "Base.FixSaw"
+        or receipt.nativeOwner ~= "ISHandcraftAction" or receipt.token ~= "resource:repaired"
+        or not finite(receipt.sequence, 1, 9007199254740991) or receipt.sequence ~= math.floor(receipt.sequence)
+        or receipt.id ~= "resource-production/" .. id .. "/" .. tostring(receipt.sequence)
+        or not finite(receipt.atHours, 0, now) or not finite(receipt.startedAt, 0, receipt.atHours) then return false end
+    local owner = SAO.ResourceProduction
+    local canonical = owner and owner.outcome and owner.outcome(id, receipt.id)
+    if not canonical or not sameData(canonical, receipt) then return false, "repair-owner-unavailable" end
+    if receipt.status == "interrupted" or receipt.nativeCompleted ~= true then
+        return true, "unfinished-repair-retained-by-planner"
+    end
+    if receipt.nativeAttempted ~= true or receipt.targetRetained ~= true or receipt.held ~= true
+        or not finite(receipt.beforeCondition, 1, 1000000000)
+        or not finite(receipt.maxCondition, receipt.beforeCondition, 1000000000)
+        or not finite(receipt.afterCondition, 0, receipt.maxCondition)
+        or (receipt.status ~= "completed" and receipt.status ~= "failed") then return false end
+    local improved = receipt.afterCondition > receipt.beforeCondition
+    if receipt.improved ~= improved or (improved and (receipt.status ~= "completed" or receipt.nativeCredit ~= receipt.id))
+        or (not improved and (receipt.status ~= "failed" or receipt.nativeCredit ~= nil)) then return false end
+    local itemId = tonumber(receipt.targetItemId)
+    if not itemId or not finite(itemId, -2147483648, 2147483647) or itemId ~= math.floor(itemId) then return false end
+    local x = privateFact(id, "tool-repair", "construction", receipt.id, now, receipt.atHours)
+    x.status = improved and "completed" or "no-effect"
+    x.sourceId, x.itemId, x.itemType = receipt.recipeId, itemId, receipt.targetItemType
+    x.beforeValue, x.afterValue = receipt.beforeCondition, receipt.afterCondition
+    return nativeExperience(id, "tool-repair", receipt.sequence, x)
 end
 
 function C.preparationOutcome(id, receipt)

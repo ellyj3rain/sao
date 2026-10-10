@@ -15,6 +15,7 @@ local RESOURCE_RESULT = {}
 local WINDOW_REPAIR_RESULT = {}
 local BARRICADE_RESULT = {}
 local CRAFT_RESULT = {}
+local REPAIR_RESULT = {}
 local INSTRUMENT_RESULT = {}
 local NOTE_RESULT = {}
 local HOBBY_RESULT = {}
@@ -1347,6 +1348,53 @@ function P.planFortification(id, context)
             end
         end
     end
+    -- A usable saw remains a means. Maintenance competes with immediate use
+    -- through this person's existing interpreter and actual held condition.
+    local maintenanceView
+    local inputs = context.repairInputs
+    if craftStep and type(inputs) == "table" and inputs.available == true
+        and inputs.targetItemId == craftStep.sawItemId and inputs.targetItemType == craftStep.sawItemType
+        and finite(inputs.condition) and finite(inputs.maxCondition)
+        and inputs.condition > 0 and inputs.maxCondition > inputs.condition then
+        local source = not inputs.toolItemId and materialSource(purpose, context.sources and context.sources.file, "file", at)
+        if inputs.toolItemId or source then
+            local ratio = inputs.condition / inputs.maxCondition
+            local stepId = "repair-saw:" .. inputs.targetItemId .. ":" .. tostring(inputs.condition)
+            local waiting = false
+            for _, failure in ipairs(purpose.routeFailures or {}) do
+                if failure.stepId == stepId and finite(failure.retryAt) and at < failure.retryAt then waiting = true end
+            end
+            local travel = source and clamp((tonumber(source.distance) or 100) / 100, 0, 1) or 0
+            local candidates = {
+                { id = craftStep.id, evidence = 1, continuity = 0.8, novelty = 0, informationGain = 0,
+                    blockers = craftStep.status == "available" and 0 or 1,
+                    utility = ratio + clamp(tonumber(context.pressure) or 0, 0, 1) },
+                { id = stepId, evidence = 1, continuity = 0.8, novelty = 0, informationGain = 0.2,
+                    blockers = waiting and 1 or 0, utility = 1 - ratio - travel,
+                    consequences = {{ kind = "tool-repair", category = "construction",
+                        sourceId = "Base.FixSaw", itemType = inputs.targetItemType, value = 1 - ratio }} },
+            }
+            if not waiting then
+                maintenanceView = interpretations(id, candidates, { domain = "construction",
+                    pressure = clamp(tonumber(context.pressure) or 0, 0, 1), atHours = at })
+                local chosen = maintenanceView and maintenanceView.selected
+                if not chosen and SAO.CognitiveModels and SAO.CognitiveModels.planScore then
+                    local a = SAO.CognitiveModels.planScore("ordinary", candidates[1], 0)
+                    local b = SAO.CognitiveModels.planScore("ordinary", candidates[2], 0)
+                    chosen = a and b and b > a and stepId or craftStep.id
+                end
+                if chosen == stepId then
+                    selected = source
+                    craftStep = { id = stepId, verb = "produce", owner = "SAO.ResourceProduction",
+                        token = "resource:repaired", target = "Base.FixSaw", recipeId = "Base.FixSaw",
+                        productionKind = "repair-held-item", category = "saw",
+                        targetItemId = inputs.targetItemId, targetItemType = inputs.targetItemType,
+                        toolItemId = inputs.toolItemId, toolItemType = inputs.toolItemType,
+                        status = inputs.toolItemId and "available" or "dependent" }
+                end
+            end
+        end
+    end
     if selected then
         steps[#steps + 1] = { id = materialAcquisitionId(selected), verb = "acquire", owner = "SAO.SourceUse",
             token = "resource:acquired", target = selected.sourceId .. ":" .. tostring(selected.itemId),
@@ -1372,6 +1420,7 @@ function P.planFortification(id, context)
             continuity = 0.4, novelty = 0.2, informationGain = 0.9,
             blockers = context.insideOwnedGround and 0 or 1 },
     }, { domain = "construction", pressure = tonumber(context.pressure) or 0 }), at)
+    if maintenanceView then purpose.interpretations = dataCopy(maintenanceView) end
     purpose.selectedStrategy = selected and materialAcquisitionId(selected) or craftStep and craftStep.id or nil
     return purpose, purpose.steps[purpose.cursor]
 end
@@ -2447,8 +2496,10 @@ function P.recordResult(id, purposeId, result, authority)
             or authority ~= RESOURCE_RESULT) then return false end
         if step.owner == "SAOBuild" and step.token == "construction:boarded"
             and authority ~= BARRICADE_RESULT then return false end
-        if step.owner == "SAO.ResourceProduction" and (step.token ~= "resource:crafted"
-            or step.verb ~= "produce" or authority ~= CRAFT_RESULT) then return false end
+        if step.owner == "SAO.ResourceProduction" and (step.verb ~= "produce"
+            or step.token == "resource:crafted" and authority ~= CRAFT_RESULT
+            or step.token == "resource:repaired" and authority ~= REPAIR_RESULT
+            or step.token ~= "resource:crafted" and step.token ~= "resource:repaired") then return false end
     end
     if purpose and purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
     if purpose and purpose.noteReading and authority ~= NOTE_RESULT then return false end
@@ -2824,6 +2875,60 @@ function P.consumeCraftProductionResult(id, receipt)
     return P.recordResult(id, purpose.id, { owner = "SAO.ResourceProduction", token = "resource:crafted",
         status = canonical.status, correlationId = canonical.id, reason = canonical.detail,
         atHours = canonical.atHours }, CRAFT_RESULT)
+end
+
+function P.admitRepairProduction(id, work)
+    if type(work) ~= "table" or type(work.id) ~= "string" or work.actorId ~= id
+        or work.kind ~= "repair-held-item" or work.recipeId ~= "Base.FixSaw" then return false end
+    local s = state(id)
+    local purpose = s and s.purposes[work.requestedPurposeId or work.purposeId]
+    local step = purpose and purpose.steps[purpose.cursor]
+    if not purpose or not purpose.materialWork or purpose.materialWork.operation ~= "board"
+        or purpose.status == "completed" or purpose.status == "abandoned" or not step or purpose.admission
+        or step.id ~= (work.requestedPurposeStepId or work.purposeStepId)
+        or step.owner ~= "SAO.ResourceProduction" or step.verb ~= "produce"
+        or step.productionKind ~= work.kind or step.recipeId ~= work.recipeId
+        or step.token ~= "resource:repaired" or step.status ~= "available"
+        or step.targetItemId ~= work.targetItemId or step.targetItemType ~= work.targetItemType
+        or step.toolItemId ~= work.toolItemId or step.toolItemType ~= work.toolItemType then return false end
+    local admitted = P.noteAdmission(id, purpose.id, step.owner, work.id, step.id)
+    if admitted then work.purposeId, work.purposeStepId = purpose.id, step.id end
+    return admitted
+end
+
+function P.consumeRepairProductionResult(id, receipt)
+    if type(receipt) ~= "table" or type(receipt.id) ~= "string" then return false end
+    local owner = SAO.ResourceProduction
+    local canonical = owner and owner.outcome and owner.outcome(id, receipt.id)
+    if not canonical or canonical.actorId ~= id or canonical.id ~= receipt.id
+        or canonical.purposeId ~= receipt.purposeId or canonical.kind ~= "repair-held-item"
+        or canonical.recipeId ~= "Base.FixSaw" or canonical.token ~= "resource:repaired"
+        or canonical.nativeOwner ~= "ISHandcraftAction" or not finite(canonical.atHours)
+        or canonical.atHours > nowHours() or (canonical.status ~= "completed"
+            and canonical.status ~= "interrupted" and canonical.status ~= "failed") then return false end
+    local s = state(id)
+    local purpose = s and s.purposes[canonical.purposeId]
+    if not purpose or purpose.status == "abandoned" then return true, "purpose-retired" end
+    local receiptKey = "SAO.ResourceProduction:" .. canonical.id
+    for _, seen in ipairs(purpose.resultReceipts or {}) do if seen == receiptKey then return true end end
+    local step, admission = purpose.steps[purpose.cursor], purpose.admission
+    if not purpose.materialWork or purpose.materialWork.operation ~= "board" or not step or not admission
+        or step.owner ~= "SAO.ResourceProduction" or step.token ~= "resource:repaired"
+        or step.id ~= canonical.purposeStepId or admission.stepId ~= step.id
+        or admission.owner ~= step.owner or admission.correlationId ~= canonical.id
+        or admission.target ~= step.target or canonical.atHours < admission.at
+        or canonical.recipeId ~= step.recipeId or canonical.kind ~= step.productionKind
+        or canonical.targetItemId ~= step.targetItemId or canonical.targetItemType ~= step.targetItemType
+        or canonical.toolItemId ~= step.toolItemId or canonical.toolItemType ~= step.toolItemType then return false end
+    if canonical.status == "completed" and (canonical.nativeCredit ~= canonical.id
+        or canonical.nativeAttempted ~= true or canonical.nativeCompleted ~= true
+        or canonical.targetRetained ~= true or canonical.held ~= true or canonical.improved ~= true
+        or not finite(canonical.beforeCondition) or not finite(canonical.afterCondition)
+        or not finite(canonical.maxCondition) or canonical.beforeCondition <= 0
+        or canonical.afterCondition <= canonical.beforeCondition or canonical.afterCondition > canonical.maxCondition) then return false end
+    return P.recordResult(id, purpose.id, { owner = "SAO.ResourceProduction", token = "resource:repaired",
+        status = canonical.status, correlationId = canonical.id, reason = canonical.detail,
+        atHours = canonical.atHours }, REPAIR_RESULT)
 end
 
 function P.admitProduction(id, work)

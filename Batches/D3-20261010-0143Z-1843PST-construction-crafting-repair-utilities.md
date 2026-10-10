@@ -10,9 +10,9 @@
 | Follows | batch:D2 |
 | Shared contracts | C12, C18, C20, C21, C24, C30, C31, C32, C33 |
 | Implementation | Observed window and boarding purposes join exact private acquisition, native preparation, measured effects and saved recovery; other D3 procedures remain open. |
-| Verification | First-join receipts remain dated below. D3.1 has native handcraft, private planning, Controller, lifecycle, cognitive and persistence proof linked from its CLOSED child record. |
-| Version | 3.9.0.0-pre-alpha through D3.1; this OPEN parent receives no duplicate capability credit. |
-| Publication | D3.1 is CLOSED locally and proceeding through protected publication; the whole D3 parent remains OPEN. |
+| Verification | First-join receipts remain dated below. CLOSED D3.1 and D3.2 link native crafting/repair, private planning, Controller, lifecycle, cognitive and persistence evidence from their child records. |
+| Version | 3.10.0.0-pre-alpha through D3.1 and D3.2; this OPEN parent receives no duplicate capability credit. |
+| Publication | D3.1 is self-merged through [PR142](https://github.com/ellyj3rain/sao/pull/142); D3.2 follows the established protected workflow. The whole D3 parent remains OPEN. |
 
 ## Product and current implementation
 
@@ -24,6 +24,12 @@ were recorded before the new crafting implementation. The first material-work
 join retains its existing D3 history and supplies the child's integration.
 Child closure and publication leave this parent active; capability changes
 receive credit once under the existing odometer.
+
+[D3.2](D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md) is CLOSED with
+native saw maintenance under the retained construction purpose. Its exact
+target/file contract, native Maintenance gate, use-versus-maintain choice,
+owners, dependencies and required closure evidence are recorded before
+implementation. The full D3 parent remains active.
 
 D3 carries the whole construction, crafting, repair and utilities domain through
 personally acquired need, exact materials and source authority, native work,
@@ -153,3 +159,7 @@ same acquired need/material/preparation/native effect/persistence chain across
 these mechanisms, preserving actual recipes, skills, physical reach and Standing.
 D4 whole food/preservation, D5 comprehensive animal care and D6 assessed learning
 follow D3 in FIFO. The normal save, character and scenario flow continues.
+
+## D3.2 delivered continuation
+
+The CLOSED saw-maintenance child joins exact private file acquisition and native held-tool repair to the retained construction purpose. Its final80-case/17-control native proof and integrated regressions are linked from the child. The parent retains every unfinished construction, crafting, repair and utility obligation.

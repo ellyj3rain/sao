@@ -7,7 +7,7 @@ local function actor(id)
 end
 local function source(category, item, revision, known, distance)
     return { sourceId = "holder:" .. category, revision = revision or 1, itemId = item,
-        itemType = category == "glass-pane" and "RepairableWindows.LargeGlassPane" or ({ hammer = "Base.Hammer", plank = "Base.Plank", nails = "Base.Nails", log = "Base.Log", saw = "Base.Saw" })[category],
+        itemType = category == "glass-pane" and "RepairableWindows.LargeGlassPane" or ({ hammer = "Base.Hammer", plank = "Base.Plank", nails = "Base.Nails", log = "Base.Log", saw = "Base.Saw", file = "Base.File" })[category],
         category = category, known = known ~= false, distance = distance or 1,
         place = { sourceId = "place:home", cx = 5, cy = 5, z = 0 } }
 end
@@ -288,6 +288,72 @@ function __runD3MaterialPlanningCases()
     local retryPurpose,retryCraft=P.planFortification(failureId,craftContext)
     check("d3_craft_retry_preserves_exact_means",retryPurpose.id==failedPurpose.id and retryCraft.status=="available"
         and retryCraft.logItemId=="601" and retryPurpose.constructionDestination.key==craftContext.entryKey)
+    local maintenanceId=actor("d3-maintenance")
+    local m=context("board",{hammer=1,plank=0,nails=2,log=1,saw=1})
+    m.destination={key=m.entryKey,x=5,y=5,z=0}
+    m.craftingAvailable=true
+    m.craftInputs={logItemId="601",logItemType="Base.Log",sawItemId="602",sawItemType="Base.Saw"}
+    m.repairInputs={available=true,targetItemId="602",targetItemType="Base.Saw",toolItemId="603",toolItemType="Base.File",condition=9,maxCondition=10}
+    local mp,ms=P.planFortification(maintenanceId,m)
+    check("d3_usable_saw_can_continue_without_repair",ms.productionKind=="saw-logs")
+    m.repairInputs.condition=2
+    mp,ms=P.planFortification(maintenanceId,m)
+    check("d3_condition_pressure_selects_exact_native_maintenance",ms.productionKind=="repair-held-item"
+        and ms.targetItemId=="602" and ms.toolItemId=="603" and ms.recipeId=="Base.FixSaw")
+    m.pressure=1
+    local pressured, immediate=P.planFortification(maintenanceId,m)
+    check("d3_immediate_security_pressure_can_precede_maintenance",immediate.productionKind=="saw-logs")
+    m.pressure=0;m.repairInputs.available=false
+    local unqualified, usable=P.planFortification(maintenanceId,m)
+    check("d3_missing_native_repair_eligibility_keeps_usable_craft",usable.productionKind=="saw-logs")
+    m.repairInputs.available=true;m.repairInputs.toolItemId=nil;m.repairInputs.toolItemType=nil
+    m.sources.file={source("file",603,7,false)}
+    mp,ms=P.planFortification(maintenanceId,m)
+    check("d3_unobserved_file_supplies_no_maintenance_means",ms.productionKind=="saw-logs")
+    m.sources.file[1].known=true
+    mp,ms=P.planFortification(maintenanceId,m)
+    check("d3_maintenance_acquires_exact_private_file",ms.owner=="SAO.SourceUse" and ms.category=="file"
+        and ms.itemId==603 and ms.sourceRevision==7 and mp.constructionDestination.key==m.entryKey)
+    local madmitted,mresult=admit(maintenanceId,mp,ms,"maintenance-file")
+    local macquired=consume(mresult)
+    m.repairInputs.toolItemId="603";m.repairInputs.toolItemType="Base.File"
+    mp,ms=P.planFortification(maintenanceId,m)
+    check("d3_acquired_file_retains_original_construction_purpose",madmitted and macquired
+        and mp.id==pressured.id and ms.productionKind=="repair-held-item")
+    local mw={id="native-repair",actorId=maintenanceId,kind="repair-held-item",recipeId="Base.FixSaw",
+        targetItemId=ms.targetItemId,targetItemType=ms.targetItemType,toolItemId=ms.toolItemId,toolItemType=ms.toolItemType,
+        requestedPurposeId=mp.id,requestedPurposeStepId=ms.id}
+    mw.targetItemId="999"
+    check("d3_repair_wrong_target_admission_refused",not P.admitRepairProduction(maintenanceId,mw))
+    mw.targetItemId="602";mw.toolItemId="999"
+    check("d3_repair_wrong_file_admission_refused",not P.admitRepairProduction(maintenanceId,mw))
+    mw.toolItemId="603"
+    local ma=P.admitRepairProduction(maintenanceId,mw)
+    check("d3_repair_generic_completion_refused",ma and not P.recordResult(maintenanceId,mp.id,
+        {owner="SAO.ResourceProduction",token="resource:repaired",status="completed",correlationId=mw.id,atHours=__hours}))
+    m.repairInputs.condition=10
+    local retained, pending=P.planFortification(maintenanceId,m)
+    check("d3_repair_admission_retains_exact_work",retained.id==mp.id and pending.id==ms.id and retained.admission.correlationId==mw.id)
+    craftResult={id=mw.id,actorId=maintenanceId,purposeId=mp.id,purposeStepId=ms.id,kind="repair-held-item",
+        recipeId="Base.FixSaw",token="resource:repaired",nativeOwner="ISHandcraftAction",atHours=__hours,status="completed",
+        targetItemId="999",targetItemType="Base.Saw",toolItemId="603",toolItemType="Base.File",
+        nativeAttempted=true,nativeCompleted=true,nativeCredit=mw.id,targetRetained=true,held=true,improved=true,
+        beforeCondition=2,afterCondition=8,maxCondition=10}
+    local mr={id=mw.id,purposeId=mp.id}
+    check("d3_repair_wrong_target_result_refused",not P.consumeRepairProductionResult(maintenanceId,mr))
+    craftResult.targetItemId="602";craftResult.nativeCredit=nil
+    check("d3_repair_without_native_credit_refused",not P.consumeRepairProductionResult(maintenanceId,mr))
+    craftResult.nativeCredit=mw.id;craftResult.held=false
+    check("d3_repair_unheld_target_refused",not P.consumeRepairProductionResult(maintenanceId,mr))
+    craftResult.held=true;craftResult.afterCondition=2
+    check("d3_repair_without_condition_gain_refused",not P.consumeRepairProductionResult(maintenanceId,mr))
+    craftResult.afterCondition=8
+    local mc=P.consumeRepairProductionResult(maintenanceId,mr)
+    local again=P.consumeRepairProductionResult(maintenanceId,mr)
+    check("d3_repair_measured_partial_gain_advances_once",mc and again and P.techniqueProfile(maintenanceId).practice["Base.FixSaw"].completed==1)
+    local resumedRepair,resumedCraft=P.planFortification(maintenanceId,m)
+    check("d3_repair_continues_same_plank_and_boarding_purpose",resumedRepair.id==mp.id
+        and resumedCraft.productionKind=="saw-logs" and resumedRepair.constructionDestination.key==m.entryKey)
     return table.concat(checks, ",")
 end
 
