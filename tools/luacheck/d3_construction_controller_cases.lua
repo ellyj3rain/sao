@@ -565,6 +565,7 @@ function __runD3ConstructionControllerCases()
     -- installed handcraft proof. Here its canonical result is a controlled
     -- boundary, joined to the complete production context/dispatch/recovery.
     ItemTag = ItemTag or { SAW = "controlled-native-saw" }
+    ItemTag.FILE = ItemTag.FILE or "controlled-native-file"
     local crafting = fixture("d3-controller-crafting", false)
     crafting.body.boardKit = true
     local oldCount = SAOJavaBridge.constructionMaterialCount
@@ -579,7 +580,7 @@ function __runD3ConstructionControllerCases()
         return { condition=10,getID=function()return id end,getFullType=function()return fullType end,
             getFluidContainerFromSelfOrWorldItem=function()return nil end,
             getIsCraftingConsumed=function()return false end,
-            hasTag=function(_,tag)return isSaw and tag==ItemTag.SAW end,
+            hasTag=function(_,tag)return isSaw and tag==ItemTag.SAW or fullType=="Base.File" and tag==ItemTag.FILE end,
             getCondition=function(self)return self.condition end,getConditionMax=function()return 10 end,isBroken=function()return false end }
     end
     local log, saw = craftItem(910,"Base.Log",false), craftItem(911,"Base.Saw",true)
@@ -673,5 +674,77 @@ function __runD3ConstructionControllerCases()
     local boards=C.advanceConstruction(crafting.id,crafting.agent,crafting.body,124,P.constructionDestination(crafting.id))
     check("d3_controller_crafted_planks_resume_same_boarding_purpose",boards and crafting.agent.state=="BOARDING"
         and crafting.body.boardingAdmitted.purposeId==craftPurpose.id)
+    local maintenance=fixture("d3-controller-maintenance",false)
+    maintenance.body.boardKit=true;maintenance.body.x=2.5
+    local maintenanceSaw,maintenanceFile=craftItem(921,"Base.Saw",true),craftItem(922,"Base.File",false)
+    maintenanceSaw.condition=2
+    maintenance.inventory.items={craftItem(920,"Base.Log",false),maintenanceSaw}
+    local priorCount=SAOJavaBridge.constructionMaterialCount
+    SAOJavaBridge.constructionMaterialCount=function(self,body,category)
+        if body~=maintenance.body then return priorCount(self,body,category) end
+        return ({hammer=1,nails=2,plank=0,log=1,saw=1})[category] or 0
+    end
+    local availabilityTarget,availabilityRecipe,repairWork,repairOutcome
+    SAO.ResourceProduction.craftingAvailable=function(_,body)return body==maintenance.body end
+    SAO.ResourceProduction.repairAvailable=function(_,body,target,recipe)
+        availabilityTarget,availabilityRecipe=target,recipe
+        return body==maintenance.body and target==maintenanceSaw and target.condition<10
+    end
+    SAO.ResourceProduction.begin=function(id,body,step,ctx)
+        repairWork={id="resource-production/"..id.."/1",actorId=id,kind=step.productionKind,recipeId=step.recipeId,
+            requestedPurposeId=ctx.purposeId,requestedPurposeStepId=ctx.purposeStepId,
+            targetItemId=step.targetItemId,targetItemType=step.targetItemType,toolItemId=step.toolItemId,toolItemType=step.toolItemType,
+            logItemId=step.logItemId,logItemType=step.logItemType,sawItemId=step.sawItemId,sawItemType=step.sawItemType}
+        local admitted=step.productionKind=="repair-held-item" and P.admitRepairProduction(id,repairWork)
+            or step.productionKind=="saw-logs" and P.admitCraftProduction(id,repairWork)
+        if admitted then maintenance.rec.resourceProductionWork=repairWork end
+        return admitted
+    end
+    SAO.ResourceProduction.outcome=function(id,key)return repairOutcome and repairOutcome.id==key and repairOutcome.actorId==id and repairOutcome or nil end
+    SAO.ResourceProduction.reconcileSaved=function(id)
+        if repairOutcome and id==maintenance.id and not repairOutcome.purposeDelivered then
+            repairOutcome.purposeDelivered=P.consumeRepairProductionResult(id,repairOutcome)
+        end
+        return true
+    end
+    local maintenancePurpose,maintenanceEntry=observedBoardPurpose(maintenance)
+    sources[maintenance.id]={sourceId="holder:file",itemId=922,revision=13,itemType="Base.File",category="file",known=true}
+    local fileRoute=C.advanceConstruction(maintenance.id,maintenance.agent,maintenance.body,131,P.constructionDestination(maintenance.id))
+    check("d3_controller_repair_uses_actual_held_target_eligibility",availabilityTarget==maintenanceSaw and availabilityRecipe=="Base.FixSaw")
+    local fileCall=sourceCalls[maintenance.id]
+    check("d3_controller_repair_dispatches_private_file_acquisition",fileRoute and fileCall and fileCall.category=="file"
+        and fileCall.context.itemId==922 and fileCall.context.sourceRevision==13 and fileCall.context.purposeId==maintenancePurpose.id)
+    maintenance.inventory.items[#maintenance.inventory.items+1]=maintenanceFile
+    maintenance.rec.worldSourceReservation=nil
+    local fileResult={actorId=maintenance.id,reservationId=fileCall.reservationId,purposeId=maintenancePurpose.id,
+        purposeStepId=fileCall.expectedStep,operation="acquire",status="completed",sourceId=fileCall.expectedSource,
+        preRevision=13,itemId=922,itemType="Base.File",category="file",measurement="native-item-transfer",observedQuantity=1,at=__hours}
+    terminals[fileCall.reservationId]=fileResult
+    local filePaid=P.consumeSourceResult(fileResult);maintenance.agent.state="IDLE"
+    local deepMaintenance={}
+    for i=1,241 do deepMaintenance[#deepMaintenance+1]=craftItem(20000+i,"Base.GlassPanel",false) end
+    for _,item in ipairs(maintenance.inventory.items) do deepMaintenance[#deepMaintenance+1]=item end
+    maintenance.inventory.items=deepMaintenance
+    local deepRepairContext=C.constructionContext(maintenance.id,maintenance.agent,maintenance.body,"board",maintenanceEntry,{key=maintenanceEntry,x=0,y=0,z=0})
+    check("d3_controller_exact_repair_inputs_after_240_items",deepRepairContext.repairInputs
+        and deepRepairContext.repairInputs.targetItemId=="921" and deepRepairContext.repairInputs.toolItemId=="922")
+    local repairStart=C.advanceConstruction(maintenance.id,maintenance.agent,maintenance.body,132,P.constructionDestination(maintenance.id))
+    check("d3_controller_repair_dispatches_exact_native_inputs",filePaid and repairStart and maintenance.agent.state=="RESOURCE"
+        and repairWork.kind=="repair-held-item" and repairWork.targetItemId=="921" and repairWork.toolItemId=="922"
+        and maintenance.body.orderedTravel==nil)
+    check("d3_controller_repair_admission_preserves_construction_destination",maintenancePurpose.admission
+        and maintenancePurpose.status~="completed" and P.constructionDestination(maintenance.id).entryKey==maintenanceEntry)
+    repairOutcome={id=repairWork.id,actorId=maintenance.id,purposeId=maintenancePurpose.id,purposeStepId=repairWork.purposeStepId,
+        kind="repair-held-item",recipeId="Base.FixSaw",token="resource:repaired",nativeOwner="ISHandcraftAction",
+        targetItemId="921",targetItemType="Base.Saw",toolItemId="922",toolItemType="Base.File",status="completed",atHours=__hours,
+        nativeCredit=repairWork.id,nativeAttempted=true,nativeCompleted=true,held=true,targetRetained=true,improved=true,
+        beforeCondition=2,afterCondition=10,maxCondition=10}
+    maintenance.rec.resourceProductionWork=nil
+    local repairFlush=C.reconcileConstruction(maintenance.id,maintenance.body)
+    check("d3_controller_saved_repair_result_flushes_without_work",repairFlush and repairOutcome.purposeDelivered and not maintenancePurpose.admission)
+    maintenanceSaw.condition=10;maintenance.agent.state="IDLE"
+    local craftResumed=C.advanceConstruction(maintenance.id,maintenance.agent,maintenance.body,133,P.constructionDestination(maintenance.id))
+    check("d3_controller_repair_resumes_planks_under_original_purpose",craftResumed and repairWork.kind=="saw-logs"
+        and repairWork.purposeId==maintenancePurpose.id and P.constructionDestination(maintenance.id).entryKey==maintenanceEntry)
     __windowResults = table.concat(__checks, "\n")
 end

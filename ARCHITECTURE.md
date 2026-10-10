@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.9.0.0-pre-alpha` |
+| Version | `3.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -334,6 +334,8 @@ interrupted work provide no manufactured stock or completed-craft credit.
 This native craft adapter admits the installed single-player path; server-owned
 craft effects require their own bound execution path under the continuing D3
 scope.
+
+`SAO_ResourceProduction` also owns `repair-held-item` for installed `Base.FixSaw`. Finite usable `ItemTag.FILE` stock joins private SourceUse. Planner compares native maintenance with continued plank work through the person's interpreter, binds exact held saw/file identities and preserves the original destination. Installed handcraft uses every exact kept manual slot; ResourceProduction measures native target condition/repair count and signed file wear. Canonical `resource:repaired` completion requires a retained improved target. Native completion without gain records failure and qualified negative feedback; interrupted recovery invents no effects. Owner-authenticated tool-repair facts reach both private models once. The same native custody, transfer, acknowledgement and scalar recovery discipline applies.
 
 These work owners persist plain bounded result ledgers and scalar work anchors.
 Controller adoption and IDLE continuation flush saved authentic results before

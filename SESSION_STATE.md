@@ -1,13 +1,13 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.9.0.0-pre-alpha` |
+| Version | `3.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
-**As of** `[D3.1]`, 166 delivered batches: 29 A, 52 B, 82 C products and three delivered D records. D3 is the active OPEN parent.
+**As of** `[D3.2]`, 167 delivered batches: 29 A, 52 B, 82 C products and four delivered D records. D3 is the active OPEN parent.
 
 ## Delivered product
 
@@ -33,7 +33,7 @@ directory. Original source bytes and earlier package observations remain retaine
 The closure reuses applicable owner/consumer/native-runtime and simulation
 results, including the later recorded-music, paired participation and supply
 extensions. Source package integrity and exact installed-leaf receipts are
-retained. The 143,840,426-byte artwork pack uses Git LFS. Leisure's delivered version and once-only credit remain in its CLOSED record. The current replay adds D3.1's native crafting boundary once.
+retained. The 143,840,426-byte artwork pack uses Git LFS. Leisure's delivered version and once-only credit remain in its CLOSED record. The current replay credits D3.1's native crafting boundary and D3.2's held-tool repair boundary once each.
 
 Publication maintenance now preserves native source domains in the static
 scanners and reports absent installed inputs correctly on Linux. Two radio
@@ -64,6 +64,26 @@ Its observations keep their historical facts; its former completion requirements
 are superseded by the current operator direction. [D2's record](Batches/D2-20261005-2341Z-1641PST-leisure.md)
 and [the batch index](BATCH_LOG.md) describe the delivered product.
 
+### Pending Neo and GZDS governance carry
+
+Owner: Neo. Status: pending cross-repository amendment; the mod's D3-D6 FIFO
+continues. Carry the operator's delivery-throughput responsibility into the
+canonical governance of the Neo and GZDS repositories and relevant existing agent
+responsibilities. Neo here means the orchestration kernel for agentic organization,
+self-organization and hierarchy. Useful governance, verification and traceability
+remain; connected first-pass review, reliable tool invocation, applicable evidence
+reuse and reduced duplicate procedure must improve useful delivery as complexity
+grows. SAO's local review responsibility is supporting work and leaves this broader
+obligation open. The operator requested a durable note and continuity, without a
+separate governance PR ceremony interrupting current mod implementation. The source
+direction is retained in [D3.2's record](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md).
+The governing distinction follows project goals: mods and experimental model work
+need fast bounded delivery and later targeted strengthening; Neo's orchestration
+kernel and GZDS's shared foundation warrant qualification proportional to their
+reach. Preserve useful discipline while reducing bureaucratic lag. The operator's
+approaching tool-access constraint makes fruition of the accepted mod plan the
+immediate priority.
+
 ## Continuing outcomes and FIFO
 
 [D3's current record](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md)
@@ -74,7 +94,7 @@ original purpose. Adoption and IDLE recovery reconcile lost native admissions
 without inventing effects or completion. Focused native and Controller proofs
 retain their exact inputs and boundaries. Final regression and review results
 live in the D3 record. The whole construction, crafting, repair and utilities
-parent remains OPEN. Its CLOSED D3.1 child adds one native crafting capability at the derived `3.9.0.0-pre-alpha`.
+parent remains OPEN. Its CLOSED D3.1 and D3.2 children deliver native crafting and saw maintenance; the current replay derives `3.10.0.0-pre-alpha`.
 
 [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is the
 CLOSED child for native plank crafting. Exact private log and saw
@@ -85,7 +105,8 @@ and delivered version credit follow the canonical module rule independently.
 
 | Outcome | Standing and responsibility |
 |---|---|
-| D3 construction/crafting/repair/utilities | Active OPEN parent; D3.1 native plank crafting is CLOSED and proceeding through protected publication. Entity placement, other recipes and pane integration, general item repair, plumbing and generators remain with D3. |
+| D3 construction/crafting/repair/utilities | Active OPEN parent; D3.1 native plank crafting is CLOSED and self-merged through [PR142](https://github.com/ellyj3rain/sao/pull/142). Entity placement, other recipes and pane integration, general item repair, plumbing and generators remain with D3. |
+| D3.2 native saw maintenance | CLOSED child under D3; exact native FixSaw, private file acquisition, interpreted maintenance alternatives, measured condition/wear and canonical feedback continue the original construction purpose. The closed child publishes through its own branch, protected PR and self-merge. |
 | D4 whole food/preservation | Follows D3; retains the complete installed domain and adjacent food mechanics. |
 | D5 comprehensive animal care | Follows D4; species and supported actions retain actual source admission. |
 | D6 assessed K-through-college learning | Follows D5; literal sources, comprehension, retention and transfer remain the outcome. |

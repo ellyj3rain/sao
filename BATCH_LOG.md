@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.9.0.0-pre-alpha` |
+| Version | `3.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -199,6 +199,7 @@ Later Leisure improvements link back to the completed D2 product.
 | [D1](Batches/D1-20261004-0124Z-1824PST-shared-reasoning.md) | 2026-10-04 | Shared person-specific reasoning | [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-003`](Batches/THREADS.md#t-003) |
 | [D2](Batches/D2-20261005-2341Z-1641PST-leisure.md) | 2026-10-05 | Leisure | [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-006`](Batches/THREADS.md#t-006) |
 | [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) | 2026-10-10 | Native plank crafting for retained construction | [`T-008`](Batches/THREADS.md#t-008), [`T-006`](Batches/THREADS.md#t-006) |
+| [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md) | 2026-10-10 | Native saw maintenance for retained construction | [`T-008`](Batches/THREADS.md#t-008), [`T-006`](Batches/THREADS.md#t-006) |
 
 ### Current Simulation repair18 and approved artwork intake | 2026-10-07 00:30 UTC / 17:30 PST
 

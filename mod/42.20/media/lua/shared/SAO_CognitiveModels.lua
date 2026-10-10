@@ -57,7 +57,7 @@ for _,machine in ipairs({"ArcadeMachine1","ArcadeMachine2","ArcadeStreetFighter"
     HOBBY_SOURCES["ProjectArcade:ProjectArcade_PlayArcadeTimedAction:"..machine]=true
 end
 local EXTENDED = { ["medication-use"]=true, ["physical-change"]=true, preparation=true,
-    ["animal-care"]=true, ["window-repair"]=true, ["material-crafting"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
+    ["animal-care"]=true, ["window-repair"]=true, ["material-crafting"]=true, ["tool-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
     ["weekone-performance-hearing"]=true }
@@ -110,6 +110,7 @@ local function occurrencePosition(e)
         or e.kind=="animal-care" and ("animal-care/"..e.actorId.."/")
         or e.kind=="window-repair" and (e.actorId.."/window-result/")
         or e.kind=="material-crafting" and ("resource-production/"..e.actorId.."/")
+        or e.kind=="tool-repair" and ("resource-production/"..e.actorId.."/")
         or e.kind=="entry-outcome" and ("entry/"..e.actorId.."/")
         or e.kind=="recovery-outcome" and ("recovery/"..e.actorId.."/")
         or e.kind=="study-outcome" and ("study/"..e.actorId.."/")
@@ -167,7 +168,7 @@ local function validEvent(e)
         or (e.perspective~="performed" and e.perspective~="observed") then return false end
     local behavior=e.kind=="entry-outcome" or e.kind=="recovery-outcome"
     if not behavior and (e.kind~="commitment-outcome" and e.kind~="instrument-use" and e.kind~="leisure-reading" and e.kind~="weekone-instrument-performance" and not HOBBY_KINDS[e.kind] and (e.actionKind~=nil or e.succeeded~=nil) or e.apertureState~=nil
-        or e.kind~="study-outcome" and (e.beforeValue~=nil or e.afterValue~=nil) or e.durationHours~=nil) then return false end
+        or e.kind~="study-outcome" and e.kind~="tool-repair" and (e.beforeValue~=nil or e.afterValue~=nil) or e.durationHours~=nil) then return false end
     if e.category=="learning" and e.kind~="study-outcome" or e.category=="social" and e.kind~="commitment-outcome" then return false end
     if e.kind=="weekone-performance-hearing" then
         local position=occurrencePosition(e)
@@ -231,7 +232,7 @@ local function validEvent(e)
         or e.startedAtHours~=nil or e.nativeCompletedAtHours~=nil) then return false end
     if e.kind~="animal-care" and (e.consumedAmount~=nil or e.quantityUnit~=nil) then return false end
     if e.category=="animal" and e.kind~="animal-care" then return false end
-    if e.category=="construction" and e.kind~="window-repair" and e.kind~="material-crafting" then return false end
+    if e.category=="construction" and e.kind~="window-repair" and e.kind~="material-crafting" and e.kind~="tool-repair" then return false end
     if e.capabilities~=nil and not capabilities(e.capabilities) then return false end
     for _, key in ipairs({"sourceId","itemType"}) do
         if e[key]~=nil and not text(e[key],160) then return false end
@@ -405,6 +406,14 @@ local function validEvent(e)
         if e.kind=="material-crafting" then
             return e.category=="construction" and e.status=="completed" and e.sourceId=="Base.SawLogs"
                 and e.itemType=="Base.Plank" and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
+        end
+        if e.kind=="tool-repair" then
+            return e.category=="construction" and e.sourceId=="Base.FixSaw"
+                and finite(e.beforeValue) and e.beforeValue>0 and e.beforeValue<=1000000000
+                and finite(e.afterValue) and e.afterValue>=0 and e.afterValue<=1000000000
+                and (e.status=="completed" and e.afterValue>e.beforeValue
+                    or e.status=="no-effect" and e.afterValue<=e.beforeValue)
+                and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
         end
         if e.kind=="medication-use" then
             return e.category=="medicine" and e.sourceId==nil
@@ -681,6 +690,7 @@ end
 local function measurable(e)
     if e.status=="interrupted" or e.status=="unavailable" then return nil,"censored-access-or-interruption" end
     if EXTENDED[e.kind] then
+        if e.kind=="tool-repair" and e.status=="no-effect" then return "private-fact",false end
         if e.status~="completed" then return nil,"completion-unmeasured" end
         return "private-fact",true
     end
@@ -715,6 +725,7 @@ local function rememberPlanEvidence(state, e, yes)
     end
     if e.kind == "acquire" then retain("acquire", e.category, yes)
     elseif e.kind == "preparation" then retain("prepare", "food", true)
+    elseif e.kind == "tool-repair" then retain("tool-repair", "construction", e.afterValue>e.beforeValue)
     elseif e.kind == "study-outcome" then retain("study", "learning", true)
     elseif e.kind == "commitment-outcome" then retain("commitment", "social", true)
     elseif e.kind == "instrument-use" then retain("recreate", "leisure", e.succeeded)
@@ -788,6 +799,12 @@ local function extendedEvidence(modelId,state,e)
                 end
             end
         end
+    elseif e.kind=="tool-repair" then
+        local improved = e.afterValue>e.beforeValue
+        if modelId=="ordinary" then
+            remember(state,"direct:tool-repair:"..e.sourceId..":"..e.itemType,
+                "Native "..e.sourceId.." changed held "..e.itemType.." condition from "..e.beforeValue.." to "..e.afterValue,improved,e)
+        else relation(state,"transform","repair:"..e.sourceId,"tool:"..e.itemType,improved,e,"manufacturing") end
     elseif e.kind=="material-crafting" then
         if modelId=="ordinary" then
             remember(state,"direct:material-crafting:"..e.sourceId..":"..e.itemType,
@@ -1030,6 +1047,8 @@ local function validConsequences(candidate)
                 or not text(c.itemType, 160) or (c.condition ~= "BOREDOM" and c.condition ~= "UNHAPPINESS" and c.condition ~= "STRESS") then return false end
         elseif c.kind == "prepare" then
             if c.category ~= "food" then return false end
+        elseif c.kind == "tool-repair" then
+            if c.category ~= "construction" or c.sourceId ~= "Base.FixSaw" or not text(c.itemType,160) then return false end
         elseif c.kind == "acquire" then
             if c.category ~= "food" and c.category ~= "water" then return false end
         elseif c.kind == "inspect" then

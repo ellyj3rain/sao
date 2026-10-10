@@ -134,6 +134,13 @@ and remain inside the human behavioral envelope regardless of skill.
   The governance rule states how to avoid redundant local hook runs and
   carries the same affected-contract selection into actual GitHub workflows
   and distinguishes product requirements from advisory repository maintenance.
+- **Review and delivery responsibility.** Follow the standing responsibility in
+  `GOVERNANCE.md`: prepare one complete candidate for a thorough integrated first
+  review, then check corrections and affected dependencies in the second pass.
+  Further passes require a concrete unresolved defect, changed contract or
+  uncovered acceptance obligation recorded with their bounded scope. Carry this
+  responsibility into delegated assignments and applicable agent skills; close
+  and publish when the delivered outcome and sufficient evidence are established.
 - **Publishing.** A closed batch reaches `origin/main` through a branch and a
   pull request, merged by you. `main` is protected and refuses a direct push.
   The shape is CAO's, read off its merged pull requests:

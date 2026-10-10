@@ -5914,6 +5914,7 @@ function Ctl.constructionContext(id, agent, body, operation, entryKey, destinati
                     context.sources[category] = Ctl.resourceContext(id, agent, body, {}, category, 0.5).sources
                 end
             end
+            local carriedSaw, carriedFile
             if read and items then
                 for index = 0, math.min(items:size(), 512) - 1 do
                     local item = items:get(index)
@@ -5923,7 +5924,24 @@ function Ctl.constructionContext(id, agent, body, operation, entryKey, destinati
                         elseif not context.craftInputs.sawItemId and item:hasTag(ItemTag.SAW)
                             and item:getCondition() > 0 and not item:isBroken() then
                             context.craftInputs.sawItemId, context.craftInputs.sawItemType = tostring(item:getID()), item:getFullType()
+                            carriedSaw = item
+                        elseif not carriedFile and item:hasTag(ItemTag.FILE)
+                            and item:getCondition() > 0 and not item:isBroken() then
+                            carriedFile = item
                         end
+                    end
+                end
+            end
+            if carriedSaw and SAO.ResourceProduction.repairAvailable then
+                local admitted, eligible = pcall(SAO.ResourceProduction.repairAvailable, id, body, carriedSaw, "Base.FixSaw")
+                if admitted and eligible == true then
+                    context.repairInputs = { available = true,
+                        targetItemId = context.craftInputs.sawItemId, targetItemType = context.craftInputs.sawItemType,
+                        condition = carriedSaw:getCondition(), maxCondition = carriedSaw:getConditionMax(),
+                        toolItemId = carriedFile and tostring(carriedFile:getID()) or nil,
+                        toolItemType = carriedFile and carriedFile:getFullType() or nil }
+                    if not carriedFile and SAO.WorldSources and SAO.SourceUse then
+                        context.sources.file = Ctl.resourceContext(id, agent, body, {}, "file", 0.5).sources
                     end
                 end
             end
@@ -5935,15 +5953,18 @@ end
 function Ctl.beginConstructionProduction(id, agent, body, tick, purpose, step)
     local production = SAO.ResourceProduction
     if not production or not step or step.status ~= "available" or step.verb ~= "produce"
-        or step.owner ~= "SAO.ResourceProduction" or step.productionKind ~= "saw-logs" then return false end
-    if not setState(agent, id, "RESOURCE", "makes native planks for a retained boarding task") then return false end
+        or step.owner ~= "SAO.ResourceProduction" or (step.productionKind ~= "saw-logs"
+            and step.productionKind ~= "repair-held-item") then return false end
+    local repairing = step.productionKind == "repair-held-item"
+    if not setState(agent, id, "RESOURCE", repairing and "maintains a carried saw for retained construction"
+        or "makes native planks for a retained boarding task") then return false end
     if production.begin(id, body, step, { purposeId = purpose.id, purposeStepId = step.id })
         or agent.rec.resourceProductionWork then
         agent.taskDeadline = tick + 5400
         return true
     end
-    SAO.ProceduralPlanning.deferResourceRoute(id, purpose.id, step.id, "native plank crafting refused the exact admitted means")
-    setState(agent, id, "IDLE", "native plank crafting could not begin")
+    SAO.ProceduralPlanning.deferResourceRoute(id, purpose.id, step.id, "native material work refused the exact admitted means")
+    setState(agent, id, "IDLE", "native material work could not begin")
     return false
 end
 

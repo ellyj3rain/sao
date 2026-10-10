@@ -2782,6 +2782,10 @@ if ! "$PY" tools/d3_native_handcraft_test.py --out "$sao_d3_proof/handcraft"; th
     note "BORDER FINDING - exact native handcraft inputs, output or saved custody differs"
     fail=1
 fi
+if ! "$PY" tools/d3_native_tool_repair_test.py --out "$sao_d3_proof/tool-repair"; then
+    note "BORDER FINDING - exact native saw maintenance, measured wear or saved custody differs"
+    fail=1
+fi
 # Border 220 - shared native regions retain separate pixels, residency centers,
 # infrastructure exclusion and sealed lifecycle evidence under one world clock.
 if ! "$PY" tools/regional_observer_test.py; then

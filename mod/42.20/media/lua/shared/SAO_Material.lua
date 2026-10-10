@@ -9,7 +9,7 @@ Material.reconciliations = Material.reconciliations or {}
 Material.sourceOwners = Material.sourceOwners or {}
 
 local SOURCE_CATEGORY_ORDER = {
-    "device", "drink", "food", "fuel", "glass-pane", "hammer", "instrument", "medical",
+    "device", "drink", "file", "food", "fuel", "glass-pane", "hammer", "instrument", "medical",
     "log", "memento", "nails", "plank", "reading", "saw", "smokes", "tools",
     "water", "weapons",
 }

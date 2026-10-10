@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Governance |
 |---|---|
-| Version | `3.9.0.0-pre-alpha` |
+| Version | `3.10.0.0-pre-alpha` |
 | Design authority | ellyj3rain |
 | Repository | `GOVERNANCE.md` |
 | Status | ACTIVE - operating discipline for this repository. |
@@ -229,6 +229,45 @@ Report briefly what ran, which valid evidence was reused and why it applies,
 why any broader run was necessary, and what remains unverified. An existing
 instrument's controls remain reusable under the same applicability rule; writing
 a new test or framework is warranted only by a concrete gap.
+
+### Review and delivery responsibility
+
+Neo owns delivery throughput and sufficient verification. The chief implementer
+prepares a complete coherent candidate and invokes the relevant review and
+verification tools against that same candidate before publication. The first
+review examines the delivered behavior across its owning implementation, native
+engine lifecycle, shared contracts, integration, persistence and observable
+product result. Review depth follows those relationships and the actual
+uncertainties. Relevant installed behavior and existing instruments are inspected
+together so adjacent obligations receive one integrated review.
+
+Scale delivery discipline to the project's goals and the reach of the changed
+contracts. SAO and experimental model work favor fast coherent behavior delivered
+in controlled batches with sufficient proof, then targeted strengthening from
+actual use and findings. A shared orchestration kernel or foundational governance
+system warrants deeper qualification of the responsibilities it imposes on its
+consumers. A child's accepted outcome sets its closure burden; later refinements
+that can safely wait remain explicit follow-up work under the established parent.
+
+Delegated implementers and reviewers carry this responsibility within their
+assigned scope. Their findings identify the affected contract, source evidence,
+consequence and sufficient correction check. The chief implementer reconciles
+their findings across ownership boundaries before declaring the candidate ready.
+Applicable agent skills support these standing responsibilities.
+
+The second pass checks the corrections and their affected dependencies, carrying
+forward applicable first-pass findings and verification. A further pass requires
+a concrete unresolved defect, changed contract or uncovered acceptance obligation.
+State that reason and bound the additional work in the existing work record.
+Repeated full-depth reviews require evidence that the new finding affects that
+breadth; a new edit, commit or publication event supplies no such evidence alone.
+
+Once the delivered outcome and required closure evidence are established, close
+and publish through the existing workflow. Measure process quality by useful
+integrated behavior delivered with sufficient proof and proportionate effort.
+Correct recurring review omissions in the first-pass responsibilities rather than
+normalizing additional rounds. Preserve traceability through current canonical
+records and reusable evidence, and retire duplicated reconstruction and procedure.
 
 ### Process and project maturity
 
