@@ -437,7 +437,30 @@ def _product_event_pin(b, value, path):
         raise GraphError("Product correction provenance path/hash differs: " + path)
     result = b.json(path)
     if b.vector[path] != "sha256:" + value["sha256"]:
-        raise GraphError("Product correction provenance hash mismatch: " + path)
+        # The earlier catalogue event remains pinned to its exact original
+        # manifest. Authorized tier reconciliation keeps that manifest while
+        # current products retain the same identity, partition and source pins.
+        if path != "Batches/C_PRODUCT_CATALOGUE.json" or result.get("classificationRecord") != "Batches/VERSION_SCOPE_RECONCILIATION.json":
+            raise GraphError("Product correction provenance hash mismatch: " + path)
+        reconciliation = b.json(result["classificationRecord"])
+        prior = reconciliation.get("preservedPriorGeneration", {}).get(path)
+        if (reconciliation.get("schema") != "sao.feature-scope-version-reconciliation/1"
+                or not isinstance(prior, dict) or prior.get("sha256") != value["sha256"]
+                or not str(prior.get("path", "")).startswith("Batches/history/version-20261010-before-scope/")):
+            raise GraphError("Product correction provenance hash mismatch: " + path)
+        original = b.json(prior["path"])
+        if b.vector[prior["path"]] != "sha256:" + value["sha256"]:
+            raise GraphError("Product correction provenance hash mismatch: " + path)
+        current_shape = {k: v for k, v in result.items() if k not in ("classificationRecord", "classificationGeneration")}
+        previous_shape = dict(original)
+        current_shape["units"] = [{k: v for k, v in u.items() if k not in ("tier", "rationale")} for u in result["units"]]
+        previous_shape["units"] = [{k: v for k, v in u.items() if k not in ("tier", "rationale")} for u in original["units"]]
+        if current_shape != previous_shape:
+            raise GraphError("Product reconciliation changed preserved catalogue structure")
+        assessed = {r["batch"]: r for r in reconciliation.get("rows", []) if str(r.get("batch", "")).startswith("C")}
+        if any(assessed.get(u["id"], {}).get("tier") != u["tier"] or assessed.get(u["id"], {}).get("reason") != u["rationale"] for u in result["units"]):
+            raise GraphError("Product reconciliation current credit differs from its assessment")
+        result = original
     if not isinstance(result, dict):
         raise GraphError("Product correction provenance is not an object: " + path)
     return result

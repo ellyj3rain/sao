@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `4.0.0.0-pre-alpha` |
+| Version | `2.6.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -2170,3 +2170,9 @@ line, and FIFO through D6 remains intact.
 **Origin.** Operator's direct clarification in the current Codex session at
 2026-10-07 21:06 UTC; the sole liaison retains the governed bulletin and peer
 route.
+
+## DR-062 | 2026-10-10 20:17 UTC / 2026-10-10 13:17 PDT | Feature scope, historical credit and D3.7
+
+The operator directs correction everywhere and explicitly includes all history before D. Coherent subsets build an unfinished feature at kohai; minor belongs to completed coherent feature/module scope with required integration. Related completed collections can support operator-selected major. Batch/PR events and individual new native/API paths do not prescribe tier. Existing arithmetic/maturity remain; no separate internal/external release scheme is selected.
+
+This supersedes the current A/B/C/D tier projection using the source-linked171-unit matrix, retaining exact prior replay, original labels, sources and published versions. The corrected historical baseline derives mechanically; D3.7 adds one kohai of native fixing/equipment progress under the still-OPEN D3 parent. This is not an added feature-completion credit for the governance correction. GZDS DR-168 and Neo DR-213 carry the durable upstream rule and existing native consumers.

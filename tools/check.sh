@@ -2786,6 +2786,10 @@ if ! "$PY" tools/d3_native_tool_repair_test.py --out "$sao_d3_proof/tool-repair"
     note "BORDER FINDING - exact native saw maintenance, measured wear or saved custody differs"
     fail=1
 fi
+if ! "$PY" tools/d3_native_item_fixing_test.py --out "$sao_d3_proof/item-fixing"; then
+    note "BORDER FINDING - exact native item fixing, payment, equipment or private continuity differs"
+    fail=1
+fi
 if ! "$PY" tools/d3_plumbing_controller_test.py --out "$sao_d3_proof/plumbing-controller"; then
     note "BORDER FINDING - private plumbing purpose or actual usable-water continuation differs"
     fail=1

@@ -1151,9 +1151,11 @@ end
 function C.toolRepairOutcome(id, receipt)
     local now = clock()
     if not now or type(receipt) ~= "table" or receipt.actorId ~= id
-        or receipt.kind ~= "repair-held-item" or (receipt.recipeId ~= "Base.FixSaw"
-            and receipt.recipeId ~= "Base.SharpenBlade" and receipt.recipeId ~= "Base.SharpenBladePoorlyWithFile")
-        or receipt.nativeOwner ~= "ISHandcraftAction" or receipt.token ~= "resource:repaired"
+        or (receipt.kind ~= "repair-held-item" and receipt.kind ~= "fix-held-item") or (receipt.kind=="fix-held-item"
+            and (type(receipt.recipeId)~="string" or receipt.recipeId:sub(1,7)~="fixing:")
+            or receipt.kind=="repair-held-item" and (receipt.recipeId ~= "Base.FixSaw"
+            and receipt.recipeId ~= "Base.SharpenBlade" and receipt.recipeId ~= "Base.SharpenBladePoorlyWithFile"))
+        or receipt.nativeOwner ~= (receipt.kind=="fix-held-item" and "ISFixAction" or "ISHandcraftAction") or receipt.token ~= "resource:repaired"
         or not finite(receipt.sequence, 1, 9007199254740991) or receipt.sequence ~= math.floor(receipt.sequence)
         or receipt.id ~= "resource-production/" .. id .. "/" .. tostring(receipt.sequence)
         or not finite(receipt.atHours, 0, now) or not finite(receipt.startedAt, 0, receipt.atHours) then return false end
@@ -1169,7 +1171,7 @@ function C.toolRepairOutcome(id, receipt)
         or not finite(receipt.afterCondition, 0, receipt.maxCondition)
         or (receipt.status ~= "completed" and receipt.status ~= "failed") then return false end
     local metric = receipt.effectMetric or "condition"
-    if metric ~= (receipt.recipeId == "Base.FixSaw" and "condition" or "sharpness") then return false end
+    if metric ~= ((receipt.recipeId == "Base.FixSaw" or receipt.kind=="fix-held-item") and "condition" or "sharpness") then return false end
     local beforeValue, afterValue = receipt.beforeCondition, receipt.afterCondition
     if metric == "sharpness" then
         if not finite(receipt.maxSharpness, 0.000000001, 1000000000)
@@ -1186,7 +1188,7 @@ function C.toolRepairOutcome(id, receipt)
     x.status = improved and "completed" or "no-effect"
     x.sourceId, x.itemId, x.itemType = receipt.recipeId, itemId, receipt.targetItemType
     x.beforeValue, x.afterValue = beforeValue, afterValue
-    if metric == "sharpness" then
+    if metric == "sharpness" or receipt.kind=="fix-held-item" then
         x.effectMetric = metric
         x.conditionLoss = math.max(0, receipt.beforeCondition - receipt.afterCondition)
         if receipt.beforeHeadCondition ~= nil then

@@ -1,0 +1,1037 @@
+{
+  "start": "0.1.0.0-pre-alpha",
+  "caps": {
+    "minor": 12,
+    "kohai": 16,
+    "patch": 24
+  },
+  "trace": [
+    [
+      "A1",
+      "initial",
+      "The governed repository itself: doc-pack, instruction surface, ratified pillar composition; no framework code.",
+      "0.1.0.0-pre-alpha"
+    ],
+    [
+      "A2",
+      "kohai",
+      "The verified engine substrate (F-001..F-007) before anything built on it; preparation, not a shipped capability.",
+      "0.1.1.0-pre-alpha"
+    ],
+    [
+      "A3",
+      "minor",
+      "The first survivor in the world: spawn, walk, remove - the first player-visible capability, and the mod tree ships.",
+      "0.2.0.0-pre-alpha"
+    ],
+    [
+      "A4",
+      "minor",
+      "The compiled agent, the bridge, and ENGINE_CONTRACT: the runtime contract everything renders and calls through.",
+      "0.3.0.0-pre-alpha"
+    ],
+    [
+      "A5",
+      "minor",
+      "The four pillars as code: perception with provenance, bounded disposition, standing, the controller composition.",
+      "0.4.0.0-pre-alpha"
+    ],
+    [
+      "A6",
+      "minor",
+      "Combat both directions and a persistent population in real towns: the framework becomes something a player meets.",
+      "0.5.0.0-pre-alpha"
+    ],
+    [
+      "A7",
+      "kohai",
+      "Genesis matured to the map's own spawn-region draw, off the forbidden refill shape; policy numbers become sandbox options.",
+      "0.5.1.0-pre-alpha"
+    ],
+    [
+      "A8",
+      "minor",
+      "The needs layer through the engine's own timed actions - eating, drinking, interruptible; grudges, testimony, gear errands.",
+      "0.6.0.0-pre-alpha"
+    ],
+    [
+      "A9",
+      "minor",
+      "The voice surface and real territory: claims, permission, first aid, sharing - with the one key schema (DR-005) under it.",
+      "0.7.0.0-pre-alpha"
+    ],
+    [
+      "A10",
+      "kohai",
+      "Multi-floor work, the ranged doctrine, and the F-011 sight repair: the loop polished, no new boundary.",
+      "0.7.1.0-pre-alpha"
+    ],
+    [
+      "A11",
+      "kohai",
+      "Hibernation made whole (F-013), dormant drift, estates, sleep: persistence matured into the person outliving the scene.",
+      "0.7.2.0-pre-alpha"
+    ],
+    [
+      "A12",
+      "minor",
+      "The social economy opens: gifts, barter, property with teeth and manners, dormant encounters.",
+      "0.8.0.0-pre-alpha"
+    ],
+    [
+      "A13",
+      "kohai",
+      "Debts, gunfire attribution, coordinated flight, companionship: the economy and relations grow edges.",
+      "0.8.1.0-pre-alpha"
+    ],
+    [
+      "A14",
+      "minor",
+      "The society arc ratified and built (DR-006): claims and lessons, leaders, settlement, membership, habits, bonds.",
+      "0.9.0.0-pre-alpha"
+    ],
+    [
+      "A15",
+      "kohai",
+      "Belief-gated permission (DR-007): the permission layer's last free knowledge made earned; epistemics matured.",
+      "0.9.1.0-pre-alpha"
+    ],
+    [
+      "A16",
+      "patch",
+      "The approval-chain repair (F-023) and the first live witness: verification closure on the existing line.",
+      "0.9.1.1-pre-alpha"
+    ],
+    [
+      "A17",
+      "minor",
+      "Inhabitant adoption: other mods' live humans join the social fabric with records, contact-scaled pasts, split clocks.",
+      "0.10.0.0-pre-alpha"
+    ],
+    [
+      "A18",
+      "minor",
+      "The census contract (DR-010/DR-011): 1993 labor distribution, profession-keyed origins, compatibility from first principles.",
+      "0.11.0.0-pre-alpha"
+    ],
+    [
+      "A19",
+      "minor",
+      "The workday taxonomy and elections: every tick carries a pressure answer; a mannequin is structurally impossible.",
+      "0.12.0.0-pre-alpha"
+    ],
+    [
+      "A20",
+      "kohai",
+      "Feuds, full-person talk, dormant attrition: politics closes its loop and gains its voice.",
+      "0.12.1.0-pre-alpha"
+    ],
+    [
+      "A21",
+      "patch",
+      "The hardening rotation: bulkheads, fault gates, F-031..F-034 - repair and closure, no boundary moved.",
+      "0.12.1.1-pre-alpha"
+    ],
+    [
+      "A22",
+      "kohai",
+      "Schism's mechanics, the war chronicle, the invariant sweep: politics matured under its audit trail.",
+      "0.12.2.0-pre-alpha"
+    ],
+    [
+      "A23",
+      "kohai",
+      "The offline equilibrium harness: 120 deterministic days prove the county's physics without the game; instrument, not capability.",
+      "0.12.3.0-pre-alpha"
+    ],
+    [
+      "A24",
+      "kohai",
+      "The engine rotation re-read end to end; full names and per-person texture make the people legible.",
+      "0.12.4.0-pre-alpha"
+    ],
+    [
+      "A25",
+      "kohai",
+      "Counsel, ration policy, the governance chronicle: the commons matured at community scale.",
+      "0.12.5.0-pre-alpha"
+    ],
+    [
+      "A26",
+      "minor",
+      "The county wire, 101.2, both directions: a new medium, built on the engine's own radio pattern.",
+      "1.0.0.0-pre-alpha"
+    ],
+    [
+      "A27",
+      "kohai",
+      "Player chairmanship, the arrival draw, war parties: the political physics completed.",
+      "1.0.1.0-pre-alpha"
+    ],
+    [
+      "A28",
+      "minor",
+      "Derived possessions: the convenience tables die; place provides, person spots - a new derivation contract.",
+      "1.1.0.0-pre-alpha"
+    ],
+    [
+      "A29",
+      "minor",
+      "Day-zero innocent-county mode: a new way to start the world, innocent by construction.",
+      "1.2.0.0-pre-alpha"
+    ],
+    [
+      "B1",
+      "minor",
+      "The venture as a designed feature-complex: motor pool, departure argument, terms, crews, briefings.",
+      "1.3.0.0-pre-alpha"
+    ],
+    [
+      "B2",
+      "kohai",
+      "Skill levels drive assignment and rates across the existing work; one truth, two read paths.",
+      "1.3.1.0-pre-alpha"
+    ],
+    [
+      "B3",
+      "minor",
+      "The bitten arc: bite visibility, the house's answer from character, turning recognition, promises kept.",
+      "1.4.0.0-pre-alpha"
+    ],
+    [
+      "B4",
+      "minor",
+      "Farming through vanilla timed actions: the renewable arm of the material economy.",
+      "1.5.0.0-pre-alpha"
+    ],
+    [
+      "B5",
+      "patch",
+      "Performance and sensor audits; three borders born - cost and truthfulness closure.",
+      "1.5.0.1-pre-alpha"
+    ],
+    [
+      "B6",
+      "minor",
+      "Water as the second material axis and fire as a need: stores, runs, the shutoff day, hearth tending and lighting.",
+      "1.6.0.0-pre-alpha"
+    ],
+    [
+      "B7",
+      "kohai",
+      "Council abandonment and the wound's full life: decisions the state earns, on existing machinery.",
+      "1.6.1.0-pre-alpha"
+    ],
+    [
+      "B8",
+      "kohai",
+      "Standing moves both directions: endorsement, decay, lapse, walking out - the ratchet removed.",
+      "1.6.2.0-pre-alpha"
+    ],
+    [
+      "B9",
+      "kohai",
+      "The engine's own chemistry colors meetings; wire bulletins land as told knowledge in real receivers.",
+      "1.6.3.0-pre-alpha"
+    ],
+    [
+      "B10",
+      "patch",
+      "The foreign key domain contained, wounds persist through the pack, the county lets go at player death - repairs.",
+      "1.6.3.1-pre-alpha"
+    ],
+    [
+      "B11",
+      "kohai",
+      "Housemate teaching and player barter: the circle law's cost and the player in the economy.",
+      "1.6.4.0-pre-alpha"
+    ],
+    [
+      "B12",
+      "kohai",
+      "The verb wall collapses into the game's own menu idiom; the index completed - surface maturation.",
+      "1.6.5.0-pre-alpha"
+    ],
+    [
+      "B13",
+      "kohai",
+      "Need-driven promotion at election: the house reads its own counted claims and adapts.",
+      "1.6.6.0-pre-alpha"
+    ],
+    [
+      "B14",
+      "kohai",
+      "The repository gate and pre-commit hook: discipline made mechanical, proven by breaking the tree.",
+      "1.6.7.0-pre-alpha"
+    ],
+    [
+      "B15",
+      "kohai",
+      "Corpse looting with dignity rules: the one place dignity outranks need.",
+      "1.6.8.0-pre-alpha"
+    ],
+    [
+      "B16",
+      "patch",
+      "The undeclared-identifier audit and the edit-verification law: instruments and closure.",
+      "1.6.8.1-pre-alpha"
+    ],
+    [
+      "B17",
+      "kohai",
+      "Night-light gating and weather's weight: dark and storms shape the existing behaviors.",
+      "1.6.9.0-pre-alpha"
+    ],
+    [
+      "B18",
+      "kohai",
+      "The Ledger learns live content; the player claims ground and homes companions through existing machinery.",
+      "1.6.10.0-pre-alpha"
+    ],
+    [
+      "B19",
+      "kohai",
+      "Player teaching, vehicle crews, venture staffing, night watch: the player joins the work.",
+      "1.6.11.0-pre-alpha"
+    ],
+    [
+      "B20",
+      "kohai",
+      "Severity-first aid, the distress cry and its cost, the cook designation: professional shapes on existing lines.",
+      "1.6.12.0-pre-alpha"
+    ],
+    [
+      "B21",
+      "kohai",
+      "Population exchange with the zombie pool, porch music, evidence-based judging: composition with the world.",
+      "1.6.13.0-pre-alpha"
+    ],
+    [
+      "B22",
+      "kohai",
+      "Keepsakes and reading, derived work stations, skill-book study: identity beyond employment.",
+      "1.6.14.0-pre-alpha"
+    ],
+    [
+      "B23",
+      "minor",
+      "Government's complete shapes: five forms, deputies, turns, scarcity asks, division-driven schism.",
+      "1.7.0.0-pre-alpha"
+    ],
+    [
+      "B24",
+      "patch",
+      "The dead pact layer revived (one-character typo) and the creed distribution corrected - repairs with their border.",
+      "1.7.0.1-pre-alpha"
+    ],
+    [
+      "B25",
+      "patch",
+      "Work-judgment probing, quarrel drivers, identity-gate corrections: probing and repair.",
+      "1.7.0.2-pre-alpha"
+    ],
+    [
+      "B26",
+      "patch",
+      "Engine item-vocabulary corrections: four dead literals replaced with the engine's own surfaces.",
+      "1.7.0.3-pre-alpha"
+    ],
+    [
+      "B27",
+      "minor",
+      "The player as channel participant: one experience loop, inbound and outbound, restoring a missing player-visible contract.",
+      "1.8.0.0-pre-alpha"
+    ],
+    [
+      "B28",
+      "kohai",
+      "Newcomer reach, arrival rates, registers, trespass teaching: the road matured and measured.",
+      "1.8.1.0-pre-alpha"
+    ],
+    [
+      "B29",
+      "patch",
+      "Road-frequency display, ledger paging, window sizing: small surfaces made honest.",
+      "1.8.1.1-pre-alpha"
+    ],
+    [
+      "B30",
+      "patch",
+      "Publishing metadata and the false description repaired; attribution made precise.",
+      "1.8.1.2-pre-alpha"
+    ],
+    [
+      "B31",
+      "patch",
+      "The duplication border, fuel accounting, protocol borders: drift measured before unified.",
+      "1.8.1.3-pre-alpha"
+    ],
+    [
+      "B32",
+      "patch",
+      "The between-time chain repaired, mirror coverage, analysis discipline: the county's habits fixed with their instrument.",
+      "1.8.1.4-pre-alpha"
+    ],
+    [
+      "B33",
+      "patch",
+      "The two radii reconciled into one honest band; the shipped jar found stale and made current.",
+      "1.8.1.5-pre-alpha"
+    ],
+    [
+      "B34",
+      "patch",
+      "Menu gating, measured claim extents, queue-drop detection: silent failure classes closed.",
+      "1.8.1.6-pre-alpha"
+    ],
+    [
+      "B35",
+      "kohai",
+      "The claim lifecycle completed: unlearning by proximity, protection, carry-light wired to its walk.",
+      "1.8.2.0-pre-alpha"
+    ],
+    [
+      "B36",
+      "patch",
+      "The save-field guard, deploy survival, the catch audit: the discipline layer hardened.",
+      "1.8.2.1-pre-alpha"
+    ],
+    [
+      "B37",
+      "patch",
+      "The county's truths made singular: one band constant, age arithmetic, death causes, shutoff revision.",
+      "1.8.2.2-pre-alpha"
+    ],
+    [
+      "B38",
+      "minor",
+      "The county's scale derived from the installed map and the census graded against the real 1990 - assumption replaced by contract.",
+      "1.9.0.0-pre-alpha"
+    ],
+    [
+      "B39",
+      "minor",
+      "Acquisition provenance completed (unknown fails the gate) and places spent by being visited - scarcity becomes a model.",
+      "1.10.0.0-pre-alpha"
+    ],
+    [
+      "B40",
+      "patch",
+      "Named constants, lived provenance at genesis, the perk vocabulary map: names that keep arithmetic honest.",
+      "1.10.0.1-pre-alpha"
+    ],
+    [
+      "B41",
+      "patch",
+      "The gate audits itself: all mirrors run, and the player's own perception repaired after 79 batches blind.",
+      "1.10.0.2-pre-alpha"
+    ],
+    [
+      "B42",
+      "patch",
+      "The silent surfaces hunted as a class; census authority ratified (DR-012).",
+      "1.10.0.3-pre-alpha"
+    ],
+    [
+      "B43",
+      "patch",
+      "The jar stamps its own version, session-state truth gated, the dormant economy's unwired halves wired.",
+      "1.10.0.4-pre-alpha"
+    ],
+    [
+      "B44",
+      "patch",
+      "Legible option labels and the Kahlua runtime boundary learned from a live crash.",
+      "1.10.0.5-pre-alpha"
+    ],
+    [
+      "B45",
+      "patch",
+      "Distance naming, Kahlua-gated compilation, the nil-name repair, the neighbour narration hold.",
+      "1.10.0.6-pre-alpha"
+    ],
+    [
+      "B46",
+      "patch",
+      "The player-reply channel repaired: two stacked defects that silenced the conversational surface.",
+      "1.10.0.7-pre-alpha"
+    ],
+    [
+      "B47",
+      "patch",
+      "The log-reading defect pass: census rebuilt true, noise measured down, boot truth.",
+      "1.10.0.8-pre-alpha"
+    ],
+    [
+      "B48",
+      "patch",
+      "The distribution arc: everybody was the same person - the hash pathology found by instrument and fixed.",
+      "1.10.0.9-pre-alpha"
+    ],
+    [
+      "B49",
+      "patch",
+      "Frame-time pacing disclosed on every claim; the voice cooldown moved to the wall clock; decay verified.",
+      "1.10.0.10-pre-alpha"
+    ],
+    [
+      "B50",
+      "patch",
+      "Engine behavior facts re-asked of the machine each run; the bridge throw contract graphed.",
+      "1.10.0.11-pre-alpha"
+    ],
+    [
+      "B51",
+      "patch",
+      "The dead stop growing quietly: death-time cleanup, budgeted walks, derived art, the save protocol border.",
+      "1.10.0.12-pre-alpha"
+    ],
+    [
+      "B52",
+      "patch",
+      "The era's integrity closed: derived counts, aligned names, the scout read whole, the answer domain sealed.",
+      "1.10.0.13-pre-alpha"
+    ],
+    [
+      "C1",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "1.10.1.0-pre-alpha"
+    ],
+    [
+      "C2",
+      "patch",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "1.10.1.1-pre-alpha"
+    ],
+    [
+      "C3",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "1.10.2.0-pre-alpha"
+    ],
+    [
+      "C4",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "1.10.3.0-pre-alpha"
+    ],
+    [
+      "C5",
+      "patch",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "1.10.3.1-pre-alpha"
+    ],
+    [
+      "C6",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "1.10.4.0-pre-alpha"
+    ],
+    [
+      "C7",
+      "minor",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "1.11.0.0-pre-alpha"
+    ],
+    [
+      "C8",
+      "patch",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "1.11.0.1-pre-alpha"
+    ],
+    [
+      "C9",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "1.11.1.0-pre-alpha"
+    ],
+    [
+      "C10",
+      "patch",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "1.11.1.1-pre-alpha"
+    ],
+    [
+      "C11",
+      "minor",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "1.12.0.0-pre-alpha"
+    ],
+    [
+      "C12",
+      "minor",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.0.0.0-pre-alpha"
+    ],
+    [
+      "C13",
+      "minor",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.1.0.0-pre-alpha"
+    ],
+    [
+      "C14",
+      "minor",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.2.0.0-pre-alpha"
+    ],
+    [
+      "C15",
+      "patch",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.2.0.1-pre-alpha"
+    ],
+    [
+      "C16",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.2.1.0-pre-alpha"
+    ],
+    [
+      "C17",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.2.2.0-pre-alpha"
+    ],
+    [
+      "C18",
+      "minor",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.3.0.0-pre-alpha"
+    ],
+    [
+      "C19",
+      "minor",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.4.0.0-pre-alpha"
+    ],
+    [
+      "C20",
+      "patch",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.4.0.1-pre-alpha"
+    ],
+    [
+      "C21",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.4.1.0-pre-alpha"
+    ],
+    [
+      "C22",
+      "patch",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.4.1.1-pre-alpha"
+    ],
+    [
+      "C23",
+      "patch",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.4.1.2-pre-alpha"
+    ],
+    [
+      "C24",
+      "patch",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.4.1.3-pre-alpha"
+    ],
+    [
+      "C25",
+      "patch",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.4.1.4-pre-alpha"
+    ],
+    [
+      "C26",
+      "minor",
+      "Establishes a new player-visible capability or authoring/runtime contract. Elapsed-time production, truthful verification scope and source-bound reproducible trajectory observation are consecutive phases of one county simulation/observation product. The new authoring/runtime observation contract determines the minor tier; the two supporting corrections remain inside its delivered outcome. Reproducibility does not establish that every producer is correct, that observed outcomes are training-eligible or that later clock/catch-up defects were already repaired.",
+      "2.5.0.0-pre-alpha"
+    ],
+    [
+      "C27",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.5.1.0-pre-alpha"
+    ],
+    [
+      "C28",
+      "patch",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.5.1.1-pre-alpha"
+    ],
+    [
+      "C29",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.5.2.0-pre-alpha"
+    ],
+    [
+      "C30",
+      "minor",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.6.0.0-pre-alpha"
+    ],
+    [
+      "C31",
+      "patch",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.6.0.1-pre-alpha"
+    ],
+    [
+      "C32",
+      "minor",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.0.0-pre-alpha"
+    ],
+    [
+      "C33",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.1.0-pre-alpha"
+    ],
+    [
+      "C34",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.2.0-pre-alpha"
+    ],
+    [
+      "C35",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.3.0-pre-alpha"
+    ],
+    [
+      "C36",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.4.0-pre-alpha"
+    ],
+    [
+      "C37",
+      "patch",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.4.1-pre-alpha"
+    ],
+    [
+      "C38",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.5.0-pre-alpha"
+    ],
+    [
+      "C39",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.6.0-pre-alpha"
+    ],
+    [
+      "C40",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.7.0-pre-alpha"
+    ],
+    [
+      "C41",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.8.0-pre-alpha"
+    ],
+    [
+      "C42",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.9.0-pre-alpha"
+    ],
+    [
+      "C43",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.10.0-pre-alpha"
+    ],
+    [
+      "C44",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.11.0-pre-alpha"
+    ],
+    [
+      "C45",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.12.0-pre-alpha"
+    ],
+    [
+      "C46",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.13.0-pre-alpha"
+    ],
+    [
+      "C47",
+      "kohai",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.14.0-pre-alpha"
+    ],
+    [
+      "C48",
+      "patch",
+      "Preserves the earlier product-tier classification: Retains the substantive product boundary established by the operator-authorized 2026-09-19 consolidation. Its exact original source includes the implementation assessment, cause-specific corrections and remaining scope; later related work stays in its chronological product.",
+      "2.7.14.1-pre-alpha"
+    ],
+    [
+      "C49",
+      "minor",
+      "Establishes a new player-visible capability or authoring/runtime contract. Capture, source teardown, authorized return, exact native reconstruction and reload publication are consecutive phases of the same person-continuity outcome. They form one product; unauthorized resurrection and later pathogen policy remain separately owned.",
+      "2.8.0.0-pre-alpha"
+    ],
+    [
+      "C50",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. Physiological advancement is a distinct behavioral promise from restoring an unchanged native person. Its partition and reload controls mature existing health and needs owners.",
+      "2.8.1.0-pre-alpha"
+    ],
+    [
+      "C51",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. Central capture, reconstructed population scheduling and the debug compiler repair close one continuous reconstruction integration. The compilation correction supports this product without becoming a separate behavior.",
+      "2.8.2.0-pre-alpha"
+    ],
+    [
+      "C52",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. The epistemic and physical admission boundary differs from reconstruction and from performed provisioning. It extends the existing perception/access product.",
+      "2.8.3.0-pre-alpha"
+    ],
+    [
+      "C53",
+      "minor",
+      "Establishes a new player-visible capability or authoring/runtime contract. Hydrated native truth, actor-private access, action ownership, completed-result consumption, integrity corrections and offered choices are successive producer-to-consumer phases of performed provisioning. Partial source coverage never becomes complete household stock, settlement formation or a learned model.",
+      "2.9.0.0-pre-alpha"
+    ],
+    [
+      "C54",
+      "minor",
+      "Establishes a new player-visible capability or authoring/runtime contract. Transfer evidence, completed handovers and the recipient interpretation close one causal personal exchange chain. The sources preserve the distinction between a physical transfer, privately acquired testimony, gratitude and collectible debt.",
+      "2.10.0.0-pre-alpha"
+    ],
+    [
+      "C55",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. The correction matures the existing care capability; exchange and treatment have different native receivers and consequences.",
+      "2.10.1.0-pre-alpha"
+    ],
+    [
+      "C56",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. Recursive inventory and personal access mature an existing material capability independently of treatment or communication.",
+      "2.10.2.0-pre-alpha"
+    ],
+    [
+      "C57",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. Awake-listener advancement and endpoint/channel evidence are consecutive prerequisites of heard communication. A radio in inventory and mere proximity remain insufficient.",
+      "2.10.3.0-pre-alpha"
+    ],
+    [
+      "C58",
+      "minor",
+      "Establishes a new player-visible capability or authoring/runtime contract. Claim provenance, typed retrieval references, immutable capture, the real reading-acquisition correction and contextual person-state comparison form one runtime/data authoring product. Training, learned expression and loaded conversation quality remain source-declared gaps.",
+      "2.11.0.0-pre-alpha"
+    ],
+    [
+      "C59",
+      "minor",
+      "Establishes a new player-visible capability or authoring/runtime contract. This source establishes the initial voluntary coordination runtime boundary. External ownership and later natural private-life formation extend it afterward.",
+      "2.12.0.0-pre-alpha"
+    ],
+    [
+      "C60",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. General living handoff integrates the existing continuity and pathogen capabilities. It neither makes the two pathogen policies identical nor copies their state into the survivor controller.",
+      "2.12.1.0-pre-alpha"
+    ],
+    [
+      "C61",
+      "minor",
+      "Establishes a new player-visible capability or authoring/runtime contract. Source generation and native verified model consumption complete the first coordination-shadow product. This is an actual learned runtime boundary with explicitly bounded authority, rather than a new authoritative actor policy.",
+      "3.0.0.0-pre-alpha"
+    ],
+    [
+      "C62",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. External coordination, causal episode observation and natural private-life contact complete the existing enacted cooperation line. Arrival does not imply reception; institution-wide governance and wider material producers remain open.",
+      "3.0.1.0-pre-alpha"
+    ],
+    [
+      "C63",
+      "minor",
+      "Establishes a new player-visible capability or authoring/runtime contract. World packaging, actor/observer separation, copied native places, finite process ownership and exact survival continuation establish one integrated native-study product. Authored conditions never supply a successful outcome or teaching label.",
+      "3.1.0.0-pre-alpha"
+    ],
+    [
+      "C64",
+      "minor",
+      "Establishes a new player-visible capability or authoring/runtime contract. The native competition experiment and its capability/execution corrections form one cognition-through-action outcome. Censored episodes, selected-model bias and bounded controlled/native trials cannot establish general policy superiority.",
+      "3.2.0.0-pre-alpha"
+    ],
+    [
+      "C65",
+      "minor",
+      "Establishes a new player-visible capability or authoring/runtime contract. Long-form private plans, role allocation and naturally formed material/tactical procedures are consecutive phases of the same cooperative action product. Process truth and participant knowledge remain separate through rebind and revision.",
+      "3.3.0.0-pre-alpha"
+    ],
+    [
+      "C66",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. Continuation and pressure authoring mature the existing native study product. The loaded diagnostic establishes causal reachability, preserving weak behavior and incomplete downstream work rather than certifying quality.",
+      "3.3.1.0-pre-alpha"
+    ],
+    [
+      "C67",
+      "minor",
+      "Establishes a new player-visible capability or authoring/runtime contract. The general maintained-purpose runtime and its current-engine activation are one delivery arc. Mechanical planner proof and an unreviewed loaded specimen remain separate evidence; later native reading repairs retain their own chronology.",
+      "3.4.0.0-pre-alpha"
+    ],
+    [
+      "C68",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. This structural source reconciliation matures existing integrations. A catalogue of sources establishes provenance and gaps rather than completing all listed mechanics.",
+      "3.4.1.0-pre-alpha"
+    ],
+    [
+      "C69",
+      "minor",
+      "Establishes a new player-visible capability or authoring/runtime contract. Mounted animal mobility is a distinct native simulation capability, with its own current-engine loaded travel acceptance.",
+      "3.5.0.0-pre-alpha"
+    ],
+    [
+      "C70",
+      "minor",
+      "Establishes a new player-visible capability or authoring/runtime contract. Mobile-household implementation and its loaded physical-room corrections/acceptance form one product. The new record retains the first open physical acceptance and later cause-specific completion in order.",
+      "3.6.0.0-pre-alpha"
+    ],
+    [
+      "C71",
+      "patch",
+      "Corrects or verifies an existing capability without moving its boundary. This repairs terminal identity and display handoff in the existing native-study product; it adds no behavioral approval or dataset authority.",
+      "3.6.0.1-pre-alpha"
+    ],
+    [
+      "C72",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. Real skill-book execution and retained locate/acquire/continue prerequisites close the existing learning-purpose chain. Practical skill use, other categories and completed cooking keep their independent native receipts; loaded prevalence remains unobserved.",
+      "3.6.1.0-pre-alpha"
+    ],
+    [
+      "C73",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. Sustained resource purposes extend the general planner. Unknown capacities and group needs remain unavailable rather than being inferred from occupation, stock or a desired outcome.",
+      "3.6.2.0-pre-alpha"
+    ],
+    [
+      "C74",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. Objective authoring, regional admission, native hydration/timing and approach/threat corrections complete one resource-trial authoring and observation chain. The initial expiries and failed routes remain evidence rather than absence-of-resources or success claims.",
+      "3.6.3.0-pre-alpha"
+    ],
+    [
+      "C75",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. This coherently extends individual survival planning rather than the experimental trial issuer. Policy weights remain explicit ordinal choices, not learned calibration.",
+      "3.6.4.0-pre-alpha"
+    ],
+    [
+      "C76",
+      "patch",
+      "Corrects or verifies an existing capability without moving its boundary. Freshness and terminal parsing correct the existing observer/session product without changing autonomous actor policy.",
+      "3.6.4.1-pre-alpha"
+    ],
+    [
+      "C77",
+      "patch",
+      "Corrects or verifies an existing capability without moving its boundary. Cause-specific locomotion and continuity corrections repair the existing movement capability; their native observation limits remain with the source.",
+      "3.6.4.2-pre-alpha"
+    ],
+    [
+      "C78",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. Feeding and perishable carried-state integration extend existing needs and inventory. This remains separate from locomotion and window repair.",
+      "3.6.5.0-pre-alpha"
+    ],
+    [
+      "C79",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. Window repair extends actual construction/execution capability. Native effects, lifecycle refusal and learned interpretation have different evidence boundaries preserved in its record.",
+      "3.6.6.0-pre-alpha"
+    ],
+    [
+      "C80",
+      "minor",
+      "Establishes a new player-visible capability or authoring/runtime contract. Independent layouts, uncapped acquisition, durable subjects and continuous encoded transport deliver one person-observation product across SAO, Speakeasy and Mousecat. Synthetic encoder fixtures, rendered native evidence and playback quality remain distinct.",
+      "3.7.0.0-pre-alpha"
+    ],
+    [
+      "C81",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. This matures an installed physical furniture mechanic. It does not grant NPC planning, private practice or broader utility acceptance.",
+      "3.7.1.0-pre-alpha"
+    ],
+    [
+      "C82",
+      "kohai",
+      "Extends, integrates or structurally matures an existing capability. Entry comparison, bodily recovery arbitration and authenticated later-choice learning are one continuous residence/survival product arc. C120 native observation exposed a posture gap; later D1 repairs and bounded native recovery are separate dated evidence and do not rewrite the C-era verdict.",
+      "3.7.2.0-pre-alpha"
+    ],
+    [
+      "D1",
+      "minor",
+      "Shared person-specific conceptual reasoning and source-bound prior-history admission establish a live authoring/runtime contract.",
+      "3.8.0.0-pre-alpha"
+    ],
+    [
+      "D2",
+      "kohai",
+      "Leisure integrates personally acquired recreation, music, games, art and social participation with native action ownership, interruption, durable purposes and consequential private experience.",
+      "3.8.1.0-pre-alpha"
+    ],
+    [
+      "D3.1",
+      "minor",
+      "Native material crafting establishes an exact privately acquired-input, installed-recipe, measured-output and authenticated-experience runtime contract within retained construction. The first D3 window/boarding join supplies its required integration; the OPEN parent receives no repeated credit.",
+      "3.9.0.0-pre-alpha"
+    ],
+    [
+      "D3.2",
+      "minor",
+      "Exact held-tool repair establishes native FixSaw eligibility, private file acquisition and competing maintenance means, kept manual inputs, measured condition/wear, retained construction continuation and authenticated positive/negative private feedback. The OPEN D3 parent receives no repeated credit.",
+      "3.10.0.0-pre-alpha"
+    ],
+    [
+      "D3.3",
+      "kohai",
+      "Portable blade sharpening and ordinary kit tending extend the existing exact held-tool maintenance contract through private file/whetstone means, native metric-specific benefits and damage, authenticated experience and saved continuity. The OPEN D3 parent receives no duplicate credit.",
+      "3.10.1.0-pre-alpha"
+    ],
+    [
+      "D3.4",
+      "minor",
+      "Native plumbing establishes private fixture and pipe-wrench admission, installed connection, measured connection-result authority, handled-source refresh and actual usable water under the same hydration purpose. The OPEN D3 parent receives no duplicate credit.",
+      "3.11.0.0-pre-alpha"
+    ],
+    [
+      "D3.5",
+      "minor",
+      "Native world-entity construction establishes registered collector recipes, exact manual inputs and private acquisition, personally observed placement, measured native construction and authenticated result/persistence contracts feeding the existing rain/plumbing/usable-water purpose. The OPEN D3 parent receives no duplicate credit.",
+      "3.12.0.0-pre-alpha"
+    ],
+    [
+      "D3.6",
+      "minor",
+      "Native generator operation establishes private machinery/consumer identities, acquired operating knowledge, exact repair/fuel/connection/activation ownership, reached consumer power and retained original activity with authenticated results and recovery. The OPEN D3 parent receives no duplicate credit.",
+      "4.0.0.0-pre-alpha"
+    ]
+  ],
+  "sourceHead": "a16854e3df16381d2dde42803dcc918d8cce189e"
+}

@@ -12,20 +12,20 @@ THE MODEL (CAO's, adopted)
 --------------------------
 Form `major.minor.kohai.patch-maturity`; hard caps minor 12, kohai 16,
 patch 24; a tier movement resets the coordinates beneath it; a movement
-at the cap rolls the tier above (twelve minors of capability ARE a
-major - that is the odometer, not an honor). Maturity moves on
+at the cap rolls the coordinate above without declaring a completed
+feature collection or release. Maturity moves on
 evidence, never on arithmetic; SAO remains pre-alpha; individual
 play receipts do not establish release maturity.
 
-Tiers: minor = a new player-visible simulation capability or a new
-authoring/runtime contract; kohai = a coherent extension, integration,
-or structural maturation of an existing capability; patch = an in-place
-correction, verification closure, or repair that does not move a
-capability boundary.
+Tiers: minor = completed coherent feature/module scope with required integration;
+kohai = coherent building progress within an unfinished feature/module;
+patch = in-place correction. An API, action, artifact or child closure alone
+does not establish feature completion. Major semantic boundaries are
+operator-selected; mechanical carries do not declare a release.
 
 WHAT IS DERIVED AND WHAT IS INPUT
 ---------------------------------
-A/B retain the tier table below. Current C product tiers and rationales
+A/B tiers are reconciled against feature scope in the table below. Current C product tiers and rationales
 come from Batches/C_PRODUCT_CATALOGUE.json. Its generation-qualified
 sources retain separate implementation, verification and publication
 status; a version tier does not close every remaining D obligation.
@@ -68,109 +68,109 @@ REPLAY_START = "0.1.0.0-pre-alpha"
 # Retained A/B (batch, tier, rationale) rows. C is read from the current
 # product manifest; shared contracts and historical C generations remain unchanged.
 UNITS = [
-    ('A1', 'initial', 'The governed repository itself: doc-pack, instruction surface, ratified pillar composition; no framework code.'),
-    ('A2', 'kohai', 'The verified engine substrate (F-001..F-007) before anything built on it; preparation, not a shipped capability.'),
-    ('A3', 'minor', 'The first survivor in the world: spawn, walk, remove - the first player-visible capability, and the mod tree ships.'),
-    ('A4', 'minor', 'The compiled agent, the bridge, and ENGINE_CONTRACT: the runtime contract everything renders and calls through.'),
-    ('A5', 'minor', 'The four pillars as code: perception with provenance, bounded disposition, standing, the controller composition.'),
-    ('A6', 'minor', 'Combat both directions and a persistent population in real towns: the framework becomes something a player meets.'),
-    ('A7', 'kohai', "Genesis matured to the map's own spawn-region draw, off the forbidden refill shape; policy numbers become sandbox options."),
-    ('A8', 'minor', "The needs layer through the engine's own timed actions - eating, drinking, interruptible; grudges, testimony, gear errands."),
-    ('A9', 'minor', 'The voice surface and real territory: claims, permission, first aid, sharing - with the one key schema (DR-005) under it.'),
-    ('A10', 'kohai', 'Multi-floor work, the ranged doctrine, and the F-011 sight repair: the loop polished, no new boundary.'),
-    ('A11', 'kohai', 'Hibernation made whole (F-013), dormant drift, estates, sleep: persistence matured into the person outliving the scene.'),
-    ('A12', 'minor', 'The social economy opens: gifts, barter, property with teeth and manners, dormant encounters.'),
-    ('A13', 'kohai', 'Debts, gunfire attribution, coordinated flight, companionship: the economy and relations grow edges.'),
-    ('A14', 'minor', 'The society arc ratified and built (DR-006): claims and lessons, leaders, settlement, membership, habits, bonds.'),
-    ('A15', 'kohai', "Belief-gated permission (DR-007): the permission layer's last free knowledge made earned; epistemics matured."),
-    ('A16', 'patch', 'The approval-chain repair (F-023) and the first live witness: verification closure on the existing line.'),
-    ('A17', 'minor', "Inhabitant adoption: other mods' live humans join the social fabric with records, contact-scaled pasts, split clocks."),
-    ('A18', 'minor', 'The census contract (DR-010/DR-011): 1993 labor distribution, profession-keyed origins, compatibility from first principles.'),
-    ('A19', 'minor', 'The workday taxonomy and elections: every tick carries a pressure answer; a mannequin is structurally impossible.'),
-    ('A20', 'kohai', 'Feuds, full-person talk, dormant attrition: politics closes its loop and gains its voice.'),
-    ('A21', 'patch', 'The hardening rotation: bulkheads, fault gates, F-031..F-034 - repair and closure, no boundary moved.'),
-    ('A22', 'kohai', "Schism's mechanics, the war chronicle, the invariant sweep: politics matured under its audit trail."),
-    ('A23', 'kohai', "The offline equilibrium harness: 120 deterministic days prove the county's physics without the game; instrument, not capability."),
-    ('A24', 'kohai', 'The engine rotation re-read end to end; full names and per-person texture make the people legible.'),
-    ('A25', 'kohai', 'Counsel, ration policy, the governance chronicle: the commons matured at community scale.'),
-    ('A26', 'minor', "The county wire, 101.2, both directions: a new medium, built on the engine's own radio pattern."),
-    ('A27', 'kohai', 'Player chairmanship, the arrival draw, war parties: the political physics completed.'),
-    ('A28', 'minor', 'Derived possessions: the convenience tables die; place provides, person spots - a new derivation contract.'),
-    ('A29', 'minor', 'Day-zero innocent-county mode: a new way to start the world, innocent by construction.'),
-    ('B1', 'minor', 'The venture as a designed feature-complex: motor pool, departure argument, terms, crews, briefings.'),
-    ('B2', 'kohai', 'Skill levels drive assignment and rates across the existing work; one truth, two read paths.'),
-    ('B3', 'minor', "The bitten arc: bite visibility, the house's answer from character, turning recognition, promises kept."),
-    ('B4', 'minor', 'Farming through vanilla timed actions: the renewable arm of the material economy.'),
-    ('B5', 'patch', 'Performance and sensor audits; three borders born - cost and truthfulness closure.'),
-    ('B6', 'minor', 'Water as the second material axis and fire as a need: stores, runs, the shutoff day, hearth tending and lighting.'),
-    ('B7', 'kohai', "Council abandonment and the wound's full life: decisions the state earns, on existing machinery."),
-    ('B8', 'kohai', 'Standing moves both directions: endorsement, decay, lapse, walking out - the ratchet removed.'),
-    ('B9', 'kohai', "The engine's own chemistry colors meetings; wire bulletins land as told knowledge in real receivers."),
-    ('B10', 'patch', 'The foreign key domain contained, wounds persist through the pack, the county lets go at player death - repairs.'),
-    ('B11', 'kohai', "Housemate teaching and player barter: the circle law's cost and the player in the economy."),
-    ('B12', 'kohai', "The verb wall collapses into the game's own menu idiom; the index completed - surface maturation."),
-    ('B13', 'kohai', 'Need-driven promotion at election: the house reads its own counted claims and adapts.'),
-    ('B14', 'kohai', 'The repository gate and pre-commit hook: discipline made mechanical, proven by breaking the tree.'),
-    ('B15', 'kohai', 'Corpse looting with dignity rules: the one place dignity outranks need.'),
-    ('B16', 'patch', 'The undeclared-identifier audit and the edit-verification law: instruments and closure.'),
-    ('B17', 'kohai', "Night-light gating and weather's weight: dark and storms shape the existing behaviors."),
-    ('B18', 'kohai', 'The Ledger learns live content; the player claims ground and homes companions through existing machinery.'),
-    ('B19', 'kohai', 'Player teaching, vehicle crews, venture staffing, night watch: the player joins the work.'),
-    ('B20', 'kohai', 'Severity-first aid, the distress cry and its cost, the cook designation: professional shapes on existing lines.'),
-    ('B21', 'kohai', 'Population exchange with the zombie pool, porch music, evidence-based judging: composition with the world.'),
-    ('B22', 'kohai', 'Keepsakes and reading, derived work stations, skill-book study: identity beyond employment.'),
-    ('B23', 'minor', "Government's complete shapes: five forms, deputies, turns, scarcity asks, division-driven schism."),
-    ('B24', 'patch', 'The dead pact layer revived (one-character typo) and the creed distribution corrected - repairs with their border.'),
-    ('B25', 'patch', 'Work-judgment probing, quarrel drivers, identity-gate corrections: probing and repair.'),
-    ('B26', 'patch', "Engine item-vocabulary corrections: four dead literals replaced with the engine's own surfaces."),
-    ('B27', 'minor', 'The player as channel participant: one experience loop, inbound and outbound, restoring a missing player-visible contract.'),
-    ('B28', 'kohai', 'Newcomer reach, arrival rates, registers, trespass teaching: the road matured and measured.'),
-    ('B29', 'patch', 'Road-frequency display, ledger paging, window sizing: small surfaces made honest.'),
-    ('B30', 'patch', 'Publishing metadata and the false description repaired; attribution made precise.'),
-    ('B31', 'patch', 'The duplication border, fuel accounting, protocol borders: drift measured before unified.'),
-    ('B32', 'patch', "The between-time chain repaired, mirror coverage, analysis discipline: the county's habits fixed with their instrument."),
-    ('B33', 'patch', 'The two radii reconciled into one honest band; the shipped jar found stale and made current.'),
-    ('B34', 'patch', 'Menu gating, measured claim extents, queue-drop detection: silent failure classes closed.'),
-    ('B35', 'kohai', 'The claim lifecycle completed: unlearning by proximity, protection, carry-light wired to its walk.'),
-    ('B36', 'patch', 'The save-field guard, deploy survival, the catch audit: the discipline layer hardened.'),
-    ('B37', 'patch', "The county's truths made singular: one band constant, age arithmetic, death causes, shutoff revision."),
-    ('B38', 'minor', "The county's scale derived from the installed map and the census graded against the real 1990 - assumption replaced by contract."),
-    ('B39', 'minor', 'Acquisition provenance completed (unknown fails the gate) and places spent by being visited - scarcity becomes a model.'),
-    ('B40', 'patch', 'Named constants, lived provenance at genesis, the perk vocabulary map: names that keep arithmetic honest.'),
-    ('B41', 'patch', "The gate audits itself: all mirrors run, and the player's own perception repaired after 79 batches blind."),
-    ('B42', 'patch', 'The silent surfaces hunted as a class; census authority ratified (DR-012).'),
-    ('B43', 'patch', "The jar stamps its own version, session-state truth gated, the dormant economy's unwired halves wired."),
-    ('B44', 'patch', 'Legible option labels and the Kahlua runtime boundary learned from a live crash.'),
-    ('B45', 'patch', 'Distance naming, Kahlua-gated compilation, the nil-name repair, the neighbour narration hold.'),
-    ('B46', 'patch', 'The player-reply channel repaired: two stacked defects that silenced the conversational surface.'),
-    ('B47', 'patch', 'The log-reading defect pass: census rebuilt true, noise measured down, boot truth.'),
-    ('B48', 'patch', 'The distribution arc: everybody was the same person - the hash pathology found by instrument and fixed.'),
-    ('B49', 'patch', 'Frame-time pacing disclosed on every claim; the voice cooldown moved to the wall clock; decay verified.'),
-    ('B50', 'patch', 'Engine behavior facts re-asked of the machine each run; the bridge throw contract graphed.'),
-    ('B51', 'patch', 'The dead stop growing quietly: death-time cleanup, budgeted walks, derived art, the save protocol border.'),
-    ('B52', 'patch', "The era's integrity closed: derived counts, aligned names, the scout read whole, the answer domain sealed."),
-
+    ('A1', 'initial', 'Initial repository baseline with no framework code; retain initial rather than manufacturing a feature credit.'),
+    ('A2', 'kohai', 'Establishes engine truths and unblocks construction: meaningful foundation advance before the embodied framework is complete.'),
+    ('A3', 'kohai', "The one-body G1 gate, mod layout and snapshot-back are building pieces. A4/A5 still supply native rendering and composed behavior before A6's integrated framework outcome."),
+    ('A4', 'kohai', 'Enables the native delivery path for the still-building survivor framework. A bridge/build contract alone does not earn a completed-feature minor.'),
+    ('A5', 'kohai', 'The four pillars run as substrates with movement transplanted; their integrated embodied survival outcome arrives in A6.'),
+    ('A6', 'minor', 'Closes the initial integrated framework: native offense/incoming pressure, perception provenance, real town population, flight/traversal and durable death compose into survivors the player can meet.'),
+    ('A7', 'kohai', "Meaningful extension of A6's populated world and emerging society: origin/refill corrected while trust, equipment, homing and company acquire consumers."),
+    ('A8', 'minor', 'A complete needs loop reads real stats and satisfies them through interruptible native eating/drinking. Standing-gated grudges, testimony and gear errands integrate that outcome.'),
+    ('A9', 'kohai', 'Keys, Say moments, initial territory, bandaging and spare-food sharing advance the still-forming social/property collection; A12/A14 provide its broader enforcement and organization closure.'),
+    ('A10', 'kohai', 'Multi-floor work, gun doctrine and panic broadcasts extend the established loop; scanner, water-Z and orphan-route defects are supporting repairs.'),
+    ('A11', 'kohai', "Whole packs, dormant metabolism/drift, estates and moving-in extend A6's persistent people. F-013/F-014 repairs do not create another framework feature credit."),
+    ('A12', 'minor', 'Completes a coherent exchange/property outcome: objections respected, claims constrain taking, noticed gifts and real barter/debts connect goods to relationships and dormant encounters.'),
+    ('A13', 'kohai', 'Adds consequences/consumers to existing exchange and ties; leadership remains deferred and the society collection is still advancing toward A14.'),
+    ('A14', 'minor', 'S1-S7 join acquired pasts/lessons, consumed leadership/succession, named settlement, player membership, native habits and consequential bonds: documented collection closure beyond APIs.'),
+    ('A15', 'kohai', "Post-arc corrections plus earned place permission, teaching and talk deepen existing society/standing; they preserve A14's credit rather than repeat it."),
+    ('A16', 'patch', 'Repairs jar approval and foreign-human discrimination, with scale tuning and witness of prior work; no separate completed feature scope is established.'),
+    ('A17', 'minor', 'Completes a coexistence mode: exact foreign records and contact-scaled pasts participate in exchange, knowledge, company and mourning while original foreign-body ownership is preserved.'),
+    ('A18', 'minor', 'Completes census/origin generation through installed profession discovery, grounded weights, stable mod classification, claim affinities, descriptor truth and profession-keyed home/bond origins.'),
+    ('A19', 'minor', 'Deferred workday seams close: each state answers pressure, elections deal work, medics/watch/foragers/quartermasters perform real rounds, and rest/aid/player requests enter the same loop.'),
+    ('A20', 'kohai', 'Earned feuds gain spatial/economic consumers and talk conveys the person; dormant attrition deepens persistent society while governance keeps advancing.'),
+    ('A21', 'kohai', 'Mixed repair and meaningful advance: internal hostility creates new companies/ground and road elections split houses, with feud history/Chronicle consumers. Patch alone understates scope.'),
+    ('A22', 'kohai', 'Road elections, player-death grief and dormant standing rendering extend society; clock/census/medic/state sweeps repair its existing machinery.'),
+    ('A23', 'kohai', 'Creates a coherent deterministic instrument and extends testimony onto roads. Era/roadmap closure is bookkeeping, not another simulation minor or automatic major.'),
+    ('A24', 'kohai', 'Garment/condition/drink persistence, names/journals, requests, creed seams and XP deepen existing people/work; engine re-read and fixes are supporting evidence.'),
+    ('A25', 'kohai', 'Adds community ration/dissent and consumed counsel/history to existing politics; part of the governance collection subsequently completed in B23.'),
+    ('A26', 'minor', 'Documents a closed loop: native DynamicRadio bulletins, actual two-way player transmission, listening houses/answers, aid/news/camp calls and carried delivery/debts integrate producer and consumer.'),
+    ('A27', 'kohai', 'Chair consent/work, arrival forces and raid legs complete an iteration of political physics; they extend society/governance rather than create another baseline society credit.'),
+    ('A28', 'minor', 'Completes grounded supply: real containers provide noticed possessions, foragers collect goods, sanctioned shelving supplies deliveries and fresh larder claims drive margins/winter. Ventures continue into B1.'),
+    ('A29', 'kohai', 'Explicitly opens a macro-arc and lists propagation, panic, socialized ventures and vehicle composition as following slices. Innocence is a completed piece, not completion of that arc.'),
+    ('B1', 'minor', 'The designed complex joins real motor-pool/seats, standing/temperament objection, patience/worry and belief transfer with crew entry/exit. NPC driving is expressly absent from its scope.'),
+    ('B2', 'kohai', 'Real perk reads and XP integrate into delivered workday roles; native barricading is a meaningful extension rather than a complete new construction module.'),
+    ('B3', 'minor', 'Closes observed bite to character-dependent care/distance/promise, recognized turning, fulfilled combat promise and carried grief/lesson/news.'),
+    ('B4', 'minor', 'Native plow/seed/water/harvest with plant truth and gear feed real shelves, larder politics and XP: a complete producer-to-consumer farming loop.'),
+    ('B5', 'patch', 'Bounds existing scans, checks sensors/exits/fields and supplies failing controls for corrections. Verification closure changes no feature scope.'),
+    ('B6', 'minor', 'Dry-house fill/walk/carry/deposit and rationed stores combine with calendar shutoff. Cold-to-hearth, carried fuel/light and firewood errands yield consumed warmth/dormant effects.'),
+    ('B7', 'kohai', 'Fresh resource failure drives abandonment through existing settlement; infection/cleaning/dressings/handover extend care. Advances existing governance and needs.'),
+    ('B8', 'kohai', 'Makes standing bidirectional through neutral drift, lapsed hostility, departure and feud closure. Meaningful social extension under existing organization/governance.'),
+    ('B9', 'kohai', "Native mood chemistry colors meetings and actual aired claims become told knowledge in real receiver holders; integrates existing encounters and A26's radio medium."),
+    ('B10', 'patch', 'Corrects key leakage and save/death omissions in delivered coexistence, bitten life and player standing. Retain repair credit.'),
+    ('B11', 'kohai', 'Housemate teaching and state-priced conserved trade extend prior work/XP and barter; learning continues through later player teaching/books.'),
+    ('B12', 'kohai', "Coherently restructures existing verbs into the game's hierarchy; old hand-declared version movement and index repair do not establish a new feature completion."),
+    ('B13', 'kohai', 'One skill/class-grounded promotion per election consumes current wound/larder/hearth/war counts. Meaningful incremental work/governance adaptation.'),
+    ('B14', 'kohai', 'Structural advance makes existing discipline executable and demonstrates refusal/clearance. A new tooling contract alone does not complete a simulation feature.'),
+    ('B15', 'kohai', 'Real corpse loot applies character/creed/known-dead restraint to conserved acquisition; one accessor/action boundary is not a complete new material module.'),
+    ('B16', 'patch', 'Finds declaration/debug-handler defects, checks prior functions and tightens discipline. Instrumentation/correction without a new gameplay outcome.'),
+    ('B17', 'kohai', 'Native lights, night decisions, storm hearing and rain-sensitive farm effort extend consumers. Fog is expressly deferred: no complete weather module.'),
+    ('B18', 'kohai', 'Live content, refresh/death notices and player ground with companion homing extend surfaces/property; deliberately creates no new player organization.'),
+    ('B19', 'kohai', 'Seating priority, release, return briefing and fairness deepen B1; player teaching and derived rotating watch extend work/sleep. No duplicate venture credit.'),
+    ('B20', 'kohai', 'Severity, distress consequences and safe native cooking add professional consumers to the workday; the cooking seam alone does not close a separate utilities/crafting module.'),
+    ('B21', 'kohai', 'Population exchange, real music/morale, registry capabilities and outcome judgment integrate delivered collections; coherent increments rather than a new framework completion.'),
+    ('B22', 'kohai', 'Keepsakes/book circulation, work stations and finite skill-book study deepen people/work. Reading is integrated competence support, not independent closure merely because a native action is new.'),
+    ('B23', 'minor', 'Deputies/turns, five derived forms, insider influence, division-to-schism and scarcity radio asks/performed gifts/debts close a coherent governance collection with visible consequences.'),
+    ('B24', 'patch', 'A designation typo and census/conviction confusion had silenced promised alliances/government. Restored outcomes remain repairs, not renewed feature credits.'),
+    ('B25', 'patch', 'Probes existing mechanisms and repairs misaligned gates, retaining corrected severity. No new completed feature.'),
+    ('B26', 'patch', 'Dead medical/tool/smoke/seed literals are replaced with native categories/tags and absence is reported honestly; repairs unblock promised behavior.'),
+    ('B27', 'patch', 'The record calls these inbound/outbound violations and rejects a separate pathway. Generic perception/tell/listening repairs the already-owned one-loop communication law.'),
+    ('B28', 'patch', 'Fixes player resolution, false arrival-rate copy, register terminology and omitted first-offense teaching; admission arithmetic is left unchanged.'),
+    ('B29', 'patch', 'Restores layout and truthful frequency display; no new feature scope.'),
+    ('B30', 'patch', 'Corrects false/stale copy, dependency/license deployment and attribution. Publication preparation creates no capability credit.'),
+    ('B31', 'patch', 'Repairs drift, never-empty tanks and wire mismatches, with exposed native limits and controls. No new venture/module closure.'),
+    ('B32', 'patch', 'Repairs cooldown starvation and mirror/trait-sign mistakes while strengthening analysis; restores intended existing activities.'),
+    ('B33', 'patch', 'Fixes hysteresis thrash, stale shipping classes and diagnostics. Restores established framework operation.'),
+    ('B34', 'patch', 'Measures promised extents and verifies actual queue admission to repair silent drops. Correct trade/Ledger audits create no new feature tier.'),
+    ('B35', 'kohai', 'Proximity unlearning/protection and carry-light gain real consumers, with voice fixes; meaningful social/property extension, while dissent remains unresolved.'),
+    ('B36', 'patch', 'Mechanical preservation and justified catches harden existing data/delivery contracts; no new simulation module.'),
+    ('B37', 'patch', 'Singular constants, unused age arithmetic and repaired water/death facts restore consistency. An API with no consumer earns no feature credit.'),
+    ('B38', 'kohai', 'Meaningfully extends population/material derivation with map scale, demographic correction and age/arrival/room consumers. Parts of existing census/economy do not earn minor solely as a new contract.'),
+    ('B39', 'kohai', 'Repairs provenance and adds bounded stock/respawn to the material abstraction. Player looting remains outside the count, so avoid claiming complete property/material simulation closure.'),
+    ('B40', 'patch', 'Repairs tunables, origin knowledge and Doctor/FirstAid mismatch; restores expected work/vocabulary.'),
+    ('B41', 'patch', 'Runs unexecuted mirrors and repairs the native type gate that invalidated player perception. Recovery of promised channels is repair credit.'),
+    ('B42', 'patch', 'Repairs counters/placeholders/history/menu reach and removes guess-as-fact foreign import by operator direction; no separate feature credit.'),
+    ('B43', 'patch', 'Computes version/header truth and connects unwired existing work. Stamping APIs and recovered economic halves remain repairs.'),
+    ('B44', 'patch', 'Corrects sentinel/unit copy and the actual Kahlua next crash. A runtime fact or vocabulary law does not complete a new feature.'),
+    ('B45', 'patch', 'Normalizes names, uses native compilation, fixes nil mourning and controls duplicate narration; integrity corrections to established surfaces.'),
+    ('B46', 'patch', 'Centralizes tick resolution and corrects reticence gating of direct questions. The bug report establishes restoration, not a new communication module.'),
+    ('B47', 'patch', 'Repairs reads, noise, panel silence and initialization-order claims; diagnostics/provenance repairs create no feature credit.'),
+    ('B48', 'patch', 'Corrects hash pathology and false measured ranges. The save impact and magnitude of a repair do not turn it into a feature minor.'),
+    ('B49', 'patch', 'Moves only the ear-facing cooldown, corrects frame-time claims and verifies unchanged decay. Larger clock policy stays with the operator.'),
+    ('B50', 'patch', 'Repairs reach guards/verification assumptions and computes safety coverage. A bridge graph/API inventory alone is not feature completion.'),
+    ('B51', 'patch', 'Connects uncalled cleanup and bounds dead-record cost, with reproducible art/save checking; relation pruning remains a separate unresolved decision.'),
+    ('B52', 'patch', 'Derives false counts and repairs naming/parser/domain mismatches. Terminal-era labeling and integrity closure do not manufacture a feature or major credit.'),
 ]
 
 TIER_MEANINGS = [
-    ("major", "Formal release, project-identity, or supported-compatibility boundary. No unit requires it; the odometer reaches it by cap."),
-    ("minor", "A new player-visible simulation capability or a new authoring/runtime contract."),
-    ("kohai", "A coherent extension, integration, or structural maturation of an existing capability."),
-    ("patch", "An in-place correction, verification closure, or repair that does not move a capability boundary."),
-    ("maturity", "`pre-alpha -> alpha -> beta -> rc`; moves on evidence (play receipts), never on arithmetic. Everything here is pre-alpha."),
+    ('major', 'Operator-selected completed feature grouping, release, identity or compatibility boundary. A mechanical carry does not declare that semantic boundary.'),
+    ('minor', 'Completion of a coherent full feature or module with its required integration and sufficient evidence.'),
+    ('kohai', 'Coherent building progress within an unfinished feature or module, including integrated child delivery.'),
+    ('patch', 'In-place correction or verification repair of established behavior.'),
+    ('maturity', '`pre-alpha -> alpha -> beta -> rc`; moves on evidence, never arithmetic. SAO remains pre-alpha.'),
 ]
 
 
 # Add credit owners only with their actual closure record and index row.
 POST_C_UNITS = [
-    ("D1", "minor", "Shared person-specific conceptual reasoning and source-bound prior-history admission establish a live authoring/runtime contract."),
-    ("D2", "kohai", "Leisure integrates personally acquired recreation, music, games, art and social participation with native action ownership, interruption, durable purposes and consequential private experience."),
-    ("D3.1", "minor", "Native material crafting establishes an exact privately acquired-input, installed-recipe, measured-output and authenticated-experience runtime contract within retained construction. The first D3 window/boarding join supplies its required integration; the OPEN parent receives no repeated credit."),
-    ("D3.2", "minor", "Exact held-tool repair establishes native FixSaw eligibility, private file acquisition and competing maintenance means, kept manual inputs, measured condition/wear, retained construction continuation and authenticated positive/negative private feedback. The OPEN D3 parent receives no repeated credit."),
-    ("D3.3", "kohai", "Portable blade sharpening and ordinary kit tending extend the existing exact held-tool maintenance contract through private file/whetstone means, native metric-specific benefits and damage, authenticated experience and saved continuity. The OPEN D3 parent receives no duplicate credit."),
-    ("D3.4", "minor", "Native plumbing establishes private fixture and pipe-wrench admission, installed connection, measured connection-result authority, handled-source refresh and actual usable water under the same hydration purpose. The OPEN D3 parent receives no duplicate credit."),
-    ("D3.5", "minor", "Native world-entity construction establishes registered collector recipes, exact manual inputs and private acquisition, personally observed placement, measured native construction and authenticated result/persistence contracts feeding the existing rain/plumbing/usable-water purpose. The OPEN D3 parent receives no duplicate credit."),
-    ("D3.6", "minor", "Native generator operation establishes private machinery/consumer identities, acquired operating knowledge, exact repair/fuel/connection/activation ownership, reached consumer power and retained original activity with authenticated results and recovery. The OPEN D3 parent receives no duplicate credit."),
+    ('D1', 'minor', 'Completed declared reasoning module joins person-private conceptual inquiry, ordinary purpose comparisons, dated prior recall, durable unfinished purposes and guarded native recovery. The source retains its controlled reasoning and bounded native evidence without claiming completed curriculum or general learned policy.'),
+    ('D2', 'minor', 'The complete declared Leisure module joins personally acquired opportunities, ordinary comparisons, native recreation across its selected families, authenticated outcomes, interruption and durable experience. This integrated module closure supports minor; it is not an isolated recreation API or building subset.'),
+    ('D3.1', 'kohai', 'D3.1 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module.'),
+    ('D3.2', 'kohai', 'D3.2 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module.'),
+    ('D3.3', 'kohai', 'D3.3 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module.'),
+    ('D3.4', 'kohai', 'D3.4 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module.'),
+    ('D3.5', 'kohai', 'D3.5 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module.'),
+    ('D3.6', 'kohai', 'D3.6 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module.'),
+    ('D3.7', 'kohai', 'Native firearm fixing through exact private donor acquisition, installed payment and measured condition/returned contents, same-target equipment reuse, authenticated experience and saved custody is coherent building progress within the OPEN D3 module.'),
 ]
 # A closed parent that only aggregates previously credited descendants maps to
 # their exact credit-owner IDs. It is a chronological record, never a new tier.
@@ -274,8 +274,10 @@ def post_c_faults(indexed, active, units=None, aggregations=None, next_batch=Non
             continue
         if not label.startswith("D"):
             faults.append("post-C credit owners must be D identifiers")
-        if tier not in ("minor", "kohai", "patch", "hotfix") or not isinstance(rationale, str) or not rationale.strip():
+        if tier not in ("major", "minor", "kohai", "patch", "hotfix") or not isinstance(rationale, str) or not rationale.strip():
             faults.append("delivered D units require a scope tier and nonempty rationale")
+        if active is not None and tier in ("minor", "major") and label.startswith(active + "."):
+            faults.append(f"{label}: a child building the OPEN {active} feature requires kohai or patch, not completion credit")
         valid_units.append(label)
     if len(valid_units) != len(set(valid_units)):
         faults.append("duplicate delivered D credit owner")
@@ -369,8 +371,8 @@ def render(inputs=None):
         "# Version map",
         "",
         "The regulatory version replay classifies evidenced delivered scope",
-        "once per coherent product batch under CAO's unchanged caps. A/B retain",
-        "their original replay. Current C products partition the retained source",
+        "once per coherent product batch under CAO's unchanged caps. All eras use",
+        "the feature-scope reconciliation. Current C products partition the retained source",
         "chronology into adjacent capability units. The separate 35-contract",
         "ownership map preserves shared boundaries without version credit. Delivered D units",
         "follow C in chronological order. A delivered unit implements its coherent",
@@ -396,6 +398,7 @@ def render(inputs=None):
         f"| Current version | `{current}` |",
         f"| Classified delivered scope | `A1-{tip}` |",
         f"| Current C generation | `{manifest['generation']}` |",
+        "| Feature-scope reconciliation | [20261010](Batches/VERSION_SCOPE_RECONCILIATION.json); prior replay retained |",
         f"| {'Unconsumed scope' if hierarchy else 'Next batch'} | `{nxt}` |",
         "| Executable source | [`tools/version_replay.py`](tools/version_replay.py) |",
         "",
@@ -419,7 +422,7 @@ def render(inputs=None):
     if hierarchy:
         lines += ["", "Dotted labels record child scope. Each capability row above receives credit once;",
                   "child delivery leaves its explicitly active parent open. Closed parent aggregation",
-                  "records name existing credit owners separately and grant no additional tier."]
+                  "records name existing credit owners separately. Completed-feature scope can receive minor after kohai progress; repeated aggregation grants no tier."]
     if POST_C_AGGREGATIONS:
         lines += ["", "## Closed parent aggregations", "",
                   "These chronological closure records aggregate already credited descendants and grant no additional tier.", "",

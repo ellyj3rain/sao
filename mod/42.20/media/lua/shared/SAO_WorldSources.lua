@@ -1282,11 +1282,13 @@ end
 -- Options describe attempts over this person's own observations. The caller
 -- has already selected the place/category under its need and ration policy.
 -- Neither listing nor selecting an option proves current physical access.
-function WS.actionOptions(place, category, actorId, body, quantity, admission, operation)
+function WS.actionOptions(place, category, actorId, body, quantity, admission, operation, expectedItemType)
     local value = store()
     actorId = actorId and tostring(actorId) or nil
     category = tostring(category or "")
     operation = operation or "consume"
+    if expectedItemType~=nil and (operation~="acquire" or type(expectedItemType)~="string"
+        or expectedItemType=="" or #expectedItemType>512) then return nil,"bad-expected-item-type" end
     if not SOURCE_CATEGORIES[category]
         or (operation == "consume" and category ~= "food" and category ~= "water") then
         return nil, "unsupported-category"
@@ -1351,6 +1353,7 @@ function WS.actionOptions(place, category, actorId, body, quantity, admission, o
                         local visible = source.knowledgeKind == "visible-ground"
                         local candidate = visible and source.candidates and source.candidates[category]
                         if item and item.categories and item.categories[category]
+                            and (expectedItemType==nil or item.type==expectedItemType)
                             and (not visible or candidate and candidate.id==item.id and candidate.type==item.type) then
                             items[#items + 1] = item
                             if #items >= MAX_ACTION_OPTIONS then break end
@@ -2147,7 +2150,8 @@ end
 -- never silently substituted. The omitted selection retains the legacy API.
 function WS.beginAction(place, category, actorId, body, quantity, admission, selected, operation)
     local offered, why = WS.actionOptions(place, category, actorId, body,
-        quantity, admission, operation)
+        quantity, admission, operation, operation=="acquire" and selected and selected.parameters
+            and selected.parameters.itemType or nil)
     if not offered then return nil, why end
     local option = offered.options[1]
     if selected ~= nil then

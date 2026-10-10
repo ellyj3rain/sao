@@ -1,0 +1,2899 @@
+{
+  "schema": "sao.feature-scope-version-reconciliation/1",
+  "generation": "20261010-feature-scope-credit",
+  "authority": "Operator correction of2026-10-10 explicitly includes all history beforeD and all deliveredD units.",
+  "sourceHead": "a16854e3df16381d2dde42803dcc918d8cce189e",
+  "scope": "A1-A29, B1-B52, C1-C82 and D1-D3.6",
+  "preservedPriorGeneration": {
+    "tools/version_replay.py": {
+      "path": "Batches/history/version-20261010-before-scope/version_replay.py",
+      "sha256": "0119e93333327ae52947100b7559ec4686e3d0ae26b5578849be6c88ad7ae133"
+    },
+    "VERSION": {
+      "path": "Batches/history/version-20261010-before-scope/VERSION",
+      "sha256": "06b9a96651e3d61624050fe1d1f4aad5637cfb59dcc8f37c4258196f1caacfd1"
+    },
+    "VERSION_MAP.md": {
+      "path": "Batches/history/version-20261010-before-scope/VERSION_MAP.md",
+      "sha256": "13bbfd847f1fe8f3ca9509b5b28173cb8abb6bfc490b5f50d7a563d4bc854adf"
+    },
+    "Batches/C_PRODUCT_CATALOGUE.json": {
+      "path": "Batches/history/version-20261010-before-scope/C_PRODUCT_CATALOGUE.json",
+      "sha256": "55ae08738f13c855af1b8def955fcf23b799772dea1b4455392c8878925e0b59"
+    }
+  },
+  "previousVersion": "4.0.0.0-pre-alpha",
+  "reconciledVersion": "2.6.6.0-pre-alpha",
+  "capsUnchanged": {
+    "minor": 12,
+    "kohai": 16,
+    "patch": 24
+  },
+  "maturity": "pre-alpha",
+  "productLabelsAndGroupingUnchanged": true,
+  "changedCount": 25,
+  "counts": {
+    "initial": 1,
+    "kohai": 93,
+    "minor": 30,
+    "patch": 47
+  },
+  "rows": [
+    {
+      "batch": "A1",
+      "previousTier": "initial",
+      "tier": "initial",
+      "featureScope": "Governed repository and ratified identity/pillar composition",
+      "reason": "Initial repository baseline with no framework code; retain initial rather than manufacturing a feature credit.",
+      "sourcePaths": [
+        "Batches/A1-2026-08-26-repository-and-governance-surface.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "A2",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Verified engine control substrate for G1",
+      "reason": "Establishes engine truths and unblocks construction: meaningful foundation advance before the embodied framework is complete.",
+      "sourcePaths": [
+        "Batches/A2-2026-08-26-engine-control-surface-verification.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A3",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Spawn/render/walk/release foundation and person/body lifecycle",
+      "reason": "The one-body G1 gate, mod layout and snapshot-back are building pieces. A4/A5 still supply native rendering and composed behavior before A6's integrated framework outcome.",
+      "sourcePaths": [
+        "Batches/A3-2026-08-26-first-survivor-in-the-world.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A4",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Compiled body, exposure/build/self-attach and engine comprehension",
+      "reason": "Enables the native delivery path for the still-building survivor framework. A bridge/build contract alone does not earn a completed-feature minor.",
+      "sourcePaths": [
+        "Batches/A4-2026-08-26-java-agent-and-engine-comprehension-contract.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A5",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Perception/disposition/standing/controller substrates",
+      "reason": "The four pillars run as substrates with movement transplanted; their integrated embodied survival outcome arrives in A6.",
+      "sourcePaths": [
+        "Batches/A5-2026-08-26-four-pillar-substrates-live.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A6",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Embodied combat and persistent populated world",
+      "reason": "Closes the initial integrated framework: native offense/incoming pressure, perception provenance, real town population, flight/traversal and durable death compose into survivors the player can meet.",
+      "sourcePaths": [
+        "Batches/A6-2026-08-26-combat-transplant-perception-depth-persistent-world.md"
+      ],
+      "completionEvidence": "Native damage-evidenced offense/incoming pressure, normal-launch delivery, perception, town population, traversal and durable death compose.",
+      "relatedCreditOwners": [
+        "A18",
+        "A6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A7",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "World origin, trust, homing and encounter-driven company",
+      "reason": "Meaningful extension of A6's populated world and emerging society: origin/refill corrected while trust, equipment, homing and company acquire consumers.",
+      "sourcePaths": [
+        "Batches/A7-2026-08-26-world-origin-genesis-standing-emerges-in-play.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A14",
+        "A18",
+        "A6",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A8",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Native hunger/thirst satisfaction and survival errands",
+      "reason": "A complete needs loop reads real stats and satisfies them through interruptible native eating/drinking. Standing-gated grudges, testimony and gear errands integrate that outcome.",
+      "sourcePaths": [
+        "Batches/A8-2026-08-25-needs-via-engine-timed-actions-grudges-testimony-gear.md"
+      ],
+      "completionEvidence": "Real hunger/thirst reaches interruptible timed eating/drinking from carried or clean world sources with threat interruption.",
+      "relatedCreditOwners": [
+        "A8",
+        "B6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A9",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Early voice, claims, care/sharing and person-key repair",
+      "reason": "Keys, Say moments, initial territory, bandaging and spare-food sharing advance the still-forming social/property collection; A12/A14 provide its broader enforcement and organization closure.",
+      "sourcePaths": [
+        "Batches/A9-2026-08-25-canonical-keys-voice-surface-claims-first-aid-sharing.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A12",
+        "A14",
+        "A26",
+        "A28",
+        "A8",
+        "B23",
+        "B6"
+      ],
+      "qualification": "Voice/care/sharing could be selected as a bounded complete collection. Recommendation groups this mixed early stage with A12/A14; root should settle the intended feature boundary."
+    },
+    {
+      "batch": "A10",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing survival/combat loop with ranged and floor integration",
+      "reason": "Multi-floor work, gun doctrine and panic broadcasts extend the established loop; scanner, water-Z and orphan-route defects are supporting repairs.",
+      "sourcePaths": [
+        "Batches/A10-2026-08-26-multi-floor-work-ranged-doctrine-audit-alternation.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A6",
+        "A8",
+        "B6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A11",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing person persistence and dormant life integration",
+      "reason": "Whole packs, dormant metabolism/drift, estates and moving-in extend A6's persistent people. F-013/F-014 repairs do not create another framework feature credit.",
+      "sourcePaths": [
+        "Batches/A11-2026-08-26-hibernation-persistence-dormant-drift-estates-sleep.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A6",
+        "A8",
+        "B6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A12",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Property enforcement and goods-exchange social economy",
+      "reason": "Completes a coherent exchange/property outcome: objections respected, claims constrain taking, noticed gifts and real barter/debts connect goods to relationships and dormant encounters.",
+      "sourcePaths": [
+        "Batches/A12-2026-08-26-property-enforcement-completed-policy-screen-gifts-barter.md"
+      ],
+      "completionEvidence": "Enforced property, noticed/attributed gifts, real barter/debt and dormant encounters join goods with social consequences.",
+      "relatedCreditOwners": [
+        "A12",
+        "A14",
+        "A28",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A13",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Attribution, debt repayment, coordinated flight and companions",
+      "reason": "Adds consequences/consumers to existing exchange and ties; leadership remains deferred and the society collection is still advancing toward A14.",
+      "sourcePaths": [
+        "Batches/A13-2026-08-26-attribution-debts-coordinated-flight-companionship.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A12",
+        "A14",
+        "A28",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A14",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Seven-gate agentic society foundation",
+      "reason": "S1-S7 join acquired pasts/lessons, consumed leadership/succession, named settlement, player membership, native habits and consequential bonds: documented collection closure beyond APIs.",
+      "sourcePaths": [
+        "Batches/A14-2026-08-26-society-arc-claims-and-lessons-leaders-settlement-membership-hab.md"
+      ],
+      "completionEvidence": "All seven S1-S7 gates have producers/consumers: claims, lessons, leadership/succession, settlement, player membership, native habits and consequential bonds.",
+      "relatedCreditOwners": [
+        "A14",
+        "A26",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A15",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Belief-gated permission and social epistemics",
+      "reason": "Post-arc corrections plus earned place permission, teaching and talk deepen existing society/standing; they preserve A14's credit rather than repeat it.",
+      "sourcePaths": [
+        "Batches/A15-2026-08-26-belief-gated-permission-and-first-offense-innocence.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A14",
+        "A26",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A16",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Approval/deploy repair, witness and coexistence fixes",
+      "reason": "Repairs jar approval and foreign-human discrimination, with scale tuning and witness of prior work; no separate completed feature scope is established.",
+      "sourcePaths": [
+        "Batches/A16-2026-08-26-approval-chain-repair-first-live-witness-county-scale-coexistenc.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A17",
+        "A18",
+        "A6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A17",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Passive foreign inhabitant adoption and social lifecycle",
+      "reason": "Completes a coexistence mode: exact foreign records and contact-scaled pasts participate in exchange, knowledge, company and mourning while original foreign-body ownership is preserved.",
+      "sourcePaths": [
+        "Batches/A17-2026-08-26-inhabitant-adoption-and-the-passive-social-economy.md"
+      ],
+      "completionEvidence": "Foreign records enter private history, exchange, trust/company and mourning while their original body ownership is preserved.",
+      "relatedCreditOwners": [
+        "A17"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A18",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Registry-driven demographic census and realistic origins",
+      "reason": "Completes census/origin generation through installed profession discovery, grounded weights, stable mod classification, claim affinities, descriptor truth and profession-keyed home/bond origins.",
+      "sourcePaths": [
+        "Batches/A18-2026-08-26-registry-census-and-profession-keyed-origins.md"
+      ],
+      "completionEvidence": "Weighted installed profession census reaches claim affinity, descriptor truth, profession-keyed origins and household relations.",
+      "relatedCreditOwners": [
+        "A18"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A19",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Pressure-bearing workday and consumed designations",
+      "reason": "Deferred workday seams close: each state answers pressure, elections deal work, medics/watch/foragers/quartermasters perform real rounds, and rest/aid/player requests enter the same loop.",
+      "sourcePaths": [
+        "Batches/A19-2026-08-26-the-workday-taxonomy-elections-and-one-death-law.md"
+      ],
+      "completionEvidence": "Deferred workday seams close through actual medic delivery, patrol, foraging, shelving, consumed designations and player requests.",
+      "relatedCreditOwners": [
+        "A12",
+        "A18",
+        "A19",
+        "A28"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A20",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing politics, whole-person talk and dormant attrition",
+      "reason": "Earned feuds gain spatial/economic consumers and talk conveys the person; dormant attrition deepens persistent society while governance keeps advancing.",
+      "sourcePaths": [
+        "Batches/A20-2026-08-26-feuds-full-person-talk-dormant-attrition.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A14",
+        "A18",
+        "A26",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A21",
+      "previousTier": "patch",
+      "tier": "kohai",
+      "featureScope": "Standing hardening plus runtime schism and war history",
+      "reason": "Mixed repair and meaningful advance: internal hostility creates new companies/ground and road elections split houses, with feud history/Chronicle consumers. Patch alone understates scope.",
+      "sourcePaths": [
+        "Batches/A21-2026-08-26-hardening-rotation-bulkheads-the-ledger-peace.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A14",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A22",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing schism/political lifecycle and structural correction",
+      "reason": "Road elections, player-death grief and dormant standing rendering extend society; clock/census/medic/state sweeps repair its existing machinery.",
+      "sourcePaths": [
+        "Batches/A22-2026-08-26-schism-the-war-chronicle-the-invariant-sweep.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A14",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A23",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Equilibrium instrument and dormant testimony integration",
+      "reason": "Creates a coherent deterministic instrument and extends testimony onto roads. Era/roadmap closure is bookkeeping, not another simulation minor or automatic major.",
+      "sourcePaths": [
+        "Batches/A23-2026-08-26-era-boundary-0-5-offline-equilibrium-verification.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A14",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A24",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Pack-v2, personal texture and companion/work extensions",
+      "reason": "Garment/condition/drink persistence, names/journals, requests, creed seams and XP deepen existing people/work; engine re-read and fixes are supporting evidence.",
+      "sourcePaths": [
+        "Batches/A24-2026-08-26-engine-rotation-pack-v2-full-names-per-person-texture.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A18",
+        "A19",
+        "A26",
+        "A6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A25",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Governance through counsel, ration policy and Chronicle",
+      "reason": "Adds community ration/dissent and consumed counsel/history to existing politics; part of the governance collection subsequently completed in B23.",
+      "sourcePaths": [
+        "Batches/A25-2026-08-26-counsel-verb-ration-policy-and-the-governance-chronicle.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A14",
+        "A26",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A26",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Bidirectional physical county-radio medium",
+      "reason": "Documents a closed loop: native DynamicRadio bulletins, actual two-way player transmission, listening houses/answers, aid/news/camp calls and carried delivery/debts integrate producer and consumer.",
+      "sourcePaths": [
+        "Batches/A26-2026-08-26-the-county-wire-both-directions-pacts-calls-debts.md"
+      ],
+      "completionEvidence": "Native broadcasts meet physical two-way transmission/listening/responses, with aid/news/camp calls, carried delivery and debts.",
+      "relatedCreditOwners": [
+        "A26"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A27",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Player chairmanship, reputation arrivals and physical feuds",
+      "reason": "Chair consent/work, arrival forces and raid legs complete an iteration of political physics; they extend society/governance rather than create another baseline society credit.",
+      "sourcePaths": [
+        "Batches/A27-2026-08-26-player-chairmanship-arrival-draw-war-parties-temperament-correct.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A14",
+        "A18",
+        "B23"
+      ],
+      "qualification": "Record says political physics completed. Recommendation retains an extension tier under governance ending B23; a distinct complete player-chair/war-party collection could justify minor."
+    },
+    {
+      "batch": "A28",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Ground-derived possessions and conserved material economy",
+      "reason": "Completes grounded supply: real containers provide noticed possessions, foragers collect goods, sanctioned shelving supplies deliveries and fresh larder claims drive margins/winter. Ventures continue into B1.",
+      "sourcePaths": [
+        "Batches/A28-2026-08-26-derived-possessions-the-economy-loop-presumption-and-reunion-ven.md"
+      ],
+      "completionEvidence": "World-provided noticed inventory joins container collection, sanctioned shelving, actual allied delivery and larder/margin/winter consumers.",
+      "relatedCreditOwners": [
+        "A12",
+        "A28",
+        "B1"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "A29",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Day-zero innocence foundation for an unfinished outbreak arc",
+      "reason": "Explicitly opens a macro-arc and lists propagation, panic, socialized ventures and vehicle composition as following slices. Innocence is a completed piece, not completion of that arc.",
+      "sourcePaths": [
+        "Batches/A29-2026-08-26-day-zero-innocent-county-mode.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "B1"
+      ],
+      "qualification": "The innocent sandbox mode is usable alone, but its record explicitly opens an unfinished outbreak macro-arc. A separately accepted complete-mode scope would alter the recommendation."
+    },
+    {
+      "batch": "B1",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Player-driven venture departures, terms, worry, briefings and crews",
+      "reason": "The designed complex joins real motor-pool/seats, standing/temperament objection, patience/worry and belief transfer with crew entry/exit. NPC driving is expressly absent from its scope.",
+      "sourcePaths": [
+        "Batches/B1-2026-08-26-venture-machinery-departures-terms-crews-briefings.md"
+      ],
+      "completionEvidence": "Departure argument/terms/worry/briefings join real vehicles/seats and player-driven entry/exit; NPC driving is outside the recorded scope.",
+      "relatedCreditOwners": [
+        "B1"
+      ],
+      "qualification": "Header says closed; body retains old mandatory-play wording and B19 later strengthens crew/return behavior. Retain designed-complex credit without adding a new play gate. Root may select B19 as owner if those parts were required in the original boundary."
+    },
+    {
+      "batch": "B2",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Skill-dependent assignment, outputs and boarding on existing work",
+      "reason": "Real perk reads and XP integrate into delivered workday roles; native barricading is a meaningful extension rather than a complete new construction module.",
+      "sourcePaths": [
+        "Batches/B2-2026-08-26-skill-levels-drive-assignment-and-rates.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A12",
+        "A19",
+        "A28",
+        "B1"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B3",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Bitten-house response and personally recognized turning",
+      "reason": "Closes observed bite to character-dependent care/distance/promise, recognized turning, fulfilled combat promise and carried grief/lesson/news.",
+      "sourcePaths": [
+        "Batches/B3-2026-08-26-bite-visibility-house-response-turning-recognition-promises-kept.md"
+      ],
+      "completionEvidence": "Observed bite reaches care/distance/promise, recognized turning, fulfilled combat promise, grief/lesson/news.",
+      "relatedCreditOwners": [
+        "B3"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B4",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Renewable farming production and material integration",
+      "reason": "Native plow/seed/water/harvest with plant truth and gear feed real shelves, larder politics and XP: a complete producer-to-consumer farming loop.",
+      "sourcePaths": [
+        "Batches/B4-2026-08-26-farming-through-vanilla-actions.md"
+      ],
+      "completionEvidence": "Actual plow/seed/water/harvest and native plant truth feed real shelves/larder politics and engine XP.",
+      "relatedCreditOwners": [
+        "B4"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B5",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Performance/sensor/state audit and controlled gates",
+      "reason": "Bounds existing scans, checks sensors/exits/fields and supplies failing controls for corrections. Verification closure changes no feature scope.",
+      "sourcePaths": [
+        "Batches/B5-2026-08-26-performance-and-sensor-audits-three-borders-born.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "B4"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B6",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Stored-water supply and thermal survival",
+      "reason": "Dry-house fill/walk/carry/deposit and rationed stores combine with calendar shutoff. Cold-to-hearth, carried fuel/light and firewood errands yield consumed warmth/dormant effects.",
+      "sourcePaths": [
+        "Batches/B6-2026-08-26-water-stores-and-runs-shutoff-event-hearth-tending-and-lighting.md"
+      ],
+      "completionEvidence": "Dry demand reaches fill/walk/carry/deposit/rationed water; cold reaches carried fuel/light requirements, warmth/sleep and firewood consumers.",
+      "relatedCreditOwners": [
+        "A8",
+        "B6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B7",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing council migration and wound-treatment extensions",
+      "reason": "Fresh resource failure drives abandonment through existing settlement; infection/cleaning/dressings/handover extend care. Advances existing governance and needs.",
+      "sourcePaths": [
+        "Batches/B7-2026-08-26-council-abandonment-wound-infection-treatment.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A14",
+        "A8",
+        "B23",
+        "B3",
+        "B6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B8",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing standing with endorsement, decay, exit and peace",
+      "reason": "Makes standing bidirectional through neutral drift, lapsed hostility, departure and feud closure. Meaningful social extension under existing organization/governance.",
+      "sourcePaths": [
+        "Batches/B8-2026-08-26-reputation-endorsement-standing-decay-and-lapse.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A14",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B9",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing encounter state and receiver-held radio knowledge",
+      "reason": "Native mood chemistry colors meetings and actual aired claims become told knowledge in real receiver holders; integrates existing encounters and A26's radio medium.",
+      "sourcePaths": [
+        "Batches/B9-2026-08-26-moodle-colored-meetings-bulletins-as-told-knowledge.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A26"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B10",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Foreign keys, saved wounds and player-death cleanup",
+      "reason": "Corrects key leakage and save/death omissions in delivered coexistence, bitten life and player standing. Retain repair credit.",
+      "sourcePaths": [
+        "Batches/B10-2026-08-26-foreign-key-domain-wound-persistence-player-death-release.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A17",
+        "A8",
+        "B3",
+        "B6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B11",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing competence with teaching and player barter",
+      "reason": "Housemate teaching and state-priced conserved trade extend prior work/XP and barter; learning continues through later player teaching/books.",
+      "sourcePaths": [
+        "Batches/B11-2026-08-26-housemate-teaching-player-barter.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A12",
+        "A19",
+        "A28"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B12",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Native interaction-menu and record integration",
+      "reason": "Coherently restructures existing verbs into the game's hierarchy; old hand-declared version movement and index repair do not establish a new feature completion.",
+      "sourcePaths": [
+        "Batches/B12-2026-08-26-native-menu-restructure-version-0-6-index-completion.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A26"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B13",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing elected work adapted to unmet needs",
+      "reason": "One skill/class-grounded promotion per election consumes current wound/larder/hearth/war counts. Meaningful incremental work/governance adaptation.",
+      "sourcePaths": [
+        "Batches/B13-2026-08-26-need-driven-promotion-at-election.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A14",
+        "A19",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B14",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Verification gate, hook and CI enforcement",
+      "reason": "Structural advance makes existing discipline executable and demonstrates refusal/clearance. A new tooling contract alone does not complete a simulation feature.",
+      "sourcePaths": [
+        "Batches/B14-2026-08-26-repository-gate-and-pre-commit-hook.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "B15",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing acquisition with corpse-specific dignity",
+      "reason": "Real corpse loot applies character/creed/known-dead restraint to conserved acquisition; one accessor/action boundary is not a complete new material module.",
+      "sourcePaths": [
+        "Batches/B15-2026-08-26-corpse-looting-with-dignity-rules.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A12",
+        "A28"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B16",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Identifier/runtime safety and edit-verification repair",
+      "reason": "Finds declaration/debug-handler defects, checks prior functions and tightens discipline. Instrumentation/correction without a new gameplay outcome.",
+      "sourcePaths": [
+        "Batches/B16-2026-08-26-undeclared-identifier-audit-edit-verification-law.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "B17",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing needs/work/perception weather and light integration",
+      "reason": "Native lights, night decisions, storm hearing and rain-sensitive farm effort extend consumers. Fog is expressly deferred: no complete weather module.",
+      "sourcePaths": [
+        "Batches/B17-2026-08-26-night-light-gating-weather-effects.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A8",
+        "B4",
+        "B6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B18",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing Ledger and player claim/household integration",
+      "reason": "Live content, refresh/death notices and player ground with companion homing extend surfaces/property; deliberately creates no new player organization.",
+      "sourcePaths": [
+        "Batches/B18-2026-08-26-ledger-window-player-claims-and-household.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A14",
+        "A26",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B19",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing ventures, teaching and sleep/watch integration",
+      "reason": "Seating priority, release, return briefing and fairness deepen B1; player teaching and derived rotating watch extend work/sleep. No duplicate venture credit.",
+      "sourcePaths": [
+        "Batches/B19-2026-08-26-player-teaching-vehicle-crews-venture-staffing-scout-reports-nig.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A19",
+        "B1"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B20",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing care/provision with triage, cry and cook work",
+      "reason": "Severity, distress consequences and safe native cooking add professional consumers to the workday; the cooking seam alone does not close a separate utilities/crafting module.",
+      "sourcePaths": [
+        "Batches/B20-2026-08-26-severity-first-aid-the-distress-cry-and-its-cost-the-cook-design.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A19",
+        "A8",
+        "B6"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B21",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing population, recreation and work judgment",
+      "reason": "Population exchange, real music/morale, registry capabilities and outcome judgment integrate delivered collections; coherent increments rather than a new framework completion.",
+      "sourcePaths": [
+        "Batches/B21-2026-08-26-population-exchange-with-the-zombie-pool-music-gathering-capabil.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A18",
+        "A19"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B22",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing personal texture and competence with native books",
+      "reason": "Keepsakes/book circulation, work stations and finite skill-book study deepen people/work. Reading is integrated competence support, not independent closure merely because a native action is new.",
+      "sourcePaths": [
+        "Batches/B22-2026-08-26-keepsakes-and-reading-derived-work-stations-skill-book-study.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A19"
+      ],
+      "qualification": "Finite skill-book study could be a separate complete learning feature. Recommendation treats it as competence/work integration, rather than granting minor for a new native action."
+    },
+    {
+      "batch": "B23",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Complete governing forms and scarcity/division consumers",
+      "reason": "Deputies/turns, five derived forms, insider influence, division-to-schism and scarcity radio asks/performed gifts/debts close a coherent governance collection with visible consequences.",
+      "sourcePaths": [
+        "Batches/B23-2026-08-26-government-forms-scarcity-asks-division-driven-schism.md"
+      ],
+      "completionEvidence": "Five derived forms, deputies/turns/influence, division-to-schism and scarcity-to-radio-to-gifts/debts have visible consumers.",
+      "relatedCreditOwners": [
+        "A14",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B24",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Dead pacts and uniform-creed defects",
+      "reason": "A designation typo and census/conviction confusion had silenced promised alliances/government. Restored outcomes remain repairs, not renewed feature credits.",
+      "sourcePaths": [
+        "Batches/B24-2026-08-26-dead-pact-layer-found-and-mirrored-county-normalized-creeds.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A14",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B25",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Work-judgment verification and temperament-gate correction",
+      "reason": "Probes existing mechanisms and repairs misaligned gates, retaining corrected severity. No new completed feature.",
+      "sourcePaths": [
+        "Batches/B25-2026-08-26-work-judgment-probing-quarrel-drivers-identity-gate-corrections.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A19"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B26",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Installed item vocabulary and preflight correction",
+      "reason": "Dead medical/tool/smoke/seed literals are replaced with native categories/tags and absence is reported honestly; repairs unblock promised behavior.",
+      "sourcePaths": [
+        "Batches/B26-2026-08-26-engine-item-vocabulary-corrections.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "B4"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B27",
+      "previousTier": "minor",
+      "tier": "patch",
+      "featureScope": "Player participation repair within the shared experience loop",
+      "reason": "The record calls these inbound/outbound violations and rejects a separate pathway. Generic perception/tell/listening repairs the already-owned one-loop communication law.",
+      "sourcePaths": [
+        "Batches/B27-2026-08-26-player-as-channel-participant-inbound-and-outbound.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A26"
+      ],
+      "qualification": "A separate completed player-communication feature could justify minor, but the record expressly describes repairing violations of the existing common experience loop, supporting patch."
+    },
+    {
+      "batch": "B28",
+      "previousTier": "kohai",
+      "tier": "patch",
+      "featureScope": "Existing arrival reach/copy and trespass teaching repair",
+      "reason": "Fixes player resolution, false arrival-rate copy, register terminology and omitted first-offense teaching; admission arithmetic is left unchanged.",
+      "sourcePaths": [
+        "Batches/B28-2026-08-26-newcomer-reach-arrival-rates-registers-trespass-teaching.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A17",
+        "A18"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B29",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Ledger/window and road display correction",
+      "reason": "Restores layout and truthful frequency display; no new feature scope.",
+      "sourcePaths": [
+        "Batches/B29-2026-08-26-road-frequency-display-ledger-paging-window-sizing.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A26"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B30",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Shipping metadata, license and descriptions",
+      "reason": "Corrects false/stale copy, dependency/license deployment and attribution. Publication preparation creates no capability credit.",
+      "sourcePaths": [
+        "Batches/B30-2026-08-26-publishing-metadata-and-false-description-repair.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "B31",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing duplication/protocol and venture fuel repair",
+      "reason": "Repairs drift, never-empty tanks and wire mismatches, with exposed native limits and controls. No new venture/module closure.",
+      "sourcePaths": [
+        "Batches/B31-2026-08-27-duplication-border-fuel-accounting-protocol-borders.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "B1"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B32",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing between-time starvation and evidence correction",
+      "reason": "Repairs cooldown starvation and mirror/trait-sign mistakes while strengthening analysis; restores intended existing activities.",
+      "sourcePaths": [
+        "Batches/B32-2026-08-27-between-time-chain-repair-mirror-coverage-analysis-discipline-tr.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "B33",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing population-band, shipped-jar and visibility repair",
+      "reason": "Fixes hysteresis thrash, stale shipping classes and diagnostics. Restores established framework operation.",
+      "sourcePaths": [
+        "Batches/B33-2026-08-27-radius-reconciliation-shipped-jar-currency-failure-visibility.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "B34",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing claim/menu and queue-drop corrections",
+      "reason": "Measures promised extents and verifies actual queue admission to repair silent drops. Correct trade/Ledger audits create no new feature tier.",
+      "sourcePaths": [
+        "Batches/B34-2026-08-27-menu-gating-measured-claim-extents-queue-drop-detection-ledger-a.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "B35",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Existing claim belief lifecycle and carry-light integration",
+      "reason": "Proximity unlearning/protection and carry-light gain real consumers, with voice fixes; meaningful social/property extension, while dissent remains unresolved.",
+      "sourcePaths": [
+        "Batches/B35-2026-08-27-claim-unlearning-and-protection-voice-reachability-carry-light-w.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A12",
+        "A14",
+        "A28",
+        "B23"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B36",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Save/deploy guard and catch/governance hardening",
+      "reason": "Mechanical preservation and justified catches harden existing data/delivery contracts; no new simulation module.",
+      "sourcePaths": [
+        "Batches/B36-2026-08-27-save-field-guard-deploy-survival-catch-audit-governance-clauses.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "B37",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing radio, age/death/shutoff truth correction",
+      "reason": "Singular constants, unused age arithmetic and repaired water/death facts restore consistency. An API with no consumer earns no feature credit.",
+      "sourcePaths": [
+        "Batches/B37-2026-08-27-band-constant-claim-visibility-age-arithmetic-death-causes-shuto.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A18",
+        "A26"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B38",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Existing census/map scale and room-offer grounding",
+      "reason": "Meaningfully extends population/material derivation with map scale, demographic correction and age/arrival/room consumers. Parts of existing census/economy do not earn minor solely as a new contract.",
+      "sourcePaths": [
+        "Batches/B38-2026-08-27-map-derived-scale-1990-grounding-arrival-units-telemetry-age-roo.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A12",
+        "A18",
+        "A28"
+      ],
+      "qualification": "Map adaptation/room compatibility could be selected as a complete module. Its record mixes extension and corrected assumptions; recommendation places it in existing census/material scope."
+    },
+    {
+      "batch": "B39",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Existing acquisition provenance and visited-place scarcity",
+      "reason": "Repairs provenance and adds bounded stock/respawn to the material abstraction. Player looting remains outside the count, so avoid claiming complete property/material simulation closure.",
+      "sourcePaths": [
+        "Batches/B39-2026-08-27-acquisition-provenance-place-depletion-dormant-option-parity.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A12",
+        "A28"
+      ],
+      "qualification": "Visited scarcity has a stock/respawn loop, but actual player looting is outside the count. A separately ratified abstract-scarcity module could justify minor; recommendation avoids whole-material closure claims."
+    },
+    {
+      "batch": "B40",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing constants, lived home and perk-book mapping repair",
+      "reason": "Repairs tunables, origin knowledge and Doctor/FirstAid mismatch; restores expected work/vocabulary.",
+      "sourcePaths": [
+        "Batches/B40-2026-08-27-named-constants-lived-provenance-at-genesis-perk-vocabulary-map.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A18"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B41",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing verification coverage and real-player perception repair",
+      "reason": "Runs unexecuted mirrors and repairs the native type gate that invalidated player perception. Recovery of promised channels is repair credit.",
+      "sourcePaths": [
+        "Batches/B41-2026-08-27-book-routing-constant-enforcement-mirror-run-coverage-player-per.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A26"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B42",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing silent surfaces and census-authority restoration",
+      "reason": "Repairs counters/placeholders/history/menu reach and removes guess-as-fact foreign import by operator direction; no separate feature credit.",
+      "sourcePaths": [
+        "Batches/B42-2026-08-27-silent-surface-repairs-and-census-authority-dr-012.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A17",
+        "A18",
+        "A26"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B43",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing version/state truth and dormant economy wiring",
+      "reason": "Computes version/header truth and connects unwired existing work. Stamping APIs and recovered economic halves remain repairs.",
+      "sourcePaths": [
+        "Batches/B43-2026-08-27-jar-version-stamping-session-state-truth-dormant-economic-parity.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A12",
+        "A19",
+        "A28"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B44",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing option labels and unsupported-runtime correction",
+      "reason": "Corrects sentinel/unit copy and the actual Kahlua next crash. A runtime fact or vocabulary law does not complete a new feature.",
+      "sourcePaths": [
+        "Batches/B44-2026-08-28-legible-option-labels-the-kahlua-runtime-boundary.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "B45",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing distance/runtime/name and narration-boundary repairs",
+      "reason": "Normalizes names, uses native compilation, fixes nil mourning and controls duplicate narration; integrity corrections to established surfaces.",
+      "sourcePaths": [
+        "Batches/B45-2026-08-28-distance-naming-kahlua-gated-compilation-nil-name-repair-neighbo.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "B46",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Previously silent conversational-surface repair",
+      "reason": "Centralizes tick resolution and corrects reticence gating of direct questions. The bug report establishes restoration, not a new communication module.",
+      "sourcePaths": [
+        "Batches/B46-2026-08-28-player-reply-channel-repair.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A26"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B47",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing census/log/UI/boot-truth corrections",
+      "reason": "Repairs reads, noise, panel silence and initialization-order claims; diagnostics/provenance repairs create no feature credit.",
+      "sourcePaths": [
+        "Batches/B47-2026-08-28-log-reading-defect-pass-census-repair-instrumentation-noise-visi.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "B48",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing trait/occupation/face distribution and ranges",
+      "reason": "Corrects hash pathology and false measured ranges. The save impact and magnitude of a repair do not turn it into a feature minor.",
+      "sourcePaths": [
+        "Batches/B48-2026-08-28-distribution-arc-lesson-instrumentation-hash-pathology-fix-verif.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [
+        "A18"
+      ],
+      "qualification": null
+    },
+    {
+      "batch": "B49",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing voice timing and pacing-disclosure correction",
+      "reason": "Moves only the ear-facing cooldown, corrects frame-time claims and verifies unchanged decay. Larger clock policy stays with the operator.",
+      "sourcePaths": [
+        "Batches/B49-2026-08-28-frame-time-pacing-disclosure-standing-decay-verification.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "B50",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing runtime facts and bridge-throw safety repair",
+      "reason": "Repairs reach guards/verification assumptions and computes safety coverage. A bridge graph/API inventory alone is not feature completion.",
+      "sourcePaths": [
+        "Batches/B50-2026-08-28-engine-behavior-facts-bridge-throw-graph.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "B51",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing death cleanup, performance and save/art integrity",
+      "reason": "Connects uncalled cleanup and bounds dead-record cost, with reproducible art/save checking; relation pruning remains a separate unresolved decision.",
+      "sourcePaths": [
+        "Batches/B51-2026-08-28-death-time-cleanup-derived-art-dead-relation-rows-save-protocol.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "B52",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Existing era integrity, scout parser and answer-domain repair",
+      "reason": "Derives false counts and repairs naming/parser/domain mismatches. Terminal-era labeling and integrity closure do not manufacture a feature or major credit.",
+      "sourcePaths": [
+        "Batches/B52-2026-08-28-derived-counts-distance-naming-scout-completeness-answer-domain.md"
+      ],
+      "completionEvidence": null,
+      "relatedCreditOwners": [],
+      "qualification": null
+    },
+    {
+      "batch": "C1",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Catalog and version governance",
+      "reason": "Executable version replay and catalogue checks are release infrastructure within continuing governance. Correct arithmetic does not establish that feature boundaries were classified correctly.",
+      "sourcePaths": [
+        "Batches/Products/C1-2026-08-28-catalog-and-version-governance.md",
+        "Batches/history/c-20261003-source/Batches/C1-2026-08-28-catalog-and-version-governance.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Catalogue/replay support continues; classification authority remains separately assessed.",
+      "qualification": null
+    },
+    {
+      "batch": "C2",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Identity and execution continuity",
+      "reason": "Repairs naming and body/controller continuity across existing neighbour, crossing, seat and speech paths, with visible failure handling. This corrects established execution rather than introducing an action feature.",
+      "sourcePaths": [
+        "Batches/Products/C2-2026-08-29-identity-and-execution-continuity.md",
+        "Batches/history/c-20261003-source/Batches/C2-2026-08-29-identity-and-execution-continuity.md"
+      ],
+      "completionEvidence": "Existing identity and execution paths preserve their original owner.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C3",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Inspection and person state",
+      "reason": "The inspection harness exposes person state and commands. It is an observation/diagnostic component of the developing person framework and supplies no completed behavior by itself.",
+      "sourcePaths": [
+        "Batches/Products/C3-2026-08-29-inspection-and-person-state.md",
+        "Batches/history/c-20261003-source/Batches/C3-2026-08-29-inspection-and-person-state.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Inspection and person-state instrumentation support the wider framework.",
+      "qualification": null
+    },
+    {
+      "batch": "C4",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Death ownership and infection timing",
+      "reason": "Death, risen-body identity and infection clocks gain ownership joins while return/pathogen mechanisms still need reconstruction. These are components of the continuing identity/death/infection feature.",
+      "sourcePaths": [
+        "Batches/Products/C4-2026-08-29-death-ownership-and-infection-timing.md",
+        "Batches/history/c-20261003-source/Batches/C4-2026-08-29-death-ownership-and-infection-timing.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Death and infection ownership continues through later return and health units.",
+      "qualification": null
+    },
+    {
+      "batch": "C5",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Player surfaces and compatibility review",
+      "reason": "Corrects existing player-facing text, configuration promises and inspected compatibility surfaces. The boundary is surface conformance, not a new simulation feature.",
+      "sourcePaths": [
+        "Batches/Products/C5-2026-08-29-player-surfaces-and-compatibility-review.md",
+        "Batches/history/c-20261003-source/Batches/C5-2026-08-29-player-surfaces-and-compatibility-review.md"
+      ],
+      "completionEvidence": "The inspected UI and compatibility declarations match their actual paths.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C6",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Person state across reload",
+      "reason": "Adds durable fields to unfinished preservation. Validated native capture, supported component codecs and reconstruction arrive in later grouped continuity work.",
+      "sourcePaths": [
+        "Batches/Products/C6-2026-08-29-person-state-across-reload.md",
+        "Batches/history/c-20261003-source/Batches/C6-2026-08-29-person-state-across-reload.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Person-state persistence continues toward C49's native preservation boundary.",
+      "qualification": null
+    },
+    {
+      "batch": "C7",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Zombie census and bounded restitution",
+      "reason": "Completes bounded restitution: successful pool takes accrue durably, daily folding precedes the option, and actual debt caps native virtual repayment at six per pulse beyond hibernation range. The census and original Borders95/96 support that accounting behavior; demographic calibration is separate.",
+      "sourcePaths": [
+        "Batches/Products/C7-2026-08-29-zombie-census-and-bounded-restitution.md",
+        "Batches/history/c-20261003-source/Batches/C7-2026-08-29-zombie-census-and-bounded-restitution.md"
+      ],
+      "completionEvidence": "Debt-only zombie restitution with durable accounting, native repayment and an off-by-default control.",
+      "continuingRelationship": null,
+      "qualification": "Minor credits the completed debt-only restitution module, not the unfinished general dead-presence/distribution layer."
+    },
+    {
+      "batch": "C8",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Play evidence and execution corrections",
+      "reason": "Repairs route restarting and room-item parsing while play reports retain their actual limits. These correct execution/evidence defects rather than introduce a feature.",
+      "sourcePaths": [
+        "Batches/Products/C8-2026-08-29-play-evidence-and-execution-corrections.md",
+        "Batches/history/c-20261003-source/Batches/C8-2026-08-29-play-evidence-and-execution-corrections.md"
+      ],
+      "completionEvidence": "The named route/parsing defects are corrected; play remains bounded evidence.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C9",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Adoption and configuration boundaries",
+      "reason": "Unified adoption, failure handling and configuration are structural person-representation work. They strengthen the architecture without completing the native preservation/admission lifecycle later assembled in C49/C51.",
+      "sourcePaths": [
+        "Batches/Products/C9-2026-08-29-adoption-and-configuration-boundaries.md",
+        "Batches/history/c-20261003-source/Batches/C9-2026-08-29-adoption-and-configuration-boundaries.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Adoption/configuration are supporting increments in person representation.",
+      "qualification": null
+    },
+    {
+      "batch": "C10",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Known needs and social interaction",
+      "reason": "Connects existing need, interaction, dressing and wake paths to remembered opportunities, Standing and verified effects. The work chiefly repairs broken joins and does not close general resource behavior.",
+      "sourcePaths": [
+        "Batches/Products/C10-2026-08-29-known-needs-and-social-interaction.md",
+        "Batches/history/c-20261003-source/Batches/C10-2026-08-29-known-needs-and-social-interaction.md"
+      ],
+      "completionEvidence": "Existing interactions follow their actual knowledge, permission and execution paths.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C11",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Knowledge conditioning and inference measurement",
+      "reason": "Original records explicitly describe speech-design rung one and a budget instrument before any speaker or selected model. A knowledge interface and benchmark are foundations of the still-building speech/cognition feature.",
+      "sourcePaths": [
+        "Batches/Products/C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md",
+        "Batches/history/c-20261003-source/Batches/C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Knowledge conditioning and measurement precede the model, corpus and speaker.",
+      "qualification": null
+    },
+    {
+      "batch": "C12",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Body scale age and childhood",
+      "reason": "Native scale, age bands, physiology and child capacity are substantive components, but the declared age/childhood outcome is partial and activity/decision joins continue. Scaling and numeric literacy do not complete childhood life or education.",
+      "sourcePaths": [
+        "Batches/Products/C12-2026-09-06-body-scale-age-and-childhood.md",
+        "Batches/history/c-20261003-source/Batches/C12-2026-09-06-body-scale-age-and-childhood.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Age/scale/capacity are increments within childhood and life-stage behavior.",
+      "qualification": "Age/scale components are implemented; the declared age/childhood outcome is partial. A standalone age/scale boundary would differ from the broader childhood scope used here."
+    },
+    {
+      "batch": "C13",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Conditions habits and strain",
+      "reason": "Conditions, habits and strain add durable conditioning state. Consumer integration, drug cadence and health-course ownership remain work within the health/behavior feature.",
+      "sourcePaths": [
+        "Batches/Products/C13-2026-09-06-conditions-habits-and-strain.md",
+        "Batches/history/c-20261003-source/Batches/C13-2026-09-06-conditions-habits-and-strain.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Condition/habit state continues into C45/C47/C50 and behavioral consumers.",
+      "qualification": null
+    },
+    {
+      "batch": "C14",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Physical gestures",
+      "reason": "Completes the four selected decision-driven art families: credited rigged assets, owned animation nodes/variables, timed gestures, sitting and sounds bind existing chosen interactions. Original Border109 ties manifests, assets, nodes and moments together; later care/other art is separate.",
+      "sourcePaths": [
+        "Batches/Products/C14-2026-09-07-physical-gestures.md",
+        "Batches/history/c-20261003-source/Batches/C14-2026-09-07-physical-gestures.md"
+      ],
+      "completionEvidence": "Packaged native presentation of chosen conversation, sitting, instrument and dance moments.",
+      "continuingRelationship": null,
+      "qualification": "Minor credits the four selected gesture/art families and their decision bindings. Other care/shop/vehicle art is not a prerequisite."
+    },
+    {
+      "batch": "C15",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Historical record calendar",
+      "reason": "Corrects the historical record's calendar context. Later elapsed-clock work is separate, so this receives correction credit without claiming county simulation completion.",
+      "sourcePaths": [
+        "Batches/Products/C15-2026-09-07-historical-record-calendar.md",
+        "Batches/history/c-20261003-source/Batches/C15-2026-09-07-historical-record-calendar.md"
+      ],
+      "completionEvidence": "Existing historical claims/events use the intended calendar context.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C16",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Orders through Standing",
+      "reason": "Adds contextual command authority and refusal through Standing. Reception, responsibility and physical results are not completed by an authority predicate.",
+      "sourcePaths": [
+        "Batches/Products/C16-2026-09-07-orders-through-standing.md",
+        "Batches/history/c-20261003-source/Batches/C16-2026-09-07-orders-through-standing.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Command authority continues toward received and enacted scoped responsibilities.",
+      "qualification": null
+    },
+    {
+      "batch": "C17",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Remembered era and owned condition state",
+      "reason": "Moves era/condition inputs under person ownership and removes accidental external dependency. These are integration components in continuing history/health/knowledge features.",
+      "sourcePaths": [
+        "Batches/Products/C17-2026-09-07-remembered-era-and-owned-condition-state.md",
+        "Batches/history/c-20261003-source/Batches/C17-2026-09-07-remembered-era-and-owned-condition-state.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Owned memory and condition inputs continue into actual consumers.",
+      "qualification": null
+    },
+    {
+      "batch": "C18",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Historical county simulation",
+      "reason": "Prehistory, activity, construction choices and years stepping are introduced while grounded realization, full dormant producers and scalable late starts remain incomplete. A callable years pass does not complete the declared county feature.",
+      "sourcePaths": [
+        "Batches/Products/C18-2026-09-07-historical-county-simulation.md",
+        "Batches/history/c-20261003-source/Batches/C18-2026-09-07-historical-county-simulation.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Historical county simulation continues through clocks, movement and grounded producers.",
+      "qualification": null
+    },
+    {
+      "batch": "C19",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Constrained factual expression",
+      "reason": "The original fence record explicitly has no speaker, understander or decoder positions. Exact fact-selection refusal is a completed safety component, not completion of factual expression.",
+      "sourcePaths": [
+        "Batches/Products/C19-2026-09-07-constrained-factual-expression.md",
+        "Batches/history/c-20261003-source/Batches/C19-2026-09-07-constrained-factual-expression.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Constrained vocabulary is a prerequisite of the still-building speech runtime.",
+      "qualification": null
+    },
+    {
+      "batch": "C20",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Entry and command permission",
+      "reason": "Repairs entry difficulty and existing command permission by applying physical ground and the common authority check.",
+      "sourcePaths": [
+        "Batches/Products/C20-2026-09-07-entry-and-command-permission.md",
+        "Batches/history/c-20261003-source/Batches/C20-2026-09-07-entry-and-command-permission.md"
+      ],
+      "completionEvidence": "Existing entry/orders respect feasibility and Standing.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C21",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Learned expression and condition integration",
+      "reason": "Adds learned-fact conditioning and player habit/condition joins to expression. Authentic knowledge and health consumers still need development.",
+      "sourcePaths": [
+        "Batches/Products/C21-2026-09-08-learned-expression-and-condition-integration.md",
+        "Batches/history/c-20261003-source/Batches/C21-2026-09-08-learned-expression-and-condition-integration.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Learning/expression/condition integration remains under development.",
+      "qualification": null
+    },
+    {
+      "batch": "C22",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Personal choice in shared travel",
+      "reason": "Corrects personal participation and vehicle objections in existing travel choices. Preserving acceptable alternatives repairs that decision behavior.",
+      "sourcePaths": [
+        "Batches/Products/C22-2026-09-08-personal-choice-in-shared-travel.md",
+        "Batches/history/c-20261003-source/Batches/C22-2026-09-08-personal-choice-in-shared-travel.md"
+      ],
+      "completionEvidence": "Existing shared travel respects each participant's willingness.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C23",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Witnessed violence attribution",
+      "reason": "Corrects killer attribution so proximity to death is not witnessing its cause. The documented witness-rule limit remains; this is knowledge-correctness repair.",
+      "sourcePaths": [
+        "Batches/Products/C23-2026-09-08-witnessed-violence-attribution.md",
+        "Batches/history/c-20261003-source/Batches/C23-2026-09-08-witnessed-violence-attribution.md"
+      ],
+      "completionEvidence": "Death observation and evidence of responsibility remain distinct.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C24",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Verification and publication machinery",
+      "reason": "Repairs unavailable-engine verdicts, CI/action alignment and protected publication. These are repository/evidence corrections, not new mod behavior.",
+      "sourcePaths": [
+        "Batches/Products/C24-2026-09-08-verification-and-publication-machinery.md",
+        "Batches/history/c-20261003-source/Batches/C24-2026-09-08-verification-and-publication-machinery.md"
+      ],
+      "completionEvidence": "Existing verification/publication reports real scope and follows protected publication.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C25",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Player depletion of places",
+      "reason": "Connects player looting to place depletion, correcting stale availability after external world changes.",
+      "sourcePaths": [
+        "Batches/Products/C25-2026-09-08-player-depletion-of-places.md",
+        "Batches/history/c-20261003-source/Batches/C25-2026-09-08-player-depletion-of-places.md"
+      ],
+      "completionEvidence": "Existing resource projections account for player-produced depletion.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C26",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Source-clocked county simulation and observation",
+      "reason": "Completes reproducible trajectory observation: persisted run identity, declared conditions, emitted daily JSONL and a persisted county draw stream. Original Border133 output tests and Border134 draw/reload/statistical controls ground the bounded module, not whole-county correctness or training.",
+      "sourcePaths": [
+        "Batches/Products/C26-2026-09-08-source-clocked-county-simulation-and-observation.md",
+        "Batches/history/c-20261003-source/Batches/C26-2026-09-08-shared-county-time-and-day-zero.md",
+        "Batches/history/c-20261003-source/Batches/C27-2026-09-08-scoped-verification-claims.md",
+        "Batches/history/c-20261003-source/Batches/C28-2026-09-08-simulation-telemetry-and-reproducibility.md"
+      ],
+      "completionEvidence": "Source-bound reproducible trajectory recording and random-stream continuation.",
+      "continuingRelationship": null,
+      "qualification": "Minor credits reproducible trajectory observation and random-stream persistence, not whole-county correctness or a learned trajectory model."
+    },
+    {
+      "batch": "C27",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Dormant social continuity and county measurement",
+      "reason": "Dormant company continuity, death settlement, visits and a sweep add to developing social simulation. Admission and historical-state limitations remain inside that relationship.",
+      "sourcePaths": [
+        "Batches/Products/C27-2026-09-08-dormant-social-continuity-and-county-measurement.md",
+        "Batches/history/c-20261003-source/Batches/C29-2026-09-08-dormant-social-continuity-and-county-measurement.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Dormant social behavior/measurement continues toward grounded producers.",
+      "qualification": null
+    },
+    {
+      "batch": "C28",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Ownership across the three repositories",
+      "reason": "Ratifies and clarifies existing repository responsibility/licensing boundaries. No independent physical/cognitive feature is introduced.",
+      "sourcePaths": [
+        "Batches/Products/C28-2026-09-09-ownership-across-the-three-repositories.md",
+        "Batches/history/c-20261003-source/Batches/C30-2026-09-09-ownership-across-the-three-repositories.md"
+      ],
+      "completionEvidence": "SAO/ZAO/Speakeasy responsibilities are corrected and preserved.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C29",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Dormant movement settlement ground and cost",
+      "reason": "Elapsed dormant walking and use-derived ground are simulation components. Loaded realization, scale and actual place/material producers remain open.",
+      "sourcePaths": [
+        "Batches/Products/C29-2026-09-09-dormant-movement-settlement-ground-and-cost.md",
+        "Batches/history/c-20261003-source/Batches/C31-2026-09-09-dormant-movement-settlement-ground-and-cost.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Movement/settlement representation continues within county/world development.",
+      "qualification": null
+    },
+    {
+      "batch": "C30",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Infection course and clinical observation",
+      "reason": "Infection response, dormant exposure and examiner observations are partial clinical work. Authoritative pathogen ownership and removal of proximity exposure are still later obligations.",
+      "sourcePaths": [
+        "Batches/Products/C30-2026-09-09-infection-course-and-clinical-observation.md",
+        "Batches/history/c-20261003-source/Batches/C32-2026-09-09-infection-course-and-clinical-observation.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Infection/clinical behavior continues into real exposure and validated health ownership.",
+      "qualification": null
+    },
+    {
+      "batch": "C31",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Controller ownership and driving surface verification",
+      "reason": "Corrects externally owned body recognition and verifies driving surfaces. The source says the driving probe changed no mod behavior; autonomous driving is later work.",
+      "sourcePaths": [
+        "Batches/Products/C31-2026-09-09-controller-ownership-and-driving-surface-verification.md",
+        "Batches/history/c-20261003-source/Batches/C33-2026-09-09-controller-ownership-and-driving-surface-verification.md"
+      ],
+      "completionEvidence": "Existing control ownership is corrected; engine driving feasibility is evidence only.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C32",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Decision capture and ratified data preparation",
+      "reason": "Decision capture, engine data and ratified labels support a future learned system. Mutable snapshots and missing downstream causal data/model production prevent feature completion.",
+      "sourcePaths": [
+        "Batches/Products/C32-2026-09-10-decision-capture-and-ratified-data-preparation.md",
+        "Batches/history/c-20261003-source/Batches/C34-2026-09-10-decision-capture-and-ratified-data-preparation.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Data preparation continues toward immutable causal examples and model use.",
+      "qualification": null
+    },
+    {
+      "batch": "C33",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Life simulation and dependency contracts",
+      "reason": "Ratified life, organization, claim and dependency contracts name missing producers. Contracts and graph views are foundations, not complete simulation.",
+      "sourcePaths": [
+        "Batches/Products/C33-2026-09-10-life-simulation-and-dependency-contracts.md",
+        "Batches/history/c-20261003-source/Batches/C35-2026-09-10-life-simulation-and-dependency-contracts.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Life/dependency contracts continue into runtime producers.",
+      "qualification": null
+    },
+    {
+      "batch": "C34",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Isolation attachment and development observations",
+      "reason": "Read-only isolation, attachment and development summaries expose inputs without producing affiliation, projects or provisioning.",
+      "sourcePaths": [
+        "Batches/Products/C34-2026-09-10-isolation-attachment-and-development-observations.md",
+        "Batches/history/c-20261003-source/Batches/C36-2026-09-10-isolation-attachment-and-development-observations.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Observation channels support developing social/world-development mechanisms.",
+      "qualification": null
+    },
+    {
+      "batch": "C35",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Pathogen data and recognition integration",
+      "reason": "Forms, recognition and cross-module ownership are partly integrated. Automatic recognition, persistence and decision producers remain unresolved.",
+      "sourcePaths": [
+        "Batches/Products/C35-2026-09-12-pathogen-data-and-recognition-integration.md",
+        "Batches/history/c-20261003-source/Batches/C37-2026-09-12-pathogen-data-and-recognition-integration.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Pathogen/recognition integration retains missing producer/persistence joins.",
+      "qualification": null
+    },
+    {
+      "batch": "C36",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Player claims and inhabited ground",
+      "reason": "Player claims, provisioning reads and inhabited-place ranking are representations. Physical inventory/access/consequences remain absent from the declared material/settlement feature.",
+      "sourcePaths": [
+        "Batches/Products/C36-2026-09-12-player-claims-and-inhabited-ground.md",
+        "Batches/history/c-20261003-source/Batches/C38-2026-09-12-player-claims-and-inhabited-ground.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Claims and inhabited ground continue into actual material/development results.",
+      "qualification": null
+    },
+    {
+      "batch": "C37",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Readiness corrections and recorded rulings",
+      "reason": "Corrects stale readiness prose and preserves settled dataset/configuration rulings without a new runtime feature.",
+      "sourcePaths": [
+        "Batches/Products/C37-2026-09-12-readiness-corrections-and-recorded-rulings.md",
+        "Batches/history/c-20261003-source/Batches/C39-2026-09-12-readiness-corrections-and-recorded-rulings.md"
+      ],
+      "completionEvidence": "Settled choices and current readiness are accurately recorded.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C38",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Personal need in affiliation",
+      "reason": "Personal need extends trust-based affiliation; private knowledge and actual formation/reception still need producers.",
+      "sourcePaths": [
+        "Batches/Products/C38-2026-09-12-personal-need-in-affiliation.md",
+        "Batches/history/c-20261003-source/Batches/C40-2026-09-12-personal-need-in-affiliation.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Affiliation continues toward independently acquired and enacted membership.",
+      "qualification": null
+    },
+    {
+      "batch": "C39",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "County tick and ordinary activity",
+      "reason": "County tick and ordinary activity remain partial with cached historical time and loaded/dormant consequence mismatch.",
+      "sourcePaths": [
+        "Batches/Products/C39-2026-09-13-county-tick-and-ordinary-activity.md",
+        "Batches/history/c-20261003-source/Batches/C41-2026-09-13-county-tick-and-ordinary-activity.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Activity and clock consumers continue with producer/equivalence work.",
+      "qualification": null
+    },
+    {
+      "batch": "C40",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Driving integration and configuration",
+      "reason": "Driving/configuration is introduced, but approach, passenger waiting, steering and progress defects prevent usable trip completion.",
+      "sourcePaths": [
+        "Batches/Products/C40-2026-09-13-driving-integration-and-configuration.md",
+        "Batches/history/c-20261003-source/Batches/C42-2026-09-13-driving-integration-and-configuration.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Autonomous driving still needs coherent native approach/travel/arrival.",
+      "qualification": null
+    },
+    {
+      "batch": "C41",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Afflicted return and social behavior",
+      "reason": "Afflicted return/social responses retain incomplete adoption, dormant recovery, skill attribution and movement.",
+      "sourcePaths": [
+        "Batches/Products/C41-2026-09-13-afflicted-return-and-social-behavior.md",
+        "Batches/history/c-20261003-source/Batches/C43-2026-09-13-afflicted-return-and-social-behavior.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Returned-person life/ownership continues through later units.",
+      "qualification": null
+    },
+    {
+      "batch": "C42",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Robbery and raiding actions",
+      "reason": "Demands, surrender, entry and raids lack completed transaction and aggressor result consumption. Native primitives do not close robbery/raiding.",
+      "sourcePaths": [
+        "Batches/Products/C42-2026-09-14-robbery-and-raiding-actions.md",
+        "Batches/history/c-20261003-source/Batches/C44-2026-09-14-robbery-and-raiding-actions.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Robbery requires communication, independent response, transfer and consequence joins.",
+      "qualification": null
+    },
+    {
+      "batch": "C43",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Optional county events and care",
+      "reason": "Optional event configuration coexists with unfinished care composition that queues treatment before CPR. The mixed unit builds parts without a complete care outcome.",
+      "sourcePaths": [
+        "Batches/Products/C43-2026-09-14-optional-county-events-and-care.md",
+        "Batches/history/c-20261003-source/Batches/C45-2026-09-14-optional-county-events-and-care.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Events/care retain separate actual action-chain obligations.",
+      "qualification": null
+    },
+    {
+      "batch": "C44",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Child and everyday activity integration",
+      "reason": "Age-sensitive activity expands childhood, but zero-wound truthiness and perception-bypassing partners leave decisions incomplete.",
+      "sourcePaths": [
+        "Batches/Products/C44-2026-09-14-child-and-everyday-activity-integration.md",
+        "Batches/history/c-20261003-source/Batches/C46-2026-09-14-child-and-everyday-activity-integration.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Child/everyday activity continues within the life-stage feature.",
+      "qualification": null
+    },
+    {
+      "batch": "C45",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Drug use withdrawal and smoking",
+      "reason": "Drug/withdrawal/smoking adapters retain frozen abstinence, session-dependent cadence and missing native-counter persistence.",
+      "sourcePaths": [
+        "Batches/Products/C45-2026-09-14-drug-use-withdrawal-and-smoking.md",
+        "Batches/history/c-20261003-source/Batches/C47-2026-09-14-drug-use-withdrawal-and-smoking.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Drug/habit physiology continues through event-time and persistence work.",
+      "qualification": null
+    },
+    {
+      "batch": "C46",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Vehicle animal and combat integration",
+      "reason": "Keys, storage, animal care and combat add seams while access, moving-position, animal-belief and target validation remain incomplete.",
+      "sourcePaths": [
+        "Batches/Products/C46-2026-09-14-vehicle-animal-and-combat-integration.md",
+        "Batches/history/c-20261003-source/Batches/C48-2026-09-14-vehicle-animal-and-combat-integration.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Vehicle/animal/combat integration continues with physical/perceptual owners.",
+      "qualification": null
+    },
+    {
+      "batch": "C47",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Brain health integration",
+      "reason": "The brain-health attempt has partition-dependent outcomes, wrong pathogen ownership and stale/reapplied injury inputs. A scalar display does not close the chosen graph/course.",
+      "sourcePaths": [
+        "Batches/Products/C47-2026-09-14-brain-health-integration.md",
+        "Batches/history/c-20261003-source/Batches/C49-2026-09-14-brain-health-integration.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Brain health continues into validated event history and behavioral consumers.",
+      "qualification": null
+    },
+    {
+      "batch": "C48",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Historical simulation recovery and evidence",
+      "reason": "Withdraws the rejected formula and repairs catch-up/provenance. No fitted model or ML bridge is delivered.",
+      "sourcePaths": [
+        "Batches/Products/C48-2026-09-18-historical-simulation-recovery-and-evidence.md",
+        "Batches/history/c-20261003-source/Batches/C50-2026-09-18-historical-simulation-recovery-and-evidence.md"
+      ],
+      "completionEvidence": "Named scheduler/evidence defects are corrected; rejected synthesis remains withdrawn.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C49",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Native person preservation and authorized reconstruction",
+      "reason": "Completes supported native person preservation/reconstruction: exact components/items, capture/teardown failure order, v4 sidecars, authorized return and durable/runtime journal recovery. Real codecs and owner fault controls ground this grouped lifecycle; other life/health behavior is separate.",
+      "sourcePaths": [
+        "Batches/Products/C49-2026-09-19-native-person-preservation-and-authorized-reconstruction.md",
+        "Batches/history/c-20261003-source/Batches/C51-2026-09-19-person-preservation.md",
+        "Batches/history/c-20261003-source/Batches/C52-2026-09-19-authorized-afflicted-return.md",
+        "Batches/history/c-20261003-source/Batches/C53-2026-09-19-shared-county-time.md",
+        "Batches/history/c-20261003-source/Batches/C54-2026-09-19-native-person-continuity.md",
+        "Batches/history/c-20261003-source/Batches/C55-2026-09-19-durable-runtime-reconstruction.md"
+      ],
+      "completionEvidence": "A retained person survives body replacement and authorized reconstruction with exact supported state/ownership.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C50",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Health and dormant physiology",
+      "reason": "R5 closes event-time health, conserved carried physiology and contact ownership components. These advance the continuing health/dormant/living-person integration rather than its whole general action/health domain.",
+      "sourcePaths": [
+        "Batches/Products/C50-2026-09-19-health-and-dormant-physiology.md",
+        "Batches/history/c-20261003-source/Batches/C56-2026-09-19-health-and-dormant-physiology.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Validated health/physiology components remain inside broader living-person integration.",
+      "qualification": "Scoped R5 health/physiology closes in the source. This recommendation treats it as continuing health/living-person integration; declaring R5 itself the whole feature could support a different boundary."
+    },
+    {
+      "batch": "C51",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Durable population reconstruction and scheduling",
+      "reason": "Snapshot ownership, population refactoring and debug-compiler repair support the continuing person/county runtime rather than complete a new simulation feature.",
+      "sourcePaths": [
+        "Batches/Products/C51-2026-09-20-durable-population-reconstruction-and-scheduling.md",
+        "Batches/history/c-20261003-source/Batches/C57-2026-09-20-person-continuity-contract.md",
+        "Batches/history/c-20261003-source/Batches/C58-2026-09-20-population-reconstruction-and-scheduling.md",
+        "Batches/history/c-20261003-source/Batches/C59-2026-09-20-debug-mode-lua-compilation.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Reconstruction/scheduling remains supporting implementation of person/population continuity.",
+      "qualification": null
+    },
+    {
+      "batch": "C52",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Private native perception and physical access",
+      "reason": "Loaded perception/access closes a bounded component; actual source interaction/material producers await C53.",
+      "sourcePaths": [
+        "Batches/Products/C52-2026-09-20-private-native-perception-and-physical-access.md",
+        "Batches/history/c-20261003-source/Batches/C60-2026-09-20-perception-and-world-access.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Private physical access continues into actual acquisition/use/reconciliation.",
+      "qualification": null
+    },
+    {
+      "batch": "C53",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Performed source provisioning and exact material outcomes",
+      "reason": "Six contributions close private source revision, route/access/holder validation, native transfer/use/storage, durable measured receipts and owned partial material projection. C64 retires unsupported whole-house claims within the group. Holder/conservation and actor/ledger controls ground the source-action module.",
+      "sourcePaths": [
+        "Batches/Products/C53-2026-09-21-performed-source-provisioning-and-exact-material-outcomes.md",
+        "Batches/history/c-20261003-source/Batches/C61-2026-09-20-demand-led-native-hydration.md",
+        "Batches/history/c-20261003-source/Batches/C62-2026-09-20-source-access-and-native-use.md",
+        "Batches/history/c-20261003-source/Batches/C63-2026-09-20-provisioning-result-consumption.md",
+        "Batches/history/c-20261003-source/Batches/C64-2026-09-20-corrective-integrity-and-decision-evidence.md",
+        "Batches/history/c-20261003-source/Batches/C65-2026-09-21-source-action-decisions.md",
+        "Batches/history/c-20261003-source/Batches/C66-2026-09-21-performed-provisioning.md"
+      ],
+      "completionEvidence": "Exact private source access and performed material use/acquisition/storage with durable measured consumption.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C54",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Completed personal exchange and private social appraisal",
+      "reason": "Completes accepted personal exchange, exact native legs, partial/full barter and private witnessing/testimony/appraisal. Native effects precede social consequences and replay is idempotent; reload-unknown reservations are an explicit conservative limit.",
+      "sourcePaths": [
+        "Batches/Products/C54-2026-09-21-completed-personal-exchange-and-private-social-appraisal.md",
+        "Batches/history/c-20261003-source/Batches/C67-2026-09-21-delivery-knowledge.md",
+        "Batches/history/c-20261003-source/Batches/C68-2026-09-21-personal-handovers-and-terms.md",
+        "Batches/history/c-20261003-source/Batches/C69-2026-09-21-recipient-appraisal-after-testimony.md"
+      ],
+      "completionEvidence": "Performed gifts/trade legs and their one-time person-private consequences.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C55",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Measured treatment completion",
+      "reason": "Measured treatment replaces queue-created credit for a native action family. Doctor/CPR/wider care and later duplicate credit remain developing.",
+      "sourcePaths": [
+        "Batches/Products/C55-2026-09-21-measured-treatment-completion.md",
+        "Batches/history/c-20261003-source/Batches/C70-2026-09-21-treatment-completion.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Treatment custody is a component of the care feature.",
+      "qualification": null
+    },
+    {
+      "batch": "C56",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Complete private inventory",
+      "reason": "Complete recursive possession becomes observable but does not execute world access, household provisioning or inventory management.",
+      "sourcePaths": [
+        "Batches/Products/C56-2026-09-21-complete-private-inventory.md",
+        "Batches/history/c-20261003-source/Batches/C71-2026-09-21-complete-private-inventory.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Inventory coverage continues into holder access and material producers.",
+      "qualification": null
+    },
+    {
+      "batch": "C57",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Personally heard spoken and radio communication",
+      "reason": "Sleep/wake and endpoint receipts complete reception components, while wider autonomous radio/request production remains missing from the communication line.",
+      "sourcePaths": [
+        "Batches/Products/C57-2026-09-21-personally-heard-spoken-and-radio-communication.md",
+        "Batches/history/c-20261003-source/Batches/C72-2026-09-21-dormant-spoken-access.md",
+        "Batches/history/c-20261003-source/Batches/C73-2026-09-21-radio-reception.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Spoken/radio acquisition continues with communication and proposal/work producers.",
+      "qualification": "Sleep/radio reception closes a bounded endpoint/state component. A standalone reception-module boundary could support minor rather than its place in developing autonomous communication."
+    },
+    {
+      "batch": "C58",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Source-bound conversation knowledge and person-state evidence",
+      "reason": "Catalogues, immutable captures, corrected newspaper acquisition and state contrasts prepare conversation inputs. Sources stop before learned retrieval/speaking and revoke presence-derived knowledge.",
+      "sourcePaths": [
+        "Batches/Products/C58-2026-09-23-source-bound-conversation-knowledge-and-person-state-evidence.md",
+        "Batches/history/c-20261003-source/Batches/C74-2026-09-21-personal-world-knowledge-evidence.md",
+        "Batches/history/c-20261003-source/Batches/C75-2026-09-21-typed-claim-catalogues.md",
+        "Batches/history/c-20261003-source/Batches/C76-2026-09-22-conversation-capture.md",
+        "Batches/history/c-20261003-source/Batches/C77-2026-09-22-evidenced-world-knowledge.md",
+        "Batches/history/c-20261003-source/Batches/C78-2026-09-23-person-state-comparisons.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Evidence-bound capture/knowledge precedes actual conversation and broader content.",
+      "qualification": null
+    },
+    {
+      "batch": "C59",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Enacted voluntary social coordination",
+      "reason": "Completes the approved bounded voluntary protocol: acquired proposal, independent response, scoped responsibility, performed SourceUse/Handover work and persistence. The thirteen-row mechanism receipt includes completed work; broad institutions are separate.",
+      "sourcePaths": [
+        "Batches/Products/C59-2026-09-24-enacted-voluntary-social-coordination.md",
+        "Batches/history/c-20261003-source/Batches/C79-2026-09-24-enacted-social-coordination.md"
+      ],
+      "completionEvidence": "Proposal-to-response-to-commitment-to-performed voluntary material coordination.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C60",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "ZAO-owned living person handoff",
+      "reason": "Living human body handoff to ZAO preserves identity/services but does not complete state-specific lives or the retained human action vocabulary.",
+      "sourcePaths": [
+        "Batches/Products/C60-2026-09-24-zao-owned-living-person-handoff.md",
+        "Batches/history/c-20261003-source/Batches/C80-20260924-2016Z-1316PST-zao-owned-living-person-handoff.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Cross-owner living-person integration continues into ordinary needs/actions/cognition.",
+      "qualification": null
+    },
+    {
+      "batch": "C61",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Source-bound native coordination shadow",
+      "reason": "Completes observational native inference, not just model import: partitioned source scenes, exact FP32/tokenizer bundle validation, async execution, bound withholding and death/world cancellation. Its nonauthoritative shadow boundary is explicit and executable.",
+      "sourcePaths": [
+        "Batches/Products/C61-2026-09-25-source-bound-native-coordination-shadow.md",
+        "Batches/history/c-20261003-source/Batches/C81-20260925-0221Z-1921PST-coordination-reference-source.md",
+        "Batches/history/c-20261003-source/Batches/C82-20260925-0525Z-2225PST-native-coordination-shadow.md"
+      ],
+      "completionEvidence": "Verified packaged coordination inference and observational shadow delivery.",
+      "continuingRelationship": null,
+      "qualification": "Minor credits the observational inference/shadow module, not an authoritative learned coordination policy or support beyond the reference family."
+    },
+    {
+      "batch": "C62",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Personally initiated and externally enacted cooperative work",
+      "reason": "Private initiation, external owners and episodes extend cooperation. Natural arrivals without receptions expose missing communication/enactment joins.",
+      "sourcePaths": [
+        "Batches/Products/C62-2026-09-25-personally-initiated-and-externally-enacted-cooperative-work.md",
+        "Batches/history/c-20261003-source/Batches/C83-20260925-0855Z-0155PST-external-life-coordination.md",
+        "Batches/history/c-20261003-source/Batches/C84-20260925-1201Z-0501PST-causal-episode-runtime.md",
+        "Batches/history/c-20261003-source/Batches/C85-20260925-2145Z-1445PST-private-situation-contact-and-enacted-work.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Personally initiated work continues into reliable reception/procedure execution.",
+      "qualification": null
+    },
+    {
+      "batch": "C63",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Isolated native study worlds and survival observation",
+      "reason": "Completes authored native worlds, isolated cache/save, independent observer/capture, bounded supervision, native continuation and actual Mousecat pixels. Retained continuations/controls establish the infrastructure without survivor competence claims.",
+      "sourcePaths": [
+        "Batches/Products/C63-2026-09-26-isolated-native-study-worlds-and-survival-observation.md",
+        "Batches/history/c-20261003-source/Batches/C86-20260926-0526Z-2226PST-native-study-worlds.md",
+        "Batches/history/c-20261003-source/Batches/C87-20260926-2218Z-1518PST-survival-observation-and-continuity.md"
+      ],
+      "completionEvidence": "Configurable isolated native study worlds with owned observation/supervision/save continuation.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C64",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Independent native cognition and physical capability evidence",
+      "reason": "Completes independent model competition/feedback for its declared action family: frozen private inputs, balanced selection, native results and persistent separate revisions. Nineteen native experiences revise both models; general reasoning/superiority is not claimed.",
+      "sourcePaths": [
+        "Batches/Products/C64-2026-09-27-independent-native-cognition-and-physical-capability-evidence.md",
+        "Batches/history/c-20261003-source/Batches/C88-20260927-0208Z-1908PST-competing-cognition.md",
+        "Batches/history/c-20261003-source/Batches/C89-20260927-0516Z-2216PST-native-perception-and-capabilities.md"
+      ],
+      "completionEvidence": "Private contestants compete on native actions and revise from authenticated outcomes.",
+      "continuingRelationship": null,
+      "qualification": "Minor credits the actual two-contestant feedback loop, not general reasoning, superiority or a trained language/technology model."
+    },
+    {
+      "batch": "C65",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Autonomous cooperative procedures and exact joint action",
+      "reason": "Graph, role/action and natural formation complete a bounded cooperative module. Private roles, dependencies/synchronization and food/threat pressure join real movement, Cooking, Handover and watch/cover with revision/persistence.",
+      "sourcePaths": [
+        "Batches/Products/C65-2026-09-28-autonomous-cooperative-procedures-and-exact-joint-action.md",
+        "Batches/history/c-20261003-source/Batches/C90-20260927-2033Z-1333PST-cooperative-procedures.md",
+        "Batches/history/c-20261003-source/Batches/C91-20260928-0058Z-1758PST-autonomous-cooperative-action.md",
+        "Batches/history/c-20261003-source/Batches/C92-20260928-0433Z-2133PST-natural-cooperative-formation.md"
+      ],
+      "completionEvidence": "Autonomously formed role-bounded procedures with exact joined native contributions.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C66",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Saved configurable study sessions and authored pressure",
+      "reason": "Finite saved attempts, configuration and initial pressure extend the delivered study framework rather than complete that same feature again.",
+      "sourcePaths": [
+        "Batches/Products/C66-2026-09-28-saved-configurable-study-sessions-and-authored-pressure.md",
+        "Batches/history/c-20261003-source/Batches/C93-20260928-0657Z-2357PST-durable-study-sessions.md",
+        "Batches/history/c-20261003-source/Batches/C94-20260928-0910Z-0210PDT-study-situation-pressure.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Study-session/configuration/pressure authoring continues the existing study feature.",
+      "qualification": null
+    },
+    {
+      "batch": "C67",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "Person-private purpose planning and native activation",
+      "reason": "The planner establishes durable objectives/results, but C95 lacks reading completion and C96 finds ordinary activities with no maintained purposes. Interfaces/engine activation do not complete usable sustained work.",
+      "sourcePaths": [
+        "Batches/Products/C67-2026-09-28-person-private-purpose-planning-and-native-activation.md",
+        "Batches/history/c-20261003-source/Batches/C95-20260928-1021Z-0321PDT-person-private-procedural-planning.md",
+        "Batches/history/c-20261003-source/Batches/C96-20260928-2010Z-1310PDT-current-engine-study-activation.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Private planning continues into actual reading/acquisition/production/purpose producers.",
+      "qualification": "Planner interfaces are completed but ordinary activities initially produce no maintained purposes. The usable sustained-purpose feature remains an increment."
+    },
+    {
+      "batch": "C68",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Source integration lineage",
+      "reason": "Lineage inventories sources, rights and missing owners. Discovery and five open ownership gaps are preparation for integration, not its completion.",
+      "sourcePaths": [
+        "Batches/Products/C68-2026-09-28-source-integration-lineage.md",
+        "Batches/history/c-20261003-source/Batches/C97-20260928-2053Z-1353PDT-source-integration-lineage.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Source integration inventory precedes owned mechanisms.",
+      "qualification": null
+    },
+    {
+      "batch": "C69",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Owned horse life and mounted mobility",
+      "reason": "The whole selected Horse implementation/assets ship under native-body ownership, with approach/mount/ride/dismount, collision, stamina, gear and teardown. A current-engine run completes all four tokens and release.",
+      "sourcePaths": [
+        "Batches/Products/C69-2026-09-28-owned-horse-life-and-mounted-mobility.md",
+        "Batches/history/c-20261003-source/Batches/C98-20260928-2130Z-1430PDT-owned-horse-life-and-mobility.md"
+      ],
+      "completionEvidence": "Owned mounted mobility preserves physical travel and dismount consequences.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C70",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Mobile household continuity and loaded use",
+      "reason": "Completes moving-place continuity: durable exterior identity plus real provider-room occupancy, movement, replacement/save and exact entry/exit. The second native receipt closes the physical gap; this credits continuity, not all external RV incorporation.",
+      "sourcePaths": [
+        "Batches/Products/C70-2026-09-29-mobile-household-continuity-and-loaded-use.md",
+        "Batches/history/c-20261003-source/Batches/C99-20260929-0312Z-2012PDT-mobile-household-continuity.md",
+        "Batches/history/c-20261003-source/Batches/C100-20260929-0901Z-0201PDT-mobile-household-loaded-acceptance.md"
+      ],
+      "completionEvidence": "Moving households preserve exterior anchor, room, occupants and possessions through native transitions/save.",
+      "continuingRelationship": null,
+      "qualification": "Minor credits SAO moving-place continuity and actual room transitions; full incorporation of external RV providers/art remains separate."
+    },
+    {
+      "batch": "C71",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Study terminal and human review handoff",
+      "reason": "Repairs study terminal projection and legacy receipt/review handoff with exact unchanged original inputs/bytes; metadata recovery adds no behavior.",
+      "sourcePaths": [
+        "Batches/Products/C71-2026-09-29-study-terminal-and-human-review-handoff.md",
+        "Batches/history/c-20261003-source/Batches/C101-20260929-1941Z-1241PDT-study-terminal-and-human-review-handoff.md"
+      ],
+      "completionEvidence": "Existing study/review reaches its correct durable terminal state.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C72",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Native manual study and retained learning acquisition",
+      "reason": "Book study/acquisition advances purposes with Cooking as one practical consumer. Other practice domains and literal education remain unfinished.",
+      "sourcePaths": [
+        "Batches/Products/C72-2026-09-30-native-manual-study-and-retained-learning-acquisition.md",
+        "Batches/history/c-20261003-source/Batches/C102-20260929-2320Z-1620PST-native-skill-book-study.md",
+        "Batches/history/c-20261003-source/Batches/C103-20260930-0306Z-2006PST-retained-acquisition-and-productive-work.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Learning/read/practice continues beyond manual and Cooking paths.",
+      "qualification": "A narrow skill-book service is realized. The declared learning/acquisition/productive-work family retains non-Cooking practice and education, so kohai is recommended."
+    },
+    {
+      "batch": "C73",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Sustained private resource planning",
+      "reason": "Private resource chains and bounded refill/production advance planning, while sustained resource competence and broader producers remain developing.",
+      "sourcePaths": [
+        "Batches/Products/C73-2026-09-30-sustained-private-resource-planning.md",
+        "Batches/history/c-20261003-source/Batches/C104-20260930-0455Z-2155PST-sustained-resource-planning.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Resource planning continues through actual inspection/acquisition/production owners.",
+      "qualification": null
+    },
+    {
+      "batch": "C74",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Source-bound resource trials and native conditions",
+      "reason": "Source objectives, initial conditions, hazards and terminals extend trials. Authored need targets or failed trials do not close autonomous resource behavior.",
+      "sourcePaths": [
+        "Batches/Products/C74-2026-09-30-source-bound-resource-trials-and-native-conditions.md",
+        "Batches/history/c-20261003-source/Batches/C105-20260930-1100Z-0400PST-resource-outcome-trials-and-asynchronous-observation.md",
+        "Batches/history/c-20261003-source/Batches/C106-20260930-1320Z-0620PST-regional-study-conditions-hydration-and-timing.md",
+        "Batches/history/c-20261003-source/Batches/C107-20260930-1745Z-1045PST-resource-approaches-and-native-threat-conditions.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Trial authoring/conditions continue study/resource implementation.",
+      "qualification": null
+    },
+    {
+      "batch": "C75",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Private survival planning and residence",
+      "reason": "Private survival/residence alternatives add to the planner. Inspection supports reassessment; arrival alone supplies neither safety nor recovery.",
+      "sourcePaths": [
+        "Batches/Products/C75-2026-09-30-private-survival-planning-and-residence.md",
+        "Batches/history/c-20261003-source/Batches/C108-20260930-2000Z-1300PST-private-survival-planning-and-residence.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Residence/survival continues through actual entry/recovery/learned consequences.",
+      "qualification": null
+    },
+    {
+      "batch": "C76",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Observer freshness and native session completion",
+      "reason": "Corrects observer freshness/budgets and stop/drain/save binding in existing sessions rather than a new observation feature.",
+      "sourcePaths": [
+        "Batches/Products/C76-2026-10-01-observer-freshness-and-native-session-completion.md",
+        "Batches/history/c-20261003-source/Batches/C109-20261001-0459Z-2159PST-observer-capture-and-session-completion.md"
+      ],
+      "completionEvidence": "Existing session completion uses source clocks and exact terminal evidence.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C77",
+      "previousTier": "patch",
+      "tier": "patch",
+      "featureScope": "Native route progress and tactical continuity",
+      "reason": "Repairs false stall/status cancellation while preserving actual progress and purpose/tactical continuity.",
+      "sourcePaths": [
+        "Batches/Products/C77-2026-10-01-native-route-progress-and-tactical-continuity.md",
+        "Batches/history/c-20261003-source/Batches/C110-20261001-0730Z-0030PST-route-progress-and-tactical-continuity.md"
+      ],
+      "completionEvidence": "Existing ongoing native movement survives incorrect cancellation triggers.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C78",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Native feeding and carried cooler continuity",
+      "reason": "Feeding/cooler capture joins actors/holders, but nonfeeding care, growth and cooler-aware dormant meals remain open.",
+      "sourcePaths": [
+        "Batches/Products/C78-2026-10-01-native-feeding-and-carried-cooler-continuity.md",
+        "Batches/history/c-20261003-source/Batches/C111-20261001-2355Z-1655PST-native-feeding-and-carried-coolers.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Animal care and carried material life retain their remaining producers.",
+      "qualification": null
+    },
+    {
+      "batch": "C79",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Native window repair and private physical experience",
+      "reason": "Window action/private effect receipts are a repair component while approach, acquisition, nested preparation/crafting and other representations remain necessary.",
+      "sourcePaths": [
+        "Batches/Products/C79-2026-10-02-native-window-repair-and-private-physical-experience.md",
+        "Batches/history/c-20261003-source/Batches/C112-20261002-0328Z-2028PST-native-window-repair.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Window maintenance continues toward the full private need/material/purpose/action chain.",
+      "qualification": null
+    },
+    {
+      "batch": "C80",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Continuous independent person observation",
+      "reason": "Completes continuous independent observation: saved subjects, residency/framebuffer, uncapped admission, PNG/H264 custody and decodable crops/fragments with actual client presentation. Native continuations and 37.7333 common decoded presentations/s ground delivery without render-FPS claims.",
+      "sourcePaths": [
+        "Batches/Products/C80-2026-10-03-continuous-independent-person-observation.md",
+        "Batches/history/c-20261003-source/Batches/C113-20261002-0924Z-0224PST-independent-native-observation-layouts.md",
+        "Batches/history/c-20261003-source/Batches/C114-20261002-2244Z-1544PST-uncapped-native-observation.md",
+        "Batches/history/c-20261003-source/Batches/C115-20261003-0308Z-2008PST-persistent-subject-observation.md",
+        "Batches/history/c-20261003-source/Batches/C116-20261003-0433Z-2133PST-continuous-native-observation.md"
+      ],
+      "completionEvidence": "Source-bound continuous subject observation with persisted layouts and verified capture/encoding/client delivery.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "C81",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Shared native furniture movement",
+      "reason": "Native player furniture movement gains exact identity/contents/relocation, while NPC purpose/learning and utility joins remain absent.",
+      "sourcePaths": [
+        "Batches/Products/C81-2026-10-03-shared-native-furniture-movement.md",
+        "Batches/history/c-20261003-source/Batches/C117-20261003-0930Z-0230PST-shared-furniture-movement.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Furniture physics continues toward full NPC intention/acquisition/learning integration.",
+      "qualification": null
+    },
+    {
+      "batch": "C82",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "Private entry and recovery experience",
+      "reason": "Entry/recovery experience is a measured useful tranche, but private planning/learning and robust recovery still develop. C120 retains posture and broader work gaps; these examples do not complete general cognition/curriculum.",
+      "sourcePaths": [
+        "Batches/Products/C82-2026-10-03-private-entry-and-recovery-experience.md",
+        "Batches/history/c-20261003-source/Batches/C118-20261003-1832Z-1132PST-private-entry-decisions.md",
+        "Batches/history/c-20261003-source/Batches/C119-20261003-1855Z-1155PST-recovery-decisions.md",
+        "Batches/history/c-20261003-source/Batches/C120-20261003-1917Z-1217PST-entry-and-recovery-learning.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "Entry/recovery experience continues into robust embodiment and broader learned decisions.",
+      "qualification": null
+    },
+    {
+      "batch": "D1",
+      "previousTier": "minor",
+      "tier": "minor",
+      "featureScope": "Shared person-specific reasoning",
+      "reason": "Completed declared reasoning module joins person-private conceptual inquiry, ordinary purpose comparisons, dated prior recall, durable unfinished purposes and guarded native recovery. The source retains its controlled reasoning and bounded native evidence without claiming completed curriculum or general learned policy.",
+      "sourcePaths": [
+        "Batches/D1-20261004-0124Z-1824PST-shared-reasoning.md"
+      ],
+      "completionEvidence": "Completed declared reasoning module joins person-private conceptual inquiry, ordinary purpose comparisons, dated prior recall, durable unfinished purposes and guarded native recovery. The source retains its controlled reasoning and bounded native evidence without claiming completed curriculum or general learned policy.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "D2",
+      "previousTier": "kohai",
+      "tier": "minor",
+      "featureScope": "Leisure",
+      "reason": "The complete declared Leisure module joins personally acquired opportunities, ordinary comparisons, native recreation across its selected families, authenticated outcomes, interruption and durable experience. This integrated module closure supports minor; it is not an isolated recreation API or building subset.",
+      "sourcePaths": [
+        "Batches/D2-20261005-2341Z-1641PST-leisure.md"
+      ],
+      "completionEvidence": "The complete declared Leisure module joins personally acquired opportunities, ordinary comparisons, native recreation across its selected families, authenticated outcomes, interruption and durable experience. This integrated module closure supports minor; it is not an isolated recreation API or building subset.",
+      "continuingRelationship": null,
+      "qualification": null
+    },
+    {
+      "batch": "D3.1",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "D3 construction, crafting, repair and utilities",
+      "reason": "D3.1 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module.",
+      "sourcePaths": [
+        "Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "D3 remains OPEN",
+      "qualification": null
+    },
+    {
+      "batch": "D3.2",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "D3 construction, crafting, repair and utilities",
+      "reason": "D3.2 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module.",
+      "sourcePaths": [
+        "Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "D3 remains OPEN",
+      "qualification": null
+    },
+    {
+      "batch": "D3.3",
+      "previousTier": "kohai",
+      "tier": "kohai",
+      "featureScope": "D3 construction, crafting, repair and utilities",
+      "reason": "D3.3 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module.",
+      "sourcePaths": [
+        "Batches/D3.3-20261010-0622Z-2222PST-portable-tool-maintenance.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "D3 remains OPEN",
+      "qualification": null
+    },
+    {
+      "batch": "D3.4",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "D3 construction, crafting, repair and utilities",
+      "reason": "D3.4 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module.",
+      "sourcePaths": [
+        "Batches/D3.4-20261010-0701Z-2301PST-plumbing-to-usable-water.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "D3 remains OPEN",
+      "qualification": null
+    },
+    {
+      "batch": "D3.5",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "D3 construction, crafting, repair and utilities",
+      "reason": "D3.5 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module.",
+      "sourcePaths": [
+        "Batches/D3.5-20261010-0813Z-0113PST-rain-collector-construction.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "D3 remains OPEN",
+      "qualification": null
+    },
+    {
+      "batch": "D3.6",
+      "previousTier": "minor",
+      "tier": "kohai",
+      "featureScope": "D3 construction, crafting, repair and utilities",
+      "reason": "D3.6 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module.",
+      "sourcePaths": [
+        "Batches/D3.6-20261010-0947Z-0247PST-generator-to-usable-power.md"
+      ],
+      "completionEvidence": null,
+      "continuingRelationship": "D3 remains OPEN",
+      "qualification": null
+    }
+  ],
+  "assessmentEvidence": {
+    "abAuditSha256": "82b1760c15f908c114f7573e91a1f9ea8f03c401220523383105f67ac3adeead",
+    "cAuditSha256": "c5ee9d42ad9a0f47323fb666153a23b9b78bed8efccb515e5f750403cdf63bd8"
+  },
+  "sourcePins": {
+    "Batches/A1-2026-08-26-repository-and-governance-surface.md": "4e503659b66f742894f9e3e58271327003c961aaac1b315008039028af9d735f",
+    "Batches/A2-2026-08-26-engine-control-surface-verification.md": "3f576c7175deb29470a1912dcdc31e35fe325cb93ea698a5762a2e902fb142b6",
+    "Batches/A3-2026-08-26-first-survivor-in-the-world.md": "b44000d0e6db18f8cc0862681f57fa84989faed2232d52c9ef6a222f0dd9f4dd",
+    "Batches/A4-2026-08-26-java-agent-and-engine-comprehension-contract.md": "188c1f0bf2ba487fb1a792a6407de99118b8f3156cfc98e012aa9b720b2a042a",
+    "Batches/A5-2026-08-26-four-pillar-substrates-live.md": "e13230c15e022ecd05b28fd23f87a99bd9e75500fc34516d02819e96ae22d43a",
+    "Batches/A6-2026-08-26-combat-transplant-perception-depth-persistent-world.md": "8abbc04f96be05b303a817d84dc7c6f46bfdd50d33ac607a8e2d16a50e45a869",
+    "Batches/A7-2026-08-26-world-origin-genesis-standing-emerges-in-play.md": "c315b27af7af4e7717312715fecc9e70e4145f3fb5eafe5ec5f773e55a819319",
+    "Batches/A8-2026-08-25-needs-via-engine-timed-actions-grudges-testimony-gear.md": "684cda9a62cf151314af019aff5619c75a87630c7dd3610869b7fbc21f049c46",
+    "Batches/A9-2026-08-25-canonical-keys-voice-surface-claims-first-aid-sharing.md": "b3b310a24f4fbc673354de7b0e134bba74db9e5bd0d8dc594db5baa019ad7cd2",
+    "Batches/A10-2026-08-26-multi-floor-work-ranged-doctrine-audit-alternation.md": "752c114166eb5d1457bb0ef6c213b466dd7deaeaf4e6a7ba2b5e56b677dc725f",
+    "Batches/A11-2026-08-26-hibernation-persistence-dormant-drift-estates-sleep.md": "62e18a6bbcfb4b48df9a5dec7868bd9e519c3f1f0349d6772f7747e7ea1a04a4",
+    "Batches/A12-2026-08-26-property-enforcement-completed-policy-screen-gifts-barter.md": "11abf91dbdfa0ee7456aa3aa212b124677b47fd3b08f10e8be0030bc337486aa",
+    "Batches/A13-2026-08-26-attribution-debts-coordinated-flight-companionship.md": "18f72073feebf238f37c3cc8b48e166c9b623db563804049afb17648927908e9",
+    "Batches/A14-2026-08-26-society-arc-claims-and-lessons-leaders-settlement-membership-hab.md": "c6646a473acaaa9545da5a6303750d60235b4e12eb322c82e14600d5b41ca656",
+    "Batches/A15-2026-08-26-belief-gated-permission-and-first-offense-innocence.md": "92d10e3e37d804bcece101aee4f40023b5ce915b98087648393bc4907d20548c",
+    "Batches/A16-2026-08-26-approval-chain-repair-first-live-witness-county-scale-coexistenc.md": "cfe54b5bb64fc676cf0da0ee080c04a57db09088cd6ca7aa44eb3c4c101438ae",
+    "Batches/A17-2026-08-26-inhabitant-adoption-and-the-passive-social-economy.md": "44c844a50ba9d332eba9a29abe3ccc2f6cb222e43f50d24d42a47d9ce4d048c5",
+    "Batches/A18-2026-08-26-registry-census-and-profession-keyed-origins.md": "67cac68c49b6d8142a02038849aa8985cc2681a65bc6b1d7ed209ab7bb5fdecf",
+    "Batches/A19-2026-08-26-the-workday-taxonomy-elections-and-one-death-law.md": "2077709538c2deabd52eb66db2501703aa922b2c271c03c2de42a119f972ab14",
+    "Batches/A20-2026-08-26-feuds-full-person-talk-dormant-attrition.md": "b0d262c794be81e8bd70779d545d9257c20a072ccf4c247ba6c34a0c459a959a",
+    "Batches/A21-2026-08-26-hardening-rotation-bulkheads-the-ledger-peace.md": "78ea462d793fbf8db3b08a6c25ea0d3ca9c1455c3b8c19d24e378902e8cac782",
+    "Batches/A22-2026-08-26-schism-the-war-chronicle-the-invariant-sweep.md": "6c91bf80c463f236c6231fb7ab3d759dd76a310e52c0c481632fa0f5b2732c9a",
+    "Batches/A23-2026-08-26-era-boundary-0-5-offline-equilibrium-verification.md": "095136535a1486352ce2a9876da79452edf35c9620def0d90a641cd2f951bd11",
+    "Batches/A24-2026-08-26-engine-rotation-pack-v2-full-names-per-person-texture.md": "cfbdc5f62bcd5205d1bdf133d29544e9c0a9a8ee95700354aa9d23e7dbc6da30",
+    "Batches/A25-2026-08-26-counsel-verb-ration-policy-and-the-governance-chronicle.md": "f5afc1f10a506a2e41cf03a4fc1c930d42c7b3138bfc0729c2ab722b529121c2",
+    "Batches/A26-2026-08-26-the-county-wire-both-directions-pacts-calls-debts.md": "7669c93c7edcdb857e1b5998e73cd1d1987fdadbe06596f760aec62eb7797097",
+    "Batches/A27-2026-08-26-player-chairmanship-arrival-draw-war-parties-temperament-correct.md": "cab9abf09317ea82ba0b856c59924f049b31ef2cd9c49a7e8d2445b074f66919",
+    "Batches/A28-2026-08-26-derived-possessions-the-economy-loop-presumption-and-reunion-ven.md": "15cbc1ee75dfa6670b35f4680455c8a3bd31272b7bcaceaa1a47aa83a60f1d8d",
+    "Batches/A29-2026-08-26-day-zero-innocent-county-mode.md": "0aed5a905c5edff3cd570be9b365bb3cfa68637faa353b4131d371a0e2c9c06e",
+    "Batches/B1-2026-08-26-venture-machinery-departures-terms-crews-briefings.md": "9066dc1f09a29f9a1b8aa378f5405ba522a497a5d5de8eab469fe6ef773ca8b4",
+    "Batches/B2-2026-08-26-skill-levels-drive-assignment-and-rates.md": "b7da6472df76deaacebe39059970e3563aa0877ed0dc2ce5263cf46786bf9db3",
+    "Batches/B3-2026-08-26-bite-visibility-house-response-turning-recognition-promises-kept.md": "643bab9881278d64b9b4a432cb8fb192291816db1e1d691b9062b484f72527d4",
+    "Batches/B4-2026-08-26-farming-through-vanilla-actions.md": "db99d343ebe1eef82d8c0ddbcf8b4773a48b75355e419386d20f5abcbe1acc1b",
+    "Batches/B5-2026-08-26-performance-and-sensor-audits-three-borders-born.md": "91c565f6a37bef6140ac1b3d7941d7da07cfe871dff728f54818d53706e8b39d",
+    "Batches/B6-2026-08-26-water-stores-and-runs-shutoff-event-hearth-tending-and-lighting.md": "848e806f51b3823f7dacbd4537e09b29d8f60cd1ca9377b0f43d1825fb067699",
+    "Batches/B7-2026-08-26-council-abandonment-wound-infection-treatment.md": "5fbb6fa11eee56bf1dbe5d9de9b8caf0de0bcb997083e0d31459e835ee852bab",
+    "Batches/B8-2026-08-26-reputation-endorsement-standing-decay-and-lapse.md": "2046c1102117658113615e3d3f667a868379ac0d09bc694d4c4379701329f2ba",
+    "Batches/B9-2026-08-26-moodle-colored-meetings-bulletins-as-told-knowledge.md": "0572410a0efe089e4dc2848cd34aad1769e6b9df8e0904cb0ebcc07d2884f8d4",
+    "Batches/B10-2026-08-26-foreign-key-domain-wound-persistence-player-death-release.md": "5353c0e30e6154065be316555c842fe1ec1f9cc177de8f8daf44d659ff8aeda4",
+    "Batches/B11-2026-08-26-housemate-teaching-player-barter.md": "b34be184213804377509c68e5b87e2645466933ef568823d41e1031f4b5f7f97",
+    "Batches/B12-2026-08-26-native-menu-restructure-version-0-6-index-completion.md": "d39ff3fc4c9ea200ef8756fe236d7cbdfe9a252baffc02e80a48211069c974e1",
+    "Batches/B13-2026-08-26-need-driven-promotion-at-election.md": "a2bb67c2f03dc99d84d630edbbe44cc6373bdf8ff4986b44b16f0396346c9ba2",
+    "Batches/B14-2026-08-26-repository-gate-and-pre-commit-hook.md": "98aad84f2cc68ac21b2b9fb1626adc27c8341dc0c52c6c1b862d5851f817fae3",
+    "Batches/B15-2026-08-26-corpse-looting-with-dignity-rules.md": "67bca96399c5a3cd0dd8f48657b910421bdc762d86bec8a0ae3c74e51443d1dd",
+    "Batches/B16-2026-08-26-undeclared-identifier-audit-edit-verification-law.md": "620f49f4bef385b8b190294e456126c26583ef021b8dd6b389685738bfb71cf2",
+    "Batches/B17-2026-08-26-night-light-gating-weather-effects.md": "e950e310ee8e8bcebf6ad6edc6bd99baceec63d5a9f36670d56710ebd94c28e7",
+    "Batches/B18-2026-08-26-ledger-window-player-claims-and-household.md": "52c4a355000930c0f0208554598156c8683fc095966912b636cf33f4c25e1663",
+    "Batches/B19-2026-08-26-player-teaching-vehicle-crews-venture-staffing-scout-reports-nig.md": "93c8097952585a64d0319b09f0a636c994de0c0271d058adbf8f5f394937fe9b",
+    "Batches/B20-2026-08-26-severity-first-aid-the-distress-cry-and-its-cost-the-cook-design.md": "dd45e4ae9571cecafa1808a9020ca704d1a496b07e5e77dc6e5083749439fbc7",
+    "Batches/B21-2026-08-26-population-exchange-with-the-zombie-pool-music-gathering-capabil.md": "97293afe457a50dc37853e8a3af7a306513bb078d16f3c763969b08040218dbe",
+    "Batches/B22-2026-08-26-keepsakes-and-reading-derived-work-stations-skill-book-study.md": "31436357203e87ded6a780d41b2b7bf8e4f9cf44b7556e741a0e3a1e9ccc60d3",
+    "Batches/B23-2026-08-26-government-forms-scarcity-asks-division-driven-schism.md": "160de400d497f4961fbb658849206280c9d3e5fa68730969969da4633e612cb7",
+    "Batches/B24-2026-08-26-dead-pact-layer-found-and-mirrored-county-normalized-creeds.md": "0712b9539376d61f49b60495d18cf5698c50e8384130ee9a43ed78e744c24e76",
+    "Batches/B25-2026-08-26-work-judgment-probing-quarrel-drivers-identity-gate-corrections.md": "59c07121874b1eb2212e76b611be93cbc0cb46afe56d02b5a98910026a02655d",
+    "Batches/B26-2026-08-26-engine-item-vocabulary-corrections.md": "87e618b3760ffb26e1bb844fe14c348f52accc1a5b9e2ae416ddafb8a0fff1d0",
+    "Batches/B27-2026-08-26-player-as-channel-participant-inbound-and-outbound.md": "6b5e4478fcffc326ec5cdb9cfa9025b0e62c2a47ebef131a4bc378a1e090e3ce",
+    "Batches/B28-2026-08-26-newcomer-reach-arrival-rates-registers-trespass-teaching.md": "cb0d0792bedb966f79d95872de7ff4b084c3af6766a7fbad15bf407068ed4137",
+    "Batches/B29-2026-08-26-road-frequency-display-ledger-paging-window-sizing.md": "dc03874690aba1fa365defe40e15c3581bb374940822870ec5c06e72c77343d7",
+    "Batches/B30-2026-08-26-publishing-metadata-and-false-description-repair.md": "e25c13ed0c543c7cdcff9f8136f3c5059f5ffc7db580dbb7afcdbb0ff9d03e18",
+    "Batches/B31-2026-08-27-duplication-border-fuel-accounting-protocol-borders.md": "e0cc235ed4ff910036f45c26675cf3555ddd5422de22fb945441fce24f1859f6",
+    "Batches/B32-2026-08-27-between-time-chain-repair-mirror-coverage-analysis-discipline-tr.md": "76ad255587b2bf606f7f4f20f0d1eda013cd91b2d8b6cd79d3bb01e8c5137465",
+    "Batches/B33-2026-08-27-radius-reconciliation-shipped-jar-currency-failure-visibility.md": "03623555cb83069ee06830e9013b15e9da36e9043a843716aec366b0f8f03537",
+    "Batches/B34-2026-08-27-menu-gating-measured-claim-extents-queue-drop-detection-ledger-a.md": "74f2310632fed23c83c33c25122c4d990eae88c74fc681e6df6bc660163c1d06",
+    "Batches/B35-2026-08-27-claim-unlearning-and-protection-voice-reachability-carry-light-w.md": "47985fcfcb186e8b95668cb224740c8d04f07bd2934a2a9989993a11b3b36a4e",
+    "Batches/B36-2026-08-27-save-field-guard-deploy-survival-catch-audit-governance-clauses.md": "7acec008855fd93e58b3012722fcb6a6da7b55df163ded94a406ee7d25fd7bfb",
+    "Batches/B37-2026-08-27-band-constant-claim-visibility-age-arithmetic-death-causes-shuto.md": "a1ee3150f17f80bb9a55aed34fb45745b636db9f8212bd3a86b9c6e4d30711ce",
+    "Batches/B38-2026-08-27-map-derived-scale-1990-grounding-arrival-units-telemetry-age-roo.md": "e63edc79a5b4e2ba4c5e5c234d3a7c0b2451018982ccab969f7e80689763e9e4",
+    "Batches/B39-2026-08-27-acquisition-provenance-place-depletion-dormant-option-parity.md": "2caab16141f6e42e61ac7558c26cc37e499fdb74e655d7fc98add8902e559f66",
+    "Batches/B40-2026-08-27-named-constants-lived-provenance-at-genesis-perk-vocabulary-map.md": "0fdf9939f4cf0846a54a66e9088acaf2f5f2e60d478f0af90cb0d504ae7219d9",
+    "Batches/B41-2026-08-27-book-routing-constant-enforcement-mirror-run-coverage-player-per.md": "7ebfec8f152091191a910640c09b3674345c3cdc350b511c080f488bdd2f7982",
+    "Batches/B42-2026-08-27-silent-surface-repairs-and-census-authority-dr-012.md": "e49374a8149e5480e9dc4c5b82ea8a75162e4f60f0e1593b5afde16319778ea7",
+    "Batches/B43-2026-08-27-jar-version-stamping-session-state-truth-dormant-economic-parity.md": "0ae639fce811090b69c7420957c53d04558831118bebaf3f482f8c6830139c53",
+    "Batches/B44-2026-08-28-legible-option-labels-the-kahlua-runtime-boundary.md": "44e7118a50d26fdda9ea19824435a9efab32d1a713b9559bce53c999bce95440",
+    "Batches/B45-2026-08-28-distance-naming-kahlua-gated-compilation-nil-name-repair-neighbo.md": "2b22ade9c9184ef743991d10fdab7815151879d145bf381d2372fda75b4c420d",
+    "Batches/B46-2026-08-28-player-reply-channel-repair.md": "4dc3c434dbe8cf2d9a359f36acd0b9d278b004b6d979334e8864591f62072979",
+    "Batches/B47-2026-08-28-log-reading-defect-pass-census-repair-instrumentation-noise-visi.md": "44ad2e478c0dcbf357cdc0db4c129155d658c5cd590f7d8b2a2d819de4f4012b",
+    "Batches/B48-2026-08-28-distribution-arc-lesson-instrumentation-hash-pathology-fix-verif.md": "c0946215cf8643463b84dbe293b7c3f7095e06e73581d03297a3bafba8aa5ab9",
+    "Batches/B49-2026-08-28-frame-time-pacing-disclosure-standing-decay-verification.md": "0d18ec76f03fb5c9594462af82d6d228478f714a67330a326e2929b8a0d2da18",
+    "Batches/B50-2026-08-28-engine-behavior-facts-bridge-throw-graph.md": "d932121bfc8344674f74f6545e950e449ccd152a232224336f1ae81593038f71",
+    "Batches/B51-2026-08-28-death-time-cleanup-derived-art-dead-relation-rows-save-protocol.md": "8d4b63022e79cbc9f8493020b488d353ce5081b9730604410d3535a2a2e0985c",
+    "Batches/B52-2026-08-28-derived-counts-distance-naming-scout-completeness-answer-domain.md": "53aadc874a4bafc64eccd72772cc904af92490a1aa6ea719ce495d64c522717d",
+    "Batches/Products/C1-2026-08-28-catalog-and-version-governance.md": "c182785428771ea0d5d822b9983b200eee9ae690a84ed225f07a6f9bed61193f",
+    "Batches/history/c-20261003-source/Batches/C1-2026-08-28-catalog-and-version-governance.md": "ef483a80b6522058a191dca1d13c72c5fb9cb640acfe77f9a5f74b75ab77ff48",
+    "Batches/Products/C2-2026-08-29-identity-and-execution-continuity.md": "ac5a978dee8c2875637c0e4f25041033578a0a0c8ce6fe958ea50d2d3d9982cf",
+    "Batches/history/c-20261003-source/Batches/C2-2026-08-29-identity-and-execution-continuity.md": "364d1bab41a5b0d90061c1db4440d8729852f82a27bb18fc5a6c525e868bc54f",
+    "Batches/Products/C3-2026-08-29-inspection-and-person-state.md": "16917994f46201b2354885b4eae918f27003767bee7ee6beea0ad00999688cb2",
+    "Batches/history/c-20261003-source/Batches/C3-2026-08-29-inspection-and-person-state.md": "21e88ace423f109a31e12b92e42133210c80cde274b43fb0f57aa8e2db20c191",
+    "Batches/Products/C4-2026-08-29-death-ownership-and-infection-timing.md": "2aada05998aafa2b5918b8623a862b5514e4f8717c4cf9314462af286281a45c",
+    "Batches/history/c-20261003-source/Batches/C4-2026-08-29-death-ownership-and-infection-timing.md": "70e85e4e71e0b5b687ac7272fca4ab5090e34d9af7fbdb38e91bb03beb33bc4d",
+    "Batches/Products/C5-2026-08-29-player-surfaces-and-compatibility-review.md": "95eea4e790a8be94f935e2ed09ea580003e4157df84cfba691752cbb3ae05c6b",
+    "Batches/history/c-20261003-source/Batches/C5-2026-08-29-player-surfaces-and-compatibility-review.md": "86f923b37757624435ea5eea689c72589106c9d64da8da3698dc367d6cfdb6ce",
+    "Batches/Products/C6-2026-08-29-person-state-across-reload.md": "14de032a3730438c6a85e362112588fda50a519bff50ec70b1a8b5e46a064da5",
+    "Batches/history/c-20261003-source/Batches/C6-2026-08-29-person-state-across-reload.md": "f5f6fed8809e22e59b2a4c0fcf1ee24ebf91ccd3e50683b0c17a28b32bc83406",
+    "Batches/Products/C7-2026-08-29-zombie-census-and-bounded-restitution.md": "73c6d4a781526135d7419b5e7c151bfe73ea0d5accf9446a78e90d5fe6552477",
+    "Batches/history/c-20261003-source/Batches/C7-2026-08-29-zombie-census-and-bounded-restitution.md": "2de9d2f46d511ddb900c974a24b43e18ff781e04b383307c63b5d71ce440eeb4",
+    "Batches/Products/C8-2026-08-29-play-evidence-and-execution-corrections.md": "c351f24eccd543649515f5fb2856fbf8a97e6a7348fc2e0b9355b5d0faac5956",
+    "Batches/history/c-20261003-source/Batches/C8-2026-08-29-play-evidence-and-execution-corrections.md": "f06caed4fde9eef82dc9b9cb143fb008f5a3ad22b21732285ce95279c5b5735c",
+    "Batches/Products/C9-2026-08-29-adoption-and-configuration-boundaries.md": "892f91ecc9b1aab01e79221ce526c85de43af44430904f4a78a02d099c7f7c7f",
+    "Batches/history/c-20261003-source/Batches/C9-2026-08-29-adoption-and-configuration-boundaries.md": "010cdc9496df011a7faf3b3d3d6811424d3b86ee9d02ed7512bc96bac1a6506c",
+    "Batches/Products/C10-2026-08-29-known-needs-and-social-interaction.md": "84ad57a790f04611ddda2678c5188d0293128cf176932d1004f20d1cd72841b3",
+    "Batches/history/c-20261003-source/Batches/C10-2026-08-29-known-needs-and-social-interaction.md": "03343eed00a35a21fb5a1546505f76d34bb9416ab4961a7bc8dd984ced10e882",
+    "Batches/Products/C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md": "9d9a5008bd1f014fbc3a8fe76dc7c78927c71ca4a2a510759cd7be8326d5b722",
+    "Batches/history/c-20261003-source/Batches/C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md": "21139c3884f68232174faa0ec0b357d0c95e5526c3cb560d5dd79676d6761e7c",
+    "Batches/Products/C12-2026-09-06-body-scale-age-and-childhood.md": "d9f7bec014fa0e5bd430a581c84bc86be6607765288948604c0293e3410aeacd",
+    "Batches/history/c-20261003-source/Batches/C12-2026-09-06-body-scale-age-and-childhood.md": "b81d6e7ad1b894e25ab6b5057ccfb1bae7817cffaf96e39928a023d459773462",
+    "Batches/Products/C13-2026-09-06-conditions-habits-and-strain.md": "43cc5b794107b47882b6d2c5d7a8f0a6b68678f83058026b7485820560735bcf",
+    "Batches/history/c-20261003-source/Batches/C13-2026-09-06-conditions-habits-and-strain.md": "4bfadba8b1d3ba3cfc66597d271e87a392e447b380ec0d024b01906a6323f656",
+    "Batches/Products/C14-2026-09-07-physical-gestures.md": "aa2118b72bfe83edc3904037e67bf2f059f74fd8774340777e4c434ddd275d6d",
+    "Batches/history/c-20261003-source/Batches/C14-2026-09-07-physical-gestures.md": "93776be00ac5a69f38109c0f9e440beaad9d623fe02006b385cfd9a65fddd59c",
+    "Batches/Products/C15-2026-09-07-historical-record-calendar.md": "d4b7cfa9705b602e820a40f440210bebfa39fb39729696c397a1ce94bb216997",
+    "Batches/history/c-20261003-source/Batches/C15-2026-09-07-historical-record-calendar.md": "aaf3cf1a870058152c6934d96e3ec61c0a0cf71db4f3836801b5d7d1ed49a383",
+    "Batches/Products/C16-2026-09-07-orders-through-standing.md": "f320295cb3489715f6c6a79108b97e32383b0217384ca2b0d031cab5e5dafcd8",
+    "Batches/history/c-20261003-source/Batches/C16-2026-09-07-orders-through-standing.md": "4dc412ed3143ecd91608c6a08b2a5039b20cfdeadd1ce69c46fc5e18f5c76eea",
+    "Batches/Products/C17-2026-09-07-remembered-era-and-owned-condition-state.md": "fc45ad7ab68da9279aff7e69cce1103c9b5977c1ac513b945212d5333d522cbb",
+    "Batches/history/c-20261003-source/Batches/C17-2026-09-07-remembered-era-and-owned-condition-state.md": "dea3b51f51b9fa0c92a2141d1cb9aed6b88ded7a9c4947c18e46b2e16cbe8193",
+    "Batches/Products/C18-2026-09-07-historical-county-simulation.md": "3f7e5292ff713797e55f3b510aa273aacefcb5724245dbb677b55414f936de6b",
+    "Batches/history/c-20261003-source/Batches/C18-2026-09-07-historical-county-simulation.md": "2a1ae46fd778484734bd1c131352423d6a473f031720ad4e3e5a1034f529d9e0",
+    "Batches/Products/C19-2026-09-07-constrained-factual-expression.md": "9b634e8db7c44427b78ed04ddea1a7440c218dc8ce57a139a8cb369c1ace70a6",
+    "Batches/history/c-20261003-source/Batches/C19-2026-09-07-constrained-factual-expression.md": "a814077bcec95b3bfbb5c875e3150ffa4f4ac4cf5dd14880629fec297ab71e77",
+    "Batches/Products/C20-2026-09-07-entry-and-command-permission.md": "bb45b90243254e742caba5597a5448a9c9b0fba19aed6b5c716e7b53cfa7cc56",
+    "Batches/history/c-20261003-source/Batches/C20-2026-09-07-entry-and-command-permission.md": "9cde8308584d138a31f1979f4c76ea8b83e80e7ba0c7cabb9b1d97ce4c5740de",
+    "Batches/Products/C21-2026-09-08-learned-expression-and-condition-integration.md": "f7d2a3b0e8eb7895ab9e19cacf7d05b75dba3e7276cfb769ef6149c53a80aa44",
+    "Batches/history/c-20261003-source/Batches/C21-2026-09-08-learned-expression-and-condition-integration.md": "323eb222712592be46c6a5ca87f370a2a6fc09ba24a59d2a364f834d476328f2",
+    "Batches/Products/C22-2026-09-08-personal-choice-in-shared-travel.md": "5439a67e2a99e582a9191eddd73f1816d98fce3ca313c2933ab8a74cf1ec872a",
+    "Batches/history/c-20261003-source/Batches/C22-2026-09-08-personal-choice-in-shared-travel.md": "5d70ee82fa2d3fd6d9466412ebd16d833e24f96c57542b257e0cdbcb4134a7b4",
+    "Batches/Products/C23-2026-09-08-witnessed-violence-attribution.md": "c6433457bece7b384239452098d02f4663d6bcaa56f647c8e7d7aadc58f745e5",
+    "Batches/history/c-20261003-source/Batches/C23-2026-09-08-witnessed-violence-attribution.md": "1ca5b968740c66760ec8b2a57faa0f2763575e8b40690b1c36f7afb066e73090",
+    "Batches/Products/C24-2026-09-08-verification-and-publication-machinery.md": "bc5027798db80b6956ab3c25bd7a208eeae48a9b2efbcf7e58507fa0873810e4",
+    "Batches/history/c-20261003-source/Batches/C24-2026-09-08-verification-and-publication-machinery.md": "e36b80010ea24999d6f97bc8e42c2f91e13378b9bcfd2177cad091c6c263e8f7",
+    "Batches/Products/C25-2026-09-08-player-depletion-of-places.md": "212fc0c0d4bae220573fd2777b9f51f2f1ea40c3ef8c631c6bdb32f60b6e81f1",
+    "Batches/history/c-20261003-source/Batches/C25-2026-09-08-player-depletion-of-places.md": "5367a66687cca2a6120a31dfb6775ddd7790708cb3a63e1492e5146a4456fabf",
+    "Batches/Products/C26-2026-09-08-source-clocked-county-simulation-and-observation.md": "0bbadec1100ee49c3e92ee752e4842c6fdd17d3294320cf7c837cbc22ac3c97a",
+    "Batches/history/c-20261003-source/Batches/C26-2026-09-08-shared-county-time-and-day-zero.md": "4122199798bd8320c1e5c2e256dfbfcc095c15795ff361ba160764149ffb3350",
+    "Batches/history/c-20261003-source/Batches/C27-2026-09-08-scoped-verification-claims.md": "a30f1f9348f4bbd8c3bc715670ef52047d6550b2f5eb6d7e0eebf15e04f592c1",
+    "Batches/history/c-20261003-source/Batches/C28-2026-09-08-simulation-telemetry-and-reproducibility.md": "3051de0fdbc89405393002ec869c43a7a032a669b20568c9ad15241f2b2530d1",
+    "Batches/Products/C27-2026-09-08-dormant-social-continuity-and-county-measurement.md": "96ccee7cbdf16b93693e042232075e7a67d7c25fd5cc02f04de7d8c9cd029419",
+    "Batches/history/c-20261003-source/Batches/C29-2026-09-08-dormant-social-continuity-and-county-measurement.md": "c83886714e1efc5ed56797f5eca03ef135a70cabcadf02644fedcd722ae4ac49",
+    "Batches/Products/C28-2026-09-09-ownership-across-the-three-repositories.md": "9de5bdd3a37f966f1505044e85fd8781abf626e65f8974de9eb490ad5df42dc2",
+    "Batches/history/c-20261003-source/Batches/C30-2026-09-09-ownership-across-the-three-repositories.md": "426c37a2510833c296e1e2baed752b74132132d528ef47495f8d1ccf67a0f0f7",
+    "Batches/Products/C29-2026-09-09-dormant-movement-settlement-ground-and-cost.md": "65d734cfafae8e56233a68892d1b0c0408d72f5ff9bc43f62029398ae92f2610",
+    "Batches/history/c-20261003-source/Batches/C31-2026-09-09-dormant-movement-settlement-ground-and-cost.md": "995fcec239470d37cffbd409626a80e0437f1f079fbf14a09f561844584c2a2d",
+    "Batches/Products/C30-2026-09-09-infection-course-and-clinical-observation.md": "572eb282b6c545c1250705df4e20e44ed718d0b96d27113f0a4e7512dabd46a6",
+    "Batches/history/c-20261003-source/Batches/C32-2026-09-09-infection-course-and-clinical-observation.md": "0b194b12933e80e5b95770644979c950a0dcfc790044c2cea6de613421ddcc42",
+    "Batches/Products/C31-2026-09-09-controller-ownership-and-driving-surface-verification.md": "4254190b35a75b28eaf4a644f74e1f64b699d550ccf4ab09e5d2c3a3991168be",
+    "Batches/history/c-20261003-source/Batches/C33-2026-09-09-controller-ownership-and-driving-surface-verification.md": "797d1492ba5ddffb668c8725e5924e0548ebe8ffd174aa5c34a75f2c9714f720",
+    "Batches/Products/C32-2026-09-10-decision-capture-and-ratified-data-preparation.md": "60c2ed17fbc451d643097acef1477cdf33ad5a8ca8d8d5b339b6fbd99f33ed49",
+    "Batches/history/c-20261003-source/Batches/C34-2026-09-10-decision-capture-and-ratified-data-preparation.md": "fdae5ad5b4a174a25ec8b9a5248a6f7193fd770954b0c7391073bc60cdd7b669",
+    "Batches/Products/C33-2026-09-10-life-simulation-and-dependency-contracts.md": "594e673b8a328c73da95f79c00e3f6110751c4ab92f843730f316cabe2edea76",
+    "Batches/history/c-20261003-source/Batches/C35-2026-09-10-life-simulation-and-dependency-contracts.md": "3f96f92b881c6c2165c2dd0a79ad6d35f020b71b0555423f754d3159d5440d18",
+    "Batches/Products/C34-2026-09-10-isolation-attachment-and-development-observations.md": "92dab18a9bbc5f2678d347595a7f73aa620d79cd85bf131c61beb6b54fe0e8db",
+    "Batches/history/c-20261003-source/Batches/C36-2026-09-10-isolation-attachment-and-development-observations.md": "3e3759e8e974fc3cb8db0d46657d7486f9ae9f9fdd518ce2752731c50a85a129",
+    "Batches/Products/C35-2026-09-12-pathogen-data-and-recognition-integration.md": "3609272140517fcb4512bf53e79400dc23015e51dab084b91c4b55288a5b5932",
+    "Batches/history/c-20261003-source/Batches/C37-2026-09-12-pathogen-data-and-recognition-integration.md": "fc5684ccfb93f6341d730867b2ff1d50fe799556a7145799af234be59c38c5f0",
+    "Batches/Products/C36-2026-09-12-player-claims-and-inhabited-ground.md": "423db1ff91a9d0b783922d32459de96a4dd19be76f7d293ec172498c83130ad4",
+    "Batches/history/c-20261003-source/Batches/C38-2026-09-12-player-claims-and-inhabited-ground.md": "e6c7aaf58a9a4670aca01f154eec7f6bbe176709f0fdf62ba9e2acb106248c6a",
+    "Batches/Products/C37-2026-09-12-readiness-corrections-and-recorded-rulings.md": "5c865f0e889f38d2d804f08e24b44540b0b49a43932ffa75f17c34be34460949",
+    "Batches/history/c-20261003-source/Batches/C39-2026-09-12-readiness-corrections-and-recorded-rulings.md": "36689958e8f33ee1821952792889a12790d7549c7e6825402ec80927b06edb3e",
+    "Batches/Products/C38-2026-09-12-personal-need-in-affiliation.md": "81c4b761cefe9f22af2e90a2db6e89c0ac34b891b650808af5941f3c3e5f14cd",
+    "Batches/history/c-20261003-source/Batches/C40-2026-09-12-personal-need-in-affiliation.md": "be21e5557d424f91d9bb3ee131b48c694e225788ced7083d8871b12f3de59470",
+    "Batches/Products/C39-2026-09-13-county-tick-and-ordinary-activity.md": "4e6c086178f8ea36fc034a8d54459dd3acb91e7fd4c50c66e20e846a6b3cf077",
+    "Batches/history/c-20261003-source/Batches/C41-2026-09-13-county-tick-and-ordinary-activity.md": "7b2658042c13c13a56b435dd3497980314cb95815158aeb4ecd62ba6d59ab411",
+    "Batches/Products/C40-2026-09-13-driving-integration-and-configuration.md": "c81a70d9b63ef96205ac49863d378d8e0f15568a4e6f9fff0eeb8a1f313fa5da",
+    "Batches/history/c-20261003-source/Batches/C42-2026-09-13-driving-integration-and-configuration.md": "d49ba78ad8548d9dddb8a7aaa9e66de0e4232243b5ce13f399f216eed8c78b5a",
+    "Batches/Products/C41-2026-09-13-afflicted-return-and-social-behavior.md": "8fe060e201ca5c16d0ca8449e0f05cc566f7822cf33c062fafdd3dccb45cabec",
+    "Batches/history/c-20261003-source/Batches/C43-2026-09-13-afflicted-return-and-social-behavior.md": "7200dccd6fdd0acd72ec33f1326ee9cf79cf53b1638f0430d2ca5e07c9861820",
+    "Batches/Products/C42-2026-09-14-robbery-and-raiding-actions.md": "17e64d83b18c1bb78ba8fa94e007c9d73e06c6c5806dea9367b3e02c0d356d67",
+    "Batches/history/c-20261003-source/Batches/C44-2026-09-14-robbery-and-raiding-actions.md": "b6ee6cf865f0509a7388d53d8687e56b642d4690dc30e4a86ae4473aa027ac69",
+    "Batches/Products/C43-2026-09-14-optional-county-events-and-care.md": "87e4a26e2870fa0eb11fd464483ab5e13a45c6ab9425a5c9912f5ca7543f7828",
+    "Batches/history/c-20261003-source/Batches/C45-2026-09-14-optional-county-events-and-care.md": "6a5413a39d97d445dd7acf4bfc1295930bd34ed86e12fb39bbf4b95eea0647fe",
+    "Batches/Products/C44-2026-09-14-child-and-everyday-activity-integration.md": "4881693e1a613892311c18b61c5fc206625427b629a7823f5fb04c5fe68e3d87",
+    "Batches/history/c-20261003-source/Batches/C46-2026-09-14-child-and-everyday-activity-integration.md": "317d2631c71891315555be7284cb7aebf88ad9f2ffb40908f249870515e2a4f1",
+    "Batches/Products/C45-2026-09-14-drug-use-withdrawal-and-smoking.md": "aacd3aff766aa7c9e8f707afefa5a019a7a5d8272f38b9e638dec95767a11806",
+    "Batches/history/c-20261003-source/Batches/C47-2026-09-14-drug-use-withdrawal-and-smoking.md": "a8fb456845515cbf5d10ab27e75cadd8617f211fd8f35be0a68dbbb830ce98fb",
+    "Batches/Products/C46-2026-09-14-vehicle-animal-and-combat-integration.md": "d92ea531e963f70ca549dafd6e38f33d2571e26c6e14625abb58058897411d5e",
+    "Batches/history/c-20261003-source/Batches/C48-2026-09-14-vehicle-animal-and-combat-integration.md": "20552424a7bc360d693c4bac49b980411056e805aa09b3105cc80159a928fcdc",
+    "Batches/Products/C47-2026-09-14-brain-health-integration.md": "89a252c00860c73b67eba9d2c421e2a005205afc0a96e3163c58a1b57834f942",
+    "Batches/history/c-20261003-source/Batches/C49-2026-09-14-brain-health-integration.md": "7c24d99bba563cf8a25b94453ffda1fb7809b7d46b8734c7670a81541b026f5a",
+    "Batches/Products/C48-2026-09-18-historical-simulation-recovery-and-evidence.md": "099f06199a62075668c77663940483e86d45fc7166fdc9d04fef696429a24f46",
+    "Batches/history/c-20261003-source/Batches/C50-2026-09-18-historical-simulation-recovery-and-evidence.md": "8a2229ac307a9d52b12a76c8c34b8812560cc6c3c9764f28f2a729a1e47cc45f",
+    "Batches/Products/C49-2026-09-19-native-person-preservation-and-authorized-reconstruction.md": "9c0803d5a18d50cb5fc3757e604bf03aecf1aabbedbafa3ee418aae1fa00ba4e",
+    "Batches/history/c-20261003-source/Batches/C51-2026-09-19-person-preservation.md": "a39d916e7ef25ccef92e2ae307064a1fe7351b92b74483c2a5da16fdbd7de650",
+    "Batches/history/c-20261003-source/Batches/C52-2026-09-19-authorized-afflicted-return.md": "c6129fb7b05f86d4d0ed9eb97395125d587840ffd2bc22eb6814560c9b97af76",
+    "Batches/history/c-20261003-source/Batches/C53-2026-09-19-shared-county-time.md": "aecfc7bb043c6ab831646d2670610c683fdd8c4402000393ec9b2ddcdf5b2cad",
+    "Batches/history/c-20261003-source/Batches/C54-2026-09-19-native-person-continuity.md": "a51f1dfeaec43b5d442872be8cb427de8791fc499989ddc45eb88c0e0a214292",
+    "Batches/history/c-20261003-source/Batches/C55-2026-09-19-durable-runtime-reconstruction.md": "019094f3330d82b388f980d0ec06afdc84eda0e3a4bc4ac00e4b92b3cb81776b",
+    "Batches/Products/C50-2026-09-19-health-and-dormant-physiology.md": "058f578a0bd3b415f81b8a25df97770e454770fab3d71909e02851376fd52fee",
+    "Batches/history/c-20261003-source/Batches/C56-2026-09-19-health-and-dormant-physiology.md": "51f16fe0157abb571956ed72daba8d8975a859444bebcd44f2e67903a354df47",
+    "Batches/Products/C51-2026-09-20-durable-population-reconstruction-and-scheduling.md": "755af3a8ca75c17a8e8ad29a07a1ed02ef1048d105d64535e4f64d33a00b209e",
+    "Batches/history/c-20261003-source/Batches/C57-2026-09-20-person-continuity-contract.md": "12cbbdbf223004129e777fc092d7d835c44a04d6865cb7869d52561c850d9b5f",
+    "Batches/history/c-20261003-source/Batches/C58-2026-09-20-population-reconstruction-and-scheduling.md": "96bc82f950ddefd8134e5546d5b198f5269ef98f54f00cddb65af91bb383b10c",
+    "Batches/history/c-20261003-source/Batches/C59-2026-09-20-debug-mode-lua-compilation.md": "1a61a64651fb436e1443389625e679ef2d1cc5b7b5684e288b012ed5ec5a5cc3",
+    "Batches/Products/C52-2026-09-20-private-native-perception-and-physical-access.md": "7bb1f21c002b772106a7bb9a71a526cef4cf8b1cbcd146734714e5b84f7f98cd",
+    "Batches/history/c-20261003-source/Batches/C60-2026-09-20-perception-and-world-access.md": "1c2222331e122176602e7f020bac44dc3d0d60f1c479f96dca2a06460bb936c1",
+    "Batches/Products/C53-2026-09-21-performed-source-provisioning-and-exact-material-outcomes.md": "b0f6457bf8b7f3d480a19ca2fe9426062f0893df90425c8b661665f2637f695d",
+    "Batches/history/c-20261003-source/Batches/C61-2026-09-20-demand-led-native-hydration.md": "49424e1a525b770f17c09fc035c4fa7d1c00bd0410d5f628da92a9e8b6d8cec8",
+    "Batches/history/c-20261003-source/Batches/C62-2026-09-20-source-access-and-native-use.md": "68cf19f6013887db51931f32ca1df14e79625dda528f7d6725a86e302ca5b7a3",
+    "Batches/history/c-20261003-source/Batches/C63-2026-09-20-provisioning-result-consumption.md": "72ab0c9f3606707599ebc10e4c88302c6564ff664a8dacbcbecc89f3c7df2173",
+    "Batches/history/c-20261003-source/Batches/C64-2026-09-20-corrective-integrity-and-decision-evidence.md": "ef151d2ba0ce9af04f78518cca7e58e73064cac4cbcfa6838fe581d15f6e4ca9",
+    "Batches/history/c-20261003-source/Batches/C65-2026-09-21-source-action-decisions.md": "b76c5eff2569707c9fc0b2bd9dc484110f1dd3107e30634ce7ba152197925dce",
+    "Batches/history/c-20261003-source/Batches/C66-2026-09-21-performed-provisioning.md": "f067bdaa25c7ece0836abe5a3fbe52fcf0e1f11cd6852efe2d83263c45931d48",
+    "Batches/Products/C54-2026-09-21-completed-personal-exchange-and-private-social-appraisal.md": "c96ee1fa053a9b0656d85753f95b8ff222a66fec64eb83939334022ebddf3547",
+    "Batches/history/c-20261003-source/Batches/C67-2026-09-21-delivery-knowledge.md": "36d9846ed9e426d592a73511c550aeaf83535e4008e83229e04a09e1e1d06e3b",
+    "Batches/history/c-20261003-source/Batches/C68-2026-09-21-personal-handovers-and-terms.md": "4382b4a56fac96b6c8c976fa3f5720ac2a23282c219ddd6e91f53b4991d9adb6",
+    "Batches/history/c-20261003-source/Batches/C69-2026-09-21-recipient-appraisal-after-testimony.md": "9174710dae2f33f4dfd19463e595da555cf610e70c2144d0abe3732b51d11d57",
+    "Batches/Products/C55-2026-09-21-measured-treatment-completion.md": "71f375a39589c43b3fb64a716f2225662c855e6952d75b0315c074532de6ca51",
+    "Batches/history/c-20261003-source/Batches/C70-2026-09-21-treatment-completion.md": "c1e190de102f38eb00b349f5c604f3e0e1415aaff97dac136c80cacda615e9b8",
+    "Batches/Products/C56-2026-09-21-complete-private-inventory.md": "986ad89a0cbf9b229a3137164fe1a6224f6d77aadc8d30a5858381cc7b846e9c",
+    "Batches/history/c-20261003-source/Batches/C71-2026-09-21-complete-private-inventory.md": "52213d3771be729101a99a6d49f92fcb9172e1ffe737adf2cf92556bc03530d9",
+    "Batches/Products/C57-2026-09-21-personally-heard-spoken-and-radio-communication.md": "b3e35a9444b394934f55fde8091aff5439579b8f94738f86806d260b16025673",
+    "Batches/history/c-20261003-source/Batches/C72-2026-09-21-dormant-spoken-access.md": "e76f12a8e7ab7784b931c57545183e7d1d6e62e16c9957ac888dc320a74cf40a",
+    "Batches/history/c-20261003-source/Batches/C73-2026-09-21-radio-reception.md": "04c0b4c9f14919276231cdcce56dff3c2beed57f955cbd59c1994aaa3b0c3a6a",
+    "Batches/Products/C58-2026-09-23-source-bound-conversation-knowledge-and-person-state-evidence.md": "b55c77c90353ba0acc83f39a2de71ac91271405609703389274d4e7a8f8c4493",
+    "Batches/history/c-20261003-source/Batches/C74-2026-09-21-personal-world-knowledge-evidence.md": "3290e590e0ff3b0ed0370ce91e71f2f66c91fb64977784d74b74d48e84ae091f",
+    "Batches/history/c-20261003-source/Batches/C75-2026-09-21-typed-claim-catalogues.md": "91d391e362532055e9e39bda1340c5f45ccd6dcfb999514098b87eeb9fef4476",
+    "Batches/history/c-20261003-source/Batches/C76-2026-09-22-conversation-capture.md": "94a80a7962dbbe6201849e1b5b6c2f5b6d556a2cba8a286c69563cdd4a6df3d3",
+    "Batches/history/c-20261003-source/Batches/C77-2026-09-22-evidenced-world-knowledge.md": "b9611bfbce21a16308f2c6726819e6eb4630401c56aa626ca2359bd559ca968b",
+    "Batches/history/c-20261003-source/Batches/C78-2026-09-23-person-state-comparisons.md": "2f3ea21b99c3b35e50ed9045437071ac6c981354322fb83a0f56db7a9be73f36",
+    "Batches/Products/C59-2026-09-24-enacted-voluntary-social-coordination.md": "39c5f7fe72ae4cd3f5963444da3327bb050b43637baf584ddaf3aab50e501a62",
+    "Batches/history/c-20261003-source/Batches/C79-2026-09-24-enacted-social-coordination.md": "9857927e2fb423366a973e53d06627e0e7f32409153ac9911512616a13424705",
+    "Batches/Products/C60-2026-09-24-zao-owned-living-person-handoff.md": "026cf1bab8d8afc70f56ef6388bb0ce9813312f02aa9e001890e65cf4fc25e9b",
+    "Batches/history/c-20261003-source/Batches/C80-20260924-2016Z-1316PST-zao-owned-living-person-handoff.md": "5475cea87d824ce8167da5815bfe6a7c555334178e7b39bb603bed544b3177fc",
+    "Batches/Products/C61-2026-09-25-source-bound-native-coordination-shadow.md": "1bc24607192af5da6e869faa4c169c3585cdf20ede6dad9ac36574992462624e",
+    "Batches/history/c-20261003-source/Batches/C81-20260925-0221Z-1921PST-coordination-reference-source.md": "1ce68adc98492a08cdfd23f9ff692fa3ea543f7550f088eac9b2ddb0d01f78c9",
+    "Batches/history/c-20261003-source/Batches/C82-20260925-0525Z-2225PST-native-coordination-shadow.md": "c2c5e505ffb27ee6ab2bd726a4dd066b2e40cf8b3d019284095e68af5af5e7e6",
+    "Batches/Products/C62-2026-09-25-personally-initiated-and-externally-enacted-cooperative-work.md": "05e480abdfd3c2ed521c219080e88508456a3a55539d4d7531124a01ccd4e179",
+    "Batches/history/c-20261003-source/Batches/C83-20260925-0855Z-0155PST-external-life-coordination.md": "85fba1cc49db3a6ef2179fd9089d255b4279eb883ab8c542df45bf253ca14570",
+    "Batches/history/c-20261003-source/Batches/C84-20260925-1201Z-0501PST-causal-episode-runtime.md": "526b6206566642965deda7a50eb421b162c7361fda32d1084a5ba76c158306b0",
+    "Batches/history/c-20261003-source/Batches/C85-20260925-2145Z-1445PST-private-situation-contact-and-enacted-work.md": "4effe52554e5af82333a7cb4d4a56a8b69206c73354d417c38b6b975e760b1a8",
+    "Batches/Products/C63-2026-09-26-isolated-native-study-worlds-and-survival-observation.md": "e6b9dda565b90453fbfc6541ce464ae44fd7df050ff976f85f86f4ed980ad634",
+    "Batches/history/c-20261003-source/Batches/C86-20260926-0526Z-2226PST-native-study-worlds.md": "d6dcf1ffb9d32b6a7c375b8cfcaffc8b9c1e5624939a78762db91bc5ecb1e904",
+    "Batches/history/c-20261003-source/Batches/C87-20260926-2218Z-1518PST-survival-observation-and-continuity.md": "301093b2cdff76be8c9e08d60380db7385361dfdea67c63c1a78c6afe124f166",
+    "Batches/Products/C64-2026-09-27-independent-native-cognition-and-physical-capability-evidence.md": "ddf12ff296fe14007fb81d95f9f174fa267755fb8bfa82c9805a097ddafadd05",
+    "Batches/history/c-20261003-source/Batches/C88-20260927-0208Z-1908PST-competing-cognition.md": "8e7607de96dab3e0ef652c6dad142ec6a16da4e778cdf1773df3812522ac7775",
+    "Batches/history/c-20261003-source/Batches/C89-20260927-0516Z-2216PST-native-perception-and-capabilities.md": "45891fa2db8ecbece5558691551789684aeeffdec3d4d913e0661f9eed706905",
+    "Batches/Products/C65-2026-09-28-autonomous-cooperative-procedures-and-exact-joint-action.md": "4e32070ae8cafbe5f46c66eb5f008d5485c17f87fdda070563e790825a499edc",
+    "Batches/history/c-20261003-source/Batches/C90-20260927-2033Z-1333PST-cooperative-procedures.md": "3d54341158dc9057fb03a7acdf0e23c357b2e2325e01058c634529dc0244eafd",
+    "Batches/history/c-20261003-source/Batches/C91-20260928-0058Z-1758PST-autonomous-cooperative-action.md": "4ebf7dc1d3f5c863564ff1e0defda79c446c02b59d58d76511ccf1368c707724",
+    "Batches/history/c-20261003-source/Batches/C92-20260928-0433Z-2133PST-natural-cooperative-formation.md": "4d8090b26e945117b2a1806f19a1cb3f0db8da9f9e0dcf3ce1bb165250cfad5f",
+    "Batches/Products/C66-2026-09-28-saved-configurable-study-sessions-and-authored-pressure.md": "ecd10eccefff8dc8ff60c359089a5449c79ecb31ba42c41021b4b2ea5fa90110",
+    "Batches/history/c-20261003-source/Batches/C93-20260928-0657Z-2357PST-durable-study-sessions.md": "e5bb408b7af5fe17b60da1114faf3ffae26d929be52032a2f6170a5545201dc5",
+    "Batches/history/c-20261003-source/Batches/C94-20260928-0910Z-0210PDT-study-situation-pressure.md": "4254defd81a8ea0dd8a5c775cd0c402c03af453a4ae83f04b60999dc6916fa7a",
+    "Batches/Products/C67-2026-09-28-person-private-purpose-planning-and-native-activation.md": "32e6d9609ac4e3aed3771881e1987acaae068c29d4b7adf87a09620b961d62f4",
+    "Batches/history/c-20261003-source/Batches/C95-20260928-1021Z-0321PDT-person-private-procedural-planning.md": "c733883a3a0b2d705908eb267034ae3feb538959a8828824c29debc425acf4b6",
+    "Batches/history/c-20261003-source/Batches/C96-20260928-2010Z-1310PDT-current-engine-study-activation.md": "1a729f7cebbdb2319a6b3a2bd12d79a3318561fcd3c4e0ece9fdc0557b0655c2",
+    "Batches/Products/C68-2026-09-28-source-integration-lineage.md": "45adf0cf3f5efc0a2e50a5fe76d6981865a948400a5e1bceb1a0fa0368153d79",
+    "Batches/history/c-20261003-source/Batches/C97-20260928-2053Z-1353PDT-source-integration-lineage.md": "0f5a16b05d104847316945f339ad6bb5c93c45bef94e73f76535d7deadb56ec9",
+    "Batches/Products/C69-2026-09-28-owned-horse-life-and-mounted-mobility.md": "cc400338c42782cce37ba1ad99d1eea8dd8cc0cefe1b91c35e9b8277e15fbcc8",
+    "Batches/history/c-20261003-source/Batches/C98-20260928-2130Z-1430PDT-owned-horse-life-and-mobility.md": "9fe0b8e1e5995a109cbe7831bf27123ebe9301191ca48df3d49c2abdf9bc77dc",
+    "Batches/Products/C70-2026-09-29-mobile-household-continuity-and-loaded-use.md": "f1d64e9fb36c4b0fa89ee6c8579974ca571080026a509114bc65ec6647dd9d01",
+    "Batches/history/c-20261003-source/Batches/C99-20260929-0312Z-2012PDT-mobile-household-continuity.md": "cd688a7fdb3703aba306a95bf2c4918ff0ffcf3c1202459daedad3220f89d265",
+    "Batches/history/c-20261003-source/Batches/C100-20260929-0901Z-0201PDT-mobile-household-loaded-acceptance.md": "cf460131c9cc7dcf723ed1c8809b8c9426c800033a1a4ac50be895202ded0072",
+    "Batches/Products/C71-2026-09-29-study-terminal-and-human-review-handoff.md": "53bf1d503d1fa119b8c6997c383e42b832d223e1629f554900b9f42a2395e620",
+    "Batches/history/c-20261003-source/Batches/C101-20260929-1941Z-1241PDT-study-terminal-and-human-review-handoff.md": "312bb0b78cb72f7a1f91bdf4def3e1f1e1b1c46762621004d0657dab3e62488a",
+    "Batches/Products/C72-2026-09-30-native-manual-study-and-retained-learning-acquisition.md": "f639b9c5835871ed6b316aa87278af8b508bedeac6bfd9f392e8b28a3c6bc1cf",
+    "Batches/history/c-20261003-source/Batches/C102-20260929-2320Z-1620PST-native-skill-book-study.md": "ca99b4e430d7c38d51d111e05fb310d459b357694fdc922724eecca5244bb3ee",
+    "Batches/history/c-20261003-source/Batches/C103-20260930-0306Z-2006PST-retained-acquisition-and-productive-work.md": "0a60608494d25f769add676776e2921e76acfd54caff6d9973e581a94a2778a1",
+    "Batches/Products/C73-2026-09-30-sustained-private-resource-planning.md": "03dd6701344b724d2281c9490dfee7d769b19b108cece309e0e9a2524a6774f2",
+    "Batches/history/c-20261003-source/Batches/C104-20260930-0455Z-2155PST-sustained-resource-planning.md": "0c999ead96f9e084be5b278f8a9529d434194ca4eb8e200482f8edf3f6257c2b",
+    "Batches/Products/C74-2026-09-30-source-bound-resource-trials-and-native-conditions.md": "c153a9561e74768b02c82fa0c00c5bcad4d3210af26e4c9daa0d262505707e13",
+    "Batches/history/c-20261003-source/Batches/C105-20260930-1100Z-0400PST-resource-outcome-trials-and-asynchronous-observation.md": "8a93f096077f1901b06cd45b044fc375d894da2fa80e1beef2d1dd8c69f87c68",
+    "Batches/history/c-20261003-source/Batches/C106-20260930-1320Z-0620PST-regional-study-conditions-hydration-and-timing.md": "2bda3287d7502f3fa66e578f3c95dad30a01383405e870dd266793f7442d9b64",
+    "Batches/history/c-20261003-source/Batches/C107-20260930-1745Z-1045PST-resource-approaches-and-native-threat-conditions.md": "eb5b29702d00dbcd34f37f7a2c873ff4a66e0392b628616ec7a20d6a6d489bf0",
+    "Batches/Products/C75-2026-09-30-private-survival-planning-and-residence.md": "28461bbe85d318b84cedc20cd3cb76f7b101188baebdf6e4ea98963fe5676cd9",
+    "Batches/history/c-20261003-source/Batches/C108-20260930-2000Z-1300PST-private-survival-planning-and-residence.md": "b58c43e4b323edf3f0739f3bdf17110eb2772a3e6dc5ea7513588dc3f2c55b14",
+    "Batches/Products/C76-2026-10-01-observer-freshness-and-native-session-completion.md": "40814398cf896f802db06d185776bc317fb2d3aa07d48349b0d7a67e97ed1c39",
+    "Batches/history/c-20261003-source/Batches/C109-20261001-0459Z-2159PST-observer-capture-and-session-completion.md": "ec4b06bf46a057701878fbad9c9f6b10b7b8e205605182ad47431757e88c6167",
+    "Batches/Products/C77-2026-10-01-native-route-progress-and-tactical-continuity.md": "9d5e2bd338e195a206a9660985a594630ad717ad35481aee8c34cc7c0ab036f0",
+    "Batches/history/c-20261003-source/Batches/C110-20261001-0730Z-0030PST-route-progress-and-tactical-continuity.md": "f480913136d6747ad68a76a5d082b53fa4bf55b87f7ff9678469929ef8835dbe",
+    "Batches/Products/C78-2026-10-01-native-feeding-and-carried-cooler-continuity.md": "2e78ab00522985b6435c5a8463e841242201eda10955df2ee97cf5ea2204910f",
+    "Batches/history/c-20261003-source/Batches/C111-20261001-2355Z-1655PST-native-feeding-and-carried-coolers.md": "e93aec57db5c414e1b0ba24738b25823459d6ddffdf4ac730b6a5fbd2f9c03db",
+    "Batches/Products/C79-2026-10-02-native-window-repair-and-private-physical-experience.md": "989bd3e2086f0a411406d6dca36fd72ae836a0ea81f22bc0dbf08cd86bfbb550",
+    "Batches/history/c-20261003-source/Batches/C112-20261002-0328Z-2028PST-native-window-repair.md": "f0c2e4d8ef6e698aa4123a4bf993db697617e8c5424c9acfdf29e9ca6999e3ba",
+    "Batches/Products/C80-2026-10-03-continuous-independent-person-observation.md": "cb71364d1ee041ef030604936abb1fa6cdd390473d9e7de60ed198acef0d37cd",
+    "Batches/history/c-20261003-source/Batches/C113-20261002-0924Z-0224PST-independent-native-observation-layouts.md": "81e6d67c62ddef352634f5dee87db759ef5d1a4932a658f54f281e71840b4628",
+    "Batches/history/c-20261003-source/Batches/C114-20261002-2244Z-1544PST-uncapped-native-observation.md": "273e121527809a3746cb4d2dab84c53d2caf3f6b00c0ac3b95f9574e9041e695",
+    "Batches/history/c-20261003-source/Batches/C115-20261003-0308Z-2008PST-persistent-subject-observation.md": "b19b955128f7c523f75253a361a114c794e4601d7d758d18e3036a005bd3716e",
+    "Batches/history/c-20261003-source/Batches/C116-20261003-0433Z-2133PST-continuous-native-observation.md": "fb4768bfa1f0badd1e27ced2d4462b12113fbc496e96f35bc854a12d615d1053",
+    "Batches/Products/C81-2026-10-03-shared-native-furniture-movement.md": "6039b6383ea0f09f392cdde79e4dd24141848fab92e090512245d3b5324e4401",
+    "Batches/history/c-20261003-source/Batches/C117-20261003-0930Z-0230PST-shared-furniture-movement.md": "1a998b809f6ac94e18daa32fc1b62efbac02ba123949d65ae925ddc9e5153f76",
+    "Batches/Products/C82-2026-10-03-private-entry-and-recovery-experience.md": "3b79e563f0560f3f2a630a10e07283a31c2236c4e35ea11a391e25bb7a6e372e",
+    "Batches/history/c-20261003-source/Batches/C118-20261003-1832Z-1132PST-private-entry-decisions.md": "c16103026415ee8ca804c49633f7a4c53eae1f89da01f344210dc01d3f3e4244",
+    "Batches/history/c-20261003-source/Batches/C119-20261003-1855Z-1155PST-recovery-decisions.md": "333e1f7b7d086ab797d956e6636aa6a17d1bf07c32b390834ddea0c9bcc50891",
+    "Batches/history/c-20261003-source/Batches/C120-20261003-1917Z-1217PST-entry-and-recovery-learning.md": "1705c6a801bcf882a8f2a47242c1ff4ce1b4e0c00772e2a4a505f95f8aef8c34",
+    "Batches/D1-20261004-0124Z-1824PST-shared-reasoning.md": "dbd48feb7f4388504b32b28b4b268c558c83cc84e5cf4f2a9722cca06d171e5c",
+    "Batches/D2-20261005-2341Z-1641PST-leisure.md": "88e21676557bc5dbdfb325388cb235d05ea9c113c02f7c8b36d5dfec18e4f717",
+    "Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md": "39854da42297d298624eeeb0f89348fe1804c7b0483f39b6b0bd23bd9c1aaebb",
+    "Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md": "713ab48703e7f1c12cfa1846c2cdd3acfffc4b4a832b3a60dcd6a59c89527c9c",
+    "Batches/D3.3-20261010-0622Z-2222PST-portable-tool-maintenance.md": "4b3d5bb0f609e12675db6eb914f9a8e7c23f60ec6b03123c870f13e83a46d151",
+    "Batches/D3.4-20261010-0701Z-2301PST-plumbing-to-usable-water.md": "12115c284869ffacce2bcab01b73bc240cdb1e279aba9790aae84cd74a1d79e0",
+    "Batches/D3.5-20261010-0813Z-0113PST-rain-collector-construction.md": "cea2215773a5c83834d8b1ece93844b4b20195552a23aef0e20d27d512490c41",
+    "Batches/D3.6-20261010-0947Z-0247PST-generator-to-usable-power.md": "4532aa07cdd0f9c87c52386cfcd4fe58c5ed0b104f6ccd37a1813b52fc492cad"
+  }
+}

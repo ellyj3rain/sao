@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Governance |
 |---|---|
-| Version | `4.0.0.0-pre-alpha` |
+| Version | `2.6.7.0-pre-alpha` |
 | Design authority | ellyj3rain |
 | Repository | `GOVERNANCE.md` |
 | Status | ACTIVE - operating discipline for this repository. |
@@ -150,8 +150,21 @@ regulatory, append-only, or historical.
   forge history publishes the canonical tree and carries no project meaning of
   its own - it was reset once, at the C seam, and the pre-seam forge history
   is preserved on the `archive/` branches, untouched.
-- **Versioning.** `VERSION` advances with shipped surface change, not with
-  every batch.
+- **Versioning.** Classify progress against the full feature or module scope.
+  A coherent increment that builds an unfinished feature receives `kohai`;
+  an in-place correction receives `patch`. `minor` records a completed coherent
+  feature or module with its required integration, rather than an individual
+  API, action, artifact or child shipment. A completed related feature grouping
+  may receive `major` when the operator selects that boundary. Batch labels,
+  child closure, commits and PRs do not select a tier. Record the scope and
+  completion evidence supporting the classification, then compute the version
+  under the existing odometer. Mechanical carries do not declare a release or
+  change maturity. Credit incremental delivery and completed feature boundaries
+  once each; a parent may complete a feature after its children recorded building
+  progress, and a purely repeated aggregation receives no additional credit.
+  Apply the same rule to A, B, C and D when reconciling the historical ledger.
+  Preserve original records, source bytes and published versions; corrections
+  supersede the prior classification in a documented replay generation.
   An authorized catalog consolidation replays the consolidated units under
   the same tier rules. The 2026-09-19 C consolidation recalculates the source
   coordinate from 5.3.0.1 to 2.7.14.1, both pre-alpha. This is catalog

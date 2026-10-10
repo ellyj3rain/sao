@@ -487,7 +487,7 @@ function SU.begin(id, body, place, category, admission, decisionContext)
     local operation = context.operation or "consume"
     local quantity = category == "water" and 0.01 or 1
     local offered, why = SAO.WorldSources.actionOptions(place, category,
-        id, body, quantity, admission, operation)
+        id, body, quantity, admission, operation, operation=="acquire" and context.itemType or nil)
     if not offered then return false, why end
     offered.context = decisionContext
     local selected = SU.chooseOption(offered)
