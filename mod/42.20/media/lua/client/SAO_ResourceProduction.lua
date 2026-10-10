@@ -203,6 +203,7 @@ local function measured(rt, work)
         and not fluid:isPoisonous() and not fluid:isTainted()
 end
 function R.outcome(id, workId)
+    if type(workId)=="string" and workId:sub(1,10)=="generator/" and SAO.Generator then return SAO.Generator.outcome(id,workId) end
     local rec = SAO.Identity.get(id)
     for _, receipt in ipairs(rec and rec.resourceProductionOutcomes or {}) do
         if receipt.id == workId then
@@ -2276,6 +2277,11 @@ end
 
 function R.reconcileSaved(id,body)
     local rec=SAO.Identity.get(id)
+    if SAO.Study and SAO.Study.reconcileGeneratorReading and not SAO.Study.reconcileGeneratorReading(id,body) then return false end
+    if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="generator-operation" then
+        return SAO.Generator and SAO.Generator.reconcileSaved(id,body) or false
+    end
+    if SAO.Generator then SAO.Generator.reconcileSaved(id,body) end
     if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="build-rain-collector" then return collector.recover(id,body) end
     if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="plumb-fixture" then return plumbRecover(id,body) end
     if rec and rec.resourceProductionWork and nativeCraftKind(rec.resourceProductionWork.kind) then return craftRecover(id,body) end
@@ -2291,6 +2297,7 @@ if Events and Events.OnTick then Events.OnTick.Add(R.retryCraftCancellations) en
 
 function R.begin(id, body, step, context)
     context = context or {}
+    if step and step.owner=="SAO.Generator" then return SAO.Generator and SAO.Generator.begin(id,body,step,context) or false end
     if step and step.productionKind == "build-rain-collector" then return collector.begin(id, body, step, context) end
     if step and step.productionKind == "plumb-fixture" then return plumbBegin(id, body, step, context) end
     if step and step.productionKind == "saw-logs" then return craftBegin(id, body, step, context) end
@@ -2352,6 +2359,9 @@ function R.begin(id, body, step, context)
 end
 function R.interrupt(id, body, reason)
     local rec, rt = SAO.Identity.get(id), runtime[id]
+    if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="generator-operation" then
+        return SAO.Generator and SAO.Generator.interrupt(id,body,reason) or false
+    end
     if rt and rt.kind=="build-rain-collector" or rec and rec.resourceProductionWork
         and rec.resourceProductionWork.kind=="build-rain-collector" then
         if not rt then return collector.recover(id,body) end
@@ -2444,6 +2454,7 @@ local function tick(id, body)
     local rec, rt = SAO.Identity.get(id), runtime[id]
     local work = rec and rec.resourceProductionWork
     if not work then return "idle" end
+    if work.kind=="generator-operation" then return SAO.Generator and SAO.Generator.tick(id,body) or "cancelling" end
     if work.kind == "build-rain-collector" then return collector.tick(id, body) end
     if work.kind == "plumb-fixture" then return plumbTick(id, body) end
     if nativeCraftKind(work.kind) then return craftTick(id, body) end
@@ -2496,6 +2507,7 @@ function R.snapshot(id)
         sourceId = work.sourceId, startedAt = work.startedAt, purposeId = work.purposeId }
 end
 function R.reset()
+    if SAO.Generator then SAO.Generator.reset() end
     for id, rt in pairs(runtime) do R.interrupt(id, rt.body, "world-reset") end
     for id in pairs(sourceRefresh) do retireRefresh(id, "handled-source-observation-retired") end
 end

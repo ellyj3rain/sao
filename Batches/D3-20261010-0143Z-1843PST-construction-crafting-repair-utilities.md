@@ -183,3 +183,11 @@ The CLOSED saw-maintenance child joins exact private file acquisition and native
 ## D3.5 closure - 2026-10-10 09:07 UTC / 02:07 PST
 
 [D3.5](D3.5-20261010-0813Z-0113PST-rain-collector-construction.md) is CLOSED: exact recipe-derived materials, personally observed placement and native rain-collector construction feed the original plumbing and usable-water purpose. Its record links the current native construction, site/rain/fluid, private planning, cognition and saved-continuity evidence. The world-entity construction boundary receives one minor credit. This parent retains all general entity placement, other recipes/pane integration, general fixing, generator and native-server obligations and remains OPEN.
+
+## D3.6 generator continuation
+
+[D3.6](D3.6-20261010-0947Z-0247PST-generator-to-usable-power.md) is OPEN for native generator repair, fueling, connection and actual consumer power under a retained private utility purpose. Its full four-variant scope, owners, interfaces, dependencies and required evidence precede implementation. D3.5 reached origin/main through self-merged [PR146](https://github.com/ellyj3rain/sao/pull/146), commit `5b3eb409f654e82f46d82940b968366ecaa1f74d`. This parent retains its complete module and remains OPEN. The operator's version/batch/PR mapping follow-up is recorded separately in SESSION_STATE.
+
+## D3.6 closure - 2026-10-10 10:47 UTC / 03:47 PST
+
+[D3.6-20261010-0947Z-0247PST-generator-to-usable-power.md](D3.6-20261010-0947Z-0247PST-generator-to-usable-power.md) is CLOSED with native generator repair/fuelling/connection/activation, exact knowledge and material acquisition, return to reached consumer power and resumption of the retained original meal. Its linked proofs and first-pass corrections establish the child. The complete D3 parent remains OPEN for its remaining installed domain and integration obligations. The child receives one owning minor credit; the parent receives no repeated credit. The version/publication mapping and canonical Neo/GZDS carry remain recorded separately.

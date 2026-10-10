@@ -1162,6 +1162,17 @@ public final class SAONeeds {
                 return "Literature".equals(item.getDisplayCategory());
             case "glass-pane":
                 return "RepairableWindows.LargeGlassPane".equals(item.getFullType());
+            case "electronics-scrap":
+                return "ElectronicsScrap".equals(item.getType()) && !item.getIsCraftingConsumed();
+            case "petrol":
+                var petrol = item.getFluidContainer();
+                return petrol != null && petrol.contains(zombie.entity.components.fluids.Fluid.Petrol)
+                    && Float.isFinite(petrol.getAmount()) && petrol.getAmount() >= 0.099f
+                    && !item.getIsCraftingConsumed();
+            case "generator-manual":
+                return item instanceof zombie.inventory.types.Literature manual
+                    && manual.getLearnedRecipes() != null && manual.getLearnedRecipes().contains("Generator")
+                    && !item.getIsCraftingConsumed();
             case "garbage-bag":
                 return item.hasTag(zombie.scripting.objects.ItemTag.GARBAGE_BAG)
                     && item instanceof InventoryContainer bag && bag.getInventory().isEmpty()

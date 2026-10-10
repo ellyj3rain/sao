@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.12.0.0-pre-alpha` |
+| Version | `4.0.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -199,6 +199,28 @@ subset. Anything in neither place is a hypothesis.
   the local player's slot (F-006).
 
 ## The needs layer (as built, [A8]-[A10])
+
+### Generator operation
+
+`SAO_Generator` owns placed native generator inspection, repair, fuelling,
+connection, activation and verification of usable consumer power. A privately
+intended use of a reached unpowered appliance supplies the utility purpose.
+Actor-private `J:` machinery and `E:` consumer facts retain acquired identities,
+revisions and partial versus reached observations. Planner and Labor compare
+known means through both private models; SourceUse acquires exact materials,
+and Study's installed reading action supplies actual native generator knowledge.
+
+Generator work occupies the existing `rec.resourceProductionWork` claim.
+ResourceProduction forwards this kind through its ordinary Controller state,
+interruption and recovery. Native handles stay in the captured runtime capsule;
+plain work and authenticated operation-specific outcomes remain with the person.
+Final verification returns to the exact consumer, acquires its current state,
+and measures native generator coverage and usable power. Ordinary fuel/wear
+progression retains the known generator's identity while current safety and
+physical supply remain required. The original cooking purpose resumes with its
+retained item and appliance; cooking and physiological effects keep their own
+completion owners. Reading uses existing IDLE arbitration while Study owns its
+native queue and admission.
 
 ### Shared physical mechanics and private completion (C111)
 

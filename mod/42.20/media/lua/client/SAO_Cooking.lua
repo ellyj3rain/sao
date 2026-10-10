@@ -232,6 +232,47 @@ function C.expectationOffer(id,body,context)
     if not appliance or not food then return nil end
     return {sourceId=appliance.sourceId,itemId=food.itemId,itemType=food.itemType}
 end
+local function copyPowerDemand(demand)
+    if type(demand) ~= "table" or type(demand.consumer) ~= "table" then return nil end
+    local out = {}
+    for key, value in pairs(demand) do if type(value) ~= "table" then out[key] = value end end
+    out.consumer = {}
+    for key, value in pairs(demand.consumer) do
+        if type(value) ~= "table" then out.consumer[key] = value end
+    end
+    return out
+end
+local function rememberPowerDemand(id, body, appliance, food, context, state)
+    if not state or state.kind ~= "stove" or state.powered ~= false
+        or not allowed(id, appliance) or not SAO.WorldSources.generatorConsumer then return nil end
+    local consumer = SAO.WorldSources.generatorConsumer(body, appliance.object)
+    if type(consumer) ~= "table" or consumer.powered ~= false then return nil end
+    local rec = SAO.Identity.get(id)
+    if not rec then return nil end
+    context = type(context) == "table" and context or {}
+    rec.cookingPowerDemand = {consumer=consumer, requestingActivity="cooking",
+        requestingPurposeId=context.purposeId or context.requestedPurposeId,
+        foodItemId=food.itemId, foodItemType=food.itemType,
+        applianceSourceId=appliance.sourceId, observedAt=hours()}
+    if SAO.Perception and SAO.Perception.rememberGeneratorConsumer then
+        SAO.Perception.rememberGeneratorConsumer(id, body, appliance.object)
+    end
+    return copyPowerDemand(rec.cookingPowerDemand)
+end
+-- An intended meal supplies a utility request only after this exact appliance
+-- has been reached and inspected. Food remains with its ordinary owner.
+function C.powerDemand(id, body, context)
+    local appliance, food = selectMeans(id, body, context)
+    if not appliance or not food then return nil end
+    local state = SAOJavaBridge:inspectCookingAppliance(body, appliance.object, appliance.container)
+    if not state or state.sourceId ~= appliance.sourceId then return nil end
+    if state.kind == "stove" and state.powered == true then
+        local rec = SAO.Identity.get(id)
+        if rec then rec.cookingPowerDemand = nil end
+        return nil
+    end
+    return rememberPowerDemand(id, body, appliance, food, context, state)
+end
 function C.outcome(id,sequence)
     local rec=SAO.Identity.get(id)
     for _,row in ipairs(rec and rec.cookingOutcomes or {}) do
@@ -345,6 +386,10 @@ local function tick(id, body)
         return finish(id, "completed", "native-food-cooked-and-retrieved")
     end
     if work.stage == "approach-appliance" then
+        if state.kind == "stove" and state.powered == false then
+            rememberPowerDemand(id, body, appliance, food, work, state)
+            return finish(id, "no-effect", "appliance-unpowered")
+        end
         local context, why = SAO.WorldSources.inspectionCandidate(id, body, "standing", 12, work.sourceId)
         if not context then return finish(id, "unavailable", tostring(why)) end
         local inspected, reason = SAO.WorldSources.inspectContainer(id, body, context)
@@ -368,7 +413,10 @@ local function tick(id, body)
         return "transfer"
     end
     if state.kind == "stove" and not state.active then
-        if state.powered ~= true then return finish(id, "no-effect", "appliance-unpowered") end
+        if state.powered ~= true then
+            rememberPowerDemand(id, body, appliance, food, work, state)
+            return finish(id, "no-effect", "appliance-unpowered")
+        end
         local switched = toggle(id, body, rt, work, true)
         if switched == "switching-appliance" then return switched end
         if switched ~= "done" then return finish(id, "no-effect", "appliance-did-not-activate") end

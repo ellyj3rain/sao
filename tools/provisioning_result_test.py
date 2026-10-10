@@ -1099,7 +1099,7 @@ def contract(texts: dict[str, str]) -> bool:
         "function WS.resultAcknowledged" in texts["world"],
         "local coordinated = receipt.commitmentId ~= nil" in texts["world"],
         'if (receipt.status == "completed" or coordinated' in texts["world"],
-        "function WS.sourceProjection(id)" in texts["world"],
+        "function WS.sourceProjection(id, actorId)" in texts["world"],
         "function WS.pendingProjectionChanges(limit)" in texts["world"],
         "function WS.acknowledgeProjectionChange(sourceId, order)"
         in texts["world"],

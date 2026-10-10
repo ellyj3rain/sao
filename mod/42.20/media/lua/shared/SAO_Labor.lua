@@ -643,4 +643,70 @@ function Labor.assess(id, context)
     return out
 end
 
+local function utilityFact(id, anchor, prefix)
+    if type(anchor) ~= "table" or type(anchor.sourceId or anchor.id) ~= "string"
+        or (anchor.sourceId or anchor.id):sub(1,2) ~= prefix or not short(anchor.fingerprint)
+        or not short(anchor.revision) or not position(anchor.x, anchor.y, anchor.z) then return nil end
+    for _, place in pairs(SAO.Perception and SAO.Perception.knownPlaces and SAO.Perception.knownPlaces(id,true) or {}) do
+        local fact = place.sourceFacts and place.sourceFacts[anchor.sourceId or anchor.id]
+        if fact and fact.fingerprint == anchor.fingerprint and fact.revision == anchor.revision
+            and fact.x == anchor.x and fact.y == anchor.y and fact.z == anchor.z then
+            local out = { sourceId = anchor.sourceId or anchor.id, fingerprint = fact.fingerprint, revision = fact.revision,
+                x = fact.x, y = fact.y, z = fact.z, buildingId = fact.buildingId or anchor.buildingId,
+                place = placeCopy(place) }
+            for _, key in ipairs({ "inspected", "condition", "fuel", "maxFuel", "connected", "active", "outside", "powered" }) do
+                if type(fact[key]) == "boolean" or finite(fact[key]) then out[key] = fact[key] end
+            end
+            return out
+        end
+    end
+end
+function Labor.assessUtility(id, context)
+    context = type(context) == "table" and context or {}
+    local person = SAO.Identity and SAO.Identity.get(id)
+    if not person or person.dead then return nil, "person-unavailable" end
+    local intent = type(context.intent) == "table" and context.intent or {}
+    local consumer = utilityFact(id, intent.consumer, "E:")
+    if not consumer then return nil, "private-consumer-unavailable" end
+    local out = { pressure = unit(context.pressure) or 0, options = {}, sources = {}, consumer = consumer }
+    local categories = { ["electronics-scrap"] = true, petrol = true, ["generator-manual"] = true }
+    for index, source in ipairs(type(context.sources) == "table" and context.sources or {}) do
+        if index > 128 then break end
+        if type(source) == "table" and categories[source.category] and source.known == true
+            and finite(source.itemId) and short(source.itemType) and short(source.sourceId) and short(source.revision)
+            and inspectedPlace(id, source.place) and privateSource(id, source) then out.sources[#out.sources+1] = source end
+    end
+    local operations = { inspect=true,repair=true,fuel=true,connect=true,activate=true,["verify-power"]=true }
+    local social = socialAppraisal(id, "utilities", context.atHours)
+    for index, option in ipairs(type(context.options) == "table" and context.options or {}) do
+        if index > 16 then break end
+        local generator = type(option) == "table" and utilityFact(id, option.generator, "J:")
+        local target = type(option) == "table" and utilityFact(id, option.consumer, "E:")
+        if generator and target and target.sourceId == consumer.sourceId and target.fingerprint == consumer.fingerprint
+            and operations[option.operation] and (option.materialCategory == nil or categories[option.materialCategory])
+            and (option.inputItemId == nil or (finite(option.inputItemId) or short(option.inputItemId)) and short(option.inputItemType)) then
+            -- Candidate IDs address this bounded frame; full native identity
+            -- and revision remain in the retained generator/consumer anchors.
+            local row = { id = "generator:" .. tostring(index) .. ":" .. option.operation,
+                owner = "SAO.Generator", generator = generator, consumer = target, operation = option.operation,
+                inputItemId = option.inputItemId and tostring(option.inputItemId), inputItemType = option.inputItemType,
+                materialCategory = option.materialCategory, blocked = option.blocked == true or context.canWork == false,
+                reason = short(option.reason or option.detail), requestingPurposeId = intent.requestingPurposeId,
+                requestingActivity = intent.requestingActivity, foodItemId = intent.foodItemId, foodItemType = intent.foodItemType,
+                applianceSourceId = intent.applianceSourceId, evidence = .85, continuity = .8, novelty = .1,
+                informationGain = option.operation == "inspect" and .7 or .2,
+                consequences = {{ kind = "power", category = "utilities", sourceId = generator.sourceId, value = .5 }} }
+            row.appraisal = routeAppraisal(id, person, context, { sourceX=generator.x, sourceY=generator.y,
+                sourceZ=generator.z, kind="utility" }, social)
+            out.options[#out.options+1] = row
+        end
+    end
+    out.dimensions = { neededNow = {status="person-private",activity=intent.requestingActivity,consumerId=consumer.sourceId,pressure=out.pressure},
+        materialsAndSpace = {status="partial",privateOptions=#out.options,privateMaterialSources=#out.sources},
+        capableActors = {status="partial",self=id},timeClaims={status="person-private",commitments=context.commitments},
+        openProjects={status="person-private"},groupValues=social,lowPressureWish={status="open"},
+        slack={status="unknown"} }
+    return out
+end
+
 return Labor

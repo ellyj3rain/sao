@@ -32,6 +32,7 @@ import zombie.iso.IsoWorld;
 import zombie.iso.WorldStreamer;
 import zombie.iso.objects.IsoWorldInventoryObject;
 import zombie.iso.objects.IsoThumpable;
+import zombie.iso.objects.IsoGenerator;
 import zombie.network.GameClient;
 import zombie.network.GameServer;
 import zombie.vehicles.BaseVehicle;
@@ -70,6 +71,7 @@ public final class SAOWorldSources {
         new WeakHashMap<>();
     private static final Map<IsoPlayer, LinkedHashMap<String, CollectorSiteBinding>> COLLECTOR_SITES =
         new WeakHashMap<>();
+    private static final Map<IsoPlayer, Map<String, UtilityBinding>> UTILITY_BINDINGS = new WeakHashMap<>();
     private static boolean transactionActive;
 
     private SAOWorldSources() {
@@ -91,6 +93,7 @@ public final class SAOWorldSources {
         INSPECTIONS.clear();
         INSPECTION_MEMORY.clear();
         COLLECTOR_SITES.clear();
+        UTILITY_BINDINGS.clear();
     }
 
     /** Kahlua does not implement Lua weak tables. Keep body keys on the JVM;
@@ -521,6 +524,277 @@ public final class SAOWorldSources {
             + (zombie.SandboxOptions.instance.getTimeSinceApo() - 1) * 30;
         return pipedSprite && marked && square.getRoom() != null
             && days < zombie.SandboxOptions.instance.waterShutModifier.getValue();
+    }
+
+    /** Personal generator identity; reached inspection alone supplies machine state. */
+    public static synchronized String generatorCandidates(SAOIsoPlayerShell shell) {
+        if (SAOConceptObservation.actor(shell) == null || transactionActive) return "";
+        var eye = shell.getCurrentSquare();
+        Snapshot snapshot = new Snapshot(Math.floorDiv(eye.getX(), CHUNK_SIZE), Math.floorDiv(eye.getY(), CHUNK_SIZE));
+        snapshot.mode = "visible-generator";
+        int count = 0;
+        for (int distance = 0; distance <= INSPECTION_RANGE && count < 32; distance++) {
+            for (int dy = -distance; dy <= distance && count < 32; dy++) for (int dx = -distance; dx <= distance && count < 32; dx++) {
+                if (Math.max(Math.abs(dx), Math.abs(dy)) != distance) continue;
+                var square = shell.getCell().getGridSquare(eye.getX() + dx, eye.getY() + dy, eye.getZ());
+                if (!SAOPerceptionScanner.canSeeWorldSquareNow(shell, square, INSPECTION_RANGE)) continue;
+                for (int index = 0; index < square.getObjects().size() && count < 32; index++) {
+                    var object = square.getObjects().get(index);
+                    if (!(object instanceof IsoGenerator generator) || generator.getSquare() != square) continue;
+                    Source source = generatorSource(snapshot, generator, utilityReached(shell, square));
+                    rememberUtility(shell, object, source); snapshot.add(source); count++;
+                }
+            }
+        }
+        snapshot.finish(); return encode(snapshot);
+    }
+
+    public static synchronized String generatorTarget(SAOIsoPlayerShell shell, String id, String fingerprint,
+            String revision, int x, int y, int z, String operation) {
+        try {
+            if (revision == null || revision.isBlank()) return "BAD_GENERATOR_REQUEST";
+            if (!generatorOperation(operation)) return "BAD_GENERATOR_OPERATION";
+            var generator = generatorIdentityFixture(shell, id, fingerprint, revision, x, y, z);
+            var square = interactionSquare(shell, generator.getSquare());
+            return square == null ? "NO_INTERACTION_POINT" : "READY:" + square.getX() + ":" + square.getY() + ":" + square.getZ();
+        } catch (ActionRefusal refusal) { return refusal.code; }
+        catch (Throwable unavailable) { SAOAgent.log("generator target threw: " + unavailable); return "FAILED"; }
+    }
+
+    public static synchronized Object generatorObject(SAOIsoPlayerShell shell, String id, String fingerprint,
+            String revision, int x, int y, int z, String operation) {
+        try {
+            if (revision == null || revision.isBlank()) return null;
+            var generator = "inspect".equals(operation)
+                ? generatorIdentityFixture(shell, id, fingerprint, revision, x, y, z)
+                : generatorFixture(shell, id, fingerprint, revision, x, y, z, operation);
+            return "verify-power".equals(operation) || utilityReached(shell, generator.getSquare()) ? generator : null;
+        } catch (ActionRefusal refusal) { return null; }
+        catch (Throwable unavailable) { SAOAgent.log("generator object threw: " + unavailable); return null; }
+    }
+
+    public static synchronized boolean generatorValid(SAOIsoPlayerShell shell, IsoGenerator generator,
+            String id, String fingerprint, int x, int y, int z, String operation) {
+        try {
+            return generatorFixture(shell, id, fingerprint, null, x, y, z, operation) == generator
+                && ("verify-power".equals(operation) || utilityReached(shell, generator.getSquare()));
+        } catch (ActionRefusal refusal) { return false; }
+        catch (Throwable unavailable) { SAOAgent.log("generator valid threw: " + unavailable); return false; }
+    }
+
+    private static IsoGenerator generatorFixture(SAOIsoPlayerShell shell, String id, String fingerprint,
+            String revision, int x, int y, int z, String operation) throws ActionRefusal {
+        var generator = generatorIdentityFixture(shell,id,fingerprint,revision,x,y,z);
+        var binding = utilityBinding(shell, id, fingerprint, "J:");
+        if (!generatorOperation(operation)) throw new ActionRefusal("BAD_GENERATOR_OPERATION");
+        var square = shell.getCell().getGridSquare(x, y, z);
+        boolean inspected = revision == null || Boolean.TRUE.equals(binding.revisions.get(revision));
+        Source physical = generatorSource(new Snapshot(Math.floorDiv(x, CHUNK_SIZE), Math.floorDiv(y, CHUNK_SIZE)), generator, inspected);
+        if (!fingerprint.equals(physical.fingerprint)) throw new ActionRefusal("FINGERPRINT_CHANGED");
+        if (revision != null && !operation.equals("verify-power") && !revision.equals(physical.revision)) throw new ActionRefusal("REVISION_CHANGED");
+        if (!operation.equals("inspect") && (revision == null ? !binding.revisions.containsValue(Boolean.TRUE)
+                : !Boolean.TRUE.equals(binding.revisions.get(revision)))) throw new ActionRefusal("INSPECTION_REQUIRED");
+        if (GameClient.client && !zombie.iso.areas.SafeHouse.isSafehouseAllowInteract(square, shell)) throw new ActionRefusal("ACCESS_REFUSED");
+        boolean knowledge = shell.getPerkLevel(zombie.characters.skills.PerkFactory.Perks.Electricity) >= 3
+            || shell.isRecipeActuallyKnown("Generator");
+        if ((operation.equals("repair") || operation.equals("connect")) && !knowledge) throw new ActionRefusal("GENERATOR_KNOWLEDGE_REQUIRED");
+        boolean ready = switch (operation) {
+            case "inspect" -> true;
+            case "repair" -> !generator.isActivated() && generator.getCondition() < 100;
+            case "fuel" -> !generator.isActivated() && generator.getFuel() < generator.getMaxFuel();
+            case "connect" -> !generator.isActivated() && !generator.isConnected();
+            case "activate" -> !generator.isActivated() && generator.isConnected() && generator.getFuel() > 0
+                && generator.getCondition() > 0 && square.isOutside();
+            case "verify-power" -> generator.isActivated() && generator.isConnected() && generator.getFuel() > 0
+                && generator.getCondition() > 0 && square.isOutside();
+            default -> false;
+        };
+        if (!ready) throw new ActionRefusal("GENERATOR_STAGE_UNAVAILABLE");
+        return generator;
+    }
+
+    /** Remembered identity admits travel and reached reinspection, never physical stage effects. */
+    private static IsoGenerator generatorIdentityFixture(SAOIsoPlayerShell shell,String id,String fingerprint,
+            String revision,int x,int y,int z) throws ActionRefusal {
+        var binding=utilityBinding(shell,id,fingerprint,"J:");
+        if (revision!=null && (revision.isBlank() || !binding.revisions.containsKey(revision))) throw new ActionRefusal("NOT_PRIVATELY_OBSERVED");
+        var square=shell.getCell().getGridSquare(x,y,z);var object=binding.object.get();
+        if (!(object instanceof IsoGenerator generator) || square==null || binding.square.get()!=square
+                || object.getSquare()!=square || !square.getObjects().contains(object)
+                || !id.substring(2).equals(object.getModData().rawget(SOURCE_TOKEN))) throw new ActionRefusal("SOURCE_CHANGED");
+        Source identity=utilitySource(new Snapshot(Math.floorDiv(x,CHUNK_SIZE),Math.floorDiv(y,CHUNK_SIZE)),object,"J:","generator");
+        if (!fingerprint.equals(identity.fingerprint)) throw new ActionRefusal("FINGERPRINT_CHANGED");
+        if (GameClient.client && !zombie.iso.areas.SafeHouse.isSafehouseAllowInteract(square,shell)) throw new ActionRefusal("ACCESS_REFUSED");
+        return generator;
+    }
+
+    private static boolean generatorOperation(String operation) {
+        return "inspect".equals(operation) || "repair".equals(operation) || "fuel".equals(operation)
+            || "connect".equals(operation) || "activate".equals(operation) || "verify-power".equals(operation);
+    }
+
+    private static boolean utilityReached(SAOIsoPlayerShell shell, IsoGridSquare square) {
+        return refillWithinReach(shell, square) && Math.pow(shell.getX() - square.getX() - .5f, 2)
+            + Math.pow(shell.getY() - square.getY() - .5f, 2) < 4
+            && SAOPerceptionScanner.canSeeWorldSquareNow(shell, square, INSPECTION_RANGE);
+    }
+
+    public static synchronized String generatorConsumer(SAOIsoPlayerShell shell, IsoObject object) {
+        if (SAOConceptObservation.actor(shell) == null || object == null || object.getSquare() == null
+                || !utilityReached(shell, object.getSquare()) || object.getCell() != shell.getCell()
+                || !object.getSquare().getObjects().contains(object) || !object.couldBePoweredByGenerator()) return "";
+        var square = object.getSquare();
+        Snapshot snapshot = new Snapshot(Math.floorDiv(square.getX(), CHUNK_SIZE), Math.floorDiv(square.getY(), CHUNK_SIZE));
+        snapshot.mode = "reached-power-consumer";
+        Source source = powerConsumerSource(snapshot, object); rememberUtility(shell, object, source);
+        snapshot.add(source); snapshot.finish(); return encode(snapshot);
+    }
+
+    public static synchronized boolean generatorConsumerPowered(SAOIsoPlayerShell shell, IsoGenerator generator,
+            String id, String fingerprint, int x, int y, int z) {
+        try {
+            var consumerBinding = utilityBinding(shell, id, fingerprint, "E:");
+            var consumer = consumerBinding.object.get(); var square = shell.getCell().getGridSquare(x, y, z);
+            if (consumer == null || square == null || consumerBinding.square.get() != square || consumer.getSquare() != square
+                || !square.getObjects().contains(consumer) || !utilityReached(shell, square)
+                || !id.substring(2).equals(consumer.getModData().rawget(SOURCE_TOKEN))) return false;
+            Source current = powerConsumerSource(new Snapshot(Math.floorDiv(x, CHUNK_SIZE), Math.floorDiv(y, CHUNK_SIZE)), consumer);
+            if (!fingerprint.equals(current.fingerprint) || generator == null || generator.getSquare() == null) return false;
+            var genSquare = generator.getSquare();
+            String token = (String) generator.getModData().rawget(SOURCE_TOKEN);
+            Source gen = generatorSource(new Snapshot(Math.floorDiv(genSquare.getX(), CHUNK_SIZE), Math.floorDiv(genSquare.getY(), CHUNK_SIZE)), generator, true);
+            var genBinding = utilityBinding(shell, "J:" + token, gen.fingerprint, "J:");
+            return genBinding.object.get() == generator && genBinding.square.get() == genSquare
+                && generator.getCell() == shell.getCell() && shell.getCell().getGridSquare(genSquare.getX(), genSquare.getY(), genSquare.getZ()) == genSquare
+                && genSquare.getObjects().contains(generator) && generator.isConnected() && generator.isActivated()
+                && generator.getFuel() > 0 && generator.getCondition() > 0 && genSquare.isOutside()
+                && IsoGenerator.isPoweringSquare(genSquare.getX(), genSquare.getY(), genSquare.getZ(), x, y, z)
+                && square.haveElectricity() && current.powered == Boolean.TRUE;
+        } catch (ActionRefusal refusal) { return false; }
+        catch (Throwable unavailable) { SAOAgent.log("generator consumer power threw: " + unavailable); return false; }
+    }
+
+    public static synchronized String generatorConsumerTarget(SAOIsoPlayerShell shell, String id, String fingerprint,
+            String revision, int x, int y, int z) {
+        try {
+            IsoObject object = generatorConsumerFixture(shell, id, fingerprint, revision, x, y, z);
+            var square = interactionSquare(shell, object.getSquare());
+            return square == null ? "NO_INTERACTION_POINT" : "READY:" + square.getX() + ":" + square.getY() + ":" + square.getZ();
+        } catch (ActionRefusal refusal) { return refusal.code; }
+        catch (Throwable unavailable) { SAOAgent.log("generator consumer target threw: " + unavailable); return "FAILED"; }
+    }
+
+    public static synchronized Object generatorConsumerObject(SAOIsoPlayerShell shell, String id, String fingerprint,
+            String revision, int x, int y, int z) {
+        try {
+            var object = generatorConsumerFixture(shell, id, fingerprint, revision, x, y, z);
+            return utilityReached(shell, object.getSquare()) ? object : null;
+        } catch (ActionRefusal refusal) { return null; }
+        catch (Throwable unavailable) { SAOAgent.log("generator consumer object threw: " + unavailable); return null; }
+    }
+
+    private static IsoObject generatorConsumerFixture(SAOIsoPlayerShell shell, String id, String fingerprint,
+            String revision, int x, int y, int z) throws ActionRefusal {
+        var binding = utilityBinding(shell, id, fingerprint, "E:");
+        if (revision == null || !binding.revisions.containsKey(revision)) throw new ActionRefusal("NOT_PRIVATELY_OBSERVED");
+        var square = shell.getCell().getGridSquare(x,y,z); var object = binding.object.get();
+        if (square == null || object == null || binding.square.get() != square || object.getSquare() != square
+                || !square.getObjects().contains(object) || !id.substring(2).equals(object.getModData().rawget(SOURCE_TOKEN))) throw new ActionRefusal("SOURCE_CHANGED");
+        var source = powerConsumerSource(new Snapshot(Math.floorDiv(x,CHUNK_SIZE),Math.floorDiv(y,CHUNK_SIZE)),object);
+        if (!fingerprint.equals(source.fingerprint)) throw new ActionRefusal("FINGERPRINT_CHANGED");
+        // Power may change during the owned generator sequence. Identity and the exact acquired revision remain binding.
+        if (!object.couldBePoweredByGenerator() || GameClient.client && !zombie.iso.areas.SafeHouse.isSafehouseAllowInteract(square,shell)) throw new ActionRefusal("ACCESS_REFUSED");
+        return object;
+    }
+
+    private static UtilityBinding utilityBinding(SAOIsoPlayerShell shell, String id, String fingerprint, String prefix) throws ActionRefusal {
+        String actor = SAOConceptObservation.actor(shell);
+        var bindings = UTILITY_BINDINGS.get(shell); var binding = bindings == null ? null : bindings.get(id);
+        if (actor == null || id == null || !id.startsWith(prefix) || id.length() <= 2 || fingerprint == null) throw new ActionRefusal("NOT_PRIVATELY_OBSERVED");
+        if (binding == null || binding.object.get() == null || binding.square.get() == null) {
+            binding = restoreUtilityBinding(shell,actor,id,fingerprint,prefix);
+        }
+        if (binding == null || !actor.equals(binding.actor) || !fingerprint.equals(binding.fingerprint)) throw new ActionRefusal("NOT_PRIVATELY_OBSERVED");
+        return binding;
+    }
+
+    private static UtilityBinding restoreUtilityBinding(SAOIsoPlayerShell shell,String actor,String id,String fingerprint,String prefix) {
+        var sao=table(zombie.Lua.LuaManager.env.rawget("SAO"));var perception=sao==null?null:table(sao.rawget("Perception"));
+        var beliefs=perception==null?null:table(perception.rawget("beliefs"));var mind=beliefs==null?null:table(beliefs.rawget(actor));
+        var known=mind==null?null:table(mind.rawget("known"));if(known==null)return null;
+        var places=known.iterator();
+        while(places.advance()) {
+            var place=table(places.getValue());var facts=place==null?null:table(place.rawget("sourceFacts"));var fact=facts==null?null:table(facts.rawget(id));
+            if(fact==null || !fingerprint.equals(fact.rawget("fingerprint")) || !(fact.rawget("revision") instanceof String revision) || revision.isBlank()
+                    || !(prefix.equals("J:")?"generator":"power-consumer").equals(fact.rawget("kind"))
+                    || fact.rawget("actorId")!=null && !actor.equals(fact.rawget("actorId"))
+                    || !id.equals(fact.rawget("sourceId")) && !id.equals(fact.rawget("id")))continue;
+            Object rx=fact.rawget("x"),ry=fact.rawget("y"),rz=fact.rawget("z");
+            if(!(rx instanceof Number nx)||!(ry instanceof Number ny)||!(rz instanceof Number nz))continue;
+            double x=nx.doubleValue(),y=ny.doubleValue(),z=nz.doubleValue();
+            if(!Double.isFinite(x)||!Double.isFinite(y)||!Double.isFinite(z)||x!=Math.rint(x)||y!=Math.rint(y)||z!=Math.rint(z)
+                    ||Math.abs(x)>Integer.MAX_VALUE||Math.abs(y)>Integer.MAX_VALUE||Math.abs(z)>Integer.MAX_VALUE)continue;
+            var square=shell.getCell().getGridSquare((int)x,(int)y,(int)z);if(square==null || square.getCell()!=shell.getCell())continue;
+            for(int index=0;index<square.getObjects().size();index++) {
+                var object=square.getObjects().get(index);
+                if(object==null||object.getSquare()!=square||!id.substring(2).equals(object.getModData().rawget(SOURCE_TOKEN))
+                        || (prefix.equals("J:")?!(object instanceof IsoGenerator):!object.couldBePoweredByGenerator()))continue;
+                var identity=utilitySource(new Snapshot(Math.floorDiv((int)x,CHUNK_SIZE),Math.floorDiv((int)y,CHUNK_SIZE)),object,prefix,prefix.equals("J:")?"generator":"power-consumer");
+                if(!fingerprint.equals(identity.fingerprint))continue;
+                var binding=new UtilityBinding(actor,object,fingerprint);
+                // Saved inspection is historical person knowledge; reacquire current inspection before any operation.
+                binding.revisions.put(revision,Boolean.FALSE);
+                var bindings=UTILITY_BINDINGS.computeIfAbsent(shell,ignored->new LinkedHashMap<>());bindings.put(id,binding);
+                while(bindings.size()>MAX_INSPECTION_OPTIONS)bindings.remove(bindings.keySet().iterator().next());
+                return binding;
+            }
+        }
+        return null;
+    }
+
+    private static void rememberUtility(SAOIsoPlayerShell shell, IsoObject object, Source source) {
+        var bindings = UTILITY_BINDINGS.computeIfAbsent(shell, ignored -> new LinkedHashMap<>());
+        var binding = bindings.get(source.id);
+        if (binding == null || binding.object.get() != object || !binding.fingerprint.equals(source.fingerprint)
+                || !binding.actor.equals(SAOConceptObservation.actor(shell))) {
+            binding = new UtilityBinding(SAOConceptObservation.actor(shell), object, source.fingerprint); bindings.put(source.id, binding);
+        }
+        binding.revisions.put(source.revision, Boolean.TRUE.equals(source.inspected));
+        while (binding.revisions.size() > 16) binding.revisions.remove(binding.revisions.keySet().iterator().next());
+        while (bindings.size() > MAX_INSPECTION_OPTIONS) bindings.remove(bindings.keySet().iterator().next());
+    }
+
+    private static final class UtilityBinding {
+        final String actor, fingerprint;
+        final java.lang.ref.WeakReference<IsoObject> object;
+        final java.lang.ref.WeakReference<IsoGridSquare> square;
+        final LinkedHashMap<String, Boolean> revisions = new LinkedHashMap<>();
+        UtilityBinding(String actor, IsoObject object, String fingerprint) {
+            this.actor = actor; this.fingerprint = fingerprint;
+            this.object = new java.lang.ref.WeakReference<>(object); this.square = new java.lang.ref.WeakReference<>(object.getSquare());
+        }
+    }
+
+    private static Source utilitySource(Snapshot snapshot, IsoObject object, String prefix, String kind) {
+        var square = object.getSquare(); long building = buildingId(square); String token = sourceToken(snapshot, object);
+        String identity = object.getClass().getName() + "|" + value(object.getSpriteName()) + "|" + kind + "|" + building
+            + "|" + square.getX() + "|" + square.getY() + "|" + square.getZ() + "|" + token;
+        return new Source(prefix + token, digest(identity), kind, square.getX(), square.getY(), square.getZ(), building, true);
+    }
+
+    private static Source generatorSource(Snapshot snapshot, IsoGenerator generator, boolean inspected) {
+        Source source = utilitySource(snapshot, generator, "J:", "generator"); source.inspected = inspected;
+        if (inspected) {
+            source.generatorCondition = generator.getCondition(); source.generatorFuel = generator.getFuel(); source.generatorMaxFuel = generator.getMaxFuel();
+            source.connected = generator.isConnected(); source.active = generator.isActivated(); source.outside = generator.getSquare().isOutside();
+        }
+        source.finish(); return source;
+    }
+
+    private static Source powerConsumerSource(Snapshot snapshot, IsoObject object) {
+        Source source = utilitySource(snapshot, object, "E:", "power-consumer"); source.inspected = true;
+        // The native static query is fresh; checkObjectPowered caches for one IngameState tick.
+        source.powered = ItemContainer.isObjectPowered(object, true); source.finish(); return source;
     }
 
     /** Visible current-floor sites. Recipe-specific clearance remains native build authority. */
@@ -1457,6 +1731,13 @@ public final class SAOWorldSources {
                 .append("|access=").append(source.access)
                 .append("|container=").append(field(source.containerType));
             if (!source.plumbing.isEmpty()) out.append("|plumbing=").append(source.plumbing);
+            if (source.inspected != null) out.append("|inspected=").append(source.inspected ? 1 : 0);
+            if (source.generatorCondition != null) out.append("|condition=").append(source.generatorCondition);
+            if (source.generatorFuel != null) out.append("|fuel=").append(number(source.generatorFuel)).append("|maxFuel=").append(number(source.generatorMaxFuel));
+            if (source.connected != null) out.append("|connected=").append(source.connected ? 1 : 0);
+            if (source.active != null) out.append("|active=").append(source.active ? 1 : 0);
+            if (source.outside != null) out.append("|outside=").append(source.outside ? 1 : 0);
+            if (source.powered != null) out.append("|powered=").append(source.powered ? 1 : 0);
             for (Map.Entry<String, Float> entry : source.quantities.entrySet()) {
                 out.append("|q:").append(entry.getKey()).append('=')
                     .append(number(entry.getValue()));
@@ -1950,6 +2231,9 @@ public final class SAOWorldSources {
         final Map<String, Float> quantities = new LinkedHashMap<>();
         String containerType = "";
         String plumbing = "";
+        Boolean inspected, connected, active, outside, powered;
+        Integer generatorCondition;
+        Float generatorFuel, generatorMaxFuel;
         String revision = "";
         String state = "unknown";
         String access = "unknown";
@@ -1969,6 +2253,9 @@ public final class SAOWorldSources {
             items.sort(Comparator.comparingInt(row -> row.itemId));
             StringBuilder exact = new StringBuilder(explored ? "explored\n" : "unknown\n");
             if (!plumbing.isEmpty()) exact.append("plumbing=").append(plumbing).append('\n');
+            if (inspected != null) exact.append("utility=").append(kind).append(':').append(inspected).append(':')
+                .append(generatorCondition).append(':').append(generatorFuel).append(':').append(generatorMaxFuel).append(':')
+                .append(connected).append(':').append(active).append(':').append(outside).append(':').append(powered).append('\n');
             for (ItemRow item : items) {
                 item.addQuantities(quantities);
                 exact.append(item.revisionLine()).append('\n');
@@ -1976,6 +2263,8 @@ public final class SAOWorldSources {
             revision = digest(exact.toString());
             if (!explored) {
                 state = "unknown";
+            } else if ("generator".equals(kind) || "power-consumer".equals(kind)) {
+                state = "available";
             } else if ("fluid".equals(kind)) {
                 state = !items.isEmpty() && items.get(0).amount > 0.0f
                     ? "available" : "spent";
@@ -2089,6 +2378,9 @@ public final class SAOWorldSources {
             if (SAONeeds.wantsMaterial(item, "pipe-wrench")) out.add("pipe-wrench");
             if (SAONeeds.wantsMaterial(item, "garbage-bag")) out.add("garbage-bag");
             if (SAONeeds.wantsMaterial(item, "tarp")) out.add("tarp");
+            if (SAONeeds.wantsMaterial(item, "electronics-scrap")) out.add("electronics-scrap");
+            if (SAONeeds.wantsMaterial(item, "petrol")) out.add("petrol");
+            if (SAONeeds.wantsMaterial(item, "generator-manual")) out.add("generator-manual");
             if (SAONeeds.wantsMaterial(item, "plank")) out.add("plank");
             if (SAONeeds.wantsMaterial(item, "log")) out.add("log");
             if (SAONeeds.wantsMaterial(item, "saw")) out.add("saw");
