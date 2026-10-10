@@ -459,9 +459,10 @@ local function validEvent(e)
         end
         if e.kind=="tool-repair" then
             local sharp = e.sourceId=="Base.SharpenBlade" or e.sourceId=="Base.SharpenBladePoorlyWithFile"
-            return e.category=="construction" and (e.sourceId=="Base.FixSaw" or sharp)
+            local fixed = text(e.sourceId,160) and e.sourceId:sub(1,7)=="fixing:"
+            return e.category=="construction" and (e.sourceId=="Base.FixSaw" or sharp or fixed)
                 and (sharp and e.effectMetric=="sharpness" or not sharp and (e.effectMetric==nil or e.effectMetric=="condition"))
-                and (e.conditionLoss==nil or sharp and finite(e.conditionLoss) and e.conditionLoss>=0 and e.conditionLoss<=1000000000)
+                and (e.conditionLoss==nil or (sharp or fixed) and finite(e.conditionLoss) and e.conditionLoss>=0 and e.conditionLoss<=1000000000)
                 and (e.headConditionLoss==nil or sharp and finite(e.headConditionLoss) and e.headConditionLoss>=0 and e.headConditionLoss<=1000000000)
                 and finite(e.beforeValue) and (e.beforeValue>0 or sharp and e.beforeValue==0) and e.beforeValue<=1000000000
                 and finite(e.afterValue) and e.afterValue>=0 and e.afterValue<=1000000000
@@ -787,7 +788,7 @@ local function rememberPlanEvidence(state, e, yes)
         b.planKind, b.category, b.sourceId, b.itemType = "construct", "construction", e.originalFixtureSourceId, e.entityId
     elseif e.kind == "tool-repair" then
         retain("tool-repair", "construction", e.afterValue>e.beforeValue)
-        if e.effectMetric=="sharpness" then
+        if e.effectMetric=="sharpness" or text(e.sourceId,160) and e.sourceId:sub(1,7)=="fixing:" then
             retain("tool-repair", "construction", (e.conditionLoss or 0)>0 or (e.headConditionLoss or 0)>0, "damage")
         end
     elseif e.kind == "study-outcome" then retain("study", "learning", true)
@@ -876,14 +877,14 @@ local function extendedEvidence(modelId,state,e)
         if modelId=="ordinary" then
             remember(state,"direct:tool-repair:"..e.sourceId..":"..e.itemType,
                 "Native "..e.sourceId.." changed held "..e.itemType.." "..(e.effectMetric or "condition").." from "..e.beforeValue.." to "..e.afterValue,improved,e)
-            if e.effectMetric=="sharpness" then
+            if e.effectMetric=="sharpness" or text(e.sourceId,160) and e.sourceId:sub(1,7)=="fixing:" then
                 remember(state,"direct:tool-damage:"..e.sourceId..":"..e.itemType,
                     "Observed condition loss "..(e.conditionLoss or 0).." and head condition loss "..(e.headConditionLoss or 0),
                     (e.conditionLoss or 0)>0 or (e.headConditionLoss or 0)>0,e)
             end
         else
             relation(state,"transform","repair:"..e.sourceId,"tool:"..e.itemType,improved,e,"manufacturing")
-            if e.effectMetric=="sharpness" then
+            if e.effectMetric=="sharpness" or text(e.sourceId,160) and e.sourceId:sub(1,7)=="fixing:" then
                 relation(state,"vary","repair:"..e.sourceId,"damage:"..e.itemType,
                     (e.conditionLoss or 0)>0 or (e.headConditionLoss or 0)>0,e,"manufacturing")
             end
@@ -1154,7 +1155,7 @@ local function validConsequences(candidate)
                 or c.condition ~= nil then return false end
         elseif c.kind == "tool-repair" then
             if c.category ~= "construction" or (c.sourceId ~= "Base.FixSaw" and c.sourceId ~= "Base.SharpenBlade"
-                and c.sourceId ~= "Base.SharpenBladePoorlyWithFile") or not text(c.itemType,160)
+                and c.sourceId ~= "Base.SharpenBladePoorlyWithFile" and not (text(c.sourceId,160) and c.sourceId:sub(1,7)=="fixing:")) or not text(c.itemType,160)
                 or c.condition~=nil and c.condition~="damage" then return false end
         elseif c.kind == "acquire" then
             if c.category ~= "food" and c.category ~= "water" then return false end

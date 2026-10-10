@@ -67,7 +67,13 @@ def main():
     old_units = next(ast.literal_eval(node.value) for node in previous.body
                      if isinstance(node, ast.Assign)
                      and any(isinstance(target, ast.Name) and target.id == "UNITS" for target in node.targets))
-    check("A/B tier rows unchanged", v.UNITS == [row for row in old_units if row[0][0] in "AB"])
+    reconciliation = json.loads((ROOT / "Batches/VERSION_SCOPE_RECONCILIATION.json").read_bytes())
+    assessed_ab = [row for row in reconciliation["rows"] if row["batch"].startswith(("A", "B"))]
+    prior_ab = [row for row in old_units if row[0][0] in "AB"]
+    check("A/B historical labels and prior tiers preserved",
+          [(row["batch"], row["previousTier"]) for row in assessed_ab] == [(row[0], row[1]) for row in prior_ab])
+    check("A/B current credit follows complete feature-scope assessment",
+          v.UNITS == [(row["batch"], row["tier"], row["reason"]) for row in assessed_ab])
     generations = c.historical_generations(ROOT, manifest)
     check("source generation coverage", set(generations[manifest["source_generation"]]) == c.SOURCE_IDS
           and len(set().union(*generations.values())) == 127)
@@ -191,6 +197,13 @@ def main():
                               "D4", later_units, aggregate, "D4"))
     check("closed parent can declare next scope before it opens",
           not v.post_c_faults(aggregate_rows, None, fixture_units, aggregate, "D4"))
+    check("OPEN parent building subset cannot receive minor completion credit",
+          any("building the OPEN D3" in fault for fault in v.post_c_faults(
+              fixture_rows, "D3", fixture_predecessors + [("D3.1", "minor", "Unfinished feature subset.")], {}, "D3")))
+    check("deeper OPEN parent subset cannot bypass completed-feature credit guard",
+          any("building the OPEN D3" in fault for fault in v.post_c_faults(
+              dict.fromkeys(["D1", "D2", "D3.1.1"]), "D3",
+              fixture_predecessors + [("D3.1.1", "minor", "Nested unfinished feature subset.")], {}, "D3")))
     for name, indexed, credit, aggregations, active, expected in (
         ("duplicate child credit refuses", fixture_rows, fixture_units + [fixture_units[-1]], {}, "D3", "duplicate"),
         ("unclassified child closure refuses", fixture_rows, fixture_predecessors, {}, "D3", "coverage"),

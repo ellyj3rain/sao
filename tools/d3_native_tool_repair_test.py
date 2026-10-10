@@ -61,6 +61,7 @@ def execute(out: Path, sources: dict[str, str], classes: Path, expected: set[str
 def main() -> int:
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path);parser.add_argument('--required',action='store_true')
+    parser.add_argument('--control',action='append',help='run selected named controls; unchanged controls retain their existing qualified evidence')
     parser.add_argument('--controls',choices=('all','portable'),default='all',
                         help='portable runs changed maintenance contracts; unchanged custody controls retain prior qualification')
     args=parser.parse_args()
@@ -147,10 +148,37 @@ def main() -> int:
         selected={'native-producer','result-condition-bound','native-completion-credit','sharpen-target-gate',
                   'selected-effect-measurement','result-sharpness-bound','ordinary-inventory-filter'}
         mutations=[m for m in mutations if m[0] in selected]
+    if args.control:
+        names={m[0] for m in mutations}
+        if any(name not in names for name in args.control):raise ValueError("unknown selected control")
+        mutations=[m for m in mutations if m[0] in args.control]
     for name,filename,old,new,detector in mutations:
-        variant=dict(sources);count=variant[filename].count(old)
-        if count!=1:controls.append({'name':name,'detected':False,'mutationMatches':count});continue
-        variant[filename]=variant[filename].replace(old,new,1)
+        variant=dict(sources)
+        text=variant[filename];prefix,suffix="",""
+        scope=None
+        if name=="material-binding":
+            prefix,body=text.split("local function craftBound(rt,materials)",1)
+            body,suffix=body.split("local function craftSelection(rt)",1)
+            prefix+="local function craftBound(rt,materials)";suffix="local function craftSelection(rt)"+suffix
+            scope="craftBound";text=body
+        elif name=="native-ack":
+            prefix,body=text.split("local function craftRetired(rt)",1)
+            body,suffix=body.split("local function craftMeasurement(rt)",1)
+            prefix+="local function craftRetired(rt)";suffix="local function craftMeasurement(rt)"+suffix
+            scope="craftRetired";text=body
+        elif name=="transfer-cosmetic-cleanup":
+            prefix,body=text.split("local function craftGuardStop(rt,c,transfer)",1)
+            body,suffix=body.split("local function craftTransfer(rt,item)",1)
+            prefix+="local function craftGuardStop(rt,c,transfer)";suffix="local function craftTransfer(rt,item)"+suffix
+            scope="craftGuardStop";text=body
+        elif name in {"result-condition-bound","native-completion-credit"}:
+            prefix,body=text.split("local function repairOutcome(id,row)",1)
+            body,suffix=body.split("craftOutcome=function(id,row)",1)
+            prefix+="local function repairOutcome(id,row)";suffix="craftOutcome=function(id,row)"+suffix
+            scope="repairOutcome";text=body
+        count=text.count(old)
+        if count!=1:controls.append({'name':name,'detected':False,'mutationMatches':count,'scope':scope});continue
+        variant[filename]=prefix+text.replace(old,new,1)+suffix
         variant['run.lua']=f"__runRepairControl('{name}')"
         result=execute(out / name,variant,classes,{detector})
         result.update(name=name,detector=detector,detected=result['exitCode']==0 and result['checks'].get(detector)=='false')

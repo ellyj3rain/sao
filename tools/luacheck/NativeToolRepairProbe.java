@@ -159,7 +159,10 @@ public final class NativeToolRepairProbe {
                 zombie.network.GameServer.server=false;logic=null;return true;
             case "seed":
                 Field randomField=zombie.core.random.RandAbstract.class.getDeclaredField("rand");randomField.setAccessible(true);
-                ((java.util.Random)randomField.get(zombie.core.random.RandStandard.INSTANCE)).setSeed(((Number)value).longValue());return true;
+                // The installed generator keeps its cell state independently of Random.setSeed.
+                // Reconstruct the same native four-byte-seeded generator for a repeatable receiver.
+                randomField.set(zombie.core.random.RandStandard.INSTANCE,new org.uncommons.maths.random.CellularAutomatonRNG(
+                    ByteBuffer.allocate(4).putInt(((Number)value).intValue()).array()));return true;
             case "addFloorTarget":
                 zombie.network.GameServer.server=true;floorTarget=module.getItem("Saw").InstanceItem(null);floorTarget.setID(703);floorTarget.setConditionNoSound(1);
                 zombie.network.GameServer.server=false;alternateFloor=new ItemContainer();alternateFloor.setType("floor");

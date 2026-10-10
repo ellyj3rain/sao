@@ -2396,7 +2396,7 @@ end
 
 -- Native inventory and exact private source offers supply the resource plan.
 -- Physical rows stay in their owners; this context carries bounded scalars.
-function Ctl.resourceContext(id, agent, body, needs, category, pressure, hydrationIntent)
+function Ctl.resourceContext(id, agent, body, needs, category, pressure, hydrationIntent, expectedItemType)
     local context = { category = category, pressure = pressure, needs = needs,
         tick = tickCount, position = { x = body:getX(), y = body:getY(), z = body:getZ() },
         atHours = SAO.History.countyHours(), carriedReady = 0, carriedRaw = 0,
@@ -2471,7 +2471,7 @@ function Ctl.resourceContext(id, agent, body, needs, category, pressure, hydrati
             local place = { id = placeId, sourceId = belief.sourceId, cx = belief.cx, cy = belief.cy,
                 z = belief.z, minX = belief.minX, minY = belief.minY, maxX = belief.maxX, maxY = belief.maxY }
             local material = hydrationIntent == true and category == "water" and "drink" or category
-            local offers = SAO.WorldSources.actionOptions(place, material, id, body, 1, "standing", "acquire")
+            local offers = SAO.WorldSources.actionOptions(place, material, id, body, 1, "standing", "acquire", expectedItemType)
             for _, option in ipairs(offers and offers.options or {}) do
                 if #context.sources >= 128 then break end
                 local p = option.parameters
@@ -6182,15 +6182,22 @@ function Ctl.toolMaintenanceContext(id, agent, body)
         end
     end
     for _, option in ipairs(options) do
-        if type(option) ~= "table" or (option.toolCategory ~= "file" and option.toolCategory ~= "whetstone") then return context end
+        if type(option) ~= "table" or (option.toolCategory ~= "file" and option.toolCategory ~= "whetstone" and option.toolCategory ~= "weapons") then return context end
         local copy = {}
         for _, field in ipairs({ "recipeId", "category", "toolCategory", "effectMetric", "targetItemId",
-            "targetItemType", "condition", "maxCondition", "sharpness", "maxSharpness" }) do copy[field] = option[field] end
+            "targetItemType", "condition", "maxCondition", "sharpness", "maxSharpness", "requiredItemType", "productionKind" }) do copy[field] = option[field] end
         local tool = tools[copy.toolCategory]
+        if copy.productionKind=="fix-held-item" and option.toolItemId then
+            tool={itemId=option.toolItemId,itemType=option.toolItemType}
+        end
         if tool and tool.itemId ~= copy.targetItemId then
             copy.toolItemId, copy.toolItemType = tool.itemId, tool.itemType
-        elseif not context.sources[copy.toolCategory] and SAO.WorldSources and SAO.SourceUse then
-            context.sources[copy.toolCategory] = Ctl.resourceContext(id, agent, body, {}, copy.toolCategory, 0.5).sources
+        elseif SAO.WorldSources and SAO.SourceUse then
+            local sourceKey=copy.productionKind=="fix-held-item" and copy.recipeId or copy.toolCategory
+            if not context.sources[sourceKey] then
+                context.sources[sourceKey] = Ctl.resourceContext(id, agent, body, {}, copy.toolCategory, 0.5,
+                    nil,copy.productionKind=="fix-held-item" and copy.requiredItemType or nil).sources
+            end
         end
         context.options[#context.options + 1] = copy
     end
@@ -6219,8 +6226,8 @@ function Ctl.beginConstructionProduction(id, agent, body, tick, purpose, step)
     local production = SAO.ResourceProduction
     if not production or not step or step.status ~= "available" or step.verb ~= "produce"
         or step.owner ~= "SAO.ResourceProduction" or (step.productionKind ~= "saw-logs"
-            and step.productionKind ~= "repair-held-item") then return false end
-    local repairing = step.productionKind == "repair-held-item"
+            and step.productionKind ~= "repair-held-item" and step.productionKind ~= "fix-held-item") then return false end
+    local repairing = step.productionKind == "repair-held-item" or step.productionKind=="fix-held-item"
     if not setState(agent, id, "RESOURCE", repairing and "maintains an exact carried tool"
         or "makes native planks for a retained boarding task") then return false end
     if production.begin(id, body, step, { purposeId = purpose.id, purposeStepId = step.id })
@@ -6666,16 +6673,18 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
             for _, option in ipairs(maintenanceContext.options) do
                 local before, maximum = option.condition, option.maxCondition
                 if option.effectMetric == "sharpness" then before, maximum = option.sharpness, option.maxSharpness end
-                if type(before) == "number" and type(maximum) == "number" and maximum > 0 and before < maximum then
+                local sources=maintenanceContext.sources[option.recipeId] or maintenanceContext.sources[option.toolCategory]
+                local means=option.toolItemId~=nil or sources and #sources>0
+                if means and type(before) == "number" and type(maximum) == "number" and maximum > 0 and before < maximum then
                     local deficit = 1 - before / maximum
                     if not best or deficit > value then best, value = option, deficit end
                 end
             end
             if best and #candidates < 16 then
-                local sources = maintenanceContext.sources[best.toolCategory]
+                local sources = maintenanceContext.sources[best.recipeId] or maintenanceContext.sources[best.toolCategory]
                 local consequences = {{ kind = "tool-repair", category = "construction", sourceId = best.recipeId,
                     itemType = best.targetItemType, value = value }}
-                if best.effectMetric == "sharpness" then
+                if best.effectMetric == "sharpness" or best.productionKind=="fix-held-item" then
                     consequences[#consequences + 1] = { kind = "tool-repair", category = "construction", sourceId = best.recipeId,
                         itemType = best.targetItemType, condition = "damage", value = -0.25 }
                 end

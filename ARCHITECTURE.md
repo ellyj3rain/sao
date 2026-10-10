@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `4.0.0.0-pre-alpha` |
+| Version | `2.6.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2444,3 +2444,7 @@ capture/frame/world intervals persist without interpolation. Speakeasy owns
 source-bound relay validation, Mousecat owns shared decode and presentation.
 Native cutaway retains the engine alpha owner. Observation produces no NPC
 knowledge, result receipt or training admission by itself.
+
+## Native firearm fixing and equipment continuation (D3.7)
+
+The existing ResourceProduction physical-work claim owns native-item fixing. Registered definitions and exact target/fixer identity determine admission; private source options filter the required donor type before their cap, and SourceUse preserves that filter through reservation/revalidation. Native raw root payment order is prepared and guarded for the selected eligible donor. Installed ISFixAction/FixingManager determine payment and condition effect, including failure consumption and returned parts, magazines and ammunition. ISEquipWeaponAction restores the same target, with captured already-equipped completion accepted only alongside measured exact current hands. The planner retains equipment purpose; both private models consume authenticated benefit/damage with independent replay. Whole queue identity, cancellation acknowledgement and plain saved state retain the existing owner.

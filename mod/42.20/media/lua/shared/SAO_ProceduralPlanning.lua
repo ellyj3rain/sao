@@ -1753,8 +1753,8 @@ local function repairPolicy(recipeId)
         ok, policy = true, { recipeId = recipeId, category = "saw", toolCategory = "file", effectMetric = "condition" }
     end
     if ok and type(policy) == "table" and policy.recipeId == recipeId
-        and (policy.category == "saw" or policy.category == "blade")
-        and (policy.toolCategory == "file" or policy.toolCategory == "whetstone")
+        and (policy.category == "saw" or policy.category == "blade" or policy.category == "weapon")
+        and (policy.toolCategory == "file" or policy.toolCategory == "whetstone" or policy.toolCategory == "weapons")
         and (policy.effectMetric == "condition" or policy.effectMetric == "sharpness") then return policy end
 end
 
@@ -1771,7 +1771,7 @@ local function repairStep(option, policy, status)
     return { id = "repair-held:" .. policy.recipeId .. ":" .. option.targetItemId
             .. ":" .. policy.effectMetric .. ":" .. tostring(before),
         verb = "produce", owner = "SAO.ResourceProduction", token = "resource:repaired",
-        target = policy.recipeId, recipeId = policy.recipeId, productionKind = "repair-held-item",
+        target = policy.recipeId, recipeId = policy.recipeId, productionKind = policy.productionKind or "repair-held-item",
         category = policy.category, toolCategory = policy.toolCategory, effectMetric = policy.effectMetric,
         targetItemId = option.targetItemId, targetItemType = option.targetItemType,
         toolItemId = option.toolItemId, toolItemType = option.toolItemType, status = status }
@@ -1812,7 +1812,15 @@ function P.planToolMaintenance(id, context)
             and option.effectMetric == policy.effectMetric then
             local key = "maintain-tool:" .. option.targetItemId .. ":" .. option.targetItemType
             local purpose = purposeByKey(s, key)
-            local source, delayed = materialSource(purpose or {}, context.sources and context.sources[policy.toolCategory], policy.toolCategory, at)
+            local known = context.sources and (context.sources[option.recipeId] or context.sources[policy.toolCategory])
+            if policy.productionKind=="fix-held-item" then
+                local matching={}
+                for _,source in ipairs(type(known)=="table" and known or {}) do
+                    if source.itemType==option.requiredItemType and tostring(source.itemId)~=option.targetItemId then matching[#matching+1]=source end
+                end
+                known=matching
+            end
+            local source, delayed = materialSource(purpose or {}, known, policy.toolCategory, at)
             local step = repairStep(option, policy, "available")
             local heldTool = type(option.toolItemId) == "string" and option.toolItemId ~= ""
                 and type(option.toolItemType) == "string" and option.toolItemType ~= ""
@@ -1825,7 +1833,7 @@ function P.planToolMaintenance(id, context)
             if not offered[choice] then
                 local consequences = {{ kind = "tool-repair", category = "construction",
                     sourceId = policy.recipeId, itemType = option.targetItemType, value = 1 - before / maximum }}
-                if policy.effectMetric == "sharpness" then
+                if policy.effectMetric == "sharpness" or policy.productionKind=="fix-held-item" then
                     consequences[#consequences + 1] = { kind = "tool-repair", category = "construction",
                         sourceId = policy.recipeId, itemType = option.targetItemType, condition = "damage", value = -0.25 }
                 end
@@ -3500,7 +3508,7 @@ function P.consumeCraftProductionResult(id, receipt)
     if not canonical or canonical.actorId ~= id or canonical.id ~= receipt.id
         or canonical.purposeId ~= receipt.purposeId or canonical.kind ~= "saw-logs"
         or canonical.recipeId ~= "Base.SawLogs" or canonical.token ~= "resource:crafted"
-        or canonical.nativeOwner ~= "ISHandcraftAction" or not finite(canonical.atHours)
+        or canonical.nativeOwner ~= (canonical.kind=="fix-held-item" and "ISFixAction" or "ISHandcraftAction") or not finite(canonical.atHours)
         or canonical.atHours > nowHours() or (canonical.status ~= "completed"
             and canonical.status ~= "interrupted" and canonical.status ~= "failed") then return false end
     local s = state(id)
@@ -3535,7 +3543,7 @@ end
 
 function P.admitRepairProduction(id, work)
     if type(work) ~= "table" or type(work.id) ~= "string" or work.actorId ~= id
-        or work.kind ~= "repair-held-item" then return false end
+        or (work.kind ~= "repair-held-item" and work.kind ~= "fix-held-item") then return false end
     local policy = repairPolicy(work.recipeId)
     if not policy or work.category ~= policy.category
         or work.toolCategory and work.toolCategory ~= policy.toolCategory
@@ -3566,9 +3574,9 @@ function P.consumeRepairProductionResult(id, receipt)
     local owner = SAO.ResourceProduction
     local canonical = owner and owner.outcome and owner.outcome(id, receipt.id)
     if not canonical or canonical.actorId ~= id or canonical.id ~= receipt.id
-        or canonical.purposeId ~= receipt.purposeId or canonical.kind ~= "repair-held-item"
+        or canonical.purposeId ~= receipt.purposeId or (canonical.kind ~= "repair-held-item" and canonical.kind ~= "fix-held-item")
         or canonical.token ~= "resource:repaired"
-        or canonical.nativeOwner ~= "ISHandcraftAction" or not finite(canonical.atHours)
+        or canonical.nativeOwner ~= (canonical.kind=="fix-held-item" and "ISFixAction" or "ISHandcraftAction") or not finite(canonical.atHours)
         or canonical.atHours > nowHours() or (canonical.status ~= "completed"
             and canonical.status ~= "interrupted" and canonical.status ~= "failed") then return false end
     local policy = repairPolicy(canonical.recipeId)
@@ -3576,6 +3584,8 @@ function P.consumeRepairProductionResult(id, receipt)
         or canonical.toolCategory and canonical.toolCategory ~= policy.toolCategory
         or canonical.effectMetric and canonical.effectMetric ~= policy.effectMetric
         or policy.effectMetric == "sharpness" and canonical.effectMetric ~= "sharpness" then return false end
+    if canonical.kind=="fix-held-item" and (policy.productionKind~="fix-held-item"
+        or canonical.status=="completed" and (not canonical.paymentConsumed or not canonical.returnsMeasured or not canonical.reequipped)) then return false end
     local s = state(id)
     local purpose = s and s.purposes[canonical.purposeId]
     if not purpose or purpose.status == "abandoned" then return true, "purpose-retired" end

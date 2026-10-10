@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `4.0.0.0-pre-alpha` |
+| Version | `2.6.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -103,3 +103,7 @@ is OPEN. Its first material-work join and scoped native evidence are recorded
 there; the whole domain continues before D4-D6. [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is CLOSED with exact private input acquisition, native plank crafting and retained construction integration. SESSION_STATE describes current standing and the child's once-only delivered version credit.
 
 The CLOSED [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md) adds exact native saw maintenance, private file acquisition, measured tool effects and authenticated feedback within the same construction purpose. The CLOSED [D3.3](Batches/D3.3-20261010-0622Z-2222PST-portable-tool-maintenance.md) extends held-tool upkeep to portable blade sharpening and ordinary kit tending with private file/whetstone means, distinct measured benefit/damage and authenticated saved experience. The OPEN D3 parent retains full module scope and remaining obligations.
+
+## Feature-scope replay and D3.7
+
+[Batches/VERSION_SCOPE_RECONCILIATION.json](Batches/VERSION_SCOPE_RECONCILIATION.json) is the regulatory complete historical scope assessment; [the transition](Batches/Transitions/VERSION-20261010-feature-scope-credit.md) supersedes prior current tier projections while retaining original labels, source bytes and published versions. The exact prior generation is historical under Batches/history/version-20261010-before-scope/. [D3.7](Batches/D3.7-20261010-1903Z-1203PST-native-item-fixing.md) closes native item fixing through privately intended equipment reuse. D3 remains OPEN, and future children/building increments use kohai under the canonical GZDS/Neo scope rule.

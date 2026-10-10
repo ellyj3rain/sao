@@ -6,7 +6,8 @@ local R = SAO.ResourceProduction
 local craftBegin, craftInterrupt, craftTick, craftOutcome, craftRecover
 local plumbBegin, plumbInterrupt, plumbTick, plumbOutcome, plumbRecover, plumbOptions
 local collector
-local function nativeCraftKind(kind) return kind=="saw-logs" or kind=="repair-held-item" end
+local fixing
+local function nativeCraftKind(kind) return kind=="saw-logs" or kind=="repair-held-item" or kind=="fix-held-item" end
 local KNOWN_FIXTURE_SEARCH_RADIUS = 32
 local MAX_CARRIED_RELIEF_ITEMS = 240
 local runtime = {}
@@ -217,7 +218,7 @@ end
 local function reconcile(id)
     local rec, planning = SAO.Identity.get(id), SAO.ProceduralPlanning
     for _, receipt in ipairs(rec and rec.resourceProductionOutcomes or {}) do
-        local consumer = planning and (receipt.kind == "repair-held-item" and planning.consumeRepairProductionResult
+        local consumer = planning and ((receipt.kind == "repair-held-item" or receipt.kind == "fix-held-item") and planning.consumeRepairProductionResult
             or receipt.kind == "saw-logs" and planning.consumeCraftProductionResult
             or not nativeCraftKind(receipt.kind) and planning.consumeProductionResult)
         local result = receipt.kind == "plumb-fixture" and plumbOutcome(id, receipt)
@@ -334,6 +335,7 @@ local REPAIR_POLICIES={
     ["Base.SharpenBlade"]={category="blade",toolCategory="whetstone",effectMetric="sharpness"},
     ["Base.SharpenBladePoorlyWithFile"]={category="blade",toolCategory="file",effectMetric="sharpness"}}
 function R.repairPolicy(recipeId)
+    if fixing and fixing.policy then local p=fixing.policy(recipeId);if p then return p end end
     local p=REPAIR_POLICIES[recipeId]
     return p and {recipeId=recipeId,category=p.category,toolCategory=p.toolCategory,effectMetric=p.effectMetric} or nil
 end
@@ -374,6 +376,7 @@ local CRAFT_FIELDS={id=true,workId=true,sequence=true,actorId=true,kind=true,cat
     beforeHeadCondition=true,afterHeadCondition=true,maxHeadCondition=true,
     purposeDelivered=true,experienceDelivered=true}
 local function craftIdentity(id, row)
+    if row and row.kind=="fix-held-item" then return fixing and fixing.identity(id,row) or false end
     if not (type(row)=="table" and not getmetatable(row) and row.actorId==id
         and row.id=="resource-production/"..tostring(id).."/"..tostring(row.sequence)
         and integer(row.sequence) and row.sequence>0 and nativeCraftKind(row.kind)
@@ -449,6 +452,7 @@ local function repairOutcome(id,row)
     return out
 end
 craftOutcome=function(id,row)
+    if row and row.kind=="fix-held-item" then return fixing and fixing.outcome(id,row) end
     local rec=SAO.Identity.get(id)
     if not craftLedger(rec) or not craftIdentity(id,row) or row.sequence>rec.resourceProductionSequence
         or row.workId~=row.id or row.nativeOwner~="ISHandcraftAction" or not textId(row.detail)
@@ -596,6 +600,7 @@ function R.maintenanceOptions(id,body)
             end
             end
         end
+        for _,option in ipairs(fixing.options(id,body)) do if #out>=32 then break end;out[#out+1]=option end
         return out
     end)
     return ok and options or {}
@@ -604,7 +609,7 @@ local function craftPurposeTarget(p,work)
     local material=p and p.materialWork
     if not material or material.entryKey~=work.entryKey then return false end
     if material.operation=="board" then return true end
-    return work.kind=="repair-held-item" and material.operation=="maintain-tool"
+    return (work.kind=="repair-held-item" or work.kind=="fix-held-item") and material.operation=="maintain-tool"
         and material.entryKey=="held-item:"..work.targetItemId
         and material.targetItemId==work.targetItemId and material.targetItemType==work.targetItemType
 end
@@ -619,7 +624,9 @@ local function craftPurpose(rec,work)
         or step.target~=work.recipeId or step.category~=work.category
         or not a or a.owner~=step.owner or a.correlationId~=work.id or a.stepId~=step.id
         or a.target~=step.target or not finite(a.at) or a.at<work.startedAt then return nil end
-    if work.kind=="repair-held-item" then
+    if work.kind=="fix-held-item" then
+        if not fixing.sameStep(step,work) then return nil end
+    elseif work.kind=="repair-held-item" then
         if step.targetItemId~=work.targetItemId or step.targetItemType~=work.targetItemType
             or step.toolItemId~=work.toolItemId or step.toolItemType~=work.toolItemType
             or step.toolCategory~=nil and step.toolCategory~=REPAIR_POLICIES[work.recipeId].toolCategory
@@ -630,6 +637,7 @@ local function craftPurpose(rec,work)
 end
 local function craftAnchors(rt,work)
     if work.kind~=rt.kind or work.recipeId~=rt.recipeId then return false end
+    if rt.kind=="fix-held-item" then return fixing.anchors(rt,work) end
     if rt.kind=="repair-held-item" then
         return work.targetItemId==rt.targetItemId and work.targetItemType==rt.targetItemType
             and work.toolItemId==rt.toolItemId and work.toolItemType==rt.toolItemType
@@ -657,7 +665,9 @@ local function craftBound(rt,materials)
         or body:getInventory()~=rt.inventory or body:getModData().SAOExternalToken~=rt.token
         or not craftPosition(rt.id,body) or math.abs(body:getX()-rt.x)>.01 or math.abs(body:getY()-rt.y)>.01
         or math.floor(body:getZ())~=work.z or p~=rt.purpose or step~=rt.step
-        or ISTimedActionQueue.getTimedActionQueue(body)~=rt.queue or registeredRecipe(work.recipeId)~=rt.recipe then return false end
+        or ISTimedActionQueue.getTimedActionQueue(body)~=rt.queue
+        or (rt.kind~="fix-held-item" and registeredRecipe(work.recipeId)~=rt.recipe) then return false end
+    if rt.kind=="fix-held-item" then return fixing.bound(rt,materials) end
     if materials then
         if rt.kind=="repair-held-item" then
             if not ownItem(rt,rt.target) or not ownItem(rt,rt.tool)
@@ -728,6 +738,7 @@ local function craftCapsule(action)
 end
 local function craftCurrent(c)
     return craftCapsule(c.action)==c and runtime[c.rt.id]==c.rt and c.rt.current==c
+        and ISTimedActionQueue.getTimedActionQueue(c.rt.body)==c.rt.queue
         and c.rt.queue.current==c.action and c.rt.queue.queue[1]==c.action and c.rt.queue:indexOf(c.action)==1
 end
 local function craftNativeEnded(action)
@@ -742,6 +753,7 @@ local function craftRetired(rt)
     return true
 end
 local function craftMeasurement(rt)
+    if rt.kind=="fix-held-item" then return fixing.measure(rt) end
     local work=rt.work
     if rt.kind=="repair-held-item" then
         local targetRetained=ownItem(rt,rt.target) and craftCarried(rt.body,work.targetItemId,work.targetItemType)==rt.target or false
@@ -793,7 +805,9 @@ local function craftClose(rt,status,detail)
     for _,row in ipairs(rows) do if row.id==work.id then return false end end
     if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
     local m=craftMeasurement(rt)
-    if status=="completed" and rt.kind=="repair-held-item" and not m.improved then
+    if status=="completed" and rt.kind=="fix-held-item" and (not m.improved or not m.reequipped or not m.paymentConsumed or not m.returnsMeasured) then
+        status,detail="failed","native-fixing-without-restored-equipment"
+    elseif status=="completed" and rt.kind=="repair-held-item" and not m.improved then
         status,detail="failed","native-repair-without-held-improvement"
     elseif status=="completed" and rt.kind=="saw-logs" and (not rt.nativeCompleted or not rt.nativeAttempted or not rt.paymentMeasured
         or not m.logConsumed or not m.sawRetained or not m.held or m.outputCount~=3) then
@@ -801,7 +815,8 @@ local function craftClose(rt,status,detail)
     end
     local row={}
     for key in pairs(CRAFT_FIELDS) do if key~="outputs" then row[key]=work[key] end end
-    row.workId,row.status,row.detail,row.nativeOwner=work.id,status,detail,"ISHandcraftAction"
+    if rt.kind=="fix-held-item" then row=fixing.copy(work) end
+    row.workId,row.status,row.detail,row.nativeOwner=work.id,status,detail,rt.kind=="fix-held-item" and "ISFixAction" or "ISHandcraftAction"
     row.atHours,row.endedAt=t,t
     for k,v in pairs(m) do row[k]=v end
     row.nativeCredit=status=="completed" and work.id or nil
@@ -851,11 +866,17 @@ local function craftGuardStop(rt,c,transfer)
                 pcall(function() if self.action then self.action:setLoopedAction(false) end end)
                 pcall(function() removeItemTransaction(self.transactionId,true) end)
                 self.started=false
+            elseif rt.kind=="fix-held-item" then
+                pcall(function() self.item:setJobDelta(0) end)
+                if c.kind=="equip" then
+                    pcall(function() if self.sound then rt.body:getEmitter():stopSound(self.sound) end end)
+                    pcall(function() self:restoreWeaponType() end)
+                end
             else
                 pcall(function() self:clearItemsProgressBar(false) end)
                 pcall(function() self:stopSound() end)
             end
-            rt.body:setIsFarming(false)
+            if rt.kind~="fix-held-item" then rt.body:setIsFarming(false) end
             c.ack=true; rt.queue:onCompleted(self)
         else
             c.ack=true; rt.queue:removeFromQueue(self)
@@ -986,10 +1007,14 @@ local function craftAction(rt,containers,manual,items)
 end
 craftEnqueue=function(rt,index)
     local c=rt.actions[index]
-    if not c or not craftBound(rt,true) or rt.queue.current or #rt.queue.queue>0 then
+    if not c or not craftBound(rt,not rt.nativeAttempted) or rt.queue.current or #rt.queue.queue>0 then
         return craftRefuse(rt,"craft-preparation-queue-changed")
     end
-    if c.kind=="craft" then rt.prepared=true; if not craftBound(rt,true) then return craftRefuse(rt,"craft-material-preparation-changed") end end
+    if c.kind=="fix" then
+        if not fixing.prepare(rt) then return craftRefuse(rt,"native-fixing-payment-preparation-changed") end
+        rt.prepared=true
+    end
+    if c.kind=="craft" or c.kind=="fix" then rt.prepared=true; if not craftBound(rt,true) then return craftRefuse(rt,"craft-material-preparation-changed") end end
     rt.current=c;rt.action=c.action
     if not SAO.Needs.queueVerified(c.action) then return craftRefuse(rt,"native-craft-queue-refused") end
     return true
@@ -1100,6 +1125,384 @@ local function repairBegin(id,body,step,context)
     if not craftBound(rt,true) or not craftEnqueue(rt,1) then craftInterrupt(id,body,"native-repair-admission-refused");return false end
     return true
 end
+
+-- Registered native item fixing uses the same physical-work claim and native
+-- acknowledgement machinery; FixingManager owns payment and weapon contents.
+fixing={}
+function fixing.copy(v,depth)
+    depth=depth or 0;if depth>8 then return nil end
+    if type(v)~="table" then return v end
+    if getmetatable(v) then return nil end
+    local out,n={},0
+    for k,x in pairs(v) do
+        n=n+1;if n>160 or type(k)~="string" and type(k)~="number" then return nil end
+        local kind=type(x)
+        if kind~="table" and kind~="string" and kind~="number" and kind~="boolean" then return nil end
+        local copied=fixing.copy(x,depth+1);if copied==nil then return nil end;out[k]=copied
+    end
+    return out
+end
+function fixing.install()
+    local ok=pcall(function() require "TimedActions/ISFixAction";require "TimedActions/ISEquipWeaponAction";require "TimedActions/ISInventoryTransferAction" end)
+    return ok and FixingManager and ScriptManager and ScriptManager.instance and ArrayList and ISFixAction and ISEquipWeaponAction
+end
+function fixing.key(def,index)
+    return "fixing:"..def:getModule():getName().."."..def:getName()..":"..tostring(index)
+end
+function fixing.policy(key)
+    if not fixing.install() or not textId(key) or key:sub(1,7)~="fixing:" then return nil end
+    local all=ScriptManager.instance:getAllFixing(ArrayList.new())
+    for i=0,all:size()-1 do
+        local def=all:get(i)
+        for j=0,def:getFixers():size()-1 do
+            local fixer=def:getFixers():get(j)
+            if fixing.key(def,j)==key and fixer:getNumberOfUse()==1 and def:getGlobalItem()==nil then
+                return {recipeId=key,category="weapon",toolCategory="weapons",effectMetric="condition",productionKind="fix-held-item"}
+            end
+        end
+    end
+end
+function fixing.registered(body,target,key)
+    if not fixing.policy(key) then return nil end
+    local all=FixingManager.getFixes(target)
+    for i=0,all:size()-1 do
+        local def=all:get(i)
+        for j=0,def:getFixers():size()-1 do
+            local fixer=def:getFixers():get(j)
+            if fixing.key(def,j)==key then
+                local skills=fixer:getFixerSkills()
+                for n=0,(skills and skills:size() or 0)-1 do
+                    local skill=skills:get(n)
+                    if body:getPerkLevel(Perks.FromString(skill:getSkillName()))<skill:getSkillLevel() then return nil end
+                end
+                return def,fixer,i,j
+            end
+        end
+    end
+end
+function R.fixingAvailable(id,body,target,key)
+    local ok,value=pcall(function()
+        return owner(id,body) and now() and craftPosition(id,body)
+            and target and instanceof(target,"HandWeapon") and target:isRanged() and not target:isBroken()
+            and target:getCondition()>0 and target:getCondition()<target:getConditionMax() and not target:getIsCraftingConsumed()
+            and craftCarried(body,tostring(target:getID()),target:getFullType())==target
+            and ownItem({inventory=body:getInventory()},target) and fixing.registered(body,target,key)~=nil
+    end)
+    return ok and value==true
+end
+function fixing.options(id,body)
+    local out={}
+    if not fixing.install() then return out end
+    local items=SAOJavaBridge:privateCarriedItems(body)
+    if items:size()>512 then return out end
+    for n=0,items:size()-1 do
+        local target=items:get(n)
+        if instanceof(target,"HandWeapon") and target:isRanged() and target:getCondition()>0
+            and not target:isBroken() and target:getCondition()<target:getConditionMax() then
+            local defs=FixingManager.getFixes(target)
+            for i=0,defs:size()-1 do local def=defs:get(i)
+                for j=0,def:getFixers():size()-1 do
+                    local key=fixing.key(def,j)
+                    if R.fixingAvailable(id,body,target,key) then
+                        local option=fixing.policy(key);local fixer=def:getFixers():get(j)
+                        option.targetItemId,option.targetItemType=tostring(target:getID()),target:getFullType()
+                        option.condition,option.maxCondition=target:getCondition(),target:getConditionMax()
+                        option.requiredItemType=fixer:getFixerName()
+                        -- Native firearm fixers consume one same-full-type weapon. The
+                        -- private carried selection excludes reserved donors before
+                        -- native root payment order is prepared and revalidated.
+                        for donorIndex=0,items:size()-1 do
+                            local donor=items:get(donorIndex)
+                            if donor~=target and donor:getFullType()==fixer:getFixerName()
+                                and not donor:getIsCraftingConsumed()
+                                and ownItem({inventory=body:getInventory()},donor)
+                                and craftCarried(body,tostring(donor:getID()),donor:getFullType())==donor then
+                                option.toolItemId,option.toolItemType=tostring(donor:getID()),donor:getFullType()
+                                break
+                            end
+                        end
+                        out[#out+1]=option;if #out==32 then return out end
+                    end
+                end
+            end
+        end
+    end
+    return out
+end
+function fixing.sameStep(s,w)
+    return s.targetItemId==w.targetItemId and s.targetItemType==w.targetItemType
+        and s.toolItemId==w.toolItemId and s.toolItemType==w.toolItemType
+        and s.toolCategory=="weapons" and s.effectMetric=="condition"
+end
+local FIXING_FIELDS={}
+for _,key in ipairs({"id","sequence","actorId","kind","recipeId","category","effectMetric","toolCategory","token",
+    "targetItemId","targetItemType","toolItemId","toolItemType","requestedPurposeId","requestedPurposeStepId",
+    "purposeId","purposeStepId","entryKey","world","bodyToken","x","y","z","beforeCondition","maxCondition",
+    "beforeRepairCount","beforeToolCondition","fixingNum","fixerNum","startedAt","stage","status","workId",
+    "detail","nativeOwner","atHours","endedAt","nativeCredit","nativeObservability","nativeAttempted","nativeCompleted",
+    "afterCondition","afterRepairCount","targetRetained","held","paymentConsumed","returnsMeasured","reequipped",
+    "improved","fullRestoration","returnedItems","purposeDelivered","experienceDelivered"}) do FIXING_FIELDS[key]=true end
+function fixing.identity(id,w)
+    if type(w)~="table" or getmetatable(w) then return false end
+    for k,v in pairs(w) do
+        if not FIXING_FIELDS[k] or k~="returnedItems" and (type(v)~="string" and type(v)~="number" and type(v)~="boolean"
+            or type(v)=="number" and not finite(v) or type(v)=="string" and #v>512) then return false end
+    end
+    return type(w)=="table" and not getmetatable(w) and w.actorId==id and integer(w.sequence) and w.sequence>=1
+        and w.id=="resource-production/"..tostring(id).."/"..w.sequence and textId(w.purposeId) and textId(w.purposeStepId)
+        and w.kind=="fix-held-item" and w.category=="weapon" and w.toolCategory=="weapons" and w.effectMetric=="condition"
+        and w.token=="resource:repaired" and fixing.policy(w.recipeId)~=nil
+        and textId(w.targetItemId) and textId(w.targetItemType) and textId(w.toolItemId) and textId(w.toolItemType)
+        and w.targetItemId~=w.toolItemId and integer(w.beforeCondition) and w.beforeCondition>0
+        and integer(w.maxCondition) and w.beforeCondition<w.maxCondition and integer(w.beforeRepairCount)
+        and integer(w.beforeToolCondition) and finite(w.startedAt) and w.startedAt>=0
+        and textId(w.world) and (w.bodyToken==nil or textId(w.bodyToken)) and textId(w.entryKey)
+        and w.entryKey=="held-item:"..w.targetItemId and finite(w.x) and finite(w.y) and finite(w.z)
+        and integer(w.fixingNum) and integer(w.fixerNum)
+end
+function fixing.anchors(rt,w)
+    for _,key in ipairs({"targetItemId","targetItemType","toolItemId","toolItemType","beforeCondition","maxCondition",
+        "beforeRepairCount","beforeToolCondition","fixingNum","fixerNum"}) do if w[key]~=rt[key] then return false end end
+    return true
+end
+-- Match the producer's raw root traversal, including entries with stale custody
+-- or reservation flags; custody eligibility applies to the captured donor only.
+function fixing.rawDonor(rt)
+    local items=rt.inventory:getItems()
+    for i=0,items:size()-1 do local item=items:get(i)
+        if item~=rt.target and item and item:getFullType()==rt.fixer:getFixerName() then return item end
+    end
+end
+function fixing.prepare(rt)
+    if rt.target:getContainer()~=rt.inventory or rt.tool:getContainer()~=rt.inventory then return false end
+    local items=rt.inventory:getItems();local first,selected
+    for i=0,items:size()-1 do local item=items:get(i)
+        if item==rt.tool then selected=i end
+        if first==nil and item~=rt.target and item and item:getFullType()==rt.fixer:getFixerName() then first=i end
+    end
+    if first==nil or selected==nil then return false end
+    if first~=selected then local displaced=items:get(first);items:set(first,rt.tool);items:set(selected,displaced) end
+    return fixing.rawDonor(rt)==rt.tool
+end
+function fixing.bound(rt,materials)
+    if isClient() or isServer() then return false end
+    local def,fixer,i,j=fixing.registered(rt.body,rt.target,rt.recipeId)
+    if def~=rt.fixing or fixer~=rt.fixer or i~=rt.fixingNum or j~=rt.fixerNum then return false end
+    if not ownItem(rt,rt.target) or craftCarried(rt.body,rt.targetItemId,rt.targetItemType,rt.nativeAttempted and 640 or 512)~=rt.target
+        or rt.target:getConditionMax()~=rt.maxCondition then return false end
+    if rt.nativeCompleted and (rt.target:getCondition()~=rt.afterCondition
+        or rt.target:getHaveBeenRepaired()~=rt.afterRepairCount) then return false end
+    if materials then
+        if not R.fixingAvailable(rt.id,rt.body,rt.target,rt.recipeId) or not ownItem(rt,rt.tool)
+            or craftCarried(rt.body,rt.toolItemId,rt.toolItemType)~=rt.tool or rt.tool==rt.target
+            or rt.tool:getFullType()~=rt.fixer:getFixerName() or rt.tool:getIsCraftingConsumed()
+            or rt.target:getCondition()~=rt.beforeCondition or rt.target:getHaveBeenRepaired()~=rt.beforeRepairCount
+            or rt.tool:getCondition()~=rt.beforeToolCondition or not fixing.contentsEqual(rt)
+            or rt.prepared and (rt.target:getContainer()~=rt.inventory or rt.tool:getContainer()~=rt.inventory
+                or fixing.rawDonor(rt)~=rt.tool) then return false end
+    end
+    return true
+end
+function fixing.contents(rt)
+    local donor=rt.tool;rt.parts={};local parts=donor:getAllWeaponParts()
+    for i=0,parts:size()-1 do rt.parts[#rt.parts+1]=parts:get(i) end
+    rt.magazine=donor:getMagazineType();rt.clip=donor:isContainsClip()
+    rt.ammo=donor:getCurrentAmmoCount();rt.chamber=donor:haveChamber() and donor:isRoundChambered()
+    rt.ammoType=donor:getAmmoType() and donor:getAmmoType():getItemKey() or nil
+end
+function fixing.contentsEqual(rt)
+    local d=rt.tool;local parts=d:getAllWeaponParts()
+    if parts:size()~=#rt.parts or d:getMagazineType()~=rt.magazine or d:isContainsClip()~=rt.clip
+        or d:getCurrentAmmoCount()~=rt.ammo or (d:haveChamber() and d:isRoundChambered())~=rt.chamber
+        or (d:getAmmoType() and d:getAmmoType():getItemKey() or nil)~=rt.ammoType then return false end
+    for i=0,parts:size()-1 do if parts:get(i)~=rt.parts[i+1] then return false end end
+    return true
+end
+function fixing.returned(rt,before)
+    local expected,parts={},{}
+    for _,part in ipairs(rt.parts) do parts[part]=true end
+    if rt.magazine and rt.clip then expected[rt.magazine]=1 end
+    local loose=(rt.magazine and rt.clip and 0 or rt.ammo)+(rt.chamber and 1 or 0)
+    if loose>0 then expected[rt.ammoType]=(expected[rt.ammoType] or 0)+loose end
+    local rows,items={},rt.inventory:getItems()
+    for i=0,items:size()-1 do local item=items:get(i)
+        if not before[item] then
+            if item:getContainer()~=rt.inventory or #rows>=128 then return false end
+            if parts[item] then parts[item]=nil
+            elseif (expected[item:getFullType()] or 0)>0 then
+                expected[item:getFullType()]=expected[item:getFullType()]-1
+                if rt.magazine and rt.clip and item:getFullType()==rt.magazine and item:getCurrentAmmoCount()~=rt.ammo then return false end
+            else return false end
+            rows[#rows+1]={itemId=tostring(item:getID()),itemType=item:getFullType(),ammoCount=item:getCurrentAmmoCount()}
+        end
+    end
+    for _,n in pairs(expected) do if n~=0 then return false end end
+    for _ in pairs(parts) do return false end
+    rt.returnedItems=rows;return true
+end
+function fixing.measure(rt)
+    local held=ownItem(rt,rt.target) and craftCarried(rt.body,rt.targetItemId,rt.targetItemType,640)==rt.target or false
+    local completed=rt.nativeCompleted==true and held
+    local after=rt.afterCondition or rt.beforeCondition
+    local gain=completed and after>rt.beforeCondition
+    return {nativeAttempted=rt.nativeAttempted==true,nativeCompleted=completed,
+        afterCondition=after,afterRepairCount=rt.afterRepairCount or rt.beforeRepairCount,
+        targetRetained=held,held=held,paymentConsumed=rt.paymentConsumed==true,returnsMeasured=rt.returnsMeasured==true,
+        reequipped=completed and rt.reequipped==true,improved=gain,fullRestoration=gain and after>=rt.maxCondition,
+        returnedItems=fixing.copy(rt.returnedItems or {})}
+end
+function fixing.outcome(id,row)
+    for k,v in pairs(type(row)=="table" and row or {}) do
+        if not FIXING_FIELDS[k] or k~="returnedItems" and (type(v)~="string" and type(v)~="boolean" and type(v)~="number"
+            or type(v)=="number" and not finite(v) or type(v)=="string" and #v>512) then return nil end
+    end
+    local rec=SAO.Identity.get(id)
+    if not craftLedger(rec) or not fixing.identity(id,row) or row.sequence>rec.resourceProductionSequence
+        or row.workId~=row.id or row.nativeOwner~="ISFixAction" or not textId(row.detail)
+        or not finite(row.atHours) or row.atHours<row.startedAt or row.endedAt~=row.atHours
+        or row.status~="completed" and row.status~="failed" and row.status~="interrupted" then return nil end
+    for _,key in ipairs({"nativeAttempted","nativeCompleted","targetRetained","held","paymentConsumed","returnsMeasured","reequipped","improved","fullRestoration"}) do
+        if type(row[key])~="boolean" then return nil end
+    end
+    local returned=row.returnedItems
+    if type(returned)~="table" or getmetatable(returned) or #returned>128 then return nil end
+    local seen,n={},0
+    for k,v in pairs(returned) do
+        if not integer(k) or k<1 or k>#returned or type(v)~="table" or getmetatable(v)
+            or not textId(v.itemId) or not textId(v.itemType) or not integer(v.ammoCount) or seen[v.itemId]
+            or v.itemId==row.targetItemId or v.itemId==row.toolItemId then return nil end
+        for key in pairs(v) do if key~="itemId" and key~="itemType" and key~="ammoCount" then return nil end end
+        seen[v.itemId]=true;n=n+1
+    end
+    if n~=#returned then return nil end
+    if row.nativeObservability=="runtime-unavailable" then
+        if row.status~="interrupted" or row.nativeAttempted or row.nativeCompleted or row.held or row.paymentConsumed
+            or row.returnsMeasured or row.reequipped or row.improved or row.afterCondition~=nil or #returned~=0 then return nil end
+    elseif row.nativeObservability~=nil or not integer(row.afterCondition) or row.afterCondition>row.maxCondition
+        or not integer(row.afterRepairCount) or row.held~=row.targetRetained
+        or row.improved~=(row.nativeCompleted and row.held and row.afterCondition>row.beforeCondition)
+        or row.fullRestoration~=(row.improved and row.afterCondition>=row.maxCondition)
+        or row.nativeCompleted and (not row.nativeAttempted or not row.paymentConsumed or not row.returnsMeasured or not row.held)
+        or row.reequipped and not row.nativeCompleted
+        or (row.paymentConsumed or row.returnsMeasured) and not row.nativeAttempted
+        or row.nativeCompleted and row.afterRepairCount~=(row.improved and row.beforeRepairCount+1 or row.beforeRepairCount) then return nil end
+    if row.status=="completed" and (not row.nativeCompleted or not row.improved or not row.reequipped or row.nativeCredit~=row.id)
+        or row.status~="completed" and row.nativeCredit~=nil then return nil end
+    return fixing.copy(row)
+end
+local function fixingAction(rt)
+    local a=ISFixAction:new(rt.body,rt.target,rt.fixingNum,rt.fixerNum)
+    local c={rt=rt,action=a,kind="fix"}
+    a._SAOCraftBinding=function(seal) if seal==CRAFT_SEAL then return c end end
+    local valid,start,perform,complete=a.isValid,a.start,a.perform,a.complete
+    function a:serverStart() return false end
+    local function exact() return a.character==rt.body and a.item==rt.target and a.fixing==rt.fixing and a.fixer==rt.fixer
+        and a.fixingNum==rt.fixingNum and a.fixerNum==rt.fixerNum end
+    function a:isValidStart() return not c.done and exact() and craftBound(rt,true) and valid(self)==true end
+    function a:isValid() return self:isValidStart() end
+    function a:start()
+        if not craftCurrent(c) or not self:isValid() then return craftRefuse(rt,"native-fixing-start-owner-changed") end
+        local ok=pcall(start,self);if not ok then return craftRefuse(rt,"native-fixing-start-failed") end
+        rt.work.stage="fixing";return true
+    end
+    function a:perform()
+        if c.performed or c.done or not craftCurrent(c) or not craftNativeEnded(self) or not self:isValid() then return craftRefuse(rt,"native-fixing-perform-owner-changed") end
+        c.performed=true;local ok=pcall(perform,self)
+        if not ok then return craftRefuse(rt,"native-fixing-perform-failed") end
+        return true
+    end
+    function a:complete()
+        if c.done or not c.performed or craftCapsule(self)~=c or runtime[rt.id]~=rt or rt.current~=c
+            or not exact() or not craftBound(rt,true) or valid(self)~=true
+            or rt.queue:indexOf(self)~=-1 or rt.queue.current or #rt.queue.queue>0 then return craftRefuse(rt,"native-fixing-complete-owner-changed") end
+        local before={};local items=rt.inventory:getItems()
+        for i=0,items:size()-1 do before[items:get(i)]=true end
+        c.done,c.ack,rt.nativeAttempted=true,true,true
+        local ok,result=pcall(complete,self)
+        rt.paymentConsumed=not rt.inventory:containsRecursive(rt.tool)
+        rt.returnsMeasured=ok and fixing.returned(rt,before)
+        rt.afterCondition,rt.afterRepairCount=rt.target:getCondition(),rt.target:getHaveBeenRepaired()
+        rt.nativeCompleted=ok and result==true and craftBound(rt,false) and rt.paymentConsumed and rt.returnsMeasured
+        if rt.nativeCompleted and not rt.target:isBroken() and rt.target:getCondition()>0 then return craftEnqueue(rt,c.position+1) end
+        return craftClose(rt,"failed","native-fixing-result-measured")
+    end
+    craftGuardStop(rt,c,false);c.position=#rt.actions+1;rt.actions[c.position]=c;craftSavedRetirement(rt,c)
+end
+local function fixingEquip(rt)
+    local a=ISEquipWeaponAction:new(rt.body,rt.target,25,true,rt.target:isTwoHandWeapon())
+    local c={rt=rt,action=a,kind="equip"}
+    a._SAOCraftBinding=function(seal) if seal==CRAFT_SEAL then return c end end
+    local valid,start,perform,complete=a.isValid,a.start,a.perform,a.complete
+    function a:serverStart() return false end
+    local function exact() return a.character==rt.body and a.item==rt.target and a.primary==true
+        and a.twoHands==(rt.target:isTwoHandWeapon() or rt.target:isRequiresEquippedBothHands()) end
+    function a:isValidStart() return not c.done and exact() and rt.nativeCompleted and craftBound(rt,false) and valid(self)==true and exact() end
+    function a:isValid() return self:isValidStart() end
+    function a:start()
+        if not craftCurrent(c) or not self:isValid() then return craftRefuse(rt,"native-fixing-equip-start-changed") end
+        local alreadyEquipped=self:isAlreadyEquipped()==true
+        local result=start(self)
+        -- The installed start completes an already held exact item without
+        -- writing either hand; its complete reports false for that same path.
+        c.alreadyEquipped=alreadyEquipped and self.action and self.action:isForceComplete()==true or false
+        return result
+    end
+    function a:perform()
+        if c.done or c.performed or not craftCurrent(c) or not craftNativeEnded(self) or not self:isValid() then return craftRefuse(rt,"native-fixing-equip-perform-changed") end
+        c.performed=true;return perform(self)
+    end
+    function a:complete()
+        if c.done or not c.performed or craftCapsule(self)~=c or runtime[rt.id]~=rt or rt.current~=c
+            or not self:isValid() or rt.queue:indexOf(self)~=-1 or rt.queue.current or #rt.queue.queue>0 then return craftRefuse(rt,"native-fixing-equip-complete-changed") end
+        c.done,c.ack=true,true;local ok,result=pcall(complete,self)
+        rt.reequipped=ok and (result==true or c.alreadyEquipped and result==false)
+            and craftBound(rt,false) and exact() and rt.body:getPrimaryHandItem()==rt.target
+            and (not a.twoHands or rt.body:getSecondaryHandItem()==rt.target)
+        return craftClose(rt,rt.reequipped and "completed" or "failed","native-fixing-payment-and-equipment-measured")
+    end
+    craftGuardStop(rt,c,false);c.position=#rt.actions+1;rt.actions[c.position]=c;craftSavedRetirement(rt,c)
+end
+function fixing.begin(id,body,step,context)
+    local rec=owner(id,body)
+    if not rec or runtime[id] or rec.resourceProductionWork or rec.worldSourceReservation or rec.cookingWork
+        or not craftLedger(rec) or SAO.Needs.busy(body) or SAOJavaBridge:hasPendingActions(body) or isClient() or isServer()
+        or step.owner~="SAO.ResourceProduction" or step.token~="resource:repaired" or step.target~=step.recipeId
+        or step.category~="weapon" or step.toolCategory~="weapons" or step.effectMetric~="condition" then return false end
+    local route=SAO.Locomotion.jobs[id];if route and not route.done then return false end
+    local p=rec.proceduralPlanning and rec.proceduralPlanning.purposes[context.purposeId]
+    if not p or p.steps[p.cursor]~=step or p.admission or not craftPurposeTarget(p,{kind="fix-held-item",
+        entryKey=p.materialWork and p.materialWork.entryKey,targetItemId=step.targetItemId,targetItemType=step.targetItemType}) then return false end
+    local target,tool=craftCarried(body,step.targetItemId,step.targetItemType),craftCarried(body,step.toolItemId,step.toolItemType)
+    if not R.fixingAvailable(id,body,target,step.recipeId) or not tool or tool==target or tool:getIsCraftingConsumed() then return false end
+    local def,fixer,fi,xi=fixing.registered(body,target,step.recipeId)
+    if tool:getFullType()~=fixer:getFixerName() then return false end
+    local square,world=body:getCurrentSquare(),getWorld()
+    local rt={kind="fix-held-item",recipeId=step.recipeId,id=id,body=body,record=rec,inventory=body:getInventory(),
+        fixing=def,fixer=fixer,target=target,tool=tool,inputs={target,tool},actions={},
+        queue=ISTimedActionQueue.getTimedActionQueue(body),purpose=p,step=step,square=square,cell=body:getCell(),
+        world=world:getWorld(),token=body:getModData().SAOExternalToken,x=body:getX(),y=body:getY(),startedAt=now()}
+    if not ownItem(rt,tool) or rt.queue.current or #rt.queue.queue>0 then return false end
+    fixing.contents(rt);if #rt.parts+rt.ammo+(rt.chamber and 1 or 0)>128 then return false end
+    local seq=(rec.resourceProductionSequence or 0)+1
+    local work={id="resource-production/"..id.."/"..seq,sequence=seq,actorId=id,kind=rt.kind,
+        recipeId=step.recipeId,category="weapon",effectMetric="condition",toolCategory="weapons",token="resource:repaired",
+        targetItemId=step.targetItemId,targetItemType=step.targetItemType,toolItemId=step.toolItemId,toolItemType=step.toolItemType,
+        requestedPurposeId=context.purposeId,requestedPurposeStepId=context.purposeStepId,purposeId=context.purposeId,purposeStepId=context.purposeStepId,
+        entryKey=p.materialWork.entryKey,world=rt.world,bodyToken=rt.token,x=square:getX(),y=square:getY(),z=square:getZ(),
+        beforeCondition=target:getCondition(),maxCondition=target:getConditionMax(),beforeRepairCount=target:getHaveBeenRepaired(),
+        beforeToolCondition=tool:getCondition(),fixingNum=fi,fixerNum=xi,startedAt=rt.startedAt,stage="preparing",status="crafting"}
+    rt.work,rt.workId,rt.entryKey=work,work.id,work.entryKey
+    for _,key in ipairs({"targetItemId","targetItemType","toolItemId","toolItemType","beforeCondition","maxCondition",
+        "beforeRepairCount","beforeToolCondition","fixingNum","fixerNum"}) do rt[key]=work[key] end
+    if not fixing.identity(id,work) then return false end
+    for _,item in ipairs(rt.inputs) do if item:getContainer()~=rt.inventory then craftTransfer(rt,item) end end
+    fixingAction(rt);fixingEquip(rt)
+    rec.resourceProductionSequence,rec.resourceProductionWork,runtime[id]=seq,work,rt
+    if not SAO.ProceduralPlanning.admitRepairProduction(id,work) then rec.resourceProductionWork=nil;craftDispose(rt);return false end
+    if not craftBound(rt,true) or not craftEnqueue(rt,1) then craftInterrupt(id,body,"native-fixing-admission-refused");return false end
+    return true
+end
+
 craftRecover=function(id,body)
     reconcile(id)
     -- Quiescence is separate from permission to drive physical effects. An
@@ -1135,9 +1538,13 @@ craftRecover=function(id,body)
     if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
     local row={}
     for key in pairs(CRAFT_FIELDS) do if key~="outputs" then row[key]=work[key] end end
-    row.workId,row.status,row.detail,row.nativeOwner=work.id,"interrupted","craft-runtime-unavailable","ISHandcraftAction"
+    if work.kind=="fix-held-item" then row=fixing.copy(work) end
+    row.workId,row.status,row.detail,row.nativeOwner=work.id,"interrupted","craft-runtime-unavailable",work.kind=="fix-held-item" and "ISFixAction" or "ISHandcraftAction"
     row.atHours,row.endedAt,row.nativeObservability=t,t,"runtime-unavailable"
-    if work.kind=="repair-held-item" then
+    if work.kind=="fix-held-item" then
+        row.nativeAttempted,row.nativeCompleted,row.targetRetained,row.paymentConsumed,row.returnsMeasured,row.reequipped,row.held,row.improved,row.fullRestoration=false,false,false,false,false,false,false,false,false
+        row.returnedItems={}
+    elseif work.kind=="repair-held-item" then
         row.nativeAttempted,row.nativeCompleted,row.targetRetained,row.toolRetained,row.held,row.improved,row.fullRestoration=
             false,false,false,false,false,false,false
     else
@@ -2302,6 +2709,7 @@ function R.begin(id, body, step, context)
     if step and step.productionKind == "plumb-fixture" then return plumbBegin(id, body, step, context) end
     if step and step.productionKind == "saw-logs" then return craftBegin(id, body, step, context) end
     if step and step.productionKind == "repair-held-item" then return repairBegin(id, body, step, context) end
+    if step and step.productionKind == "fix-held-item" then return fixing.begin(id, body, step, context) end
     refreshHandledSource(id)
     local rec = owner(id, body)
     local option = { kind = step and (step.kind or step.productionKind or step.target), category = "water",

@@ -415,14 +415,20 @@ function __runToolRepairCases()
     f.target.sharpness=f.target.maxSharpness;__nativeCraft('setSharpness',f.target.sharpness)
     check('sharp_blade_refuses',R.repairAvailable(f.id,f.body,f.target,f.step.recipeId)==false)
     f=fixture('file-condition-damage',false,'Base.SharpenBladePoorlyWithFile','KitchenKnife','File')
-    __nativeCraft('skill',0);f.body.seedNativeCallback=0;begin(f);row=finish(f)
+    -- A fragile native file ends after one real sharpening iteration.
+    -- Native RNG seed19 admits the independently measured damage branch.
+    __nativeCraft('skill',0);__nativeCraft('setToolCondition',1);__nativeCraft('setToolWearChance',1)
+    f.tool.condition=1;f.body.seedNativeCallback=19;begin(f);row=finish(f)
     check('native_file_sharpness_gain_preserves_condition_damage',row and R.outcome(f.id,row.id) and row.status=='completed'
         and row.afterSharpness>row.beforeSharpness and row.afterCondition<row.beforeCondition
         and not row.fullRestoration and row.afterCondition==__nativeCraft('condition'))
     local fact=f.rec.cognition and f.rec.cognition.experiences[1]
     check('private_fact_retains_native_condition_loss',fact and fact.effectMetric=='sharpness' and fact.conditionLoss==row.beforeCondition-row.afterCondition)
     f=fixture('file-head-damage',false,'Base.SharpenBladePoorlyWithFile','HandAxe','File')
-    __nativeCraft('skill',0);f.body.seedNativeCallback=0;begin(f);row=finish(f)
+    -- A fragile native file ends after one real sharpening iteration.
+    -- Native RNG seed19 admits the independently measured damage branch.
+    __nativeCraft('skill',0);__nativeCraft('setToolCondition',1);__nativeCraft('setToolWearChance',1)
+    f.tool.condition=1;f.body.seedNativeCallback=19;begin(f);row=finish(f)
     check('native_axe_sharpness_gain_preserves_head_damage',row and R.outcome(f.id,row.id) and row.status=='completed'
         and row.afterSharpness>row.beforeSharpness and row.afterHeadCondition<row.beforeHeadCondition
         and row.afterHeadCondition==__nativeCraft('headCondition'))

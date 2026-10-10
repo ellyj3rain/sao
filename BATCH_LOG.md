@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.0.0.0-pre-alpha` |
+| Version | `2.6.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -567,3 +567,11 @@ The CLOSED child joins installed four-variant recipes, exact native inputs and p
 ## D3.6 generator to usable power closure - 2026-10-10 10:47 UTC / 03:47 PST
 
 The CLOSED child joins personally reached unpowered use, exact native operating knowledge and material acquisition, generator repair/fuelling/connection/activation, reached consumer power and reassessment of the exact original meal. Its record retains sufficient native, private-source, Controller, canonical model, save/lifecycle and integrated proof. It earns one minor credit for the new native utility execution/consumer-power contract; the existing capped odometer derives4.0.0.0-pre-alpha. D3 and the recorded version/publication and Neo/GZDS follow-ups remain OPEN.
+
+## Feature-scope credit correction and D3.7 - 2026-10-10 20:17 UTC / 2026-10-10 13:17 PDT
+
+The [historical transition](Batches/Transitions/VERSION-20261010-feature-scope-credit.md) applies the operator's full-feature credit rule to all A/B/C/D history, retaining the prior replay and exact source records. Its complete171-unit assessment changes25 classifications without renumbering or moving maturity. The completed D2 Leisure module supports minor; D3 children build the still-OPEN full feature at kohai.
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D3.7](Batches/D3.7-20261010-1903Z-1203PST-native-item-fixing.md) | 2026-10-10 | Native item fixing to equipment reuse | D3 general fixing and retained equipment |

@@ -124,7 +124,7 @@ def validate_product_catalogue(root: Path, data, shared=None, check_index=True):
             faults.append(f"{label} product partition has a gap, overlap or reordered range")
         if valid_range:
             next_source = last + 1
-        if unit.get("tier") not in ("minor", "kohai", "patch", "hotfix"):
+        if unit.get("tier") not in ("major", "minor", "kohai", "patch", "hotfix"):
             faults.append(f"{label} product tier is unknown")
         for field in ("name", "date", "recordPath", "rationale"):
             if not _text(unit.get(field)):

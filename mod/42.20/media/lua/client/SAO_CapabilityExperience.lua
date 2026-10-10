@@ -80,7 +80,7 @@ SAO.ResourceProduction.onOutcome = function(id, receipt)
         if not SAO.Cognition or not SAO.Cognition.materialCraftOutcome then return false end
         return SAO.Cognition.materialCraftOutcome(id, canonical)
     end
-    if canonical and canonical.kind == "repair-held-item" then
+    if canonical and (canonical.kind == "repair-held-item" or canonical.kind == "fix-held-item") then
         if not SAO.Cognition or not SAO.Cognition.toolRepairOutcome then return false end
         return SAO.Cognition.toolRepairOutcome(id, canonical)
     end

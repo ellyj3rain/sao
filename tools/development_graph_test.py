@@ -237,6 +237,28 @@ class ContinuityGraphChecks(unittest.TestCase):
                 with self.assertRaisesRegex(dg.GraphError, "Product correction provenance hash mismatch"):
                     dg.build_graph()
 
+    def test_tier_reconciliation_retains_original_pinned_catalogue_event(self):
+        original = dg.Builder.json
+        preserved = "Batches/history/version-20261010-before-scope/C_PRODUCT_CATALOGUE.json"
+        reconciliation = "Batches/VERSION_SCOPE_RECONCILIATION.json"
+        vector = {row["sourceRef"]: row["revision"] for row in self.graph["sourceVector"]}
+        self.assertIn(preserved, vector)
+        self.assertIn(reconciliation, vector)
+        controls = [
+            (reconciliation, lambda r: r["preservedPriorGeneration"]["Batches/C_PRODUCT_CATALOGUE.json"].update(sha256="0" * 64), "provenance hash mismatch"),
+            (reconciliation, lambda r: next(u for u in r["rows"] if u["batch"] == "C1").update(tier="minor"), "current credit differs"),
+            (preserved, lambda r: r["units"][0].update(productOutcome="unrecorded changed scope"), "preserved catalogue structure"),
+        ]
+        for target, mutate, message in controls:
+            def altered(builder, path):
+                value = original(builder, path)
+                if path == target:
+                    mutate(value)
+                return value
+            with self.subTest(target=target, message=message), patch.object(dg.Builder, "json", altered):
+                with self.assertRaisesRegex(dg.GraphError, message):
+                    dg.build_graph()
+
     def test_product_correction_rejects_foreign_generation_application_or_publication(self):
         original = dg.Builder.json
         controls = [

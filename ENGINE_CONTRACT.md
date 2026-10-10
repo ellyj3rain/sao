@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `4.0.0.0-pre-alpha` |
+| Version | `2.6.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -761,3 +761,7 @@ that job to its exact body, route, admission and step before private acquisition
 An ordinary residence step explicitly revokes prior forced-entry permission
 before native movement and defers if that reset cannot be established. Native
 window opening and climbing retain their existing action owner.
+
+## Native item fixing and equipment reuse (D3.7)
+
+Installed media/scripts/generated/fixing.txt supplies nineteen firearm definitions and twenty-seven fixer alternatives. ISInventoryPaneContextMenu excludes broken or full-condition targets and checks skill/quantity requirements; ISFixAction invokes native FixingManager.fixItem. Native fixing consumes matching raw root inventory in order on success or failure and returns donor weapon parts, magazines and ammunition. SAO prepares and guards the selected eligible exact donor/target rather than trusting arbitrary first-match custody. Actual before/after condition, repair count, consumed payment and returned contents establish the result. Installed ISEquipWeaponAction can return false for an already-equipped target after its force-complete path; that native path is accepted only with measured exact primary/both-hand readiness. No-change equip is separate from a new hand mutation. Native fixture proof covers every registered definition/fixer, exact payments, saved queue ownership and the ordinary private planner/cognition/equipment join; controlled body/map/dispatch receivers remain explicit.

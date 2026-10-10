@@ -1,13 +1,13 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.0.0.0-pre-alpha` |
+| Version | `2.6.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
-**As of** `[D3.6]`, 171 delivered batches: 29 A, 52 B, 82 C products and eight delivered D records. D3 is the active OPEN parent.
+**As of** `[D3.7]`, 172 delivered batches: 29 A, 52 B, 82 C products and nine delivered D records. D3 is the active OPEN parent.
 
 ## Delivered product
 
@@ -86,22 +86,11 @@ reach. Preserve useful discipline while reducing bureaucratic lag. The operator'
 approaching tool-access constraint makes fruition of the accepted mod plan the
 immediate priority.
 
-### Pending version, batch and publication mapping
+### Feature-scope version credit and historical reconciliation
 
-Owner: Neo. Status: recorded for later assessment; current generator delivery
-continues. The operator's 2026-10-10 direction calls for a clearer mapping among
-delivered capability, coherent child batches, pull-request grouping and the
-existing granular odometer. A child label or PR event does not prescribe a minor
-movement. Assess whether several bounded children should share a publication
-unit and once-only version credit, using delivered density and system coherence
-rather than file or line volume. Retrospective reconciliation remains available,
-with original records and credits preserved. Separate internal and external
-release coordinates remain a possible subject of assessment. No new version
-policy, PR-size requirement or retrospective regrouping is selected here.
-Neo's existing technical-strategy and project-management frameworks can support
-that assessment against the canonical Neo/GZDS rules and this project's actual
-odometer. Record continuity now; avoid a separate governance exercise interrupting
-the accepted mod work.
+The operator-authorized correction is implemented in canonical GZDS/Neo law and SAO governance/replay. The [complete matrix](Batches/VERSION_SCOPE_RECONCILIATION.json) assesses every171 prior A/B/C/D unit, with25 changed classifications; the [transition](Batches/Transitions/VERSION-20261010-feature-scope-credit.md) preserves the exact previous replay and all source/published history. A coherent building child receives kohai, a correction patch, and completed coherent feature/module scope minor. A related completed collection can receive operator-selected major. Native actions, API additions, batch labels and PR events do not establish completion. Caps and maturity are unchanged; no separate internal/external release version scheme is selected. D3.7 adds one kohai under this rule.
+
+GZDS B2.24/DR-168 reached main through [PR32](https://github.com/ellyj3rain/gzds-internal/pull/32). Neo A121.6/DR-213 carries the rule in its current compiled context and scope-aware advisory, with [PR147](https://github.com/ellyj3rain/neo/pull/147) retaining its actual publication status. Existing host and PM carriers match the same rule. The broader delivery-throughput governance follow-up retains its independent scope.
 
 ## Continuing outcomes and FIFO
 
@@ -113,7 +102,7 @@ original purpose. Adoption and IDLE recovery reconcile lost native admissions
 without inventing effects or completion. Focused native and Controller proofs
 retain their exact inputs and boundaries. Final regression and review results
 live in the D3 record. The whole construction, crafting, repair and utilities
-parent remains OPEN. Its CLOSED D3.1 through D3.6 children deliver native crafting, held-tool maintenance, plumbing/rain-collector construction through actual usable water, and generator operation through usable consumer power; the current replay derives `4.0.0.0-pre-alpha`.
+parent remains OPEN. Its CLOSED D3.1 through D3.7 children deliver native crafting, held-tool maintenance, plumbing/rain-collector construction through actual usable water, and generator operation through usable consumer power; the current replay derives `2.6.7.0-pre-alpha`.
 
 [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is the
 CLOSED child for native plank crafting. Exact private log and saw
@@ -124,12 +113,13 @@ and delivered version credit follow the canonical module rule independently.
 
 | Outcome | Standing and responsibility |
 |---|---|
-| D3 construction/crafting/repair/utilities | Active OPEN parent; D3.1-D3.6 deliver their linked coherent children. General entity placement, other recipes/pane integration, general item fixing and native server execution remain with D3. |
+| D3 construction/crafting/repair/utilities | Active OPEN parent; D3.1-D3.7 deliver their linked coherent children. General entity placement, other recipes/pane integration, general item fixing and native server execution remain with D3. |
 | D3.2 native saw maintenance | CLOSED child under D3; exact native FixSaw, private file acquisition, interpreted maintenance alternatives, measured condition/wear and canonical feedback continue the original construction purpose. Self-merged through [PR143](https://github.com/ellyj3rain/sao/pull/143). |
 | D3.3 portable tool maintenance | CLOSED child: native saw repair and blade sharpening, private file/whetstone acquisition, ordinary kit tending and measured benefits/damage. Self-merged through [PR144](https://github.com/ellyj3rain/sao/pull/144). |
 | D3.4 plumbing to usable water | CLOSED child: exact private wrench acquisition and fixture return, installed plumbing, handled-source refresh and actual clean held water under the same hydration purpose. Self-merged through [PR145](https://github.com/ellyj3rain/sao/pull/145), actual main commit `3120fae3e9d71f3f5664bad48cfa0e409a3e41d7`. |
 | D3.5 rain-collector construction | CLOSED child: exact recipe-derived material acquisition, privately observed placement, native entity construction and rain supply continue the same plumbing/refill/drinking purpose. Self-merged through [PR146](https://github.com/ellyj3rain/sao/pull/146), actual main `5b3eb409f654e82f46d82940b968366ecaa1f74d`. |
-| D3.6 generator to usable power | CLOSED child: exact private generator/consumer intent, material and recipe knowledge acquisition, native repair/fuel/connection/activation and reached usable power resume the exact original meal. Native, Controller, private-source, two-model and save/lifecycle proof are linked in its record; protected publication is the next established step. |
+| D3.6 generator to usable power | CLOSED child: exact private generator/consumer intent, material and recipe knowledge acquisition, native repair/fuel/connection/activation and reached usable power resume the exact original meal. Native, Controller, private-source, two-model and save/lifecycle proof are linked in its record; self-merged through PR147 at a16854e3df16381d2dde42803dcc918d8cce189e. |
+| D3.7 native item fixing | CLOSED child: personally intended firearm upkeep acquires an exact known donor, performs native fixing/payment, preserves returned contents, reuses the same target and retains independent feedback/save/queue custody. Protected publication follows the existing workflow. |
 | D4 whole food/preservation | Follows D3; retains the complete installed domain and adjacent food mechanics. |
 | D5 comprehensive animal care | Follows D4; species and supported actions retain actual source admission. |
 | D6 assessed K-through-college learning | Follows D5; literal sources, comprehension, retention and transfer remain the outcome. |
