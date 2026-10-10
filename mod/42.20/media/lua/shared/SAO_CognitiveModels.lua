@@ -57,7 +57,7 @@ for _,machine in ipairs({"ArcadeMachine1","ArcadeMachine2","ArcadeStreetFighter"
     "PinballFunHouse","PinballElviraPartyMonsters","PinballMarioBros"}) do
     HOBBY_SOURCES["ProjectArcade:ProjectArcade_PlayArcadeTimedAction:"..machine]=true
 end
-local EXTENDED = { ["medication-use"]=true, ["physical-change"]=true, preparation=true,
+local EXTENDED = { ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true,
     ["animal-care"]=true, ["window-repair"]=true, ["material-crafting"]=true, ["tool-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -111,7 +111,7 @@ local function occurrencePosition(e)
         or e.kind=="animal-care" and ("animal-care/"..e.actorId.."/")
         or e.kind=="window-repair" and (e.actorId.."/window-result/")
         or e.kind=="material-crafting" and ("resource-production/"..e.actorId.."/")
-        or e.kind=="tool-repair" and ("resource-production/"..e.actorId.."/")
+        or (e.kind=="tool-repair" or e.kind=="plumbing") and ("resource-production/"..e.actorId.."/")
         or e.kind=="entry-outcome" and ("entry/"..e.actorId.."/")
         or e.kind=="recovery-outcome" and ("recovery/"..e.actorId.."/")
         or e.kind=="study-outcome" and ("study/"..e.actorId.."/")
@@ -234,7 +234,7 @@ local function validEvent(e)
         or e.startedAtHours~=nil or e.nativeCompletedAtHours~=nil) then return false end
     if e.kind~="animal-care" and (e.consumedAmount~=nil or e.quantityUnit~=nil) then return false end
     if e.category=="animal" and e.kind~="animal-care" then return false end
-    if e.category=="construction" and e.kind~="window-repair" and e.kind~="material-crafting" and e.kind~="tool-repair" then return false end
+    if e.category=="construction" and e.kind~="window-repair" and e.kind~="material-crafting" and e.kind~="tool-repair" and e.kind~="plumbing" then return false end
     if e.capabilities~=nil and not capabilities(e.capabilities) then return false end
     for _, key in ipairs({"sourceId","itemType"}) do
         if e[key]~=nil and not text(e[key],160) then return false end
@@ -403,6 +403,11 @@ local function validEvent(e)
                 and e.itemType=="RepairableWindows.LargeGlassPane" and text(e.sourceId,160)
                 and (string.match(e.sourceId,"^window:%-?%d+:%-?%d+:%-?%d+:%d+:true$")~=nil
                     or string.match(e.sourceId,"^window:%-?%d+:%-?%d+:%-?%d+:%d+:false$")~=nil)
+                and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
+        end
+        if e.kind=="plumbing" then
+            return e.category=="construction" and e.status=="completed" and text(e.sourceId,160)
+                and string.sub(e.sourceId,1,2)=="F:"
                 and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
         end
         if e.kind=="material-crafting" then
@@ -731,6 +736,7 @@ local function rememberPlanEvidence(state, e, yes)
     end
     if e.kind == "acquire" then retain("acquire", e.category, yes)
     elseif e.kind == "preparation" then retain("prepare", "food", true)
+    elseif e.kind == "plumbing" then retain("plumb", "construction", true)
     elseif e.kind == "tool-repair" then
         retain("tool-repair", "construction", e.afterValue>e.beforeValue)
         if e.effectMetric=="sharpness" then
@@ -826,6 +832,11 @@ local function extendedEvidence(modelId,state,e)
                     (e.conditionLoss or 0)>0 or (e.headConditionLoss or 0)>0,e,"manufacturing")
             end
         end
+    elseif e.kind=="plumbing" then
+        if modelId=="ordinary" then
+            remember(state,"direct:plumbing:"..e.sourceId..":"..e.itemType,
+                "Connected "..e.sourceId.." using "..e.itemType,true,e)
+        else relation(state,"operate","tool:"..e.itemType,e.sourceId,true,e,"manufacturing") end
     elseif e.kind=="material-crafting" then
         if modelId=="ordinary" then
             remember(state,"direct:material-crafting:"..e.sourceId..":"..e.itemType,
@@ -1070,6 +1081,9 @@ local function validConsequences(candidate)
                 or not text(c.itemType, 160) or (c.condition ~= "BOREDOM" and c.condition ~= "UNHAPPINESS" and c.condition ~= "STRESS") then return false end
         elseif c.kind == "prepare" then
             if c.category ~= "food" then return false end
+        elseif c.kind == "plumb" then
+            if c.category ~= "construction" or not text(c.sourceId,160)
+                or string.sub(c.sourceId,1,2) ~= "F:" or c.condition ~= nil then return false end
         elseif c.kind == "tool-repair" then
             if c.category ~= "construction" or (c.sourceId ~= "Base.FixSaw" and c.sourceId ~= "Base.SharpenBlade"
                 and c.sourceId ~= "Base.SharpenBladePoorlyWithFile") or not text(c.itemType,160)

@@ -1166,6 +1166,11 @@ public final class SAONeeds {
                     && item.getCondition() > 0 && !item.isBroken()
                     && !item.isRequiresEquippedBothHands()
                     && !item.getIsCraftingConsumed();
+            case "pipe-wrench":
+                return ("PipeWrench".equals(item.getType())
+                        || item.hasTag(zombie.scripting.objects.ItemTag.PIPE_WRENCH))
+                    && item.getCondition() > 0 && !item.isBroken()
+                    && !item.getIsCraftingConsumed();
             case "plank":
                 // The task names its object - identity, not a table.
                 return "Base.Plank".equals(item.getFullType());

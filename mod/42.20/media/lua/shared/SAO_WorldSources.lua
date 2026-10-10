@@ -41,7 +41,7 @@ local MAX_ACTION_OPTIONS = 128
 local RESULT_CONSUMER = "provisioning"
 local SOURCE_CATEGORY_ORDER = {
     "device", "drink", "file", "food", "fuel", "glass-pane", "hammer", "instrument", "leisure-material", "medical",
-    "log", "medicine", "memento", "nails", "plank", "reading", "saw", "smokes", "tools",
+    "log", "medicine", "memento", "nails", "pipe-wrench", "plank", "reading", "saw", "smokes", "tools",
     "water", "weapons", "whetstone",
 }
 local SOURCE_CATEGORIES = {}
@@ -373,6 +373,9 @@ function WS.parse(text)
             end
             local raw = fields(line)
             if not raw.id or snapshot.sources[raw.id] then return nil end
+            local plumbing = raw.plumbing or ""
+            if plumbing ~= "" and plumbing ~= "unconnected" and plumbing ~= "connected"
+                or plumbing ~= "" and raw.kind ~= "fluid" then return nil end
             current = {
                 id = raw.id,
                 fingerprint = raw.fp,
@@ -384,6 +387,7 @@ function WS.parse(text)
                 state = raw.state,
                 access = raw.access or "unknown",
                 container = raw.container or "",
+                plumbing = plumbing,
                 quantities = {}, items = {}, itemOrder = {},
             }
             for key, value in pairs(raw) do
@@ -536,6 +540,7 @@ local function copyObservation(source, header)
         state = source.state,
         access = source.access,
         container = source.container,
+        plumbing = source.plumbing or "",
         quantities = source.quantities,
         items = source.items,
         itemOrder = source.itemOrder,
@@ -1007,6 +1012,7 @@ local function beliefFact(source)
         buildingId = source.buildingId, explored = source.explored,
         state = source.state, access = source.access,
         container = source.container, quantities = {}, candidates = {},
+        plumbing = source.plumbing or "",
     }
     for category, quantity in pairs(source.quantities or {}) do
         fact.quantities[category] = quantity
@@ -1108,7 +1114,7 @@ function WS.beliefFact(sourceId, observationKind)
             if item then
                 fact.visibleItem={id=item.id,type=item.type}
                 for _, category in ipairs({"reading","instrument","leisure-material",
-                    "glass-pane","hammer","plank","nails","log","saw","file","whetstone"}) do
+                    "glass-pane","hammer","plank","nails","log","saw","file","whetstone","pipe-wrench"}) do
                     if item.categories[category] then
                         fact.quantities[category]=1
                         fact.candidates[category]={id=item.id,type=item.type,categories={[category]=true}}
@@ -2680,6 +2686,7 @@ function WS.sourceProjection(id)
         state = source.state,
         access = source.access,
         container = source.container,
+        plumbing = source.plumbing or "",
         observedAt = source.observedAt,
         provenance = source.provenance,
         quantities = {}, items = {}, itemOrder = {},

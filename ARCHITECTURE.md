@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.10.1.0-pre-alpha` |
+| Version | `3.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1363,6 +1363,18 @@ models receive that canonical experience once. The physically handled fixture
 refreshes only the actor's exact private source memory after native gain;
 bounded observation failures remain unconfirmed. SourceUse and Cooking respect
 the active production owner. Failed routes retain bounded private retry delays.
+D3.4 extends the same water purpose through native plumbing. Personally observed
+fluid-source facts carry a scalar `plumbing` state: `unconnected`, `connected`
+or an empty legacy value. An indoor pipeable fixture can be remembered without
+water stock or knowledge of its roof supplier. Finite `pipe-wrench` stock uses
+exact item identity through acquisition, native transfer and equipment. Planner
+retains the fixture while acquiring that tool; ResourceProduction reacquires the
+exact native object and validates installed supplier/mains eligibility before
+ISPlumbItem. Its canonical `resource:plumbed` result measures the actual connection
+transition and refreshes only the handled private source. Both cognitive models
+record performed connection independently. The same hydration purpose remains
+active for actual clean held-water gain through ISTakeWaterAction and for native
+drinking; a connected fixture alone supplies no acquired water or bodily relief.
 Partial transfer
 can later satisfy stock demand without completed-work credit. A missing known
 route preserves unknown environmental affordances rather than asserting an

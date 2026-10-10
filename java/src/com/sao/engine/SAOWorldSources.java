@@ -427,6 +427,99 @@ public final class SAOWorldSources {
             && Math.abs(shell.getY() - (square.getY() + 0.5f)) <= 1.6f && here.canReachTo(square);
     }
 
+    public static synchronized String plumbTarget(IsoPlayer shell, String sourceId,
+            String fingerprint, String revision, int x, int y, int z) {
+        try {
+            if (revision == null || revision.isBlank()) return "BAD_PLUMB_REQUEST";
+            IsoObject object = plumbFixture(shell, sourceId, fingerprint, revision, x, y, z, false);
+            IsoGridSquare target = interactionSquare(shell, object.getSquare());
+            return target == null ? "NO_INTERACTION_POINT"
+                : "READY:" + target.getX() + ":" + target.getY() + ":" + target.getZ();
+        } catch (ActionRefusal refusal) { return refusal.code; }
+        catch (Throwable unavailable) { SAOAgent.log("world plumb target threw: " + unavailable); return "FAILED"; }
+    }
+
+    public static synchronized Object plumbObject(IsoPlayer shell, String sourceId,
+            String fingerprint, String revision, int x, int y, int z) {
+        try {
+            if (revision == null || revision.isBlank()) return null;
+            IsoObject object = plumbFixture(shell, sourceId, fingerprint, revision, x, y, z, false);
+            return refillWithinReach(shell, object.getSquare()) ? object : null;
+        } catch (Throwable unavailable) { return null; }
+    }
+
+    /** Connection changes the revision; exact identity and body custody persist. */
+    public static synchronized boolean plumbValid(IsoPlayer shell, IsoObject object,
+            String sourceId, String fingerprint, int x, int y, int z, boolean completedConnection) {
+        try {
+            return plumbFixture(shell, sourceId, fingerprint, null, x, y, z, completedConnection) == object
+                && refillWithinReach(shell, object.getSquare());
+        } catch (Throwable unavailable) { return false; }
+    }
+
+    private static IsoObject plumbFixture(IsoPlayer shell, String sourceId, String fingerprint,
+            String revision, int x, int y, int z, boolean completedConnection) throws ActionRefusal {
+        if (!inspectionActor(shell) || sourceId == null || !sourceId.startsWith("F:")
+                || sourceId.length() <= 2 || fingerprint == null) throw new ActionRefusal("BAD_PLUMB_REQUEST");
+        var remembered = rememberedContainerRevisions(shell, sourceId, fingerprint);
+        if (remembered.isEmpty() || revision != null && !remembered.contains(revision)) {
+            throw new ActionRefusal("NOT_PRIVATELY_OBSERVED");
+        }
+        IsoGridSquare square = shell.getCell().getGridSquare(x, y, z);
+        if (square == null || square.getCell() != shell.getCell()) throw new ActionRefusal("NOT_LOADED");
+        String token = sourceId.substring(2);
+        for (int index = 0; index < square.getObjects().size(); index++) {
+            IsoObject object = square.getObjects().get(index);
+            if (object == null || object.getSquare() != square
+                    || !token.equals(object.getModData().rawget(SOURCE_TOKEN))) continue;
+            Source physical = objectFluidSource(new Snapshot(Math.floorDiv(x, CHUNK_SIZE), Math.floorDiv(y, CHUNK_SIZE)), square, object);
+            if (!fingerprint.equals(physical.fingerprint)) throw new ActionRefusal("FINGERPRINT_CHANGED");
+            if (revision != null && !revision.equals(physical.revision)) throw new ActionRefusal("REVISION_CHANGED");
+            if (object instanceof IsoThumpable locked && locked.isLockedToCharacter(shell)
+                    || GameClient.client && !zombie.iso.areas.SafeHouse.isSafehouseAllowInteract(square, shell)) {
+                throw new ActionRefusal("ACCESS_REFUSED");
+            }
+            if (completedConnection ? !object.getUsesExternalWaterSource()
+                    || !Boolean.FALSE.equals(object.getModData().rawget("canBeWaterPiped")) : !plumbingEligible(object)) {
+                throw new ActionRefusal("PLUMBING_UNAVAILABLE");
+            }
+            return object;
+        }
+        throw new ActionRefusal("SOURCE_MISSING");
+    }
+
+    private static boolean waterPipedSprite(IsoObject object) {
+        return object.getProperties() != null
+            && object.getProperties().has(zombie.iso.SpriteDetails.IsoFlagType.waterPiped);
+    }
+
+    /** Local observable affordance only; supplier and mains truth belong to admission. */
+    private static String plumbingState(IsoObject object) {
+        if (object.getUsesExternalWaterSource()) {
+            Object marker = object.getModData().rawget("canBeWaterPiped");
+            return marker instanceof Boolean || waterPipedSprite(object) || object.getFluidCapacity() > 0
+                ? "connected" : "";
+        }
+        IsoGridSquare square = object.getSquare();
+        return square != null && square.isInARoom()
+            && (Boolean.TRUE.equals(object.getModData().rawget("canBeWaterPiped")) || waterPipedSprite(object))
+            ? "unconnected" : "";
+    }
+
+    /** Installed ISWorldObjectContextMenuLogic.fetch's two plumbing branches. */
+    private static boolean plumbingEligible(IsoObject object) {
+        IsoGridSquare square = object.getSquare();
+        if (square == null || !square.isInARoom() || object.getUsesExternalWaterSource()) return false;
+        boolean marked = Boolean.TRUE.equals(object.getModData().rawget("canBeWaterPiped"));
+        boolean pipedSprite = waterPipedSprite(object);
+        if (!marked && !pipedSprite) return false;
+        if (object.FindExternalWaterSource() != null) return true;
+        double days = zombie.GameTime.getInstance().getWorldAgeHours() / 24.0
+            + (zombie.SandboxOptions.instance.getTimeSinceApo() - 1) * 30;
+        return pipedSprite && marked && square.getRoom() != null
+            && days < zombie.SandboxOptions.instance.waterShutModifier.getValue();
+    }
+
     /** Bind the exact source only after the actor has reached its interaction point. */
     public static synchronized String bindAction(IsoPlayer shell, String sourceId,
             String fingerprint, String revision, int itemId, String itemType,
@@ -993,7 +1086,7 @@ public final class SAOWorldSources {
                 snapshot.add(containerSource(snapshot, square, object, container,
                     containerIndex));
             }
-            if (object.getFluidCapacity() > 0.0f) {
+            if (object.getFluidCapacity() > 0.0f || !plumbingState(object).isEmpty()) {
                 snapshot.add(objectFluidSource(snapshot, square, object));
             }
         }
@@ -1058,6 +1151,7 @@ public final class SAOWorldSources {
             + "|" + square.getZ() + "|" + token;
         Source source = new Source(id, digest(physical), "fluid", square.getX(),
             square.getY(), square.getZ(), building, true);
+        source.plumbing = plumbingState(object);
         float amount = object.getFluidAmount();
         Fluid fluid = object.getPrimaryFluid();
         boolean cleanWater = amount > 0.0f && (fluid == null || !fluid.isPoisonous())
@@ -1235,6 +1329,7 @@ public final class SAOWorldSources {
                 .append("|state=").append(source.state)
                 .append("|access=").append(source.access)
                 .append("|container=").append(field(source.containerType));
+            if (!source.plumbing.isEmpty()) out.append("|plumbing=").append(source.plumbing);
             for (Map.Entry<String, Float> entry : source.quantities.entrySet()) {
                 out.append("|q:").append(entry.getKey()).append('=')
                     .append(number(entry.getValue()));
@@ -1727,6 +1822,7 @@ public final class SAOWorldSources {
         final ArrayList<ItemRow> items = new ArrayList<>();
         final Map<String, Float> quantities = new LinkedHashMap<>();
         String containerType = "";
+        String plumbing = "";
         String revision = "";
         String state = "unknown";
         String access = "unknown";
@@ -1745,6 +1841,7 @@ public final class SAOWorldSources {
         void finish() {
             items.sort(Comparator.comparingInt(row -> row.itemId));
             StringBuilder exact = new StringBuilder(explored ? "explored\n" : "unknown\n");
+            if (!plumbing.isEmpty()) exact.append("plumbing=").append(plumbing).append('\n');
             for (ItemRow item : items) {
                 item.addQuantities(quantities);
                 exact.append(item.revisionLine()).append('\n');
@@ -1862,6 +1959,7 @@ public final class SAOWorldSources {
             if (SAONeeds.wantsMaterial(item, "reading")) out.add("reading");
             if (SAONeeds.wantsMaterial(item, "glass-pane")) out.add("glass-pane");
             if (SAONeeds.wantsMaterial(item, "hammer")) out.add("hammer");
+            if (SAONeeds.wantsMaterial(item, "pipe-wrench")) out.add("pipe-wrench");
             if (SAONeeds.wantsMaterial(item, "plank")) out.add("plank");
             if (SAONeeds.wantsMaterial(item, "log")) out.add("log");
             if (SAONeeds.wantsMaterial(item, "saw")) out.add("saw");

@@ -4,6 +4,7 @@ SAO = SAO or {}
 SAO.ResourceProduction = SAO.ResourceProduction or {}
 local R = SAO.ResourceProduction
 local craftBegin, craftInterrupt, craftTick, craftOutcome, craftRecover
+local plumbBegin, plumbInterrupt, plumbTick, plumbOutcome, plumbRecover, plumbOptions
 local function nativeCraftKind(kind) return kind=="saw-logs" or kind=="repair-held-item" end
 local KNOWN_FIXTURE_SEARCH_RADIUS = 32
 local MAX_CARRIED_RELIEF_ITEMS = 240
@@ -43,16 +44,17 @@ local function admitted(belief, id, revision)
     return false
 end
 function R.privatelyKnown(id, option)
-    if type(option) ~= "table" or option.kind ~= "refill-water" or option.category ~= "water"
+    if type(option) ~= "table" or (option.kind ~= "refill-water" and option.kind ~= "plumb-fixture") or option.category ~= "water"
         or type(option.sourceId) ~= "string" or string.sub(option.sourceId, 1, 2) ~= "F:"
         or type(option.place) ~= "table" then return false end
     local known = SAO.Perception.knownPlaces(id, true) or {}
     local belief = known[option.place.id] or known[tostring(option.place.id)]
     local fact = belief and belief.sourceFacts and belief.sourceFacts[option.sourceId]
-    return fact ~= nil and fact.kind == "fluid" and fact.state == "available"
+    return fact ~= nil and fact.kind == "fluid"
+        and (option.kind == "plumb-fixture" and fact.plumbing == "unconnected"
+            or option.kind == "refill-water" and fact.state == "available" and tonumber(fact.quantities and fact.quantities.water or 0) > 0)
         and same(fact.id, option.sourceId) and fact.fingerprint == option.fingerprint
         and fact.revision == option.sourceRevision and admitted(belief, option.sourceId, option.sourceRevision)
-        and tonumber(fact.quantities and fact.quantities.water or 0) > 0
         and fact.x == option.sourceX and fact.y == option.sourceY and fact.z == option.sourceZ
 end
 local function vessel(body, item)
@@ -113,6 +115,7 @@ function R.options(id, body, category)
             end
         end
     end
+    if plumbOptions and #options<16 then plumbOptions(id, body, vessels, options) end
     return options
 end
 local function queued(action)
@@ -122,6 +125,10 @@ local function permission(id, work)
     return SAO.Standing.mayTakeCurrent(id, work.sourceX, work.sourceY, "standing") == true
 end
 local function physical(rt, work)
+    if work.kind == "plumb-fixture" then
+        return permission(work.actorId, work) and SAOJavaBridge:worldPlumbValid(rt.body, rt.fixture,
+            work.sourceId, work.fingerprint, work.sourceX, work.sourceY, work.sourceZ, true) == true
+    end
     return permission(work.actorId, work) and SAOJavaBridge:worldRefillValid(rt.body, rt.fixture,
         work.sourceId, work.fingerprint, work.sourceX, work.sourceY, work.sourceZ) == true
 end
@@ -170,7 +177,8 @@ refreshHandledSource = function(id)
     end
     local learn = receipt.place.sourceId and perception.learnInspectedSource or perception.learnSource
     local tick = SAO.History.ticks and SAO.History.ticks() or math.floor(hours() * 9000)
-    local learned, result = pcall(learn, id, receipt.place, receipt.sourceId, tick, "observed-native-refill")
+    local observationKind = receipt.kind == "plumb-fixture" and "observed-native-plumbing" or "observed-native-refill"
+    local learned, result = pcall(learn, id, receipt.place, receipt.sourceId, tick, observationKind)
     if not learned or result ~= true then return stop("handled-source-private-refresh-refused") end
     local known = perception.knownPlaces(id, true) or {}
     local belief = known[receipt.place.id] or known[tostring(receipt.place.id)]
@@ -180,7 +188,7 @@ refreshHandledSource = function(id)
         return stop("handled-source-private-refresh-unconfirmed")
     end
     observation.status, observation.detail, observation.revision, observation.atHours =
-        "confirmed", "observed-native-refill", fact.revision, hours()
+        "confirmed", observationKind, fact.revision, hours()
     sourceRefresh[id] = nil
 end
 local function measured(rt, work)
@@ -194,6 +202,7 @@ function R.outcome(id, workId)
     local rec = SAO.Identity.get(id)
     for _, receipt in ipairs(rec and rec.resourceProductionOutcomes or {}) do
         if receipt.id == workId then
+            if receipt.kind == "plumb-fixture" then return plumbOutcome(id, receipt) end
             if nativeCraftKind(receipt.kind) then return craftOutcome(id, receipt) end
             return receipt
         end
@@ -205,11 +214,14 @@ local function reconcile(id)
         local consumer = planning and (receipt.kind == "repair-held-item" and planning.consumeRepairProductionResult
             or receipt.kind == "saw-logs" and planning.consumeCraftProductionResult
             or not nativeCraftKind(receipt.kind) and planning.consumeProductionResult)
-        local result = nativeCraftKind(receipt.kind) and craftOutcome(id, receipt) or receipt
+        local result = receipt.kind == "plumb-fixture" and plumbOutcome(id, receipt)
+            or nativeCraftKind(receipt.kind) and craftOutcome(id, receipt) or receipt
+        if receipt.kind == "plumb-fixture" and not plumbOutcome(id, receipt) then result = nil end
         if result and receipt.purposeId and not receipt.purposeDelivered and consumer
             and consumer(id, result) then receipt.purposeDelivered = true end
         if not receipt.experienceDelivered and R.onOutcome then
-            if nativeCraftKind(receipt.kind) then result = craftOutcome(id, receipt) end
+            if receipt.kind == "plumb-fixture" then result = plumbOutcome(id, receipt)
+            elseif nativeCraftKind(receipt.kind) then result = craftOutcome(id, receipt) end
             if result then
                 local delivered, accepted = pcall(R.onOutcome, id, result)
                 if delivered and accepted == true then receipt.experienceDelivered = true end
@@ -1155,20 +1167,453 @@ craftTick=function(id,body)
     if not craftRetired(rt) then return craftInterrupt(id,body,"craft-native-acknowledgement-missing") and "interrupted" or "cancelling" end
     return craftClose(rt,rt.nativeCompleted and "completed" or "failed","native-craft-ended") and "completed" or "cancelling"
 end
+-- Plumbing changes an observed fixture; the following refill still owns water gain.
+local PLUMB_SEAL = {}
+local PLUMB_FIELDS={id=true,workId=true,sequence=true,actorId=true,kind=true,category=true,token=true,
+    sourceId=true,sourceRevision=true,fingerprint=true,sourceX=true,sourceY=true,sourceZ=true,
+    sourceChunkX=true,sourceChunkY=true,place=true,itemId=true,itemType=true,beforeAmount=true,capacity=true,
+    toolCategory=true,toolItemId=true,toolItemType=true,purposeId=true,purposeStepId=true,
+    requestedPurposeId=true,requestedPurposeStepId=true,world=true,bodyToken=true,startedAt=true,
+    status=true,detail=true,atHours=true,endedAt=true,nativeOwner=true,nativeAttempted=true,nativeCompleted=true,
+    toolRetained=true,beforeUsesExternalWaterSource=true,beforeCanBeWaterPiped=true,beforePlumbingEligible=true,
+    afterUsesExternalWaterSource=true,afterCanBeWaterPiped=true,connected=true,nativeCredit=true,
+    nativeObservability=true,sourceObservation=true,purposeDelivered=true,experienceDelivered=true}
+local function plumbCopy(value,depth)
+    local kind=type(value)
+    if kind=="string" then return #value<=512 and value or nil end
+    if kind=="number" then return finite(value) and value or nil end
+    if kind=="boolean" then return value end
+    if kind~="table" or getmetatable(value) or depth>3 then return nil end
+    local out,count={},0
+    for k,v in pairs(value) do
+        count=count+1
+        if count>32 or type(k)~="string" or #k>128 then return nil end
+        local copied=plumbCopy(v,depth+1)
+        if copied==nil then return nil end
+        out[k]=copied
+    end
+    return out
+end
+local function plumbIdentity(id,w)
+    return type(w)=="table" and not getmetatable(w) and w.actorId==id and integer(w.sequence) and w.sequence>0
+        and w.id=="resource-production/"..tostring(id).."/"..w.sequence and w.kind=="plumb-fixture"
+        and w.category=="water" and w.token=="resource:plumbed" and textId(w.purposeId) and textId(w.purposeStepId)
+        and textId(w.sourceId) and w.sourceId:sub(1,2)=="F:" and textId(w.sourceRevision) and textId(w.fingerprint)
+        and finite(w.sourceX) and w.sourceX%1==0 and finite(w.sourceY) and w.sourceY%1==0 and finite(w.sourceZ) and w.sourceZ%1==0
+        and finite(w.sourceChunkX) and finite(w.sourceChunkY) and type(w.place)=="table" and not getmetatable(w.place)
+        and finite(w.itemId) and w.itemId%1==0 and textId(w.itemType) and textId(w.toolItemId) and textId(w.toolItemType)
+        and w.toolCategory=="pipe-wrench" and tostring(w.itemId)~=w.toolItemId
+        and finite(w.beforeAmount) and w.beforeAmount>=0 and finite(w.capacity) and w.capacity>w.beforeAmount
+        and w.beforeUsesExternalWaterSource==false and w.beforePlumbingEligible==true
+        and (w.beforeCanBeWaterPiped==nil or type(w.beforeCanBeWaterPiped)=="boolean")
+        and textId(w.world) and (w.bodyToken==nil or textId(w.bodyToken)) and finite(w.startedAt) and w.startedAt>=0
+end
+plumbOutcome=function(id,row)
+    local rec,t=SAO.Identity.get(id),now()
+    if not craftLedger(rec) or not plumbIdentity(id,row) or row.sequence>rec.resourceProductionSequence
+        or row.workId~=row.id or row.nativeOwner~="ISPlumbItem" or not t or not finite(row.atHours)
+        or row.atHours<row.startedAt or row.atHours>t or row.endedAt~=row.atHours
+        or row.status~="completed" and row.status~="failed" and row.status~="interrupted"
+        or type(row.nativeAttempted)~="boolean" or type(row.nativeCompleted)~="boolean"
+        or type(row.toolRetained)~="boolean" or type(row.connected)~="boolean" then return nil end
+    if row.nativeObservability=="runtime-unavailable" then
+        if row.status~="interrupted" or row.nativeAttempted or row.nativeCompleted or row.toolRetained or row.connected
+            or row.afterUsesExternalWaterSource~=nil or row.afterCanBeWaterPiped~=nil or row.nativeCredit~=nil then return nil end
+    elseif row.nativeObservability=="fixture-unbound" then
+        if row.status~="interrupted" or row.nativeAttempted or row.nativeCompleted or row.connected
+            or row.beforeCanBeWaterPiped~=nil or row.afterUsesExternalWaterSource~=nil
+            or row.afterCanBeWaterPiped~=nil or row.nativeCredit~=nil then return nil end
+    elseif row.nativeObservability~=nil or type(row.beforeCanBeWaterPiped)~="boolean" or type(row.afterUsesExternalWaterSource)~="boolean"
+        or type(row.afterCanBeWaterPiped)~="boolean" or row.connected~=(row.nativeCompleted
+            and row.afterUsesExternalWaterSource and not row.afterCanBeWaterPiped) then return nil end
+    local completed=row.status=="completed"
+    if completed and (not row.nativeAttempted or not row.nativeCompleted or not row.connected or not row.toolRetained)
+        or completed and row.nativeCredit~=row.id or not completed and row.nativeCredit~=nil then return nil end
+    local out={}
+    for k,v in pairs(row) do
+        if not PLUMB_FIELDS[k] then return nil end
+        local copied=plumbCopy(v,0)
+        if copied==nil then return nil end
+        out[k]=copied
+    end
+    return out
+end
+local function plumbInstall()
+    if not ItemTag or not ItemTag.PIPE_WRENCH or isClient() or isServer() then return false end
+    local a=pcall(require,"TimedActions/ISPlumbItem")
+    local b=pcall(require,"TimedActions/ISEquipWeaponAction")
+    local c=pcall(require,"TimedActions/ISInventoryTransferAction")
+    return a and b and c and ISPlumbItem and ISEquipWeaponAction and ISInventoryTransferAction
+end
+local function plumbTool(item)
+    return item and not item:isBroken() and item:getCondition()>0 and not item:getIsCraftingConsumed()
+        and (item:getType()=="PipeWrench" or item:hasTag(ItemTag.PIPE_WRENCH))
+end
+plumbOptions=function(id,body,vessels,options)
+    if not plumbInstall() then return end
+    local tool,items=nil,SAOJavaBridge:privateCarriedItems(body)
+    if items:size()<=512 then
+        for i=0,items:size()-1 do if plumbTool(items:get(i)) then tool=items:get(i);break end end
+    end
+    local checked=0
+    for placeId,belief in pairs(SAO.Perception.knownPlaces(id,true) or {}) do
+        for sourceId,fact in pairs(belief.sourceFacts or {}) do
+            checked=checked+1;if checked>128 then return end
+            if fact.kind=="fluid" and fact.plumbing=="unconnected" and admitted(belief,sourceId,fact.revision)
+                and tonumber(fact.x) and tonumber(fact.y) and tonumber(fact.z)
+                and SAO.Standing.mayAttemptBelieved(id,fact.x,fact.y,"standing")==true then
+                local dx,dy=fact.x+.5-body:getX(),fact.y+.5-body:getY()
+                if dx*dx+dy*dy<=KNOWN_FIXTURE_SEARCH_RADIUS*KNOWN_FIXTURE_SEARCH_RADIUS then
+                    for _,held in ipairs(vessels) do
+                        options[#options+1]={kind="plumb-fixture",owner="SAO.ResourceProduction",category="water",token="resource:plumbed",
+                            known=true,sourceId=sourceId,sourceRevision=fact.revision,fingerprint=fact.fingerprint,
+                            sourceX=fact.x,sourceY=fact.y,sourceZ=fact.z,toolCategory="pipe-wrench",
+                            toolItemId=tool and tostring(tool:getID()) or nil,toolItemType=tool and tool:getFullType() or nil,
+                            place={id=placeId,sourceId=belief.sourceId,cx=belief.cx,cy=belief.cy,z=belief.z,
+                                minX=belief.minX,maxX=belief.maxX,minY=belief.minY,maxY=belief.maxY},
+                            itemId=held.itemId,itemType=held.itemType,beforeAmount=held.beforeAmount,capacity=held.capacity,
+                            quantityUnit="fluid",distance=math.sqrt(dx*dx+dy*dy)}
+                        if #options>=16 then return end
+                    end
+                end
+            end
+        end
+    end
+end
+local function plumbPurpose(rec,w)
+    local state=rec and rec.proceduralPlanning
+    local p=state and state.purposes and state.purposes[w.purposeId]
+    local s=p and p.steps and p.steps[p.cursor]
+    local a=p and p.admission
+    if not p or p.status=="completed" or p.status=="abandoned" or p.resourceCategory~="water" or not s or not a
+        or s.id~=w.purposeStepId or s.owner~="SAO.ResourceProduction" or s.productionKind~=w.kind or s.token~=w.token
+        or a.owner~=s.owner or a.stepId~=s.id or a.correlationId~=w.id or a.target~=s.target
+        or not finite(a.at) or a.at<w.startedAt
+        or s.sourceId~=w.sourceId or s.sourceRevision~=w.sourceRevision or s.fingerprint~=w.fingerprint
+        or s.sourceX~=w.sourceX or s.sourceY~=w.sourceY or s.sourceZ~=w.sourceZ
+        or s.itemId~=w.itemId or s.itemType~=w.itemType or s.toolCategory~="pipe-wrench"
+        or tostring(s.toolItemId)~=w.toolItemId or s.toolItemType~=w.toolItemType then return nil end
+    return p,s
+end
+local function plumbBound(rt,pre)
+    if not rt.body or rt.closed then return false end
+    local rec,w,body=owner(rt.id,rt.body),rt.work,rt.body
+    local p,s=plumbPurpose(rec,w)
+    local world=getWorld()
+    local fluid,amount=vessel(body,rt.item)
+    return rec==rt.record and runtime[rt.id]==rt and rec.resourceProductionWork==w and not rt.cancelling
+        and plumbIdentity(rt.id,w) and craftLedger(rec) and w.id==rt.workId and w.startedAt==rt.startedAt
+        and w.bodyToken==rt.token and w.world==rt.world and w.sourceId==rt.sourceId and w.sourceRevision==rt.sourceRevision
+        and w.fingerprint==rt.fingerprint and w.itemId==rt.itemId and w.itemType==rt.itemType
+        and w.toolItemId==rt.toolId and w.toolItemType==rt.toolType and w.sourceX==rt.sx and w.sourceY==rt.sy and w.sourceZ==rt.sz
+        and w.beforeAmount==rt.beforeAmount and w.capacity==rt.capacity and w.beforeCanBeWaterPiped==rt.beforeCanBeWaterPiped
+        and p==rt.purpose and s==rt.step and now() and now()>=rt.startedAt and world and world:getWorld()==rt.world
+        and world:getCell()==rt.cell and body:getCell()==rt.cell and body:getInventory()==rt.inventory
+        and ISTimedActionQueue.getTimedActionQueue(body)==rt.queue and body:getModData().SAOExternalToken==rt.token
+        and carried(body,w.itemId,w.itemType)==rt.item and fluid and amount==w.beforeAmount and fluid:getCapacity()==w.capacity
+        and craftCarried(body,w.toolItemId,w.toolItemType)==rt.tool and ownItem(rt,rt.tool) and plumbTool(rt.tool)
+        and (not rt.square or body:getCurrentSquare()==rt.square and math.abs(body:getX()-rt.x)<.01 and math.abs(body:getY()-rt.y)<.01)
+        and permission(rt.id,w) and (not rt.fixture or SAOJavaBridge:worldPlumbValid(body,rt.fixture,w.sourceId,w.fingerprint,
+            w.sourceX,w.sourceY,w.sourceZ,rt.nativeCompleted==true)==true)
+        and (not pre or not rt.nativeAttempted and (not rt.fixture or rt.fixture:getUsesExternalWaterSource()==false
+            and (rt.fixture:getModData().canBeWaterPiped==true)==rt.beforeCanBeWaterPiped))
+end
+local function plumbCapsule(a) return a and type(a._SAOPlumbBinding)=="function" and a._SAOPlumbBinding(PLUMB_SEAL) or nil end
+local function plumbCurrent(c)
+    local rt=c.rt
+    return plumbCapsule(c.action)==c and runtime[rt.id]==rt and rt.current==c and c.action.character==rt.body
+        and ISTimedActionQueue.queues[rt.body]==rt.queue and rt.queue.current==c.action and rt.queue.queue[1]==c.action
+        and rt.queue:indexOf(c.action)==1
+end
+local function plumbRetired(rt)
+    if rt.route and not rt.route.done then return false end
+    for _,c in ipairs(rt.actions) do
+        if rt.queue:indexOf(c.action)~=-1 or rt.queue.current==c.action or c.action.action and not c.ack then return false end
+    end
+    return true
+end
+local function plumbDispose(rt)
+    for _,c in ipairs(rt.actions) do c.action._SAOPlumbBinding=function() return nil end;c.action._SAOPlumbRetireSaved=nil end
+    if runtime[rt.id]==rt then runtime[rt.id]=nil end
+    rt.body,rt.fixture,rt.tool,rt.item,rt.record,rt.purpose,rt.step,rt.current,rt.route=nil,nil,nil,nil,nil,nil,nil,nil,nil
+end
+local function plumbRefuse(rt,reason)
+    rt.cancelling,rt.cancelReason=true,rt.cancelReason or reason
+    if rt.record and rt.record.resourceProductionWork==rt.work then rt.work.status="interrupted" end
+    return false
+end
+local function plumbClose(rt,status,detail)
+    if rt.closed then return true end
+    local rec,w,t=SAO.Identity.get(rt.id),rt.work,now()
+    if not plumbRetired(rt) or rec~=rt.record or rec.resourceProductionWork~=w or not plumbIdentity(rt.id,w)
+        or not plumbPurpose(rec,w) or not craftLedger(rec) or not t or t<w.startedAt then return false end
+    local rows=rec.resourceProductionOutcomes or {}
+    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    local row={}
+    for k in pairs(PLUMB_FIELDS) do if w[k]~=nil then row[k]=plumbCopy(w[k],0) end end
+    row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISPlumbItem",status,detail,t,t
+    row.nativeAttempted,row.nativeCompleted=rt.nativeAttempted==true,rt.nativeCompleted==true
+    row.toolRetained=rt.tool and craftCarried(rt.body,w.toolItemId,w.toolItemType)==rt.tool and ownItem(rt,rt.tool) or false
+    row.afterUsesExternalWaterSource=rt.fixture and rt.fixture:getUsesExternalWaterSource()==true or false
+    row.afterCanBeWaterPiped=rt.fixture and rt.fixture:getModData().canBeWaterPiped==true or false
+    row.connected=row.nativeCompleted and row.afterUsesExternalWaterSource and not row.afterCanBeWaterPiped
+    if not rt.fixture then
+        row.nativeObservability="fixture-unbound"
+        row.afterUsesExternalWaterSource,row.afterCanBeWaterPiped=nil,nil
+    end
+    if status=="completed" and (not row.nativeAttempted or not row.connected or not row.toolRetained or not plumbBound(rt,false)) then
+        row.status,row.detail="failed","native-plumbing-transition-unconfirmed"
+    end
+    row.nativeCredit=row.status=="completed" and w.id or nil
+    row.sourceObservation={status="unconfirmed",detail="no-bound-native-connection",attempts=0}
+    if not plumbOutcome(rt.id,row) then return false end
+    rows[#rows+1]=row;rec.resourceProductionOutcomes=rows;if #rows>CRAFT_LIMIT then table.remove(rows,1) end
+    if row.status=="completed" then
+        sourceRefresh[rt.id]={receipt=row,rt={body=rt.body,fixture=rt.fixture}}
+        refreshHandledSource(rt.id)
+    end
+    rec.resourceProductionWork=nil;rt.closed=true;plumbDispose(rt);reconcile(rt.id);return true
+end
+local plumbEnqueue
+local function plumbGuard(rt,a,kind,item)
+    local c={rt=rt,action=a,kind=kind,item=item,source=kind=="transfer" and item:getContainer() or nil}
+    a._SAOPlumbBinding=function(seal) if seal==PLUMB_SEAL then return c end end
+    a.actorId,a.workId,a.bodyToken=rt.id,rt.workId,rt.token
+    local valid,perform,complete,start=a.isValid,a.perform,a.complete,a.start
+    local function exact()
+        return plumbCapsule(a)==c and a.character==rt.body and a.actorId==rt.id and a.workId==rt.workId and a.bodyToken==rt.token
+            and (kind=="plumb" and a.itemToPipe==rt.fixture and a.wrench==rt.tool
+                or kind=="equip" and a.item==item and a.primary==true
+                or kind=="transfer" and a.item==item and a.srcContainer==c.source and a.destContainer==rt.inventory)
+    end
+    function a:isValidStart() return not c.done and exact() and plumbBound(rt,true) and valid(self)==true and exact() or false end
+    function a:isValid() return not c.done and exact() and plumbBound(rt,true) and valid(self)==true and exact() or false end
+    function a:start()
+        if not plumbCurrent(c) or not self:isValid() then return plumbRefuse(rt,"plumbing-start-owner-changed") end
+        return start(self)
+    end
+    function a:perform()
+        if c.performed or c.done or not plumbCurrent(c) or not craftNativeEnded(self) or not self:isValid() then
+            return plumbRefuse(rt,"plumbing-perform-owner-changed")
+        end
+        if kind=="transfer" then
+            local ql=self.queueList
+            if type(ql)~="table" or #ql~=1 or #ql[1].items~=1 or ql[1].items[1]~=item then return plumbRefuse(rt,"plumbing-transfer-selection-changed") end
+        end
+        c.performed=true
+        local ok,result=pcall(perform,self)
+        if not ok then return plumbRefuse(rt,"native-plumbing-perform-failed") end
+        if kind=="transfer" then
+            c.done,c.ack=true,true
+            if not exact() or not plumbBound(rt,true) or item:getContainer()~=rt.inventory or c.source:contains(item)
+                or rt.queue:indexOf(self)~=-1 or rt.queue.current==self then return plumbRefuse(rt,"plumbing-transfer-unconfirmed") end
+            return plumbEnqueue(rt,c.position+1)
+        end
+        return result
+    end
+    function a:complete()
+        if kind=="transfer" then return false end
+        if c.done or not c.performed or not exact() or not plumbBound(rt,true) or valid(self)~=true or not exact()
+            or rt.queue:indexOf(self)~=-1 or rt.queue.current or #rt.queue.queue>0 then return plumbRefuse(rt,"plumbing-complete-owner-changed") end
+        c.done,c.ack=true,true
+        if kind=="plumb" then rt.nativeAttempted=true end
+        local ok,result=pcall(complete,self)
+        if kind=="equip" then
+            if not ok or result~=true or rt.body:getPrimaryHandItem()~=item or not plumbBound(rt,true) then return plumbRefuse(rt,"plumbing-equipment-unconfirmed") end
+            return plumbEnqueue(rt,c.position+1)
+        end
+        rt.nativeCompleted=ok and result==true
+        return plumbClose(rt,rt.nativeCompleted and "completed" or "failed","native-plumbing-ended")
+    end
+    function a:stop()
+        if c.ack or plumbCapsule(self)~=c then return false end
+        local current=plumbCurrent(c)
+        plumbRefuse(rt,"native-plumbing-stopped")
+        if current and plumbCurrent(c) then
+            if kind=="transfer" then
+                pcall(function() self:playSourceContainerCloseSound() end);pcall(function() self:playDestContainerCloseSound() end)
+                pcall(function() self:stopLoopingSound() end);pcall(function() item:setJobDelta(0) end)
+                pcall(function() if self.action then self.action:setLoopedAction(false) end end)
+                pcall(function() removeItemTransaction(self.transactionId,true) end);self.started=false
+            elseif kind=="equip" then
+                pcall(function() if self.sound then rt.body:getEmitter():stopSound(self.sound);self.sound=nil end end)
+                pcall(function() item:setJobDelta(0) end);pcall(function() self:restoreWeaponType() end)
+            else pcall(function() rt.body:stopOrTriggerSound(self.sound) end) end
+            rt.body:setIsFarming(false);c.ack=true;rt.queue:onCompleted(self)
+        else
+            c.ack=true;rt.queue:removeFromQueue(self);if rt.queue.current==self then rt.queue.current=nil end
+        end
+        plumbClose(rt,"interrupted",rt.cancelReason);return true
+    end
+    function a:forceCancel()
+        if c.ack or plumbCapsule(self)~=c then return false end
+        plumbRefuse(rt,"native-plumbing-force-cancel")
+        if not self.action then c.ack=true;rt.queue:removeFromQueue(self);if rt.queue.current==self then rt.queue.current=nil end end
+        return false
+    end
+    a.canMergeAction=function() return false end
+    a._SAOPlumbRetireSaved=function(rec,w)
+        if plumbCapsule(a)~=c or SAO.Identity.get(rt.id)~=rec or rec.id~=rt.id
+            or not plumbIdentity(rt.id,w) or not plumbPurpose(rec,w) or w.id~=rt.workId
+            or w.purposeId~=rt.work.purposeId or w.purposeStepId~=rt.work.purposeStepId
+            or w.bodyToken~=rt.token or w.world~=rt.world or w.startedAt~=rt.startedAt
+            or w.sourceId~=rt.sourceId or w.sourceRevision~=rt.sourceRevision or w.fingerprint~=rt.fingerprint
+            or w.sourceX~=rt.sx or w.sourceY~=rt.sy or w.sourceZ~=rt.sz
+            or w.itemId~=rt.itemId or w.itemType~=rt.itemType or w.toolItemId~=rt.toolId or w.toolItemType~=rt.toolType
+            or w.beforeAmount~=rt.beforeAmount or w.capacity~=rt.capacity or w.beforeCanBeWaterPiped~=rt.beforeCanBeWaterPiped then return false end
+        local closed=plumbInterrupt(rt.id,rt.body,"plumbing-runtime-unavailable")
+        if not closed and plumbRetired(rt) and rec.resourceProductionWork~=rt.work then plumbDispose(rt);return true end
+        return closed
+    end
+    c.position=#rt.actions+1;rt.actions[c.position]=c;return c
+end
+plumbEnqueue=function(rt,index)
+    local c=rt.actions[index]
+    if not c or not plumbBound(rt,true) or rt.queue.current or #rt.queue.queue>0 then return plumbRefuse(rt,"plumbing-preparation-queue-changed") end
+    rt.current,rt.action=c,c.action;rt.work.stage=c.kind=="plumb" and "plumbing" or "preparing"
+    return SAO.Needs.queueVerified(c.action)==true or plumbRefuse(rt,"native-plumbing-queue-refused")
+end
+local function plumbQueue(rt)
+    local w=rt.work
+    local fixture=SAOJavaBridge:worldPlumbObject(rt.body,w.sourceId,w.fingerprint,w.sourceRevision,w.sourceX,w.sourceY,w.sourceZ)
+    if not fixture then return false end
+    rt.fixture,rt.square,rt.x,rt.y=fixture,rt.body:getCurrentSquare(),rt.body:getX(),rt.body:getY()
+    rt.beforeCanBeWaterPiped=fixture:getModData().canBeWaterPiped==true
+    w.beforeCanBeWaterPiped=rt.beforeCanBeWaterPiped
+    if not plumbBound(rt,true) then return false end
+    if rt.tool:getContainer()~=rt.inventory then
+        plumbGuard(rt,ISInventoryTransferAction:new(rt.body,rt.tool,rt.tool:getContainer(),rt.inventory),"transfer",rt.tool)
+    end
+    if rt.body:getPrimaryHandItem()~=rt.tool then plumbGuard(rt,ISEquipWeaponAction:new(rt.body,rt.tool,50,true,false),"equip",rt.tool) end
+    plumbGuard(rt,ISPlumbItem:new(rt.body,fixture,rt.tool),"plumb",rt.tool)
+    return plumbEnqueue(rt,1)
+end
+plumbBegin=function(id,body,step,context)
+    local rec,t=owner(id,body),now()
+    if not rec or not t or not plumbInstall() or not craftLedger(rec) or rec.resourceProductionWork or rec.worldSourceReservation
+        or rec.cookingWork or SAO.Needs.busy(body) or SAOJavaBridge:hasPendingActions(body) then return false end
+    local option={kind="plumb-fixture",category="water",sourceId=step.sourceId,sourceRevision=step.sourceRevision,
+        fingerprint=step.fingerprint,sourceX=step.sourceX,sourceY=step.sourceY,sourceZ=step.sourceZ,place=step.place}
+    if not R.privatelyKnown(id,option) then return false end
+    local item,tool=carried(body,step.itemId,step.itemType),craftCarried(body,tostring(step.toolItemId),step.toolItemType)
+    local fluid,amount=vessel(body,item)
+    if not fluid or not plumbTool(tool) then return false end
+    local place,cx,cy=rememberedPlace(id,option)
+    local target=SAOJavaBridge:worldPlumbTarget(body,step.sourceId,step.fingerprint,step.sourceRevision,step.sourceX,step.sourceY,step.sourceZ)
+    local x,y,z=tostring(target):match("^READY:(%-?%d+):(%-?%d+):(%-?%d+)$")
+    local route=SAO.Locomotion.jobs[id]
+    if not x or route and not route.done then return false end
+    local seq=(rec.resourceProductionSequence or 0)+1
+    local world=getWorld()
+    if not world then return false end
+    local admittedNeeds=SAO.Needs.read(body) or {}
+    local readHealth,admittedHealth=pcall(function() return body:getBodyDamage():getOverallBodyHealth() end)
+    local w={id="resource-production/"..tostring(id).."/"..seq,sequence=seq,actorId=id,kind="plumb-fixture",category="water",token="resource:plumbed",
+        sourceId=step.sourceId,sourceRevision=step.sourceRevision,fingerprint=step.fingerprint,sourceX=step.sourceX,sourceY=step.sourceY,sourceZ=step.sourceZ,
+        sourceChunkX=cx,sourceChunkY=cy,place=place,itemId=item:getID(),itemType=item:getFullType(),beforeAmount=amount,capacity=fluid:getCapacity(),
+        toolCategory="pipe-wrench",toolItemId=tostring(tool:getID()),toolItemType=tool:getFullType(),
+        purposeId=context.purposeId,purposeStepId=context.purposeStepId,requestedPurposeId=context.purposeId,requestedPurposeStepId=context.purposeStepId,
+        world=world:getWorld(),bodyToken=rec.bodyOwnerToken,startedAt=t,status="plumbing",stage="approaching",
+        beforeUsesExternalWaterSource=false,beforePlumbingEligible=true,
+        admittedNeeds={hunger=tonumber(admittedNeeds.hunger),thirst=tonumber(admittedNeeds.thirst),fatigue=tonumber(admittedNeeds.fatigue)},
+        admittedHealth=readHealth and tonumber(admittedHealth) or nil}
+    if not plumbIdentity(id,w) then return false end
+    local rt={id=id,kind=w.kind,record=rec,body=body,work=w,workId=w.id,startedAt=t,token=w.bodyToken,world=w.world,cell=body:getCell(),
+        inventory=body:getInventory(),queue=ISTimedActionQueue.getTimedActionQueue(body),item=item,tool=tool,actions={},
+        sourceId=w.sourceId,sourceRevision=w.sourceRevision,fingerprint=w.fingerprint,itemId=w.itemId,itemType=w.itemType,
+        toolId=w.toolItemId,toolType=w.toolItemType,sx=w.sourceX,sy=w.sourceY,sz=w.sourceZ,beforeAmount=amount,capacity=fluid:getCapacity()}
+    rec.resourceProductionSequence,rec.resourceProductionWork,runtime[id]=seq,w,rt
+    if not SAO.ProceduralPlanning or SAO.ProceduralPlanning.admitProduction(id,w)~=true then rec.resourceProductionWork=nil;plumbDispose(rt);return false end
+    rt.purpose,rt.step=plumbPurpose(rec,w)
+    if not plumbBound(rt,true) then plumbInterrupt(id,body,"plumbing-admission-refused");return false end
+    if SAOJavaBridge:worldPlumbObject(body,w.sourceId,w.fingerprint,w.sourceRevision,w.sourceX,w.sourceY,w.sourceZ) then
+        if plumbQueue(rt) then return true end
+    elseif SAO.Standing.mayAttemptBelieved(id,tonumber(x),tonumber(y),"standing")==true and SAO.Locomotion.order(id,body,tonumber(x),tonumber(y),tonumber(z)) then
+        rt.route=SAO.Locomotion.jobs[id];if rt.route and rt.route.body==body then return true end
+    end
+    plumbInterrupt(id,body,"native-plumbing-approach-refused");return false
+end
+plumbRecover=function(id,body)
+    reconcile(id)
+    local rec=SAO.Identity.get(id);local w=rec and rec.resourceProductionWork
+    if not w then return true end
+    if runtime[id] then return plumbInterrupt(id,body,"plumbing-owner-reconciled") end
+    local t=now();local world=getWorld()
+    if not craftLedger(rec) or not plumbIdentity(id,w) or w.sequence>rec.resourceProductionSequence or not plumbPurpose(rec,w)
+        or w.status~="plumbing" and w.status~="interrupted" or not t or t<w.startedAt or not world or world:getWorld()~=w.world
+        or not body or tostring(body:getModData().SAOPersonId or "")~=tostring(id) or body:getModData().SAOExternalToken~=w.bodyToken then return false end
+    for _,q in pairs(ISTimedActionQueue.queues) do
+        local pending={};for _,a in ipairs(q.queue) do pending[#pending+1]=a end
+        if q.current and q:indexOf(q.current)==-1 then pending[#pending+1]=q.current end
+        for _,a in ipairs(pending) do
+            if a.actorId==id and a.workId==w.id and a.bodyToken==w.bodyToken then
+                if type(a._SAOPlumbRetireSaved)~="function" then return false end
+                local ok,closed=pcall(a._SAOPlumbRetireSaved,rec,w);if not ok or not closed then return false end
+            end
+        end
+    end
+    if not rec.resourceProductionWork then return true end
+    local q=ISTimedActionQueue.getTimedActionQueue(body)
+    if SAOJavaBridge:hasPendingActions(body) or q.current or #q.queue>0 then return false end
+    local rows=rec.resourceProductionOutcomes or {}
+    for _,row in ipairs(rows) do if row.id==w.id then return false end end
+    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    local row={};for k in pairs(PLUMB_FIELDS) do if w[k]~=nil then row[k]=plumbCopy(w[k],0) end end
+    row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISPlumbItem","interrupted","plumbing-runtime-unavailable",t,t
+    row.nativeObservability="runtime-unavailable";row.nativeAttempted,row.nativeCompleted,row.toolRetained,row.connected=false,false,false,false
+    if not plumbOutcome(id,row) then return false end
+    rows[#rows+1]=row;rec.resourceProductionOutcomes=rows;if #rows>CRAFT_LIMIT then table.remove(rows,1) end
+    rec.resourceProductionWork=nil;reconcile(id);return true
+end
+plumbInterrupt=function(id,body,reason)
+    local rt=runtime[id]
+    if not rt then return plumbRecover(id,body) end
+    if rt.kind~="plumb-fixture" or body and rt.body~=body then return false end
+    if rt.nativeCompleted and not rt.cancelling and plumbRetired(rt) then return plumbClose(rt,"completed","native-plumbing-completed-before-interruption") end
+    plumbRefuse(rt,reason or "higher-priority-work")
+    if rt.route and not rt.route.done then
+        local ok,cancelled=pcall(function() return SAOJavaBridge:cancelMove(rt.body) end)
+        if not ok or cancelled~="MOVE_CANCELLED" then return false end
+        rt.route.done=true
+    end
+    for _,c in ipairs(rt.actions) do
+        if not c.ack then if c.action.action then pcall(function() c.action:forceStop() end) else c.action:forceCancel() end end
+    end
+    return rt.closed==true or plumbClose(rt,"interrupted",rt.cancelReason)
+end
+plumbTick=function(id,body)
+    local rt=runtime[id]
+    if not rt then return plumbRecover(id,body) and "interrupted" or "cancelling" end
+    if rt.cancelling or rt.body~=body or not plumbBound(rt,not rt.nativeAttempted) or not now() or now()-rt.startedAt>.5 then
+        return plumbInterrupt(id,rt.body,rt.cancelReason or "plumbing-owner-changed") and "interrupted" or "cancelling"
+    end
+    if rt.work.stage=="approaching" then
+        if SAO.Locomotion.jobs[id]~=rt.route then return plumbInterrupt(id,body,"plumbing-route-owner-lost") and "interrupted" or "cancelling" end
+        SAO.Locomotion.tick(id)
+        if not rt.route.done then return "moving" end
+        if rt.route.result=="arrived" and plumbQueue(rt) then return rt.work.stage end
+        return plumbInterrupt(id,body,"native-plumbing-approach-refused") and "interrupted" or "cancelling"
+    end
+    if queued(rt.action) then return rt.work.stage end
+    return plumbInterrupt(id,body,"native-plumbing-acknowledgement-missing") and "interrupted" or "cancelling"
+end
 function R.reconcileSaved(id,body)
     local rec=SAO.Identity.get(id)
+    if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="plumb-fixture" then return plumbRecover(id,body) end
     if rec and rec.resourceProductionWork and nativeCraftKind(rec.resourceProductionWork.kind) then return craftRecover(id,body) end
     reconcile(id);return true
 end
 function R.retryCraftCancellations()
     for id,rt in pairs(runtime) do
-        if nativeCraftKind(rt.kind) and rt.cancelling then craftInterrupt(id,rt.body,rt.cancelReason) end
+        if rt.kind=="plumb-fixture" and rt.cancelling then plumbInterrupt(id,rt.body,rt.cancelReason)
+        elseif nativeCraftKind(rt.kind) and rt.cancelling then craftInterrupt(id,rt.body,rt.cancelReason) end
     end
 end
 if Events and Events.OnTick then Events.OnTick.Add(R.retryCraftCancellations) end
 
 function R.begin(id, body, step, context)
     context = context or {}
+    if step and step.productionKind == "plumb-fixture" then return plumbBegin(id, body, step, context) end
     if step and step.productionKind == "saw-logs" then return craftBegin(id, body, step, context) end
     if step and step.productionKind == "repair-held-item" then return repairBegin(id, body, step, context) end
     refreshHandledSource(id)
@@ -1228,6 +1673,8 @@ function R.begin(id, body, step, context)
 end
 function R.interrupt(id, body, reason)
     local rec, rt = SAO.Identity.get(id), runtime[id]
+    if rt and rt.kind == "plumb-fixture" or rec and rec.resourceProductionWork
+        and rec.resourceProductionWork.kind == "plumb-fixture" then return plumbInterrupt(id, body, reason) end
     if rt and nativeCraftKind(rt.kind) or rec and rec.resourceProductionWork
         and nativeCraftKind(rec.resourceProductionWork.kind) then return craftInterrupt(id, body, reason) end
     if rt and body and rt.body ~= body then return false end
@@ -1271,7 +1718,7 @@ end
 function R.servesNeed(id, body, category)
     local rec, rt = owner(id, body), runtime[id]
     local work = rec and rec.resourceProductionWork
-    if category ~= "water" or not work or work.kind ~= "refill-water"
+    if category ~= "water" or not work or (work.kind ~= "refill-water" and work.kind ~= "plumb-fixture")
         or not rt or rt.body ~= body or rt.workId ~= work.id or rt.cancelling
         or not SAO.Needs.portableWaterItem then return false end
     local items = SAOJavaBridge:privateCarriedItems(body)
@@ -1313,6 +1760,7 @@ local function tick(id, body)
     local rec, rt = SAO.Identity.get(id), runtime[id]
     local work = rec and rec.resourceProductionWork
     if not work then return "idle" end
+    if work.kind == "plumb-fixture" then return plumbTick(id, body) end
     if nativeCraftKind(work.kind) then return craftTick(id, body) end
     if not rt then
         -- A module reload can leave the exact native action in the queue.

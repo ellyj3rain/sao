@@ -10,9 +10,9 @@
 | Follows | batch:D2 |
 | Shared contracts | C12, C18, C20, C21, C24, C30, C31, C32, C33 |
 | Implementation | Observed window and boarding purposes join exact private acquisition, native preparation, measured effects and saved recovery; other D3 procedures remain open. |
-| Verification | First-join receipts remain dated below. CLOSED D3.1, D3.2 and D3.3 link native crafting/repair, private planning, Controller, lifecycle, cognitive and persistence evidence from their child records. |
-| Version | 3.10.1.0-pre-alpha through D3.1, D3.2 and D3.3; this OPEN parent receives no duplicate capability credit. |
-| Publication | D3.1 is self-merged through [PR142](https://github.com/ellyj3rain/sao/pull/142); D3.2 is self-merged through [PR143](https://github.com/ellyj3rain/sao/pull/143); D3.3 follows the established protected workflow. The whole D3 parent remains OPEN. |
+| Verification | First-join evidence remains dated below. CLOSED D3.1 through D3.4 link native crafting, maintenance and plumbing-to-water outcomes with private planning, lifecycle, cognition and persistence evidence. |
+| Version | 3.11.0.0-pre-alpha through D3.1-D3.4; this OPEN parent receives no duplicate capability credit. |
+| Publication | D3.1, D3.2 and D3.3 are self-merged through PR142, PR143 and PR144. D3.4 follows the established protected child workflow. The whole parent remains OPEN. |
 
 ## Product and current implementation
 
@@ -167,3 +167,11 @@ The CLOSED saw-maintenance child joins exact private file acquisition and native
 ## D3.3 portable maintenance continuation
 
 [D3.3](D3.3-20261010-0622Z-2222PST-portable-tool-maintenance.md) is CLOSED for portable saw repair and blade sharpening, exact private file/whetstone means, ordinary kit-tending purposes, measured native benefits/damage and saved continuity. Its scope, owners, contracts and required proof were recorded before implementation. D3.2 reached origin/main through self-merged [PR143](https://github.com/ellyj3rain/sao/pull/143), commit `78100a44524a7ea9bc57a81b7b076532ad4987b9`. The full D3 parent remains OPEN.
+
+## D3.4 plumbing continuation
+
+[D3.4](D3.4-20261010-0701Z-2301PST-plumbing-to-usable-water.md) is OPEN for personally observed fixture readiness, exact private pipe-wrench means, native connection and actual usable water under the same hydration purpose. Its reason, scope, owners, contracts, dependencies and required closure evidence are recorded before implementation. D3.3 reached origin/main through self-merged [PR144](https://github.com/ellyj3rain/sao/pull/144), commit `10efdee705f797cadaeed9197c8dcd243d23c49c`. The full D3 parent remains OPEN.
+
+## D3.4 closure - 2026-10-10 07:30 UTC / 23:30 PST
+
+[D3.4-20261010-0701Z-2301PST-plumbing-to-usable-water.md](D3.4-20261010-0701Z-2301PST-plumbing-to-usable-water.md) is CLOSED: exact private pipe-wrench acquisition, installed connection, handled-source refresh and actual clean held-water gain continue the same hydration purpose. Its evidence separates native geometry/fluid ports from controlled installed lifecycle receivers, with ordinary arbitration and saved continuity. The new native utility contract receives one minor credit. This parent keeps its complete remaining scope and stays OPEN.

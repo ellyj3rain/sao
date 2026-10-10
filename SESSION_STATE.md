@@ -1,13 +1,13 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.10.1.0-pre-alpha` |
+| Version | `3.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
-**As of** `[D3.3]`, 168 delivered batches: 29 A, 52 B, 82 C products and five delivered D records. D3 is the active OPEN parent.
+**As of** `[D3.4]`, 169 delivered batches: 29 A, 52 B, 82 C products and six delivered D records. D3 is the active OPEN parent.
 
 ## Delivered product
 
@@ -96,7 +96,7 @@ original purpose. Adoption and IDLE recovery reconcile lost native admissions
 without inventing effects or completion. Focused native and Controller proofs
 retain their exact inputs and boundaries. Final regression and review results
 live in the D3 record. The whole construction, crafting, repair and utilities
-parent remains OPEN. Its CLOSED D3.1, D3.2 and D3.3 children deliver native crafting, saw maintenance and portable blade sharpening with ordinary kit tending; the current replay derives `3.10.1.0-pre-alpha`.
+parent remains OPEN. Its CLOSED D3.1 through D3.4 children deliver native crafting, saw maintenance, portable blade sharpening with ordinary kit tending and plumbing through actual usable water; the current replay derives `3.11.0.0-pre-alpha`.
 
 [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is the
 CLOSED child for native plank crafting. Exact private log and saw
@@ -109,7 +109,8 @@ and delivered version credit follow the canonical module rule independently.
 |---|---|
 | D3 construction/crafting/repair/utilities | Active OPEN parent; D3.1 native plank crafting is CLOSED and self-merged through [PR142](https://github.com/ellyj3rain/sao/pull/142). Entity placement, other recipes and pane integration, general item repair, plumbing and generators remain with D3. |
 | D3.2 native saw maintenance | CLOSED child under D3; exact native FixSaw, private file acquisition, interpreted maintenance alternatives, measured condition/wear and canonical feedback continue the original construction purpose. Self-merged through [PR143](https://github.com/ellyj3rain/sao/pull/143). |
-| D3.3 portable tool maintenance | CLOSED child: native saw repair and blade sharpening, private file/whetstone acquisition, ordinary kit tending and measured benefits/damage. Protected publication follows the established workflow. |
+| D3.3 portable tool maintenance | CLOSED child: native saw repair and blade sharpening, private file/whetstone acquisition, ordinary kit tending and measured benefits/damage. Self-merged through [PR144](https://github.com/ellyj3rain/sao/pull/144). |
+| D3.4 plumbing to usable water | CLOSED child: exact private wrench acquisition and fixture return, installed plumbing, handled-source refresh and actual clean held water under the same hydration purpose. Protected publication follows the established self-merge workflow; its actual receipt owns the merge evidence. |
 | D4 whole food/preservation | Follows D3; retains the complete installed domain and adjacent food mechanics. |
 | D5 comprehensive animal care | Follows D4; species and supported actions retain actual source admission. |
 | D6 assessed K-through-college learning | Follows D5; literal sources, comprehension, retention and transfer remain the outcome. |

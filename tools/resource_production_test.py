@@ -6,6 +6,9 @@ owner/planner/Controller code. Controlled native receivers isolate boundaries;
 the separate native fixture probe exercises the actual loaded-source adapter.
 """
 from pathlib import Path
+import argparse
+import hashlib
+import json
 import os
 import re
 import shutil
@@ -540,8 +543,8 @@ check('controller_drop_retires_post_action_source_refresh',dropped and not SAO.C
 __productionResults=table.concat(checks,'\n')
 '''
 REFRESH_CONTROLS = [
-    ('production', 'pcall(learn, id, receipt.place, receipt.sourceId, tick, "observed-native-refill")',
-     'pcall(learn, "b", receipt.place, receipt.sourceId, tick, "observed-native-refill")',
+    ('production', 'pcall(learn, id, receipt.place, receipt.sourceId, tick, observationKind)',
+     'pcall(learn, "b", receipt.place, receipt.sourceId, tick, observationKind)',
      'bound_fill_refreshes_actual_actor_source_revision'),
     ('production', 'or not physical(rt, receipt) then return stop("handled-source-no-longer-accessible")',
      'then return stop("handled-source-no-longer-accessible")', 'changed_fixture_blocks_handled_source_refresh'),
@@ -559,7 +562,112 @@ REFRESH_CONTROLS = [
      'controller_drop_retires_post_action_source_refresh'),
 ]
 
+def plumbing_proof(args):
+    native=[GAME/'media/lua/shared/ISBaseObject.lua',
+        GAME/'media/lua/shared/TimedActions/ISBaseTimedAction.lua',
+        GAME/'media/lua/client/TimedActions/ISTimedActionQueue.lua',
+        GAME/'media/lua/shared/TimedActions/ISEquipWeaponAction.lua',
+        GAME/'media/lua/client/TimedActions/ISInventoryTransferAction.lua',
+        GAME/'media/lua/shared/TimedActions/ISPlumbItem.lua',
+        GAME/'media/lua/shared/TimedActions/ISTakeWaterAction.lua']
+    base=ROOT/'tools/luacheck/window_repair_cases.lua'
+    board=ROOT/'tools/luacheck/d3_native_boarding_cases.lua'
+    cases=ROOT/'tools/resource_production_checks/plumbing_cases.lua'
+    probe=ROOT/'tools/resource_production_checks/ResourcePlumbingProbe.java'
+    loaded=['sources','perception','models','cognition','labor','planner','production','experience']
+    inputs=[Path(__file__),base,board,cases,probe,ROOT/'tools/luacheck/LuaSyntax.java',
+            *[FILES[k] for k in loaded],*native,GAME/'projectzomboid.jar',GAME/'stdlib.lua',
+            JDK/'java.exe',JDK/'javac.exe']
+    missing=[str(p) for p in inputs if not p.is_file()]
+    if missing:
+        print(('FAIL' if args.required else 'UNOBSERVABLE')+' plumbing inputs missing: '+', '.join(missing))
+        return 1 if args.required else 0
+    temporary=tempfile.TemporaryDirectory(prefix='sao-native-plumbing-') if args.out is None else None
+    out=Path(temporary.name)/'proof' if temporary else args.out.resolve()
+    if out.exists():raise ValueError('refuse replacing prior native proof')
+    out.mkdir(parents=True)
+    digest=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+    before={str(p):digest(p) for p in inputs}
+    classes=out/'classes';classes.mkdir()
+    compile_run=subprocess.run([str(JDK/'javac.exe'),'-cp',str(GAME/'projectzomboid.jar'),
+        '-d',str(classes),str(probe),str(ROOT/'tools/luacheck/LuaSyntax.java')],
+        text=True,capture_output=True,timeout=60)
+    (out/'compile.log').write_text(compile_run.stdout+compile_run.stderr,encoding='utf-8')
+    if compile_run.returncode:print(compile_run.stderr);return 1
+    syntax=subprocess.run([str(JDK/'java.exe'),'-cp',str(classes)+os.pathsep+str(GAME/'projectzomboid.jar'),
+        'LuaSyntax',str(cases),str(FILES['production'])],text=True,capture_output=True,timeout=60)
+    (out/'syntax.log').write_text(syntax.stdout+syntax.stderr,encoding='utf-8')
+    if args.syntax_only:
+        print(syntax.stdout);return syntax.returncode
+    fixture=cases.read_text(encoding='utf-8-sig')
+    expected=set(re.findall(r"check\('([a-z0-9_]+)'",fixture.split('function __runPlumbingCases()',1)[1]))
+    sources={'base.lua':base.read_text(encoding='utf-8-sig').split('function __runWindowCases()',1)[0],
+        'boarding-fixture.lua':board.read_text(encoding='utf-8-sig')+
+            '\n__boardingFixture=fixture;__boardingItem=item;__boardingInventory=inventory\n'}
+    sources.update({f'native-{i}.lua':p.read_text(encoding='utf-8-sig') for i,p in enumerate(native)})
+    sources['cases.lua']=fixture
+    sources.update({k+'.lua':FILES[k].read_text(encoding='utf-8-sig') for k in loaded})
+    sources['run.lua']='__runPlumbingCases()'
+    def run(name,variant,wanted):
+        directory=out/name;directory.mkdir()
+        shutil.copy2(GAME/'stdlib.lua',directory/'stdlib.lua')
+        paths=[]
+        for key,text in variant.items():
+            p=directory/key;p.write_text(text,encoding='utf-8');paths.append(str(p))
+        done=subprocess.run([str(JDK/'java.exe'),'-Duser.home='+str(directory),
+            '-cp',str(classes)+os.pathsep+str(GAME/'projectzomboid.jar'),'ResourcePlumbingProbe',*paths],
+            cwd=directory,text=True,capture_output=True,timeout=60)
+        log=directory/'output.log';log.write_text(done.stdout+done.stderr,encoding='utf-8')
+        checks=dict(re.findall(r'([a-z0-9_]+)=(true|false)',done.stdout))
+        return {'exitCode':done.returncode,'checks':checks,'failed':sorted(k for k,v in checks.items() if v!='true'),
+            'missing':sorted(wanted-checks.keys()),'extra':sorted(checks.keys()-wanted),'logSha256':digest(log)}
+    normal=run('normal',sources,expected)
+    mutations=[
+        ('native-completion','production.lua',
+         'if kind=="plumb" then rt.nativeAttempted=true end\n        local ok,result=pcall(complete,self)',
+         'if kind=="plumb" then rt.nativeAttempted=true end\n        local ok,result=true,true',
+         'native_connection_transition_measured'),
+        ('complete-custody','production.lua',
+         'if c.done or not c.performed or not exact() or not plumbBound(rt,true) or valid(self)~=true or not exact()',
+         'if c.done or not c.performed or not exact() or valid(self)~=true or not exact()',
+         'changed_tool_before_complete_refuses'),
+        ('pending-ack','production.lua','if not plumbRetired(rt) or rec~=rt.record',
+         'if false or rec~=rt.record','pending_native_plumb_ack_retained'),
+        ('raw-record','production.lua','local rec=SAO.Identity.get(id);local w=rec and rec.resourceProductionWork',
+         'local rec=owner(id,body);local w=rec and rec.resourceProductionWork','saved_missing_agent_retirement'),
+        ('private-refresh','production.lua','pcall(learn, id, receipt.place, receipt.sourceId, tick, observationKind)',
+         'pcall(learn, "foreign", receipt.place, receipt.sourceId, tick, observationKind)','handled_connection_private_refresh'),
+        ('generic-fact','cognition.lua','supplied.kind=="plumbing" or ','false or ','generic_plumbing_fact_denied')]
+    controls=[]
+    for name,file,old,new,detector in mutations:
+        variant=dict(sources);count=variant[file].count(old)
+        if count!=1:controls.append({'name':name,'detected':False,'mutationMatches':count});continue
+        variant[file]=variant[file].replace(old,new,1);variant['run.lua']=f"__runPlumbingControl('{name}')"
+        result=run(name,variant,{detector})
+        result.update(name=name,detector=detector,detected=result['exitCode']==0 and result['checks'].get(detector)=='false')
+        controls.append(result)
+    after={str(p):digest(p) for p in inputs}
+    passed=syntax.returncode==0 and normal['exitCode']==0 and not normal['failed'] and not normal['missing'] and not normal['extra'] and before==after and all(c['detected'] for c in controls)
+    receipt={'schema':'sao-d34-native-plumbing-proof/1','status':'PASS' if passed else 'FAIL',
+        'sourcePins':before,'sourcePreserved':before==after,'normal':normal,'controls':controls,
+        'syntax':{'exitCode':syntax.returncode,'logSha256':digest(out/'syntax.log')},
+        'boundary':'Installed Kahlua normal/debug parser, ISPlumbItem, native equipment/transfer/queue and ISTakeWaterAction code, native Kahlua table save/load and actual SAO ResourceProduction/Planner/Labor/WorldSources/Perception/Cognition/Models/CapabilityExperience. Reused body/map/private-inventory/native-dispatch/sound/UI/network receiver adapters are controlled. Fixture connection fields are changed only by the actual installed ISPlumbItem.complete; controlled source-fluid transfer is driven only by installed ISTakeWaterAction transfer/update/complete. Native Java supplier/mains/geometry/revision/fluid/purification effects are qualified separately by the material owner D34PlumbingPortProbe, not asserted from these controlled ports. No loaded game, save, installation, shared build or repository mutation. Existing water and handcraft custody evidence is reusable except changed plumbing interfaces, connection receipt/private observation and motivating-need join.'}
+    (out/'receipt.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+    print(f"D3.4 native plumbing {'PASS' if passed else 'FAIL'}: {len(normal['checks'])}/{len(expected)} cases; {sum(c['detected'] for c in controls)}/{len(controls)} controls")
+    if not passed:print(normal);print([(c['name'],c.get('detected'),c.get('mutationMatches')) for c in controls])
+    print('receipt '+str(out/'receipt.json'))
+    if temporary:temporary.cleanup()
+    return 0 if passed else 1
+
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--plumbing-only',action='store_true');parser.add_argument('--out',type=Path)
+    parser.add_argument('--required',action='store_true');parser.add_argument('--syntax-only',action='store_true')
+    args=parser.parse_args()
+    if args.plumbing_only:return plumbing_proof(args)
+    return baseline_main()
+
+def baseline_main():
     if not (GAME/'projectzomboid.jar').is_file() or not (JDK/'javac.exe').is_file():
         print('Border 219 SKIPPED: installed game VM and JDK absent')
         return 0
