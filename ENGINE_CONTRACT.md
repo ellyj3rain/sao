@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.6.7.0-pre-alpha` |
+| Version | `2.6.8.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -765,3 +765,7 @@ window opening and climbing retain their existing action owner.
 ## Native item fixing and equipment reuse (D3.7)
 
 Installed media/scripts/generated/fixing.txt supplies nineteen firearm definitions and twenty-seven fixer alternatives. ISInventoryPaneContextMenu excludes broken or full-condition targets and checks skill/quantity requirements; ISFixAction invokes native FixingManager.fixItem. Native fixing consumes matching raw root inventory in order on success or failure and returns donor weapon parts, magazines and ammunition. SAO prepares and guards the selected eligible exact donor/target rather than trusting arbitrary first-match custody. Actual before/after condition, repair count, consumed payment and returned contents establish the result. Installed ISEquipWeaponAction can return false for an already-equipped target after its force-complete path; that native path is accepted only with measured exact primary/both-hand readiness. No-change equip is separate from a new hand mutation. Native fixture proof covers every registered definition/fixer, exact payments, saved queue ownership and the ordinary private planner/cognition/equipment join; controlled body/map/dispatch receivers remain explicit.
+
+## Wooden-bed construction and recovery join (D3.8)
+
+Installed `entity_carpentry_bed.txt` defines `Base.Wood_Bed`, Woodwork4, kept hammer and consumed six planks, four nails and one mattress. Its S/E entity faces produce respectively native FacingE/FacingS two-part grids. `ISBuildIsoEntity` validates every tile and invokes native recipe payment before creating all parts; `ISBuildAction` completion alone supplies no successful structure credit. Observed complete bed grids enter the existing recovery geometry/pose/effect path. Exact native source and proof scope are retained in [D3.8](Batches/D3.8-20261010-2124Z-1424PST-usable-bed-construction.md).

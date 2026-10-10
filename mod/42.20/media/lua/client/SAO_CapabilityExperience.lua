@@ -68,6 +68,9 @@ end
 end
 SAO.ResourceProduction.onOutcome = function(id, receipt)
     local canonical = receipt and SAO.ResourceProduction.outcome(id, receipt.id)
+    if canonical and canonical.kind=="build-wood-bed" then
+        return SAO.Cognition and SAO.Cognition.bedConstructionOutcome and SAO.Cognition.bedConstructionOutcome(id,canonical) or false
+    end
     if canonical and canonical.kind == "build-rain-collector" then
         if not SAO.Cognition or not SAO.Cognition.collectorConstructionOutcome then return false end
         return SAO.Cognition.collectorConstructionOutcome(id, canonical)

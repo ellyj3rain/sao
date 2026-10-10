@@ -16,6 +16,8 @@ local WINDOW_REPAIR_RESULT = {}
 local BARRICADE_RESULT = {}
 local CRAFT_RESULT = {}
 local REPAIR_RESULT = {}
+local BED_RESULT = {}
+local BED_RECOVERY_RESULT = {}
 local INSTRUMENT_RESULT = {}
 local NOTE_RESULT = {}
 local HOBBY_RESULT = {}
@@ -938,7 +940,7 @@ local function plumbingStep(option, status)
         toolItemType = option.toolItemType }
 end
 
-local COLLECTOR_MATERIALS = { hammer = true, plank = true, nails = true, ["garbage-bag"] = true, tarp = true }
+local COLLECTOR_MATERIALS = { mattress=true, hammer = true, plank = true, nails = true, ["garbage-bag"] = true, tarp = true }
 local function collectorDeficits(option)
     if type(option.requirements) ~= "table" or #option.requirements < 1 or #option.requirements > 8
         or type(option.inputs) ~= "table" or #option.inputs > 16 then return nil end
@@ -1789,6 +1791,142 @@ function P.maintenancePurpose(id)
         end
     end
     return selected, selected and selected.steps[selected.cursor]
+end
+
+
+function P.bedPurpose(id)
+    local s=state(id)
+    for _,key in ipairs(s and s.order or {}) do local p=s.purposes[key]
+        if p and p.bedConstruction and p.status~="completed" and p.status~="abandoned" then return p,p.steps[p.cursor] end
+    end
+end
+function P.bedReady(option)
+    return P.collectorReady(option)
+end
+local function bedStep(option,status)
+    return {id="bed:"..option.site.key..":"..option.site.revision,verb="produce",owner="SAO.ResourceProduction",
+        token="resource:bed-built",target="Base.Wood_Bed",productionKind="build-wood-bed",category="construction",
+        entityId=option.entityId,recipeId=option.recipeId,site=dataCopy(option.site),
+        requirements=dataCopy(option.requirements),inputs=dataCopy(option.inputs),status=status}
+end
+function P.planBedConstruction(id,context)
+    context=type(context)=="table" and context or {};local s=state(id,true)
+    if not s or context.recoveryKind~="sleep" or not finite(context.fatigue) or context.fatigue<0 or context.fatigue>1 then return nil end
+    local retained,current=P.bedPurpose(id)
+    if retained and (retained.admission or retained.bedConstruction.constructedWorkId) then return retained,current end
+    local at=finite(context.atHours) and context.atHours or nowHours()
+    local candidates={{id="continue",evidence=1,continuity=.7,novelty=0,informationGain=0,utility=.25,blockers=0}}
+    local offered={}
+    for i,option in ipairs(type(context.options)=="table" and context.options or {}) do
+        if i>15 then break end
+        local ready,missing=P.bedReady(option)
+        if type(option)=="table" and option.entityId=="Base.Wood_Bed" and option.kind=="build-wood-bed"
+            and option.known==true and type(option.site)=="table" and option.site.actorId==id and option.site.observed==true
+            and finite(option.site.observedAtHours) and option.site.observedAtHours<=at and missing then
+            local source,delayed
+            if not ready then source,delayed=materialSource(retained or {},context.materialSources,missing[1].category,at) end
+            local key="bed-option:"..i
+            candidates[#candidates+1]={id=key,evidence=1,continuity=retained and 1 or .7,novelty=.1,informationGain=.2,
+                utility=.8+context.fatigue-.1*math.min(1,(tonumber(option.distance) or 100)/100),
+                blockers=(not ready and not source or delayed) and 1 or 0,
+                consequences={{kind="construct",category="construction",sourceId=option.site.key,itemType="Base.Wood_Bed",value=.5}}}
+            offered[key]={option=option,source=source,ready=ready,delayed=delayed}
+        end
+    end
+    local view=interpretations(id,candidates,{domain="construction",pressure=context.fatigue,atHours=at})
+    local selected=view and offered[view.selected]
+    if not selected then return retained,nil,"bed-means-unavailable" end
+    local p=retained or P.maintain(id,{key="sleep-with-built-bed",domain="body",objective="sleep using a bed made from personally known means",origin="recovery-concern",atHours=at})
+    if not p then return nil end
+    local steps,blockers={},{}
+    if not selected.ready then
+        if selected.source and not selected.delayed then local source=selected.source
+            steps[#steps+1]={id=materialAcquisitionId(source),verb="acquire",owner="SAO.SourceUse",token="resource:acquired",
+                target=source.sourceId..":"..tostring(source.itemId),category=source.category,sourceId=source.sourceId,
+                sourceRevision=source.revision,itemId=source.itemId,itemType=source.itemType,place=dataCopy(source.place),
+                quantity=1,quantityUnit="item",status="available"}
+        else blockers[#blockers+1]=selected.delayed and "known-route-retry-delayed" or "missing-private-bed-material" end
+    end
+    local step=bedStep(selected.option,#blockers>0 and "blocked" or #steps>0 and "dependent" or "available")
+    steps[#steps+1]=step
+    steps[#steps+1]={id="sleep-in-created-bed",verb="recover",owner="SAONeeds",token="recovery:measured",
+        target=step.site.key,status="dependent"}
+    p.materialWork={operation="build-bed",entryKey=step.site.key}
+    p.bedConstruction={recoveryKind="sleep",site=dataCopy(step.site),entityId=step.entityId,recipeId=step.recipeId}
+    setPlan(p,steps,blockers,dataCopy(view),at);p.selectedStrategy=steps[1].id
+    return p,p.steps[p.cursor]
+end
+function P.admitBedConstruction(id,w)
+    local p,step=P.bedPurpose(id)
+    if type(w)~="table" or w.actorId~=id or w.kind~="build-wood-bed" or not p or p.admission
+        or p.id~=w.purposeId or not step or step.status~="available" or step.owner~="SAO.ResourceProduction"
+        or step.productionKind~=w.kind or step.id~=w.purposeStepId or step.recipeId~=w.recipeId or step.site.key~=w.siteKey
+        or step.site.revision~=w.siteRevision or step.site.face~=w.face or not P.bedReady(step) then return false end
+    return P.noteAdmission(id,p.id,step.owner,w.id,step.id)
+end
+function P.consumeBedConstructionResult(id,supplied)
+    local canonical=type(supplied)=="table" and SAO.ResourceProduction.outcome(id,supplied.id)
+    if not canonical or canonical.actorId~=id or canonical.kind~="build-wood-bed" or canonical.token~="resource:bed-built"
+        or canonical.nativeOwner~="ISBuildAction" or not finite(canonical.atHours) or canonical.atHours>nowHours() then return false end
+    local s=state(id);local p=s and s.purposes[canonical.purposeId]
+    if not p or p.status=="abandoned" then return true end
+    for _,key in ipairs(p.resultReceipts or {}) do if key=="SAO.ResourceProduction:"..canonical.id then return true end end
+    local step,a=p.steps[p.cursor],p.admission
+    if not p.bedConstruction or not step or not a or step.owner~="SAO.ResourceProduction" or step.token~=canonical.token
+        or step.id~=canonical.purposeStepId or a.stepId~=step.id or a.correlationId~=canonical.id or a.owner~=step.owner
+        or a.target~=step.target or canonical.atHours<a.at or step.site.key~=canonical.siteKey
+        or step.site.revision~=canonical.siteRevision or step.site.face~=canonical.face or step.recipeId~=canonical.recipeId
+        or not P.bedReady(step) or not P.bedReady(canonical) then return false end
+    local accepted=P.recordResult(id,p.id,{owner="SAO.ResourceProduction",token="resource:bed-built",status=canonical.status,
+        correlationId=canonical.id,reason=canonical.detail,atHours=canonical.atHours},BED_RESULT)
+    if accepted and canonical.status=="completed" then
+        p.bedConstruction.constructedWorkId,p.bedConstruction.constructedAt=canonical.id,canonical.atHours
+        p.bedConstruction.bedKey=canonical.bedKey
+        local recovery=p.steps[p.cursor]
+        if recovery and recovery.owner=="SAONeeds" and recovery.token=="recovery:measured" then recovery.status="available" end
+        p.status="maintained";p.blockers={"awaiting-measured-bed-recovery"}
+    end
+    return accepted
+end
+function P.reconcileBedRecovery(id,body)
+    local p,step=P.bedPurpose(id);local a=p and p.admission;local rec=record(id)
+    if not a or a.owner~="SAONeeds" then return true end
+    local b=p.bedConstruction
+    if not b or not b.constructedWorkId or not step or step.owner~="SAONeeds" or step.token~="recovery:measured"
+        or a.stepId~=step.id or a.correlationId~="bed-recovery:"..p.id or not finite(a.at) or a.at>nowHours()
+        or not rec or not body or SAO.Body.get(id)~=body or not SAO.Needs.ownsRecoveryBody(id,body) then return false end
+    local ok,quiet=pcall(function()
+        return rec.recoveryIntent==nil and not SAO.Needs.recoveryActive(id,body) and not SAOJavaBridge:hasPendingActions(body)
+            and body:getCurrentStateName()=="IdleState" and not body:isAsleep() and not body:isOnBed() and not body:isResting()
+            and not (SAO.RecoveryPose and SAO.RecoveryPose.pendingExits and SAO.RecoveryPose.pendingExits[body])
+    end)
+    if not ok or not quiet then return false end
+    p.lastAdmission=dataCopy(a);p.admission=nil;step.status="available";p.status="maintained"
+    b.recoverySequenceBefore=nil;p.blockers={"recovery-interrupted-awaiting-retry"}
+    addEvent(p,"bed-recovery-interrupted","native pose and queue retired without completed sleep",nowHours())
+    return true
+end
+function P.admitBedRecovery(id,kind,place)
+    local p,step=P.bedPurpose(id);local rec=record(id);local b=p and p.bedConstruction
+    if not b or not b.constructedWorkId or kind~="sleep" or not step or step.owner~="SAONeeds" or step.token~="recovery:measured"
+        or p.admission or type(place)~="table" or place.kind~="bed" or place.available~=true
+        or place.objectX~=b.site.x or place.objectY~=b.site.y or place.objectZ~=b.site.z
+        or not rec.recoveryIntent or rec.recoveryIntent.kind~=kind or rec.recoveryIntent.place.key~=place.key then return false end
+    b.bedKey=place.key
+    b.recoverySequenceBefore=rec.recoveryExperienceSequence or 0
+    return P.noteAdmission(id,p.id,"SAONeeds","bed-recovery:"..p.id,step.id)
+end
+function P.consumeBedRecovery(id,sequence)
+    local canonical=SAO.Needs.behaviorOutcome(id,sequence);local p,step=P.bedPurpose(id);local b=p and p.bedConstruction
+    local a=p and p.admission
+    if not canonical or not b or not a or not step or step.owner~="SAONeeds" or a.owner~="SAONeeds"
+        or a.stepId~=step.id or canonical.actorId~=id or canonical.kind~="recovery-outcome" or canonical.actionKind~="sleep"
+        or canonical.sourceId~=b.bedKey or sequence<=b.recoverySequenceBefore or canonical.atHours<a.at
+        or canonical.atHours>nowHours() or not finite(canonical.durationHours) or canonical.durationHours<=0
+        or canonical.succeeded~=true or not finite(canonical.beforeValue) or not finite(canonical.afterValue)
+        or canonical.afterValue>=canonical.beforeValue then return false end
+    return P.recordResult(id,p.id,{owner="SAONeeds",token="recovery:measured",status="completed",
+        correlationId=a.correlationId,atHours=canonical.atHours,reason="native-created-bed-fatigue-reduction"},BED_RECOVERY_RESULT)
 end
 
 function P.planToolMaintenance(id, context)
@@ -3133,6 +3271,11 @@ function P.recordResult(id, purposeId, result, authority)
     if purpose and purpose.windowRepair and (not step or step.owner ~= "SAO.SourceUse") then
         if purpose and purpose.windowRepair and authority ~= WINDOW_REPAIR_RESULT then return false end
     end
+    if purpose and purpose.bedConstruction then
+        if not step or step.owner=="SAO.ResourceProduction" and authority~=BED_RESULT
+            or step.owner=="SAONeeds" and authority~=BED_RECOVERY_RESULT
+            or step.owner~="SAO.ResourceProduction" and step.owner~="SAONeeds" and step.owner~="SAO.SourceUse" then return false end
+    end
     if purpose and purpose.materialWork then
         if not step then return false end
         if step.owner == "SAO.SourceUse" and (step.verb ~= "acquire" or step.token ~= "resource:acquired"
@@ -3142,7 +3285,8 @@ function P.recordResult(id, purposeId, result, authority)
         if step.owner == "SAO.ResourceProduction" and (step.verb ~= "produce"
             or step.token == "resource:crafted" and authority ~= CRAFT_RESULT
             or step.token == "resource:repaired" and authority ~= REPAIR_RESULT
-            or step.token ~= "resource:crafted" and step.token ~= "resource:repaired") then return false end
+            or step.token == "resource:bed-built" and authority ~= BED_RESULT
+            or step.token ~= "resource:crafted" and step.token ~= "resource:repaired" and step.token ~= "resource:bed-built") then return false end
     end
     if purpose and purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
     if purpose and purpose.noteReading and authority ~= NOTE_RESULT then return false end

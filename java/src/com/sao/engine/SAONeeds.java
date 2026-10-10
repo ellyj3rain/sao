@@ -1178,6 +1178,8 @@ public final class SAONeeds {
                     && item instanceof InventoryContainer bag && bag.getInventory().isEmpty()
                     && item.getCondition() > 0 && !item.isBroken()
                     && !item.getIsCraftingConsumed();
+            case "mattress":
+                return "Base.Mattress".equals(item.getFullType()) && !item.getIsCraftingConsumed();
             case "tarp":
                 return "Base.Tarp".equals(item.getFullType())
                     && item.getCondition() > 0 && !item.isBroken()

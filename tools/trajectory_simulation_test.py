@@ -278,7 +278,7 @@ def main(root):
                                ('Education', 'EducationRegistry')):
         if order['shared/SAO_' + producer + '.lua'] >= order['shared/SAO_' + consumer + '.lua']:
             faults.append('personal binding load order reversed: ' + producer + '/' + consumer)
-    for owner in ('SourceUse', 'ResourceProduction', 'Generator', 'ModMechanics', 'WindowRepair', 'Build',
+    for owner in ('SourceUse', 'ResourceProduction', 'Generator', 'ModMechanics', 'WindowRepair', 'Build', 'RecoveryPose',
                   'ConflictResponse', 'CompanionExecution', 'Leisure',
                   'LeisureAcquisition', 'LeisureArt', 'LeisureExercise',
                   'LeisureGames', 'LeisureLifestyle', 'LeisureMusic',

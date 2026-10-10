@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.6.7.0-pre-alpha` |
+| Version | `2.6.8.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2448,3 +2448,7 @@ knowledge, result receipt or training admission by itself.
 ## Native firearm fixing and equipment continuation (D3.7)
 
 The existing ResourceProduction physical-work claim owns native-item fixing. Registered definitions and exact target/fixer identity determine admission; private source options filter the required donor type before their cap, and SourceUse preserves that filter through reservation/revalidation. Native raw root payment order is prepared and guarded for the selected eligible donor. Installed ISFixAction/FixingManager determine payment and condition effect, including failure consumption and returned parts, magazines and ammunition. ISEquipWeaponAction restores the same target, with captured already-equipped completion accepted only alongside measured exact current hands. The planner retains equipment purpose; both private models consume authenticated benefit/damage with independent replay. Whole queue identity, cancellation acknowledgement and plain saved state retain the existing owner.
+
+## Native construction through a usable bed (D3.8)
+
+Private recovery motivation can retain an exact construction purpose. Perception owns detached personally visible full-footprint and approach observations; Standing governs each used square. The existing physical-work claim binds exact actor, inputs, native recipe, site and queue. Installed BuildLogic and ISBuildIsoEntity own payment, tool wear, complete multi-part creation and native sprite/grid properties. The new bed enters ordinary observed bed selection, approach, native pose and measured recovery through the existing Needs and Controller owners. Construction does not manufacture physiological relief. Interruption, independent feedback and saved plain state retain separate ownership and outcomes.

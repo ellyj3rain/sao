@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.6.7.0-pre-alpha` |
+| Version | `2.6.8.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -575,3 +575,9 @@ The [historical transition](Batches/Transitions/VERSION-20261010-feature-scope-c
 | Batch | Date | Name | Threads |
 |---|---|---|---|
 | [D3.7](Batches/D3.7-20261010-1903Z-1203PST-native-item-fixing.md) | 2026-10-10 | Native item fixing to equipment reuse | D3 general fixing and retained equipment |
+
+## Construction through a usable structure - 2026-10-10 21:59 UTC / 14:59 PDT
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D3.8](Batches/D3.8-20261010-2124Z-1424PST-usable-bed-construction.md) | 2026-10-10 | Construction and placement through a usable bed | D3 placement, native construction and ordinary recovery |

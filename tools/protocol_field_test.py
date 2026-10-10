@@ -78,6 +78,9 @@ BUILDERS = {
     ("SAOWorldSources.java", "collectorSites"): (
         "|,",
         "native placement coordinates and opaque generated site revisions"),
+    ("SAOBedConstruction.java", "observe"): (
+        "|,",
+        "native placement coordinates, fixed facing and generated site revisions"),
     ("SAOPrivateInventory.java", "encode"): (
         "|=",
         "person, holder and item identities from the loaded world or a "

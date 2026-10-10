@@ -2798,6 +2798,10 @@ if ! "$PY" tools/d3_material_categories_test.py --collector-only --out "$sao_d3_
     note "BORDER FINDING - native collector materials, observed placement or rain supply differs"
     fail=1
 fi
+if ! "$PY" tools/d3_bed_construction_test.py --out "$sao_d3_proof/bed-construction"; then
+    note "BORDER FINDING - native bed construction, exact placement or ordinary recovery differs"
+    fail=1
+fi
 if ! "$PY" tools/d3_rain_collector_test.py --out "$sao_d3_proof/collector-native"; then
     note "BORDER FINDING - native collector construction, placement or saved custody differs"
     fail=1

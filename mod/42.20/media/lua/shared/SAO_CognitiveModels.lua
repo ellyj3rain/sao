@@ -61,7 +61,7 @@ for _,machine in ipairs({"ArcadeMachine1","ArcadeMachine2","ArcadeStreetFighter"
 end
 local COLLECTOR_ENTITIES = { ["Base.RainCollector"]=true, ["Base.RainCollectorRound"]=true,
     ["Base.RainCollector_Tarp"]=true, ["Base.RainCollectorRound_Tarp"]=true }
-local EXTENDED = { ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["collector-construction"]=true,
+local EXTENDED = { ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["bed-construction"]=true,["collector-construction"]=true,
     ["animal-care"]=true, ["window-repair"]=true, ["material-crafting"]=true, ["tool-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -116,7 +116,7 @@ local function occurrencePosition(e)
         or e.kind=="animal-care" and ("animal-care/"..e.actorId.."/")
         or e.kind=="window-repair" and (e.actorId.."/window-result/")
         or e.kind=="material-crafting" and ("resource-production/"..e.actorId.."/")
-        or (e.kind=="tool-repair" or e.kind=="plumbing" or e.kind=="collector-construction") and ("resource-production/"..e.actorId.."/")
+        or (e.kind=="tool-repair" or e.kind=="plumbing" or e.kind=="collector-construction" or e.kind=="bed-construction") and ("resource-production/"..e.actorId.."/")
         or e.kind=="entry-outcome" and ("entry/"..e.actorId.."/")
         or e.kind=="recovery-outcome" and ("recovery/"..e.actorId.."/")
         or e.kind=="study-outcome" and ("study/"..e.actorId.."/")
@@ -197,7 +197,7 @@ local function validEvent(e)
     end
     if e.category=="utilities" or e.consumerId~=nil then return false end
     if e.kind ~= "tool-repair" and (e.effectMetric ~= nil or e.conditionLoss ~= nil or e.headConditionLoss ~= nil) then return false end
-    if e.kind ~= "collector-construction" and (e.entityId ~= nil or e.recipeId ~= nil
+    if e.kind ~= "collector-construction" and e.kind~="bed-construction" and (e.entityId ~= nil or e.recipeId ~= nil
         or e.originalFixtureSourceId ~= nil or e.siteKey ~= nil or e.siteX ~= nil
         or e.siteY ~= nil or e.siteZ ~= nil or e.feedsFixture ~= nil) then return false end
     local behavior=e.kind=="entry-outcome" or e.kind=="recovery-outcome"
@@ -266,7 +266,7 @@ local function validEvent(e)
         or e.startedAtHours~=nil or e.nativeCompletedAtHours~=nil) then return false end
     if e.kind~="animal-care" and (e.consumedAmount~=nil or e.quantityUnit~=nil) then return false end
     if e.category=="animal" and e.kind~="animal-care" then return false end
-    if e.category=="construction" and e.kind~="window-repair" and e.kind~="material-crafting" and e.kind~="tool-repair" and e.kind~="plumbing" and e.kind~="collector-construction" then return false end
+    if e.category=="construction" and e.kind~="window-repair" and e.kind~="material-crafting" and e.kind~="tool-repair" and e.kind~="plumbing" and e.kind~="collector-construction" and e.kind~="bed-construction" then return false end
     if e.capabilities~=nil and not capabilities(e.capabilities) then return false end
     for _, key in ipairs({"sourceId","itemType"}) do
         if e[key]~=nil and not text(e[key],160) then return false end
@@ -436,6 +436,14 @@ local function validEvent(e)
                 and (string.match(e.sourceId,"^window:%-?%d+:%-?%d+:%-?%d+:%d+:true$")~=nil
                     or string.match(e.sourceId,"^window:%-?%d+:%-?%d+:%-?%d+:%d+:false$")~=nil)
                 and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
+        end
+        if e.kind=="bed-construction" then
+            if e.category~="construction" or e.status~="completed" or e.entityId~="Base.Wood_Bed"
+                or not text(e.recipeId,160) or not text(e.siteKey,160) or e.sourceId~=e.siteKey
+                or e.originalFixtureSourceId~=nil or e.feedsFixture~=nil then return false end
+            for _,key in ipairs({"siteX","siteY","siteZ"}) do if not finite(e[key]) or e[key]~=math.floor(e[key]) then return false end end
+            return e.siteKey==string.format("bed-site:%d:%d:%d:S",e.siteX,e.siteY,e.siteZ)
+                or e.siteKey==string.format("bed-site:%d:%d:%d:E",e.siteX,e.siteY,e.siteZ)
         end
         if e.kind=="collector-construction" then
             if e.category~="construction" or e.status~="completed" or not COLLECTOR_ENTITIES[e.entityId]
@@ -782,6 +790,9 @@ local function rememberPlanEvidence(state, e, yes)
     elseif e.kind == "preparation" then retain("prepare", "food", true)
     elseif e.kind == "plumbing" then retain("plumb", "construction", true)
     elseif e.kind == "generator-operation" and e.actionKind=="verify-power" then retain("power", "utilities", true)
+    elseif e.kind=="bed-construction" then
+        local b=remember(state,planBeliefKey("construct","construction",e.siteKey,e.entityId),"Personally made a complete bed",true,e)
+        b.planKind,b.category,b.sourceId,b.itemType="construct","construction",e.siteKey,e.entityId
     elseif e.kind == "collector-construction" then
         local b = remember(state, planBeliefKey("construct", "construction", e.originalFixtureSourceId, e.entityId),
             "Personally acquired collector construction evidence", true, e)
@@ -889,6 +900,9 @@ local function extendedEvidence(modelId,state,e)
                     (e.conditionLoss or 0)>0 or (e.headConditionLoss or 0)>0,e,"manufacturing")
             end
         end
+    elseif e.kind=="bed-construction" then
+        if modelId=="ordinary" then remember(state,"direct:bed-construction:"..e.siteKey,"Native construction placed a complete bed",true,e)
+        else relation(state,"construct","materials:"..e.recipeId,"bed:"..e.siteKey,true,e,"manufacturing") end
     elseif e.kind=="collector-construction" then
         if modelId=="ordinary" then
             remember(state,"direct:collector-construction:"..e.sourceId..":"..e.entityId,
@@ -1151,7 +1165,8 @@ local function validConsequences(candidate)
                 or c.condition~=nil or c.itemType~=nil then return false end
         elseif c.kind == "construct" then
             if c.category ~= "construction" or not text(c.sourceId,160)
-                or c.sourceId:sub(1,2) ~= "F:" or not COLLECTOR_ENTITIES[c.itemType]
+                or not (c.itemType=="Base.Wood_Bed" and c.sourceId:sub(1,9)=="bed-site:"
+                    or COLLECTOR_ENTITIES[c.itemType] and c.sourceId:sub(1,2)=="F:")
                 or c.condition ~= nil then return false end
         elseif c.kind == "tool-repair" then
             if c.category ~= "construction" or (c.sourceId ~= "Base.FixSaw" and c.sourceId ~= "Base.SharpenBlade"

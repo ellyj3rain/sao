@@ -230,6 +230,7 @@ NOT_DORMANT = {
     "ConflictResponse": "dispatches conflict choices through a bound loaded Controller/body and native contact, retreat or pose executors; the bodyless county has no such action owner",
     "Locomotion": "queues a move onto a body",
     "Needs": "acts on a body's needs through the engine",
+    "RecoveryPose": "owns native recovery entry, pose and acknowledged exit on a loaded body; the bodyless county has no native pose or action queue",
     "Orienting": "turns the head and body in response to loaded sound cues; dormant people have no native pose",
     "Posture": "owns exact watch/cover orientation on a loaded body; dormant people have no native pose",
     "Cooking": "owns exact loaded transfers and appliance heat; dormant cooking has no native appliance executor",
