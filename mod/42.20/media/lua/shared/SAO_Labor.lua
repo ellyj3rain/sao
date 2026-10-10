@@ -332,6 +332,9 @@ local function resourceConsequences(option, category, concern)
     elseif option.kind == "acquire-ready" or option.kind == "acquire-prepare" then
         out[1] = { kind = "acquire", category = category,
             sourceId = option.sourceId, itemType = option.itemType, value = value }
+    elseif option.kind == "plumb-fixture" then
+        out[1] = { kind = "plumb", category = "construction", sourceId = option.sourceId,
+            itemType = option.toolItemType, value = 0.5 }
     end
     if option.cooking then
         out[#out + 1] = { kind = "prepare", category = "food",
@@ -409,7 +412,8 @@ function Labor.assess(id, context)
         option.blockers = capacity.available and 0 or 1
         option.uncertainty = "native permission, approach and completion revalidate during execution"
         option.technique = { domain = option.cooking and "Cooking"
-                or option.kind == "refill-water" and "water collection" or "carrying",
+                or option.kind == "refill-water" and "water collection"
+                or option.kind == "plumb-fixture" and "plumbing" or "carrying",
             level = option.cooking and capacity.skills.Cooking or nil,
             fatigue = capacity.fatigue, health = capacity.health }
         -- Skill is evidence about technique, not a zero-level action gate.
@@ -493,6 +497,15 @@ function Labor.assess(id, context)
         add(option)
     end
     local production = SAO.ResourceProduction
+    out.toolSources = {}
+    for i, source in ipairs(type(context.toolSources) == "table" and context.toolSources or {}) do
+        if i > 128 then break end
+        if type(source) == "table" and source.category == "pipe-wrench" and source.known == true
+            and finite(source.itemId) and short(source.itemType) and short(source.sourceId)
+            and short(source.revision) and privateSource(id, source) and inspectedPlace(id, source.place) then
+            out.toolSources[#out.toolSources + 1] = source
+        end
+    end
     local productionCount = 0
     for i, candidate in ipairs(type(context.productionOptions) == "table" and context.productionOptions or {}) do
         if i > 16 then break end
@@ -503,23 +516,29 @@ function Labor.assess(id, context)
             private = ok and known == true
         end
         if private and category == "water" and candidate.category == category
-            and candidate.kind == "refill-water" and candidate.owner == "SAO.ResourceProduction"
+            and (candidate.kind == "refill-water" or candidate.kind == "plumb-fixture"
+                and candidate.toolCategory == "pipe-wrench") and candidate.owner == "SAO.ResourceProduction"
             and short(candidate.sourceId) and short(candidate.sourceRevision) and short(candidate.fingerprint)
             and finite(candidate.sourceX) and finite(candidate.sourceY) and finite(candidate.sourceZ)
             and finite(candidate.itemId) and short(candidate.itemType)
             and finite(candidate.beforeAmount) and finite(candidate.capacity)
             and candidate.beforeAmount >= 0 and candidate.capacity > candidate.beforeAmount then
-            add({ id = "refill:" .. candidate.sourceId .. ":" .. candidate.sourceRevision
-                    .. ":" .. tostring(candidate.itemId), kind = "refill-water",
+            add({ id = (candidate.kind == "plumb-fixture" and "plumb:" or "refill:")
+                    .. candidate.sourceId .. ":" .. candidate.sourceRevision
+                    .. ":" .. tostring(candidate.itemId), kind = candidate.kind,
                 owner = "SAO.ResourceProduction", category = category, place = place,
                 sourceId = candidate.sourceId, sourceRevision = candidate.sourceRevision,
                 fingerprint = candidate.fingerprint, sourceX = candidate.sourceX,
                 sourceY = candidate.sourceY, sourceZ = candidate.sourceZ,
                 itemId = candidate.itemId, itemType = candidate.itemType,
+                toolCategory = candidate.toolCategory, toolItemId = candidate.toolItemId,
+                toolItemType = candidate.toolItemType,
                 beforeAmount = candidate.beforeAmount, capacity = candidate.capacity,
                 quantityUnit = "fluid", evidence = 0.85, continuity = 0.8,
                 novelty = 0.15, informationGain = 0.3,
-                rationale = "fill a currently held native vessel at a privately observed water fixture" })
+                rationale = candidate.kind == "plumb-fixture"
+                    and "connect a privately observed eligible fixture, then reassess actual usable water"
+                    or "fill a currently held native vessel at a privately observed water fixture" })
             productionCount = productionCount + 1
         end
     end

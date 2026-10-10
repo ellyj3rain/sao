@@ -25,8 +25,8 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.10.1.0-pre-alpha` |
-| Classified delivered scope | `A1-D3.3` |
+| Current version | `3.11.0.0-pre-alpha` |
+| Classified delivered scope | `A1-D3.4` |
 | Current C generation | `20261005-product-consolidation` |
 | Unconsumed scope | `D3` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
@@ -213,6 +213,7 @@ the machine. Names, dates, and threads below come from
 | `D3.1` | 2026-10-10 | minor | `3.9.0.0-pre-alpha` | Native plank crafting for retained construction | Native material crafting establishes an exact privately acquired-input, installed-recipe, measured-output and authenticated-experience runtime contract within retained construction. The first D3 window/boarding join supplies its required integration; the OPEN parent receives no repeated credit. |
 | `D3.2` | 2026-10-10 | minor | `3.10.0.0-pre-alpha` | Native saw maintenance for retained construction | Exact held-tool repair establishes native FixSaw eligibility, private file acquisition and competing maintenance means, kept manual inputs, measured condition/wear, retained construction continuation and authenticated positive/negative private feedback. The OPEN D3 parent receives no repeated credit. |
 | `D3.3` | 2026-10-10 | kohai | `3.10.1.0-pre-alpha` | Portable tool maintenance | Portable blade sharpening and ordinary kit tending extend the existing exact held-tool maintenance contract through private file/whetstone means, native metric-specific benefits and damage, authenticated experience and saved continuity. The OPEN D3 parent receives no duplicate credit. |
+| `D3.4` | 2026-10-10 | minor | `3.11.0.0-pre-alpha` | Plumbing to usable water | Native plumbing establishes private fixture and pipe-wrench admission, installed connection, measured connection-result authority, handled-source refresh and actual usable water under the same hydration purpose. The OPEN D3 parent receives no duplicate credit. |
 
 Dotted labels record child scope. Each capability row above receives credit once;
 child delivery leaves its explicitly active parent open. Closed parent aggregation
@@ -336,6 +337,6 @@ another batch. Subsequent delivered work determines its own tier:
 
 | If newly delivered scope is | Result |
 |---|---|
-| patch or hotfix | `3.10.1.1-pre-alpha` |
-| kohai | `3.10.2.0-pre-alpha` |
-| minor | `3.11.0.0-pre-alpha` |
+| patch or hotfix | `3.11.0.1-pre-alpha` |
+| kohai | `3.11.1.0-pre-alpha` |
+| minor | `3.12.0.0-pre-alpha` |

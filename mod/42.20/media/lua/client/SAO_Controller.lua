@@ -2597,12 +2597,59 @@ function Ctl.coordinationStudyReady(id, body, commitment, plan, step)
     return Ctl.coordinationRouteAllowed(id, body, commitment.id, ax, ay, az, "acquiring", x, y, z) == true
 end
 
+local function hydrationProductionContext(id, agent, body, context)
+    local production = SAO.ResourceProduction
+    context.productionOptions = production and production.options and production.options(id, body, context.category) or {}
+    if context.category == "water" then
+        local plumbing = SAO.ProceduralPlanning and SAO.ProceduralPlanning.resourceDemand(id, "water")
+        local needsTool = plumbing and plumbing.plumbing ~= nil
+        for _, option in ipairs(context.productionOptions) do
+            if option.kind == "plumb-fixture" then needsTool = true; break end
+        end
+        if needsTool then
+            context.toolSources = Ctl.resourceContext(id, agent, body, context.needs, "pipe-wrench", context.pressure).sources
+        end
+    end
+end
+
+local function retainedHydrationMeans(id, body, purpose, step)
+    if not purpose or not purpose.plumbing or purpose.plumbing.connectedWorkId or not step
+        or step.productionKind ~= "plumb-fixture" or step.status ~= "available" and step.status ~= "dependent"
+        or not SAO.ResourceProduction or not SAO.ResourceProduction.options then return false end
+    local acquired = false
+    for _, ledger in ipairs({ purpose.steps or {}, purpose.completedSteps or {} }) do
+        for _, prior in ipairs(ledger) do
+            if prior.owner == "SAO.SourceUse" and prior.status == "completed" and prior.category == "pipe-wrench"
+                and tostring(prior.itemId) == step.toolItemId and prior.itemType == step.toolItemType then acquired = true; break end
+        end
+    end
+    if not acquired then return false end
+    for _, option in ipairs(SAO.ResourceProduction.options(id, body, "water") or {}) do
+        if option.kind == "plumb-fixture" and option.sourceId == step.sourceId
+            and option.sourceRevision == step.sourceRevision and option.fingerprint == step.fingerprint
+            and option.itemId == step.itemId and option.itemType == step.itemType
+            and tostring(option.toolItemId) == step.toolItemId and option.toolItemType == step.toolItemType then return true end
+    end
+    return false
+end
+
 function Ctl.beginHydrationAcquisition(id, agent, body, tick, needs)
     local planning = SAO.ProceduralPlanning
     if not planning or not SAO.Labor or SAO.Needs.busy(body) then return false end
     local context = Ctl.resourceContext(id, agent, body, needs, "water", 0.5, true)
+    hydrationProductionContext(id, agent, body, context)
     local purpose, step = planning.planResource(id, context)
-    if not purpose or not step or step.status ~= "available" or step.verb ~= "acquire" then return false end
+    if not purpose or not step or step.status ~= "available" then return false end
+    if step.verb == "produce" and step.owner == "SAO.ResourceProduction" and SAO.ResourceProduction then
+        if SAO.ResourceProduction.begin(id, body, step, { purposeId = purpose.id, purposeStepId = step.id }) then
+            setState(agent, id, "RESOURCE", step.productionKind == "plumb-fixture"
+                and "thirst: connects a privately observed water fixture" or "thirst: fills a carried water vessel", "need")
+            return true
+        end
+        planning.deferResourceRoute(id, purpose.id, step.id, "the privately remembered hydration fixture or exact carried means could not be used")
+        return false
+    end
+    if step.verb ~= "acquire" or step.owner ~= "SAO.SourceUse" then return false end
     local started = SAO.SourceUse.beginAcquisition(id, body, step.place, step.category, {
         purposeId = purpose.id, purposeStepId = step.id, sourceId = step.sourceId,
         sourceRevision = step.sourceRevision, itemId = step.itemId, itemType = step.itemType,
@@ -2612,7 +2659,9 @@ function Ctl.beginHydrationAcquisition(id, agent, body, tick, needs)
         return false
     end
     agent.taskDeadline = tick + 5400
-    setState(agent, id, "SOURCEWARD", "thirst: acquires a privately observed drink", "need")
+    setState(agent, id, "SOURCEWARD", step.category == "pipe-wrench"
+        and "thirst: acquires a privately observed pipe wrench for the retained water fixture"
+        or "thirst: acquires a privately observed drink", "need")
     return true
 end
 
@@ -2638,17 +2687,23 @@ function Ctl.advanceResourcePurpose(id, agent, body, tick, needs)
     local food = math.min(1, math.max(0, needs.hunger) / math.max(0.1, SAO.Disposition.eatAt(id)) * 0.5)
     local water = math.min(1, math.max(0, needs.thirst) / math.max(0.1, SAO.Disposition.drinkAt(id)) * 0.5)
     local retained, retainedStep = planning.resourceDemand(id)
+    local waterPurpose, waterStep = planning.resourceDemand(id, "water")
+    local waterContinuation = retainedHydrationMeans(id, body, waterPurpose, waterStep)
+    if waterPurpose and (waterPurpose.admission or waterContinuation) and not (retained and retained.admission) then
+        retained, retainedStep = waterPurpose, waterStep
+    end
     local assigned = planning.resourceOutcomeDemand and planning.resourceOutcomeDemand(id)
-    local category = retained and (retainedStep and retainedStep.acquiredItemId or retained.admission)
+    local continuation = retained == waterPurpose and waterContinuation
+    local category = retained and (retainedStep and retainedStep.acquiredItemId or retained.admission or continuation)
         and retained.resourceCategory or (water > food and "water" or "food")
     local outcome = assigned and math.max(food, water) < 0.5
-        and not (retained and (retained.admission or retainedStep and retainedStep.acquiredItemId)) and assigned
+        and not (retained and (retained.admission or retainedStep and retainedStep.acquiredItemId or continuation)) and assigned
     if outcome then category = outcome.resourceCategory end
     category = category == "water" and "water" or "food"
     local pressure = category == "water" and water or food
     local context = Ctl.resourceContext(id, agent, body, needs, category, pressure, category == "water" and not outcome)
     if outcome then context.purposeId = outcome.id end
-    context.productionOptions = SAO.ResourceProduction and SAO.ResourceProduction.options(id, body, category) or {}
+    hydrationProductionContext(id, agent, body, context)
     -- The exact current visible-holder owner acquires its own private anchor.
     -- Attempting inspection does not require a previously visited building.
     local inspect = SAO.WorldSources.inspectionCandidate(id, body, "standing", 12)
@@ -2669,14 +2724,17 @@ function Ctl.advanceResourcePurpose(id, agent, body, tick, needs)
             hydrationIntent = step.hydrationIntent })
         if started then
             agent.taskDeadline = tick + 5400
-            setState(agent, id, "SOURCEWARD", "collects " .. (step.hydrationIntent and "a drink" or category)
+            setState(agent, id, "SOURCEWARD", "collects " .. (step.hydrationIntent and "a drink" or step.category == "pipe-wrench"
+                and "a pipe wrench for the retained water fixture" or category)
                 .. " for an anticipated shortage", answer)
             return true
         end
         planning.deferResourceRoute(id, purpose.id, step.id, "the privately remembered item could not be acquired")
     elseif step.verb == "produce" and step.owner == "SAO.ResourceProduction" and SAO.ResourceProduction then
         if SAO.ResourceProduction.begin(id, body, step, { purposeId = purpose.id, purposeStepId = step.id }) then
-            setState(agent, id, "RESOURCE", "collects water in a carried vessel for an anticipated shortage", answer)
+            setState(agent, id, "RESOURCE", step.productionKind == "plumb-fixture"
+                and "connects a privately observed fixture for anticipated water need"
+                or "collects water in a carried vessel for an anticipated shortage", answer)
             return true
         end
         planning.deferResourceRoute(id, purpose.id, step.id, "the privately remembered water fixture or carried vessel could not be used")

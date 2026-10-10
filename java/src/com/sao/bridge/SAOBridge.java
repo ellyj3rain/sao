@@ -1867,6 +1867,7 @@ public final class SAOBridge {
         if (!(object instanceof zombie.characters.IsoPlayer person)
                 || category == null || !(category.equals("glass-pane")
                     || category.equals("hammer") || category.equals("plank")
+                    || category.equals("pipe-wrench")
                     || category.equals("nails") || category.equals("log")
                     || category.equals("saw") || category.equals("file")
                     || category.equals("whetstone"))) return 0;
@@ -4362,6 +4363,49 @@ public final class SAOBridge {
                     fingerprint, (int) x, (int) y, (int) z);
         } catch (Throwable throwable) {
             SAOAgent.log("worldRefillValid threw: " + throwable);
+            return false;
+        }
+    }
+
+    public String worldPlumbTarget(Object object, String sourceId, String fingerprint,
+            String revision, double x, double y, double z) {
+        try {
+            return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+                && Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)
+                && x == Math.rint(x) && y == Math.rint(y) && z == Math.rint(z)
+                ? com.sao.engine.SAOWorldSources.plumbTarget(shell, sourceId, fingerprint,
+                    revision, (int) x, (int) y, (int) z) : "BAD_PLUMB_REQUEST";
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldPlumbTarget threw: " + throwable);
+            return "FAILED";
+        }
+    }
+
+    public Object worldPlumbObject(Object object, String sourceId, String fingerprint,
+            String revision, double x, double y, double z) {
+        try {
+            return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+                && Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)
+                && x == Math.rint(x) && y == Math.rint(y) && z == Math.rint(z)
+                ? com.sao.engine.SAOWorldSources.plumbObject(shell, sourceId, fingerprint,
+                    revision, (int) x, (int) y, (int) z) : null;
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldPlumbObject threw: " + throwable);
+            return null;
+        }
+    }
+
+    public boolean worldPlumbValid(Object object, Object fixture, String sourceId,
+            String fingerprint, double x, double y, double z, boolean completedConnection) {
+        try {
+            return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+                && fixture instanceof zombie.iso.IsoObject source
+                && Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)
+                && x == Math.rint(x) && y == Math.rint(y) && z == Math.rint(z)
+                && com.sao.engine.SAOWorldSources.plumbValid(shell, source, sourceId,
+                    fingerprint, (int) x, (int) y, (int) z, completedConnection);
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldPlumbValid threw: " + throwable);
             return false;
         }
     }

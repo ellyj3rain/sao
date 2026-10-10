@@ -168,6 +168,7 @@ POST_C_UNITS = [
     ("D3.1", "minor", "Native material crafting establishes an exact privately acquired-input, installed-recipe, measured-output and authenticated-experience runtime contract within retained construction. The first D3 window/boarding join supplies its required integration; the OPEN parent receives no repeated credit."),
     ("D3.2", "minor", "Exact held-tool repair establishes native FixSaw eligibility, private file acquisition and competing maintenance means, kept manual inputs, measured condition/wear, retained construction continuation and authenticated positive/negative private feedback. The OPEN D3 parent receives no repeated credit."),
     ("D3.3", "kohai", "Portable blade sharpening and ordinary kit tending extend the existing exact held-tool maintenance contract through private file/whetstone means, native metric-specific benefits and damage, authenticated experience and saved continuity. The OPEN D3 parent receives no duplicate credit."),
+    ("D3.4", "minor", "Native plumbing establishes private fixture and pipe-wrench admission, installed connection, measured connection-result authority, handled-source refresh and actual usable water under the same hydration purpose. The OPEN D3 parent receives no duplicate credit."),
 ]
 # A closed parent that only aggregates previously credited descendants maps to
 # their exact credit-owner IDs. It is a chronological record, never a new tier.

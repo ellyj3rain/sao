@@ -355,7 +355,7 @@ local KINDS = { inspection = true, acquire = true, store = true, consume = true 
 local HOBBY_KINDS={ ["leisure-meditation"]=true,["leisure-exercise"]=true,
     ["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true }
-local EXTENDED = { ["medication-use"] = true, ["physical-change"] = true, preparation = true,
+local EXTENDED = { ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true,
     ["animal-care"] = true, ["window-repair"] = true, ["material-crafting"] = true, ["tool-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -432,7 +432,7 @@ local function sameData(a, b)
 end
 local BEHAVIOR_RESULT = {}
 function C.experience(id, supplied, authority)
-    if type(supplied)=="table" and (supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
+    if type(supplied)=="table" and (supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
         and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
     local now = clock()
     if not C.settings().enabled or not now then return false, "disabled" end
@@ -1196,6 +1196,36 @@ function C.toolRepairOutcome(id, receipt)
         end
     end
     return nativeExperience(id, "tool-repair", receipt.sequence, x)
+end
+
+-- Connecting the handled fixture is private performed work. Water acquisition
+-- and bodily relief retain their own measured native result owners.
+function C.plumbingOutcome(id, receipt)
+    local now = clock()
+    if not now or type(receipt) ~= "table" or receipt.actorId ~= id
+        or receipt.kind ~= "plumb-fixture" or receipt.token ~= "resource:plumbed"
+        or receipt.nativeOwner ~= "ISPlumbItem"
+        or not finite(receipt.sequence, 1, 9007199254740991) or receipt.sequence ~= math.floor(receipt.sequence)
+        or receipt.id ~= "resource-production/" .. id .. "/" .. tostring(receipt.sequence)
+        or not finite(receipt.atHours, 0, now) or not finite(receipt.startedAt, 0, receipt.atHours) then return false end
+    local owner = SAO.ResourceProduction
+    local canonical = owner and owner.outcome and owner.outcome(id, receipt.id)
+    if not canonical or not sameData(canonical, receipt) then return false, "plumbing-owner-unavailable" end
+    if receipt.status == "failed" or receipt.status == "interrupted" then
+        return true, "unfinished-plumbing-retained-by-planner"
+    end
+    local itemId = tonumber(receipt.toolItemId)
+    if receipt.status ~= "completed" or receipt.nativeCredit ~= receipt.id
+        or receipt.nativeAttempted ~= true or receipt.nativeCompleted ~= true or receipt.toolRetained ~= true
+        or receipt.connected ~= true or receipt.beforeUsesExternalWaterSource ~= false
+        or type(receipt.beforeCanBeWaterPiped) ~= "boolean" or receipt.beforePlumbingEligible ~= true
+        or receipt.afterUsesExternalWaterSource ~= true
+        or receipt.afterCanBeWaterPiped ~= false or not text(receipt.sourceId, 160)
+        or string.sub(receipt.sourceId, 1, 2) ~= "F:" or not text(receipt.toolItemType, 160)
+        or not itemId or not finite(itemId, -2147483648, 2147483647) or itemId ~= math.floor(itemId) then return false end
+    local x = privateFact(id, "plumbing", "construction", receipt.id, now, receipt.atHours)
+    x.sourceId, x.itemId, x.itemType = receipt.sourceId, itemId, receipt.toolItemType
+    return nativeExperience(id, "plumbing", receipt.sequence, x)
 end
 
 function C.preparationOutcome(id, receipt)
