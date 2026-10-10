@@ -4950,12 +4950,50 @@ local function rememberedRecoveryInquiry(id,kind,tick,includeSearch)
     local offer=goal and planning and planning.conceptInquiryOffer and planning.conceptInquiryOffer(id,goal,tick)
     return offer and offer.status=="actionable" and (includeSearch or offer.mode=="remembered-means") and offer or nil
 end
+
+function Ctl.bedConstructionContext(id,agent,body,needs)
+    local context={recoveryKind="sleep",fatigue=tonumber(needs and needs.fatigue),atHours=SAO.History.countyHours(),options={},materialSources={}}
+    if not SAO.Perception.observeBedSites or not SAO.ResourceProduction.bedOptions then return context end
+    SAO.Perception.observeBedSites(id,body,context.atHours)
+    context.options=SAO.ResourceProduction.bedOptions(id,body)
+    local checked={}
+    for _,option in ipairs(context.options) do local ready,missing=SAO.ProceduralPlanning.bedReady(option)
+        local required=not ready and missing and missing[1]
+        if required and not checked[required.category] then
+            checked[required.category]=true
+            for _,source in ipairs(Ctl.resourceContext(id,agent,body,needs,required.category,.5).sources or {}) do
+                if #context.materialSources>=128 then break end
+                context.materialSources[#context.materialSources+1]=source
+            end
+        end
+    end
+    return context
+end
+function Ctl.tryBedConstruction(id,agent,body,tick,needs)
+    if not SAO.ResourceProduction.bedOptions or agent.passive or agent.state~="IDLE" or agent.recovery or agent.resting
+        or agent.rec.resourceProductionWork or agent.rec.worldSourceReservation or not SAO.Needs.workAvailable(body)
+        or not needs or not needs.fatigue or needs.fatigue>=.85 or not SAO.Standing.insideClaim(id,body:getX(),body:getY()) then return false end
+    local retained=SAO.ProceduralPlanning.bedPurpose(id)
+    if retained and retained.bedConstruction.constructedWorkId then return false end
+    local p,step=SAO.ProceduralPlanning.planBedConstruction(id,Ctl.bedConstructionContext(id,agent,body,needs))
+    if not p or not step or step.status~="available" then return false end
+    if step.verb=="acquire" then return Ctl.beginConstructionAcquisition(id,agent,body,tick,p,step) end
+    if step.owner~="SAO.ResourceProduction" or step.productionKind~="build-wood-bed" then return false end
+    if not setState(agent,id,"RESOURCE","makes a bed for retained sleep","need") then return false end
+    if SAO.ResourceProduction.begin(id,body,step,{purposeId=p.id,purposeStepId=step.id}) or agent.rec.resourceProductionWork then
+        agent.taskDeadline=tick+5400;return true
+    end
+    SAO.ProceduralPlanning.deferResourceRoute(id,p.id,step.id,"native bed construction refused");setState(agent,id,"IDLE","bed construction could not begin")
+    return false
+end
+
 function Ctl.offerRecovery(id, agent, body, tick, needs, selectedKind)
     if not SAO.Needs.recoveryPreference or not needs or agent.recovery
         or agent.resting or SAO.History.countyHours() < (agent.nextRecoveryHours or 0)
         or agent.state ~= "IDLE" and agent.state ~= "ROAM" and agent.state ~= "FOLLOW"
         or agent.forageInspection or agent.rec.worldSourceReservation
         or not SAO.Needs.ownsRecoveryBody(id, body) then return false end
+    if SAO.ProceduralPlanning.reconcileBedRecovery and not SAO.ProceduralPlanning.reconcileBedRecovery(id,body) then return false end
     local kind, reasoning = SAO.Needs.recoveryPreference(id, needs, {
         emergency = policy().desperation, committed = agent.coordinationCommitment ~= nil,
         threat = SAO.Perception.believedThreatCount(id, tick, 10, body:getX(), body:getY()) > 0,
@@ -5005,6 +5043,9 @@ function Ctl.offerRecovery(id, agent, body, tick, needs, selectedKind)
         local db=(body:getX()-b.x)^2+(body:getY()-b.y)^2
         return da==db and a.key<b.key or da<db
     end)
+    local observedBed=false
+    for _,place in ipairs(choices) do if place.kind=="bed" then observedBed=true;break end end
+    if kind=="sleep" and not observedBed and Ctl.tryBedConstruction(id,agent,body,tick,needs) then return true end
     for _,place in ipairs(choices) do
         if SAO.Needs.recoveryPlaceAt(id,body,place) then
             if Ctl.admitRecoveryPlace(id,agent,body,tick,kind,place) then return true end

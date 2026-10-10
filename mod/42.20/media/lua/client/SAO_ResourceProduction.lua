@@ -6,6 +6,8 @@ local R = SAO.ResourceProduction
 local craftBegin, craftInterrupt, craftTick, craftOutcome, craftRecover
 local plumbBegin, plumbInterrupt, plumbTick, plumbOutcome, plumbRecover, plumbOptions
 local collector
+local bed
+local function nativeEntityKind(kind) return kind=="build-rain-collector" or kind=="build-wood-bed" end
 local fixing
 local function nativeCraftKind(kind) return kind=="saw-logs" or kind=="repair-held-item" or kind=="fix-held-item" end
 local KNOWN_FIXTURE_SEARCH_RADIUS = 32
@@ -208,7 +210,7 @@ function R.outcome(id, workId)
     local rec = SAO.Identity.get(id)
     for _, receipt in ipairs(rec and rec.resourceProductionOutcomes or {}) do
         if receipt.id == workId then
-            if receipt.kind == "build-rain-collector" then return collector.outcome(id, receipt) end
+            if nativeEntityKind(receipt.kind) then return collector.outcome(id, receipt) end
             if receipt.kind == "plumb-fixture" then return plumbOutcome(id, receipt) end
             if nativeCraftKind(receipt.kind) then return craftOutcome(id, receipt) end
             return receipt
@@ -218,17 +220,18 @@ end
 local function reconcile(id)
     local rec, planning = SAO.Identity.get(id), SAO.ProceduralPlanning
     for _, receipt in ipairs(rec and rec.resourceProductionOutcomes or {}) do
-        local consumer = planning and ((receipt.kind == "repair-held-item" or receipt.kind == "fix-held-item") and planning.consumeRepairProductionResult
+        local consumer = planning and (receipt.kind=="build-wood-bed" and planning.consumeBedConstructionResult
+            or (receipt.kind == "repair-held-item" or receipt.kind == "fix-held-item") and planning.consumeRepairProductionResult
             or receipt.kind == "saw-logs" and planning.consumeCraftProductionResult
             or not nativeCraftKind(receipt.kind) and planning.consumeProductionResult)
         local result = receipt.kind == "plumb-fixture" and plumbOutcome(id, receipt)
             or nativeCraftKind(receipt.kind) and craftOutcome(id, receipt) or receipt
-        if receipt.kind == "build-rain-collector" then result = collector.outcome(id,receipt) end
+        if nativeEntityKind(receipt.kind) then result = collector.outcome(id,receipt) end
         if receipt.kind == "plumb-fixture" and not plumbOutcome(id, receipt) then result = nil end
         if result and receipt.purposeId and not receipt.purposeDelivered and consumer
             and consumer(id, result) then receipt.purposeDelivered = true end
         if not receipt.experienceDelivered and R.onOutcome then
-            if receipt.kind == "build-rain-collector" then result = collector.outcome(id, receipt) end
+            if nativeEntityKind(receipt.kind) then result = collector.outcome(id, receipt) end
             if receipt.kind == "plumb-fixture" then result = plumbOutcome(id, receipt)
             elseif nativeCraftKind(receipt.kind) then result = craftOutcome(id, receipt) end
             if result then
@@ -1610,7 +1613,7 @@ local function plumbCopy(value,depth)
     return out
 end
 local function plumbIdentity(id,w)
-    if w and w.kind=="build-rain-collector" then return collector.identity(id,w) end
+    if w and nativeEntityKind(w.kind) then return collector.identity(id,w) end
     return type(w)=="table" and not getmetatable(w) and w.actorId==id and integer(w.sequence) and w.sequence>0
         and w.id=="resource-production/"..tostring(id).."/"..w.sequence and w.kind=="plumb-fixture"
         and w.category=="water" and w.token=="resource:plumbed" and textId(w.purposeId) and textId(w.purposeStepId)
@@ -1697,7 +1700,7 @@ plumbOptions=function(id,body,vessels,options)
     end
 end
 local function plumbPurpose(rec,w)
-    if w and w.kind=="build-rain-collector" then return collector.purpose(rec,w) end
+    if w and nativeEntityKind(w.kind) then return collector.purpose(rec,w) end
     local state=rec and rec.proceduralPlanning
     local p=state and state.purposes and state.purposes[w.purposeId]
     local s=p and p.steps and p.steps[p.cursor]
@@ -1713,7 +1716,7 @@ local function plumbPurpose(rec,w)
     return p,s
 end
 local function plumbBound(rt,pre)
-    if rt.kind=="build-rain-collector" then return collector.bound(rt,pre) end
+    if nativeEntityKind(rt.kind) then return collector.bound(rt,pre) end
     if not rt.body or rt.closed then return false end
     local rec,w,body=owner(rt.id,rt.body),rt.work,rt.body
     local p,s=plumbPurpose(rec,w)
@@ -1754,7 +1757,7 @@ local function plumbDispose(rt)
     for _,c in ipairs(rt.actions) do c.action._SAOPlumbBinding=function() return nil end;c.action._SAOPlumbRetireSaved=nil end
     if runtime[rt.id]==rt then runtime[rt.id]=nil end
     rt.body,rt.fixture,rt.tool,rt.item,rt.record,rt.purpose,rt.step,rt.current,rt.route=nil,nil,nil,nil,nil,nil,nil,nil,nil
-    if rt.kind=="build-rain-collector" then
+    if nativeEntityKind(rt.kind) then
         if rt.builder then rt.builder.character,rt.builder.buildPanelLogic,rt.builder.saoCreated=nil,nil,nil end
         rt.builder,rt.logic,rt.materials,rt.siteSquare,rt.square,rt.cell,rt.inventory=nil,nil,nil,nil,nil,nil,nil
     end
@@ -1765,7 +1768,7 @@ local function plumbRefuse(rt,reason)
     return false
 end
 local function plumbClose(rt,status,detail)
-    if rt.kind=="build-rain-collector" then return collector.close(rt,status,detail) end
+    if nativeEntityKind(rt.kind) then return collector.close(rt,status,detail) end
     if rt.closed then return true end
     local rec,w,t=SAO.Identity.get(rt.id),rt.work,now()
     if not plumbRetired(rt) or rec~=rt.record or rec.resourceProductionWork~=w or not plumbIdentity(rt.id,w)
@@ -1894,7 +1897,7 @@ local function plumbGuard(rt,a,kind,item)
             or w.sourceX~=rt.sx or w.sourceY~=rt.sy or w.sourceZ~=rt.sz
             or w.itemId~=rt.itemId or w.itemType~=rt.itemType or w.toolItemId~=rt.toolId or w.toolItemType~=rt.toolType
             or w.beforeAmount~=rt.beforeAmount or w.capacity~=rt.capacity or w.beforeCanBeWaterPiped~=rt.beforeCanBeWaterPiped then return false end
-        if rt.kind=="build-rain-collector" and not collector.anchors(rt,w) then return false end
+        if nativeEntityKind(rt.kind) and not collector.anchors(rt,w) then return false end
         local closed=plumbInterrupt(rt.id,rt.body,"plumbing-runtime-unavailable")
         if not closed and plumbRetired(rt) and rec.resourceProductionWork~=rt.work then plumbDispose(rt);return true end
         return closed
@@ -2002,7 +2005,7 @@ end
 plumbInterrupt=function(id,body,reason)
     local rt=runtime[id]
     if not rt then return plumbRecover(id,body) end
-    if rt.kind~="plumb-fixture" and rt.kind~="build-rain-collector" or body and rt.body~=body then return false end
+    if rt.kind~="plumb-fixture" and not nativeEntityKind(rt.kind) or body and rt.body~=body then return false end
     if rt.nativeCompleted and not rt.cancelling and plumbRetired(rt) then return plumbClose(rt,"completed","native-plumbing-completed-before-interruption") end
     plumbRefuse(rt,reason or "higher-priority-work")
     if rt.route and not rt.route.done then
@@ -2056,6 +2059,7 @@ function collector.install()
     return ok and BuildLogic and SpriteConfigManager and ISBuildIsoEntity and ISBuildAction and CraftRecipeManager and ArrayList
 end
 function collector.recipe(entityId,body)
+    if entityId=="Base.Wood_Bed" then return bed.recipe(body) end
     local allowed=false;for _,id in ipairs(collector.entities) do if id==entityId then allowed=true end end
     if not allowed or not collector.install() then return nil end
     local infos=SpriteConfigManager.GetObjectInfoList()
@@ -2158,6 +2162,7 @@ function collector.options(id,body,vessels,options)
     end
 end
 function collector.identity(id,w)
+    if w and w.kind=="build-wood-bed" then return bed.identity(id,w) end
     if type(w)~="table" or getmetatable(w) or w.kind~="build-rain-collector" or w.category~="water"
         or w.token~="resource:collector-built" or w.actorId~=id or not integer(w.sequence) or w.sequence<1
         or w.id~="resource-production/"..tostring(id).."/"..w.sequence or not textId(w.purposeId) or not textId(w.purposeStepId)
@@ -2186,6 +2191,7 @@ function collector.identity(id,w)
     return counts[0]==1 and w.inputs[1].itemId==w.toolItemId and w.inputs[1].itemType==w.toolItemType
 end
 function collector.purpose(rec,w)
+    if w and w.kind=="build-wood-bed" then return bed.purpose(rec,w) end
     local state=rec and rec.proceduralPlanning
     local p=state and state.purposes and state.purposes[w.purposeId];local s=p and p.steps[p.cursor];local a=p and p.admission
     if not p or not p.collector or p.status=="completed" or p.status=="abandoned" or not s or not a
@@ -2200,12 +2206,14 @@ function collector.purpose(rec,w)
     return p,s
 end
 function collector.anchors(rt,w)
+    if rt.kind=="build-wood-bed" then return bed.anchors(rt,w) end
     return w.entityId==rt.policy.info:getScript():getParent():getScriptObjectFullType() and w.recipeId==rt.policy.recipeId
         and w.siteKey==rt.site.key and w.siteRevision==rt.site.revision and w.siteX==rt.site.x and w.siteY==rt.site.y
         and w.siteZ==rt.site.z and w.siteObservedAtHours==rt.site.observedAtHours and w.collectorCapacity==rt.policy.capacity
         and collector.rowsEqual(w.inputs,rt.inputs) and collector.rowsEqual(w.requirements,rt.policy.requirements)
 end
 function collector.bound(rt,pre)
+    if rt.kind=="build-wood-bed" then return bed.bound(rt,pre) end
     local body,w=rt.body,rt.work
     if not body or rt.closed or rt.cancelling or runtime[rt.id]~=rt then return false end
     local rec=owner(rt.id,body);local p,s=collector.purpose(rec,w)
@@ -2265,6 +2273,7 @@ function collector.payment(rt)
     return consumed:size()==expected and kept:size()==1
 end
 function collector.measure(rt)
+    if rt.kind=="build-wood-bed" then return bed.measure(rt) end
     local object=rt.builder.saoCreated;local data=rt.logic:getRecipeDataInProgress()
     if not object or rt.beforeObjects[object] or SAOJavaBridge:worldCollectorCreated(rt.body,object,rt.work.entityId,rt.site.x,rt.site.y,rt.site.z)~=true then return false end
     local fluid=object:getFluidContainer()
@@ -2280,6 +2289,7 @@ function collector.cleanup(rt,a)
     rt.logic:stopCraftAction()
 end
 function collector.outcome(id,row)
+    if row and row.kind=="build-wood-bed" then return bed.outcome(id,row) end
     local rec,t=SAO.Identity.get(id),now()
     if not craftLedger(rec) or not collector.identity(id,row) or row.sequence>rec.resourceProductionSequence
         or row.workId~=row.id or row.nativeOwner~="ISBuildAction" or not t or not finite(row.atHours)
@@ -2318,6 +2328,7 @@ function collector.refresh(rt,row)
     if not ok then row.sourceObservation.detail="created-source-observation-unavailable" end
 end
 function collector.close(rt,status,detail)
+    if rt.kind=="build-wood-bed" then return bed.close(rt,status,detail) end
     if rt.closed then return true end
     local rec,w,t=SAO.Identity.get(rt.id),rt.work,now()
     if not plumbRetired(rt) or rec~=rt.record or rec.resourceProductionWork~=w or not collector.identity(rt.id,w)
@@ -2406,6 +2417,7 @@ function collector.begin(id,body,step,context)
     plumbInterrupt(id,body,"native-collector-approach-refused");return false
 end
 function collector.destination(rt)
+    if rt.kind=="build-wood-bed" then return bed.destination(rt) end
     local site=rt.site
     for _,known in ipairs(SAO.Perception.collectorSites(rt.id,rt.body) or {}) do
         if known.z==site.z and math.abs(known.x-site.x)<=1 and math.abs(known.y-site.y)<=1
@@ -2414,6 +2426,7 @@ function collector.destination(rt)
     if rt.body:getZ()~=site.z then return site end
 end
 function collector.queue(rt)
+    if rt.kind=="build-wood-bed" then return bed.queue(rt) end
     local w,body,policy,id=rt.work,rt.body,rt.policy,rt.id
     local sq=SAOJavaBridge:worldCollectorPlacementSquare(body,w.siteX,w.siteY,w.siteZ,w.siteRevision)
     if not sq then return false end
@@ -2459,6 +2472,7 @@ function collector.recover(id,body)
     row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISBuildAction","interrupted","collector-runtime-unavailable",t,t
     row.nativeObservability="runtime-unavailable"
     row.nativeAttempted,row.nativeCompleted,row.constructed,row.placed,row.exactInputs,row.inputsConsumed,row.toolRetained,row.feedsFixture=false,false,false,false,false,false,false,false
+    if w.kind=="build-wood-bed" then row.feedsFixture=nil;row.parts={} end
     if not collector.outcome(id,row) then return false end
     rows[#rows+1]=row;rec.resourceProductionOutcomes=rows;if #rows>CRAFT_LIMIT then table.remove(rows,1) end
     rec.resourceProductionWork=nil;reconcile(id);return true
@@ -2475,6 +2489,7 @@ function collector.tick(id,body)
         if not rt.route.done then return "moving" end
         if rt.route.result=="arrived" then
             if collector.queue(rt) then return rt.work.stage end
+            if rt.kind=="build-wood-bed" then SAO.Perception.observeBedSites(id,body,now()) end
             if SAO.Perception.observeCollectorSites then SAO.Perception.observeCollectorSites(id,body,now()) end
             local destination=collector.destination(rt)
             if destination and not rt.interactionReturn and SAO.Locomotion.order(id,body,destination.x,destination.y,destination.z) then
@@ -2570,7 +2585,7 @@ function collector.setInfo(self, square, north, sprite, openSprite)
 		local gameEntityScript = self.objectInfo:getScript():getParent();
 		local isFirstTimeCreated = true;
 		GameEntityFactory.CreateIsoObjectEntity(thumpable, gameEntityScript, isFirstTimeCreated);
-        self.saoInitialAmount=thumpable:getFluidContainer():getAmount()
+        if thumpable:getFluidContainer() then self.saoInitialAmount=thumpable:getFluidContainer():getAmount() end
 	else
 		if SAO.Log and SAO.Log.line then SAO.Log.line("RESOURCE", "Collector entity script missing") end
 	end
@@ -2624,6 +2639,7 @@ function collector.setInfo(self, square, north, sprite, openSprite)
 
 	square:AddSpecialObject(thumpable, replacedObjectIndex);
     self.saoCreated=thumpable
+    self.saoCreatedParts=self.saoCreatedParts or {};self.saoCreatedParts[#self.saoCreatedParts+1]=thumpable
 	buildUtil.checkCorner(square:getX(), square:getY(), square:getZ(), north, thumpable, self);
 
 	-- This is so any containers that are in a tile are flagged as "already explored" so they don't spawn loot in them
@@ -2660,7 +2676,7 @@ function collector.newEntity(rt,containers)
         collector.entityClass=ISBuildIsoEntity:derive("SAORainCollectorEntity")
         collector.entityClass.setInfo=collector.setInfo
     end
-    local builder=ISBuildIsoEntity.new(collector.entityClass,rt.body,rt.policy.info,4,containers,rt.logic)
+    local builder=ISBuildIsoEntity.new(collector.entityClass,rt.body,rt.policy.info,rt.site.face=="E" and 3 or 4,containers,rt.logic)
     local nativeCreate=ISBuildIsoEntity.create
     function builder:create(x,y,z,north,sprite)
         local c=rt.current
@@ -2672,7 +2688,8 @@ function collector.newEntity(rt,containers)
     function builder:setInfo(square,north,sprite,openSprite)
         local c=rt.current
         if not c or not c.performing or not plumbCurrent(c) or not rt.nativeAttempted or not collector.bound(rt,false)
-            or not collector.payment(rt) or square~=rt.siteSquare or sprite~=rt.sprite then return false end
+            or not collector.payment(rt) or (rt.kind=="build-wood-bed" and not bed.partExpected(rt,square,sprite)
+                or rt.kind~="build-wood-bed" and (square~=rt.siteSquare or sprite~=rt.sprite)) then return false end
         return collector.setInfo(self,square,north,sprite,openSprite)
     end
     local face=builder:getFace()
@@ -2682,6 +2699,305 @@ function collector.newEntity(rt,containers)
     return builder
 end
 
+
+-- The same native construction owner supplies a wooden bed for retained sleep.
+-- Recovery means and measured physiology stay with Needs and its ordinary consumers.
+bed={}
+function bed.recipe(body)
+    if not collector.install() then return nil end
+    local infos=SpriteConfigManager.GetObjectInfoList()
+    for i=0,infos:size()-1 do
+        local info=infos:get(i);local script=info:getScript()
+        if script and script:getParent():getScriptObjectFullType()=="Base.Wood_Bed" and info:getRecipe() then
+            local recipe=info:getRecipe():getCraftRecipe()
+            if not recipe or not CraftRecipeManager.hasPlayerLearnedRecipe(recipe,body) then return nil end
+            for j=0,recipe:getRequiredSkillCount()-1 do
+                if not CraftRecipeManager.hasPlayerRequiredSkill(recipe:getRequiredSkill(j),body) then return nil end
+            end
+            if recipe:getInputs():size()~=4 or script:isProp() then return nil end
+            local requirements={}
+            for index,category in ipairs({"hammer","plank","nails","mattress"}) do
+                local input=recipe:getInputs():get(index-1)
+                if input:getResourceType()~=ResourceType.Item or input:getIntAmount()~=(index==1 and 1 or index==2 and 6 or index==3 and 4 or 1)
+                    or input:isKeep()~=(index==1) then return nil end
+                requirements[#requirements+1]={inputIndex=index-1,category=category,count=input:getIntAmount(),mode=input:isKeep() and "keep" or "consume"}
+            end
+            for _,name in ipairs({"S","E"}) do local face=info:getFace(name)
+                if not face or face:getWidth()~=(name=="S" and 2 or 1) or face:getHeight()~=(name=="S" and 1 or 2)
+                    or face:getzLayers()~=1 then return nil end
+            end
+            return {info=info,recipe=recipe,recipeId=recipe:getScriptObjectFullType(),requirements=requirements}
+        end
+    end
+end
+function bed.site(id,body,site)
+    if type(site)~="table" or not textId(site.key) or not textId(site.revision)
+        or site.actorId~=id or site.observed~=true or site.source~="native-personal-visibility"
+        or site.face~="S" and site.face~="E" or not finite(site.observedAtHours) or site.observedAtHours<0
+        or not now() or site.observedAtHours>now() then return false end
+    for _,row in ipairs(SAO.Perception.bedSites(id,body) or {}) do
+        if row.key==site.key and row.revision==site.revision and row.x==site.x and row.y==site.y and row.z==site.z and row.face==site.face
+            and row.approachX==site.approachX and row.approachY==site.approachY and row.approachZ==site.approachZ
+            and row.observedAtHours>=site.observedAtHours and row.observedAtHours<=now() then return true end
+    end
+    return false
+end
+function R.bedOptions(id,body)
+    local ok,out=pcall(function()
+        if not owner(id,body) or not now() or not SAO.Perception.bedSites then return {} end
+        local policy=bed.recipe(body);if not policy then return {} end
+        local inputs=collector.inputs(policy,body);local out={}
+        for _,site in ipairs(SAO.Perception.bedSites(id,body)) do
+            local width,height=site.face=="S" and 2 or 1,site.face=="S" and 1 or 2
+            local permitted=bed.site(id,body,site) and SAO.Standing.mayAttemptBelieved(id,site.approachX,site.approachY,"standing")==true
+            for x=0,width-1 do for y=0,height-1 do
+                if SAO.Standing.mayAttemptBelieved(id,site.x+x,site.y+y,"standing")~=true then permitted=false end
+            end end
+            if permitted then
+                out[#out+1]={kind="build-wood-bed",owner="SAO.ResourceProduction",category="construction",known=true,
+                    token="resource:bed-built",entityId="Base.Wood_Bed",recipeId=policy.recipeId,
+                    requirements=collector.copy(policy.requirements),inputs=collector.copy(inputs),site=collector.copy(site),
+                    distance=math.sqrt((site.approachX+.5-body:getX())^2+(site.approachY+.5-body:getY())^2)}
+                if #out>=16 then break end
+            end
+        end
+        return out
+    end)
+    return ok and out or {}
+end
+local BED_FIELDS={}
+for _,key in ipairs({"id","workId","sequence","actorId","kind","category","token","entityId","recipeId",
+    "purposeId","purposeStepId","requestedPurposeId","requestedPurposeStepId","toolCategory","toolItemId","toolItemType",
+    "requirements","inputs","site","siteKey","siteRevision","siteObservedAtHours","siteX","siteY","siteZ","face",
+    "world","bodyToken","startedAt","stage","status","admittedNeeds","admittedHealth","nativeOwner","detail","atHours","endedAt",
+    "nativeAttempted","nativeCompleted","constructed","placed","exactInputs","inputsConsumed","toolRetained","nativeCredit",
+    "parts","bedKey","sourceObservation","nativeObservability","purposeDelivered","experienceDelivered"}) do BED_FIELDS[key]=true end
+function bed.identity(id,w)
+    if type(w)~="table" or getmetatable(w) or w.actorId~=id or w.kind~="build-wood-bed" or w.category~="construction"
+        or w.token~="resource:bed-built" or w.entityId~="Base.Wood_Bed" or not textId(w.recipeId)
+        or not integer(w.sequence) or w.sequence<1 or w.id~="resource-production/"..id.."/"..w.sequence
+        or not textId(w.purposeId) or not textId(w.purposeStepId) or not textId(w.world)
+        or w.bodyToken~=nil and not textId(w.bodyToken) or not finite(w.startedAt) or w.startedAt<0
+        or w.toolCategory~="hammer" or not textId(w.toolItemId) or not textId(w.toolItemType)
+        or not textId(w.siteKey) or not textId(w.siteRevision) or not finite(w.siteObservedAtHours)
+        or w.siteObservedAtHours>w.startedAt or w.siteObservedAtHours<0 or w.face~="S" and w.face~="E"
+        or type(w.site)~="table" or w.site.key~=w.siteKey or w.site.revision~=w.siteRevision
+        or w.site.face~=w.face or w.site.x~=w.siteX or w.site.y~=w.siteY or w.site.z~=w.siteZ
+        or type(w.inputs)~="table" or getmetatable(w.inputs) or #w.inputs~=12
+        or type(w.requirements)~="table" or getmetatable(w.requirements) or #w.requirements~=4 then return false end
+    for key in pairs(w) do if not BED_FIELDS[key] then return false end end
+    for _,key in ipairs({"siteX","siteY","siteZ"}) do if not finite(w[key]) or w[key]%1~=0 then return false end end
+    local seen,counts={},{}
+    for _,row in ipairs(w.inputs) do
+        if type(row)~="table" or getmetatable(row) or not integer(row.inputIndex) or row.inputIndex>3
+            or not textId(row.itemId) or not textId(row.itemType) or seen[row.itemId]
+            or row.mode~=(row.inputIndex==0 and "keep" or "consume") then return false end
+        if row.inputIndex==1 and row.itemType~="Base.Plank" or row.inputIndex==2 and row.itemType~="Base.Nails"
+            or row.inputIndex==3 and row.itemType~="Base.Mattress" then return false end
+        seen[row.itemId]=true;counts[row.inputIndex]=(counts[row.inputIndex] or 0)+1
+    end
+    for i,category in ipairs({"hammer","plank","nails","mattress"}) do local req=w.requirements[i]
+        local count=i==1 and 1 or i==2 and 6 or i==3 and 4 or 1
+        if req.inputIndex~=i-1 or req.count~=count or counts[i-1]~=count or req.category~=category
+            or req.mode~=(i==1 and "keep" or "consume") then return false end
+    end
+    return w.inputs[1].itemId==w.toolItemId and w.inputs[1].itemType==w.toolItemType and collector.copy(w)~=nil
+end
+function bed.purpose(rec,w)
+    local planning=rec and rec.proceduralPlanning;local p=planning and planning.purposes[w.purposeId]
+    local step=p and p.steps[p.cursor];local a=p and p.admission
+    if not p or not p.bedConstruction or p.bedConstruction.recoveryKind~="sleep" or p.bedConstruction.constructedWorkId
+        or p.status=="completed" or p.status=="abandoned" or not step or not a or step.owner~="SAO.ResourceProduction"
+        or step.productionKind~=w.kind or step.token~=w.token or step.id~=w.purposeStepId or step.target~=w.entityId
+        or step.entityId~=w.entityId or step.recipeId~=w.recipeId or a.owner~=step.owner or a.stepId~=step.id
+        or a.correlationId~=w.id or a.target~=step.target or not finite(a.at) or a.at<w.startedAt
+        or not collector.rowsEqual(step.inputs,w.inputs) or not collector.rowsEqual(step.requirements,w.requirements)
+        or type(step.site)~="table" then return nil end
+    for _,key in ipairs({"key","revision","x","y","z","face","approachX","approachY","approachZ","observedAtHours"}) do
+        if step.site[key]~=w.site[key] then return nil end
+    end
+    return p,step
+end
+function bed.anchors(rt,w)
+    return w.recipeId==rt.policy.recipeId and w.entityId=="Base.Wood_Bed" and w.siteKey==rt.site.key and w.siteRevision==rt.site.revision
+        and w.siteX==rt.site.x and w.siteY==rt.site.y and w.siteZ==rt.site.z and w.face==rt.site.face
+        and w.siteObservedAtHours==rt.site.observedAtHours and collector.rowsEqual(w.inputs,rt.inputs)
+        and collector.rowsEqual(w.requirements,rt.policy.requirements)
+end
+function bed.bound(rt,pre)
+    local body,w=rt.body,rt.work;local rec=owner(rt.id,body);local p,step=bed.purpose(rec,w);local world=getWorld()
+    if not body or rt.closed or rt.cancelling or runtime[rt.id]~=rt or rec~=rt.record or rec.resourceProductionWork~=w
+        or not bed.identity(rt.id,w) or not craftLedger(rec) or not bed.anchors(rt,w) or w.id~=rt.workId or w.startedAt~=rt.startedAt
+        or w.bodyToken~=rt.token or body:getModData().SAOExternalToken~=rt.token or w.world~=rt.world
+        or not now() or now()<rt.startedAt or not world or world:getWorld()~=rt.world or world:getCell()~=rt.cell
+        or body:getCell()~=rt.cell or body:getInventory()~=rt.inventory or ISTimedActionQueue.getTimedActionQueue(body)~=rt.queue
+        or p~=rt.purpose or step~=rt.step or not bed.site(rt.id,body,rt.site)
+        or w.stage~="approaching" and (body:getCurrentSquare()~=rt.square or math.abs(body:getX()-rt.x)>.01 or math.abs(body:getY()-rt.y)>.01) then return false end
+    local width,height=w.face=="S" and 2 or 1,w.face=="S" and 1 or 2
+    for x=0,width-1 do for y=0,height-1 do if SAO.Standing.mayTakeCurrent(rt.id,w.siteX+x,w.siteY+y,"standing")~=true then return false end end end
+    if SAO.Standing.mayTakeCurrent(rt.id,rt.site.approachX,rt.site.approachY,"standing")~=true then return false end
+    if not pre then return true end
+    if rt.nativeAttempted or body:isBuildCheat() or isClient() or isServer() then return false end
+    if w.stage~="approaching" and SAOJavaBridge:worldBedPlacementSquare(body,w.siteX,w.siteY,w.siteZ,w.face,w.siteRevision)~=rt.siteSquare then return false end
+    for i,row in ipairs(rt.inputs) do local item=rt.materials[i]
+        if craftCarried(body,row.itemId,row.itemType)~=item or not ownItem(rt,item) or item:getIsCraftingConsumed()
+            or not ISBuildIsoEntity.predicateMaterial(item)
+            or CraftRecipeManager.getValidInputScriptForItem(rt.policy.recipe,item,body)~=rt.policy.recipe:getInputs():get(row.inputIndex)
+            or row.mode=="keep" and (item:isBroken() or item:getCondition()<=0 or item:isRequiresEquippedBothHands()) then return false end
+    end
+    return true
+end
+function bed.partExpected(rt,square,sprite)
+    local face=rt.builder:getFace()
+    for x=0,face:getWidth()-1 do for y=0,face:getHeight()-1 do
+        local info=face:getTileInfo(x,y,0)
+        if square==rt.cell:getGridSquare(rt.site.x+x,rt.site.y+y,rt.site.z) and info and sprite==info:getSpriteName() then return true end
+    end end
+    return false
+end
+function bed.measure(rt)
+    local parts=rt.builder.saoCreatedParts or {}
+    if #parts~=2 or parts[1]==parts[2] or rt.beforeObjects[parts[1]] or rt.beforeObjects[parts[2]]
+        or SAOJavaBridge:worldBedCreated(rt.body,parts[1],parts[2],rt.site.x,rt.site.y,rt.site.z,rt.site.face)~=true then return false end
+    return collector.payment(rt)
+end
+function bed.refresh(rt,row)
+    row.sourceObservation={status="unconfirmed",detail="new-bed-not-currently-admissible",atHours=now()}
+    for _,place in ipairs(SAO.Needs.recoveryPlaces(rt.id,rt.body) or {}) do
+        if place.kind=="bed" and place.available==true and place.objectX==row.siteX and place.objectY==row.siteY
+            and place.objectZ==row.siteZ then
+            row.bedKey=place.key
+            row.sourceObservation={status="confirmed",detail="observed-native-bed-construction",atHours=now(),key=place.key}
+            return
+        end
+    end
+end
+function bed.outcome(id,row)
+    local rec,t=SAO.Identity.get(id),now()
+    if not craftLedger(rec) or not bed.identity(id,row) or row.sequence>rec.resourceProductionSequence
+        or row.workId~=row.id or row.nativeOwner~="ISBuildAction" or not t or not finite(row.atHours)
+        or row.atHours<row.startedAt or row.atHours>t or row.endedAt~=row.atHours
+        or row.status~="completed" and row.status~="failed" and row.status~="interrupted" then return nil end
+    for _,key in ipairs({"nativeAttempted","nativeCompleted","constructed","placed","exactInputs","inputsConsumed","toolRetained"}) do
+        if type(row[key])~="boolean" then return nil end
+    end
+    if type(row.parts)~="table" or getmetatable(row.parts) or #row.parts>2 then return nil end
+    if row.status=="completed" then
+        if not row.nativeAttempted or not row.nativeCompleted or not row.constructed or not row.placed
+            or not row.exactInputs or not row.inputsConsumed or not row.toolRetained or row.nativeCredit~=row.id or #row.parts~=2 then return nil end
+        local names=row.face=="S" and {"carpentry_02_72","carpentry_02_73"} or {"carpentry_02_75","carpentry_02_74"}
+        for i,part in ipairs(row.parts) do
+            if type(part)~="table" or part.x~=row.siteX+(row.face=="S" and i-1 or 0)
+                or part.y~=row.siteY+(row.face=="E" and i-1 or 0) or part.z~=row.siteZ or part.sprite~=names[i]
+                or not integer(part.objectIndex) then return nil end
+        end
+    elseif row.nativeCredit~=nil then return nil end
+    if row.nativeObservability~=nil and (row.nativeObservability~="runtime-unavailable" or row.status~="interrupted"
+        or row.nativeAttempted or row.nativeCompleted or row.constructed or row.placed or row.inputsConsumed or row.toolRetained
+        or #row.parts~=0 or row.bedKey~=nil) then return nil end
+    if row.bedKey~=nil and (not textId(row.bedKey) or type(row.sourceObservation)~="table"
+        or row.sourceObservation.status~="confirmed" or row.sourceObservation.key~=row.bedKey) then return nil end
+    return collector.copy(row)
+end
+function bed.close(rt,status,detail)
+    if rt.closed then return true end
+    local rec,w,t=SAO.Identity.get(rt.id),rt.work,now()
+    if not plumbRetired(rt) or rec~=rt.record or rec.resourceProductionWork~=w or not bed.identity(rt.id,w)
+        or not bed.purpose(rec,w) or not bed.anchors(rt,w) or not craftLedger(rec) or not t or t<w.startedAt then return false end
+    local rows=rec.resourceProductionOutcomes or {}
+    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    local row=collector.copy(w);row.stage,row.admittedNeeds,row.admittedHealth=nil,nil,nil
+    row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISBuildAction",status,detail,t,t
+    row.nativeAttempted,row.nativeCompleted=rt.nativeAttempted==true,rt.nativeCompleted==true
+    row.exactInputs=true;row.constructed,row.placed=rt.nativeCompleted==true,rt.nativeCompleted==true
+    row.inputsConsumed=rt.nativeAttempted==true and collector.payment(rt)
+    row.toolRetained=craftCarried(rt.body,w.toolItemId,w.toolItemType)==rt.tool and ownItem(rt,rt.tool);row.parts={}
+    if rt.nativeCompleted then
+        for _,part in ipairs(rt.builder.saoCreatedParts) do row.parts[#row.parts+1]={x=part:getX(),y=part:getY(),z=part:getZ(),sprite=part:getSpriteName(),objectIndex=part:getObjectIndex()} end
+        bed.refresh(rt,row)
+    end
+    if row.status=="completed" and (not row.toolRetained or not bed.bound(rt,false)) then row.status="failed" end
+    row.nativeCredit=row.status=="completed" and w.id or nil
+    if not bed.outcome(rt.id,row) then return false end
+    rows[#rows+1]=row;rec.resourceProductionOutcomes=rows;if #rows>CRAFT_LIMIT then table.remove(rows,1) end
+    rt.logic:stopCraftAction();rec.resourceProductionWork=nil;rt.closed=true;plumbDispose(rt);reconcile(rt.id);return true
+end
+function bed.destination(rt)
+    return {x=rt.site.approachX+.5,y=rt.site.approachY+.5,z=rt.site.approachZ}
+end
+function bed.queue(rt)
+    local w,body,policy,id=rt.work,rt.body,rt.policy,rt.id
+    local sq=SAOJavaBridge:worldBedPlacementSquare(body,w.siteX,w.siteY,w.siteZ,w.face,w.siteRevision)
+    if not sq then return false end
+    rt.siteSquare,rt.square,rt.x,rt.y=sq,body:getCurrentSquare(),body:getX(),body:getY();w.stage="preparing"
+    rt.builder=collector.newEntity(rt,rt.containers);rt.sprite=rt.builder:getSprite()
+    local face=rt.builder:getFace()
+    for x=0,face:getWidth()-1 do for y=0,face:getHeight()-1 do
+        local square=rt.cell:getGridSquare(w.siteX+x,w.siteY+y,w.siteZ)
+        if not square then return false end;local objects=square:getObjects()
+        for i=0,objects:size()-1 do rt.beforeObjects[objects:get(i)]=true end
+    end end
+    for _,material in ipairs(rt.materials) do if material:getContainer()~=rt.inventory then
+        plumbGuard(rt,ISInventoryTransferAction:new(body,material,material:getContainer(),rt.inventory),"transfer",material)
+    end end
+    if body:getPrimaryHandItem()~=rt.tool then plumbGuard(rt,ISEquipWeaponAction:new(body,rt.tool,50,true,false),"equip",rt.tool) end
+    local a=ISBuildAction:new(body,rt.builder,w.siteX,w.siteY,w.siteZ,rt.builder.north,rt.sprite,policy.recipe:getTime(body))
+    if rt.logic:getPossibleCraftCount(true)<1 then return false end
+    rt.logic:startCraftAction(a);plumbGuard(rt,a,"collector",rt.tool)
+    return bed.bound(rt,true) and plumbEnqueue(rt,1)
+end
+function bed.begin(id,body,step,context)
+    local rec,t=owner(id,body),now();local policy=rec and bed.recipe(body)
+    if not policy or not t or not craftLedger(rec) or rec.resourceProductionWork or rec.worldSourceReservation or rec.cookingWork
+        or SAO.Needs.busy(body) or SAOJavaBridge:hasPendingActions(body) or step.recipeId~=policy.recipeId
+        or step.owner~="SAO.ResourceProduction" or step.token~="resource:bed-built" or step.category~="construction"
+        or step.entityId~="Base.Wood_Bed" or not bed.site(id,body,step.site) then return false end
+    local p=rec.proceduralPlanning and rec.proceduralPlanning.purposes[context.purposeId]
+    if not p or not p.bedConstruction or p.bedConstruction.constructedWorkId or p.admission
+        or p.steps[p.cursor]~=step or step.id~=context.purposeStepId then return false end
+    local selected=collector.inputs(policy,body)
+    if #selected~=12 or not collector.rowsEqual(selected,step.inputs) or not collector.rowsEqual(policy.requirements,step.requirements) then return false end
+    local route=SAO.Locomotion.jobs[id];if route and not route.done then return false end
+    local world=getWorld();if not world then return false end
+    local rt={kind="build-wood-bed",id=id,record=rec,body=body,policy=policy,inputs=collector.copy(selected),materials={},
+        site=collector.copy(step.site),inventory=body:getInventory(),square=body:getCurrentSquare(),x=body:getX(),y=body:getY(),
+        world=world:getWorld(),cell=body:getCell(),queue=ISTimedActionQueue.getTimedActionQueue(body),
+        token=body:getModData().SAOExternalToken,startedAt=t,actions={},beforeObjects={}}
+    local containers=ArrayList.new();containers:add(rt.inventory)
+    local logic=BuildLogic.new(body,nil,nil);logic:setContainers(containers);logic:setRecipe(policy.recipe);logic:setManualSelectInputs(true);logic:clearManualInputs()
+    for _,r in ipairs(policy.requirements) do local manual=ArrayList.new()
+        for _,row in ipairs(selected) do if row.inputIndex==r.inputIndex then
+            local material=craftCarried(body,row.itemId,row.itemType);if not material then return false end
+            if material:getContainer()~=rt.inventory and not containers:contains(material:getContainer()) then containers:add(material:getContainer()) end
+            manual:add(material);rt.materials[#rt.materials+1]=material
+        end end
+        if manual:size()~=r.count or logic:setManualInputsFor(policy.recipe:getInputs():get(r.inputIndex),manual)~=true then return false end
+    end
+    if not logic:canPerformCurrentRecipe() then return false end
+    rt.logic,rt.tool,rt.containers=logic,rt.materials[1],containers;rt.toolId,rt.toolType=selected[1].itemId,selected[1].itemType
+    local seq=(rec.resourceProductionSequence or 0)+1
+    local needs=SAO.Needs.read(body) or {};local ok,health=pcall(function() return body:getBodyDamage():getOverallBodyHealth() end)
+    local w={id="resource-production/"..id.."/"..seq,sequence=seq,actorId=id,kind=rt.kind,category="construction",token="resource:bed-built",
+        purposeId=context.purposeId,purposeStepId=context.purposeStepId,requestedPurposeId=context.purposeId,requestedPurposeStepId=context.purposeStepId,
+        toolCategory="hammer",toolItemId=rt.toolId,toolItemType=rt.toolType,entityId="Base.Wood_Bed",recipeId=policy.recipeId,
+        requirements=collector.copy(policy.requirements),inputs=collector.copy(selected),site=collector.copy(rt.site),
+        siteKey=rt.site.key,siteRevision=rt.site.revision,siteX=rt.site.x,siteY=rt.site.y,siteZ=rt.site.z,siteObservedAtHours=rt.site.observedAtHours,face=rt.site.face,
+        world=rt.world,bodyToken=rt.token,startedAt=t,status="constructing",stage="approaching",
+        admittedNeeds={hunger=tonumber(needs.hunger),thirst=tonumber(needs.thirst),fatigue=tonumber(needs.fatigue)},admittedHealth=ok and tonumber(health) or nil}
+    rt.work,rt.workId=w,w.id
+    if not bed.identity(id,w) then return false end
+    rec.resourceProductionSequence,rec.resourceProductionWork,runtime[id]=seq,w,rt
+    if not SAO.ProceduralPlanning.admitBedConstruction(id,w) then rec.resourceProductionWork=nil;plumbDispose(rt);return false end
+    rt.purpose,rt.step=bed.purpose(rec,w)
+    if bed.queue(rt) then return true end
+    local destination=bed.destination(rt)
+    if SAO.Standing.mayAttemptBelieved(id,destination.x,destination.y,"standing")
+        and SAO.Locomotion.order(id,body,destination.x,destination.y,destination.z) then
+        rt.route=SAO.Locomotion.jobs[id];if rt.route and rt.route.body==body then return true end
+    end
+    plumbInterrupt(id,body,"native-bed-approach-refused");return false
+end
+
 function R.reconcileSaved(id,body)
     local rec=SAO.Identity.get(id)
     if SAO.Study and SAO.Study.reconcileGeneratorReading and not SAO.Study.reconcileGeneratorReading(id,body) then return false end
@@ -2689,14 +3005,14 @@ function R.reconcileSaved(id,body)
         return SAO.Generator and SAO.Generator.reconcileSaved(id,body) or false
     end
     if SAO.Generator then SAO.Generator.reconcileSaved(id,body) end
-    if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="build-rain-collector" then return collector.recover(id,body) end
+    if rec and rec.resourceProductionWork and nativeEntityKind(rec.resourceProductionWork.kind) then return collector.recover(id,body) end
     if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="plumb-fixture" then return plumbRecover(id,body) end
     if rec and rec.resourceProductionWork and nativeCraftKind(rec.resourceProductionWork.kind) then return craftRecover(id,body) end
     reconcile(id);return true
 end
 function R.retryCraftCancellations()
     for id,rt in pairs(runtime) do
-        if (rt.kind=="plumb-fixture" or rt.kind=="build-rain-collector") and rt.cancelling then plumbInterrupt(id,rt.body,rt.cancelReason)
+        if (rt.kind=="plumb-fixture" or nativeEntityKind(rt.kind)) and rt.cancelling then plumbInterrupt(id,rt.body,rt.cancelReason)
         elseif nativeCraftKind(rt.kind) and rt.cancelling then craftInterrupt(id,rt.body,rt.cancelReason) end
     end
 end
@@ -2705,6 +3021,7 @@ if Events and Events.OnTick then Events.OnTick.Add(R.retryCraftCancellations) en
 function R.begin(id, body, step, context)
     context = context or {}
     if step and step.owner=="SAO.Generator" then return SAO.Generator and SAO.Generator.begin(id,body,step,context) or false end
+    if step and step.productionKind == "build-wood-bed" then return bed.begin(id,body,step,context) end
     if step and step.productionKind == "build-rain-collector" then return collector.begin(id, body, step, context) end
     if step and step.productionKind == "plumb-fixture" then return plumbBegin(id, body, step, context) end
     if step and step.productionKind == "saw-logs" then return craftBegin(id, body, step, context) end
@@ -2770,8 +3087,8 @@ function R.interrupt(id, body, reason)
     if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="generator-operation" then
         return SAO.Generator and SAO.Generator.interrupt(id,body,reason) or false
     end
-    if rt and rt.kind=="build-rain-collector" or rec and rec.resourceProductionWork
-        and rec.resourceProductionWork.kind=="build-rain-collector" then
+    if rt and nativeEntityKind(rt.kind) or rec and rec.resourceProductionWork
+        and nativeEntityKind(rec.resourceProductionWork.kind) then
         if not rt then return collector.recover(id,body) end
         return plumbInterrupt(id,body,reason)
     end
@@ -2863,7 +3180,7 @@ local function tick(id, body)
     local work = rec and rec.resourceProductionWork
     if not work then return "idle" end
     if work.kind=="generator-operation" then return SAO.Generator and SAO.Generator.tick(id,body) or "cancelling" end
-    if work.kind == "build-rain-collector" then return collector.tick(id, body) end
+    if nativeEntityKind(work.kind) then return collector.tick(id, body) end
     if work.kind == "plumb-fixture" then return plumbTick(id, body) end
     if nativeCraftKind(work.kind) then return craftTick(id, body) end
     if not rt then

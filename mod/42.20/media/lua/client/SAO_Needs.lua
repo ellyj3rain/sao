@@ -1246,12 +1246,14 @@ local function retainRecoveryExperience(id,work,needs,now)
     local after=work.kind=="sleep" and needs.fatigue or needs.endurance
     local receipt={actorId=id,kind="recovery-outcome",sequence=work.sequence,atHours=now,
         actionKind=work.kind,beforeValue=before,afterValue=after,durationHours=duration,
-        succeeded=work.kind=="sleep" and after<before or work.kind=="rest" and after>before}
+        succeeded=work.kind=="sleep" and after<before or work.kind=="rest" and after>before,
+        sourceId=work.pose and work.pose.place and work.pose.place.kind=="bed" and work.pose.place.key or nil}
     local rec=work.rec
     rec.recoveryExperiences=rec.recoveryExperiences or {}
     rec.recoveryExperiences[#rec.recoveryExperiences+1]=receipt
     if #rec.recoveryExperiences>32 then table.remove(rec.recoveryExperiences,1) end
     if SAO.Cognition and SAO.Cognition.behaviorOutcome then SAO.Cognition.behaviorOutcome(id,receipt) end
+    if SAO.ProceduralPlanning and SAO.ProceduralPlanning.consumeBedRecovery then SAO.ProceduralPlanning.consumeBedRecovery(id,work.sequence) end
     return true
 end
 local function recoveryPlaceCopy(place)
@@ -1427,6 +1429,7 @@ function N.reacquirePreparingRecoveryPlace(id,body,intent)
     end
 end
 function N.beginRecovery(id, body, kind, place)
+    if SAO.ProceduralPlanning and SAO.ProceduralPlanning.reconcileBedRecovery then SAO.ProceduralPlanning.reconcileBedRecovery(id,body) end
     local rec = recoveryOwner(id, body)
     if not rec or not N.read(body) or recoveries[id] or not N.workAvailable(body)
         or kind ~= "sleep" and kind ~= "rest" then return false, "body-unavailable" end
@@ -1450,6 +1453,7 @@ function N.beginRecovery(id, body, kind, place)
     recoveries[id] = { body=body, rec=rec, kind=kind, pose=pose, phase="preparing" }
     rec.recoveryIntent = { actorId=id,kind=kind,status="preparing",place=selected,
         requestedAtHours=SAO.History.countyHours() }
+    if SAO.ProceduralPlanning and SAO.ProceduralPlanning.admitBedRecovery then SAO.ProceduralPlanning.admitBedRecovery(id,kind,selected) end
     return true
 end
 
@@ -1568,6 +1572,7 @@ function N.stopRecovery(id, body, reason, retireOnly)
         -- A foreign/replaced/dead receiver is never actuated; retire callbacks.
         SAO.RecoveryPose.retire(work.pose, not resumable)
     end
+    if SAO.ProceduralPlanning and SAO.ProceduralPlanning.reconcileBedRecovery then SAO.ProceduralPlanning.reconcileBedRecovery(id,body) end
     return true
 end
 

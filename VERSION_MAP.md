@@ -25,8 +25,8 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.6.7.0-pre-alpha` |
-| Classified delivered scope | `A1-D3.7` |
+| Current version | `2.6.8.0-pre-alpha` |
+| Classified delivered scope | `A1-D3.8` |
 | Current C generation | `20261005-product-consolidation` |
 | Feature-scope reconciliation | [20261010](Batches/VERSION_SCOPE_RECONCILIATION.json); prior replay retained |
 | Unconsumed scope | `D3` |
@@ -218,6 +218,7 @@ the machine. Names, dates, and threads below come from
 | `D3.5` | 2026-10-10 | kohai | `2.6.5.0-pre-alpha` | Rain-collector construction | D3.5 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module. |
 | `D3.6` | 2026-10-10 | kohai | `2.6.6.0-pre-alpha` | Generator to usable power | D3.6 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module. |
 | `D3.7` | 2026-10-10 | kohai | `2.6.7.0-pre-alpha` | Native item fixing to equipment reuse | Native firearm fixing through exact private donor acquisition, installed payment and measured condition/returned contents, same-target equipment reuse, authenticated experience and saved custody is coherent building progress within the OPEN D3 module. |
+| `D3.8` | 2026-10-10 | kohai | `2.6.8.0-pre-alpha` | Construction and placement through a usable bed | Installed wooden-bed construction and both full orientations join private recovery motivation, exact material acquisition, observed permitted placement, native payment/allparts and ordinary bed recovery use as coherent building progress within OPEN D3. |
 
 Dotted labels record child scope. Each capability row above receives credit once;
 child delivery leaves its explicitly active parent open. Closed parent aggregation
@@ -341,6 +342,6 @@ another batch. Subsequent delivered work determines its own tier:
 
 | If newly delivered scope is | Result |
 |---|---|
-| patch or hotfix | `2.6.7.1-pre-alpha` |
-| kohai | `2.6.8.0-pre-alpha` |
+| patch or hotfix | `2.6.8.1-pre-alpha` |
+| kohai | `2.6.9.0-pre-alpha` |
 | minor | `2.7.0.0-pre-alpha` |

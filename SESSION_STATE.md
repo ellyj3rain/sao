@@ -1,13 +1,13 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.6.7.0-pre-alpha` |
+| Version | `2.6.8.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
-**As of** `[D3.7]`, 172 delivered batches: 29 A, 52 B, 82 C products and nine delivered D records. D3 is the active OPEN parent.
+**As of** `[D3.8]`, 173 delivered batches: 29 A, 52 B, 82 C products and ten delivered D records. D3 is the active OPEN parent.
 
 ## Delivered product
 
@@ -102,7 +102,7 @@ original purpose. Adoption and IDLE recovery reconcile lost native admissions
 without inventing effects or completion. Focused native and Controller proofs
 retain their exact inputs and boundaries. Final regression and review results
 live in the D3 record. The whole construction, crafting, repair and utilities
-parent remains OPEN. Its CLOSED D3.1 through D3.7 children deliver native crafting, held-tool maintenance, plumbing/rain-collector construction through actual usable water, and generator operation through usable consumer power; the current replay derives `2.6.7.0-pre-alpha`.
+parent remains OPEN. Its CLOSED D3.1 through D3.8 children deliver native crafting, held-tool maintenance, plumbing/rain-collector construction through actual usable water, and generator operation through usable consumer power; the current replay derives `2.6.8.0-pre-alpha`.
 
 [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is the
 CLOSED child for native plank crafting. Exact private log and saw
@@ -113,13 +113,14 @@ and delivered version credit follow the canonical module rule independently.
 
 | Outcome | Standing and responsibility |
 |---|---|
-| D3 construction/crafting/repair/utilities | Active OPEN parent; D3.1-D3.7 deliver their linked coherent children. General entity placement, other recipes/pane integration, general item fixing and native server execution remain with D3. |
+| D3 construction/crafting/repair/utilities | Active OPEN parent; D3.1-D3.8 deliver their linked coherent children. Other structures, remaining recipes/pane integration and native server execution remain with D3. |
 | D3.2 native saw maintenance | CLOSED child under D3; exact native FixSaw, private file acquisition, interpreted maintenance alternatives, measured condition/wear and canonical feedback continue the original construction purpose. Self-merged through [PR143](https://github.com/ellyj3rain/sao/pull/143). |
 | D3.3 portable tool maintenance | CLOSED child: native saw repair and blade sharpening, private file/whetstone acquisition, ordinary kit tending and measured benefits/damage. Self-merged through [PR144](https://github.com/ellyj3rain/sao/pull/144). |
 | D3.4 plumbing to usable water | CLOSED child: exact private wrench acquisition and fixture return, installed plumbing, handled-source refresh and actual clean held water under the same hydration purpose. Self-merged through [PR145](https://github.com/ellyj3rain/sao/pull/145), actual main commit `3120fae3e9d71f3f5664bad48cfa0e409a3e41d7`. |
 | D3.5 rain-collector construction | CLOSED child: exact recipe-derived material acquisition, privately observed placement, native entity construction and rain supply continue the same plumbing/refill/drinking purpose. Self-merged through [PR146](https://github.com/ellyj3rain/sao/pull/146), actual main `5b3eb409f654e82f46d82940b968366ecaa1f74d`. |
 | D3.6 generator to usable power | CLOSED child: exact private generator/consumer intent, material and recipe knowledge acquisition, native repair/fuel/connection/activation and reached usable power resume the exact original meal. Native, Controller, private-source, two-model and save/lifecycle proof are linked in its record; self-merged through PR147 at a16854e3df16381d2dde42803dcc918d8cce189e. |
-| D3.7 native item fixing | CLOSED child: personally intended firearm upkeep acquires an exact known donor, performs native fixing/payment, preserves returned contents, reuses the same target and retains independent feedback/save/queue custody. Protected publication follows the existing workflow. |
+| D3.7 native item fixing | CLOSED child: personally intended firearm upkeep acquires an exact known donor, performs native fixing/payment, preserves returned contents, reuses the same target and retains independent feedback/save/queue custody. Self-merged through [PR148](https://github.com/ellyj3rain/sao/pull/148) at6551b75c7b72a007608f96d0ba891bc0f9364694. |
+| D3.8 usable-bed construction | CLOSED child: exact native wooden-bed recipe, both full orientations, privately observed permitted footprint, material acquisition and native construction continue through newly observed ordinary bed recovery. Protected publication follows the established workflow. |
 | D4 whole food/preservation | Follows D3; retains the complete installed domain and adjacent food mechanics. |
 | D5 comprehensive animal care | Follows D4; species and supported actions retain actual source admission. |
 | D6 assessed K-through-college learning | Follows D5; literal sources, comprehension, retention and transfer remain the outcome. |

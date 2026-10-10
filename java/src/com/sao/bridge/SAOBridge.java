@@ -1868,7 +1868,7 @@ public final class SAOBridge {
                 || category == null || !(category.equals("glass-pane")
                     || category.equals("hammer") || category.equals("plank")
                     || category.equals("pipe-wrench")
-                    || category.equals("garbage-bag") || category.equals("tarp")
+                    || category.equals("garbage-bag") || category.equals("tarp") || category.equals("mattress")
                     || category.equals("electronics-scrap") || category.equals("petrol") || category.equals("generator-manual")
                     || category.equals("nails") || category.equals("log")
                     || category.equals("saw") || category.equals("file")
@@ -4470,6 +4470,27 @@ public final class SAOBridge {
         try { return object instanceof com.sao.engine.SAOIsoPlayerShell shell && integralUtilityCoordinates(x,y,z)
             ? com.sao.engine.SAOWorldSources.generatorConsumerObject(shell,id,fingerprint,revision,(int)x,(int)y,(int)z) : null;
         } catch (Throwable throwable) { SAOAgent.log("worldGeneratorConsumerObject threw: " + throwable); return null; }
+    }
+
+    public String worldBedSites(Object object) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body
+            ? com.sao.engine.SAOBedConstruction.observe(body) : "";
+        } catch(Throwable t) { SAOAgent.log("worldBedSites threw: "+t); return ""; }
+    }
+    public Object worldBedPlacementSquare(Object object,double x,double y,double z,String face,String revision) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body
+            && Double.isFinite(x)&&Double.isFinite(y)&&Double.isFinite(z)
+            && x==Math.rint(x)&&y==Math.rint(y)&&z==Math.rint(z)
+            ? com.sao.engine.SAOBedConstruction.placement(body,(int)x,(int)y,(int)z,face,revision) : null;
+        } catch(Throwable t) { SAOAgent.log("worldBedPlacementSquare threw: "+t); return null; }
+    }
+    public boolean worldBedCreated(Object object,Object first,Object second,double x,double y,double z,String face) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body
+            && first instanceof zombie.iso.objects.IsoThumpable a && second instanceof zombie.iso.objects.IsoThumpable b
+            && Double.isFinite(x)&&Double.isFinite(y)&&Double.isFinite(z)
+            && x==Math.rint(x)&&y==Math.rint(y)&&z==Math.rint(z)
+            && com.sao.engine.SAOBedConstruction.created(body,a,b,(int)x,(int)y,(int)z,face);
+        } catch(Throwable t) { SAOAgent.log("worldBedCreated threw: "+t); return false; }
     }
 
     public String worldCollectorSites(Object object) {

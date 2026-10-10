@@ -171,6 +171,7 @@ POST_C_UNITS = [
     ('D3.5', 'kohai', 'D3.5 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module.'),
     ('D3.6', 'kohai', 'D3.6 delivers a coherent integrated increment within the still-OPEN D3 feature. Native crafting, maintenance, usable water or power contributes building progress; a new execution path does not close the complete construction/crafting/repair/utilities module.'),
     ('D3.7', 'kohai', 'Native firearm fixing through exact private donor acquisition, installed payment and measured condition/returned contents, same-target equipment reuse, authenticated experience and saved custody is coherent building progress within the OPEN D3 module.'),
+    ('D3.8', 'kohai', 'Installed wooden-bed construction and both full orientations join private recovery motivation, exact material acquisition, observed permitted placement, native payment/allparts and ordinary bed recovery use as coherent building progress within OPEN D3.'),
 ]
 # A closed parent that only aggregates previously credited descendants maps to
 # their exact credit-owner IDs. It is a chronological record, never a new tier.

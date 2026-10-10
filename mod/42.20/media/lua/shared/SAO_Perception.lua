@@ -3829,6 +3829,58 @@ function P.collectorSites(id, body)
     end
     return out
 end
+local function bedSiteCopy(id,row)
+    if type(row)~="table" or getmetatable(row) or row.actorId~=id or row.observed~=true
+        or row.source~="native-personal-visibility" or type(row.revision)~="string" or #row.revision~=36
+        or row.face~="S" and row.face~="E" or not finiteSoundNumber(row.observedAtHours) or row.observedAtHours<0 then return nil end
+    for _,key in ipairs({"x","y","z","approachX","approachY","approachZ"}) do
+        if not finiteSoundNumber(row[key]) or row[key]~=math.floor(row[key]) or math.abs(row[key])>2147483647 then return nil end
+    end
+    if row.approachZ~=row.z or row.key~=string.format("bed-site:%d:%d:%d:%s",row.x,row.y,row.z,row.face) then return nil end
+    local width,height=row.face=="S" and 2 or 1,row.face=="S" and 1 or 2
+    if row.approachX>=row.x and row.approachX<row.x+width and row.approachY>=row.y and row.approachY<row.y+height then return nil end
+    local out={}
+    for _,key in ipairs({"key","actorId","revision","x","y","z","face","approachX","approachY","approachZ",
+        "observed","observedAtHours","source"}) do out[key]=row[key] end
+    return out
+end
+function P.observeBedSites(id,body,atHours)
+    local at=SAO.History and SAO.History.countyHours()
+    if not collectorObserver(id,body) or not finiteSoundNumber(at) or at<0
+        or atHours~=nil and math.abs(atHours-at)>1/9000 or not SAOJavaBridge.worldBedSites then return false end
+    local ok,encoded=pcall(function() return SAOJavaBridge:worldBedSites(body) end)
+    if not ok or type(encoded)~="string" or #encoded>32768 or not collectorObserver(id,body) then return false end
+    local b,n,changed=store(id),0,false;b.bedSites=b.bedSites or {};b.bedSiteOrder=b.bedSiteOrder or {}
+    for line in encoded:gmatch("[^|]+") do
+        n=n+1;if n>32 then break end
+        local sx,sy,sz,face,revision,ax,ay,az=line:match("^([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)$")
+        local x,y,z=tonumber(sx),tonumber(sy),tonumber(sz)
+        if x and y and z then
+            local row=bedSiteCopy(id,{key=string.format("bed-site:%d:%d:%d:%s",x,y,z,face),actorId=id,
+                x=x,y=y,z=z,face=face,revision=revision,approachX=tonumber(ax),approachY=tonumber(ay),approachZ=tonumber(az),
+                observed=true,observedAtHours=at,source="native-personal-visibility"})
+            if row and row.z==math.floor(body:getZ()) then
+                if not b.bedSites[row.key] then
+                    if #b.bedSiteOrder>=32 then b.bedSites[table.remove(b.bedSiteOrder,1)]=nil end
+                    b.bedSiteOrder[#b.bedSiteOrder+1]=row.key
+                end
+                b.bedSites[row.key]=row;changed=true
+            end
+        end
+    end
+    if changed then P.beliefVersion=P.beliefVersion+1 end
+    return true
+end
+function P.bedSites(id,body)
+    if not collectorObserver(id,body) then return {} end
+    local b,out=P.beliefs[id],{};local at=SAO.History.countyHours()
+    if not b or not finiteSoundNumber(at) then return out end
+    for i,key in ipairs(b.bedSiteOrder or {}) do
+        if i>32 then break end;local row=bedSiteCopy(id,b.bedSites and b.bedSites[key])
+        if row and row.observedAtHours<=at then out[#out+1]=row end
+    end
+    return out
+end
 function P.observeConcepts(id,body,tick)
     if not finiteSoundNumber(tick) then return false,"concept-observer-unavailable" end
     local ordinary=SAO.Needs and SAO.Needs.ownsRecoveryBody

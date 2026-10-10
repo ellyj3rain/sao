@@ -9,10 +9,10 @@
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C12, C18, C20, C21, C24, C30, C31, C32, C33 |
-| Implementation | CLOSED D3.1-D3.7 deliver native crafting, tool maintenance, usable water, usable power and firearm fixing through equipment reuse. Full remaining domain keeps this parent OPEN. |
+| Implementation | CLOSED D3.1-D3.8 deliver native crafting, tool maintenance, usable water and power, firearm reuse and wooden-bed construction through ordinary recovery. Remaining full domain keeps this parent OPEN. |
 | Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.6.7.0-pre-alpha; corrected historical classifications and kohai child progress. Full D3 completion remains uncredited while OPEN. |
-| Publication | D3.1-D3.4 are self-merged through PR142-PR145. D3.5 follows the established protected child workflow; actual merge evidence belongs to its publication receipt. The whole parent remains OPEN. |
+| Version | 2.6.8.0-pre-alpha; kohai child progress under the corrected feature-scope rule. Full D3 completion remains uncredited while OPEN. |
+| Publication | D3.1-D3.7 are self-merged through PR142-PR148. D3.8 follows the same protected child workflow, with actual publication retained in its completion receipt. The whole parent remains OPEN. |
 
 ## Product and current implementation
 
@@ -195,3 +195,11 @@ The CLOSED saw-maintenance child joins exact private file acquisition and native
 ## Scope-to-tier supersession and D3.7 closure - 2026-10-10 20:17 UTC / 2026-10-10 13:17 PDT
 
 The operator corrects the earlier minor classification of D3.1, D3.2, D3.4, D3.5 and D3.6: these are building increments within this unfinished full feature, now replayed as kohai. Original child records and published versions stay preserved; the source-linked reconciliation supersedes their current credit projection. D3.7 closes native firearm fixing through exact donor acquisition, installed payment/effects, returned contents, equipment reuse, private feedback and saved custody. Full parent scope and remaining obligations remain active. The child receives one kohai; a later completed-feature boundary can earn minor with its full required integration, while repeated aggregation earns no duplicate credit.
+
+## D3.8 construction-to-use continuation - 2026-10-10 21:24 UTC / 14:24 PDT
+
+[D3.8](D3.8-20261010-2124Z-1424PST-usable-bed-construction.md) is OPEN for the installed wooden-bed recipe, both complete orientations, personally observed permitted placement, exact materials and native construction through ordinary use by the existing recovery system. Its reason, scope, ownership, contracts, dependencies and closure evidence are recorded before implementation. This child earns kohai building progress when closed; full D3 remains active.
+
+## D3.8 coherent closure - 2026-10-10 21:59 UTC / 14:59 PDT
+
+[D3.8](D3.8-20261010-2124Z-1424PST-usable-bed-construction.md) is CLOSED: the installed wooden-bed recipe and both complete native orientations join exact materials, personally observed permitted placement, native payment/allparts and use through the ordinary recovery system. Construction and bodily recovery retain separate outcomes. This coherent building child receives one kohai; other structures, remaining recipe/pane integration and native server execution remain parent obligations.
