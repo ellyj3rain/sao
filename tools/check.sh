@@ -2790,6 +2790,18 @@ if ! "$PY" tools/d3_plumbing_controller_test.py --out "$sao_d3_proof/plumbing-co
     note "BORDER FINDING - private plumbing purpose or actual usable-water continuation differs"
     fail=1
 fi
+if ! "$PY" tools/d3_material_categories_test.py --collector-only --out "$sao_d3_proof/collector-materials"; then
+    note "BORDER FINDING - native collector materials, observed placement or rain supply differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_rain_collector_test.py --out "$sao_d3_proof/collector-native"; then
+    note "BORDER FINDING - native collector construction, placement or saved custody differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_plumbing_controller_test.py --collector-only --out "$sao_d3_proof/collector-controller"; then
+    note "BORDER FINDING - private collector construction or retained usable-water continuation differs"
+    fail=1
+fi
 # Border 220 - shared native regions retain separate pixels, residency centers,
 # infrastructure exclusion and sealed lifecycle evidence under one world clock.
 if ! "$PY" tools/regional_observer_test.py; then

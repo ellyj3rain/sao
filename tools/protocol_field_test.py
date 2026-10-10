@@ -75,6 +75,9 @@ BUILDERS = {
         "|=",
         "native item types, fluid names, and container types from the "
         "loaded world's own objects"),
+    ("SAOWorldSources.java", "collectorSites"): (
+        "|,",
+        "native placement coordinates and opaque generated site revisions"),
     ("SAOPrivateInventory.java", "encode"): (
         "|=",
         "person, holder and item identities from the loaded world or a "

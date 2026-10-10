@@ -355,7 +355,7 @@ local KINDS = { inspection = true, acquire = true, store = true, consume = true 
 local HOBBY_KINDS={ ["leisure-meditation"]=true,["leisure-exercise"]=true,
     ["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true }
-local EXTENDED = { ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true,
+local EXTENDED = { ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true, ["collector-construction"] = true,
     ["animal-care"] = true, ["window-repair"] = true, ["material-crafting"] = true, ["tool-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -432,7 +432,7 @@ local function sameData(a, b)
 end
 local BEHAVIOR_RESULT = {}
 function C.experience(id, supplied, authority)
-    if type(supplied)=="table" and (supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
+    if type(supplied)=="table" and (supplied.kind=="collector-construction" or supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
         and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
     local now = clock()
     if not C.settings().enabled or not now then return false, "disabled" end
@@ -1226,6 +1226,46 @@ function C.plumbingOutcome(id, receipt)
     local x = privateFact(id, "plumbing", "construction", receipt.id, now, receipt.atHours)
     x.sourceId, x.itemId, x.itemType = receipt.sourceId, itemId, receipt.toolItemType
     return nativeExperience(id, "plumbing", receipt.sequence, x)
+end
+
+function C.collectorConstructionOutcome(id, receipt)
+    local now = clock()
+    if not now or type(receipt) ~= "table" or receipt.actorId ~= id
+        or receipt.kind ~= "build-rain-collector" or receipt.token ~= "resource:collector-built"
+        or receipt.nativeOwner ~= "ISBuildAction"
+        or not finite(receipt.sequence, 1, 9007199254740991) or receipt.sequence ~= math.floor(receipt.sequence)
+        or receipt.id ~= "resource-production/" .. id .. "/" .. tostring(receipt.sequence)
+        or not finite(receipt.atHours, 0, now) or not finite(receipt.startedAt, 0, receipt.atHours) then return false end
+    local owner = SAO.ResourceProduction
+    local canonical = owner and owner.outcome and owner.outcome(id, receipt.id)
+    if not canonical or not sameData(canonical, receipt) then return false, "collector-owner-unavailable" end
+    if receipt.status == "failed" or receipt.status == "interrupted" then
+        return true, "unfinished-collector-work-retained-by-planner"
+    end
+    local itemId = tonumber(receipt.toolItemId)
+    if receipt.status ~= "completed" or receipt.nativeCredit ~= receipt.id
+        or receipt.nativeAttempted ~= true or receipt.nativeCompleted ~= true
+        or receipt.constructed ~= true or receipt.placed ~= true or receipt.exactInputs ~= true
+        or receipt.inputsConsumed ~= true or receipt.toolRetained ~= true
+        or type(receipt.feedsFixture) ~= "boolean" or not text(receipt.sourceId, 160)
+        or receipt.sourceId:sub(1, 2) ~= "F:" or not text(receipt.collectorSourceId, 160)
+        or receipt.collectorSourceId:sub(1, 2) ~= "F:" or not text(receipt.collectorFingerprint, 160)
+        or not text(receipt.entityId, 160) or not text(receipt.recipeId, 160)
+        or not text(receipt.siteKey, 160) or not text(receipt.siteRevision, 160)
+        or not finite(receipt.collectorCapacity, 0.0001, 1000000000)
+        or not text(receipt.toolItemType, 160) or not itemId
+        or not finite(itemId, -2147483648, 2147483647) or itemId ~= math.floor(itemId) then return false end
+    for _, key in ipairs({"siteX", "siteY", "siteZ"}) do
+        if not finite(receipt[key], -2147483648, 2147483647)
+            or receipt[key] ~= math.floor(receipt[key]) then return false end
+    end
+    if receipt.siteKey ~= string.format("collector-site:%d:%d:%d", receipt.siteX, receipt.siteY, receipt.siteZ) then return false end
+    local x = privateFact(id, "collector-construction", "construction", receipt.id, now, receipt.atHours)
+    x.sourceId, x.itemId, x.itemType = receipt.collectorSourceId, itemId, receipt.toolItemType
+    x.entityId, x.recipeId, x.originalFixtureSourceId = receipt.entityId, receipt.recipeId, receipt.sourceId
+    x.siteKey, x.siteX, x.siteY, x.siteZ = receipt.siteKey, receipt.siteX, receipt.siteY, receipt.siteZ
+    x.feedsFixture = receipt.feedsFixture
+    return nativeExperience(id, "collector-construction", receipt.sequence, x)
 end
 
 function C.preparationOutcome(id, receipt)

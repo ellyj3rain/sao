@@ -275,7 +275,8 @@ end
 
 local function routeAppraisal(id, rec, context, option, social)
     local own = type(context.position) == "table" and position(context.position.x, context.position.y, context.position.z)
-    local target = position(option.sourceX, option.sourceY, option.sourceZ)
+    local target = option.kind == "build-rain-collector" and option.site
+        and position(option.site.x, option.site.y, option.site.z) or position(option.sourceX, option.sourceY, option.sourceZ)
     if option.kind == "prepare-owned" then target = own end
     if target then target.basis = option.kind == "prepare-owned" and "native-own-position"
         or option.kind == "inspect" and "personally-observed-container-location"
@@ -335,6 +336,9 @@ local function resourceConsequences(option, category, concern)
     elseif option.kind == "plumb-fixture" then
         out[1] = { kind = "plumb", category = "construction", sourceId = option.sourceId,
             itemType = option.toolItemType, value = 0.5 }
+    elseif option.kind == "build-rain-collector" then
+        out[1] = { kind = "construct", category = "construction", sourceId = option.sourceId,
+            itemType = option.entityId, value = 0.5 }
     end
     if option.cooking then
         out[#out + 1] = { kind = "prepare", category = "food",
@@ -357,7 +361,7 @@ function Labor.assess(id, context)
         health = unit(needs.health or context.health),
         priorLife = short(rec.occupation), skills = {}, commitments = {},
         available = context.canWork ~= false and context.obligationActive ~= true }
-    for _, skill in ipairs({ "Cooking", "PlantScavenging", "Doctor", "Fitness", "Strength" }) do
+    for _, skill in ipairs({ "Cooking", "PlantScavenging", "Doctor", "Fitness", "Strength", "Woodwork" }) do
         local ok, level = pcall(function() return SAO.Census.skillOf(id, skill) end)
         local native = type(context.skills) == "table" and context.skills[skill]
         capacity.skills[skill] = finite(native) and native or ok and finite(level) and level or -1
@@ -413,8 +417,9 @@ function Labor.assess(id, context)
         option.uncertainty = "native permission, approach and completion revalidate during execution"
         option.technique = { domain = option.cooking and "Cooking"
                 or option.kind == "refill-water" and "water collection"
+                or option.kind == "build-rain-collector" and "Woodwork"
                 or option.kind == "plumb-fixture" and "plumbing" or "carrying",
-            level = option.cooking and capacity.skills.Cooking or nil,
+            level = option.cooking and capacity.skills.Cooking or option.kind == "build-rain-collector" and capacity.skills.Woodwork or nil,
             fatigue = capacity.fatigue, health = capacity.health }
         -- Skill is evidence about technique, not a zero-level action gate.
         option.appraisal = option.appraisal or routeAppraisal(id, rec, context, option, social)
@@ -497,6 +502,16 @@ function Labor.assess(id, context)
         add(option)
     end
     local production = SAO.ResourceProduction
+    local collectorMaterials = { hammer = true, plank = true, nails = true, ["garbage-bag"] = true, tarp = true }
+    out.materialSources = {}
+    for i, source in ipairs(type(context.materialSources) == "table" and context.materialSources or {}) do
+        if i > 128 then break end
+        if type(source) == "table" and collectorMaterials[source.category] and source.known == true
+            and finite(source.itemId) and short(source.itemType) and short(source.sourceId)
+            and short(source.revision) and privateSource(id, source) and inspectedPlace(id, source.place) then
+            out.materialSources[#out.materialSources + 1] = source
+        end
+    end
     out.toolSources = {}
     for i, source in ipairs(type(context.toolSources) == "table" and context.toolSources or {}) do
         if i > 128 then break end
@@ -515,17 +530,49 @@ function Labor.assess(id, context)
             local ok, known = pcall(production.privatelyKnown, id, candidate)
             private = ok and known == true
         end
+        if type(candidate) == "table" and candidate.kind == "build-rain-collector" then
+            local observed = false
+            local body = SAO.Body and SAO.Body.active and SAO.Body.active[id]
+            local ok, sites = pcall(function() return SAO.Perception.collectorSites(id, body) end)
+            for _, site in ipairs(ok and type(sites) == "table" and sites or {}) do
+                local selected = candidate.site
+                if type(selected) == "table" and site.key == selected.key and site.revision == selected.revision
+                    and site.x == selected.x and site.y == selected.y and site.z == selected.z
+                    and site.observedAtHours == selected.observedAtHours then observed = true; break end
+            end
+            private = private and observed
+        end
         if private and category == "water" and candidate.category == category
             and (candidate.kind == "refill-water" or candidate.kind == "plumb-fixture"
-                and candidate.toolCategory == "pipe-wrench") and candidate.owner == "SAO.ResourceProduction"
+                and candidate.toolCategory == "pipe-wrench" or candidate.kind == "build-rain-collector"
+                and short(candidate.entityId) and short(candidate.recipeId) and type(candidate.site) == "table"
+                and short(candidate.site.key) and short(candidate.site.revision)
+                and finite(candidate.site.x) and finite(candidate.site.y) and finite(candidate.site.z)
+                and finite(candidate.site.observedAtHours) and type(candidate.requirements) == "table"
+                and #candidate.requirements > 0 and #candidate.requirements <= 8
+                and type(candidate.inputs) == "table" and #candidate.inputs <= 16) and candidate.owner == "SAO.ResourceProduction"
             and short(candidate.sourceId) and short(candidate.sourceRevision) and short(candidate.fingerprint)
             and finite(candidate.sourceX) and finite(candidate.sourceY) and finite(candidate.sourceZ)
             and finite(candidate.itemId) and short(candidate.itemType)
             and finite(candidate.beforeAmount) and finite(candidate.capacity)
             and candidate.beforeAmount >= 0 and candidate.capacity > candidate.beforeAmount then
-            add({ id = (candidate.kind == "plumb-fixture" and "plumb:" or "refill:")
+            local site, requirements, inputs
+            if candidate.kind == "build-rain-collector" then
+                site = { key = candidate.site.key, revision = candidate.site.revision, x = candidate.site.x,
+                    y = candidate.site.y, z = candidate.site.z, observedAtHours = candidate.site.observedAtHours }
+                requirements, inputs = {}, {}
+                for _, required in ipairs(candidate.requirements) do
+                    requirements[#requirements + 1] = { inputIndex = required.inputIndex, mode = required.mode,
+                        count = required.count, category = required.category }
+                end
+                for _, input in ipairs(candidate.inputs) do
+                    inputs[#inputs + 1] = { inputIndex = input.inputIndex, itemId = input.itemId,
+                        itemType = input.itemType, mode = input.mode }
+                end
+            end
+            add({ id = (candidate.kind == "build-rain-collector" and "collector:" or candidate.kind == "plumb-fixture" and "plumb:" or "refill:")
                     .. candidate.sourceId .. ":" .. candidate.sourceRevision
-                    .. ":" .. tostring(candidate.itemId), kind = candidate.kind,
+                    .. ":" .. tostring(candidate.itemId) .. (site and ":" .. candidate.entityId .. ":" .. site.key .. ":" .. site.revision or ""), kind = candidate.kind,
                 owner = "SAO.ResourceProduction", category = category, place = place,
                 sourceId = candidate.sourceId, sourceRevision = candidate.sourceRevision,
                 fingerprint = candidate.fingerprint, sourceX = candidate.sourceX,
@@ -533,10 +580,13 @@ function Labor.assess(id, context)
                 itemId = candidate.itemId, itemType = candidate.itemType,
                 toolCategory = candidate.toolCategory, toolItemId = candidate.toolItemId,
                 toolItemType = candidate.toolItemType,
+                entityId = candidate.entityId, recipeId = candidate.recipeId, site = site, requirements = requirements, inputs = inputs,
                 beforeAmount = candidate.beforeAmount, capacity = candidate.capacity,
                 quantityUnit = "fluid", evidence = 0.85, continuity = 0.8,
                 novelty = 0.15, informationGain = 0.3,
-                rationale = candidate.kind == "plumb-fixture"
+                rationale = candidate.kind == "build-rain-collector"
+                    and "construct a rain collector at a personally observed site, then reassess actual supply"
+                    or candidate.kind == "plumb-fixture"
                     and "connect a privately observed eligible fixture, then reassess actual usable water"
                     or "fill a currently held native vessel at a privately observed water fixture" })
             productionCount = productionCount + 1

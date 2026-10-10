@@ -700,6 +700,7 @@ local function planning(id, rec)
             for stepIndex, step in ipairs(purpose.sequence or {}) do
                 if stepIndex > 4 then break end
                 local verb = step.owner == "Cooking" and "prepare food"
+                    or step.owner == "SAO.ResourceProduction" and step.productionKind == "build-rain-collector" and "build rain collector"
                     or step.owner == "SAO.ResourceProduction" and step.productionKind == "plumb-fixture" and "connect water fixture"
                     or step.owner == "SAO.ResourceProduction" and "fill water vessel" or step.verb
                 sequence[#sequence + 1] = tostring(verb) .. " (" .. tostring(step.status) .. ")"

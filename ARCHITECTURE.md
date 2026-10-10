@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.11.0.0-pre-alpha` |
+| Version | `3.12.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1375,6 +1375,18 @@ transition and refreshes only the handled private source. Both cognitive models
 record performed connection independently. The same hydration purpose remains
 active for actual clean held-water gain through ISTakeWaterAction and for native
 drinking; a connected fixture alone supplies no acquired water or bodily relief.
+D3.5 supplies the rain-collector construction prerequisite within that same
+hydration purpose. Perception retains detached exterior placement sites observed
+on the person's floor; the native binding preserves their current world,
+geometry and revision. Planner retains the original fixture, vessel and selected
+site through each exact recipe-input acquisition and return. ResourceProduction
+uses the four registered collector entity recipes, exact manual BuildLogic inputs
+and actor-bound native build/payment/placement. Its authenticated
+`resource:collector-built` result records actual construction and the created
+collector separately from the original fixture and kept hammer. Both models
+learn performed construction. Native precipitation, actual supplier equality,
+plumbing, clean held-water gain and drinking retain distinct evidence. Empty
+supply keeps hydration unfinished while ordinary competing needs proceed.
 Partial transfer
 can later satisfy stock demand without completed-work credit. A missing known
 route preserves unknown environmental affordances rather than asserting an

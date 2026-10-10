@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.11.0.0-pre-alpha` |
+| Version | `3.12.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -202,6 +202,7 @@ Later Leisure improvements link back to the completed D2 product.
 | [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md) | 2026-10-10 | Native saw maintenance for retained construction | [`T-008`](Batches/THREADS.md#t-008), [`T-006`](Batches/THREADS.md#t-006) |
 | [D3.3](Batches/D3.3-20261010-0622Z-2222PST-portable-tool-maintenance.md) | 2026-10-10 | Portable tool maintenance | [`T-008`](Batches/THREADS.md#t-008), [`T-006`](Batches/THREADS.md#t-006) |
 | [D3.4](Batches/D3.4-20261010-0701Z-2301PST-plumbing-to-usable-water.md) | 2026-10-10 | Plumbing to usable water | [`T-008`](Batches/THREADS.md#t-008), [`T-006`](Batches/THREADS.md#t-006) |
+| [D3.5](Batches/D3.5-20261010-0813Z-0113PST-rain-collector-construction.md) | 2026-10-10 | Rain-collector construction | [`T-008`](Batches/THREADS.md#t-008), [`T-006`](Batches/THREADS.md#t-006) |
 
 ### Current Simulation repair18 and approved artwork intake | 2026-10-07 00:30 UTC / 17:30 PST
 
@@ -557,3 +558,7 @@ The CLOSED child delivers installed portable saw repair and blade sharpening und
 ## D3.4 plumbing to usable water closure - 2026-10-10 07:30 UTC / 23:30 PST
 
 The CLOSED child delivers personally observed fixture readiness, exact pipe-wrench acquisition and retained destination, installed plumbing, private source refresh and measured clean held-water gain under the same hydration purpose. Its record links the sufficient native, private-source, ordinary Controller and integrated evidence. Connection supplies no water or bodily-relief credit; empty/unsafe supply preserves the goal without suppressing competing needs. The owning odometer grants one minor movement to 3.11.0.0-pre-alpha. The D3 parent and pending canonical Neo/GZDS governance carry remain OPEN.
+
+## D3.5 rain-collector construction closure - 2026-10-10 09:07 UTC / 02:07 PST
+
+The CLOSED child joins installed four-variant recipes, exact native inputs and private acquisitions, independently observed placement, measured native construction and precipitation/supplier behavior to the retained plumbing/refill/drinking purpose. Construction, rain, connection, water gain and relief retain their actual authorities. Its linked sufficient proof and current records grant one minor movement to 3.12.0.0-pre-alpha. The whole D3 parent and recorded Neo/GZDS follow-up remain OPEN.

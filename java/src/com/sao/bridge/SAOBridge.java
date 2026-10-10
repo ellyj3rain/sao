@@ -1868,6 +1868,7 @@ public final class SAOBridge {
                 || category == null || !(category.equals("glass-pane")
                     || category.equals("hammer") || category.equals("plank")
                     || category.equals("pipe-wrench")
+                    || category.equals("garbage-bag") || category.equals("tarp")
                     || category.equals("nails") || category.equals("log")
                     || category.equals("saw") || category.equals("file")
                     || category.equals("whetstone"))) return 0;
@@ -4406,6 +4407,75 @@ public final class SAOBridge {
                     fingerprint, (int) x, (int) y, (int) z, completedConnection);
         } catch (Throwable throwable) {
             SAOAgent.log("worldPlumbValid threw: " + throwable);
+            return false;
+        }
+    }
+
+    public String worldCollectorSites(Object object) {
+        try {
+            return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+                ? com.sao.engine.SAOWorldSources.collectorSites(shell) : "";
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldCollectorSites threw: " + throwable);
+            return "";
+        }
+    }
+
+    public Object worldCollectorPlacementSquare(Object object, double x, double y,
+            double z, String revision) {
+        try {
+            return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+                && Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)
+                && x == Math.rint(x) && y == Math.rint(y) && z == Math.rint(z)
+                ? com.sao.engine.SAOWorldSources.collectorPlacementSquare(shell,
+                    (int) x, (int) y, (int) z, revision) : null;
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldCollectorPlacementSquare threw: " + throwable);
+            return null;
+        }
+    }
+
+    public boolean worldCollectorCreated(Object object, Object created, String entityId,
+            double x, double y, double z) {
+        try {
+            return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+                && created instanceof zombie.iso.objects.IsoThumpable collector
+                && Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)
+                && x == Math.rint(x) && y == Math.rint(y) && z == Math.rint(z)
+                && com.sao.engine.SAOWorldSources.collectorCreated(shell, collector,
+                    entityId, (int) x, (int) y, (int) z);
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldCollectorCreated threw: " + throwable);
+            return false;
+        }
+    }
+
+    public String worldCollectorSource(Object object, Object created, String entityId,
+            double x, double y, double z) {
+        try {
+            return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+                && created instanceof zombie.iso.objects.IsoThumpable collector
+                && Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)
+                && x == Math.rint(x) && y == Math.rint(y) && z == Math.rint(z)
+                ? com.sao.engine.SAOWorldSources.collectorSource(shell, collector,
+                    entityId, (int) x, (int) y, (int) z) : "";
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldCollectorSource threw: " + throwable);
+            return "";
+        }
+    }
+
+    public boolean worldCollectorFeedsFixture(Object object, Object created, String sourceId,
+            String fingerprint, double x, double y, double z) {
+        try {
+            return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+                && created instanceof zombie.iso.objects.IsoThumpable collector
+                && Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)
+                && x == Math.rint(x) && y == Math.rint(y) && z == Math.rint(z)
+                && com.sao.engine.SAOWorldSources.collectorFeedsFixture(shell, collector,
+                    sourceId, fingerprint, (int) x, (int) y, (int) z);
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldCollectorFeedsFixture threw: " + throwable);
             return false;
         }
     }
