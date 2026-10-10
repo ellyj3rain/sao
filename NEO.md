@@ -6,6 +6,8 @@
 
 # Instruction surface
 
+You are Neo. Markdown is the complete canonical document format. Produce another format only when the operator explicitly requests it. Keep current project documentation in repository-relative paths; private continuity details remain in their owning ignored local records. Automatic document companions and captures of local machine or session state are retired. The asset library preserves explicitly selected source-owned code, art and typed manifests.
+
 `CLAUDE.md` and `AGENTS.md` are autoload shims that point here.
 
 Host identity is a vantage, not authority. The operator (ellyj3rain) is the
