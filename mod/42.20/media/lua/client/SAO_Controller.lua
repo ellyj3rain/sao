@@ -4987,6 +4987,45 @@ function Ctl.tryBedConstruction(id,agent,body,tick,needs)
     return false
 end
 
+function Ctl.shelterConstructionContext(id,agent,body,needs,kind)
+    local p=SAO.ProceduralPlanning.shelterPurpose(id);local own=p and p.shelterConstruction
+    local context={recoveryKind=own and own.recoveryKind or kind,fatigue=tonumber(needs and needs.fatigue),
+        atHours=SAO.History.countyHours(),options={},sites={},materialSources={}}
+    if not SAO.Perception.observeShelterSites or not SAO.ResourceProduction.shelterOptions then return context end
+    SAO.Perception.observeShelterSites(id,body,own and own.origin)
+    context.sites=SAO.Perception.shelterSites(id,body)
+    context.options=SAO.ResourceProduction.shelterOptions(id,body,own)
+    local checked={}
+    for _,option in ipairs(context.options) do
+        local ready,missing=SAO.ProceduralPlanning.collectorReady(option);local required=not ready and missing and missing[1]
+        if required and not checked[required.category] then
+            checked[required.category]=true
+            for _,source in ipairs(Ctl.resourceContext(id,agent,body,needs,required.category,.5).sources or {}) do
+                if #context.materialSources>=128 then break end;context.materialSources[#context.materialSources+1]=source
+            end
+        end
+    end
+    return context
+end
+function Ctl.tryShelterConstruction(id,agent,body,tick,needs,kind)
+    if not SAO.ResourceProduction.shelterOptions or agent.passive or agent.state~="IDLE" or agent.recovery or agent.resting
+        or agent.rec.resourceProductionWork or agent.rec.worldSourceReservation or not SAO.Needs.workAvailable(body)
+        or not needs or not needs.fatigue or needs.fatigue>=.85 or math.max(needs.hunger or 0,needs.thirst or 0)>=.85
+        or not SAO.Standing.insideClaim(id,body:getX(),body:getY()) then return false end
+    local retained=SAO.ProceduralPlanning.shelterPurpose(id)
+    if retained and retained.shelterConstruction.usedWorkId then return false end
+    local p,step=SAO.ProceduralPlanning.planShelterConstruction(id,Ctl.shelterConstructionContext(id,agent,body,needs,kind))
+    if not p or not step or step.status~="available" then return false end
+    if step.verb=="acquire" then return Ctl.beginConstructionAcquisition(id,agent,body,tick,p,step) end
+    if step.owner~="SAO.ResourceProduction" or step.productionKind~="build-shelter-edge" and step.productionKind~="use-shelter" then return false end
+    if not setState(agent,id,"RESOURCE",step.productionKind=="use-shelter" and "uses the repaired shelter doorway" or "repairs shelter for retained recovery","need") then return false end
+    if SAO.ResourceProduction.begin(id,body,step,{purposeId=p.id,purposeStepId=step.id}) or agent.rec.resourceProductionWork then
+        agent.taskDeadline=tick+5400;return true
+    end
+    SAO.ProceduralPlanning.deferResourceRoute(id,p.id,step.id,"native shelter work refused");setState(agent,id,"IDLE","shelter work could not begin")
+    return false
+end
+
 function Ctl.offerRecovery(id, agent, body, tick, needs, selectedKind)
     if not SAO.Needs.recoveryPreference or not needs or agent.recovery
         or agent.resting or SAO.History.countyHours() < (agent.nextRecoveryHours or 0)
@@ -4994,6 +5033,7 @@ function Ctl.offerRecovery(id, agent, body, tick, needs, selectedKind)
         or agent.forageInspection or agent.rec.worldSourceReservation
         or not SAO.Needs.ownsRecoveryBody(id, body) then return false end
     if SAO.ProceduralPlanning.reconcileBedRecovery and not SAO.ProceduralPlanning.reconcileBedRecovery(id,body) then return false end
+    if SAO.ProceduralPlanning.reconcileShelterRecovery and not SAO.ProceduralPlanning.reconcileShelterRecovery(id,body) then return false end
     local kind, reasoning = SAO.Needs.recoveryPreference(id, needs, {
         emergency = policy().desperation, committed = agent.coordinationCommitment ~= nil,
         threat = SAO.Perception.believedThreatCount(id, tick, 10, body:getX(), body:getY()) > 0,
@@ -5025,12 +5065,16 @@ function Ctl.offerRecovery(id, agent, body, tick, needs, selectedKind)
         if not ok or cancelled ~= true or SAO.Study.active(id, body) then return false end
     end
     if not SAO.Needs.workAvailable(body) then return false end
+    if Ctl.tryShelterConstruction(id,agent,body,tick,needs,kind) then return true end
+    local shelter=SAO.ProceduralPlanning.shelterPurpose(id);local shelterUse=shelter and shelter.shelterConstruction
     local choices={}
     for key,retry in pairs(agent.recoveryPlaceRetry or {}) do
         if tick>=retry then agent.recoveryPlaceRetry[key]=nil end
     end
     for _,place in ipairs(SAO.Needs.recoveryPlaces(id,body)) do
-        if (kind=="sleep" or place.kind=="ground")
+        if (not shelterUse or not shelterUse.usedWorkId or SAOJavaBridge:worldShelterRecoveryValid(body,
+            shelterUse.useSite.key,shelterUse.useSite.revision,place.x,place.y,place.z,false)==true)
+            and (kind=="sleep" or place.kind=="ground")
             and tick>=(agent.recoveryPlaceRetry and agent.recoveryPlaceRetry[SAO.Needs.recoveryApproachKey(place)] or 0)
             and not SAO.Needs.recoveryMeansUnavailable(id,kind,place)
             and SAO.Standing.mayAttemptBelieved(id,place.x,place.y,"standing") then

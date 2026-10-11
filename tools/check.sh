@@ -2802,6 +2802,10 @@ if ! "$PY" tools/d3_bed_construction_test.py --out "$sao_d3_proof/bed-constructi
     note "BORDER FINDING - native bed construction, exact placement or ordinary recovery differs"
     fail=1
 fi
+if ! "$PY" tools/d3_shelter_construction_test.py --out "$sao_d3_proof/shelter-construction"; then
+    note "BORDER FINDING - native shelter stages, exact doorway passage or ordinary recovery differs"
+    fail=1
+fi
 if ! "$PY" tools/d3_rain_collector_test.py --out "$sao_d3_proof/collector-native"; then
     note "BORDER FINDING - native collector construction, placement or saved custody differs"
     fail=1

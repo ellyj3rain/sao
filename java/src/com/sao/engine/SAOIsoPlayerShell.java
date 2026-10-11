@@ -121,6 +121,7 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
         try {
             SAOOrientation.beforePostUpdate(this);
             super.postupdate();
+            SAOShelterConstruction.observePassage(this);
         } finally {
             restoreGlobalOwners(keep, camera);
         }

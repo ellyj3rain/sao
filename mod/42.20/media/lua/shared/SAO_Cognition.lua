@@ -355,7 +355,7 @@ local KINDS = { inspection = true, acquire = true, store = true, consume = true 
 local HOBBY_KINDS={ ["leisure-meditation"]=true,["leisure-exercise"]=true,
     ["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true }
-local EXTENDED = { ["generator-operation"] = true, ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true, ["bed-construction"]=true, ["collector-construction"] = true,
+local EXTENDED = { ["generator-operation"] = true, ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true, ["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true, ["collector-construction"] = true,
     ["animal-care"] = true, ["window-repair"] = true, ["material-crafting"] = true, ["tool-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -432,7 +432,7 @@ local function sameData(a, b)
 end
 local BEHAVIOR_RESULT = {}
 function C.experience(id, supplied, authority)
-    if type(supplied)=="table" and (supplied.kind=="generator-operation" or supplied.kind=="bed-construction" or supplied.kind=="collector-construction" or supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
+    if type(supplied)=="table" and (supplied.kind=="generator-operation" or supplied.kind=="shelter-construction" or supplied.kind=="shelter-use" or supplied.kind=="bed-construction" or supplied.kind=="collector-construction" or supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
         and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
     local now = clock()
     if not C.settings().enabled or not now then return false, "disabled" end
@@ -1230,6 +1230,32 @@ function C.plumbingOutcome(id, receipt)
     local x = privateFact(id, "plumbing", "construction", receipt.id, now, receipt.atHours)
     x.sourceId, x.itemId, x.itemType = receipt.sourceId, itemId, receipt.toolItemType
     return nativeExperience(id, "plumbing", receipt.sequence, x)
+end
+
+function C.shelterOutcome(id,receipt)
+    local now=clock()
+    if not now or type(receipt)~="table" or receipt.actorId~=id
+        or receipt.kind~="build-shelter-edge" and receipt.kind~="use-shelter"
+        or not finite(receipt.sequence,1,9007199254740991) or receipt.sequence~=math.floor(receipt.sequence)
+        or receipt.id~="resource-production/"..id.."/"..tostring(receipt.sequence) or not finite(receipt.atHours,0,now) then return false end
+    local canonical=SAO.ResourceProduction and SAO.ResourceProduction.outcome(id,receipt.id)
+    if not canonical or not sameData(canonical,receipt) then return false end
+    if receipt.status~="completed" then return true,"unfinished-shelter-purpose-retained" end
+    if receipt.nativeCredit~=receipt.id or not receipt.nativeAttempted or not receipt.nativeCompleted or not text(receipt.siteKey,160) then return false end
+    local build=receipt.kind=="build-shelter-edge"
+    local x=privateFact(id,build and "shelter-construction" or "shelter-use",build and "construction" or "body",receipt.id,now,receipt.atHours)
+    x.sourceId=receipt.siteKey
+    if build then
+        local itemId=tonumber(receipt.toolItemId)
+        if not receipt.constructed or not receipt.placed or not receipt.inputsConsumed or not receipt.toolRetained
+            or not itemId or not finite(itemId,-2147483648,2147483647) or itemId~=math.floor(itemId)
+            or not text(receipt.entityId,160) or not text(receipt.recipeId,160) then return false end
+        x.itemId,x.itemType=itemId,receipt.toolItemType
+        x.entityId,x.recipeId,x.siteKey=receipt.entityId,receipt.recipeId,receipt.siteKey
+        x.siteX,x.siteY,x.siteZ=receipt.siteX,receipt.siteY,receipt.siteZ
+    elseif not receipt.opened or not receipt.crossedOut or not receipt.crossedIn or not receipt.closedDoor
+        or not receipt.enclosureConfirmed then return false end
+    return nativeExperience(id,build and "shelter-construction" or "shelter-use",receipt.sequence,x)
 end
 
 function C.bedConstructionOutcome(id,receipt)

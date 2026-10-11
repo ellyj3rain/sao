@@ -940,7 +940,7 @@ local function plumbingStep(option, status)
         toolItemType = option.toolItemType }
 end
 
-local COLLECTOR_MATERIALS = { mattress=true, hammer = true, plank = true, nails = true, ["garbage-bag"] = true, tarp = true }
+local COLLECTOR_MATERIALS = { hinge=true,doorknob=true,mattress=true, hammer = true, plank = true, nails = true, ["garbage-bag"] = true, tarp = true }
 local function collectorDeficits(option)
     if type(option.requirements) ~= "table" or #option.requirements < 1 or #option.requirements > 8
         or type(option.inputs) ~= "table" or #option.inputs > 16 then return nil end
@@ -1927,6 +1927,208 @@ function P.consumeBedRecovery(id,sequence)
         or canonical.afterValue>=canonical.beforeValue then return false end
     return P.recordResult(id,p.id,{owner="SAONeeds",token="recovery:measured",status="completed",
         correlationId=a.correlationId,atHours=canonical.atHours,reason="native-created-bed-fatigue-reduction"},BED_RECOVERY_RESULT)
+end
+
+local SHELTER_RESULT,SHELTER_USE_RESULT,SHELTER_RECOVERY_RESULT={},{},{}
+function P.shelterPurpose(id)
+    local s=state(id)
+    for _,key in ipairs(s and s.order or {}) do local p=s.purposes[key]
+        if p and p.shelterConstruction and p.status~="completed" and p.status~="abandoned" then return p,p.steps[p.cursor] end
+    end
+end
+function P.planShelterConstruction(id,context)
+    context=type(context)=="table" and context or {};local s=state(id,true)
+    if not s or context.recoveryKind~="sleep" and context.recoveryKind~="rest"
+        or not finite(context.fatigue) or context.fatigue<0 or context.fatigue>1 then return nil end
+    local retained,current=P.shelterPurpose(id)
+    if retained and (retained.admission or retained.shelterConstruction.usedWorkId) then return retained,current end
+    local at=finite(context.atHours) and context.atHours or nowHours()
+    local candidates={{id="continue",evidence=1,continuity=.7,novelty=0,informationGain=0,utility=.25,blockers=0}}
+    local offered,ranked={},{}
+    for i,option in ipairs(context.options or {}) do
+        if i>32 then break end
+        local ready,missing=P.collectorReady(option);local site=option.site;local own=retained and retained.shelterConstruction
+        if option.kind=="build-shelter-edge" and option.known==true and site and site.actorId==id and site.observed==true
+            and site.roof==true and finite(site.observedAtHours) and site.observedAtHours<=at and missing
+            and (not own or own.origin.originX==site.originX and own.origin.originY==site.originY and own.origin.z==site.z)
+            and (not own or not own.stageHistory[site.key] or own.stageHistory[site.key].entityId~=option.entityId) then
+            local source,delayed
+            if not ready then source,delayed=materialSource(retained or {},context.materialSources,missing[1].category,at) end
+            ranked[#ranked+1]={option=option,source=source,ready=ready,delayed=delayed,
+                actionable=ready or source~=nil and not delayed,index=i}
+        end
+    end
+    table.sort(ranked,function(a,b)
+        if a.actionable~=b.actionable then return a.actionable end
+        if a.ready~=b.ready then return a.ready end
+        local da,db=tonumber(a.option.distance) or 100,tonumber(b.option.distance) or 100
+        if da~=db then return da<db end
+        return a.index<b.index
+    end)
+    local omitted=math.max(0,#ranked-15)
+    for i,choice in ipairs(ranked) do
+        if i>15 then break end
+        local option=choice.option;local site=option.site;local key="shelter-option:"..i
+        candidates[#candidates+1]={id=key,evidence=1,continuity=retained and 1 or .7,novelty=.1,informationGain=.2,
+            utility=.9+context.fatigue-.1*math.min(1,(tonumber(option.distance) or 100)/100),
+            blockers=choice.actionable and 0 or 1,
+            consequences={{kind="construct",category="construction",sourceId=site.key,itemType=option.entityId,value=.5}}}
+        offered[key]=choice
+    end
+    local view=interpretations(id,candidates,{domain="construction",pressure=context.fatigue,atHours=at})
+    local selected=view and offered[view.selected]
+    if not selected then
+        local missingObserved=#ranked>0
+        local own=retained and retained.shelterConstruction
+        for _,site in ipairs(context.sites or {}) do
+            local history=own and own.stageHistory[site.key]
+            if own and site.originX==own.origin.originX and site.originY==own.origin.originY and site.z==own.origin.z
+                and site.mode~="door" and (not history or history.revision~=site.revision) then missingObserved=true end
+        end
+        if retained and not missingObserved then
+            local own=retained.shelterConstruction
+            for _,site in ipairs(context.sites or {}) do
+                if site.mode=="door" and site.originX==own.origin.originX and site.originY==own.origin.originY and site.z==own.origin.z
+                    and not own.usedWorkId then
+                    local step={id="shelter-use:"..tostring(#own.constructionResults+1),verb="produce",owner="SAO.ResourceProduction",
+                        productionKind="use-shelter",token="resource:shelter-used",target=site.key,site=dataCopy(site),
+                        category="construction",status="available"}
+                    setPlan(retained,{step,{id="shelter-recovery",verb="recover",owner="SAONeeds",token="recovery:measured",
+                        target=site.key,status="dependent"}},{},dataCopy(view),at)
+                    return retained,retained.steps[retained.cursor]
+                end
+            end
+            retained.blockers={"known-shelter-means-or-native-enclosure-unavailable"}
+        end
+        if retained then retained.blockers={"known-shelter-means-or-native-enclosure-unavailable"};retained.omittedAlternatives=omitted end
+        return retained,nil,"shelter-means-unavailable"
+    end
+    local option,source=selected.option,selected.source
+    local p=retained or P.maintain(id,{key="recover-in-repaired-shelter",domain="body",
+        objective="use personally known repaired shelter for bodily recovery",origin="recovery-concern",atHours=at})
+    if not p then return nil end
+    p.shelterConstruction=p.shelterConstruction or {recoveryKind=context.recoveryKind,origin=dataCopy(option.site),
+        stageHistory={},completedEdges={},constructionResults={}}
+    local steps,blockers={},{}
+    if not selected.ready then
+        if source and not selected.delayed then
+            steps[#steps+1]={id=materialAcquisitionId(source),verb="acquire",owner="SAO.SourceUse",token="resource:acquired",
+                target=source.sourceId..":"..tostring(source.itemId),category=source.category,sourceId=source.sourceId,
+                sourceRevision=source.revision,itemId=source.itemId,itemType=source.itemType,place=dataCopy(source.place),
+                quantity=1,quantityUnit="item",status="available"}
+        else blockers[#blockers+1]=selected.delayed and "known-route-retry-delayed" or "missing-private-shelter-material" end
+    end
+    local index=#p.shelterConstruction.constructionResults+1
+    local step={id="shelter-build:"..index,verb="produce",owner="SAO.ResourceProduction",token="resource:shelter-built",
+        target=option.entityId,productionKind="build-shelter-edge",category="construction",
+        entityId=option.entityId,recipeId=option.recipeId,site=dataCopy(option.site),requirements=dataCopy(option.requirements),
+        inputs=dataCopy(option.inputs),status=#blockers>0 and "blocked" or #steps>0 and "dependent" or "available"}
+    steps[#steps+1]=step
+    -- Replanning observes the next native stage; no hypothetical completed room is inserted here.
+    p.materialWork={operation="repair-shelter",entryKey=step.site.key}
+    setPlan(p,steps,blockers,dataCopy(view),at);p.selectedStrategy=steps[1].id;p.omittedAlternatives=omitted
+    return p,p.steps[p.cursor]
+end
+function P.admitShelterConstruction(id,w)
+    local p,step=P.shelterPurpose(id)
+    if not p or p.admission or not step or step.status~="available" or w.actorId~=id or p.id~=w.purposeId
+        or step.productionKind~=w.kind or step.id~=w.purposeStepId or step.recipeId~=w.recipeId
+        or step.site.key~=w.siteKey or step.site.revision~=w.siteRevision or not P.collectorReady(step) then return false end
+    return P.noteAdmission(id,p.id,step.owner,w.id,step.id)
+end
+function P.consumeShelterConstructionResult(id,supplied)
+    local canonical=type(supplied)=="table" and SAO.ResourceProduction.outcome(id,supplied.id)
+    if not canonical or canonical.actorId~=id or canonical.kind~="build-shelter-edge"
+        or canonical.token~="resource:shelter-built" or canonical.nativeOwner~="ISBuildAction"
+        or not finite(canonical.atHours) or canonical.atHours>nowHours() then return false end
+    local s=state(id);local p=s and s.purposes[canonical.purposeId]
+    if not p or p.status=="abandoned" then return true end
+    for _,key in ipairs(p.resultReceipts or {}) do if key=="SAO.ResourceProduction:"..canonical.id then return true end end
+    local step,ad=p.steps[p.cursor],p.admission
+    if not p.shelterConstruction or not step or not ad or ad.owner~="SAO.ResourceProduction" or ad.stepId~=step.id
+        or ad.correlationId~=canonical.id or ad.target~=step.target or step.id~=canonical.purposeStepId
+        or canonical.atHours<ad.at or step.site.key~=canonical.siteKey or step.site.revision~=canonical.siteRevision
+        or step.entityId~=canonical.entityId or step.recipeId~=canonical.recipeId
+        or not P.collectorReady(step) or not P.collectorReady(canonical) then return false end
+    local accepted=P.recordResult(id,p.id,{owner="SAO.ResourceProduction",token=canonical.token,status=canonical.status,
+        correlationId=canonical.id,reason=canonical.detail,atHours=canonical.atHours},SHELTER_RESULT)
+    if accepted and canonical.status=="completed" then
+        local own=p.shelterConstruction
+        own.stageHistory[canonical.siteKey]={entityId=canonical.entityId,revision=canonical.siteRevision,workId=canonical.id,at=canonical.atHours}
+        if canonical.entityId:find("WoodenWallLvl",1,true) or canonical.entityId:find("WoodenDoorLvl",1,true) then own.completedEdges[canonical.siteKey]=canonical.entityId end
+        own.constructionResults[#own.constructionResults+1]=canonical.id
+        p.status="maintained";p.blockers={"awaiting-next-observed-stage-and-usable-shelter"}
+    end
+    return accepted
+end
+function P.admitShelterUse(id,w)
+    local p,step=P.shelterPurpose(id)
+    if not p or p.admission or not step or step.status~="available" or w.actorId~=id or w.kind~="use-shelter"
+        or p.id~=w.purposeId or step.id~=w.purposeStepId or step.productionKind~=w.kind
+        or step.site.key~=w.siteKey or step.site.revision~=w.siteRevision then return false end
+    return P.noteAdmission(id,p.id,"SAO.ResourceProduction",w.id,step.id)
+end
+function P.consumeShelterUseResult(id,supplied)
+    local canonical=type(supplied)=="table" and SAO.ResourceProduction.outcome(id,supplied.id)
+    if not canonical or canonical.kind~="use-shelter" or canonical.actorId~=id or canonical.atHours>nowHours() then return false end
+    local s=state(id);local p=s and s.purposes[canonical.purposeId]
+    if not p or p.status=="abandoned" then return true end
+    for _,key in ipairs(p.resultReceipts or {}) do if key=="SAO.ResourceProduction:"..canonical.id then return true end end
+    local step,ad=p.steps[p.cursor],p.admission
+    if not p.shelterConstruction or not step or not ad or ad.owner~="SAO.ResourceProduction"
+        or ad.stepId~=step.id or ad.correlationId~=canonical.id or step.id~=canonical.purposeStepId
+        or step.site.key~=canonical.siteKey or step.site.revision~=canonical.siteRevision or canonical.atHours<ad.at then return false end
+    local accepted=P.recordResult(id,p.id,{owner="SAO.ResourceProduction",token=canonical.token,status=canonical.status,
+        correlationId=canonical.id,reason=canonical.detail,atHours=canonical.atHours},SHELTER_USE_RESULT)
+    if accepted and canonical.status=="completed" then
+        p.shelterConstruction.usedWorkId=canonical.id;p.shelterConstruction.useSite=dataCopy(canonical.site)
+        p.shelterConstruction.cover=dataCopy(canonical.afterCover)
+        local next=p.steps[p.cursor];if next and next.owner=="SAONeeds" then next.status="available" end
+        p.status="maintained";p.blockers={"awaiting-ordinary-shelter-recovery"}
+    end
+    return accepted
+end
+function P.reconcileShelterRecovery(id,body)
+    local p,step=P.shelterPurpose(id);local ad=p and p.admission;local rec=record(id)
+    if not ad or ad.owner~="SAONeeds" then return true end
+    if not p.shelterConstruction.usedWorkId or not step or ad.stepId~=step.id or ad.correlationId~="shelter-recovery:"..p.id
+        or not rec or SAO.Body.get(id)~=body or not SAO.Needs.ownsRecoveryBody(id,body) then return false end
+    local ok,quiet=pcall(function()
+        return rec.recoveryIntent==nil and not SAO.Needs.recoveryActive(id,body) and not SAOJavaBridge:hasPendingActions(body)
+            and body:getCurrentStateName()=="IdleState" and not body:isAsleep() and not body:isOnBed() and not body:isResting()
+            and not (SAO.RecoveryPose and SAO.RecoveryPose.pendingExits and SAO.RecoveryPose.pendingExits[body])
+    end)
+    if not ok or not quiet then return false end
+    p.lastAdmission=dataCopy(ad);p.admission=nil;step.status="available";p.status="maintained"
+    p.shelterConstruction.recoverySequenceBefore=nil;p.blockers={"shelter-recovery-interrupted-awaiting-retry"};return true
+end
+function P.admitShelterRecovery(id,kind,place)
+    local p,step=P.shelterPurpose(id);local rec=record(id);local own=p and p.shelterConstruction
+    local site=own and own.useSite
+    if not own or not own.usedWorkId or own.recoveryKind~=kind or not step or step.owner~="SAONeeds"
+        or p.admission or not site or place.available~=true or place.z~=site.z or not rec.recoveryIntent
+        or rec.recoveryIntent.kind~=kind or rec.recoveryIntent.place.key~=place.key then return false end
+    local body=SAO.Body.get(id);local use=SAO.ResourceProduction.outcome(id,own.usedWorkId)
+    if not body or not SAO.Needs.ownsRecoveryBody(id,body) or not use or not getWorld() or getWorld():getWorld()~=use.world then return false end
+    local cover=SAOJavaBridge:worldShelterCover(body,math.floor(place.x),math.floor(place.y),place.z)
+    if type(cover)~="table" or cover.reached~=true or cover.roof~=true or cover.regionKnown~=true
+        or cover.enclosed~=true or cover.fullyRoofed~=true then return false end
+    if SAOJavaBridge:worldShelterRecoveryValid(body,site.key,site.revision,place.x,place.y,place.z,true)~=true then return false end
+    own.recoveryKey=place.key;own.recoverySequenceBefore=rec.recoveryExperienceSequence or 0
+    return P.noteAdmission(id,p.id,"SAONeeds","shelter-recovery:"..p.id,step.id)
+end
+function P.consumeShelterRecovery(id,sequence)
+    local canonical=SAO.Needs.behaviorOutcome(id,sequence);local p,step=P.shelterPurpose(id);local own=p and p.shelterConstruction
+    local ad=p and p.admission
+    if not canonical or not own or not ad or not step or step.owner~="SAONeeds" or ad.owner~="SAONeeds"
+        or ad.stepId~=step.id or canonical.actorId~=id or canonical.actionKind~=own.recoveryKind
+        or canonical.sourceId~=own.recoveryKey or sequence<=(own.recoverySequenceBefore or math.huge)
+        or canonical.atHours<ad.at or canonical.atHours>nowHours() or canonical.succeeded~=true
+        or not finite(canonical.durationHours) or canonical.durationHours<=0 or not finite(canonical.beforeValue)
+        or not finite(canonical.afterValue) or (own.recoveryKind=="sleep" and canonical.afterValue>=canonical.beforeValue
+            or own.recoveryKind=="rest" and canonical.afterValue<=canonical.beforeValue) then return false end
+    return P.recordResult(id,p.id,{owner="SAONeeds",token="recovery:measured",status="completed",
+        correlationId=ad.correlationId,atHours=canonical.atHours,reason="native-recovery-in-used-shelter"},SHELTER_RECOVERY_RESULT)
 end
 
 function P.planToolMaintenance(id, context)
@@ -3271,6 +3473,13 @@ function P.recordResult(id, purposeId, result, authority)
     if purpose and purpose.windowRepair and (not step or step.owner ~= "SAO.SourceUse") then
         if purpose and purpose.windowRepair and authority ~= WINDOW_REPAIR_RESULT then return false end
     end
+    if purpose and purpose.shelterConstruction then
+        if not step or step.owner=="SAO.ResourceProduction" and
+            (step.token=="resource:shelter-built" and authority~=SHELTER_RESULT
+                or step.token=="resource:shelter-used" and authority~=SHELTER_USE_RESULT)
+            or step.owner=="SAONeeds" and authority~=SHELTER_RECOVERY_RESULT
+            or step.owner~="SAO.ResourceProduction" and step.owner~="SAONeeds" and step.owner~="SAO.SourceUse" then return false end
+    end
     if purpose and purpose.bedConstruction then
         if not step or step.owner=="SAO.ResourceProduction" and authority~=BED_RESULT
             or step.owner=="SAONeeds" and authority~=BED_RECOVERY_RESULT
@@ -3286,7 +3495,9 @@ function P.recordResult(id, purposeId, result, authority)
             or step.token == "resource:crafted" and authority ~= CRAFT_RESULT
             or step.token == "resource:repaired" and authority ~= REPAIR_RESULT
             or step.token == "resource:bed-built" and authority ~= BED_RESULT
-            or step.token ~= "resource:crafted" and step.token ~= "resource:repaired" and step.token ~= "resource:bed-built") then return false end
+            or step.token == "resource:shelter-built" and authority ~= SHELTER_RESULT
+            or step.token == "resource:shelter-used" and authority ~= SHELTER_USE_RESULT
+            or step.token ~= "resource:crafted" and step.token ~= "resource:repaired" and step.token ~= "resource:bed-built" and step.token ~= "resource:shelter-built" and step.token ~= "resource:shelter-used") then return false end
     end
     if purpose and purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
     if purpose and purpose.noteReading and authority ~= NOTE_RESULT then return false end
@@ -4004,6 +4215,7 @@ function P.snapshot(id)
                 appraisal = dataCopy(purpose.appraisal),
                 inquiry = dataCopy(purpose.inquiry),
                 generatorPower = dataCopy(purpose.generatorPower),
+                shelterConstruction=dataCopy(purpose.shelterConstruction),
                 decisionAt = purpose.decisionAt, assessedAt = purpose.assessedAt,
                 sequence = dataCopy(purpose.steps), completedSteps = dataCopy(purpose.completedSteps),
                 alternatives = dataCopy(purpose.alternatives), omittedAlternatives = purpose.omittedAlternatives or 0,

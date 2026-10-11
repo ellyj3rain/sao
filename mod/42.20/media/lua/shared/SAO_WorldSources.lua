@@ -41,7 +41,7 @@ local MAX_ACTION_OPTIONS = 128
 local RESULT_CONSUMER = "provisioning"
 local SOURCE_CATEGORY_ORDER = {
     "device", "drink", "electronics-scrap", "file", "food", "fuel", "garbage-bag", "generator-manual", "glass-pane", "hammer", "instrument", "leisure-material", "medical",
-    "log", "mattress", "medicine", "memento", "nails", "petrol", "pipe-wrench", "plank", "reading", "saw", "smokes", "tools",
+    "doorknob", "hinge", "log", "mattress", "medicine", "memento", "nails", "petrol", "pipe-wrench", "plank", "reading", "saw", "smokes", "tools",
     "tarp", "water", "weapons", "whetstone",
 }
 local SOURCE_CATEGORIES = {}

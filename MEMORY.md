@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `2.6.8.0-pre-alpha` |
+| Version | `2.6.9.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -111,3 +111,7 @@ The CLOSED [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md)
 ## D3.8 construction-to-use source
 
 [D3.8](Batches/D3.8-20261010-2124Z-1424PST-usable-bed-construction.md) is the CLOSED coherent wooden-bed construction/placement child, with native recipe, complete orientations, exact private materials, permitted observed footprint and ordinary recovery-use evidence. Full [D3](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md) stays OPEN. It receives one kohai under the corrected feature-scope version rule.
+
+## D3.9 shelter construction source
+
+[D3.9](Batches/D3.9-20261010-2240Z-1540PST-walls-doors-usable-shelter.md) is the CLOSED single-edge wooden wall/frame/door construction-to-use child. It retains native stages/materials, private permitted edges, actual doorway use, native shelter conditions, ordinary consumers and saved continuity. Full [D3](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md) stays OPEN; the child receives one kohai.

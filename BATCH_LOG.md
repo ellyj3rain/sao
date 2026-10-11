@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.6.8.0-pre-alpha` |
+| Version | `2.6.9.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -581,3 +581,9 @@ The [historical transition](Batches/Transitions/VERSION-20261010-feature-scope-c
 | Batch | Date | Name | Threads |
 |---|---|---|---|
 | [D3.8](Batches/D3.8-20261010-2124Z-1424PST-usable-bed-construction.md) | 2026-10-10 | Construction and placement through a usable bed | D3 placement, native construction and ordinary recovery |
+
+## Walls and doors through usable shelter - 2026-10-11 01:03 UTC / 18:03 PDT
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D3.9](Batches/D3.9-20261010-2240Z-1540PST-walls-doors-usable-shelter.md) | 2026-10-10 | Walls and doors through usable shelter | D3 edge construction, doorway use and private shelter |
