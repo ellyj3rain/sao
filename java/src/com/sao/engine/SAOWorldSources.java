@@ -2375,6 +2375,8 @@ public final class SAOWorldSources {
             if (SAONeeds.wantsMaterial(item, "reading")) out.add("reading");
             if (SAONeeds.wantsMaterial(item, "glass-pane")) out.add("glass-pane");
             if (SAONeeds.wantsMaterial(item, "hammer")) out.add("hammer");
+            for(String kind:List.of("metal-pipe","wire","scrap-metal","welding-torch","welding-rods","gate-manual"))
+                if(SAONeeds.wantsMaterial(item,kind))out.add(kind);
             if (SAONeeds.wantsMaterial(item, "pipe-wrench")) out.add("pipe-wrench");
             if (SAONeeds.wantsMaterial(item, "garbage-bag")) out.add("garbage-bag");
             if (SAONeeds.wantsMaterial(item, "mattress")) out.add("mattress");

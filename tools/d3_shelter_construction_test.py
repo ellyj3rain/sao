@@ -106,6 +106,7 @@ def main():
         ROOT/'java/src/com/sao/engine/SAOWorldSources.java',ROOT/'java/src/com/sao/bridge/SAOBridge.java']
     java_sources.append(ROOT/'java/src/com/sao/engine/SAOIsoPlayerShell.java')
     java_sources.append(ROOT/'java/src/com/sao/engine/SAOShelterStairs.java')
+    java_sources.append(ROOT/'java/src/com/sao/engine/SAODoubleGate.java')
     movement=ROOT/'tools/luacheck/MovementCrossingProbe.java'
     owned=[Path(__file__),PROBE,CASES,CTL_CASES,CONTROLLER,BASE,BOARD,PLUMB,*LEAVES.values(),ROOT/'tools/luacheck/LuaSyntax.java',*java_sources,movement]
     missing=[str(p) for p in owned if not p.is_file()]
@@ -174,7 +175,7 @@ def main():
         ('itemless-use-feedback-gate','models.lua','if e.kind=="shelter-use" then\n            return e.category=="body"',
             'if false and e.kind=="shelter-use" then\n            return e.category=="body"',
             'construction_use_and_recovery_keep_independent_feedback','__runShelterControllerCases()'),
-        ('saved-shelter-normalization','production.lua','if w.kind=="build-wood-bed" or w.kind=="build-shelter-edge" or w.kind=="build-shelter-surface" or w.kind=="build-shelter-stairs" then row.feedsFixture=nil;row.parts={} end',
+        ('saved-shelter-normalization','production.lua','if w.kind=="build-wood-bed" or w.kind=="build-shelter-edge" or w.kind=="build-shelter-surface" or w.kind=="build-shelter-stairs" or w.kind=="build-double-gate" then row.feedsFixture=nil;row.parts={} end',
             'if w.kind=="build-wood-bed" then row.feedsFixture=nil;row.parts={} end',
             'saved_shelter_work_reconciles_without_fabricated_parts_or_passage','__runShelterFocusedCases()')]
     if geometry_ok and not args.no_controls:

@@ -82,7 +82,7 @@ def main():
     parser.add_argument('--no-controls',action='store_true',help='Run current affected positives; retain applicable detecting controls separately.')
     args=parser.parse_args()
     java_sources=[ROOT/'java/src/com/sao/engine/SAOBedConstruction.java',ROOT/'java/src/com/sao/engine/SAONeeds.java',
-        ROOT/'java/src/com/sao/engine/SAOWorldSources.java',ROOT/'java/src/com/sao/bridge/SAOBridge.java',ROOT/'java/src/com/sao/engine/SAOShelterStairs.java']
+        ROOT/'java/src/com/sao/engine/SAOWorldSources.java',ROOT/'java/src/com/sao/bridge/SAOBridge.java',ROOT/'java/src/com/sao/engine/SAOShelterStairs.java',ROOT/'java/src/com/sao/engine/SAODoubleGate.java']
     movement=ROOT/'tools/luacheck/MovementCrossingProbe.java'
     owned=[Path(__file__),PROBE,CASES,CTL_CASES,CONTROLLER,BASE,BOARD,PLUMB,*LEAVES.values(),ROOT/'tools/luacheck/LuaSyntax.java',*java_sources,movement]
     missing=[str(p) for p in owned if not p.is_file()]

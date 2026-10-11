@@ -6,6 +6,25 @@ SAO.Study = SAO.Study or {}
 local S = SAO.Study
 local runtime = {}
 local generatorReading
+-- Maintained recipe purposes share one native reading lifecycle. The original
+-- generator API and saved identities retain their established contract.
+local readingDefinitions = {
+    ["generator-reading"] = { recipeName="Generator", operation="learn-generator", token="utility:generator-known",
+        purposeField="generatorPower", outcomes="generatorReadingOutcomes", admit="admitGeneratorReading",
+        consume="consumeGeneratorReading", retire="_SAOGeneratorReadingRetireSaved" },
+    ["recipe-reading"] = { operation="learn-recipe", token="recipe:knowledge-acquired", purposeField="gateAccess",
+        outcomes="recipeReadingOutcomes", admit="admitRecipeReading", consume="consumeRecipeReading",
+        retire="_SAORecipeReadingRetireSaved" },
+}
+local function readingDefinition(kind, recipeName)
+    local definition = readingDefinitions[kind]
+    if kind == "recipe-reading" and recipeName ~= "DoubleFenceGate" and recipeName ~= "DoubleWireGate" then return nil end
+    return definition
+end
+local function learnedRecipe(work)
+    local definition = readingDefinition(work.kind, work.recipeName)
+    return definition and (definition.recipeName or work.recipeName)
+end
 
 local function rec(id)
     return SAO.Identity and SAO.Identity.get(id) or nil
@@ -102,7 +121,7 @@ local function noteWasExposed(id, item, content)
 end
 local function readableAction(action)
     return S.readingEligibility(action.personId, action.character, action.item,
-        action.readingKind or "study", true)
+        action.readingKind or "study", true, action.recipeName)
 end
 
 -- Script metadata checks a privately observed type without creating an item
@@ -122,6 +141,19 @@ function S.usefulType(body, fullType, desired)
     end)
     return ok and result == true
 end
+function S.usefulRecipeType(body, fullType, recipeName)
+    if not readingDefinition("recipe-reading", recipeName) then return false end
+    local ok, result = pcall(function()
+        local item = getScriptManager():getItem(fullType)
+        local recipes = item and item:getLearnedRecipes()
+        return item and item:isItemType(ItemType.LITERATURE) and recipes and recipes:contains(recipeName)
+            and not SkillBook[item:getSkillTrained()]
+            and not body:hasTrait(CharacterTrait.ILLITERATE)
+            and not body:isRecipeActuallyKnown(recipeName)
+            and (item:getNumberOfPages() <= 0 or body:getAlreadyReadPages(fullType) < item:getNumberOfPages())
+    end)
+    return ok and result == true
+end
 local function bound(action)
     local person = rec(action.personId)
     local work = person and person.studyWork
@@ -137,9 +169,11 @@ end
 -- The installed menu excludes UNINTERESTING literature (including ID cards).
 -- A negative page count is valid native literature, not evidence of blank text.
 -- Ongoing reads use the same material rules, but may reach their final page.
-function S.readingEligibility(id, body, item, kind, continuing)
+function S.readingEligibility(id, body, item, kind, continuing, recipeName)
     local generator=kind=="generator-reading"
-    if kind ~= "study" and kind ~= "leisure" and not generator then return false, "unknown-reading-purpose" end
+    local recipe = kind=="recipe-reading"
+    if kind ~= "study" and kind ~= "leisure" and not generator and not recipe then return false, "unknown-reading-purpose" end
+    if recipe and not readingDefinition(kind, recipeName) then return false, "unknown-reading-recipe" end
     if not live(id, body) then return false, "reading-body-unavailable" end
     if not item or not instanceof(item, "Literature") then return false, "not-literature" end
     if not held(body, item) then return false, "reading-item-not-held" end
@@ -154,11 +188,13 @@ function S.readingEligibility(id, body, item, kind, continuing)
     end
     local meaningful = writable and not (item:hasModData() and item:getModData().printMedia)
             and not body:hasTrait(CharacterTrait.ILLITERATE)
-        or not writable and (kind == "leisure" or generator) and leisureReadable(body, item)
+        or not writable and (kind == "leisure" or generator or recipe) and leisureReadable(body, item)
         or kind == "study" and readable(body, item)
     if not meaningful then return false, "unsupported-reading-material" end
     if generator and (item:getIsCraftingConsumed() or not item:getLearnedRecipes()
         or not item:getLearnedRecipes():contains("Generator")) then return false,"not-generator-literature" end
+    if recipe and (item:getIsCraftingConsumed() or not item:getLearnedRecipes()
+        or not item:getLearnedRecipes():contains(recipeName)) then return false,"not-recipe-literature" end
     if continuing then
         local active = runtime[id]
         if not active or active.action.character ~= body or active.action.item ~= item
@@ -172,7 +208,7 @@ function S.readingEligibility(id, body, item, kind, continuing)
         end
         return true
     end
-    if not (writable or (kind == "leisure" or generator) and leisureUnread(body, item)
+    if not (writable or (kind == "leisure" or generator or recipe) and leisureUnread(body, item)
         or kind == "study" and eligible(body, item)) then return false, "reading-already-finished" end
     if writable and noteWasExposed(id, item, content) then return false, "note-text-already-exposed" end
     if kind == "leisure" and SAO.ProceduralPlanning and SAO.ProceduralPlanning.leisureChoice then
@@ -276,7 +312,7 @@ local function close(action, status, reason)
     local person = rec(action.personId)
     local work = person and person.studyWork
     if not work or work.id ~= action.workId or work.status ~= "reading" then return false end
-    if work.kind=="generator-reading" then return generatorReading.finish(action.personId,status,reason) end
+    if readingDefinition(work.kind, work.recipeName) then return generatorReading.finish(action.personId,status,reason) end
     local valid = bound(action)
     local note = work.contentKind == "written-note"
     local pages = not note and (valid and action.character:getAlreadyReadPages(work.fullType)
@@ -512,7 +548,7 @@ function S.interrupt(id, body, reason)
     local person = rec(id)
     local work, active = person and person.studyWork, runtime[id]
     if not work or work.status ~= "reading" then return true end
-    if work.kind=="generator-reading" then return generatorReading.interrupt(id,body,reason) end
+    if readingDefinition(work.kind, work.recipeName) then return generatorReading.interrupt(id,body,reason) end
     if active and active.action.character == body then
         close(active.action, "interrupted", reason or "higher-priority-work")
         -- Clear only the queue containing this owner's exact action.
@@ -542,8 +578,8 @@ function S.active(id, body)
     local person = rec(id)
     local work, active = person and person.studyWork, runtime[id]
     if not work or work.status ~= "reading" then return false end
-    if work.kind=="generator-reading" then
-        if active and active.generator and not active.closed then
+    if readingDefinition(work.kind, work.recipeName) then
+        if active and active.recipeReading and not active.closed then
             if not bound(active.action) or active.cancelling or not generatorReading.ownsQueue(active) then
                 generatorReading.interrupt(id,body,"generator-reading-owner-changed")
             end
@@ -614,29 +650,35 @@ end
 local function begin(id, body, item, kind, context)
     local leisure = kind == "leisure"
     local generator=kind=="generator-reading"
-    if not SAO.ProceduralPlanning or not S.readingEligibility(id, body, item, kind)
+    local definition = readingDefinition(kind, context and context.recipeName)
+    if not SAO.ProceduralPlanning or not S.readingEligibility(id, body, item, kind, false, context and context.recipeName)
         or body:tooDarkToRead() or not SAO.Needs.workAvailable(body) then return false end
     if S.active(id, body) then
-        return runtime[id].action.item == item and runtime[id].action.readingKind == kind
+        local active = runtime[id]
+        return active and active.action.item == item and active.action.readingKind == kind
+            and (not definition or active.work.purposeId==context.purposeId and active.work.purposeStepId==context.purposeStepId
+                and learnedRecipe(active.work)==(definition.recipeName or context.recipeName)) or false
     end
     local person = rec(id)
-    if generator and (person.resourceProductionWork or person.worldSourceReservation or person.cookingWork
+    if definition and (person.resourceProductionWork or person.worldSourceReservation or person.cookingWork
         or SAOJavaBridge:hasPendingActions(body)) then return false end
     local content = item:canBeWrite() and noteContent(item) or nil
     if item:canBeWrite() and not content then return false end
-    local domain, definition = item:getSkillTrained(), SkillBook[item:getSkillTrained()]
-    local perk = definition and definition.perk:getId()
+    local domain, bookDefinition = item:getSkillTrained(), SkillBook[item:getSkillTrained()]
+    local perk = bookDefinition and bookDefinition.perk:getId()
     local effort = SAO.Conditions and SAO.Conditions.readingTime(id) or 1
     local activityKey = content and noteActivity(person, item)
     local activity = content and "read written notes" or "read " .. item:getFullType()
     local purpose, step
-    if generator then
+    if definition then
         local state=person.proceduralPlanning
         purpose=state and state.purposes[context.purposeId]
         step=purpose and purpose.steps[purpose.cursor]
-        if not purpose or not purpose.generatorPower or purpose.admission or not step or step.owner~="SAO.Study"
-            or step.id~=context.purposeStepId or step.operation~="learn-generator"
+        if not purpose or not purpose[definition.purposeField] or purpose.admission or not step or step.owner~="SAO.Study"
+            or step.id~=context.purposeStepId or step.operation~=definition.operation or step.token~=definition.token
             or tostring(step.inputItemId)~=tostring(item:getID()) or step.inputItemType~=item:getFullType() then return false end
+        if not generator and (step.recipeName~=context.recipeName or step.target~=context.recipeName
+            or body:isRecipeActuallyKnown(context.recipeName)) then return false end
     elseif leisure then
         purpose, step = SAO.ProceduralPlanning.planLeisure(id, {
             activity = activity, activityKey = activityKey, affordance = item:getFullType(),
@@ -654,12 +696,12 @@ local function begin(id, body, item, kind, context)
             literacy = SAO.History.literacyOf(id), readingTime = effort,
         })
     end
-    if not purpose or not step or not generator and step.verb ~= (leisure and "recreate" or "read") then return false end
+    if not purpose or not step or not definition and step.verb ~= (leisure and "recreate" or "read") then return false end
     person.studySequence = (person.studySequence or 0) + 1
-    local workId = generator and "generator-reading/"..id.."/"..person.studySequence or "study/" .. tostring(person.studySequence)
+    local workId = definition and kind.."/"..id.."/"..person.studySequence or "study/" .. tostring(person.studySequence)
     local work = { id = workId, sequence=person.studySequence, purposeId = purpose.id, fullType = item:getFullType(),
         itemId = tostring(item:getID()), subject = perk, bookSkill = domain, status = "reading",
-        kind = generator and "generator-reading" or leisure and "leisure" or "study", phase = "preparing", progress = 0,
+        kind = definition and kind or leisure and "leisure" or "study", phase = "preparing", progress = 0,
         pagesBefore = not content and body:getAlreadyReadPages(item:getFullType()) or nil,
         totalPages = not content and item:getNumberOfPages() or nil, beganAt = hours(),
         contentKind = content and "written-note" or "native-book",
@@ -670,18 +712,20 @@ local function begin(id, body, item, kind, context)
     action.noteContent = content
     action.personId, action.workId, action.purposeId = id, workId, purpose.id
     action.readingKind = work.kind
+    action.recipeName = context and context.recipeName
     action.bodyToken = body:getModData().SAOExternalToken
     work.bodyToken = action.bodyToken
     work.bodyGenerationKnown = type(action.bodyToken) == "string" and action.bodyToken ~= ""
     -- Preserve the native full-book duration and resumed startPage fraction.
     action.maxTime = action.maxTime * math.max(0.25, tonumber(effort) or 1)
     person.studyWork, runtime[id] = work, { action = action }
-    if generator then
-        work.owner,work.operation,work.token="SAO.Study","learn-generator","utility:generator-known"
+    if definition then
+        work.owner,work.operation,work.token="SAO.Study",definition.operation,definition.token
         work.actorId,work.itemType,work.purposeStepId=id,item:getFullType(),step.id
         work.requestedPurposeId,work.requestedPurposeStepId=purpose.id,step.id
+        if not generator then work.recipeName,work.target=context.recipeName,context.recipeName end
         work.world=getWorld():getWorld()
-        if SAO.ProceduralPlanning.admitGeneratorReading(id,work)~=true then person.studyWork=nil;runtime[id]=nil;return false end
+        if SAO.ProceduralPlanning[definition.admit](id,work)~=true then person.studyWork=nil;runtime[id]=nil;return false end
         generatorReading.guard(id,body,item,work,action)
     end
     if content and not SAO.ProceduralPlanning.noteAdmission(id, purpose.id, "SAONeeds", workId) then
@@ -689,7 +733,7 @@ local function begin(id, body, item, kind, context)
         return false
     end
     if not SAO.Needs.queueVerified(action) then
-        if generator then
+        if definition then
             if work.status=="completed" then return true end
             generatorReading.interrupt(id,body,"native-reading-queue-refused")
             return false
@@ -700,13 +744,17 @@ local function begin(id, body, item, kind, context)
         return false
     end
     if content then return work.status == "reading" or work.status == "completed" end
-    if not generator then SAO.ProceduralPlanning.noteAdmission(id, purpose.id, "SAONeeds", workId) end
+    if not definition then SAO.ProceduralPlanning.noteAdmission(id, purpose.id, "SAONeeds", workId) end
     return true
 end
 function S.begin(id, body, item) return begin(id, body, item, "study") end
 function S.beginLeisure(id, body, item) return begin(id, body, item, "leisure") end
 function S.beginGenerator(id,body,item,purposeId,stepId)
     return begin(id,body,item,"generator-reading",{purposeId=purposeId,purposeStepId=stepId})
+end
+function S.beginRecipe(id,body,item,purposeId,stepId,recipeName)
+    if not readingDefinition("recipe-reading", recipeName) then return false end
+    return begin(id,body,item,"recipe-reading",{purposeId=purposeId,purposeStepId=stepId,recipeName=recipeName})
 end
 generatorReading={}
 function generatorReading.finite(v) return type(v)=="number" and v==v and v~=math.huge and v~=-math.huge end
@@ -715,26 +763,31 @@ function generatorReading.ownsQueue(rt)
         and rt.queue.queue[1]==rt.action and rt.queue:indexOf(rt.action)==1 and queued(rt.action)
 end
 function generatorReading.identity(id,w)
-    return type(w)=="table" and not getmetatable(w) and w.kind=="generator-reading" and w.actorId==id and generatorReading.finite(w.sequence)
-        and w.sequence>0 and w.sequence%1==0 and w.id=="generator-reading/"..id.."/"..w.sequence
+    local definition = type(w)=="table" and readingDefinition(w.kind, w.recipeName)
+    return definition and not getmetatable(w) and w.actorId==id and generatorReading.finite(w.sequence)
+        and w.sequence>0 and w.sequence%1==0 and w.id==w.kind.."/"..id.."/"..w.sequence
         and type(w.itemId)=="string" and w.itemType==w.fullType and type(w.itemType)=="string"
         and type(w.purposeId)=="string" and type(w.purposeStepId)=="string" and generatorReading.finite(w.beganAt)
-        and w.beganAt>=0 and w.token=="utility:generator-known" and w.owner=="SAO.Study" and w.operation=="learn-generator"
+        and w.beganAt>=0 and w.token==definition.token and w.owner=="SAO.Study" and w.operation==definition.operation
+        and (w.kind=="generator-reading" or w.target==w.recipeName)
         and type(w.world)=="string" and (w.bodyToken==nil or type(w.bodyToken)=="string" and #w.bodyToken>0)
 end
 function generatorReading.purpose(person,w)
+    local definition = readingDefinition(w.kind, w.recipeName)
     local state=person and person.proceduralPlanning;local p=state and state.purposes[w.purposeId]
     local s=p and p.steps[p.cursor];local a=p and p.admission
-    return p and p.generatorPower and s and a and s.owner=="SAO.Study" and s.operation=="learn-generator"
+    return definition and p and p[definition.purposeField] and s and a and s.owner=="SAO.Study" and s.operation==definition.operation
         and s.id==w.purposeStepId and s.token==w.token and s.inputItemId==w.itemId and s.inputItemType==w.itemType
         and a.owner==s.owner and a.stepId==s.id and a.correlationId==w.id and a.target==s.target
+        and (w.kind=="generator-reading" or s.recipeName==w.recipeName and s.target==w.recipeName)
 end
-function S.generatorOutcome(id,outcomeId)
+function generatorReading.outcome(id,outcomeId,kind)
     local person=rec(id)
-    local rows=person and person.generatorReadingOutcomes or {}
+    local definition = readingDefinitions[kind]
+    local rows=person and definition and person[definition.outcomes] or {}
     if type(rows)~="table" or getmetatable(rows) or #rows>32 then return nil end
     for _,row in ipairs(rows) do if type(row)=="table" and row.id==outcomeId then
-        if not generatorReading.identity(id,row) or row.workId~=row.id or row.outcomeId~=row.id
+        if row.kind~=kind or not generatorReading.identity(id,row) or row.workId~=row.id or row.outcomeId~=row.id
             or row.sequence>(person.studySequence or 0) or row.nativeOwner~="ISReadABook.complete" or not generatorReading.finite(row.atHours) or row.atHours>hours()
             or not generatorReading.finite(row.startedAt) or row.startedAt<row.beganAt or row.atHours<row.startedAt or row.endedAt~=row.atHours or not generatorReading.finite(row.progress)
             or row.progress<0 or row.progress>1 or type(row.recipeKnown)~="boolean"
@@ -745,34 +798,39 @@ function S.generatorOutcome(id,outcomeId)
         return out
     end end
 end
+function S.generatorOutcome(id,outcomeId) return generatorReading.outcome(id,outcomeId,"generator-reading") end
+function S.recipeOutcome(id,outcomeId) return generatorReading.outcome(id,outcomeId,"recipe-reading") end
 function generatorReading.finish(id,status,reason)
     local person,rt=rec(id),runtime[id]
     local w=person and person.studyWork
-    if not rt or not rt.generator or not w or not generatorReading.identity(id,w) or rt.work~=w
+    if not rt or not rt.recipeReading or not w or not generatorReading.identity(id,w) or rt.work~=w
         or rt.record~=person or not generatorReading.purpose(person,w) or not rt.ack or queued(rt.action)
         or rt.queue.current==rt.action or hours()<w.beganAt then return false end
     if status=="completed" and (not rt.action.nativeCompleted or not bound(rt.action) or not readableAction(rt.action)
-        or (w.progress or 0)<=0 or not rt.body:isRecipeActuallyKnown("Generator")) then status="interrupted" end
+        or (w.progress or 0)<=0 or not rt.body:isRecipeActuallyKnown(learnedRecipe(w))) then status="interrupted" end
+    local definition = readingDefinition(w.kind, w.recipeName)
     local row={id=w.id,workId=w.id,outcomeId=w.id,sequence=w.sequence,actorId=id,kind=w.kind,token=w.token,
         owner=w.owner,operation=w.operation,itemId=w.itemId,itemType=w.itemType,fullType=w.fullType,
         purposeId=w.purposeId,purposeStepId=w.purposeStepId,status=status,reason=reason,beganAt=w.beganAt,
         world=w.world,bodyToken=w.bodyToken,
         startedAt=w.startedAt or w.beganAt,endedAt=hours(),atHours=hours(),nativeOwner="ISReadABook.complete",
         nativeStarted=rt.action.nativeStarted==true,nativeCompleted=rt.action.nativeCompleted==true,
-        progress=w.progress or 0,recipeKnown=status=="completed" and rt.body:isRecipeActuallyKnown("Generator") or false}
-    person.generatorReadingOutcomes=person.generatorReadingOutcomes or {}
-    local rows=person.generatorReadingOutcomes
+        progress=w.progress or 0,recipeKnown=status=="completed" and rt.body:isRecipeActuallyKnown(learnedRecipe(w)) or false}
+    if w.kind=="recipe-reading" then row.recipeName,row.target=w.recipeName,w.target end
+    person[definition.outcomes]=person[definition.outcomes] or {}
+    local rows=person[definition.outcomes]
     if #rows>=32 and not rows[1].delivered then return false end
     rows[#rows+1]=row;if #rows>32 then table.remove(rows,1) end
-    if not S.generatorOutcome(id,row.id) then table.remove(rows);return false end
+    if not generatorReading.outcome(id,row.id,w.kind) then table.remove(rows);return false end
     w.status,w.phase,w.reason,w.endedAt=status,status,reason,row.endedAt
     runtime[id]=nil;rt.closed=true
-    rt.action._SAOGeneratorReadingRetireSaved=nil
-    if SAO.ProceduralPlanning.consumeGeneratorReading(id,row.id) then row.delivered=true end
+    rt.action[definition.retire]=nil
+    if SAO.ProceduralPlanning[definition.consume](id,row.id) then row.delivered=true end
     return true
 end
 function generatorReading.guard(id,body,item,w,a)
-    local rt={generator=true,action=a,body=body,item=item,work=w,record=rec(id),queue=ISTimedActionQueue.getTimedActionQueue(body)}
+    local definition = readingDefinition(w.kind, w.recipeName)
+    local rt={recipeReading=true,action=a,body=body,item=item,work=w,record=rec(id),queue=ISTimedActionQueue.getTimedActionQueue(body)}
     runtime[id]=rt
     local function current()
         return not rt.closed and rt.queue==ISTimedActionQueue.queues[body] and rt.queue.current==a
@@ -780,8 +838,9 @@ function generatorReading.guard(id,body,item,w,a)
             and body:getModData().SAOExternalToken==w.bodyToken and a.character==body
     end
     local function exact()
-        return bound(a) and readableAction(a) and rec(id)==rt.record and rec(id).studyWork==w
+        return bound(a) and readableAction(a) and ISReadABook.isValid(a) and rec(id)==rt.record and rec(id).studyWork==w
             and generatorReading.purpose(rt.record,w) and a.item==item and item:getFullType()==w.itemType
+            and learnedRecipe(w)==(definition.recipeName or a.recipeName)
             and rt.work.id==w.id and a.bodyToken==w.bodyToken and w.world==getWorld():getWorld() and hours()>=w.beganAt
     end
     function a:complete()
@@ -822,22 +881,24 @@ function generatorReading.guard(id,body,item,w,a)
         end
         return false
     end
-    a._SAOGeneratorReadingRetireSaved=function(person,saved)
+    a[definition.retire]=function(person,saved)
         if not generatorReading.identity(id,saved) or not generatorReading.purpose(person,saved) or saved.id~=w.id
+            or saved.kind~=w.kind or learnedRecipe(saved)~=learnedRecipe(w)
             or saved.itemId~=w.itemId or saved.itemType~=w.itemType or saved.bodyToken~=w.bodyToken or saved.world~=w.world then return false end
         rt.cancelling=true;rt.reason="generator-reading-runtime-unavailable"
         if a.action then a:forceStop() else a:forceCancel() end
         if rt.ack and not queued(a) and rt.queue.current~=a then
             if runtime[id]==rt then runtime[id]=nil end
-            a._SAOGeneratorReadingRetireSaved=nil;rt.closed=true;return true
+            a[definition.retire]=nil;rt.closed=true;return true
         end
         return false
     end
 end
 function generatorReading.interrupt(id,body,reason)
     local person,rt=rec(id),runtime[id];local w=person and person.studyWork
-    if not w or w.kind~="generator-reading" or w.status~="reading" then return true end
-    if rt and rt.generator then
+    local definition = w and readingDefinition(w.kind, w.recipeName)
+    if not definition or w.status~="reading" then return true end
+    if rt and rt.recipeReading then
         if body and rt.body~=body then return false end
         rt.cancelling,rt.reason=true,reason or "higher-priority-work"
         if rt.action.action then pcall(function() rt.action:forceStop() end) else rt.action:forceCancel() end
@@ -851,23 +912,29 @@ function generatorReading.interrupt(id,body,reason)
         if q.current and q:indexOf(q.current)==-1 then pending[#pending+1]=q.current end
         for _,a in ipairs(pending) do
         if a.workId==w.id and a.personId==id then
-            if type(a._SAOGeneratorReadingRetireSaved)~="function" or a._SAOGeneratorReadingRetireSaved(person,w)~=true then return false end
+            if type(a[definition.retire])~="function" or a[definition.retire](person,w)~=true then return false end
         end
     end end
     local q=ISTimedActionQueue.getTimedActionQueue(body)
     if SAOJavaBridge:hasPendingActions(body) or q.current or #q.queue>0 then return false end
     local a={personId=id,workId=w.id,character=body,nativeStarted=false,nativeCompleted=false}
-    runtime[id]={generator=true,action=a,body=body,item=nil,work=w,record=person,queue=ISTimedActionQueue.getTimedActionQueue(body),ack=true}
+    runtime[id]={recipeReading=true,action=a,body=body,item=nil,work=w,record=person,queue=ISTimedActionQueue.getTimedActionQueue(body),ack=true}
     return generatorReading.finish(id,"interrupted","generator-reading-runtime-unavailable")
 end
-function S.reconcileGeneratorReading(id,body)
-    for _,row in ipairs(rec(id) and rec(id).generatorReadingOutcomes or {}) do
-        if not row.delivered and S.generatorOutcome(id,row.id) and SAO.ProceduralPlanning.consumeGeneratorReading(id,row.id) then row.delivered=true end
+function generatorReading.reconcile(id,body,kind)
+    local person = rec(id)
+    local definition = readingDefinitions[kind]
+    for _,row in ipairs(person and person[definition.outcomes] or {}) do
+        if not row.delivered and generatorReading.outcome(id,row.id,kind) then
+            if SAO.ProceduralPlanning[definition.consume](id,row.id) then row.delivered=true else return false end
+        end
     end
     local work=rec(id) and rec(id).studyWork
-    if work and work.kind=="generator-reading" and work.status=="reading" then return generatorReading.interrupt(id,body,"generator-reading-reconciled") end
+    if work and work.kind==kind and work.status=="reading" then return generatorReading.interrupt(id,body,kind.."-reconciled") end
     return true
 end
+function S.reconcileGeneratorReading(id,body) return generatorReading.reconcile(id,body,"generator-reading") end
+function S.reconcileRecipe(id,body) return generatorReading.reconcile(id,body,"recipe-reading") end
 function S.describe(id)
     local work = S.snapshot(id)
     if not work then return "wants to read; no native reading admitted" end
@@ -903,7 +970,7 @@ function S.snapshot(id)
 end
 local function reset()
     local retained={}
-    for id,rt in pairs(runtime) do if rt.generator and not generatorReading.interrupt(id,rt.body,"world-reset") then retained[id]=rt end end
+    for id,rt in pairs(runtime) do if rt.recipeReading and not generatorReading.interrupt(id,rt.body,"world-reset") then retained[id]=rt end end
     runtime = retained
 end
 if Events and Events.OnInitGlobalModData then Events.OnInitGlobalModData.Add(reset) end

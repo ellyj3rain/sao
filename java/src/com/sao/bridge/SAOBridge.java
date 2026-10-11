@@ -4477,6 +4477,42 @@ public final class SAOBridge {
             ? com.sao.engine.SAOShelterConstruction.observe(body,(int)x,(int)y,(int)z) : null;
         } catch(Throwable t) { SAOAgent.log("worldShelterSites threw: "+t); return null; }
     }
+    public Object worldDoubleGateSites(Object object) {
+        try{return object instanceof com.sao.engine.SAOIsoPlayerShell body?com.sao.engine.SAODoubleGate.observe(body):null;}
+        catch(Throwable t){SAOAgent.log("worldDoubleGateSites threw: "+t);return null;}
+    }
+    public Object worldDoubleGatePlacement(Object object,String key,String revision) {
+        try{return object instanceof com.sao.engine.SAOIsoPlayerShell body?com.sao.engine.SAODoubleGate.placement(body,key,revision):null;}
+        catch(Throwable t){SAOAgent.log("worldDoubleGatePlacement threw: "+t);return null;}
+    }
+    public String worldDoubleGateCreated(Object object,Object parts,String entity,double x,double y,double z,String face) {
+        try{return object instanceof com.sao.engine.SAOIsoPlayerShell body&&parts instanceof se.krka.kahlua.vm.KahluaTable rows&&integralUtilityCoordinates(x,y,z)
+            ?com.sao.engine.SAODoubleGate.created(body,rows,entity,(int)x,(int)y,(int)z,face):null;}
+        catch(Throwable t){SAOAgent.log("worldDoubleGateCreated threw: "+t);return null;}
+    }
+    public Object worldDoubleGateGroup(Object object,String id,String entity,double x,double y,double z,String face) {
+        try{return object instanceof com.sao.engine.SAOIsoPlayerShell body&&integralUtilityCoordinates(x,y,z)
+            ?com.sao.engine.SAODoubleGate.group(body,id,entity,(int)x,(int)y,(int)z,face):null;}
+        catch(Throwable t){SAOAgent.log("worldDoubleGateGroup threw: "+t);return null;}
+    }
+    public Object worldDoubleGateLeaf(Object object,String id,String entity,double x,double y,double z,String face) {
+        try{return object instanceof com.sao.engine.SAOIsoPlayerShell body&&integralUtilityCoordinates(x,y,z)
+            ?com.sao.engine.SAODoubleGate.leaf(body,id,entity,(int)x,(int)y,(int)z,face):null;}
+        catch(Throwable t){SAOAgent.log("worldDoubleGateLeaf threw: "+t);return null;}
+    }
+    public String worldDoubleGateBeginPassage(Object object,String id,String entity,double x,double y,double z,String face,double tx,double ty) {
+        try{return object instanceof com.sao.engine.SAOIsoPlayerShell body&&integralUtilityCoordinates(x,y,z)&&integralUtilityCoordinates(tx,ty,z)
+            ?com.sao.engine.SAODoubleGate.beginPassage(body,id,entity,(int)x,(int)y,(int)z,face,(int)tx,(int)ty):null;}
+        catch(Throwable t){SAOAgent.log("worldDoubleGateBeginPassage threw: "+t);return null;}
+    }
+    public boolean worldDoubleGatePassage(Object object,String token) {
+        try{return object instanceof com.sao.engine.SAOIsoPlayerShell body&&com.sao.engine.SAODoubleGate.passage(body,token);}
+        catch(Throwable t){SAOAgent.log("worldDoubleGatePassage threw: "+t);return false;}
+    }
+    public void worldDoubleGateForgetPassage(Object object,String token) {
+        try{if(object instanceof com.sao.engine.SAOIsoPlayerShell body)com.sao.engine.SAODoubleGate.forgetPassage(body,token);}
+        catch(Throwable t){SAOAgent.log("worldDoubleGateForgetPassage threw: "+t);}
+    }
     public Object worldShelterStairSites(Object object) {
         try { return object instanceof com.sao.engine.SAOIsoPlayerShell body?com.sao.engine.SAOShelterStairs.observe(body):null; }
         catch(Throwable t) { SAOAgent.log("worldShelterStairSites threw: "+t); return null; }

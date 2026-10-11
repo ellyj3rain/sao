@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.6.11.0-pre-alpha` |
+| Version | `2.6.12.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -781,3 +781,7 @@ Installed WoodFloorLvl1/2/3 own skill, one-tile facing, kept hammer and consumed
 ## Native wooden stairs and landing (D3.11)
 
 Installed Base.Wood_Stairs supplies S/W full three-part faces, Woodwork6, thirteen planks, eight nails and a retained hammer. ISBuildIsoEntity/ISBuildAction and BuildRecipeCode.stairs.OnIsValid/OnCreate govern full placement, upper clearance and landing creation. SAOShelterStairs exposes personally visible ground footprints and measured native multipart effects. Genuine native traversal precedes acquired upper facts and floor/cover work. Qualified source anchors, controlled boundaries and integrated consumer evidence live in [D3.11](Batches/D3.11-20261011-0439Z-2139PDT-native-stairs-usable-shelter.md).
+
+## Native double gates and recipe reading (D3.12)
+
+Installed Base.DoubleDoor, Base.DoubleFenceGate and Base.DoubleWireGate supply full four-part N/W recipes. Wooden work requires Woodwork4 and its native plank/nail/hinge/doorknob inputs; metal recipes require MetalWelding5, learned exact recipe names and native pipe/hinge/scrap/torch/welding-rod inputs, with drainable wire for DoubleWireGate. Ten torch/rod uses and four wire uses are charged to exact eligible objects. DontRecordInput excludes recorded history while getAllConsumedItems retains charged objects. MetalworkMag3 teaches DoubleFenceGate and DoubleWireGate through native ISReadABook/Literature knowledge. ISOpenCloseDoor and native double-door lookup own group movement and refusal. W script rows follow native indices4,3,2,1, with native index4 the recipe-root fixed anchor. Qualified source anchors and controlled proof boundaries live in [D3.12](Batches/D3.12-20261011-0526Z-2226PDT-native-double-gates.md).

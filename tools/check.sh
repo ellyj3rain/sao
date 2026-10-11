@@ -2814,6 +2814,14 @@ if ! "$PY" tools/d3_shelter_stairs_test.py --out "$sao_d3_proof/shelter-stairs";
     note "BORDER FINDING - native stair footprint, paid upper access or original shelter use differs"
     fail=1
 fi
+if ! "$PY" tools/d3_double_gate_test.py --out "$sao_d3_proof/double-gates"; then
+    note "BORDER FINDING - native double-gate construction, opening, passage, closure or saved custody differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_recipe_reading_test.py --out "$sao_d3_proof/recipe-reading"; then
+    note "BORDER FINDING - exact native gate recipe reading or retained reading custody differs"
+    fail=1
+fi
 if ! "$PY" tools/d3_rain_collector_test.py --out "$sao_d3_proof/collector-native"; then
     note "BORDER FINDING - native collector construction, placement or saved custody differs"
     fail=1

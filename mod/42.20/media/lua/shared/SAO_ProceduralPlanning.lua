@@ -85,7 +85,7 @@ local function copyList(source, maximum)
     end
     return out
 end
-local function dataCopy(value, depth, maximumDepth)
+local function dataCopy(value, depth, maximumDepth, maximumEntries)
     depth = depth or 0
     maximumDepth = maximumDepth or 6
     if depth > maximumDepth then return nil end
@@ -97,8 +97,8 @@ local function dataCopy(value, depth, maximumDepth)
     for key, item in pairs(value) do
         if type(key) == "string" or type(key) == "number" then
             count = count + 1
-            if count > 32 then break end
-            out[key] = dataCopy(item, depth + 1, maximumDepth)
+            if count > (maximumEntries or 32) then break end
+            out[key] = dataCopy(item, depth + 1, maximumDepth, maximumEntries)
         end
     end
     return out
@@ -911,7 +911,7 @@ function P.deferResourceRoute(id, purposeId, stepId, reason, atHours)
     local s = state(id)
     local purpose = s and s.purposes[purposeId]
     local step = purpose and purpose.steps[purpose.cursor]
-    if not purpose or not (purpose.resourceCategory or purpose.materialWork) or purpose.admission
+    if not purpose or not (purpose.resourceCategory or purpose.materialWork or purpose.gateAccess) or purpose.admission
         or purpose.status == "completed" or purpose.status == "abandoned"
         or not step or step.id ~= stepId then return false end
     local at = finite(atHours) and atHours or nowHours()
@@ -940,17 +940,18 @@ local function plumbingStep(option, status)
         toolItemType = option.toolItemType }
 end
 
-local COLLECTOR_MATERIALS = { hinge=true,doorknob=true,mattress=true, hammer = true, plank = true, nails = true, ["garbage-bag"] = true, tarp = true }
+local COLLECTOR_MATERIALS = { ["metal-pipe"]=true,wire=true,["scrap-metal"]=true,["welding-torch"]=true,["welding-rods"]=true,hinge=true,doorknob=true,mattress=true, hammer = true, plank = true, nails = true, ["garbage-bag"] = true, tarp = true }
 local function collectorDeficits(option)
     if type(option.requirements) ~= "table" or #option.requirements < 1 or #option.requirements > 8
-        or type(option.inputs) ~= "table" or #option.inputs > 32 then return nil end
+        or type(option.inputs) ~= "table" or #option.inputs > ((option.kind=="build-double-gate" or option.productionKind=="build-double-gate") and 38 or 32) then return nil end
     local slots, counts, identities = {}, {}, {}
     for _, required in ipairs(option.requirements) do
         if type(required) ~= "table" or not finite(required.inputIndex) or required.inputIndex < 0
             or required.inputIndex ~= math.floor(required.inputIndex) or slots[required.inputIndex]
             or not COLLECTOR_MATERIALS[required.category] or not finite(required.count)
             or required.count < 1 or required.count > 16 or required.count ~= math.floor(required.count)
-            or required.mode ~= "keep" and required.mode ~= "consume" then return nil end
+            or required.mode ~= "keep" and required.mode ~= "consume" and required.mode~="use"
+            or required.mode=="use" and (required.count~=1 or not finite(required.quantity) or required.quantity<1 or required.nativeCount~=required.quantity) then return nil end
         slots[required.inputIndex], counts[required.inputIndex] = required, 0
     end
     for _, input in ipairs(option.inputs) do
@@ -960,12 +961,13 @@ local function collectorDeficits(option)
         if not required or not identity or identities[identity] or type(input.itemType) ~= "string" or input.itemType == ""
             or input.mode ~= required.mode then return nil end
         identities[identity] = true
-        counts[input.inputIndex] = counts[input.inputIndex] + 1
-        if counts[input.inputIndex] > required.count then return nil end
+        if required.mode=="use" and (not finite(input.quantity) or input.quantity<1 or input.quantity%1~=0) then return nil end
+        counts[input.inputIndex] = counts[input.inputIndex] + (input.quantity or 1)
+        if counts[input.inputIndex] > (required.mode=="use" and required.quantity or required.count) then return nil end
     end
     local missing = {}
     for _, required in ipairs(option.requirements) do
-        if counts[required.inputIndex] < required.count then missing[#missing + 1] = required end
+        if counts[required.inputIndex] < (required.mode=="use" and required.quantity or required.count) then missing[#missing + 1] = required end
     end
     return missing
 end
@@ -1930,6 +1932,137 @@ function P.consumeBedRecovery(id,sequence)
 end
 
 local SHELTER_RESULT,SHELTER_USE_RESULT,SHELTER_RECOVERY_RESULT={},{},{}
+local GATE_RESULT={}
+function P.doubleGatePurpose(id)
+    local s=state(id)
+    for _,key in ipairs(s and s.order or {}) do local p=s.purposes[key]
+        if p and p.gateAccess and p.status~="completed" and p.status~="abandoned" then return p,p.steps[p.cursor] end
+    end
+end
+function P.planDoubleGate(id,context)
+    if type(context)~="table" or context.boundaryConcern~=true then return nil end
+    local p,step=P.doubleGatePurpose(id);if p and p.admission then return p,step end
+    local at=nowHours()
+    if p and step then for _,failure in ipairs(p.routeFailures or {}) do
+        if failure.stepId==step.id and finite(failure.retryAt) and at<failure.retryAt then return p,step end
+    end end
+    if p and p.gateAccess.groupId then
+        local own=p.gateAccess
+        local current=SAO.Perception and SAO.Perception.currentDoubleGateGroup(id,SAO.Body.get(id),own.groupId,own.entityId,own.site)
+        local operation=own.crossed and "close" or current and (current.open and "pass" or "open")
+            or not (own.opened or own.observedOpen) and "open" or "pass"
+        local phaseId="double-gate-"..operation..":"..tostring(own.opened or own.builtWorkId)
+        setPlan(p,{{id=phaseId,verb="produce",owner="SAO.ResourceProduction",productionKind="operate-double-gate",
+            operation=operation,token="resource:gate-operated",target=own.groupId,site=dataCopy(own.site),status="available"}},{},nil,at)
+        p.selectedStrategy=p.steps[1].id;return p,p.steps[p.cursor]
+    end
+    local candidates={{id="continue",evidence=1,continuity=.5,novelty=0,informationGain=0,utility=.1,blockers=0}};local offered={}
+    for index,option in ipairs(context.options or {}) do
+        if index>15 then break end
+        local site=option.site;local ready,missing=P.collectorReady(option)
+        if option.kind=="build-double-gate" and option.known==true and site and site.actorId==id and site.boundaryObserved==true
+            and site.observed==true and site.observedAtHours<=at and (not p or p.gateAccess.site.key==site.key) and missing then
+            local key="gate-option:"..index
+            candidates[#candidates+1]={id=key,evidence=1,continuity=p and 1 or .5,novelty=.1,informationGain=.2,utility=ready and 1.5 or 1,
+                blockers=0,consequences={{kind="construct",category="construction",sourceId=site.key,itemType=option.entityId,value=.5}}}
+            offered[key]=option
+        end
+    end
+    local view=interpretations(id,candidates,{domain="construction",pressure=tonumber(context.pressure) or .5,atHours=at})
+    local option=view and offered[view.selected]
+    if not option then if p then p.blockers={"privately-known-native-gate-means-unavailable"} end;return p,nil end
+    p=p or P.maintain(id,{key="secure-known-boundary-access",domain="construction",objective="secure personally observed held boundary while retaining usable access",origin="place-security",atHours=at})
+    if not p then return nil end
+    p.gateAccess=p.gateAccess or {site=dataCopy(option.site),entityId=option.entityId,recipeName=option.recipeName}
+    p.gateAccess.site,p.gateAccess.entityId,p.gateAccess.recipeName=dataCopy(option.site),option.entityId,option.recipeName
+    local steps,blockers={},{ }
+    if option.recipeKnown~=true then
+        local book=context.recipeBooks and context.recipeBooks[option.recipeName]
+        if book then steps[1]={id="learn-gate-recipe",verb="study",owner="SAO.Study",operation="learn-recipe",token="recipe:knowledge-acquired",
+            recipeName=option.recipeName,inputItemId=tostring(book.itemId),inputItemType=book.itemType,target=option.recipeName,status="available"}
+        else
+            local sources={};for _,source in ipairs(context.materialSources or {}) do
+                if source.category=="gate-manual" and source.recipeName==option.recipeName then sources[#sources+1]=source end
+            end
+            local source,delayed=materialSource(p,sources,"gate-manual",at)
+            if source and not delayed then steps[1]={id=materialAcquisitionId(source),verb="acquire",owner="SAO.SourceUse",token="resource:acquired",
+                target=source.sourceId..":"..source.itemId,category="gate-manual",sourceId=source.sourceId,sourceRevision=source.revision,
+                itemId=source.itemId,itemType=source.itemType,place=dataCopy(source.place),quantity=1,quantityUnit="item",status="available"}
+            else blockers[1]="native-gate-recipe-knowledge-unavailable" end
+        end
+    else
+        local ready,missing=P.collectorReady(option)
+        if not ready then local source,delayed=materialSource(p,context.materialSources,missing[1].category,at)
+            if source and not delayed then steps[1]={id=materialAcquisitionId(source),verb="acquire",owner="SAO.SourceUse",token="resource:acquired",
+                target=source.sourceId..":"..source.itemId,category=source.category,sourceId=source.sourceId,sourceRevision=source.revision,
+                itemId=source.itemId,itemType=source.itemType,place=dataCopy(source.place),quantity=1,quantityUnit="item",status="available"}
+            else blockers[1]="exact-private-gate-material-unavailable" end
+        end
+        steps[#steps+1]={id="double-gate-build",verb="produce",owner="SAO.ResourceProduction",productionKind="build-double-gate",token="resource:gate-built",
+            target=option.entityId,entityId=option.entityId,recipeId=option.recipeId,category="construction",site=dataCopy(option.site),
+            inputs=dataCopy(option.inputs,0,nil,38),requirements=dataCopy(option.requirements),status=#blockers>0 and "blocked" or #steps>0 and "dependent" or "available"}
+    end
+    if #steps==0 then steps[1]={id="gate-knowledge-missing",verb="study",owner="SAO.Study",token="recipe:knowledge-acquired",target=option.recipeName,status="blocked"} end
+    setPlan(p,steps,blockers,dataCopy(view),at);p.selectedStrategy=steps[1].id;return p,p.steps[p.cursor]
+end
+function P.admitDoubleGate(id,w)
+    local p,step=P.doubleGatePurpose(id)
+    if not p or p.admission or not step or step.status~="available" or w.actorId~=id or w.purposeId~=p.id or w.purposeStepId~=step.id
+        or w.kind~=step.productionKind or w.token~=step.token then return false end
+    return P.noteAdmission(id,p.id,step.owner,w.id,step.id)
+end
+function P.consumeDoubleGateResult(id,supplied)
+    local row=type(supplied)=="table" and SAO.ResourceProduction.outcome(id,supplied.id)
+    if not row or row.actorId~=id or row.kind~="build-double-gate" and row.kind~="operate-double-gate" then return false end
+    local s=state(id);local p=s and s.purposes[row.purposeId];if not p or not p.gateAccess then return false end
+    for _,seen in ipairs(p.resultReceipts or {}) do if seen=="SAO.ResourceProduction:"..row.id then return true end end
+    local step,ad=p.steps[p.cursor],p.admission
+    if not step or not ad or ad.stepId~=row.purposeStepId or ad.correlationId~=row.id or step.token~=row.token
+        or step.productionKind~=row.kind or row.entityId~=p.gateAccess.entityId then return false end
+    if row.kind=="operate-double-gate" and (row.operation~=step.operation or row.groupId~=p.gateAccess.groupId or step.target~=row.groupId) then return false end
+    if row.kind=="build-double-gate" and (row.entityId~=step.entityId or row.recipeId~=step.recipeId) then return false end
+    for _,key in ipairs({"key","revision","x","y","z","face","width","height","approachX","approachY","approachZ","destinationX","destinationY","destinationZ","actorId","observedAtHours"}) do
+        if not row.site or not step.site or row.site[key]~=step.site[key] then return false end
+    end
+    local accepted=P.recordResult(id,p.id,{owner="SAO.ResourceProduction",token=row.token,status=row.status,correlationId=row.id,atHours=row.atHours,reason=row.detail},GATE_RESULT)
+    if accepted and row.kind=="operate-double-gate" then
+        local own=p.gateAccess;own.operationReceipts=own.operationReceipts or {};own.operationReceiptOrder=own.operationReceiptOrder or {}
+        own.operationReceipts[row.id]={operation=row.operation,groupId=row.groupId,entityId=row.entityId,site=dataCopy(row.site)}
+        own.operationReceiptOrder[#own.operationReceiptOrder+1]=row.id
+        if #own.operationReceiptOrder>32 then own.operationReceipts[table.remove(own.operationReceiptOrder,1)]=nil end
+    end
+    if accepted and row.status=="interrupted" and row.kind=="operate-double-gate" and row.afterGroup and row.afterGroup.id==p.gateAccess.groupId
+        and row.afterGroup.open==true and row.afterGroup.observed==true then p.gateAccess.observedOpen=true end
+    if accepted and row.status=="completed" then
+        if row.kind=="build-double-gate" then
+            p.gateAccess.groupId=row.groupId;p.gateAccess.builtWorkId=row.id
+            if SAO.Perception and SAO.Perception.consumeDoubleGateSite then SAO.Perception.consumeDoubleGateSite(id,row) end
+        elseif row.operation=="open" then p.gateAccess.opened=row.id
+        elseif row.operation=="pass" then p.gateAccess.crossed=row.id
+        else p.gateAccess.closed=row.id;p.status="completed" end
+        if not p.gateAccess.closed then p.status="maintained" end
+    end;return accepted
+end
+function P.recipeReadingPurpose(id)
+    local p,step=P.doubleGatePurpose(id);if step and step.owner=="SAO.Study" and step.operation=="learn-recipe" then return p,step end
+end
+function P.admitRecipeReading(id,w)
+    local p,step=P.recipeReadingPurpose(id)
+    if not p or p.admission or step.status~="available" or w.actorId~=id or w.purposeId~=p.id or w.purposeStepId~=step.id
+        or w.recipeName~=step.recipeName or w.itemId~=step.inputItemId or w.itemType~=step.inputItemType then return false end
+    return P.noteAdmission(id,p.id,"SAO.Study",w.id,step.id)
+end
+function P.consumeRecipeReading(id,readingId)
+    local row=SAO.Study and SAO.Study.recipeOutcome(id,readingId);local p,step=P.recipeReadingPurpose(id)
+    if not row then return false end
+    local s=state(id);p=s and s.purposes[row.purposeId];step=p and p.steps[p.cursor]
+    if not p or not p.gateAccess then return false end
+    for _,seen in ipairs(p.resultReceipts or {}) do if seen=="SAO.Study:"..row.id then return true end end
+    local ad=p.admission
+    if not step or not ad or ad.correlationId~=row.id or step.id~=row.purposeStepId or step.recipeName~=row.recipeName
+        or row.status=="completed" and (not row.nativeCompleted or row.recipeKnown~=true) then return false end
+    return P.recordResult(id,p.id,{owner="SAO.Study",token=row.token,status=row.status,correlationId=row.id,atHours=row.atHours,reason=row.reason},GATE_RESULT)
+end
 function P.shelterPurpose(id)
     local s=state(id)
     for _,key in ipairs(s and s.order or {}) do local p=s.purposes[key]
@@ -3604,6 +3737,11 @@ function P.recordResult(id, purposeId, result, authority)
     local s = state(id)
     local purpose = s and s.purposes[tostring(purposeId or "")]
     local step = purpose and purpose.steps[purpose.cursor]
+    if purpose and purpose.gateAccess then
+        if not step or step.owner=="SAO.SourceUse" and authority~=RESOURCE_RESULT
+            or (step.owner=="SAO.ResourceProduction" or step.owner=="SAO.Study") and authority~=GATE_RESULT
+            or step.owner~="SAO.SourceUse" and step.owner~="SAO.ResourceProduction" and step.owner~="SAO.Study" then return false end
+    end
     if purpose and purpose.generatorPower then
         if not step or step.owner == "SAO.SourceUse" and authority ~= RESOURCE_RESULT
             or step.owner == "SAO.Study" and authority ~= GENERATOR_READING_RESULT
@@ -3668,7 +3806,7 @@ function P.recordResult(id, purposeId, result, authority)
         step.status, step.completedAt = "completed", at
         purpose.cursor = purpose.cursor + 1
         purpose.blockers = {}
-        purpose.status = purpose.cursor > #purpose.steps and not purpose.resourceOutcome and "completed" or "maintained"
+        purpose.status = purpose.cursor > #purpose.steps and not purpose.resourceOutcome and not purpose.gateAccess and "completed" or "maintained"
         if purpose.resourceOutcome and purpose.cursor > #purpose.steps then purpose.awaitingStock = true end
         if step.verb == "read" then
             purpose.sessions = (purpose.sessions or 0) + 1
@@ -3703,8 +3841,8 @@ function P.recordResult(id, purposeId, result, authority)
             practice.failed, practice.lastAt = practice.failed + 1, at
             s.practice[key] = practice
         end
-        if (purpose.resourceCategory or purpose.materialWork) and (result.status == "failed"
-            or result.routeFailure == true or purpose.materialWork and result.status == "interrupted") then
+        if (purpose.resourceCategory or purpose.materialWork or purpose.gateAccess) and (result.status == "failed"
+            or result.routeFailure == true or (purpose.materialWork or purpose.gateAccess and step.owner=="SAO.SourceUse") and result.status == "interrupted") then
             resourceFailure(purpose, purpose.selectedStrategy or step.id, result.reason, at, step.id)
         end
     end
@@ -3714,7 +3852,7 @@ function P.recordResult(id, purposeId, result, authority)
         purpose.resultReceipts[#purpose.resultReceipts + 1] = receiptKey
         if #purpose.resultReceipts > MAX_EVENTS then table.remove(purpose.resultReceipts, 1) end
     end
-    if purpose.resourceCategory or purpose.materialWork or purpose.windowRepair or purpose.leisure or purpose.leisureAcquisition or purpose.generatorPower then
+    if purpose.resourceCategory or purpose.materialWork or purpose.windowRepair or purpose.leisure or purpose.leisureAcquisition or purpose.generatorPower or purpose.gateAccess then
         purpose.lastAdmission = dataCopy(purpose.admission)
         purpose.admission = nil
     end
@@ -3864,13 +4002,15 @@ function P.consumeSourceResult(receipt)
         or step.itemId ~= authoritative.itemId or step.itemType ~= authoritative.itemType
         or step.category ~= authoritative.category or not finite(authoritative.at)
         or authoritative.at < admission.at or authoritative.at > nowHours()) then return false end
-    if purpose.collector and (authoritative.actorId ~= receipt.actorId
+    if (purpose.collector or purpose.gateAccess) and (authoritative.actorId ~= receipt.actorId
         or authoritative.reservationId ~= receipt.reservationId or step.owner ~= "SAO.SourceUse"
         or step.verb ~= "acquire" or step.token ~= "resource:acquired" or admission.owner ~= step.owner
         or step.sourceId ~= authoritative.sourceId or step.sourceRevision ~= authoritative.preRevision
         or step.itemId ~= authoritative.itemId or step.itemType ~= authoritative.itemType
         or step.category ~= authoritative.category or not finite(authoritative.at)
         or authoritative.at < admission.at or authoritative.at > nowHours()) then return false end
+    if purpose.gateAccess and completed and (authoritative.quantityUnit ~= step.quantityUnit
+        or authoritative.requestedQuantity ~= step.quantity or authoritative.observedQuantity ~= step.quantity) then return false end
     if completed and (authoritative.measurement ~= "native-item-transfer"
         or (tonumber(authoritative.observedQuantity) or 0) <= 0) then return false end
     if completed and purpose.resourceCategory and (step.sourceId ~= authoritative.sourceId
@@ -4315,7 +4455,8 @@ function P.snapshot(id)
             reason = purpose.suspensionReason, suspendedAt = purpose.suspendedAt,
             domain = purpose.domain, objective = purpose.objective,
             revision = purpose.revision, resourceOutcome = dataCopy(purpose.resourceOutcome),
-            steps = dataCopy(purpose.steps), resultReceipts = copyList(purpose.resultReceipts),
+            steps = dataCopy(purpose.steps,0,nil,purpose.gateAccess and 38 or nil),
+                gateAccess=dataCopy(purpose.gateAccess), resultReceipts = copyList(purpose.resultReceipts),
             lastAdmission = dataCopy(purpose.lastAdmission) }
     end
     local suspended = s.suspendedLeisure
@@ -4359,8 +4500,9 @@ function P.snapshot(id)
                 inquiry = dataCopy(purpose.inquiry),
                 generatorPower = dataCopy(purpose.generatorPower),
                 shelterConstruction=dataCopy(purpose.shelterConstruction),
+                gateAccess=dataCopy(purpose.gateAccess),
                 decisionAt = purpose.decisionAt, assessedAt = purpose.assessedAt,
-                sequence = dataCopy(purpose.steps), completedSteps = dataCopy(purpose.completedSteps),
+                sequence = dataCopy(purpose.steps,0,nil,purpose.gateAccess and 38 or nil), completedSteps = dataCopy(purpose.completedSteps),
                 alternatives = dataCopy(purpose.alternatives), omittedAlternatives = purpose.omittedAlternatives or 0,
                 routeFailures = dataCopy(purpose.routeFailures) }
             local row = out.purposes[#out.purposes]

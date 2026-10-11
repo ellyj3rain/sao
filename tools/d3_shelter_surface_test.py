@@ -9,8 +9,8 @@ from native_proof_preflight import presence
 ROOT=base.ROOT
 CASES=ROOT/'tools/resource_production_checks/shelter_surface_cases.lua'
 LOCO=base.LUA/'client/SAO_Locomotion.lua'
-JAVA=[ROOT/'java/src/com/sao/engine'/name for name in ['SAOShelterStairs.java','SAOShelterSurface.java','SAOShelterConstruction.java','SAONeeds.java','SAOWorldSources.java','SAOIsoPlayerShell.java']]+[ROOT/'java/src/com/sao/bridge/SAOBridge.java']
-PRODUCTION=[ROOT/'java/src/com/sao/engine/SAOShelterSurface.java',ROOT/'java/src/com/sao/bridge/SAOBridge.java',*[base.LUA/f'{area}/SAO_{name}.lua' for area,name in [('shared','Perception'),('shared','ProceduralPlanning'),('shared','Cognition'),('shared','CognitiveModels'),('client','Controller'),('client','ResourceProduction'),('client','CapabilityExperience')]]]
+JAVA=[ROOT/'java/src/com/sao/engine'/name for name in ['SAODoubleGate.java','SAOShelterStairs.java','SAOShelterSurface.java','SAOShelterConstruction.java','SAONeeds.java','SAOWorldSources.java','SAOIsoPlayerShell.java']]+[ROOT/'java/src/com/sao/bridge/SAOBridge.java']
+PRODUCTION=[ROOT/'java/src/com/sao/engine/SAODoubleGate.java',ROOT/'java/src/com/sao/engine/SAOShelterSurface.java',ROOT/'java/src/com/sao/bridge/SAOBridge.java',*[base.LUA/f'{area}/SAO_{name}.lua' for area,name in [('shared','Perception'),('shared','ProceduralPlanning'),('shared','Cognition'),('shared','CognitiveModels'),('client','Controller'),('client','ResourceProduction'),('client','CapabilityExperience')]]]
 INSTRUMENTS=[Path(__file__),CASES,base.PROBE,base.CASES,ROOT/'tools/check.sh']
 
 def replace_once(source,old,new):
