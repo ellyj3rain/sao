@@ -9,10 +9,10 @@
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C12, C18, C20, C21, C24, C30, C31, C32, C33 |
-| Implementation | CLOSED D3.1-D3.9 deliver native crafting, maintenance, usable water/power, firearm reuse, usable beds and single-edge walls/doors through shelter use. Remaining full domain keeps this parent OPEN. |
+| Implementation | CLOSED D3.1-D3.10 deliver native crafting, maintenance, usable water/power, firearm reuse, usable beds, walls/doors and floors/roof cover through ordinary shelter use. The remaining full domain keeps this parent OPEN. |
 | Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.6.9.0-pre-alpha; one kohai child increment, with full D3 completion still uncredited while OPEN. |
-| Publication | D3.1-D3.8 are self-merged through PR142-PR149. D3.9 uses the same protected child workflow, with actual merge retained in its completion receipt. |
+| Version | 2.6.10.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
+| Publication | D3.1-D3.9 self-merged through PR142-PR150; D3.10 follows the same protected workflow with actual merge retained in its completion receipt. |
 
 ## Product and current implementation
 
@@ -211,3 +211,11 @@ The operator corrects the earlier minor classification of D3.1, D3.2, D3.4, D3.5
 ## D3.9 coherent closure - 2026-10-11 01:03 UTC / 18:03 PDT
 
 [D3.9](D3.9-20261010-2240Z-1540PST-walls-doors-usable-shelter.md) is CLOSED: the finite single-edge wooden wall/frame/door family joins private roofed-space concern, exact material and stage construction, measured doorway use and ordinary reached shelter consumption. Physical edge closure, native enclosure and pre-existing weather cover keep distinct results. This child receives one kohai. Freestanding double gates, new roof/upper-floor construction, remaining recipes/pane integration and native server execution retain their parent obligations. Full D3 stays OPEN.
+
+## D3.10 roofs and floors continuation - 2026-10-11 01:26 UTC / 18:26 PDT
+
+[D3.10](D3.10-20261011-0126Z-1826PDT-roofs-floors-usable-shelter.md) is OPEN under this parent. It joins all three native wooden floor grades, supported work-level access and exact construction to actual cover, return to the retained shelter destination and ordinary use/recovery. D3.9 reached origin/main through PR150 at 5602d522ba39bbf9d9d9cb3a7efec8b55734c7f2. This child earns one kohai when its integrated outcome closes; full D3 remains OPEN.
+
+## D3.10 coherent closure - 2026-10-11 02:18 UTC / 19:18 PDT
+
+[D3.10](D3.10-20261011-0126Z-1826PDT-roofs-floors-usable-shelter.md) is CLOSED: the native wooden floor family supplies flooring and cover through genuine existing work-level access, exact construction and return to the original ordinary shelter consumer. It receives one kohai. Full D3 remains OPEN; new stair construction, other material families, freestanding gates, remaining recipe/pane integration and native server execution retain their obligations.

@@ -25,8 +25,8 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.6.9.0-pre-alpha` |
-| Classified delivered scope | `A1-D3.9` |
+| Current version | `2.6.10.0-pre-alpha` |
+| Classified delivered scope | `A1-D3.10` |
 | Current C generation | `20261005-product-consolidation` |
 | Feature-scope reconciliation | [20261010](Batches/VERSION_SCOPE_RECONCILIATION.json); prior replay retained |
 | Unconsumed scope | `D3` |
@@ -220,6 +220,7 @@ the machine. Names, dates, and threads below come from
 | `D3.7` | 2026-10-10 | kohai | `2.6.7.0-pre-alpha` | Native item fixing to equipment reuse | Native firearm fixing through exact private donor acquisition, installed payment and measured condition/returned contents, same-target equipment reuse, authenticated experience and saved custody is coherent building progress within the OPEN D3 module. |
 | `D3.8` | 2026-10-10 | kohai | `2.6.8.0-pre-alpha` | Construction and placement through a usable bed | Installed wooden-bed construction and both full orientations join private recovery motivation, exact material acquisition, observed permitted placement, native payment/allparts and ordinary bed recovery use as coherent building progress within OPEN D3. |
 | `D3.9` | 2026-10-10 | kohai | `2.6.9.0-pre-alpha` | Walls and doors through usable shelter | The complete selected single-edge wooden wall/frame/door family joins private shelter concern, exact material and stage construction, measured doorway use and reached native shelter conditions through ordinary consumption as integrated building progress within OPEN D3. |
+| `D3.10` | 2026-10-11 | kohai | `2.6.10.0-pre-alpha` | Roofs and floors through usable shelter | Native wooden floor/roof-cover construction, genuine work-level access and return to the original ordinary shelter consumer deliver integrated surface progress within OPEN D3. |
 
 Dotted labels record child scope. Each capability row above receives credit once;
 child delivery leaves its explicitly active parent open. Closed parent aggregation
@@ -343,6 +344,6 @@ another batch. Subsequent delivered work determines its own tier:
 
 | If newly delivered scope is | Result |
 |---|---|
-| patch or hotfix | `2.6.9.1-pre-alpha` |
-| kohai | `2.6.10.0-pre-alpha` |
+| patch or hotfix | `2.6.10.1-pre-alpha` |
+| kohai | `2.6.11.0-pre-alpha` |
 | minor | `2.7.0.0-pre-alpha` |

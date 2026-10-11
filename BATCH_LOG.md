@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.6.9.0-pre-alpha` |
+| Version | `2.6.10.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -587,3 +587,9 @@ The [historical transition](Batches/Transitions/VERSION-20261010-feature-scope-c
 | Batch | Date | Name | Threads |
 |---|---|---|---|
 | [D3.9](Batches/D3.9-20261010-2240Z-1540PST-walls-doors-usable-shelter.md) | 2026-10-10 | Walls and doors through usable shelter | D3 edge construction, doorway use and private shelter |
+
+## Roofs and floors through usable shelter - 2026-10-11 02:18 UTC / 19:18 PDT
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D3.10](Batches/D3.10-20261011-0126Z-1826PDT-roofs-floors-usable-shelter.md) | 2026-10-11 | Roofs and floors through usable shelter | D3 surface construction, access, cover and ordinary use |

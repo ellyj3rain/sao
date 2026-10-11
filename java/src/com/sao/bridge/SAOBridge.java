@@ -4477,6 +4477,27 @@ public final class SAOBridge {
             ? com.sao.engine.SAOShelterConstruction.observe(body,(int)x,(int)y,(int)z) : null;
         } catch(Throwable t) { SAOAgent.log("worldShelterSites threw: "+t); return null; }
     }
+    public Object worldShelterSurfaces(Object object) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body?com.sao.engine.SAOShelterSurface.observe(body):null; }
+        catch(Throwable t) { SAOAgent.log("worldShelterSurfaces threw: "+t); return null; }
+    }
+    public Object worldShelterCoverNeeds(Object object) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body?com.sao.engine.SAOShelterSurface.coverNeeds(body):null; }
+        catch(Throwable t) { SAOAgent.log("worldShelterCoverNeeds threw: "+t); return null; }
+    }
+    public Object worldShelterAccess(Object object) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body?com.sao.engine.SAOShelterSurface.access(body):null; }
+        catch(Throwable t) { SAOAgent.log("worldShelterAccess threw: "+t); return null; }
+    }
+    public Object worldShelterSurfacePlacementSquare(Object object,String key,String revision) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body?com.sao.engine.SAOShelterSurface.placement(body,key,revision):null; }
+        catch(Throwable t) { SAOAgent.log("worldShelterSurfacePlacementSquare threw: "+t); return null; }
+    }
+    public boolean worldShelterSurfaceCreated(Object object,Object created,String entity,double x,double y,double z) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body&&created instanceof zombie.iso.IsoObject part&&integralUtilityCoordinates(x,y,z)
+            &&com.sao.engine.SAOShelterSurface.created(body,part,entity,(int)x,(int)y,(int)z); }
+        catch(Throwable t) { SAOAgent.log("worldShelterSurfaceCreated threw: "+t); return false; }
+    }
     public Object worldShelterPlacementSquare(Object object,String key,String revision) {
         try { return object instanceof com.sao.engine.SAOIsoPlayerShell body
             ? com.sao.engine.SAOShelterConstruction.placement(body,key,revision) : null;

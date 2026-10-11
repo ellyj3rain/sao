@@ -3929,6 +3929,87 @@ function P.shelterSites(id,body)
     return out
 end
 
+local function shelterSurfaceCopy(id,row)
+    if type(row)~="table" or getmetatable(row) or row.actorId~=id or row.observed~=true
+        or row.source~="native-personal-visibility" or row.face~="W" or row.mode~="floor"
+        or row.supported~=true or row.missingFloor~=true or type(row.key)~="string" or #row.key>160
+        or type(row.revision)~="string" or #row.revision>160 or not finiteSoundNumber(row.observedAtHours) then return nil end
+    local out={}
+    for _,key in ipairs({"key","revision","face","mode","supported","missingFloor","actorId","observed","source","observedAtHours"}) do out[key]=row[key] end
+    for _,key in ipairs({"x","y","z","approachX","approachY","approachZ"}) do
+        if not finiteSoundNumber(row[key]) or row[key]%1~=0 then return nil end;out[key]=row[key]
+    end
+    if row.approachZ~=row.z or math.abs(row.x-row.approachX)+math.abs(row.y-row.approachY)~=1 then return nil end
+    return out
+end
+function P.observeShelterSurfaces(id,body)
+    local at=SAO.History and SAO.History.countyHours()
+    if not collectorObserver(id,body) or not finiteSoundNumber(at) or at<0 or not SAOJavaBridge.worldShelterSurfaces then return false end
+    local ok,rows=pcall(function()return SAOJavaBridge:worldShelterSurfaces(body)end)
+    if not ok or type(rows)~="table" or getmetatable(rows) or not collectorObserver(id,body) then return false end
+    local b=store(id);b.shelterSurfaces=b.shelterSurfaces or {};b.shelterSurfaceOrder=b.shelterSurfaceOrder or {}
+    for index,native in ipairs(rows) do
+        if index>32 then break end;local input={} for key,value in pairs(native) do input[key]=value end
+        input.actorId,input.observed,input.observedAtHours,input.source=id,true,at,"native-personal-visibility"
+        local row=shelterSurfaceCopy(id,input)
+        if row and row.z==math.floor(body:getZ()) then
+            if not b.shelterSurfaces[row.key] then
+                if #b.shelterSurfaceOrder>=64 then b.shelterSurfaces[table.remove(b.shelterSurfaceOrder,1)]=nil end
+                b.shelterSurfaceOrder[#b.shelterSurfaceOrder+1]=row.key
+            end;b.shelterSurfaces[row.key]=row
+        end
+    end
+    local unresolved={};for _,need in ipairs(b.shelterCoverNeeds or {}) do unresolved[need.x..":"..need.y..":"..need.z]=need end
+    b.shelterCoverObservations={};local needOk,needs=pcall(function()return SAOJavaBridge:worldShelterCoverNeeds(body)end)
+    if needOk and type(needs)=="table" then for index,need in ipairs(needs) do
+        if index>32 then break end
+        if type(need)=="table" and type(need.roof)=="boolean" and finiteSoundNumber(need.x) and need.x%1==0
+            and finiteSoundNumber(need.y) and need.y%1==0 and finiteSoundNumber(need.z) and need.z==math.floor(body:getZ()) then
+            local copy={x=need.x,y=need.y,z=need.z,roof=need.roof,actorId=id,observedAtHours=at,source="native-personal-visibility"}
+            b.shelterCoverObservations[#b.shelterCoverObservations+1]=copy
+            unresolved[need.x..":"..need.y..":"..need.z]=need.roof==false and copy or nil
+        end
+    end end
+    b.shelterCoverNeeds={};local keys={} for key in pairs(unresolved) do keys[#keys+1]=key end;table.sort(keys)
+    for index,key in ipairs(keys) do if index>64 then break end;b.shelterCoverNeeds[#b.shelterCoverNeeds+1]=unresolved[key] end
+    b.shelterAccess=b.shelterAccess or {};local accessOk,access=pcall(function()return SAOJavaBridge:worldShelterAccess(body)end)
+    if accessOk and type(access)=="table" then for index,row in ipairs(access) do
+        if index>16 then break end
+        if type(row)=="table" and row.basis=="visible-native-stair-top" and row.landingObserved==false
+            and type(row.key)=="string" and #row.key<=160 and row.z==math.floor(body:getZ()) then
+            local copy={actorId=id,key=row.key,basis=row.basis,landingObserved=false,observedAtHours=at}
+            local valid=true
+            for _,key in ipairs({"x","y","z","landingX","landingY","landingZ"}) do
+                if not finiteSoundNumber(row[key]) or row[key]%1~=0 then valid=false end;copy[key]=row[key]
+            end
+            if valid and copy.landingZ==copy.z+1 then b.shelterAccess[copy.key]=copy end
+        end
+    end end
+    P.beliefVersion=P.beliefVersion+1;return true
+end
+function P.shelterSurfaces(id,body)
+    if not collectorObserver(id,body) then return {} end
+    local b,out=P.beliefs[id],{};local at=SAO.History.countyHours()
+    for _,key in ipairs(b and b.shelterSurfaceOrder or {}) do
+        local row=shelterSurfaceCopy(id,b.shelterSurfaces[key]);if row and row.observedAtHours<=at then out[#out+1]=row end
+    end;return out
+end
+function P.shelterCoverNeeds(id)
+    local b=store(id);local out={} for _,row in ipairs(b and b.shelterCoverNeeds or {}) do
+        local copy={} for key,value in pairs(row) do copy[key]=value end;out[#out+1]=copy
+    end;return out
+end
+function P.shelterCoverObservations(id)
+    local b=store(id);local out={} for _,row in ipairs(b and b.shelterCoverObservations or {}) do
+        local copy={} for key,value in pairs(row) do copy[key]=value end;out[#out+1]=copy
+    end;return out
+end
+function P.shelterAccess(id)
+    local b=store(id);local out={} for _,row in pairs(b and b.shelterAccess or {}) do
+        local copy={} for key,value in pairs(row) do copy[key]=value end;out[#out+1]=copy
+    end;table.sort(out,function(a,b)return a.key<b.key end);return out
+end
+
 function P.observeConcepts(id,body,tick)
     if not finiteSoundNumber(tick) then return false,"concept-observer-unavailable" end
     local ordinary=SAO.Needs and SAO.Needs.ownsRecoveryBody

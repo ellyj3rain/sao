@@ -4987,11 +4987,47 @@ function Ctl.tryBedConstruction(id,agent,body,tick,needs)
     return false
 end
 
+function Ctl.beginShelterMovement(id,agent,body,tick,p,step)
+    if step.owner~="SAO.Controller" or step.token~="shelter:movement-observed" or step.verb~="inspect" and step.verb~="return"
+        or not SAO.Needs.ownsRecoveryBody(id,body) or not SAO.Needs.workAvailable(body)
+        or SAO.Standing.mayAttemptBelieved(id,step.x,step.y,"standing")~=true then return false end
+    if SAOJavaBridge:setForceEntry(body,false)~=true or not SAO.Locomotion.order(id,body,step.x,step.y,step.z) then return false end
+    local job=SAO.Locomotion.jobs[id]
+    if not job or job.body~=body or not job.goal or job.goal.x~=step.x or job.goal.y~=step.y or job.goal.z~=step.z then return false end
+    local routeId="shelter-route/"..id.."/"..p.id.."/"..p.revision
+    if not SAO.ProceduralPlanning.noteAdmission(id,p.id,"SAO.Controller",routeId,step.id) then SAO.Locomotion.cancel(id);return false end
+    job.shelterPurposeId,job.shelterStepId=p.id,step.id
+    agent.shelterRoute={body=body,rec=agent.rec,job=job,purposeId=p.id,stepId=step.id,routeId=routeId,deadline=tick+1800}
+    if setState(agent,id,"TRAVEL",step.verb=="inspect" and "investigates personally seen stair access for shelter work" or "returns to the original shelter level","need") then return true end
+    SAO.Locomotion.cancel(id);agent.shelterRoute=nil;return false
+end
+function Ctl.finishShelterMovement(id,agent,body)
+    local binding=agent.shelterRoute;local job=SAO.Locomotion.jobs[id]
+    if not binding then return false end
+    if binding.body~=body or binding.rec~=agent.rec or SAO.Identity.get(id)~=binding.rec
+        or not SAO.Needs.ownsRecoveryBody(id,body) or job~=binding.job or not job or job.body~=body then agent.shelterRoute=nil;return false end
+    if not job.done and tickCount<binding.deadline then return true end
+    if not job.done then
+        local ok,cancelled=pcall(function()return SAOJavaBridge:cancelMove(body)end)
+        local quiet,ready=pcall(function()return body:getCurrentStateName()=="IdleState" and not body:isClimbing()
+            and not SAOJavaBridge:hasPendingActions(body)end)
+        if not ok or cancelled~="MOVE_CANCELLED" or not quiet or not ready or SAO.Locomotion.jobs[id]~=job then return true end
+        job.done,job.result=true,"shelter-access-expired"
+    end
+    if not SAO.ProceduralPlanning.finishShelterMovement(id,body,binding.purposeId,binding.routeId,job) then return false end
+    if job.result=="shelter-access-expired" and SAO.Locomotion.jobs[id]==job then SAO.Locomotion.cancel(id) end
+    agent.shelterRoute=nil;setState(agent,id,"IDLE","reobserves actual shelter and surface conditions","need");agent.nextDecisionAt=0;return true
+end
 function Ctl.shelterConstructionContext(id,agent,body,needs,kind)
     local p=SAO.ProceduralPlanning.shelterPurpose(id);local own=p and p.shelterConstruction
     local context={recoveryKind=own and own.recoveryKind or kind,fatigue=tonumber(needs and needs.fatigue),
-        atHours=SAO.History.countyHours(),options={},sites={},materialSources={}}
+        atHours=SAO.History.countyHours(),options={},sites={},materialSources={},position={x=body:getX(),y=body:getY(),z=body:getZ()}}
     if not SAO.Perception.observeShelterSites or not SAO.ResourceProduction.shelterOptions then return context end
+    if SAO.Perception.observeShelterSurfaces then SAO.Perception.observeShelterSurfaces(id,body) end
+    context.coverNeeds=SAO.Perception.shelterCoverNeeds and SAO.Perception.shelterCoverNeeds(id) or {}
+    context.coverObservations=SAO.Perception.shelterCoverObservations and SAO.Perception.shelterCoverObservations(id) or {}
+    SAO.ProceduralPlanning.refreshShelterCover(id,body)
+    context.access=SAO.Perception.shelterAccess and SAO.Perception.shelterAccess(id) or {}
     SAO.Perception.observeShelterSites(id,body,own and own.origin)
     context.sites=SAO.Perception.shelterSites(id,body)
     context.options=SAO.ResourceProduction.shelterOptions(id,body,own)
@@ -5016,8 +5052,9 @@ function Ctl.tryShelterConstruction(id,agent,body,tick,needs,kind)
     if retained and retained.shelterConstruction.usedWorkId then return false end
     local p,step=SAO.ProceduralPlanning.planShelterConstruction(id,Ctl.shelterConstructionContext(id,agent,body,needs,kind))
     if not p or not step or step.status~="available" then return false end
+    if step.owner=="SAO.Controller" then return Ctl.beginShelterMovement(id,agent,body,tick,p,step) end
     if step.verb=="acquire" then return Ctl.beginConstructionAcquisition(id,agent,body,tick,p,step) end
-    if step.owner~="SAO.ResourceProduction" or step.productionKind~="build-shelter-edge" and step.productionKind~="use-shelter" then return false end
+    if step.owner~="SAO.ResourceProduction" or step.productionKind~="build-shelter-edge" and step.productionKind~="build-shelter-surface" and step.productionKind~="use-shelter" then return false end
     if not setState(agent,id,"RESOURCE",step.productionKind=="use-shelter" and "uses the repaired shelter doorway" or "repairs shelter for retained recovery","need") then return false end
     if SAO.ResourceProduction.begin(id,body,step,{purposeId=p.id,purposeStepId=step.id}) or agent.rec.resourceProductionWork then
         agent.taskDeadline=tick+5400;return true
@@ -5034,6 +5071,7 @@ function Ctl.offerRecovery(id, agent, body, tick, needs, selectedKind)
         or not SAO.Needs.ownsRecoveryBody(id, body) then return false end
     if SAO.ProceduralPlanning.reconcileBedRecovery and not SAO.ProceduralPlanning.reconcileBedRecovery(id,body) then return false end
     if SAO.ProceduralPlanning.reconcileShelterRecovery and not SAO.ProceduralPlanning.reconcileShelterRecovery(id,body) then return false end
+    if SAO.ProceduralPlanning.reconcileShelterMovement and not SAO.ProceduralPlanning.reconcileShelterMovement(id,body) then return false end
     local kind, reasoning = SAO.Needs.recoveryPreference(id, needs, {
         emergency = policy().desperation, committed = agent.coordinationCommitment ~= nil,
         threat = SAO.Perception.believedThreatCount(id, tick, 10, body:getX(), body:getY()) > 0,
@@ -9519,6 +9557,7 @@ local function updateMovement(id, agent, body)
         -- interrupt: accepted crossing events can precede native state entry.
         if agent.residenceRoute and Ctl.preemptResidenceForRecovery(id, agent, body, tickCount) then return true end
         if agent.residenceRoute and Ctl.finishResidenceMovement(id, agent, body) then return true end
+        if agent.shelterRoute and Ctl.finishShelterMovement(id,agent,body) then return true end
         if agent.recoveryRoute and Ctl.finishRecoveryPlaceMovement(id,agent,body) then return true end
         if agent.inquiryRoute and Ctl.finishConceptInquiryMovement(id,agent,body) then return true end
         if agent.conflictRoute and SAO.ConflictResponse

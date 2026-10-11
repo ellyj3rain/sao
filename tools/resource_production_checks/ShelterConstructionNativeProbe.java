@@ -130,6 +130,24 @@ public final class ShelterConstructionNativeProbe {
         zombie.network.GameServer.server=priorServer;
     }
     public static GameEntityScript entity(String id){return entities.get(id);}
+    private static void initialiseFloors(Path game)throws Exception{
+        boolean server=zombie.network.GameServer.server;zombie.network.GameServer.server=true;
+        var added=new ArrayList<GameEntityScript>();
+        for(int grade=1;grade<=3;grade++){
+            String name="WoodFloorLvl"+grade;
+            String definition=block(game.resolve("media/scripts/generated/entities/walls/entity_wood_floorlvl"+grade+".txt"),"entity",name)
+                .replaceAll("(?s)component UiConfig\\s*\\{.*?\\}","");
+            var script=new GameEntityScript();script.setModule(module);script.setModID("pz-vanilla");script.InitLoadPP(name);script.Load(name,definition);
+            module.entities.getScriptMap().put(name,script);entities.put("Base."+name,script);added.add(script);
+        }
+        var timed=new TimedActionScript();timed.setModule(module);timed.InitLoadPP("BuildLowHammer");
+        timed.Load("BuildLowHammer",block(game.resolve("media/scripts/generated/timedactions.txt"),"timedAction","BuildLowHammer"));
+        module.timedActionScripts.getScriptMap().put("BuildLowHammer",timed);indexBuckets();
+        for(var script:added)script.OnScriptsLoaded(ScriptLoadMode.Init);indexBuckets();
+        for(var script:added)script.OnPostWorldDictionaryInit();
+        zombie.entity.components.spriteconfig.SpriteConfigManager.InitScriptsPostTileDef();nativeTiles(game);
+        zombie.network.GameServer.server=server;
+    }
     public static CraftRecipe recipe(String id){return ((CraftRecipeComponentScript)entity(id).getComponentScriptFor(ComponentType.CraftRecipe)).getCraftRecipe();}
     private static String face="S";
     private static final ArrayList<IsoThumpable> createdParts=new ArrayList<>();
@@ -219,6 +237,8 @@ public final class ShelterConstructionNativeProbe {
     private static String sceneFace;
     private static String sceneCaptureKey,sceneCaptureRevision;
     private static int passageCount;
+    private static int sceneBuildX=10,sceneBuildY=20,sceneBuildZ;
+    private static boolean surfaceStairScene;
     private static void staticField(Class<?> type,String name,Object value)throws Exception{
         var f=type.getDeclaredField(name);f.setAccessible(true);f.set(null,value);
     }
@@ -259,7 +279,7 @@ public final class ShelterConstructionNativeProbe {
             var sprite=new zombie.iso.sprite.IsoSprite();sprite.getProperties().set(zombie.iso.SpriteDetails.IsoFlagType.solidfloor);
             floor.setSprite(sprite);sq.getObjects().add(floor);sq.RecalcProperties();sq.setSolidFloor(true);
         }
-        sceneFace=orientation;sceneDoor=null;passageCount=0;
+        sceneFace=orientation;sceneDoor=null;passageCount=0;sceneBuildX=10;sceneBuildY=20;sceneBuildZ=0;surfaceStairScene=false;
         var building=new zombie.iso.areas.IsoBuilding(sceneCell);building.def=new zombie.iso.BuildingDef();building.def.id=71;
         var room=new zombie.iso.areas.IsoRoom();room.def=new zombie.iso.RoomDef(71,"existing-test-room");room.def.setBuilding(building.def);room.building=building;
         for(int x=10;x<=13;x++)for(int y=20;y<=23;y++){
@@ -293,7 +313,7 @@ public final class ShelterConstructionNativeProbe {
     }
     private static void sceneRegions()throws Exception{
         var calculate=zombie.iso.areas.isoregion.IsoRegions.class.getDeclaredMethod("calculateSquareFlags",IsoGridSquare.class);calculate.setAccessible(true);
-        for(int z=0;z<=1;z++)for(int x=5;x<18;x++)for(int y=14;y<26;y++){
+        for(int z=0;z<=(surfaceStairScene?2:1);z++)for(int x=5;x<18;x++)for(int y=14;y<26;y++){
             var sq=sceneCell.getGridSquare(x,y,z);if(sq==null)continue;
             sceneRoot.select.reset(x,y,z,true,true);
             sceneRoot.updateExistingSquare(x,y,z,(Byte)calculate.invoke(null,sq));
@@ -303,7 +323,7 @@ public final class ShelterConstructionNativeProbe {
         sceneRoot.processDirtyChunks();sceneBody.getCurrentSquare().ResetIsoWorldRegion();
     }
     private static IsoThumpable sceneCreate(String sprite)throws Exception{
-        var sq=sceneCell.getGridSquare(10,20,0);var object=createShelterPart(sprite,sq);
+        var sq=sceneCell.getGridSquare(sceneBuildX,sceneBuildY,sceneBuildZ);var object=createShelterPart(sprite,sq);
         if(object.isDoor())sceneDoor=object;
         return object;
     }
@@ -316,29 +336,141 @@ public final class ShelterConstructionNativeProbe {
     }
     private static boolean sceneMove(double x,double y,double z)throws Exception{
         int tx=(int)Math.floor(x),ty=(int)Math.floor(y);
-        var route=new com.sao.engine.SAORouteState();route.setRoute(List.of(new float[]{tx+.5f,ty+.5f,0}));route.requested=true;
+        var nodes=new ArrayList<float[]>();
+        if(surfaceStairScene&&Math.floor(sceneBody.getZ())!=(int)z){
+            if(z==1){
+                nodes.add(new float[]{10.5f,23.5f,0});nodes.add(new float[]{11.5f,23.5f,0});
+                for(int stairY=22;stairY>=20;stairY--)nodes.add(new float[]{11.5f,stairY+.5f,sceneCell.getGridSquare(11,stairY,0).getApparentZ(.5f,.5f)});
+                nodes.add(new float[]{11.5f,19.5f,1});
+            }else{
+                if(sceneBody.getY()>=20)nodes.add(new float[]{12.5f,19.5f,1});
+                nodes.add(new float[]{11.5f,19.5f,1});
+                for(int stairY=20;stairY<=22;stairY++)nodes.add(new float[]{11.5f,stairY+.5f,sceneCell.getGridSquare(11,stairY,0).getApparentZ(.5f,.5f)});
+                nodes.add(new float[]{11.5f,23.5f,0});nodes.add(new float[]{10.5f,23.5f,0});
+            }
+        }else if(surfaceStairScene&&z==1&&sceneBody.getY()<20&&y>=20){
+            nodes.add(new float[]{12.5f,19.5f,1});
+        }else if(surfaceStairScene&&z==0&&sceneBody.getX()<11&&x>=12&&y>=20){
+            nodes.add(new float[]{10.5f,23.5f,0});nodes.add(new float[]{12.5f,23.5f,0});
+        }
+        nodes.add(new float[]{(float)x,(float)y,(float)z});
+        var route=new com.sao.engine.SAORouteState();route.setRoute(nodes);route.requested=true;
+        var nativeFalling=IsoGameCharacter.class.getDeclaredMethod("updateFalling");nativeFalling.setAccessible(true);
         int ticks=0;
-        while((sceneBody.getCurrentSquare()!=sceneCell.getGridSquare(tx,ty,(int)z)||Math.hypot(sceneBody.getX()-x,sceneBody.getY()-y)>.35)&&ticks++<100){
+        while((sceneBody.getCurrentSquare()!=sceneCell.getGridSquare(tx,ty,(int)z)||Math.hypot(sceneBody.getX()-x,sceneBody.getY()-y)>.35)&&ticks++<600){
             String result=com.sao.engine.SAOMovement.tick(sceneBody,route);
             if(ticks==1)System.out.println("DRIVE "+result+" direction="+sceneBody.playerMoveDir.x+","+sceneBody.playerMoveDir.y);
-            if(result.startsWith("Failed")||result.startsWith("THREW"))return false;
+            if(result.toUpperCase().startsWith("FAILED")||result.startsWith("THREW")){System.out.println("MOVE_REFUSAL "+result+" actual="+sceneBody.getX()+","+sceneBody.getY()+","+sceneBody.getZ());return false;}
             float dx=sceneBody.playerMoveDir.x*.06f,dy=sceneBody.playerMoveDir.y*.06f;
             // The headless scheduler supplies history, not position; native update normally does this.
             sceneBody.setLastX(sceneBody.getX());sceneBody.setLastY(sceneBody.getY());sceneBody.setLastZ(sceneBody.getZ());
+            // IsoGameCharacter.update normally applies native gravity before postupdate.
+            if(surfaceStairScene)nativeFalling.invoke(sceneBody);
             sceneBody.preupdate();sceneBody.moveUnmodded(dx,dy);
             if(ticks==1)System.out.println("STRIDE "+dx+","+dy+" next="+sceneBody.getNextX()+","+sceneBody.getNextY()+" slow="+sceneBody.getSlowFactor());
             sceneBody.postupdate();
             if(ticks==1)System.out.println("POST current="+sceneBody.getX()+","+sceneBody.getY()+","+sceneBody.getZ()+" next="+sceneBody.getNextX()+","+sceneBody.getNextY()+" cellSame="+(sceneBody.getCell()==sceneCell)+" squareSame="+(sceneBody.findCurrentGridSquare()==sceneBody.getCurrentSquare()));
         }
         boolean arrived=sceneBody.getCurrentSquare()==sceneCell.getGridSquare(tx,ty,(int)z)&&Math.hypot(sceneBody.getX()-x,sceneBody.getY()-y)<=.35;
-        System.out.println("MOVE actual="+sceneBody.getX()+","+sceneBody.getY()+" target="+x+","+y+" result="+arrived+" ticks="+ticks);
+        System.out.println("MOVE actual="+sceneBody.getX()+","+sceneBody.getY()+","+sceneBody.getZ()+" target="+x+","+y+","+z+" result="+arrived+" ticks="+ticks);
         return arrived;
+    }
+    private static IsoGridSquare surfaceSquare(Object coordinates){
+        if(coordinates instanceof String value){var p=value.split(",");return sceneCell.getGridSquare(Integer.parseInt(p[0]),Integer.parseInt(p[1]),Integer.parseInt(p[2]));}
+        return sceneCell.getGridSquare(sceneBuildX,sceneBuildY,sceneBuildZ);
     }
     private static Object op(String name,Object a,Object b)throws Exception{
         int i=a instanceof Number?((Number)a).intValue():0;
         switch(name){
             case "reset":reset((String)a);return true;
             case "sceneSetup":sceneSetup((String)a,b instanceof String?(String)b:"native-shelter-person");return true;
+            case "surfaceSceneSetup":{
+                sceneSetup("N",(String)a);sceneBuildX=12;sceneBuildY=21;sceneBuildZ=0;var sq=sceneCell.getGridSquare(12,21,0);
+                for(int n=sq.getObjects().size()-1;n>=0;n--)if(sq.getObjects().get(n).getProperties().has(zombie.iso.SpriteDetails.IsoFlagType.solidfloor))sq.getObjects().remove(n);
+                sq.RecalcAllWithNeighbours(true);sceneRegions();return sceneMove(11.5,21.5,0);
+            }
+            case "surfaceRoofSceneSetup":{
+                sceneSetup("N",(String)a);surfaceStairScene=true;sceneBuildX=12;sceneBuildY=21;sceneBuildZ=1;
+                for(int y=20;y<=22;y++){
+                    var sq=sceneCell.getGridSquare(11,y,0);
+                    var stairs=new IsoThumpable(sceneCell,sq,"carpentry_02_"+(98-(y-20)),true,null);
+                    var props=stairs.getProperties();boolean pass=true;
+                    for(var flag:List.of(zombie.iso.SpriteDetails.IsoFlagType.solid,zombie.iso.SpriteDetails.IsoFlagType.solidtrans,
+                        zombie.iso.SpriteDetails.IsoFlagType.doorN,zombie.iso.SpriteDetails.IsoFlagType.doorW,
+                        zombie.iso.SpriteDetails.IsoFlagType.WallN,zombie.iso.SpriteDetails.IsoFlagType.WallNTrans,
+                        zombie.iso.SpriteDetails.IsoFlagType.WallW,zombie.iso.SpriteDetails.IsoFlagType.WallWTrans,zombie.iso.SpriteDetails.IsoFlagType.WallNW))if(props.has(flag))pass=false;
+                    stairs.setCanPassThrough(pass);stairs.setBlockAllTheSquare(props.has(zombie.core.properties.IsoPropertyType.BLOCKS_PLACEMENT));stairs.setIsStairs(true);
+                    sq.getObjects().add(stairs);sq.getSpecialObjects().add(stairs);sq.RecalcAllWithNeighbours(true);
+                    var opening=sceneCell.getGridSquare(11,y,1);
+                    for(int n=opening.getObjects().size()-1;n>=0;n--)if(opening.getObjects().get(n).getProperties().has(zombie.iso.SpriteDetails.IsoFlagType.solidfloor))opening.getObjects().remove(n);
+                    opening.RecalcAllWithNeighbours(true);
+                    var overhead=new IsoGridSquare(sceneCell,null,11,y,2);overhead.chunk=sq.chunk;overhead.chunk.setSquare(11%8,y%8,2,overhead);
+                    var ceiling=new zombie.iso.IsoObject(sceneCell);ceiling.setSquare(overhead);ceiling.setSprite(zombie.iso.sprite.IsoSpriteManager.instance.getSprite("carpentry_02_57"));overhead.getObjects().add(ceiling);overhead.RecalcAllWithNeighbours(true);
+                    sceneCell.checkHaveRoof(11,y);
+                    System.out.println("STAIR type="+stairs.getType()+" actualHeight="+sq.getApparentZ(.5f,.5f));
+                }
+                for(int landingX=11;landingX<=12;landingX++){
+                    var landing=new IsoGridSquare(sceneCell,null,landingX,19,1);landing.chunk=sceneCell.getGridSquare(landingX,19,0).chunk;
+                    landing.chunk.setSquare(landingX%8,19%8,1,landing);
+                    var platform=new zombie.iso.IsoObject(sceneCell);platform.setSquare(landing);platform.setSprite(zombie.iso.sprite.IsoSpriteManager.instance.getSprite("carpentry_02_57"));landing.getObjects().add(platform);landing.RecalcAllWithNeighbours(true);
+                }
+                // The existing room has space beside its stair flight for the unchanged lying envelope.
+                var room=sceneCell.getGridSquare(13,21,0).getRoom();String oldEntity=selectedEntity,oldFace=face;selectedEntity="Base.WoodenWallLvl1";
+                for(int y=20;y<=23;y++){
+                    var extension=sceneCell.getGridSquare(14,y,0);
+                    for(int n=extension.getObjects().size()-1;n>=0;n--){var wall=extension.getObjects().get(n);
+                        if(wall.getType()==zombie.iso.SpriteDetails.IsoObjectType.wall){extension.getObjects().remove(n);extension.getSpecialObjects().remove(wall);}}
+                    extension.setRoomID(71);extension.setRoom(room);
+                    var roof=new IsoGridSquare(sceneCell,null,14,y,1);roof.chunk=extension.chunk;roof.chunk.setSquare(14%8,y%8,1,roof);
+                    var ceiling=new zombie.iso.IsoObject(sceneCell);ceiling.setSquare(roof);ceiling.setSprite(zombie.iso.sprite.IsoSpriteManager.instance.getSprite("carpentry_02_57"));roof.getObjects().add(ceiling);roof.RecalcAllWithNeighbours(true);sceneCell.checkHaveRoof(14,y);
+                    face="W";var outer=sceneCell.getGridSquare(15,y,0);var wall=createShelterPart(spriteInfo(face,0),outer);outer.getObjects().add(wall);outer.getSpecialObjects().add(wall);outer.RecalcAllWithNeighbours(true);
+                    if(y==20||y==23){face="N";var edge=sceneCell.getGridSquare(14,y==20?20:24,0);wall=createShelterPart(spriteInfo(face,0),edge);edge.getObjects().add(wall);edge.getSpecialObjects().add(wall);edge.RecalcAllWithNeighbours(true);}
+                    extension.RecalcAllWithNeighbours(true);
+                }
+                selectedEntity=oldEntity;face=oldFace;createdParts.clear();
+                var hole=sceneCell.getGridSquare(12,21,1);
+                for(int n=hole.getObjects().size()-1;n>=0;n--)if(hole.getObjects().get(n).getProperties().has(zombie.iso.SpriteDetails.IsoFlagType.solidfloor))hole.getObjects().remove(n);
+                hole.RecalcAllWithNeighbours(true);sceneCell.checkHaveRoof(12,21);sceneRegions();return true;
+            }
+            case "surfaceCoverNeeds":return com.sao.engine.SAOShelterSurface.coverNeeds(sceneBody);
+            case "surfaceRoomless":{
+                String previousEntity=selectedEntity,previousFace=face;selectedEntity="Base.WoodDoorFrameLvl1";face="N";
+                var edge=sceneCell.getGridSquare(10,20,0);var frame=createShelterPart(spriteInfo(face,0),edge);
+                var props=frame.getProperties();boolean pass=true;
+                for(var flag:List.of(zombie.iso.SpriteDetails.IsoFlagType.solid,zombie.iso.SpriteDetails.IsoFlagType.solidtrans,zombie.iso.SpriteDetails.IsoFlagType.doorN,zombie.iso.SpriteDetails.IsoFlagType.doorW,
+                    zombie.iso.SpriteDetails.IsoFlagType.WallN,zombie.iso.SpriteDetails.IsoFlagType.WallNTrans,zombie.iso.SpriteDetails.IsoFlagType.WallW,zombie.iso.SpriteDetails.IsoFlagType.WallWTrans,zombie.iso.SpriteDetails.IsoFlagType.WallNW))if(props.has(flag))pass=false;
+                frame.setCanPassThrough(pass);frame.setIsThumpable(false);edge.getObjects().add(frame);edge.getSpecialObjects().add(frame);edge.RecalcAllWithNeighbours(true);
+                mapDoor(10,20);
+                selectedEntity=previousEntity;face=previousFace;createdParts.clear();
+                for(int x=10;x<=14;x++)for(int y=20;y<=23;y++){var sq=sceneCell.getGridSquare(x,y,0);sq.setRoomID(-1);sq.setRoom(null);sq.RecalcAllWithNeighbours(true);}
+                sceneRegions();return sceneBody.getCurrentSquare().getRoom()==null;
+            }
+            case "surfaceRestoreCover":{
+                var sq=sceneCell.getGridSquare(12,21,1);var floor=new zombie.iso.IsoObject(sceneCell);floor.setSquare(sq);
+                floor.setSprite(zombie.iso.sprite.IsoSpriteManager.instance.getSprite("carpentry_02_57"));sq.getObjects().add(floor);sq.RecalcAllWithNeighbours(true);sceneCell.checkHaveRoof(12,21);sceneRegions();return true;
+            }
+            case "sceneCancelMove":return com.sao.engine.SAOMovement.cancel(sceneBody,new com.sao.engine.SAORouteState());
+            case "surfaceAccess":return com.sao.engine.SAOShelterSurface.access(sceneBody);
+            case "surfaceBuildAt":{var parts=((String)a).split(",");sceneBuildX=Integer.parseInt(parts[0]);sceneBuildY=Integer.parseInt(parts[1]);sceneBuildZ=Integer.parseInt(parts[2]);return true;}
+            case "surfaceLowerRoof":return sceneCell.getGridSquare(12,21,0).haveRoof;
+            case "sceneSites":{var p=((String)a).split(",");return com.sao.engine.SAOShelterConstruction.observe(sceneBody,Integer.parseInt(p[0]),Integer.parseInt(p[1]),Integer.parseInt(p[2]));}
+            case "scenePlacement":return com.sao.engine.SAOShelterConstruction.placement(sceneBody,(String)a,(String)b)!=null;
+            case "sceneDoorLookup":return com.sao.engine.SAOShelterConstruction.door(sceneBody,(String)a,(String)b)==sceneDoor&&sceneDoor!=null;
+            case "scenePrevious":{var previous=com.sao.engine.SAOShelterConstruction.previous(sceneBody,(String)a,(String)b);return previous==null||previous.getEntityScript()==null?null:previous.getEntityScript().getFullName();}
+            case "surfaceSites":return com.sao.engine.SAOShelterSurface.observe(sceneBody);
+            case "surfacePlacement":return com.sao.engine.SAOShelterSurface.placement(sceneBody,(String)a,(String)b)!=null;
+            case "surfaceCreated":return com.sao.engine.SAOShelterSurface.created(sceneBody,created,selectedEntity,sceneBuildX,sceneBuildY,sceneBuildZ);
+            case "surfaceConnected":return sceneCell.getGridSquare(sceneBuildX,sceneBuildY,sceneBuildZ).connectedWithFloor();
+            case "surfaceStairsBelow":return sceneCell.getGridSquare(sceneBuildX,sceneBuildY,sceneBuildZ).HasStairsBelow();
+            case "surfaceEnsure":surfaceSquare(a).EnsureSurroundNotNull();return true;
+            case "surfaceRecalc":surfaceSquare(a).RecalcProperties();return true;
+            case "surfaceRecalcNeighbours":surfaceSquare(a).RecalcAllWithNeighbours(true);return true;
+            case "surfaceCheckRoof":sceneCell.checkHaveRoof(((Number)a).intValue(),((Number)b).intValue());return true;
+            case "surfaceClearWater":sceneCell.getGridSquare(sceneBuildX,sceneBuildY,sceneBuildZ).clearWater();return true;
+            case "surfaceDisableErosion":sceneCell.getGridSquare(sceneBuildX,sceneBuildY,sceneBuildZ).disableErosion();return true;
+            case "surfaceChanged":sceneCell.getGridSquare(sceneBuildX,sceneBuildY,sceneBuildZ).setSquareChanged();sceneRegions();return true;
+            case "surfaceFloor":return sceneCell.getGridSquare(sceneBuildX,sceneBuildY,sceneBuildZ).isSolidFloor();
+            case "surfaceRoof":return sceneCell.getGridSquare(sceneBuildX,sceneBuildY,sceneBuildZ).haveRoof;
             case "sceneToggle": {if(sceneDoor==null)return false;boolean old=sceneDoor.IsOpen();sceneDoor.ToggleDoor(sceneBody);return old!=sceneDoor.IsOpen();}
             case "sceneOpen":return sceneDoor!=null&&sceneDoor.IsOpen();
             case "scenePass":return scenePass(Boolean.TRUE.equals(a));
@@ -647,6 +779,8 @@ public final class ShelterConstructionNativeProbe {
         env.rawset("print",(JavaFunction)(f,n)->{for(int i=0;i<n;i++)System.out.print((i==0?"":"\t")+f.get(i));System.out.println();return 0;});
         thread.call(LuaCompiler.loadstring("ISTimedActionQueue={queues={},getTimedActionQueue=function() return {queue={}} end}","empty",env),null,null,null);
         initialise(Path.of(args[0]));
+        int firstLua=1;
+        if(args.length>1&&args[1].equals("--surface-runtime")){initialiseFloors(Path.of(args[0]));firstLua=2;}
         if(args.length>1&&args[1].equals("--focused-native")){focusedNative(args[2]);return;}
         if(args.length>1&&args[1].equals("--scene-only")){sceneSetup("N","native-shelter-person");System.out.println("SCENE READY");return;}
         if(args.length==1){
@@ -666,7 +800,7 @@ public final class ShelterConstructionNativeProbe {
         Path production=null;for(String arg:args)if(Path.of(arg).getFileName().toString().equals("production.lua"))production=Path.of(arg);final Path reload=production;
         env.rawset("__reloadProduction",(JavaFunction)(f,n)->{try(Reader r=Files.newBufferedReader(reload)){Object[] v=thread.pcall(LuaCompiler.loadis(r,"reload",env),new Object[0]);
             if(!Boolean.TRUE.equals(v[0]))throw new IllegalStateException(Arrays.toString(v));return f.push(true);}catch(Exception e){throw new IllegalStateException(e);}});
-        for(int i=1;i<args.length;i++)try(Reader reader=Files.newBufferedReader(Path.of(args[i]),StandardCharsets.UTF_8)){
+        for(int i=firstLua;i<args.length;i++)try(Reader reader=Files.newBufferedReader(Path.of(args[i]),StandardCharsets.UTF_8)){
             Object[] v=thread.pcall(LuaCompiler.loadis(reader,args[i],env),new Object[0]);if(!Boolean.TRUE.equals(v[0])){
                 System.out.println("ERROR chunk="+args[i]);for(int j=1;j<v.length;j++)System.out.println(v[j]);System.exit(1);
             }
