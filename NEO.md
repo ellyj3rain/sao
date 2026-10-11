@@ -150,7 +150,7 @@ and remain inside the human behavioral envelope regardless of skill.
   | branch | `neo/d<n>-<short-slug>`, off the batch's own name |
   | commit | ONE, squashed, carrying the tree at the batch's close |
   | title | `[D<n>] <the batch's name from BATCH_LOG.md>` |
-  | body | `.github/pull_request_template.md`, filled in - not a rationale pasted in its place |
+  | body | Two concise human-readable paragraphs: delivered behavior and sufficient validation, with a link to the batch record for detail; `.github/pull_request_template.md` supplies the prompts. |
   | merge | squash, delete the branch, by you and not left for the operator |
 
   Never push a branch that carries local history: the pre-seam trees hold

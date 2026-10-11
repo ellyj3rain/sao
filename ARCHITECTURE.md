@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.6.9.0-pre-alpha` |
+| Version | `2.6.10.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2456,3 +2456,7 @@ Private recovery motivation can retain an exact construction purpose. Perception
 ## Walls and doors through usable shelter (D3.9)
 
 A maintained private shelter concern binds personally observed permitted edge/cover facts to exact native stages and materials. The existing physical-work claim owns preparation, recipe payment, measured edge objects and native acknowledgement. Door opening, same-body physical passage and leaf closure retain actual native state and consumer authority; existing native lock/key rules govern access. Native region enclosure and weather cover have separate meanings and clocks; map-room cover may predate repair. Ordinary recovery consumes the reached result. Saved continuity reacquires current native geometry without manufacturing a room, home, claim or bodily effect.
+
+## Roofs and floors through usable shelter (D3.10)
+
+The maintained private shelter concern distinguishes its intended use destination from the native surface work level. Person-acquired support and access facts, exact floor recipe/material authority and Standing govern construction. Native floor creation and column cover processing supply physical effects; return and fresh shelter observation precede ordinary recovery and authenticated private feedback. Queue retirement and saved state reacquire actual targets under the original concern.

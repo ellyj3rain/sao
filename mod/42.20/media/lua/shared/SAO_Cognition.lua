@@ -1235,14 +1235,14 @@ end
 function C.shelterOutcome(id,receipt)
     local now=clock()
     if not now or type(receipt)~="table" or receipt.actorId~=id
-        or receipt.kind~="build-shelter-edge" and receipt.kind~="use-shelter"
+        or receipt.kind~="build-shelter-edge" and receipt.kind~="build-shelter-surface" and receipt.kind~="use-shelter"
         or not finite(receipt.sequence,1,9007199254740991) or receipt.sequence~=math.floor(receipt.sequence)
         or receipt.id~="resource-production/"..id.."/"..tostring(receipt.sequence) or not finite(receipt.atHours,0,now) then return false end
     local canonical=SAO.ResourceProduction and SAO.ResourceProduction.outcome(id,receipt.id)
     if not canonical or not sameData(canonical,receipt) then return false end
     if receipt.status~="completed" then return true,"unfinished-shelter-purpose-retained" end
     if receipt.nativeCredit~=receipt.id or not receipt.nativeAttempted or not receipt.nativeCompleted or not text(receipt.siteKey,160) then return false end
-    local build=receipt.kind=="build-shelter-edge"
+    local build=receipt.kind=="build-shelter-edge" or receipt.kind=="build-shelter-surface"
     local x=privateFact(id,build and "shelter-construction" or "shelter-use",build and "construction" or "body",receipt.id,now,receipt.atHours)
     x.sourceId=receipt.siteKey
     if build then

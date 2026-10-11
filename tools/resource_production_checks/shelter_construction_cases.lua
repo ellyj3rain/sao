@@ -35,7 +35,12 @@ buildUtil.getMaterialOnGroundCounts=function() return {} end
 buildUtil.getMaterialOnGroundUses=function() return {} end
 buildUtil.checkCorner=function() end
 buildUtil.setInfo=function(object,builder) object.builder=builder end
-BaseCraftingLogic={callLuaBool=function(name,params) return BuildRecipeCode.doorFrame.OnIsValid(params) end,callLuaObject=function() return nil end}
+BaseCraftingLogic={callLuaBool=function(name,params)
+    if name=='BuildRecipeCode.floor.OnIsValid' then return BuildRecipeCode.floor.OnIsValid(params) end
+    return BuildRecipeCode.doorFrame.OnIsValid(params)
+end,callLuaObject=function(name,params)
+    if name=='BuildRecipeCode.floor.OnCreate' then return BuildRecipeCode.floor.OnCreate(params) end
+end}
 luautils={stringStarts=function(s,prefix) return s:sub(1,#prefix)==prefix end}
 local properties={has=function() return false end}
 local function sprite(name)
@@ -57,6 +62,7 @@ function instanceof(object,kind)
 end
 local entities={'Base.WoodenWallFrame','Base.WoodenWallLvl1','Base.WoodenWallLvl2','Base.WoodenWallLvl3',
  'Base.WoodDoorFrameLvl1','Base.WoodDoorFrameLvl2','Base.WoodDoorFrameLvl3','Base.WoodenDoorLvl1','Base.WoodenDoorLvl2','Base.WoodenDoorLvl3'}
+if __surfaceCases then for _,id in ipairs({'Base.WoodFloorLvl1','Base.WoodFloorLvl2','Base.WoodFloorLvl3'}) do entities[#entities+1]=id end end
 local policies={}
 local nativeBridge=__nativeShelter
 function __nativeShelter(op,a,b) if op=='spriteProp' then print('native property '..tostring(a)..' '..tostring(b)) end;return nativeBridge(op,a,b) end
@@ -175,6 +181,7 @@ IsoThumpable={new=function(cell,square,name,fourth,fifth,sixth)
     function object:getY() return self.square:getY() end
     function object:getZ() return self.square:getZ() end
     function object:getSpriteName() return self.sprite end
+    function object:getTextureName() return self.sprite end
     function object:getSprite() return getSprite(self.sprite) end
     function object:getObjectIndex() for n,o in ipairs(self.square.objects) do if o==self then return n-1 end end;return -1 end
     function object:getType() return __nativeShelter('spriteType',self.sprite) end
@@ -206,6 +213,7 @@ IsoThumpable={new=function(cell,square,name,fourth,fifth,sixth)
     function object:setBreakSound(v) self.breakSound=v end
     function object:setExplored(v) self.explored=v end
     function object:transmitCompleteItemToClients() self.sent=true end
+    function object:invalidateRenderChunkLevel() end
     return object
 end}
 local function roofSquare(f,x,y)
@@ -234,6 +242,7 @@ local function roofSquare(f,x,y)
         if f.entityId=='Base.WoodenWallFrame' then f.mode='wall';f.previous=object
         elseif f.entityId:find('WoodDoorFrame',1,true) then f.mode='door-leaf';f.previous=object
         elseif f.entityId:find('WoodenDoorLvl',1,true) then f.mode='door';f.previous=object
+        elseif f.entityId:find('WoodFloorLvl',1,true) then f.mode='floor';f.previous=nil
         else f.mode='wall';f.previous=object end
         f.siteRevision=f.siteRevision..'-new'
     end
@@ -274,6 +283,7 @@ local function fixture(id,orientation,nested)
     f.siteRevision='12345678-1234-1234-1234-123456789abc'
     local modes={};for _,kind in ipairs({'wall-frame','wall','door-frame','door-leaf'}) do modes[kind]=true end
     f.mode=entityId=='Base.WoodenWallFrame' and 'wall-frame' or entityId:find('WoodenWallLvl',1,true) and 'wall'
+        or entityId:find('WoodFloorLvl',1,true) and 'floor'
         or entityId:find('WoodDoorFrame',1,true) and 'door-frame' or 'door-leaf'
     if f.mode=='wall' or f.mode=='door-leaf' then
         local previousId=f.mode=='wall' and 'Base.WoodenWallFrame' or 'Base.WoodDoorFrameLvl1'

@@ -61,7 +61,8 @@ for _,machine in ipairs({"ArcadeMachine1","ArcadeMachine2","ArcadeStreetFighter"
 end
 local SHELTER_ENTITIES={["Base.WoodenWallFrame"]=true,["Base.WoodenWallLvl1"]=true,["Base.WoodenWallLvl2"]=true,["Base.WoodenWallLvl3"]=true,
     ["Base.WoodDoorFrameLvl1"]=true,["Base.WoodDoorFrameLvl2"]=true,["Base.WoodDoorFrameLvl3"]=true,
-    ["Base.WoodenDoorLvl1"]=true,["Base.WoodenDoorLvl2"]=true,["Base.WoodenDoorLvl3"]=true}
+    ["Base.WoodenDoorLvl1"]=true,["Base.WoodenDoorLvl2"]=true,["Base.WoodenDoorLvl3"]=true,
+    ["Base.WoodFloorLvl1"]=true,["Base.WoodFloorLvl2"]=true,["Base.WoodFloorLvl3"]=true}
 local COLLECTOR_ENTITIES = { ["Base.RainCollector"]=true, ["Base.RainCollectorRound"]=true,
     ["Base.RainCollector_Tarp"]=true, ["Base.RainCollectorRound_Tarp"]=true }
 local EXTENDED = { ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true,["collector-construction"]=true,
@@ -448,10 +449,12 @@ local function validEvent(e)
         if e.kind=="shelter-construction" then
             local entities={["Base.WoodenWallFrame"]=true,["Base.WoodenWallLvl1"]=true,["Base.WoodenWallLvl2"]=true,["Base.WoodenWallLvl3"]=true,
                 ["Base.WoodDoorFrameLvl1"]=true,["Base.WoodDoorFrameLvl2"]=true,["Base.WoodDoorFrameLvl3"]=true,
-                ["Base.WoodenDoorLvl1"]=true,["Base.WoodenDoorLvl2"]=true,["Base.WoodenDoorLvl3"]=true}
+                ["Base.WoodenDoorLvl1"]=true,["Base.WoodenDoorLvl2"]=true,["Base.WoodenDoorLvl3"]=true,
+                ["Base.WoodFloorLvl1"]=true,["Base.WoodFloorLvl2"]=true,["Base.WoodFloorLvl3"]=true}
             if e.category~="construction" or e.status~="completed" or not entities[e.entityId]
                 or not text(e.recipeId,160) or not text(e.siteKey,160) or e.sourceId~=e.siteKey
-                or not e.siteKey:match("^shelter%-edge:%-?%d+:%-?%d+:%-?%d+:%-?%d+:%-?%d+:[NW]$")
+                or not (e.siteKey:match("^shelter%-edge:%-?%d+:%-?%d+:%-?%d+:%-?%d+:%-?%d+:[NW]$")
+                    or e.siteKey:match("^shelter%-surface:%-?%d+:%-?%d+:%-?%d+$"))
                 or e.originalFixtureSourceId~=nil or e.feedsFixture~=nil then return false end
             for _,key in ipairs({"siteX","siteY","siteZ"}) do if not finite(e[key]) or e[key]~=math.floor(e[key]) then return false end end
             return true
@@ -1198,7 +1201,8 @@ local function validConsequences(candidate)
             if c.category ~= "construction" or not text(c.sourceId,160)
                 or not (c.itemType=="Base.Wood_Bed" and c.sourceId:sub(1,9)=="bed-site:"
                     or COLLECTOR_ENTITIES[c.itemType] and c.sourceId:sub(1,2)=="F:"
-                    or SHELTER_ENTITIES[c.itemType] and c.sourceId:sub(1,13)=="shelter-edge:")
+                    or SHELTER_ENTITIES[c.itemType] and (c.sourceId:sub(1,13)=="shelter-edge:"
+                        or c.sourceId:sub(1,16)=="shelter-surface:"))
                 or c.condition ~= nil then return false end
         elseif c.kind == "tool-repair" then
             if c.category ~= "construction" or (c.sourceId ~= "Base.FixSaw" and c.sourceId ~= "Base.SharpenBlade"

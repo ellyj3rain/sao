@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Governance |
 |---|---|
-| Version | `2.6.9.0-pre-alpha` |
+| Version | `2.6.10.0-pre-alpha` |
 | Design authority | ellyj3rain |
 | Repository | `GOVERNANCE.md` |
 | Status | ACTIVE - operating discipline for this repository. |
@@ -267,6 +267,12 @@ assigned scope. Their findings identify the affected contract, source evidence,
 consequence and sufficient correction check. The chief implementer reconciles
 their findings across ownership boundaries before declaring the candidate ready.
 Applicable agent skills support these standing responsibilities.
+
+Pull-request descriptions are concise summaries for human readers, normally two
+paragraphs describing delivered behavior and sufficient validation with its
+material limits. Link the owning batch record or technical document for detailed
+scope, contracts, briefs and evidence history. Writing the summary is a small
+publication step; detailed records retain their own purpose and ownership.
 
 The second pass checks the corrections and their affected dependencies, carrying
 forward applicable first-pass findings and verification. A further pass requires

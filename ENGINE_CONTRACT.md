@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.6.9.0-pre-alpha` |
+| Version | `2.6.10.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -773,3 +773,7 @@ Installed `entity_carpentry_bed.txt` defines `Base.Wood_Bed`, Woodwork4, kept ha
 ## Single-edge shelter construction and use (D3.9)
 
 The installed finite wooden wall/frame/door family owns recipe skills/materials, facing and stage dependencies. Native creation updates polygonal navigation and IsoRegions; region processing can create native player rooms/buildings through metagrid intake. Native region enclosure does not authenticate a door leaf being closed or locked. Door action completion requires measured actual state, physical crossing and renewed closure; current native roof/room/enclosure observations retain their distinct semantics. The existing ten single-edge definitions and proof scope are recorded in [D3.9](Batches/D3.9-20261010-2240Z-1540PST-walls-doors-usable-shelter.md).
+
+## Wooden surface construction and cover (D3.10)
+
+Installed WoodFloorLvl1/2/3 own skill, one-tile facing, kept hammer and consumed plank/nail inputs. Native connected-floor and existing stair/landing geometry govern placement and access. Native floor creation processes cover in its column; current room/region cover and ordinary use retain their own authority. Exact implementation, qualified source anchors and proof limits live in [D3.10](Batches/D3.10-20261011-0126Z-1826PDT-roofs-floors-usable-shelter.md).
