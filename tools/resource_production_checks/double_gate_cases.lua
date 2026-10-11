@@ -15,6 +15,7 @@ for _,id in ipairs(families) do
     end
     local recipe={entityId=id};function recipe:getInputs()return list(inputs) end
     function recipe:getScriptObjectFullType()return id end;function recipe:getName()return id:sub(6) end
+    function recipe:needToBeLearn()return __nativeGate('needsLearn',id) end
     function recipe:getRequiredSkillCount()return __nativeGate('skillCount',id) end
     function recipe:getRequiredSkill(index)return {entityId=id,index=index} end
     function recipe:getTime()return 200 end;function recipe:getHighestRelevantSkill()return Perks.Woodwork end
@@ -89,6 +90,7 @@ local function fixture(id,entity,face,pooled)
         local add=square.AddSpecialObject;function square:AddSpecialObject(object)add(self,object);f.createdParts[#f.createdParts+1]=object end
     end end
     f.siteSquare=f.cell:getGridSquare(10,20,0)
+    function f.body:isRecipeActuallyKnown(name)return __nativeGate('actualKnown',name) end
     function f.body:isBuildCheat()return false end;function f.body:faceLocation()end;function f.body:faceLocationF()end;function f.body:getPerkLevel()return 8 end
     function f.body:faceThisObject()end;function f.body:getTimedActionToRetrigger()return nil end;function f.body:getCurrentStateName()return 'IdleState' end
     function __world:isValidSquare()return true end

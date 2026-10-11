@@ -43,7 +43,8 @@ public final class RecipeReadingNativeProbe {
     private static Object nativeCall(LuaCallFrame f)throws Exception{
         String op=(String)f.get(0),key=f.get(1) instanceof String?(String)f.get(1):null;
         switch(op){
-            case "reset":body.getInventory().getItems().clear();body.getKnownRecipes().clear();body.getAlreadyReadBook().clear();reads=0;return true;
+            case "reset":body.getInventory().getItems().clear();body.getKnownRecipes().clear();body.getAlreadyReadBook().clear();
+                zombie.SandboxOptions.instance.seeNotLearntRecipe.setValue(true);reads=0;return true;
             case "creations":return(double)creations;
             case "reads":return(double)reads;
             case "new-item":{
@@ -68,6 +69,7 @@ public final class RecipeReadingNativeProbe {
                     default->throw new IllegalArgumentException((String)f.get(2));};
             }
             case "known":return body.isRecipeActuallyKnown(key);
+            case "visible-known":return body.isRecipeKnown(key);
             case "read":body.ReadLiterature(items.get(integer(f.get(1))));reads++;return true;
             default:throw new IllegalArgumentException(op);
         }

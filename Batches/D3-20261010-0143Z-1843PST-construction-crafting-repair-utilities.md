@@ -9,10 +9,10 @@
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C12, C18, C20, C21, C24, C30, C31, C32, C33 |
-| Implementation | CLOSED D3.1-D3.12 deliver native crafting, maintenance, usable water/power, firearm reuse, usable beds, walls/doors, floors/roof cover, stairs through ordinary shelter use and freestanding double gates through opening, passage and closure. The remaining full domain keeps this parent OPEN. |
+| Implementation | CLOSED D3.1-D3.13 deliver their coherent linked native crafting, maintenance, utilities, firearm reuse, usable beds, wooden shelter, floors/roof cover, stairs, freestanding gates and metal walls/frames/doors through ordinary shelter. Full remaining scope keeps D3 OPEN. |
 | Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.6.12.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
-| Publication | D3.1-D3.11 self-merged through PR142-PR152; D3.12 follows the same protected workflow with actual merge retained in its completion receipt. |
+| Version | 2.6.13.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
+| Publication | D3.1-D3.12 self-merged through PR142-PR153; D3.13 follows the same protected workflow with actual merge retained in its completion receipt. |
 
 ## Product and current implementation
 
@@ -235,3 +235,11 @@ The operator corrects the earlier minor classification of D3.1, D3.2, D3.4, D3.5
 ## D3.12 coherent closure - 2026-10-11 06:58 UTC / 23:58 PDT
 
 [D3.12](D3.12-20261011-0526Z-2226PDT-native-double-gates.md) is CLOSED: complete installed wooden, metal-pole and wire N/W double gates join personally intended freestanding boundary/access work, private permitted footprints, exact materials and native knowledge to four-part construction, genuine opening and passage, and final closure. Native moved-leaf identity, current permission and distinct saved outcomes retain their evidence. One kohai records this building progress. Full D3 remains OPEN for other construction material families and structures, remaining recipes/pane integration and native server execution. D4-D6 remain downstream in FIFO.
+
+## D3.13 native metal shelter continuation - 2026-10-11 08:45 UTC / 01:45 PDT
+
+[D3.13](D3.13-20261011-0845Z-0145PDT-metal-walls-doors-usable-shelter.md) is OPEN for the complete metal wall, frame and door family through native doorway use and ordinary reached shelter/recovery. Reason, parent link, owner, contracts, dependencies and required closure evidence precede implementation. D3.12 reached origin/main through self-merged PR153 at f03cabc35c1a29c6231da66478c499f793f0354c. One kohai records this coherent building increment when closed; full D3 stays OPEN.
+
+## D3.13 coherent closure - 2026-10-11 10:49 UTC / 03:49 PDT
+
+[D3.13](D3.13-20261011-0845Z-0145PDT-metal-walls-doors-usable-shelter.md) is CLOSED for the complete installed native metal wall, frame and door family in both orientations, exact permitted private work and acquired prerequisites, measured native construction and doorway use through ordinary reached shelter/recovery. One kohai records coherent building progress. Full D3 remains OPEN for other construction families and structures, remaining recipes/pane integration and native server execution; D4-D6 remain downstream in FIFO.

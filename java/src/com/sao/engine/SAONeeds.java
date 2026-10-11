@@ -1180,6 +1180,10 @@ public final class SAONeeds {
                     && !item.getIsCraftingConsumed();
             case "metal-pipe":
                 return "Base.MetalPipe".equals(item.getFullType())&&!item.getIsCraftingConsumed();
+            case "metal-bar":
+                return "Base.MetalBar".equals(item.getFullType())&&!item.getIsCraftingConsumed();
+            case "small-sheet-metal":
+                return "Base.SmallSheetMetal".equals(item.getFullType())&&!item.getIsCraftingConsumed();
             case "wire":
                 return "Base.Wire".equals(item.getFullType())&&item.getCurrentUses()>0&&!item.getIsCraftingConsumed();
             case "scrap-metal":
@@ -1193,6 +1197,10 @@ public final class SAONeeds {
             case "gate-manual":
                 return item instanceof zombie.inventory.types.Literature guide&&guide.getLearnedRecipes()!=null
                     &&(guide.getLearnedRecipes().contains("DoubleFenceGate")||guide.getLearnedRecipes().contains("DoubleWireGate"))&&!item.getIsCraftingConsumed();
+            case "shelter-manual":
+                return item instanceof zombie.inventory.types.Literature shelterGuide&&shelterGuide.getLearnedRecipes()!=null
+                    &&java.util.List.of("MetalWallFrame","MetalWallLvl1","MetalWallLvl2","MetalDoorFrameLvl1","MetalDoorFrameLvl2").stream().anyMatch(shelterGuide.getLearnedRecipes()::contains)
+                    &&!item.getIsCraftingConsumed();
             case "hinge":
                 return "Base.Hinge".equals(item.getFullType()) && !item.getIsCraftingConsumed();
             case "doorknob":

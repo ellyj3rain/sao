@@ -64,6 +64,7 @@ function instanceof(object,kind)
 end
 local entities={'Base.WoodenWallFrame','Base.WoodenWallLvl1','Base.WoodenWallLvl2','Base.WoodenWallLvl3',
  'Base.WoodDoorFrameLvl1','Base.WoodDoorFrameLvl2','Base.WoodDoorFrameLvl3','Base.WoodenDoorLvl1','Base.WoodenDoorLvl2','Base.WoodenDoorLvl3'}
+if __metalCases then for _,id in ipairs({'Base.MetalWallFrame','Base.MetalWallLvl1','Base.MetalWallLvl2','Base.MetalDoorFrameLvl1','Base.MetalDoorFrameLvl2','Base.MetalDoorLvl1','Base.MetalDoorLvl2'}) do entities[#entities+1]=id end end
 if __surfaceCases then for _,id in ipairs({'Base.WoodFloorLvl1','Base.WoodFloorLvl2','Base.WoodFloorLvl3'}) do entities[#entities+1]=id end end
 if __stairCases then entities[#entities+1]='Base.Wood_Stairs' end
 local policies={}
@@ -71,15 +72,17 @@ local nativeBridge=__nativeShelter
 function __nativeShelter(op,a,b) if op=='spriteProp' then print('native property '..tostring(a)..' '..tostring(b)) end;return nativeBridge(op,a,b) end
 for _,id in ipairs(entities) do
     local inputs={}
-    for j=0,(id:find("WoodenDoorLvl",1,true) and 4 or 2) do
+    for j=0,((id:find("WoodenDoorLvl",1,true) or id:find("MetalDoorLvl",1,true)) and 4 or 2) do
         local index=j
         inputs[#inputs+1]={index=index,entityId=id,getResourceType=function() return ResourceType.Item end,
             getIntAmount=function() return __nativeShelter('policyCount',id,index) end,
-            isKeep=function() return __nativeShelter('policyKeep',id,index) end}
+            isKeep=function() return __nativeShelter('policyKeep',id,index) end,
+            isRecordInput=function() return __nativeShelter('recordInput',id,index) end}
     end
     local recipe={entityId=id}
     function recipe:getInputs() return list(inputs) end
     function recipe:getScriptObjectFullType() return __nativeShelter('entityRecipeId',id) end
+    function recipe:needToBeLearn() return __nativeShelter('policyNeedsLearn',id) end
     function recipe:getRequiredSkillCount() return __nativeShelter('policySkillCount',id) end
     function recipe:getRequiredSkill(j) return {entityId=id,index=j} end
     function recipe:getTime() return __nativeShelter('policyTime',id) end
@@ -87,13 +90,13 @@ for _,id in ipairs(entities) do
     function recipe:getHighestRelevantSkill() return Perks.Woodwork end
     function recipe:getHighestRelevantSkillLevel() return 8 end
     function recipe:getToolLeft() return nil end
-    function recipe:getToolRight() return {canUseItem=function(_,name) return name=='Base.Hammer' end} end
+    function recipe:getToolRight() return not id:find('Base.Metal',1,true) and {canUseItem=function(_,name) return name=='Base.Hammer' end} or nil end
     function recipe:getTimedActionScript() return nil end
     local parent={getScriptObjectFullType=function() return id end}
     function parent:getComponentScriptFor(kind)
         return nil
     end
-    local cfg={getParent=function() return parent end,getPreviousStages=function() return list(id:find("WoodenWallLvl",1,true) and {"WoodenWallFrame","MetalWallFrame"} or {}) end,
+    local cfg={getParent=function() return parent end,getPreviousStages=function() return __metalCases and list(__nativeShelter('previousList',id)) or list(id:find("WoodenWallLvl",1,true) and {"WoodenWallFrame","MetalWallFrame"} or {}) end,
         getName=function() return id:sub(6) end,getBonusHealth=function() return __nativeShelter('spriteProp',id,'getBonusHealth') end}
     function cfg:getFace() return {getLightsourceOffsetX=function() return 0 end,getLightsourceOffsetY=function() return 0 end,getLightsourceOffsetZ=function() return 0 end} end
     function cfg:getLightsourceTagItem() return list() end
@@ -118,7 +121,7 @@ CraftRecipeManager={
     hasPlayerLearnedRecipe=function(recipe,body) return body.recipeUnknown~=true and __nativeShelter('policyLearned',recipe.entityId) end,
     hasPlayerRequiredSkill=function(skill) return __nativeShelter('policySkill',skill.entityId,skill.index) end,
     getValidInputScriptForItem=function(recipe,item)
-        for j=0,(recipe.entityId:find("WoodenDoorLvl",1,true) and 4 or 2) do if item:getID()>=100 and item:getID()<132 and __nativeShelter('inputMatches',recipe.entityId..'|'..j,item:getID()) then return policies[recipe.entityId].inputs[j+1] end end
+        for j=0,((recipe.entityId:find("WoodenDoorLvl",1,true) or recipe.entityId:find("MetalDoorLvl",1,true)) and 4 or 2) do if item:getID()>=100 and item:getID()<132 and __nativeShelter('inputMatches',recipe.entityId..'|'..j,item:getID()) then return policies[recipe.entityId].inputs[j+1] end end
     end}
 local active
 local function nativeManual(data,input,out)
@@ -226,7 +229,7 @@ local function roofSquare(f,x,y)
     function s:getZ() return self.z end
     function s:getObjects() return list(self.objects) end
     function s:getSpecialObjects() return list(self.objects) end
-    function s:transmitRemoveItemFromSquare(object) for i,v in ipairs(self.objects) do if v==object then table.remove(self.objects,i);return i-1 end end;return -1 end
+    function s:transmitRemoveItemFromSquare(object) for i,v in ipairs(self.objects) do if v==object then local index=i-1;if __metalCases then index=__nativeShelter('removePrior',object.entityId);assert(index>=0,'native exact prior removal') end;table.remove(self.objects,i);return index end end;return -1 end
     function s:getProperties() return properties end
     function s:getN() return f.cell:getGridSquare(self.x,self.y-1,self.z) end
     function s:getW() return f.cell:getGridSquare(self.x-1,self.y,self.z) end
@@ -240,11 +243,11 @@ local function roofSquare(f,x,y)
     function s:isFreeOrMidair() return self:isFree() end
     function s:hasFloor() return true end
     function s:isOutside() return true end
-    function s:AddSpecialObject(object)
-        self.objects[#self.objects+1]=object;f.created=object;f.placements=(f.placements or 0)+1
+    function s:AddSpecialObject(object,index)
+        if __metalCases then assert(__nativeShelter('addCreated',index or -1));if index and index>=0 then table.insert(self.objects,math.min(index+1,#self.objects+1),object) else self.objects[#self.objects+1]=object end else self.objects[#self.objects+1]=object end;f.created=object;f.placements=(f.placements or 0)+1
         if f.entityId=='Base.WoodenWallFrame' then f.mode='wall';f.previous=object
-        elseif f.entityId:find('WoodDoorFrame',1,true) then f.mode='door-leaf';f.previous=object
-        elseif f.entityId:find('WoodenDoorLvl',1,true) then f.mode='door';f.previous=object
+        elseif f.entityId:find('WoodDoorFrame',1,true) or f.entityId:find('MetalDoorFrame',1,true) then f.mode='door-leaf';f.previous=object
+        elseif f.entityId:find('WoodenDoorLvl',1,true) or f.entityId:find('MetalDoorLvl',1,true) then f.mode='door';f.previous=object
         elseif f.entityId:find('WoodFloorLvl',1,true) then f.mode='floor';f.previous=nil
         else f.mode='wall';f.previous=object end
         f.siteRevision=f.siteRevision..'-new'
@@ -359,6 +362,7 @@ end
 local function check(name,value) print(name..'='..tostring(value==true)) end
 __shelterFixture,__shelterPlan,__shelterBegin,__shelterFinish,__shelterCheck=fixture,plan,begin,finish,check
 __shelterSquare=roofSquare
+__shelterPolicies=policies
 
 function __runShelterFocusedCases()
     local R,P,C,M=SAO.ResourceProduction,SAO.ProceduralPlanning,SAO.Cognition,SAO.CognitiveModels

@@ -56,8 +56,8 @@ public final class SAOShelterConstruction {
         if(object instanceof IsoDoor)return "door";
         if(object instanceof IsoThumpable t&&t.isDoor()&&!t.isDestroyed())return "door";
         String id=entity(object);
-        if(id.equals("Base.WoodenWallFrame")||id.equals("Base.MetalWallFrame"))return "wall";
-        if(id.startsWith("Base.WoodDoorFrame")||object!=null&&object.getType()==(north?IsoObjectType.doorFrN:IsoObjectType.doorFrW))return "door-leaf";
+        if(id.equals("Base.WoodenWallFrame")||id.equals("Base.MetalWallFrame")||id.equals("Base.MetalWallLvl1"))return "wall";
+        if(id.startsWith("Base.WoodDoorFrame")||id.startsWith("Base.MetalDoorFrame")||object!=null&&object.getType()==(north?IsoObjectType.doorFrN:IsoObjectType.doorFrW))return "door-leaf";
         var p=sq.getProperties();
         if(p!=null&&(p.has(north?IsoFlagType.WallN:IsoFlagType.WallW)
             ||p.has(north?IsoFlagType.WallNTrans:IsoFlagType.WallWTrans)
@@ -119,8 +119,9 @@ public final class SAOShelterConstruction {
             String occupiedMode=ownsVisibleEdge?mode(sq,north,occupied):"";
             if(occupiedMode.equals("door")||occupiedMode.equals("door-leaf"))hasDoor=true;
             boolean visibleDoor=ownsVisibleEdge&&usableDoor(occupied);
+            boolean visibleUpgrade=ownsVisibleEdge&&entity(occupied).equals("Base.MetalWallLvl1");
             // Observed doors can be opened before seeing through them; construction needs the far square.
-            if(!neighborVisible&&!visibleDoor)continue;
+            if(!neighborVisible&&!visibleDoor&&!visibleUpgrade)continue;
             if(roof.contains(neighbor))continue;
             // A same-roof tile excluded by an interior wall is not a new exterior breach.
             if(neighborVisible&&neighbor.haveRoof)continue;
@@ -145,6 +146,7 @@ public final class SAOShelterConstruction {
             }
             var row=table();row.rawset("key",site.key);row.rawset("revision",site.revision);row.rawset("face",north?"N":"W");
             row.rawset("mode",mode);row.rawset("previousEntity",entity(object));
+            if(entity(object).equals("Base.MetalWallLvl1"))row.rawset("upgradeOpportunity",true);
             put(row,"x",site.x);put(row,"y",site.y);put(row,"z",site.z);put(row,"approachX",site.ax);put(row,"approachY",site.ay);
             put(row,"approachZ",site.z);put(row,"insideX",site.ix);put(row,"insideY",site.iy);put(row,"originX",ox);put(row,"originY",oy);
             row.rawset("roof",true);out.rawset((double)++count,row);

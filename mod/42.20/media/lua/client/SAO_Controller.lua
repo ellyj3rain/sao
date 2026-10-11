@@ -2396,7 +2396,7 @@ end
 
 -- Native inventory and exact private source offers supply the resource plan.
 -- Physical rows stay in their owners; this context carries bounded scalars.
-function Ctl.resourceContext(id, agent, body, needs, category, pressure, hydrationIntent, expectedItemType)
+function Ctl.resourceContext(id, agent, body, needs, category, pressure, hydrationIntent, expectedItemType, recipeName)
     local context = { category = category, pressure = pressure, needs = needs,
         tick = tickCount, position = { x = body:getX(), y = body:getY(), z = body:getZ() },
         atHours = SAO.History.countyHours(), carriedReady = 0, carriedRaw = 0,
@@ -2471,7 +2471,10 @@ function Ctl.resourceContext(id, agent, body, needs, category, pressure, hydrati
             local place = { id = placeId, sourceId = belief.sourceId, cx = belief.cx, cy = belief.cy,
                 z = belief.z, minX = belief.minX, minY = belief.minY, maxX = belief.maxX, maxY = belief.maxY }
             local material = hydrationIntent == true and category == "water" and "drink" or category
-            local offers = SAO.WorldSources.actionOptions(place, material, id, body, 1, "standing", "acquire", expectedItemType)
+            local filter=recipeName and function(fullType)
+                return SAO.Study and SAO.Study.usefulRecipeType(body,fullType,recipeName)==true
+            end or nil
+            local offers = SAO.WorldSources.actionOptions(place, material, id, body, 1, "standing", "acquire", expectedItemType,filter)
             for _, option in ipairs(offers and offers.options or {}) do
                 if #context.sources >= 128 then break end
                 local p = option.parameters
@@ -5021,7 +5024,7 @@ end
 function Ctl.shelterConstructionContext(id,agent,body,needs,kind)
     local p=SAO.ProceduralPlanning.shelterPurpose(id);local own=p and p.shelterConstruction
     local context={recoveryKind=own and own.recoveryKind or kind,fatigue=tonumber(needs and needs.fatigue),
-        atHours=SAO.History.countyHours(),options={},sites={},materialSources={},position={x=body:getX(),y=body:getY(),z=body:getZ()}}
+        atHours=SAO.History.countyHours(),options={},sites={},materialSources={},recipeBooks={},position={x=body:getX(),y=body:getY(),z=body:getZ()}}
     if not SAO.Perception.observeShelterSites or not SAO.ResourceProduction.shelterOptions then return context end
     if SAO.Perception.observeShelterSurfaces then SAO.Perception.observeShelterSurfaces(id,body) end
     context.coverNeeds=SAO.Perception.shelterCoverNeeds and SAO.Perception.shelterCoverNeeds(id) or {}
@@ -5032,8 +5035,23 @@ function Ctl.shelterConstructionContext(id,agent,body,needs,kind)
     context.sites=SAO.Perception.shelterSites(id,body)
     context.options=SAO.ResourceProduction.shelterOptions(id,body,own)
     local checked={}
+    local carried=SAOJavaBridge:privateCarriedItems(body)
     for _,option in ipairs(context.options) do
         local ready,missing=SAO.ProceduralPlanning.collectorReady(option);local required=not ready and missing and missing[1]
+        if option.recipeKnown==false then
+            for index=0,carried:size()-1 do local item=carried:get(index)
+                if SAO.Study and SAO.Study.usefulRecipeType(body,item:getFullType(),option.recipeName) then context.recipeBooks[option.recipeName]={itemId=item:getID(),itemType=item:getFullType()};break end
+            end
+            if not context.recipeBooks[option.recipeName] then
+                for _,source in ipairs(Ctl.resourceContext(id,agent,body,needs,"shelter-manual",.5,nil,nil,option.recipeName).sources or {}) do
+                    if SAO.Study and SAO.Study.usefulRecipeType(body,source.itemType,option.recipeName) then
+                        local copy={} for key,value in pairs(source) do copy[key]=value end;copy.recipeName=option.recipeName
+                        if #context.materialSources<128 then context.materialSources[#context.materialSources+1]=copy end
+                    end
+                end
+            end
+            required=nil
+        end
         if required and not checked[required.category] then
             checked[required.category]=true
             for _,source in ipairs(Ctl.resourceContext(id,agent,body,needs,required.category,.5).sources or {}) do
@@ -5054,6 +5072,13 @@ function Ctl.tryShelterConstruction(id,agent,body,tick,needs,kind)
     if not p or not step or step.status~="available" then return false end
     if step.owner=="SAO.Controller" then return Ctl.beginShelterMovement(id,agent,body,tick,p,step) end
     if step.verb=="acquire" then return Ctl.beginConstructionAcquisition(id,agent,body,tick,p,step) end
+    if step.owner=="SAO.Study" and step.operation=="learn-recipe" then
+        local items=SAOJavaBridge:privateCarriedItems(body)
+        for index=0,items:size()-1 do local item=items:get(index)
+            if tostring(item:getID())==step.inputItemId and item:getFullType()==step.inputItemType then return SAO.Study.beginRecipe(id,body,item,p.id,step.id,step.recipeName) end
+        end
+        return false
+    end
     if step.owner~="SAO.ResourceProduction" or step.productionKind~="build-shelter-edge" and step.productionKind~="build-shelter-surface" and step.productionKind~="build-shelter-stairs" and step.productionKind~="use-shelter" then return false end
     if not setState(agent,id,"RESOURCE",step.productionKind=="use-shelter" and "uses the repaired shelter doorway" or "repairs shelter for retained recovery","need") then return false end
     if SAO.ResourceProduction.begin(id,body,step,{purposeId=p.id,purposeStepId=step.id}) or agent.rec.resourceProductionWork then
@@ -5069,6 +5094,14 @@ function Ctl.offerRecovery(id, agent, body, tick, needs, selectedKind)
         or agent.state ~= "IDLE" and agent.state ~= "ROAM" and agent.state ~= "FOLLOW"
         or agent.forageInspection or agent.rec.worldSourceReservation
         or not SAO.Needs.ownsRecoveryBody(id, body) then return false end
+    local readingPurpose,readingStep
+    if SAO.ProceduralPlanning.recipeReadingPurpose then readingPurpose,readingStep=SAO.ProceduralPlanning.recipeReadingPurpose(id) end
+    if readingPurpose and readingPurpose.shelterConstruction and readingPurpose.admission and readingStep and readingStep.owner=="SAO.Study"
+        and (needs.fatigue or 0)<.85 and math.max(needs.hunger or 0,needs.thirst or 0)<.85 then
+        if SAO.Study and SAO.Study.active(id,body) then return false end
+        if SAO.Study and SAO.Study.reconcileRecipe then SAO.Study.reconcileRecipe(id,body) end
+        if SAO.Study and SAO.Study.active(id,body) then return false end
+    end
     if SAO.ProceduralPlanning.reconcileBedRecovery and not SAO.ProceduralPlanning.reconcileBedRecovery(id,body) then return false end
     if SAO.ProceduralPlanning.reconcileShelterRecovery and not SAO.ProceduralPlanning.reconcileShelterRecovery(id,body) then return false end
     if SAO.ProceduralPlanning.reconcileShelterMovement and not SAO.ProceduralPlanning.reconcileShelterMovement(id,body) then return false end

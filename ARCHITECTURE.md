@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.6.12.0-pre-alpha` |
+| Version | `2.6.13.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2468,3 +2468,7 @@ Private observed ground footprints and current full-footprint Standing admit the
 ## Native freestanding double gates (D3.12)
 
 Personally acquired boundary ends and complete closed/operating/passage-space facts admit freestanding gate work through the existing held-ground fortification concern. Current whole-footprint Standing owns admission and native effects. Exact recipe-derived materials, consumable uses and native learned knowledge continue the retained purpose through construction and access. The shared guarded reader owns learned-recipe prerequisites. Native opening reconstructs moving leaves and copies modData; durable measured group/member identities reacquire the exact current group without assuming old object handles or entity components. Native group opening, genuine same-body passage and native closure have independent authenticated outcomes and saved/queue retirement.
+
+## Native metal walls, frames and doors (D3.13)
+
+The existing person-owned shelter concern selects native metal stages from privately acquired site facts, capabilities and exact means. Native-compatible cross-material frames retain their own placement authority. Shared guarded reading and SourceUse supply exact learned prerequisites and resource objects; native recipe allocation owns consumable payment, construction and stage replacement. Opening, same-body passage and closure precede fresh reached shelter observations and ordinary bodily recovery. Independent authenticated outcomes, native queue retirement and plain saved state preserve the original concern.

@@ -16,10 +16,14 @@ local readingDefinitions = {
         outcomes="recipeReadingOutcomes", admit="admitRecipeReading", consume="consumeRecipeReading",
         retire="_SAORecipeReadingRetireSaved" },
 }
+local recipeReadings={DoubleFenceGate=true,DoubleWireGate=true,MetalWallFrame=true,MetalWallLvl1=true,MetalWallLvl2=true,MetalDoorFrameLvl1=true,MetalDoorFrameLvl2=true}
 local function readingDefinition(kind, recipeName)
     local definition = readingDefinitions[kind]
-    if kind == "recipe-reading" and recipeName ~= "DoubleFenceGate" and recipeName ~= "DoubleWireGate" then return nil end
+    if kind == "recipe-reading" and not recipeReadings[recipeName] then return nil end
     return definition
+end
+local function readingPurpose(definition,purpose)
+    return purpose and (purpose[definition.purposeField] or definition==readingDefinitions["recipe-reading"] and purpose.shelterConstruction)
 end
 local function learnedRecipe(work)
     local definition = readingDefinition(work.kind, work.recipeName)
@@ -674,7 +678,7 @@ local function begin(id, body, item, kind, context)
         local state=person.proceduralPlanning
         purpose=state and state.purposes[context.purposeId]
         step=purpose and purpose.steps[purpose.cursor]
-        if not purpose or not purpose[definition.purposeField] or purpose.admission or not step or step.owner~="SAO.Study"
+        if not purpose or not readingPurpose(definition,purpose) or purpose.admission or not step or step.owner~="SAO.Study"
             or step.id~=context.purposeStepId or step.operation~=definition.operation or step.token~=definition.token
             or tostring(step.inputItemId)~=tostring(item:getID()) or step.inputItemType~=item:getFullType() then return false end
         if not generator and (step.recipeName~=context.recipeName or step.target~=context.recipeName
@@ -776,7 +780,7 @@ function generatorReading.purpose(person,w)
     local definition = readingDefinition(w.kind, w.recipeName)
     local state=person and person.proceduralPlanning;local p=state and state.purposes[w.purposeId]
     local s=p and p.steps[p.cursor];local a=p and p.admission
-    return definition and p and p[definition.purposeField] and s and a and s.owner=="SAO.Study" and s.operation==definition.operation
+    return definition and readingPurpose(definition,p) and s and a and s.owner=="SAO.Study" and s.operation==definition.operation
         and s.id==w.purposeStepId and s.token==w.token and s.inputItemId==w.itemId and s.inputItemType==w.itemType
         and a.owner==s.owner and a.stepId==s.id and a.correlationId==w.id and a.target==s.target
         and (w.kind=="generator-reading" or s.recipeName==w.recipeName and s.target==w.recipeName)

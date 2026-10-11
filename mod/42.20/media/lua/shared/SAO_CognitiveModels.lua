@@ -62,7 +62,8 @@ end
 local SHELTER_ENTITIES={["Base.WoodenWallFrame"]=true,["Base.WoodenWallLvl1"]=true,["Base.WoodenWallLvl2"]=true,["Base.WoodenWallLvl3"]=true,
     ["Base.WoodDoorFrameLvl1"]=true,["Base.WoodDoorFrameLvl2"]=true,["Base.WoodDoorFrameLvl3"]=true,
     ["Base.WoodenDoorLvl1"]=true,["Base.WoodenDoorLvl2"]=true,["Base.WoodenDoorLvl3"]=true,
-    ["Base.WoodFloorLvl1"]=true,["Base.WoodFloorLvl2"]=true,["Base.WoodFloorLvl3"]=true,["Base.Wood_Stairs"]=true,["Base.DoubleDoor"]=true,["Base.DoubleFenceGate"]=true,["Base.DoubleWireGate"]=true}
+    ["Base.WoodFloorLvl1"]=true,["Base.WoodFloorLvl2"]=true,["Base.WoodFloorLvl3"]=true,["Base.Wood_Stairs"]=true,["Base.DoubleDoor"]=true,["Base.DoubleFenceGate"]=true,["Base.DoubleWireGate"]=true,
+                ["Base.MetalWallFrame"]=true,["Base.MetalWallLvl1"]=true,["Base.MetalWallLvl2"]=true,["Base.MetalDoorFrameLvl1"]=true,["Base.MetalDoorFrameLvl2"]=true,["Base.MetalDoorLvl1"]=true,["Base.MetalDoorLvl2"]=true}
 local COLLECTOR_ENTITIES = { ["Base.RainCollector"]=true, ["Base.RainCollectorRound"]=true,
     ["Base.RainCollector_Tarp"]=true, ["Base.RainCollectorRound_Tarp"]=true }
 local EXTENDED = { ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true,["collector-construction"]=true,
@@ -462,7 +463,8 @@ local function validEvent(e)
             local entities={["Base.WoodenWallFrame"]=true,["Base.WoodenWallLvl1"]=true,["Base.WoodenWallLvl2"]=true,["Base.WoodenWallLvl3"]=true,
                 ["Base.WoodDoorFrameLvl1"]=true,["Base.WoodDoorFrameLvl2"]=true,["Base.WoodDoorFrameLvl3"]=true,
                 ["Base.WoodenDoorLvl1"]=true,["Base.WoodenDoorLvl2"]=true,["Base.WoodenDoorLvl3"]=true,
-                ["Base.WoodFloorLvl1"]=true,["Base.WoodFloorLvl2"]=true,["Base.WoodFloorLvl3"]=true,["Base.Wood_Stairs"]=true,["Base.DoubleDoor"]=true,["Base.DoubleFenceGate"]=true,["Base.DoubleWireGate"]=true}
+                ["Base.WoodFloorLvl1"]=true,["Base.WoodFloorLvl2"]=true,["Base.WoodFloorLvl3"]=true,["Base.Wood_Stairs"]=true,["Base.DoubleDoor"]=true,["Base.DoubleFenceGate"]=true,["Base.DoubleWireGate"]=true,
+                ["Base.MetalWallFrame"]=true,["Base.MetalWallLvl1"]=true,["Base.MetalWallLvl2"]=true,["Base.MetalDoorFrameLvl1"]=true,["Base.MetalDoorFrameLvl2"]=true,["Base.MetalDoorLvl1"]=true,["Base.MetalDoorLvl2"]=true}
             if e.category~="construction" or e.status~="completed" or not entities[e.entityId]
                 or not text(e.recipeId,160) or not text(e.siteKey,160) or e.sourceId~=e.siteKey
                 or not (e.siteKey:match("^shelter%-edge:%-?%d+:%-?%d+:%-?%d+:%-?%d+:%-?%d+:[NW]$")

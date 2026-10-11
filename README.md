@@ -184,7 +184,7 @@ currency with `python tools/development_graph.py --check`.
 
 ## Status
 
-`2.6.12.0-pre-alpha` - the coordinate is computed by the version machine
+`2.6.13.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -705,3 +705,6 @@ The [feature-scope reconciliation](Batches/Transitions/VERSION-20261010-feature-
 
 
 [D3.12](Batches/D3.12-20261011-0526Z-2226PDT-native-double-gates.md) is CLOSED: complete native wooden, metal-pole and wire double gates in both orientations join personally intended freestanding boundary/access work, private permitted footprints, exact materials and native recipe knowledge to four-part construction, actual opening, same-body passage and final closure. Native leaf reconstruction preserves group/member custody; construction, opening, passage and closure retain separate saved outcomes. Full D3 remains OPEN.
+
+
+[D3.13](Batches/D3.13-20261011-0845Z-0145PDT-metal-walls-doors-usable-shelter.md) is CLOSED: native metal wall frame, both wall grades, both door-frame grades and both door grades in both orientations continue private permitted shelter work through exact acquired means, native construction, doorway opening/passage/closure and ordinary reached shelter/recovery. Full D3 remains OPEN.
