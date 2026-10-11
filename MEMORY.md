@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `2.6.10.0-pre-alpha` |
+| Version | `2.6.11.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -119,3 +119,7 @@ The CLOSED [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md)
 ## D3.10 native floor and cover source
 
 [D3.10](Batches/D3.10-20261011-0126Z-1826PDT-roofs-floors-usable-shelter.md) is the CLOSED native wooden surface construction-to-usable-shelter child. It retains work/use-level separation, genuine access, exact materials and physical cover, ordinary recovery and save custody. Parent D3 remains OPEN; the increment receives one kohai.
+
+## D3.11 native stair source
+
+[D3.11](Batches/D3.11-20261011-0439Z-2139PDT-native-stairs-usable-shelter.md) is the CLOSED native wooden-stair construction-to-usable-shelter child. Both complete orientations, exact materials, private permitted footprint, native creation/landing, genuine access, cover, return, ordinary recovery and durable independent feedback are joined. Full D3 remains OPEN; one kohai records this building progress.

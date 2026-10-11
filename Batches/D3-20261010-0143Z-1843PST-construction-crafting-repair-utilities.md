@@ -9,10 +9,10 @@
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C12, C18, C20, C21, C24, C30, C31, C32, C33 |
-| Implementation | CLOSED D3.1-D3.10 deliver native crafting, maintenance, usable water/power, firearm reuse, usable beds, walls/doors and floors/roof cover through ordinary shelter use. The remaining full domain keeps this parent OPEN. |
+| Implementation | CLOSED D3.1-D3.11 deliver native crafting, maintenance, usable water/power, firearm reuse, usable beds, walls/doors, floors/roof cover and new stairs through ordinary shelter use. The remaining full domain keeps this parent OPEN. |
 | Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.6.10.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
-| Publication | D3.1-D3.9 self-merged through PR142-PR150; D3.10 follows the same protected workflow with actual merge retained in its completion receipt. |
+| Version | 2.6.11.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
+| Publication | D3.1-D3.10 self-merged through PR142-PR151; D3.11 follows the same protected workflow with actual merge retained in its completion receipt. |
 
 ## Product and current implementation
 
@@ -219,3 +219,11 @@ The operator corrects the earlier minor classification of D3.1, D3.2, D3.4, D3.5
 ## D3.10 coherent closure - 2026-10-11 02:18 UTC / 19:18 PDT
 
 [D3.10](D3.10-20261011-0126Z-1826PDT-roofs-floors-usable-shelter.md) is CLOSED: the native wooden floor family supplies flooring and cover through genuine existing work-level access, exact construction and return to the original ordinary shelter consumer. It receives one kohai. Full D3 remains OPEN; new stair construction, other material families, freestanding gates, remaining recipe/pane integration and native server execution retain their obligations.
+
+## D3.11 native stairs continuation - 2026-10-11 04:39 UTC / 21:39 PDT
+
+[D3.11](D3.11-20261011-0439Z-2139PDT-native-stairs-usable-shelter.md) is OPEN for both complete installed wooden-stair orientations, privately observed permitted placement, exact materials and native creation through actual upper access, floor/cover work, return and ordinary usable shelter. Its reason, parent link, owner, affected contracts, dependencies and required closure evidence are recorded before implementation. D3.10 reached origin/main through self-merged PR151 at c63ce31199c6134c608633ff81603ea7332dbe3f. This child receives one kohai when its useful integrated outcome closes. Full D3 retains its complete accepted scope and remains OPEN.
+
+## D3.11 coherent closure - 2026-10-11 05:09 UTC / 22:09 PDT
+
+[D3.11](D3.11-20261011-0439Z-2139PDT-native-stairs-usable-shelter.md) is CLOSED: both complete native wooden-stair orientations join private permitted footprints, exact materials and measured native creation to genuine upper access, floor/cover, return and ordinary shelter/recovery. Current permission and durable independent feedback retain their own proof. One kohai records this building progress. Full D3 remains OPEN for other material families and structures, freestanding gates, remaining recipes/pane integration and native server execution.

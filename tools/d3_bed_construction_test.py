@@ -79,9 +79,10 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out',type=Path);parser.add_argument('--required',action='store_true')
     parser.add_argument('--native-preflight',action='store_true')
+    parser.add_argument('--no-controls',action='store_true',help='Run current affected positives; retain applicable detecting controls separately.')
     args=parser.parse_args()
     java_sources=[ROOT/'java/src/com/sao/engine/SAOBedConstruction.java',ROOT/'java/src/com/sao/engine/SAONeeds.java',
-        ROOT/'java/src/com/sao/engine/SAOWorldSources.java',ROOT/'java/src/com/sao/bridge/SAOBridge.java']
+        ROOT/'java/src/com/sao/engine/SAOWorldSources.java',ROOT/'java/src/com/sao/bridge/SAOBridge.java',ROOT/'java/src/com/sao/engine/SAOShelterStairs.java']
     movement=ROOT/'tools/luacheck/MovementCrossingProbe.java'
     owned=[Path(__file__),PROBE,CASES,CTL_CASES,CONTROLLER,BASE,BOARD,PLUMB,*LEAVES.values(),ROOT/'tools/luacheck/LuaSyntax.java',*java_sources,movement]
     missing=[str(p) for p in owned if not p.is_file()]
@@ -142,7 +143,7 @@ def main():
             'native_bed_S_allparts_exactpayment'),
         ('constructor-owner-effect','production.lua','if not c or not c.performing or not plumbCurrent(c) or not collector.bound(rt,true)',
             'if not c or false or not plumbCurrent(c) or not collector.bound(rt,true)','direct_native_bed_create_cannot_pay')]
-    for name,file,old,new,detector in mutations:
+    for name,file,old,new,detector in ([] if args.no_controls else mutations):
         variant=dict(chunks);count=variant[file].count(old)
         if count!=1:controls.append({'name':name,'detected':False,'mutationMatches':count});continue
         variant[file]=variant[file].replace(old,new,1)
@@ -152,9 +153,9 @@ def main():
         controls.append({'name':name,'target':detector,'detected':result['exitCode']==0 and result['checks'].get(detector)=='false',**result})
     java_controls=[]
     bed_source=java_sources[0].read_text(encoding='utf-8-sig')
-    for name,old,new,detector in [
+    for name,old,new,detector in ([] if args.no_controls else [
         ('native-head-end','return !(x==0&&y==0&&','return !(false&&','head_end_only_cannot_offer_bed_S'),
-        ('retained-approach-clearance','&& exactApproach(body,base,face,site.ax,site.ay)','&& true','retained_approach_occupant_refuses_S')]:
+        ('retained-approach-clearance','&& exactApproach(body,base,face,site.ax,site.ay)','&& true','retained_approach_occupant_refuses_S')]):
         directory=out/name;directory.mkdir()
         if bed_source.count(old)!=1:java_controls.append({'name':name,'detected':False,'mutationMatches':bed_source.count(old)});continue
         changed=directory/'SAOBedConstruction.java';changed.write_text(bed_source.replace(old,new,1),encoding='utf-8')
@@ -172,7 +173,7 @@ def main():
             'exitCode':verdict.returncode,'checks':values,'logSha256':digest(log)})
     after={str(p):digest(p) for p in inputs}
     passed=geometry.returncode==0 and geometry_checks and all(v=='true' for v in geometry_checks.values()) and bootstrap_ok and syntax.returncode==0 and normal['exitCode']==0 and not normal['failed'] and not normal['missing'] and before==after and all(c['detected'] for c in controls+java_controls)
-    receipt={'status':'PASS' if passed else 'FAIL','inputsBefore':before,'inputsAfter':after,'sourcePreserved':before==after,'normal':normal,'controls':controls,'javaControls':java_controls,
+    receipt={'status':'PASS' if passed else 'FAIL','inputsBefore':before,'inputsAfter':after,'sourcePreserved':before==after,'controlsRequested':not args.no_controls,'normal':normal,'controls':controls,'javaControls':java_controls,
         'geometry':{'exitCode':geometry.returncode,'checks':geometry_checks,'logSha256':digest(out/'geometry.log')},'compileExit':compiled.returncode,'syntaxExit':syntax.returncode,'bootstrapExit':bootstrap.returncode,
         'boundary':'Actual installed entity recipe/parser/manual BuildLogic payment/factory and native sprite-grid metadata; installed Lua build/transfer/equip/queue and actual SAO private planning/cognition. Actor/map/dispatch/source/recovery query receivers controlled; existing native recovery evidence remains separate.'}
     (out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')

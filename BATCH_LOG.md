@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.6.10.0-pre-alpha` |
+| Version | `2.6.11.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -593,3 +593,9 @@ The [historical transition](Batches/Transitions/VERSION-20261010-feature-scope-c
 | Batch | Date | Name | Threads |
 |---|---|---|---|
 | [D3.10](Batches/D3.10-20261011-0126Z-1826PDT-roofs-floors-usable-shelter.md) | 2026-10-11 | Roofs and floors through usable shelter | D3 surface construction, access, cover and ordinary use |
+
+## Native stairs through usable shelter - 2026-10-11 05:09 UTC / 22:09 PDT
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D3.11](Batches/D3.11-20261011-0439Z-2139PDT-native-stairs-usable-shelter.md) | 2026-10-11 | Native stairs through usable shelter | D3 native stair construction, upper access, cover and ordinary shelter use |

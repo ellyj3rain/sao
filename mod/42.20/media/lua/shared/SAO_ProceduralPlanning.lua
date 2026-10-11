@@ -943,7 +943,7 @@ end
 local COLLECTOR_MATERIALS = { hinge=true,doorknob=true,mattress=true, hammer = true, plank = true, nails = true, ["garbage-bag"] = true, tarp = true }
 local function collectorDeficits(option)
     if type(option.requirements) ~= "table" or #option.requirements < 1 or #option.requirements > 8
-        or type(option.inputs) ~= "table" or #option.inputs > 16 then return nil end
+        or type(option.inputs) ~= "table" or #option.inputs > 32 then return nil end
     local slots, counts, identities = {}, {}, {}
     for _, required in ipairs(option.requirements) do
         if type(required) ~= "table" or not finite(required.inputIndex) or required.inputIndex < 0
@@ -1958,17 +1958,50 @@ function P.finishShelterMovement(id,body,purposeId,routeId,job)
         or job.goal.x~=step.x or job.goal.y~=step.y or job.goal.z~=step.z then return false end
     local arrived=job.result=="arrived" and math.floor(body:getZ())==step.z
         and (body:getX()-step.x)^2+(body:getY()-step.y)^2<=.35^2
+    P.reconcileShelterFeedback(id)
     p.lastAdmission=dataCopy(ad);p.admission=nil;p.status="maintained";step.status=arrived and "completed" or "available"
     local own=p.shelterConstruction;own.accessAttempts=own.accessAttempts or {}
     own.accessAttempts[step.target]={at=nowHours(),arrived=arrived,retryAt=arrived and nowHours() or nowHours()+.25}
     if arrived then
         SAO.Perception.observeShelterSurfaces(id,body)
-        if step.verb=="return" then SAO.Perception.observeShelterSites(id,body,own.origin) end
+        SAO.Perception.observeShelterSites(id,body,own.origin)
         p.blockers={"awaiting-current-surface-and-cover-observation"}
     else p.blockers={"native-shelter-access-unavailable"} end
+    if arrived then
+        local sequence=(s.shelterMovementSequence or 0)+1;s.shelterMovementSequence=sequence
+        local row={id="shelter-movement/"..id.."/"..sequence,actorId=id,sequence=sequence,purposeId=p.id,
+            routeId=routeId,sourceId=step.target,actionKind=step.verb,succeeded=true,atHours=nowHours()}
+        s.shelterMovementResults=s.shelterMovementResults or {};s.shelterMovementResults[#s.shelterMovementResults+1]=row
+        P.reconcileShelterFeedback(id)
+    end
     addEvent(p,"shelter-movement-ended",job.result,nowHours());return true
 end
+function P.shelterMovementOutcome(id,sequence)
+    local s=state(id)
+    for _,row in ipairs(s and s.shelterMovementResults or {}) do
+        if row.sequence==sequence and row.actorId==id and row.id=="shelter-movement/"..id.."/"..sequence
+            and row.succeeded==true and (row.actionKind=="inspect" or row.actionKind=="return")
+            and finite(row.atHours) and row.atHours<=nowHours() then return dataCopy(row) end
+    end
+end
+function P.reconcileShelterFeedback(id)
+    local s=state(id);if not s then return true end
+    for _,row in ipairs(s.shelterMovementResults or {}) do
+        if not row.experienceDelivered then
+            local ok,accepted=pcall(function()return SAO.Cognition and SAO.Cognition.shelterMovementOutcome(id,dataCopy(row))end)
+            if not ok or accepted~=true then return false end
+            row.experienceDelivered=true
+        end
+    end
+    -- Acknowledged history stays bounded; pending receipts never own physical arrival.
+    local rows=s.shelterMovementResults or {};local index=1
+    while #rows>32 and index<=#rows do
+        if rows[index].experienceDelivered then table.remove(rows,index) else index=index+1 end
+    end
+    return true
+end
 function P.reconcileShelterMovement(id,body)
+    P.reconcileShelterFeedback(id)
     local p,step=P.shelterPurpose(id);local ad=p and p.admission
     if not ad or ad.owner~="SAO.Controller" then return true end
     local agent=SAO.Controller and SAO.Controller.agents[id]
@@ -2027,11 +2060,13 @@ function P.planShelterConstruction(id,context)
     for i,option in ipairs(context.options or {}) do
         if i>32 then break end
         local ready,missing=P.collectorReady(option);local site=option.site;local own=retained and retained.shelterConstruction
-        if (option.kind=="build-shelter-edge" or option.kind=="build-shelter-surface") and option.known==true and site and site.actorId==id and site.observed==true
-            and (site.roof==true or option.kind=="build-shelter-surface" and site.supported==true and site.missingFloor==true)
+        if (option.kind=="build-shelter-edge" or option.kind=="build-shelter-surface" or option.kind=="build-shelter-stairs") and option.known==true and site and site.actorId==id and site.observed==true
+            and (site.roof==true or option.kind=="build-shelter-surface" and site.supported==true and site.missingFloor==true
+                or option.kind=="build-shelter-stairs" and site.mode=="stairs" and site.supported==true and site.landingObserved==false)
             and finite(site.observedAtHours) and site.observedAtHours<=at and missing
             and (not own or own.origin.originX==site.originX and own.origin.originY==site.originY and own.origin.z==(site.originZ or site.z))
             and (option.kind~="build-shelter-surface" or shelterSurfaceNeeded(own,site))
+            and (option.kind~="build-shelter-stairs" or own and #(own.coverNeeds or {})>0 and site.z==own.origin.z)
             and (option.kind~="build-shelter-edge" or not own or #(own.coverNeeds or {})==0)
             and (not own or not own.stageHistory[site.key] or own.stageHistory[site.key].entityId~=option.entityId) then
             local source,delayed
@@ -2081,7 +2116,7 @@ function P.planShelterConstruction(id,context)
         for _,site in ipairs(context.sites or {}) do
             local history=own and own.stageHistory[site.key]
             if own and site.originX==own.origin.originX and site.originY==own.origin.originY and site.z==own.origin.z
-                and site.mode~="door" and (not history or history.revision~=site.revision) then missingObserved=true end
+                and site.mode~="door" and site.mode~="covered-interior" and (not history or history.revision~=site.revision) then missingObserved=true end
         end
         if retained and not missingObserved then
             local own=retained.shelterConstruction
@@ -2102,6 +2137,12 @@ function P.planShelterConstruction(id,context)
         return retained,nil,"shelter-means-unavailable"
     end
     local option,source=selected.option,selected.source
+    if retained and not selected.ready and not source and option.kind=="build-shelter-edge" then
+        local target="reobserve:"..option.site.key;local prior=retained.shelterConstruction.accessAttempts and retained.shelterConstruction.accessAttempts[target]
+        if not prior or prior.at<option.site.observedAtHours then
+            return shelterMovementPlan(retained,"inspect",target,option.site.approachX+.5,option.site.approachY+.5,option.site.approachZ,at)
+        end
+    end
     local p=retained or P.maintain(id,{key="recover-in-repaired-shelter",domain="body",
         objective="use personally known repaired shelter for bodily recovery",origin="recovery-concern",atHours=at})
     if not p then return nil end
@@ -2137,7 +2178,7 @@ function P.admitShelterConstruction(id,w)
 end
 function P.consumeShelterConstructionResult(id,supplied)
     local canonical=type(supplied)=="table" and SAO.ResourceProduction.outcome(id,supplied.id)
-    if not canonical or canonical.actorId~=id or canonical.kind~="build-shelter-edge" and canonical.kind~="build-shelter-surface"
+    if not canonical or canonical.actorId~=id or canonical.kind~="build-shelter-edge" and canonical.kind~="build-shelter-surface" and canonical.kind~="build-shelter-stairs"
         or canonical.token~="resource:shelter-built" or canonical.nativeOwner~="ISBuildAction"
         or not finite(canonical.atHours) or canonical.atHours>nowHours() then return false end
     local s=state(id);local p=s and s.purposes[canonical.purposeId]

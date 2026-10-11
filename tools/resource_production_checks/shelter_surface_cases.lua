@@ -65,10 +65,11 @@ local function measuredPosition(f)
     local p=__nativeShelter('scenePosition');f.body.x,f.body.y,f.body.z=p.x,p.y,p.z
     f.body.here=square(f,math.floor(p.x),math.floor(p.y),math.floor(p.z));return p
 end
-function __runShelterSurfaceUpper()
+function __runShelterSurfaceUpper(provided)
     local Ctl,R,P=SAO.Controller,SAO.ResourceProduction,SAO.ProceduralPlanning
-    local f=__shelterFixture('surface-upper','W','Base.WoodFloorLvl1');__shelterControllerSetup(f)
-    assert(__nativeShelter('surfaceRoofSceneSetup',f.id));measuredPosition(f)
+    local f=provided or __shelterFixture('surface-upper','W','Base.WoodFloorLvl1');__shelterControllerSetup(f)
+    local paid=f.nativePayments or 0;local learned=#(f.rec.cognition and f.rec.cognition.experiences or {})
+    if not provided then assert(__nativeShelter('surfaceRoofSceneSetup',f.id)) end;measuredPosition(f)
     f.siteSquare=square(f,12,21,1);square(f,12,21,0)
     function f.cell:checkHaveRoof(x,y)return __nativeShelter('surfaceCheckRoof',x,y) end
     SAOJavaBridge.worldShelterSurfaces=function(_,body)return body==f.body and __nativeShelter('surfaceSites') or {} end
@@ -107,7 +108,7 @@ function __runShelterSurfaceUpper()
     print('UPPER_RESULT admitted='..tostring(admitted)..' row='..tostring(row and row.status)..' detail='..tostring(row and row.detail))
     __shelterCheck('native_upper_floor_creates_lower_cover_under_same_purpose',admitted and row and row.status=='completed'
         and row.kind=='build-shelter-surface' and row.purposeId==purpose.id and row.inputsConsumed and row.toolRetained
-        and f.nativePayments==1 and __nativeShelter('surfaceFloor') and __nativeShelter('surfaceLowerRoof')
+        and f.nativePayments==paid+1 and __nativeShelter('surfaceFloor') and __nativeShelter('surfaceLowerRoof')
         and purpose.status~='completed' and purpose.shelterConstruction.origin.z==0 and not f.rec.recoveryExperiences)
     f.agent.state='IDLE';admitted=Ctl.offerRecovery(f.id,f.agent,f.body,300,SAO.Needs.read(f.body),'sleep')
     local _,returnStep=P.shelterPurpose(f.id)
@@ -157,14 +158,22 @@ function __runShelterSurfaceUpper()
         measuredPosition(f);job.done,job.result=true,arrived and 'arrived' or 'failed'
     end
     f.agent.state='IDLE';admitted=Ctl.offerRecovery(f.id,f.agent,f.body,500,SAO.Needs.read(f.body),'sleep')
-    for count=1,8 do if not f.rec.resourceProductionWork then break end;__shelterFinish(f) end
+    local reobserved=0
+    for count=1,8 do
+        if f.agent.shelterRoute then
+            SAO.Locomotion.tick(f.id);__shelterControllerTick(500+count);Ctl.finishShelterMovement(f.id,f.agent,f.body);reobserved=reobserved+1
+            admitted=Ctl.offerRecovery(f.id,f.agent,f.body,510+count,SAO.Needs.read(f.body),'sleep')
+        elseif f.rec.resourceProductionWork then __shelterFinish(f) else break end
+    end
     local used=f.rec.resourceProductionOutcomes[#f.rec.resourceProductionOutcomes]
+    local sp,ss=SAO.ProceduralPlanning.shelterPurpose(f.id);print('SURFACE_USE_PLAN status='..tostring(sp and sp.status)..' verb='..tostring(ss and ss.verb)..' kind='..tostring(ss and ss.productionKind)..' blockers='..tostring(sp and sp.blockers[1]))
+    for _,site in ipairs(SAO.Perception.shelterSites(f.id,f.body)) do print('SURFACE_USE_SITE '..site.key..' '..site.mode..' '..site.originX..','..site.originY) end
     print('UPPER_USE admitted='..tostring(admitted)..' status='..tostring(used and used.status)..' detail='..tostring(used and used.detail)
         ..' enclosed='..tostring(__nativeShelter('sceneEnclosed'))..' roofed='..tostring(__nativeShelter('sceneRoofed')))
     __shelterCheck('upper_cover_repair_reaches_ordinary_native_shelter_use',admitted and used.kind=='use-shelter' and used.status=='completed'
         and used.purposeId==purpose.id and used.opened and used.crossedOut and used.crossedIn and used.closedDoor and used.enclosureConfirmed
         and __nativeShelter('scenePassages')==2 and not __nativeShelter('sceneOpen') and purpose.shelterConstruction.origin.z==0
-        and not f.rec.recoveryExperiences and f.nativePayments==3)
+        and not f.rec.recoveryExperiences and f.nativePayments==paid+3)
     f.agent.state='IDLE';admitted=Ctl.offerRecovery(f.id,f.agent,f.body,600,SAO.Needs.read(f.body),'sleep')
     if admitted and f.agent.recoveryRoute then SAO.Locomotion.tick(f.id);__shelterControllerTick(601);Ctl.finishRecoveryPlaceMovement(f.id,f.agent,f.body) end
     local place=f.rec.recoveryIntent and f.rec.recoveryIntent.place;local preparing=SAO.Needs.pollRecovery(f.id,f.body)
@@ -175,10 +184,15 @@ function __runShelterSurfaceUpper()
         and measured and result=='completed' and purpose.status=='completed' and #f.rec.recoveryExperiences==1
         and f.rec.recoveryExperiences[1].sourceId==place.key and f.rec.recoveryExperiences[1].beforeValue==beforeFatigue
         and f.rec.recoveryExperiences[1].afterValue<beforeFatigue and __nativeShelter('sceneGroundClear',place.x..','..place.y..','..place.z))
-    __shelterCheck('surface_construction_use_and_recovery_feedback_stay_independent',#f.rec.cognition.experiences==5
-        and f.rec.cognition.experiences[1].entityId=='Base.WoodFloorLvl1' and f.rec.cognition.experiences[1].kind=='shelter-construction'
-        and f.rec.cognition.experiences[4].kind=='shelter-use' and f.rec.cognition.experiences[5].kind=='recovery-outcome'
-        and f.rec.cognition.models.ordinary.revision==5 and f.rec.cognition.models.associative.revision==5)
+    local pendingMovement=0
+    for _,movement in ipairs(f.rec.proceduralPlanning.shelterMovementResults or {}) do if not movement.experienceDelivered then pendingMovement=pendingMovement+1 end end
+    __shelterCheck('surface_construction_use_and_recovery_feedback_stay_independent',#f.rec.cognition.experiences==learned+7+reobserved-pendingMovement
+        and f.rec.cognition.experiences[learned+1].kind=='shelter-movement'
+        and f.rec.cognition.experiences[learned+2].entityId=='Base.WoodFloorLvl1'
+        and f.rec.cognition.experiences[learned+2].kind=='shelter-construction'
+        and f.rec.cognition.experiences[learned+3].kind=='shelter-movement'
+        and f.rec.cognition.experiences[learned+6+reobserved-pendingMovement].kind=='shelter-use' and f.rec.cognition.experiences[learned+7+reobserved-pendingMovement].kind=='recovery-outcome'
+        and f.rec.cognition.models.ordinary.revision==learned+7+reobserved-pendingMovement and f.rec.cognition.models.associative.revision==learned+7+reobserved-pendingMovement)
 end
 
 local function focusedFixture(id)

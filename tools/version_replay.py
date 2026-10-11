@@ -174,6 +174,7 @@ POST_C_UNITS = [
     ('D3.8', 'kohai', 'Installed wooden-bed construction and both full orientations join private recovery motivation, exact material acquisition, observed permitted placement, native payment/allparts and ordinary bed recovery use as coherent building progress within OPEN D3.'),
     ('D3.9', 'kohai', 'The complete selected single-edge wooden wall/frame/door family joins private shelter concern, exact material and stage construction, measured doorway use and reached native shelter conditions through ordinary consumption as integrated building progress within OPEN D3.'),
     ('D3.10', 'kohai', 'Native wooden floor/roof-cover construction, genuine work-level access and return to the original ordinary shelter consumer deliver integrated surface progress within OPEN D3.'),
+    ('D3.11', 'kohai', 'Both full native stair orientations, privately permitted footprints, exact materials, genuine upper travel, cover and return through ordinary shelter/recovery deliver coherent building progress within OPEN D3.'),
 ]
 # A closed parent that only aggregates previously credited descendants maps to
 # their exact credit-owner IDs. It is a chronological record, never a new tier.

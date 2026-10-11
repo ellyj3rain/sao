@@ -9,7 +9,7 @@ from native_proof_preflight import presence
 ROOT=base.ROOT
 CASES=ROOT/'tools/resource_production_checks/shelter_surface_cases.lua'
 LOCO=base.LUA/'client/SAO_Locomotion.lua'
-JAVA=[ROOT/'java/src/com/sao/engine'/name for name in ['SAOShelterSurface.java','SAOShelterConstruction.java','SAONeeds.java','SAOWorldSources.java','SAOIsoPlayerShell.java']]+[ROOT/'java/src/com/sao/bridge/SAOBridge.java']
+JAVA=[ROOT/'java/src/com/sao/engine'/name for name in ['SAOShelterStairs.java','SAOShelterSurface.java','SAOShelterConstruction.java','SAONeeds.java','SAOWorldSources.java','SAOIsoPlayerShell.java']]+[ROOT/'java/src/com/sao/bridge/SAOBridge.java']
 PRODUCTION=[ROOT/'java/src/com/sao/engine/SAOShelterSurface.java',ROOT/'java/src/com/sao/bridge/SAOBridge.java',*[base.LUA/f'{area}/SAO_{name}.lua' for area,name in [('shared','Perception'),('shared','ProceduralPlanning'),('shared','Cognition'),('shared','CognitiveModels'),('client','Controller'),('client','ResourceProduction'),('client','CapabilityExperience')]]]
 INSTRUMENTS=[Path(__file__),CASES,base.PROBE,base.CASES,ROOT/'tools/check.sh']
 
@@ -27,7 +27,7 @@ def execute(out,chunks,classes,cp,run):
     pairs=re.findall(r'^([a-zA-Z0-9_]+)=(true|false)$',result.stdout,re.M)
     checks=dict(pairs);case=CASES.read_text(encoding='utf-8-sig');expected=set()
     if run in ('all','first'):expected.update(name+'_grade'+str(grade) for name in re.findall(r"floorCheck\('([a-z0-9_]+)'",case) for grade in (1,2,3))
-    if run in ('all','upper'):expected.update(re.findall(r"__shelterCheck\('([a-z0-9_]+)'",case.split('function __runShelterSurfaceUpper()',1)[1].split('local function focusedFixture(',1)[0]))
+    if run in ('all','upper'):expected.update(re.findall(r"__shelterCheck\('([a-z0-9_]+)'",case.split('function __runShelterSurfaceUpper(',1)[1].split('local function focusedFixture(',1)[0]))
     if run in ('all','focused'):expected.update(re.findall(r"__shelterCheck\('([a-z0-9_]+)'",case.split('function __runShelterSurfaceFocused()',1)[1]))
     complete=result.returncode==0 and set(checks)==expected and len(pairs)==len(checks)
     return {'status':'PASS' if complete and all(v=='true' for v in checks.values()) else 'FAIL','nativeExit':result.returncode,'checks':checks,'expectedChecks':sorted(expected),'complete':complete,'log':str(log.relative_to(ROOT)),'logSha256':base.digest(log)}

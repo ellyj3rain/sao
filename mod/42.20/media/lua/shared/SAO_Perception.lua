@@ -3892,7 +3892,7 @@ local function shelterSiteCopy(id,row)
         if not finiteSoundNumber(row[key]) or row[key]%1~=0 then return nil end;out[key]=row[key]
     end
     if row.approachZ~=row.z or math.abs(row.x-row.approachX)+math.abs(row.y-row.approachY)>1
-        or not ({["wall-frame"]=true,wall=true,["door-frame"]=true,["door-leaf"]=true,door=true})[row.mode] then return nil end
+        or not ({["wall-frame"]=true,wall=true,["door-frame"]=true,["door-leaf"]=true,door=true,["covered-interior"]=true})[row.mode] then return nil end
     return out
 end
 function P.observeShelterSites(id,body,origin)
@@ -3942,6 +3942,31 @@ local function shelterSurfaceCopy(id,row)
     if row.approachZ~=row.z or math.abs(row.x-row.approachX)+math.abs(row.y-row.approachY)~=1 then return nil end
     return out
 end
+local function shelterStairCopy(id,row)
+    if type(row)~="table" or getmetatable(row) or row.actorId~=id or row.observed~=true
+        or row.source~="native-personal-visibility" or row.mode~="stairs" or row.supported~=true
+        or row.face~="S" and row.face~="W" or row.landingObserved~=false or row.landingBasis~="native-recipe-effect"
+        or type(row.key)~="string" or #row.key>160 or type(row.revision)~="string" or #row.revision>160
+        or not finiteSoundNumber(row.observedAtHours) or row.observedAtHours<0 then return nil end
+    local out={}
+    for _,key in ipairs({"key","revision","face","mode","supported","actorId","observed","source","observedAtHours","landingObserved","landingBasis"}) do out[key]=row[key] end
+    for _,key in ipairs({"x","y","z","width","height","approachX","approachY","approachZ","landingX","landingY","landingZ"}) do
+        if not finiteSoundNumber(row[key]) or row[key]%1~=0 then return nil end;out[key]=row[key]
+    end
+    if row.width~=(row.face=="S" and 3 or 1) or row.height~=(row.face=="W" and 3 or 1)
+        or row.approachZ~=row.z or row.landingZ~=row.z+1 or row.landingX~=row.x-(row.face=="S" and 1 or 0)
+        or row.landingY~=row.y-(row.face=="W" and 1 or 0)
+        or math.abs(row.x+row.width-1-row.approachX)+math.abs(row.y+row.height-1-row.approachY)~=1
+        or row.approachX>=row.x and row.approachX<row.x+row.width and row.approachY>=row.y and row.approachY<row.y+row.height then return nil end
+    return out
+end
+function P.shelterStairSites(id,body)
+    if not collectorObserver(id,body) then return {} end
+    local b,out=P.beliefs[id],{};local at=SAO.History.countyHours()
+    for _,key in ipairs(b and b.shelterStairOrder or {}) do
+        local row=shelterStairCopy(id,b.shelterStairs[key]);if row and row.observedAtHours<=at then out[#out+1]=row end
+    end;return out
+end
 function P.observeShelterSurfaces(id,body)
     local at=SAO.History and SAO.History.countyHours()
     if not collectorObserver(id,body) or not finiteSoundNumber(at) or at<0 or not SAOJavaBridge.worldShelterSurfaces then return false end
@@ -3959,6 +3984,19 @@ function P.observeShelterSurfaces(id,body)
             end;b.shelterSurfaces[row.key]=row
         end
     end
+    b.shelterStairs=b.shelterStairs or {};b.shelterStairOrder=b.shelterStairOrder or {}
+    local stairOk,stairs=pcall(function()return SAOJavaBridge:worldShelterStairSites(body)end)
+    if stairOk and type(stairs)=="table" then for index,native in ipairs(stairs) do
+        if index>32 then break end;local input={} for key,value in pairs(native) do input[key]=value end
+        input.actorId,input.observed,input.observedAtHours,input.source=id,true,at,"native-personal-visibility"
+        local row=shelterStairCopy(id,input)
+        if row and row.z==math.floor(body:getZ()) then
+            if not b.shelterStairs[row.key] then
+                if #b.shelterStairOrder>=64 then b.shelterStairs[table.remove(b.shelterStairOrder,1)]=nil end
+                b.shelterStairOrder[#b.shelterStairOrder+1]=row.key
+            end;b.shelterStairs[row.key]=row
+        end
+    end end
     local unresolved={};for _,need in ipairs(b.shelterCoverNeeds or {}) do unresolved[need.x..":"..need.y..":"..need.z]=need end
     b.shelterCoverObservations={};local needOk,needs=pcall(function()return SAOJavaBridge:worldShelterCoverNeeds(body)end)
     if needOk and type(needs)=="table" then for index,need in ipairs(needs) do

@@ -4477,6 +4477,19 @@ public final class SAOBridge {
             ? com.sao.engine.SAOShelterConstruction.observe(body,(int)x,(int)y,(int)z) : null;
         } catch(Throwable t) { SAOAgent.log("worldShelterSites threw: "+t); return null; }
     }
+    public Object worldShelterStairSites(Object object) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body?com.sao.engine.SAOShelterStairs.observe(body):null; }
+        catch(Throwable t) { SAOAgent.log("worldShelterStairSites threw: "+t); return null; }
+    }
+    public Object worldShelterStairPlacementSquare(Object object,String key,String revision) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body?com.sao.engine.SAOShelterStairs.placement(body,key,revision):null; }
+        catch(Throwable t) { SAOAgent.log("worldShelterStairPlacementSquare threw: "+t); return null; }
+    }
+    public boolean worldShelterStairsCreated(Object object,Object parts,double x,double y,double z,String face) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body&&parts instanceof se.krka.kahlua.vm.KahluaTable rows&&integralUtilityCoordinates(x,y,z)
+            &&com.sao.engine.SAOShelterStairs.created(body,rows,(int)x,(int)y,(int)z,face); }
+        catch(Throwable t) { SAOAgent.log("worldShelterStairsCreated threw: "+t); return false; }
+    }
     public Object worldShelterSurfaces(Object object) {
         try { return object instanceof com.sao.engine.SAOIsoPlayerShell body?com.sao.engine.SAOShelterSurface.observe(body):null; }
         catch(Throwable t) { SAOAgent.log("worldShelterSurfaces threw: "+t); return null; }

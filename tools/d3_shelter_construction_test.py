@@ -100,10 +100,12 @@ def main():
     parser.add_argument('--out',type=Path);parser.add_argument('--required',action='store_true')
     parser.add_argument('--native-preflight',action='store_true')
     parser.add_argument('--ordinary-only',action='store_true')
+    parser.add_argument('--no-controls',action='store_true',help='Run current affected positives; retain applicable detecting controls separately.')
     args=parser.parse_args()
     java_sources=[ROOT/'java/src/com/sao/engine/SAOShelterConstruction.java',ROOT/'java/src/com/sao/engine/SAONeeds.java',
         ROOT/'java/src/com/sao/engine/SAOWorldSources.java',ROOT/'java/src/com/sao/bridge/SAOBridge.java']
     java_sources.append(ROOT/'java/src/com/sao/engine/SAOIsoPlayerShell.java')
+    java_sources.append(ROOT/'java/src/com/sao/engine/SAOShelterStairs.java')
     movement=ROOT/'tools/luacheck/MovementCrossingProbe.java'
     owned=[Path(__file__),PROBE,CASES,CTL_CASES,CONTROLLER,BASE,BOARD,PLUMB,*LEAVES.values(),ROOT/'tools/luacheck/LuaSyntax.java',*java_sources,movement]
     missing=[str(p) for p in owned if not p.is_file()]
@@ -172,10 +174,10 @@ def main():
         ('itemless-use-feedback-gate','models.lua','if e.kind=="shelter-use" then\n            return e.category=="body"',
             'if false and e.kind=="shelter-use" then\n            return e.category=="body"',
             'construction_use_and_recovery_keep_independent_feedback','__runShelterControllerCases()'),
-        ('saved-shelter-normalization','production.lua','if w.kind=="build-wood-bed" or w.kind=="build-shelter-edge" then row.feedsFixture=nil;row.parts={} end',
+        ('saved-shelter-normalization','production.lua','if w.kind=="build-wood-bed" or w.kind=="build-shelter-edge" or w.kind=="build-shelter-surface" or w.kind=="build-shelter-stairs" then row.feedsFixture=nil;row.parts={} end',
             'if w.kind=="build-wood-bed" then row.feedsFixture=nil;row.parts={} end',
             'saved_shelter_work_reconciles_without_fabricated_parts_or_passage','__runShelterFocusedCases()')]
-    if geometry_ok:
+    if geometry_ok and not args.no_controls:
         for name,file,old,new,detector,run in mutations:
             variant=dict(chunks);count=variant[file].count(old)
             if count!=1:controls.append({'name':name,'detected':False,'mutationMatches':count});continue
@@ -229,9 +231,9 @@ def main():
             print('CONTROL '+name+' detected='+str(java_controls[-1]['detected']),flush=True)
     after={str(p):digest(p) for p in inputs}
     passed=bootstrap_ok and syntax.returncode==0 and normal['exitCode']==0 and not normal['failed'] and not normal['missing'] and before==after and geometry_ok\
-        and len(controls)==len(mutations) and len(java_controls)==8 and all(c['detected'] for c in controls+java_controls)
+        and (args.no_controls or len(controls)==len(mutations) and len(java_controls)==8 and all(c['detected'] for c in controls+java_controls))
     receipt={'status':'PASS' if passed else 'FAIL','inputsBefore':before,'inputsAfter':after,'sourcePreserved':before==after,
-        'normal':normal,'controls':controls,'javaControls':java_controls,'nativeGeometry':geometry,'compileExit':compiled.returncode,'syntaxExit':syntax.returncode,'bootstrapExit':bootstrap.returncode,
+        'controlsRequested':not args.no_controls,'normal':normal,'controls':controls,'javaControls':java_controls,'nativeGeometry':geometry,'compileExit':compiled.returncode,'syntaxExit':syntax.returncode,'bootstrapExit':bootstrap.returncode,
         'boundary':'Actual installed recipe/manual BuildLogic payment/factory and installed Lua build/transfer/equip/queue; SAO ordinary Controller/Needs/Planner and independent feedback. Actual same-body native movement/collision/selected-door passage, DataRoot enclosure/fullroof, RecoveryPlace safe ground admission and SleepingEvent fatigue. Actor/map/source/dispatch, animation/stride/pose and county clock are explicit controlled ports. Full play, animation qualification and native server execution are outside this packet.'}
     (out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
     print(receipt['status']+' shelter construction '+str(len(normal['checks']))+' cases; '+str(out/'receipt.json'))

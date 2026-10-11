@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.6.10.0-pre-alpha` |
+| Version | `2.6.11.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -777,3 +777,7 @@ The installed finite wooden wall/frame/door family owns recipe skills/materials,
 ## Wooden surface construction and cover (D3.10)
 
 Installed WoodFloorLvl1/2/3 own skill, one-tile facing, kept hammer and consumed plank/nail inputs. Native connected-floor and existing stair/landing geometry govern placement and access. Native floor creation processes cover in its column; current room/region cover and ordinary use retain their own authority. Exact implementation, qualified source anchors and proof limits live in [D3.10](Batches/D3.10-20261011-0126Z-1826PDT-roofs-floors-usable-shelter.md).
+
+## Native wooden stairs and landing (D3.11)
+
+Installed Base.Wood_Stairs supplies S/W full three-part faces, Woodwork6, thirteen planks, eight nails and a retained hammer. ISBuildIsoEntity/ISBuildAction and BuildRecipeCode.stairs.OnIsValid/OnCreate govern full placement, upper clearance and landing creation. SAOShelterStairs exposes personally visible ground footprints and measured native multipart effects. Genuine native traversal precedes acquired upper facts and floor/cover work. Qualified source anchors, controlled boundaries and integrated consumer evidence live in [D3.11](Batches/D3.11-20261011-0439Z-2139PDT-native-stairs-usable-shelter.md).

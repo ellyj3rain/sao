@@ -68,7 +68,7 @@ end
 end
 SAO.ResourceProduction.onOutcome = function(id, receipt)
     local canonical = receipt and SAO.ResourceProduction.outcome(id, receipt.id)
-    if canonical and (canonical.kind=="build-shelter-edge" or canonical.kind=="build-shelter-surface" or canonical.kind=="use-shelter") then
+    if canonical and (canonical.kind=="build-shelter-edge" or canonical.kind=="build-shelter-surface" or canonical.kind=="build-shelter-stairs" or canonical.kind=="use-shelter") then
         return SAO.Cognition and SAO.Cognition.shelterOutcome and SAO.Cognition.shelterOutcome(id,canonical) or false
     end
     if canonical and canonical.kind=="build-wood-bed" then
