@@ -41,7 +41,7 @@ local MAX_ACTION_OPTIONS = 128
 local RESULT_CONSUMER = "provisioning"
 local SOURCE_CATEGORY_ORDER = {
     "device", "drink", "electronics-scrap", "file", "food", "fuel", "garbage-bag", "generator-manual", "glass-pane", "hammer", "instrument", "leisure-material", "medical",
-    "doorknob", "hinge", "log", "mattress", "medicine", "memento", "nails", "petrol", "pipe-wrench", "plank", "reading", "saw", "smokes", "tools",
+    "gate-manual", "metal-pipe", "wire", "scrap-metal", "welding-torch", "welding-rods", "doorknob", "hinge", "log", "mattress", "medicine", "memento", "nails", "petrol", "pipe-wrench", "plank", "reading", "saw", "smokes", "tools",
     "tarp", "water", "weapons", "whetstone",
 }
 local SOURCE_CATEGORIES = {}
@@ -1151,7 +1151,7 @@ function WS.beliefFact(sourceId, observationKind, actorId)
             if item then
                 fact.visibleItem={id=item.id,type=item.type}
                 for _, category in ipairs({"reading","instrument","leisure-material",
-                    "glass-pane","hammer","plank","nails","log","saw","file","whetstone","pipe-wrench","garbage-bag","tarp","electronics-scrap","petrol","generator-manual"}) do
+                    "gate-manual","metal-pipe","wire","scrap-metal","welding-torch","welding-rods","glass-pane","hammer","plank","nails","log","saw","file","whetstone","pipe-wrench","garbage-bag","tarp","electronics-scrap","petrol","generator-manual"}) do
                     if item.categories[category] then
                         fact.quantities[category]=1
                         fact.candidates[category]={id=item.id,type=item.type,categories={[category]=true}}

@@ -218,6 +218,7 @@ public final class SAOShelterConstruction {
     }
     /** Called only after the same shell's actual native physics postupdate. */
     public static synchronized void observePassage(SAOIsoPlayerShell body){
+        SAODoubleGate.observePassage(body);
         var p=PASSAGES.get(body);if(p==null)return;
         var door=p.door.get();var current=body.getCurrentSquare();var last=body.getLastSquare();
         if(!p.actor.equals(SAOConceptObservation.actor(body))||p.cell.get()!=body.getCell()

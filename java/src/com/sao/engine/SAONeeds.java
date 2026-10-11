@@ -1178,6 +1178,21 @@ public final class SAONeeds {
                     && item instanceof InventoryContainer bag && bag.getInventory().isEmpty()
                     && item.getCondition() > 0 && !item.isBroken()
                     && !item.getIsCraftingConsumed();
+            case "metal-pipe":
+                return "Base.MetalPipe".equals(item.getFullType())&&!item.getIsCraftingConsumed();
+            case "wire":
+                return "Base.Wire".equals(item.getFullType())&&item.getCurrentUses()>0&&!item.getIsCraftingConsumed();
+            case "scrap-metal":
+                return "Base.ScrapMetal".equals(item.getFullType())&&!item.getIsCraftingConsumed();
+            case "welding-torch":
+                return "Base.BlowTorch".equals(item.getFullType())&&item instanceof zombie.inventory.types.DrainableComboItem
+                    &&item.getCurrentUses()>0&&!item.getIsCraftingConsumed();
+            case "welding-rods":
+                return "Base.WeldingRods".equals(item.getFullType())&&item instanceof zombie.inventory.types.DrainableComboItem
+                    &&item.getCurrentUses()>0&&!item.getIsCraftingConsumed();
+            case "gate-manual":
+                return item instanceof zombie.inventory.types.Literature guide&&guide.getLearnedRecipes()!=null
+                    &&(guide.getLearnedRecipes().contains("DoubleFenceGate")||guide.getLearnedRecipes().contains("DoubleWireGate"))&&!item.getIsCraftingConsumed();
             case "hinge":
                 return "Base.Hinge".equals(item.getFullType()) && !item.getIsCraftingConsumed();
             case "doorknob":

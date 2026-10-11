@@ -6159,6 +6159,7 @@ local function decideHomeAndEquipment(id, agent, body, tick, rec)
     -- Held-ground work begins with an observed aperture. The person's purpose
     -- survives a missing kit; exact private sources can supply it, and only
     -- the native work owner's completed result advances construction.
+    if agent.state=="IDLE" and SAO.ProceduralPlanning.doubleGatePurpose and SAO.ProceduralPlanning.doubleGatePurpose(id) and Ctl.tryDoubleGate(id,agent,body,tick) then return true end
     if agent.state == "IDLE" and SAO.Standing.fallHasCome() then
         if not Ctl.reconcileConstruction(id, body) then return false end
         local retained = SAO.ProceduralPlanning and SAO.ProceduralPlanning.constructionDestination(id)
@@ -6175,6 +6176,7 @@ local function decideHomeAndEquipment(id, agent, body, tick, rec)
                 -- A blocked repair remains its own purpose while another
                 -- observed, feasible held-ground job may still be attempted.
                 if Ctl.tryBoarding(id, agent, body, tick) then return true end
+                if Ctl.tryDoubleGate(id,agent,body,tick) then return true end
             end
         end
     end
@@ -6385,6 +6387,54 @@ local function rememberConstructionDestination(id, operation, destination)
         routeKnown = true, owned = true, usable = true, tags = { "entrance", "construction" } })
 end
 
+function Ctl.doubleGateContext(id,agent,body)
+    local p=SAO.ProceduralPlanning.doubleGatePurpose(id)
+    local concern=p~=nil or SAO.Standing.fallHasCome() and SAO.Standing.claimOf(id) and SAO.Standing.insideClaim(id,body:getX(),body:getY())
+    local context={boundaryConcern=concern and true or false,options={},materialSources={},recipeBooks={},pressure=.5,atHours=SAO.History.countyHours()}
+    if not context.boundaryConcern then return context end
+    SAO.Perception.observeDoubleGateSites(id,body);context.options=SAO.ResourceProduction.doubleGateOptions(id,body)
+    local categories={};local inv=SAOJavaBridge:privateCarriedItems(body)
+    for _,option in ipairs(context.options) do
+        local ready,missing=SAO.ProceduralPlanning.collectorReady(option)
+        if option.recipeKnown~=true then
+            for index=0,inv:size()-1 do local item=inv:get(index)
+                if SAO.Study and SAO.Study.usefulRecipeType(body,item:getFullType(),option.recipeName) then
+                    context.recipeBooks[option.recipeName]={itemId=item:getID(),itemType=item:getFullType()};break
+                end
+            end
+            categories['gate-manual']=true
+        elseif not ready then for _,required in ipairs(missing or {}) do categories[required.category]=true end end
+    end
+    for category in pairs(categories) do
+        for _,source in ipairs(Ctl.resourceContext(id,agent,body,SAO.Needs.read(body),category,.5).sources or {}) do
+            if category=='gate-manual' then
+                for _,name in ipairs({'DoubleFenceGate','DoubleWireGate'}) do
+                    if SAO.Study and SAO.Study.usefulRecipeType(body,source.itemType,name) then
+                        local copy={} for key,value in pairs(source) do copy[key]=value end;copy.recipeName=name;context.materialSources[#context.materialSources+1]=copy
+                    end
+                end
+            else context.materialSources[#context.materialSources+1]=source end
+        end
+    end
+    return context
+end
+function Ctl.tryDoubleGate(id,agent,body,tick)
+    if agent.passive or agent.state~='IDLE' or agent.rec.resourceProductionWork or agent.rec.worldSourceReservation or not SAO.Needs.workAvailable(body) then return false end
+    if SAO.Study and SAO.Study.reconcileRecipe and not SAO.Study.reconcileRecipe(id,body) then return false end
+    local p,step=SAO.ProceduralPlanning.planDoubleGate(id,Ctl.doubleGateContext(id,agent,body))
+    if not p or not step or step.status~='available' then return false end
+    if step.verb=='acquire' then return Ctl.beginConstructionAcquisition(id,agent,body,tick,p,step) end
+    if step.operation=='learn-recipe' then
+        local items=SAOJavaBridge:privateCarriedItems(body);local book
+        for index=0,items:size()-1 do local item=items:get(index)
+            if tostring(item:getID())==step.inputItemId and item:getFullType()==step.inputItemType then book=item;break end
+        end
+        return book and SAO.Study and SAO.Study.beginRecipe(id,body,book,p.id,step.id,step.recipeName) or false
+    end
+    if not setState(agent,id,'RESOURCE','performs personally intended boundary and access work','need') then return false end
+    if SAO.ResourceProduction.begin(id,body,step,{purposeId=p.id,purposeStepId=step.id}) or agent.rec.resourceProductionWork then agent.taskDeadline=tick+5400;return true end
+    SAO.ProceduralPlanning.deferResourceRoute(id,p.id,step.id,'native gate work could not begin');setState(agent,id,'IDLE','gate work remains unresolved');return false
+end
 function Ctl.tryWindowRepair(id, agent, body, tick, entryKey)
     local owner, planning = SAO.WindowRepair, SAO.ProceduralPlanning
     if not owner or not planning or agent.state ~= "IDLE" or agent.passive

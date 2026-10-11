@@ -9,10 +9,10 @@
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C12, C18, C20, C21, C24, C30, C31, C32, C33 |
-| Implementation | CLOSED D3.1-D3.11 deliver native crafting, maintenance, usable water/power, firearm reuse, usable beds, walls/doors, floors/roof cover and new stairs through ordinary shelter use. The remaining full domain keeps this parent OPEN. |
+| Implementation | CLOSED D3.1-D3.12 deliver native crafting, maintenance, usable water/power, firearm reuse, usable beds, walls/doors, floors/roof cover, stairs through ordinary shelter use and freestanding double gates through opening, passage and closure. The remaining full domain keeps this parent OPEN. |
 | Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.6.11.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
-| Publication | D3.1-D3.10 self-merged through PR142-PR151; D3.11 follows the same protected workflow with actual merge retained in its completion receipt. |
+| Version | 2.6.12.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
+| Publication | D3.1-D3.11 self-merged through PR142-PR152; D3.12 follows the same protected workflow with actual merge retained in its completion receipt. |
 
 ## Product and current implementation
 
@@ -227,3 +227,11 @@ The operator corrects the earlier minor classification of D3.1, D3.2, D3.4, D3.5
 ## D3.11 coherent closure - 2026-10-11 05:09 UTC / 22:09 PDT
 
 [D3.11](D3.11-20261011-0439Z-2139PDT-native-stairs-usable-shelter.md) is CLOSED: both complete native wooden-stair orientations join private permitted footprints, exact materials and measured native creation to genuine upper access, floor/cover, return and ordinary shelter/recovery. Current permission and durable independent feedback retain their own proof. One kohai records this building progress. Full D3 remains OPEN for other material families and structures, freestanding gates, remaining recipes/pane integration and native server execution.
+
+## D3.12 native double-gate continuation - 2026-10-11 05:26 UTC / 22:26 PDT
+
+[D3.12](D3.12-20261011-0526Z-2226PDT-native-double-gates.md) is OPEN for the installed wooden, metal-pole and wire double-gate family in both complete orientations, personally intended freestanding boundary/access work, exact native resources and complete construction through actual opening, same-body passage and closure. Its reason, scope, parent link, owner, contracts, dependencies and required closure evidence precede implementation. D3.11 reached origin/main through self-merged PR152 at ac9edeeaf4a95ca22565b1428c452424dc3106d1. This child receives one kohai when its integrated useful outcome closes; full D3 remains OPEN.
+
+## D3.12 coherent closure - 2026-10-11 06:58 UTC / 23:58 PDT
+
+[D3.12](D3.12-20261011-0526Z-2226PDT-native-double-gates.md) is CLOSED: complete installed wooden, metal-pole and wire N/W double gates join personally intended freestanding boundary/access work, private permitted footprints, exact materials and native knowledge to four-part construction, genuine opening and passage, and final closure. Native moved-leaf identity, current permission and distinct saved outcomes retain their evidence. One kohai records this building progress. Full D3 remains OPEN for other construction material families and structures, remaining recipes/pane integration and native server execution. D4-D6 remain downstream in FIFO.

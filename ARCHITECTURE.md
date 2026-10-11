@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.6.11.0-pre-alpha` |
+| Version | `2.6.12.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2464,3 +2464,7 @@ The maintained private shelter concern distinguishes its intended use destinatio
 ## Native stairs through usable shelter (D3.11)
 
 Private observed ground footprints and current full-footprint Standing admit the installed three-part stair recipe. Native validity and creation own upper clearance and landing effects; intended effect coordinates become acquired upper geometry after actual travel. Exact materials, measured full creation, genuine same-body access, floor/cover and return continue the retained shelter concern. Positive visible interior facts retire former edge offers while hidden/unavailable facts remain. Physical arrival and pending private feedback retain independent retirement; ordinary reconciliation replays saved movement receipts in order and trims acknowledged history.
+
+## Native freestanding double gates (D3.12)
+
+Personally acquired boundary ends and complete closed/operating/passage-space facts admit freestanding gate work through the existing held-ground fortification concern. Current whole-footprint Standing owns admission and native effects. Exact recipe-derived materials, consumable uses and native learned knowledge continue the retained purpose through construction and access. The shared guarded reader owns learned-recipe prerequisites. Native opening reconstructs moving leaves and copies modData; durable measured group/member identities reacquire the exact current group without assuming old object handles or entity components. Native group opening, genuine same-body passage and native closure have independent authenticated outcomes and saved/queue retirement.

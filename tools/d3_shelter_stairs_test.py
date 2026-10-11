@@ -66,7 +66,7 @@ def main():
     if not args.no_controls and normal['status']=='PASS':
         controls=out/'controls';controls.mkdir();target='native_stair_capacity_preserves_all_twenty_two_inputs'
         controlChunks=dict(chunks);controlChunks['run.lua']=calls['control']
-        mutations=[('planner-cap','planner.lua','#option.inputs > 32','#option.inputs > 16'),
+        mutations=[('planner-cap','planner.lua','#option.inputs > ((option.kind=="build-double-gate" or option.productionKind=="build-double-gate") and 38 or 32)','#option.inputs > ((option.kind=="build-double-gate" or option.productionKind=="build-double-gate") and 38 or 16)'),
             ('acquisition-cap','production.lua','rows[#rows+1]={inputIndex=requirement.inputIndex','if #rows>=16 then return rows end\n                rows[#rows+1]={inputIndex=requirement.inputIndex')]
         for name,leaf,old,new in mutations:
             altered=dict(controlChunks);altered[leaf]=surface.replace_once(chunks[leaf],old,new)

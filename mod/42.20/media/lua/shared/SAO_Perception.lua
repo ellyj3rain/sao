@@ -4048,6 +4048,75 @@ function P.shelterAccess(id)
     end;table.sort(out,function(a,b)return a.key<b.key end);return out
 end
 
+local function doubleGateCopy(id,row)
+    if type(row)~="table" or getmetatable(row) or row.actorId~=id or row.observed~=true or row.boundaryObserved~=true
+        or row.source~="native-personal-visibility" or row.mode~="double-gate" or row.face~="N" and row.face~="W"
+        or type(row.key)~="string" or #row.key>160 or type(row.revision)~="string" or #row.revision>160
+        or not finiteSoundNumber(row.observedAtHours) or row.observedAtHours<0 then return nil end
+    local out={}
+    for _,key in ipairs({"key","revision","face","mode","actorId","observed","boundaryObserved","source","observedAtHours"}) do out[key]=row[key] end
+    for _,key in ipairs({"x","y","z","width","height","approachX","approachY","approachZ","destinationX","destinationY","destinationZ"}) do
+        if not finiteSoundNumber(row[key]) or row[key]%1~=0 then return nil end;out[key]=row[key]
+    end
+    local north=row.face=="N"
+    if row.width~=(north and 4 or 1) or row.height~=(north and 1 or 4) or row.approachX~=row.x+1 or row.approachY~=row.y+1
+        or row.approachZ~=row.z or row.destinationX~=row.x+(north and 1 or -1) or row.destinationY~=row.y+(north and -1 or 1)
+        or row.destinationZ~=row.z then return nil end
+    return out
+end
+function P.observeDoubleGateSites(id,body)
+    local at=SAO.History and SAO.History.countyHours()
+    if not collectorObserver(id,body) or not finiteSoundNumber(at) then return false end
+    local ok,rows=pcall(function()return SAOJavaBridge:worldDoubleGateSites(body)end)
+    if not ok or type(rows)~="table" or getmetatable(rows) then return false end
+    local b=store(id);b.doubleGateSites=b.doubleGateSites or {};b.doubleGateOrder=b.doubleGateOrder or {}
+    for index,native in ipairs(rows) do
+        if index>16 then break end;local input={} for key,value in pairs(native) do input[key]=value end
+        input.actorId,input.observed,input.source,input.observedAtHours,input.mode=id,true,"native-personal-visibility",at,"double-gate"
+        local row=doubleGateCopy(id,input)
+        if row and row.z==math.floor(body:getZ()) then
+            if not b.doubleGateSites[row.key] then
+                if #b.doubleGateOrder>=32 then b.doubleGateSites[table.remove(b.doubleGateOrder,1)]=nil end
+                b.doubleGateOrder[#b.doubleGateOrder+1]=row.key
+            end;b.doubleGateSites[row.key]=row
+        end
+    end;return true
+end
+function P.doubleGateSites(id,body)
+    if not collectorObserver(id,body) then return {} end;local b,out=store(id),{};local at=SAO.History.countyHours()
+    for _,key in ipairs(b.doubleGateOrder or {}) do local row=doubleGateCopy(id,b.doubleGateSites[key])
+        if row and row.observedAtHours<=at then out[#out+1]=row end
+    end;return out
+end
+function P.consumeDoubleGateSite(id,receipt)
+    local row=type(receipt)=="table" and SAO.ResourceProduction and SAO.ResourceProduction.outcome(id,receipt.id)
+    if not row or row.actorId~=id or row.kind~="build-double-gate" or row.status~="completed"
+        or row.nativeCredit~=row.id or not row.nativeCompleted or type(row.site)~="table" then return false end
+    local b=store(id);local site=b.doubleGateSites and b.doubleGateSites[row.site.key]
+    if not site then return true end
+    if site.revision~=row.site.revision or site.observedAtHours>row.atHours then return false end
+    for _,key in ipairs({"actorId","x","y","z","face","width","height","approachX","approachY","approachZ","destinationX","destinationY","destinationZ"}) do
+        if site[key]~=row.site[key] then return false end
+    end
+    b.doubleGateSites[row.site.key]=nil
+    for index=#(b.doubleGateOrder or {}),1,-1 do if b.doubleGateOrder[index]==row.site.key then table.remove(b.doubleGateOrder,index) end end
+    return true
+end
+function P.currentDoubleGateGroup(id,body,groupId,entityId,site)
+    local at=SAO.History and SAO.History.countyHours()
+    if not collectorObserver(id,body) or not finiteSoundNumber(at) or type(site)~="table" or site.actorId~=id then return nil end
+    local ok,row=pcall(function()return SAOJavaBridge:worldDoubleGateGroup(body,groupId,entityId,site.x,site.y,site.z,site.face)end)
+    if not ok or type(row)~="table" or getmetatable(row) or row.id~=groupId or row.entityId~=entityId or row.observed~=true
+        or row.open~=true and row.open~=false or type(row.parts)~="table" or getmetatable(row.parts) or #row.parts~=4 then return nil end
+    local out={id=groupId,entityId=entityId,actorId=id,open=row.open,observedAtHours=at,source="native-personal-visibility",parts={}}
+    for index,part in ipairs(row.parts) do
+        if type(part)~="table" or getmetatable(part) or part.member~=index then return nil end
+        local copy={member=index}
+        for _,key in ipairs({"x","y","z"}) do if not finiteSoundNumber(part[key]) or part[key]%1~=0 then return nil end;copy[key]=part[key] end
+        out.parts[index]=copy
+    end
+    store(id).doubleGateGroup=out;return out
+end
 function P.observeConcepts(id,body,tick)
     if not finiteSoundNumber(tick) then return false,"concept-observer-unavailable" end
     local ordinary=SAO.Needs and SAO.Needs.ownsRecoveryBody

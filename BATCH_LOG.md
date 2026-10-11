@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.6.11.0-pre-alpha` |
+| Version | `2.6.12.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -599,3 +599,9 @@ The [historical transition](Batches/Transitions/VERSION-20261010-feature-scope-c
 | Batch | Date | Name | Threads |
 |---|---|---|---|
 | [D3.11](Batches/D3.11-20261011-0439Z-2139PDT-native-stairs-usable-shelter.md) | 2026-10-11 | Native stairs through usable shelter | D3 native stair construction, upper access, cover and ordinary shelter use |
+
+## Native double gates through opening, passage and closure - 2026-10-11 06:58 UTC / 23:58 PDT
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D3.12](Batches/D3.12-20261011-0526Z-2226PDT-native-double-gates.md) | 2026-10-11 | Native double gates through opening, passage and closure | D3 freestanding native gate construction, exact knowledge/resources and ordinary access |
