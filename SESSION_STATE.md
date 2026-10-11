@@ -66,6 +66,12 @@ Its observations keep their historical facts; its former completion requirements
 are superseded by the current operator direction. [D2's record](Batches/D2-20261005-2341Z-1641PST-leisure.md)
 and [the batch index](BATCH_LOG.md) describe the delivered product.
 
+### Accepted adaptive delivery pace — 2026-10-11 21:20 UTC / 14:20 PDT
+
+The operator accepted the three-level guide and explicitly directed integration into the existing system and agent skills before returning to product work. `GOVERNANCE.md` owns SAO's application. D3 now uses capability pace: connected behaviors receive detailed records and sufficient evidence, with integrated review and protected publication at the defined coherent capability boundary. Granular and module pace remain available per project part; recorded switches preserve accepted scope, FIFO, history, dependencies, proof and credit ownership. Kohai/patch/minor follow the unchanged feature-scope rule.
+
+D3.14 is already published and D3.1–D3.14 keep their identities and credit. Full D3 remains OPEN. No new product child or product-version credit is allocated by this governance integration. The next action is to define the remaining supported native building capability from actual installed sources and the existing shelter/access/cover contracts, then allocate its forward capability child with nested increments where useful. D4–D6 retain FIFO. Canonical upstream publication and actual native skill loading have their own receipts; this SAO entry records the accepted instruction and local application.
+
 ### Pending Neo and GZDS governance carry
 
 Owner: Neo. Status: pending cross-repository amendment; the mod's D3-D6 FIFO

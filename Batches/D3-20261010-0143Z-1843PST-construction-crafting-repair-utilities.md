@@ -252,3 +252,7 @@ The operator corrects the earlier minor classification of D3.1, D3.2, D3.4, D3.5
 ## D3.14 coherent closure - 2026-10-11 20:37 UTC / 13:37 PDT
 
 [D3.14](D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md) is CLOSED for native metal flooring through actual walking surface/cover and ordinary reached shelter/recovery under the original private concern. One kohai records coherent building progress. Full D3 remains OPEN for other families and structures, remaining recipes/pane integration and native server execution; D4-D6 remain downstream in FIFO.
+
+## Adaptive pace continuation — 2026-10-11 21:20 UTC / 14:20 PDT
+
+The operator accepts capability pace as the current D3 default, with granular and module pace selected or switched for the active work when justified. DR-063 and `GOVERNANCE.md` carry the rule. Full D3 remains OPEN with every construction/crafting/repair/utilities obligation; D3.1–D3.14 retain their public identities, proof and once-only credit. Detailed nested implementation/verification states may precede their selected capability publication. No new product child or version credit is allocated for this governance integration. Next: define the remaining supported native building capability and its required shelter/access/cover outcome, then allocate forward with explicit nested ownership and sufficient integration evidence. Other remaining D3 obligations and D4–D6 FIFO continue.
