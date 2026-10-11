@@ -3887,7 +3887,8 @@ local function shelterSiteCopy(id,row)
         or type(row.key)~="string" or #row.key>160 or type(row.revision)~="string" or #row.revision>160
         or row.face~="N" and row.face~="W" or not finiteSoundNumber(row.observedAtHours) or row.observedAtHours<0 then return nil end
     local out={}
-    for _,key in ipairs({"key","revision","face","mode","previousEntity","actorId","observed","source","roof","observedAtHours"}) do out[key]=row[key] end
+    for _,key in ipairs({"key","revision","face","mode","previousEntity","actorId","observed","source","roof","observedAtHours","upgradeOpportunity"}) do out[key]=row[key] end
+    if row.upgradeOpportunity~=nil and (row.upgradeOpportunity~=true or row.previousEntity~="Base.MetalWallLvl1" or row.mode~="wall") then return nil end
     for _,key in ipairs({"x","y","z","approachX","approachY","approachZ","insideX","insideY","originX","originY"}) do
         if not finiteSoundNumber(row[key]) or row[key]%1~=0 then return nil end;out[key]=row[key]
     end

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.6.12.0-pre-alpha` |
+| Version | `2.6.13.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -605,3 +605,9 @@ The [historical transition](Batches/Transitions/VERSION-20261010-feature-scope-c
 | Batch | Date | Name | Threads |
 |---|---|---|---|
 | [D3.12](Batches/D3.12-20261011-0526Z-2226PDT-native-double-gates.md) | 2026-10-11 | Native double gates through opening, passage and closure | D3 freestanding native gate construction, exact knowledge/resources and ordinary access |
+
+## Native metal walls, frames and doors through usable shelter - 2026-10-11 10:49 UTC / 03:49 PDT
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D3.13](Batches/D3.13-20261011-0845Z-0145PDT-metal-walls-doors-usable-shelter.md) | 2026-10-11 | Native metal walls, frames and doors through usable shelter | D3 complete native metal construction and ordinary shelter/recovery |

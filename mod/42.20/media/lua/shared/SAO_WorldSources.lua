@@ -41,7 +41,7 @@ local MAX_ACTION_OPTIONS = 128
 local RESULT_CONSUMER = "provisioning"
 local SOURCE_CATEGORY_ORDER = {
     "device", "drink", "electronics-scrap", "file", "food", "fuel", "garbage-bag", "generator-manual", "glass-pane", "hammer", "instrument", "leisure-material", "medical",
-    "gate-manual", "metal-pipe", "wire", "scrap-metal", "welding-torch", "welding-rods", "doorknob", "hinge", "log", "mattress", "medicine", "memento", "nails", "petrol", "pipe-wrench", "plank", "reading", "saw", "smokes", "tools",
+    "shelter-manual", "metal-bar", "small-sheet-metal", "gate-manual", "metal-pipe", "wire", "scrap-metal", "welding-torch", "welding-rods", "doorknob", "hinge", "log", "mattress", "medicine", "memento", "nails", "petrol", "pipe-wrench", "plank", "reading", "saw", "smokes", "tools",
     "tarp", "water", "weapons", "whetstone",
 }
 local SOURCE_CATEGORIES = {}
@@ -1151,7 +1151,7 @@ function WS.beliefFact(sourceId, observationKind, actorId)
             if item then
                 fact.visibleItem={id=item.id,type=item.type}
                 for _, category in ipairs({"reading","instrument","leisure-material",
-                    "gate-manual","metal-pipe","wire","scrap-metal","welding-torch","welding-rods","glass-pane","hammer","plank","nails","log","saw","file","whetstone","pipe-wrench","garbage-bag","tarp","electronics-scrap","petrol","generator-manual"}) do
+                    "shelter-manual","metal-bar","small-sheet-metal","gate-manual","metal-pipe","wire","scrap-metal","welding-torch","welding-rods","glass-pane","hammer","plank","nails","log","saw","file","whetstone","pipe-wrench","garbage-bag","tarp","electronics-scrap","petrol","generator-manual"}) do
                     if item.categories[category] then
                         fact.quantities[category]=1
                         fact.candidates[category]={id=item.id,type=item.type,categories={[category]=true}}
@@ -1282,13 +1282,14 @@ end
 -- Options describe attempts over this person's own observations. The caller
 -- has already selected the place/category under its need and ration policy.
 -- Neither listing nor selecting an option proves current physical access.
-function WS.actionOptions(place, category, actorId, body, quantity, admission, operation, expectedItemType)
+function WS.actionOptions(place, category, actorId, body, quantity, admission, operation, expectedItemType, itemFilter)
     local value = store()
     actorId = actorId and tostring(actorId) or nil
     category = tostring(category or "")
     operation = operation or "consume"
     if expectedItemType~=nil and (operation~="acquire" or type(expectedItemType)~="string"
         or expectedItemType=="" or #expectedItemType>512) then return nil,"bad-expected-item-type" end
+    if itemFilter~=nil and (operation~="acquire" or type(itemFilter)~="function") then return nil,"bad-item-filter" end
     if not SOURCE_CATEGORIES[category]
         or (operation == "consume" and category ~= "food" and category ~= "water") then
         return nil, "unsupported-category"
@@ -1352,8 +1353,11 @@ function WS.actionOptions(place, category, actorId, body, quantity, admission, o
                         local item = physical.items[key]
                         local visible = source.knowledgeKind == "visible-ground"
                         local candidate = visible and source.candidates and source.candidates[category]
+                        local filterOk,eligible=true,true
+                        if itemFilter then filterOk,eligible=pcall(itemFilter,item and item.type) end
                         if item and item.categories and item.categories[category]
                             and (expectedItemType==nil or item.type==expectedItemType)
+                            and filterOk and eligible==true
                             and (not visible or candidate and candidate.id==item.id and candidate.type==item.type) then
                             items[#items + 1] = item
                             if #items >= MAX_ACTION_OPTIONS then break end

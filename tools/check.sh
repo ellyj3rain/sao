@@ -2819,7 +2819,11 @@ if ! "$PY" tools/d3_double_gate_test.py --out "$sao_d3_proof/double-gates"; then
     fail=1
 fi
 if ! "$PY" tools/d3_recipe_reading_test.py --out "$sao_d3_proof/recipe-reading"; then
-    note "BORDER FINDING - exact native gate recipe reading or retained reading custody differs"
+    note "BORDER FINDING - exact native gate/shelter recipe reading or retained reading custody differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_metal_shelter_test.py --out "$sao_d3_proof/metal-shelter"; then
+    note "BORDER FINDING - native metal shelter stages, payment, doorway use or retained recovery differs"
     fail=1
 fi
 if ! "$PY" tools/d3_rain_collector_test.py --out "$sao_d3_proof/collector-native"; then

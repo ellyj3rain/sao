@@ -2258,7 +2258,7 @@ function collector.bound(rt,pre)
     if rt.nativeAttempted or body:isBuildCheat() or w.stage~="approaching"
         and SAOJavaBridge:worldCollectorPlacementSquare(body,w.siteX,w.siteY,w.siteZ,w.siteRevision)~=rt.siteSquare then return false end
     for i,row in ipairs(rt.inputs) do local item=rt.materials[i]
-        if rt.kind=="build-double-gate" and row.mode=="use" and item:getCurrentUses()~=rt.usesBefore[row.itemId] then return false end
+        if rt.policy.consumableInputs and row.mode=="use" and item:getCurrentUses()~=rt.usesBefore[row.itemId] then return false end
         if craftCarried(body,row.itemId,row.itemType)~=item or not ownItem(rt,item) or item:getIsCraftingConsumed()
             or not ISBuildIsoEntity.predicateMaterial(item)
             or CraftRecipeManager.getValidInputScriptForItem(rt.policy.recipe,item,body)~=rt.policy.recipe:getInputs():get(row.inputIndex)
@@ -2288,7 +2288,7 @@ function collector.manualExact(rt)
     return true
 end
 function collector.payment(rt)
-    if rt.kind=="build-double-gate" then return gate.payment(rt) end
+    if rt.policy and rt.policy.consumableInputs then return collector.usePayment(rt) end
     local data=rt.logic:getRecipeDataInProgress()
     local consumed,kept=data:getAllConsumedItems(),data:getAllKeepInputItems();local expected=0
     for i,row in ipairs(rt.inputs) do local item=rt.materials[i]
@@ -3043,18 +3043,50 @@ function bed.begin(id,body,step,context)
     plumbInterrupt(id,body,"native-bed-approach-refused");return false
 end
 
--- Observed wooden wall and door stages share this exact native construction claim.
+-- Observed wall and door stages share this exact native construction claim.
 shelter={}
+shelter.metal={
+    ["Base.MetalWallFrame"]={kind="wall-frame",counts={1,3,1},materials={"welding-torch","metal-bar","welding-rods"},types={"Base.BlowTorch","Base.MetalBar","Base.WeldingRods"},uses={[1]=1,[3]=2}},
+    ["Base.MetalWallLvl1"]={kind="wall",counts={1,3,1},materials={"welding-torch","small-sheet-metal","welding-rods"},types={"Base.BlowTorch","Base.SmallSheetMetal","Base.WeldingRods"},uses={[1]=4,[3]=4}},
+    ["Base.MetalWallLvl2"]={kind="wall",counts={1,4,1},materials={"welding-torch","small-sheet-metal","welding-rods"},types={"Base.BlowTorch","Base.SmallSheetMetal","Base.WeldingRods"},uses={[1]=4,[3]=4}},
+    ["Base.MetalDoorFrameLvl1"]={kind="door-frame",counts={1,4,1},materials={"welding-torch","metal-bar","welding-rods"},types={"Base.BlowTorch","Base.MetalBar","Base.WeldingRods"},uses={[1]=4,[3]=4}},
+    ["Base.MetalDoorFrameLvl2"]={kind="door-frame",counts={1,4,1},materials={"welding-torch","metal-bar","welding-rods"},types={"Base.BlowTorch","Base.MetalBar","Base.WeldingRods"},uses={[1]=4,[3]=4}},
+    ["Base.MetalDoorLvl1"]={kind="door-leaf",counts={1,3,1,2,1},materials={"welding-torch","small-sheet-metal","welding-rods","hinge","doorknob"},types={"Base.BlowTorch","Base.SmallSheetMetal","Base.WeldingRods","Base.Hinge","Base.Doorknob"},uses={[1]=4,[3]=4}},
+    ["Base.MetalDoorLvl2"]={kind="door-leaf",counts={1,3,1,2,1},materials={"welding-torch","small-sheet-metal","welding-rods","hinge","doorknob"},types={"Base.BlowTorch","Base.SmallSheetMetal","Base.WeldingRods","Base.Hinge","Base.Doorknob"},uses={[1]=4,[3]=4}},
+}
 shelter.entities={"Base.WoodenWallFrame","Base.WoodenWallLvl1","Base.WoodenWallLvl2","Base.WoodenWallLvl3",
     "Base.WoodDoorFrameLvl1","Base.WoodDoorFrameLvl2","Base.WoodDoorFrameLvl3",
     "Base.WoodenDoorLvl1","Base.WoodenDoorLvl2","Base.WoodenDoorLvl3",
     "Base.WoodFloorLvl1","Base.WoodFloorLvl2","Base.WoodFloorLvl3","Base.Wood_Stairs","Base.DoubleDoor","Base.DoubleFenceGate","Base.DoubleWireGate"}
+for _,entity in ipairs({"Base.MetalWallFrame","Base.MetalWallLvl1","Base.MetalWallLvl2","Base.MetalDoorFrameLvl1","Base.MetalDoorFrameLvl2","Base.MetalDoorLvl1","Base.MetalDoorLvl2"}) do shelter.entities[#shelter.entities+1]=entity end
 function shelter.spec(entityId)
+    local metal=shelter.metal[entityId];if metal then return metal.kind,metal.counts end
     for i,name in ipairs(shelter.entities) do if name==entityId then
         local category=i>14 and "double-gate" or i==14 and "stairs" or i>10 and "floor" or i==1 and "wall-frame" or i<=4 and "wall" or i<=7 and "door-frame" or "door-leaf"
         local counts=i==15 and {1,8,8,4,2} or i==16 and {1,10,4,4,1} or i==17 and {1,8,1,4,2,1} or i==14 and {1,13,8} or i>10 and {1,1,1} or i==1 and {1,2,2} or i<=4 and {1,2,4} or i<=7 and {1,4,4} or {1,4,4,2,1}
         return category,counts
     end end
+end
+function shelter.learned(recipe,body)
+    return not recipe:needToBeLearn() or body:isRecipeActuallyKnown(recipe:getName())==true
+end
+function shelter.priorMatches(policy,site)
+    local previous=policy.info:getScript():getPreviousStages()
+    if not previous or previous:size()==0 then return true end
+    local name=tostring(site.previousEntity or ""):gsub("^Base%.",""):lower()
+    for index=0,previous:size()-1 do if tostring(previous:get(index)):lower()==name then return true end end
+    return false
+end
+function shelter.gradeChoice(body,policy)
+    if not shelter.metal[policy.entityId] or policy.entityId=="Base.MetalWallFrame" then return true end
+    local ok,result=pcall(function()
+        require "CraftRecipeCode/CraftRecipe_BuildMenu"
+        local grade2=policy.entityId:sub(-4)=="Lvl2"
+        local test=policy.kind=="door-leaf" and (grade2 and metalDoorLvl2Test or metalDoorLvl1Test)
+            or (grade2 and metalWallLvl2Test or metalWallLvl1Test)
+        return type(test)=="function" and test({player=body,recipe=policy.recipe,shouldShowAll=false})==true
+    end)
+    return ok and result==true
 end
 function shelter.recipe(body,entityId,permitUnknown)
     local kind,counts=shelter.spec(entityId);if not kind or not collector.install() then return nil end
@@ -3063,7 +3095,7 @@ function shelter.recipe(body,entityId,permitUnknown)
         local info=infos:get(i);local script=info:getScript()
         if script and script:getParent():getScriptObjectFullType()==entityId and info:getRecipe() then
             local recipe=info:getRecipe():getCraftRecipe()
-            if not recipe or not permitUnknown and not CraftRecipeManager.hasPlayerLearnedRecipe(recipe,body) or script:isProp() then return nil end
+            if not recipe or not permitUnknown and not shelter.learned(recipe,body) or script:isProp() then return nil end
             for j=0,recipe:getRequiredSkillCount()-1 do
                 if not CraftRecipeManager.hasPlayerRequiredSkill(recipe:getRequiredSkill(j),body) then return nil end
             end
@@ -3071,11 +3103,11 @@ function shelter.recipe(body,entityId,permitUnknown)
             local requirements={}
             for index,count in ipairs(counts) do
                 local input=recipe:getInputs():get(index-1)
-                local metal=kind=="double-gate" and entityId~="Base.DoubleDoor"
-                local uses=metal and (index==1 or index==#counts or entityId=="Base.DoubleWireGate" and index==3)
-                local nativeCount=uses and (entityId=="Base.DoubleWireGate" and index==3 and 4 or 10) or count
+                local weld=shelter.metal[entityId];local metal=weld or kind=="double-gate" and entityId~="Base.DoubleDoor"
+                local uses=weld and weld.uses[index] or not weld and metal and (index==1 or index==#counts or entityId=="Base.DoubleWireGate" and index==3)
+                local nativeCount=weld and weld.uses[index] or uses and (entityId=="Base.DoubleWireGate" and index==3 and 4 or 10) or count
                 if input:getResourceType()~=ResourceType.Item or input:getIntAmount()~=nativeCount or input:isKeep()~=(not metal and index==1) then return nil end
-                local categories=entityId=="Base.DoubleFenceGate" and {"welding-torch","metal-pipe","hinge","scrap-metal","welding-rods"}
+                local categories=weld and weld.materials or entityId=="Base.DoubleFenceGate" and {"welding-torch","metal-pipe","hinge","scrap-metal","welding-rods"}
                     or entityId=="Base.DoubleWireGate" and {"welding-torch","metal-pipe","wire","hinge","scrap-metal","welding-rods"}
                     or {"hammer","plank","nails","hinge","doorknob"}
                 requirements[#requirements+1]={inputIndex=index-1,category=categories[index],count=count,
@@ -3086,14 +3118,16 @@ function shelter.recipe(body,entityId,permitUnknown)
                 local width=kind=="double-gate" and name=="N" and 4 or kind=="stairs" and name=="S" and 3 or 1;local height=kind=="double-gate" and name=="W" and 4 or kind=="stairs" and name=="W" and 3 or 1
                 if not face or face:getWidth()~=width or face:getHeight()~=height or face:getzLayers()~=1 then return nil end
             end
-            return {info=info,recipe=recipe,recipeId=recipe:getScriptObjectFullType(),entityId=entityId,kind=kind,shelterEdge=true,requirements=requirements,recipeKnown=CraftRecipeManager.hasPlayerLearnedRecipe(recipe,body),recipeName=entityId:sub(6)}
+            return {info=info,recipe=recipe,recipeId=recipe:getScriptObjectFullType(),entityId=entityId,kind=kind,shelterEdge=true,requirements=requirements,
+                consumableInputs=shelter.metal[entityId]~=nil or kind=="double-gate" and entityId~="Base.DoubleDoor",
+                recipeKnown=shelter.learned(recipe,body),recipeName=recipe:getName()}
         end
     end
 end
 function shelter.sameSite(a,b)
     if type(a)~="table" or type(b)~="table" then return false end
     for _,key in ipairs({"key","revision","x","y","z","face","approachX","approachY","approachZ","insideX","insideY",
-        "destinationX","destinationY","destinationZ","boundaryObserved","originX","originY","originZ","width","height","landingX","landingY","landingZ","landingObserved","landingBasis","mode","previousEntity","actorId","observed","roof","supported","missingFloor","observedAtHours","source"}) do
+        "destinationX","destinationY","destinationZ","boundaryObserved","originX","originY","originZ","width","height","landingX","landingY","landingZ","landingObserved","landingBasis","mode","previousEntity","upgradeOpportunity","actorId","observed","roof","supported","missingFloor","observedAtHours","source"}) do
         if a[key]~=b[key] then return false end
     end
     return true
@@ -3138,11 +3172,32 @@ function shelter.site(id,body,site)
     end
     return false
 end
+function shelter.intendedUpgrade(id,body,own,site)
+    local intention=own and own.intendedEdges and own.intendedEdges[site.key]
+    local anchor=own and own.selectionAnchors and own.selectionAnchors[site.key]
+    local purpose=SAO.ProceduralPlanning.shelterPurpose(id);local world=getWorld()
+    if type(intention)~="table" or getmetatable(intention) or not purpose or purpose.shelterConstruction~=own
+        or intention.actorId~=id or intention.purposeId~=purpose.id or not world or intention.world~=world:getWorld()
+        or intention.entityId~="Base.MetalWallLvl2" or intention.siteKey~=site.key or not textId(intention.priorRevision)
+        or intention.priorEntity~="Base.WoodenWallFrame" and intention.priorEntity~="Base.MetalWallFrame"
+        or not finite(intention.observedAtHours) or intention.observedAtHours<0 or not finite(intention.selectedAt) or intention.selectedAt<0 or intention.observedAtHours>intention.selectedAt
+        or intention.selectedAt>now() then return false end
+    if type(anchor)~="table" or getmetatable(anchor) or anchor.owner~="SAO.ProceduralPlanning.setPlan" then return false end
+    for _,key in ipairs({"owner","actorId","purposeId","stepId","entityId","siteKey","priorRevision","priorEntity","x","y","z","face","originX","originY","world","observedAtHours","selectedAt"}) do
+        if intention[key]~=anchor[key] then return false end
+    end
+    for _,key in ipairs({"x","y","z","face","originX","originY"}) do if intention[key]~=site[key] then return false end end
+    for _,step in ipairs(purpose.steps or {}) do
+        if step.id==intention.stepId and step.owner=="SAO.ResourceProduction" and step.entityId==intention.entityId
+            and step.target==intention.entityId and step.site and step.site.key==site.key then return true end
+    end
+    return false
+end
 function R.shelterOptions(id,body,retained)
     local ok,out=pcall(function()
         if not owner(id,body) or not SAO.Perception.shelterSites then return {} end
         local policies={};for _,entityId in ipairs(shelter.entities) do
-            local policy=shelter.recipe(body,entityId);if policy then
+            local policy=shelter.recipe(body,entityId,true);if policy and shelter.gradeChoice(body,policy) then
                 policy.inputs=collector.inputs(policy,body);policies[#policies+1]=policy
             end
         end
@@ -3179,13 +3234,14 @@ function R.shelterOptions(id,body,retained)
                 elseif relevant and site.mode~="floor" and #(retained.coverNeeds or {})>0 then relevant=false end
             end
             if relevant and (not retained or not retained.stageHistory[site.key] or retained.stageHistory[site.key].revision~=site.revision)
-                and (not built[site.key] or site.previousEntity~=built[site.key]) and shelter.site(id,body,site)
+                and (not built[site.key] or site.previousEntity~=built[site.key] or site.upgradeOpportunity)
+                and (not site.upgradeOpportunity or shelter.intendedUpgrade(id,body,retained,site)) and shelter.site(id,body,site)
                 and SAO.Standing.mayAttemptBelieved(id,site.x,site.y,"standing")==true
                 and SAO.Standing.mayAttemptBelieved(id,site.approachX,site.approachY,"standing")==true
                 and shelter.permission(id,site,false) then
-                for _,policy in ipairs(policies) do if policy.kind==site.mode then
+                for _,policy in ipairs(policies) do if policy.kind==site.mode and shelter.priorMatches(policy,site) then
                     out[#out+1]={kind=policy.kind=="stairs" and "build-shelter-stairs" or policy.kind=="floor" and "build-shelter-surface" or "build-shelter-edge",known=true,entityId=policy.entityId,recipeId=policy.recipeId,
-                        requirements=collector.copy(policy.requirements),inputs=collector.copy(policy.inputs),site=collector.copy(site),
+                        requirements=collector.copy(policy.requirements),inputs=collector.copy(policy.inputs),site=collector.copy(site),recipeName=policy.recipeName,recipeKnown=policy.recipeKnown,
                         distance=math.sqrt((body:getX()-site.approachX-.5)^2+(body:getY()-site.approachY-.5)^2)}
                     if #out>=32 then return out end
                 end end
@@ -3214,13 +3270,14 @@ for _,key in ipairs({"id","workId","sequence","actorId","kind","category","token
     "parts","groupId","usesBefore","usesAfter","doorKey","sourceObservation","nativeObservability","purposeDelivered","experienceDelivered"}) do SHELTER_FIELDS[key]=true end
 function shelter.identity(id,w)
     local kind,counts;if type(w)=="table" then kind,counts=shelter.spec(w.entityId) end
+    local weld=type(w)=="table" and shelter.metal[w.entityId]
     if type(w)~="table" or getmetatable(w) or not kind or w.actorId~=id
         or w.kind~=(kind=="double-gate" and "build-double-gate" or kind=="stairs" and "build-shelter-stairs" or kind=="floor" and "build-shelter-surface" or "build-shelter-edge")
-        or w.category~="construction" or w.token~=(kind=="double-gate" and "resource:gate-built" or "resource:shelter-built") or not textId(w.recipeId)
+        or w.category~="construction" or w.token~=(kind=="double-gate" and "resource:gate-built" or "resource:shelter-built") or w.recipeId~=w.entityId
         or not integer(w.sequence) or w.sequence<1 or w.id~="resource-production/"..id.."/"..w.sequence
         or not textId(w.purposeId) or not textId(w.purposeStepId) or not textId(w.world)
         or w.bodyToken~=nil and not textId(w.bodyToken) or not finite(w.startedAt) or w.startedAt<0
-        or w.toolCategory~=(kind=="double-gate" and w.entityId~="Base.DoubleDoor" and "welding-torch" or "hammer") or not textId(w.toolItemId) or not textId(w.toolItemType)
+        or w.toolCategory~=((weld or kind=="double-gate" and w.entityId~="Base.DoubleDoor") and "welding-torch" or "hammer") or not textId(w.toolItemId) or not textId(w.toolItemType)
         or not textId(w.siteKey) or not textId(w.siteRevision) or not finite(w.siteObservedAtHours)
         or w.siteObservedAtHours>w.startedAt or w.siteObservedAtHours<0 or (kind=="stairs" and w.face~="S" and w.face~="W" or kind~="stairs" and w.face~="N" and w.face~="W")
         or type(w.site)~="table" or w.site.key~=w.siteKey or w.site.revision~=w.siteRevision
@@ -3240,9 +3297,9 @@ function shelter.identity(id,w)
     for _,row in ipairs(w.inputs) do
         if type(row)~="table" or getmetatable(row) or not integer(row.inputIndex) or row.inputIndex>=#counts
             or not textId(row.itemId) or not textId(row.itemType) or seen[row.itemId]
-            or row.mode~=(kind=="double-gate" and w.entityId~="Base.DoubleDoor" and (row.inputIndex==0 or row.inputIndex==#counts-1 or w.entityId=="Base.DoubleWireGate" and row.inputIndex==2) and "use"
-                or row.inputIndex==0 and "keep" or "consume") then return false end
-        local family=w.entityId=="Base.DoubleFenceGate" and {"Base.BlowTorch","Base.MetalPipe","Base.Hinge","Base.ScrapMetal","Base.WeldingRods"}
+            or row.mode~=(weld and weld.uses[row.inputIndex+1] and "use" or not weld and kind=="double-gate" and w.entityId~="Base.DoubleDoor" and (row.inputIndex==0 or row.inputIndex==#counts-1 or w.entityId=="Base.DoubleWireGate" and row.inputIndex==2) and "use"
+                or not weld and row.inputIndex==0 and "keep" or "consume") then return false end
+        local family=weld and weld.types or w.entityId=="Base.DoubleFenceGate" and {"Base.BlowTorch","Base.MetalPipe","Base.Hinge","Base.ScrapMetal","Base.WeldingRods"}
             or w.entityId=="Base.DoubleWireGate" and {"Base.BlowTorch","Base.MetalPipe","Base.Wire","Base.Hinge","Base.ScrapMetal","Base.WeldingRods"}
         local expected=family and family[row.inputIndex+1] or ({"Base.Plank","Base.Nails","Base.Hinge","Base.Doorknob"})[row.inputIndex]
         if (family or row.inputIndex>0) and row.itemType~=expected then return false end
@@ -3251,13 +3308,16 @@ function shelter.identity(id,w)
     end
     for i,count in ipairs(counts) do local req=w.requirements[i]
         if req.inputIndex~=i-1 or req.count~=count or numbers[i-1]~=(req.mode=="use" and req.quantity or count)
-            or req.category~=(w.entityId=="Base.DoubleFenceGate" and {"welding-torch","metal-pipe","hinge","scrap-metal","welding-rods"}
+            or req.category~=(weld and weld.materials or w.entityId=="Base.DoubleFenceGate" and {"welding-torch","metal-pipe","hinge","scrap-metal","welding-rods"}
                 or w.entityId=="Base.DoubleWireGate" and {"welding-torch","metal-pipe","wire","hinge","scrap-metal","welding-rods"}
                 or {"hammer","plank","nails","hinge","doorknob"})[i]
-            or req.mode~=(kind=="double-gate" and w.entityId~="Base.DoubleDoor" and (i==1 or i==#counts or w.entityId=="Base.DoubleWireGate" and i==3) and "use" or i==1 and "keep" or "consume") then return false end
-        if req.mode=="use" and (req.quantity~=(w.entityId=="Base.DoubleWireGate" and i==3 and 4 or 10) or req.nativeCount~=req.quantity) then return false end
+            or req.mode~=(weld and weld.uses[i] and "use" or not weld and kind=="double-gate" and w.entityId~="Base.DoubleDoor" and (i==1 or i==#counts or w.entityId=="Base.DoubleWireGate" and i==3) and "use" or not weld and i==1 and "keep" or "consume") then return false end
+        if req.mode=="use" and (req.quantity~=(weld and weld.uses[i] or w.entityId=="Base.DoubleWireGate" and i==3 and 4 or 10)
+            or req.nativeCount~=req.quantity or req.recordInput~=(not weld and w.entityId=="Base.DoubleWireGate" and i==3)) then return false end
     end
-    return w.inputs[1].itemId==w.toolItemId and w.inputs[1].itemType==w.toolItemType and collector.copy(w)~=nil
+    local tool=w.inputs[1]
+    if weld then for _,row in ipairs(w.inputs) do if row.itemType=="Base.BlowTorch" then tool=row;break end end end
+    return tool.itemId==w.toolItemId and tool.itemType==w.toolItemType and collector.copy(w)~=nil
 end
 function shelter.purpose(rec,w)
     local planning=rec and rec.proceduralPlanning;local p=planning and planning.purposes[w.purposeId]
@@ -3291,7 +3351,8 @@ function shelter.bound(rt,pre)
         or w.stage~="approaching" and (body:getCurrentSquare()~=rt.square or math.abs(body:getX()-rt.x)>.01 or math.abs(body:getY()-rt.y)>.01) then return false end
     if not shelter.permission(rt.id,rt.site,true) then return false end
     if not pre then return true end
-    if w.kind=="build-double-gate" and not CraftRecipeManager.hasPlayerLearnedRecipe(rt.policy.recipe,body) then return false end
+    if not shelter.learned(rt.policy.recipe,body) then return false end
+    if rt.site.upgradeOpportunity and not shelter.intendedUpgrade(rt.id,body,p.shelterConstruction,rt.site) then return false end
     if w.kind=="build-shelter-edge" and w.stage~="approaching" and SAOJavaBridge:worldShelterPreviousStage(body,w.siteKey,w.siteRevision)~=rt.observedStage then return false end
     if rt.nativeAttempted or body:isBuildCheat() or isClient() or isServer() then return false end
     if w.stage~="approaching" then
@@ -3302,7 +3363,7 @@ function shelter.bound(rt,pre)
         if square~=rt.siteSquare then return false end
     end
     for i,row in ipairs(rt.inputs) do local item=rt.materials[i]
-        if rt.kind=="build-double-gate" and row.mode=="use" and item:getCurrentUses()~=rt.usesBefore[row.itemId] then return false end
+        if rt.policy.consumableInputs and row.mode=="use" and item:getCurrentUses()~=rt.usesBefore[row.itemId] then return false end
         if craftCarried(body,row.itemId,row.itemType)~=item or not ownItem(rt,item) or item:getIsCraftingConsumed()
             or not ISBuildIsoEntity.predicateMaterial(item)
             or CraftRecipeManager.getValidInputScriptForItem(rt.policy.recipe,item,body)~=rt.policy.recipe:getInputs():get(row.inputIndex)
@@ -3358,15 +3419,13 @@ function shelter.outcome(id,row)
                 or not textId(part.sprite) or not integer(part.objectIndex) then return nil end
         end
     elseif row.nativeCredit~=nil then return nil end
-    if row.status=="completed" and row.kind=="build-double-gate" then
-        if not textId(row.groupId) then return nil end
-        if row.entityId~="Base.DoubleDoor" then
+    if row.status=="completed" and row.kind=="build-double-gate" and not textId(row.groupId) then return nil end
+    if row.status=="completed" and (shelter.metal[row.entityId] or row.kind=="build-double-gate" and row.entityId~="Base.DoubleDoor") then
             if type(row.usesBefore)~="table" or type(row.usesAfter)~="table" then return nil end
             for _,input in ipairs(row.inputs) do if input.mode=="use" then
                 if not finite(input.quantity) or input.quantity<1 or not finite(row.usesBefore[input.itemId]) or row.usesBefore[input.itemId]<input.quantity
                     or row.usesAfter[input.itemId]~=row.usesBefore[input.itemId]-input.quantity then return nil end
             end end
-        end
     end
     if row.nativeObservability~=nil and (row.nativeObservability~="runtime-unavailable" or row.status~="interrupted"
         or row.nativeAttempted or row.nativeCompleted or row.constructed or row.placed or row.inputsConsumed or row.toolRetained
@@ -3443,6 +3502,7 @@ function shelter.begin(id,body,step,context)
     local p=rec.proceduralPlanning and rec.proceduralPlanning.purposes[context.purposeId]
     if not p or not (p.shelterConstruction or p.gateAccess) or p.admission
         or p.steps[p.cursor]~=step or step.id~=context.purposeStepId then return false end
+    if step.site.upgradeOpportunity and not shelter.intendedUpgrade(id,body,p.shelterConstruction,step.site) then return false end
     local selected=collector.inputs(policy,body)
     if not SAO.ProceduralPlanning.collectorReady({kind=policy.kind=="double-gate" and "build-double-gate" or nil,requirements=policy.requirements,inputs=selected}) or not collector.rowsEqual(selected,step.inputs) or not collector.rowsEqual(policy.requirements,step.requirements) then return false end
     local route=SAO.Locomotion.jobs[id];if route and not route.done then return false end
@@ -3463,13 +3523,15 @@ function shelter.begin(id,body,step,context)
     end
     if not logic:canPerformCurrentRecipe() then return false end
     rt.logic,rt.tool,rt.containers=logic,rt.materials[1],containers
-    if rt.kind=="build-double-gate" then gate.captureUses(rt) end
-    rt.toolId,rt.toolType=selected[1].itemId,selected[1].itemType
+    local toolIndex=1
+    if shelter.metal[policy.entityId] then for index,row in ipairs(selected) do if row.itemType=="Base.BlowTorch" then toolIndex=index;rt.tool=rt.materials[index];break end end end
+    if policy.consumableInputs then collector.captureUses(rt) end
+    rt.toolId,rt.toolType=selected[toolIndex].itemId,selected[toolIndex].itemType
     local seq=(rec.resourceProductionSequence or 0)+1
     local needs=SAO.Needs.read(body) or {};local ok,health=pcall(function() return body:getBodyDamage():getOverallBodyHealth() end)
     local w={id="resource-production/"..id.."/"..seq,sequence=seq,actorId=id,kind=rt.kind,category="construction",token=rt.kind=="build-double-gate" and "resource:gate-built" or "resource:shelter-built",
         purposeId=context.purposeId,purposeStepId=context.purposeStepId,requestedPurposeId=context.purposeId,requestedPurposeStepId=context.purposeStepId,
-        toolCategory=rt.kind=="build-double-gate" and rt.policy.entityId~="Base.DoubleDoor" and "welding-torch" or "hammer",toolItemId=rt.toolId,toolItemType=rt.toolType,entityId=step.entityId,recipeId=policy.recipeId,
+        toolCategory=policy.consumableInputs and "welding-torch" or "hammer",toolItemId=rt.toolId,toolItemType=rt.toolType,entityId=step.entityId,recipeId=policy.recipeId,
         requirements=collector.copy(policy.requirements),inputs=collector.copy(selected,0,policy.kind=="double-gate" and 38 or 32),site=collector.copy(rt.site),
         siteKey=rt.site.key,siteRevision=rt.site.revision,siteX=rt.site.x,siteY=rt.site.y,siteZ=rt.site.z,siteObservedAtHours=rt.site.observedAtHours,face=rt.site.face,
         world=rt.world,bodyToken=rt.token,startedAt=t,status="constructing",stage="approaching",
@@ -3736,10 +3798,10 @@ function gate.permission(id,site,current)
         if query(id,site.x+x,site.y+y,"standing")~=true then return false end
     end end;return true
 end
-function gate.captureUses(rt)
+function collector.captureUses(rt)
     rt.usesBefore={};for i,row in ipairs(rt.inputs) do if row.mode=="use" then rt.usesBefore[row.itemId]=rt.materials[i]:getCurrentUses() end end
 end
-function gate.payment(rt)
+function collector.usePayment(rt)
     local data=rt.logic:getRecipeDataInProgress();local consumed,kept=data:getAllConsumedItems(),data:getAllKeepInputItems();local count=0;rt.usesAfter={}
     for i,row in ipairs(rt.inputs) do local item=rt.materials[i]
         if row.mode=="consume" then

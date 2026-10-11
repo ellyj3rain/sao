@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `2.6.12.0-pre-alpha` |
+| Version | `2.6.13.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -127,3 +127,7 @@ The CLOSED [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md)
 ## D3.12 native double-gate source
 
 [D3.12](Batches/D3.12-20261011-0526Z-2226PDT-native-double-gates.md) is the CLOSED freestanding double-gate construction-through-access child. All six wooden, metal-pole and wire native variants join private permitted boundary/access intent, exact knowledge/resources, measured four-part creation, opening with leaf reconstruction, genuine same-body passage and closure with independent saved outcomes. Full D3 remains OPEN; one kohai records this building progress.
+
+## D3.13 native metal shelter source
+
+[D3.13](Batches/D3.13-20261011-0845Z-0145PDT-metal-walls-doors-usable-shelter.md) is CLOSED for the complete native metal wall/frame/door family, both orientations, private permitted shelter purpose and exact acquired means through native construction, doorway use and ordinary reached shelter/recovery. Full D3 remains OPEN; one kohai records this coherent building increment.

@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""D3.12 installed recipe reading through actual named native knowledge.
+"""D3.13 shared recipe reading through actual named native knowledge.
 
 Production Study, installed ISReadABook and queue execute in native Kahlua.
 Installed script definitions/Literature and the real shell ReadLiterature/
 isRecipeActuallyKnown methods supply metadata and effects. Actor, animation,
 clock, sounds/network and declared Planner callback receivers are controlled.
-The separate integrated gate proof owns real gate planning/build/use.
+The coupled construction proofs own actual manual acquisition and gate/metal
+shelter planning, building, passage and recovery. Native recipe visibility is
+enabled in the fixture; actual acquired knowledge governs the production reader.
 """
 from pathlib import Path
 import argparse, hashlib, json, os, re, shutil, subprocess, sys, tempfile
@@ -13,7 +15,7 @@ sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
 HELPER = ROOT / 'tools/native_proof_preflight.py'
 if not HELPER.is_file():
-    print('FAILED D3.12 recipe reading: owned proof inputs absent: ' + str(HELPER)); raise SystemExit(1)
+    print('FAILED D3.13 recipe reading: owned proof inputs absent: ' + str(HELPER)); raise SystemExit(1)
 from native_proof_preflight import presence, causal_controls, installed_path
 GAME = installed_path(os.environ.get('PZ_DIR', r'C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid'))
 JDK = installed_path(os.environ.get('JDK_BIN', r'C:/Users/jleyv/Peanut Butter/JetBrains/Java/bin'))
@@ -41,14 +43,14 @@ def main():
     owned = [Path(__file__), HELPER, STUDY, PROBE, CASES, BASE, BOARD, METADATA, *HELPERS, JAR]
     installed = [*NATIVE, GAME / 'media/scripts/generated/items/literature.txt', GAME / 'projectzomboid.jar',
                  GAME / 'ZombieBuddy.jar', GAME / 'stdlib.lua', JDK / 'java.exe', JDK / 'javac.exe']
-    absent = presence(owned, installed, args.required, 'D3.12 recipe reading')
+    absent = presence(owned, installed, args.required, 'D3.13 recipe reading')
     if absent is not None:
         return absent
     out = args.out.resolve(); out.mkdir(parents=True, exist_ok=False)
     jars = [JAR, GAME / 'projectzomboid.jar', GAME / 'ZombieBuddy.jar', *sorted((GAME / 'jars').glob('*.jar'))]
     inputs = list(dict.fromkeys(owned + installed + jars))
     raw_inputs = [p for p in owned if p != JAR]
-    receipt = {'schema': 'sao-d312-recipe-reading/1', 'status': 'INCOMPLETE', 'boundary': __doc__,
+    receipt = {'schema': 'sao-d313-recipe-reading/1', 'status': 'INCOMPLETE', 'boundary': __doc__,
                'productionFiles': [STUDY.relative_to(ROOT).as_posix()],
                'instrumentFiles': [p.relative_to(ROOT).as_posix() for p in raw_inputs if p != STUDY],
                'sourcePins': {p.relative_to(ROOT).as_posix(): sha(p) for p in raw_inputs},
@@ -56,7 +58,11 @@ def main():
                'nativeInputs': {p.as_posix(): sha(p) for p in list(dict.fromkeys(installed + jars)) if p != JAR},
                'inputsBefore': {p.as_posix(): sha(p) for p in inputs}, 'runs': [], 'controls': [],
                'reusedEvidence': 'Existing native action/queue fixtures, installed metadata loader and crossing-shell boot are unchanged. Ordinary study/leisure and generator producer regressions receive separate selected runs.',
-               'unverified': ['Rendered play', 'native server execution', 'actual integrated gate Planner/Controller; owned by coupled gate proof']}
+               'configuration': {'seeNotLearntRecipe': True, 'readingTargets': ['DoubleFenceGate', 'DoubleWireGate',
+                    'MetalWallFrame', 'MetalWallLvl1', 'MetalWallLvl2', 'MetalDoorFrameLvl1', 'MetalDoorFrameLvl2'],
+                    'intrinsicDoorRecipes': 'No learned recipe or reading target'},
+               'unverified': ['Rendered play', 'native server execution',
+                    'actual physical manual acquisition and integrated gate/shelter Planner/Controller; owned by coupled construction proofs']}
     def save():
         (out / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
     def run(name, command, work):
@@ -97,7 +103,13 @@ def main():
             code, log = execute('baseline', chunks, '__runRecipeReadingCases()')
             checks = dict(re.findall(r'^CHECK ([a-z0-9_]+)=(true|false)$', log, re.M)); receipt['checks'] = checks; save()
             marker = re.search(r'^PASS recipe reading (\d+)$', log, re.M)
-            assert code == 0 and marker and len(checks) == int(marker[1]) and len(checks) >= 60 and all(v == 'true' for v in checks.values()), log[-14000:]
+            metal_checks = {'metal_native_recipe_' + str(index) for index in range(1, 6)} | {
+                'metal_shelter_scope_change_refused', 'metal_native_complete_without_learning_refused',
+                'metal_saved_feedback_once', 'metal_pending_ack_retained', 'metal_saved_native_ack_no_learning',
+                'metal_saved_reading_resumes_same_purpose',
+                'metal_wrong_native_manual_refused', 'intrinsic_door_not_a_reader_target'}
+            assert code == 0 and marker and len(checks) == int(marker[1]) and len(checks) >= 75 \
+                and metal_checks <= set(checks) and all(v == 'true' for v in checks.values()), log[-14000:]
             if not args.baseline_only:
                 mutations = [
                     ('native-effect', [('local result=ISReadABook.complete(self)', 'local result=true')], 'native_named_knowledge_effect'),
@@ -109,6 +121,10 @@ def main():
                     ('pending-ack', [('or not rt.ack or queued(rt.action)', 'or false'), ('or rt.queue.current==rt.action or hours()<w.beganAt', 'or hours()<w.beganAt')], 'pending_ack_retained'),
                     ('saved-runtime-retirement', [('if a.action then a:forceStop() else a:forceCancel() end', 'if false then a:forceStop() else a:forceCancel() end')], 'saved_native_ack_no_learning'),
                     ('exact-current-queue', [('or not current() and not (rt.ack and not rt.queue.current and #rt.queue.queue==0)', 'or false')], 'replacement_queue_preserved'),
+                    ('metal-learned-target', [('MetalWallFrame=true', 'MetalWallFrame=false')], 'metal_native_named_knowledge_effect'),
+                    ('metal-shelter-applicability', [('or definition==readingDefinitions["recipe-reading"] and purpose.shelterConstruction', '')], 'metal_native_named_knowledge_effect'),
+                    ('metal-actual-knowledge-vs-visibility', [('body:isRecipeActuallyKnown(context.recipeName)', 'body:isRecipeKnown(context.recipeName)')], 'metal_native_named_knowledge_effect'),
+                    ('metal-purpose-custody', [('and readingPurpose(definition,p) and s and a', 'and true and s and a')], 'metal_shelter_scope_change_refused'),
                 ]
                 for name, replacements, detector in mutations:
                     variant = dict(chunks)
@@ -117,7 +133,12 @@ def main():
                         variant['study.lua'] = variant['study.lua'].replace(old, new, 1)
                     code, log = execute(name, variant, "__runRecipeReadingControl('" + detector + "')")
                     detected = code == 0 and 'CHECK ' + detector + '=false' in log
-                    receipt['controls'].append({'name': name, 'detector': detector, 'detected': detected}); save()
+                    effects = re.search(r'^NATIVE_READS (\d+(?:\.0)?)$', log, re.M)
+                    assert effects, (name, 'native effect measurement absent')
+                    receipt['controls'].append({'name': name, 'detector': detector, 'detected': detected,
+                        'nativeReadEffects': int(float(effects[1])),
+                        'landedMutations': [{'file': 'study.lua', 'before': old, 'after': new, 'count': 1}
+                                           for old, new in replacements]}); save()
                     assert detected, (name, log[-4000:])
                 receipt['preflightControls'] = causal_controls(ROOT, Path(__file__), owned,
                     child_args=['--out', 'proof'], missing_owned=PROBE)
@@ -125,12 +146,12 @@ def main():
             receipt['sourcePreserved'] = receipt['inputsBefore'] == receipt['inputsAfter']
             assert receipt['sourcePreserved'], 'qualified input changed during proof'
             receipt['status'] = 'PASS'; save()
-            print('PASS D3.12 recipe reading: ' + str(len(checks)) + ' checks, ' + str(len(receipt['controls'])) + ' detecting controls')
+            print('PASS D3.13 recipe reading: ' + str(len(checks)) + ' checks, ' + str(len(receipt['controls'])) + ' detecting controls')
             print(out / 'receipt.json')
             return 0
     except Exception as error:
         receipt['status'] = 'FAIL'; receipt['error'] = str(error); save()
-        print('FAIL D3.12 recipe reading: ' + str(error)[-14000:]); return 1
+        print('FAIL D3.13 recipe reading: ' + str(error)[-14000:]); return 1
 
 if __name__ == '__main__':
     raise SystemExit(main())

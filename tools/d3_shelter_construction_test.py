@@ -200,7 +200,7 @@ def main():
                 ('if(occupiedMode.equals("door")||occupiedMode.equals("door-leaf"))hasDoor=true;',
                     'if(false&&(occupiedMode.equals("door")||occupiedMode.equals("door-leaf")))hasDoor=true;')]),
             ('closed-door-row','map-door-closed','native_closed_door_row_uses_observed_inside_approach',[
-                ('if(!neighborVisible&&!visibleDoor)continue;','if(!neighborVisible)continue;')]),
+                ('if(!neighborVisible&&!visibleDoor&&!visibleUpgrade)continue;','if(!neighborVisible&&!visibleUpgrade)continue;')]),
             ('passage-hidden-exterior','door-admission','native_hidden_exterior_refuses_selected_capture',[
                 ('||!visible(body,outside)','||false')]),
             ('passage-occupied-exterior','door-admission','native_occupied_exterior_refuses_selected_capture',[

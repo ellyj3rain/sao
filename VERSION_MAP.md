@@ -25,8 +25,8 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.6.12.0-pre-alpha` |
-| Classified delivered scope | `A1-D3.12` |
+| Current version | `2.6.13.0-pre-alpha` |
+| Classified delivered scope | `A1-D3.13` |
 | Current C generation | `20261005-product-consolidation` |
 | Feature-scope reconciliation | [20261010](Batches/VERSION_SCOPE_RECONCILIATION.json); prior replay retained |
 | Unconsumed scope | `D3` |
@@ -223,6 +223,7 @@ the machine. Names, dates, and threads below come from
 | `D3.10` | 2026-10-11 | kohai | `2.6.10.0-pre-alpha` | Roofs and floors through usable shelter | Native wooden floor/roof-cover construction, genuine work-level access and return to the original ordinary shelter consumer deliver integrated surface progress within OPEN D3. |
 | `D3.11` | 2026-10-11 | kohai | `2.6.11.0-pre-alpha` | Native stairs through usable shelter | Both full native stair orientations, privately permitted footprints, exact materials, genuine upper travel, cover and return through ordinary shelter/recovery deliver coherent building progress within OPEN D3. |
 | `D3.12` | 2026-10-11 | kohai | `2.6.12.0-pre-alpha` | Native double gates through opening, passage and closure | Complete native wooden, metal-pole and wire N/W gates, private permitted boundary/access intent, exact knowledge/resources, four-part construction and genuine opening, passage and closure deliver coherent building progress within OPEN D3. |
+| `D3.13` | 2026-10-11 | kohai | `2.6.13.0-pre-alpha` | Native metal walls, frames and doors through usable shelter | The complete installed metal wall/frame/door family in both orientations, exact acquired knowledge/resources and permitted native stages through actual doorway use and ordinary reached shelter/recovery supplies coherent building progress within OPEN D3. |
 
 Dotted labels record child scope. Each capability row above receives credit once;
 child delivery leaves its explicitly active parent open. Closed parent aggregation
@@ -346,6 +347,6 @@ another batch. Subsequent delivered work determines its own tier:
 
 | If newly delivered scope is | Result |
 |---|---|
-| patch or hotfix | `2.6.12.1-pre-alpha` |
-| kohai | `2.6.13.0-pre-alpha` |
+| patch or hotfix | `2.6.13.1-pre-alpha` |
+| kohai | `2.6.14.0-pre-alpha` |
 | minor | `2.7.0.0-pre-alpha` |

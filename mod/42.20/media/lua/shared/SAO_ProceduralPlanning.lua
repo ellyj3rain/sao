@@ -568,6 +568,24 @@ local function setPlan(purpose, steps, blockers, interpretations, at)
         end
     end
     purpose.steps, purpose.blockers = steps, blockers or {}
+    -- The owning plan records the original selected native frame separately
+    -- from its retained intention; a later replacement site cannot rewrite it.
+    if purpose.shelterConstruction then
+        local own=purpose.shelterConstruction;own.selectionAnchors=own.selectionAnchors or {}
+        for _,step in ipairs(steps) do if step.productionKind=="build-shelter-edge" and step.entityId=="Base.MetalWallLvl2"
+            and step.site and not step.site.upgradeOpportunity then
+            local site=step.site;local anchor=own.selectionAnchors[site.key]
+            if not anchor or anchor.priorRevision~=site.revision or anchor.stepId~=step.id then
+                local count=0;for key in pairs(own.selectionAnchors) do count=count+1 end
+                if anchor or count<32 then local world=getWorld()
+                    own.selectionAnchors[site.key]={owner="SAO.ProceduralPlanning.setPlan",actorId=site.actorId,purposeId=purpose.id,
+                        stepId=step.id,entityId=step.entityId,siteKey=site.key,priorRevision=site.revision,priorEntity=site.previousEntity,
+                        x=site.x,y=site.y,z=site.z,face=site.face,originX=site.originX,originY=site.originY,
+                        world=world and world:getWorld(),observedAtHours=site.observedAtHours,selectedAt=at}
+                end
+            end
+        end end
+    end
     purpose.interpretations = interpretations
     purpose.updatedAt = at
     purpose.status = #purpose.blockers > 0 and "blocked" or "maintained"
@@ -940,7 +958,7 @@ local function plumbingStep(option, status)
         toolItemType = option.toolItemType }
 end
 
-local COLLECTOR_MATERIALS = { ["metal-pipe"]=true,wire=true,["scrap-metal"]=true,["welding-torch"]=true,["welding-rods"]=true,hinge=true,doorknob=true,mattress=true, hammer = true, plank = true, nails = true, ["garbage-bag"] = true, tarp = true }
+local COLLECTOR_MATERIALS = { ["metal-bar"]=true,["small-sheet-metal"]=true,["metal-pipe"]=true,wire=true,["scrap-metal"]=true,["welding-torch"]=true,["welding-rods"]=true,hinge=true,doorknob=true,mattress=true, hammer = true, plank = true, nails = true, ["garbage-bag"] = true, tarp = true }
 local function collectorDeficits(option)
     if type(option.requirements) ~= "table" or #option.requirements < 1 or #option.requirements > 8
         or type(option.inputs) ~= "table" or #option.inputs > ((option.kind=="build-double-gate" or option.productionKind=="build-double-gate") and 38 or 32) then return nil end
@@ -1932,7 +1950,7 @@ function P.consumeBedRecovery(id,sequence)
 end
 
 local SHELTER_RESULT,SHELTER_USE_RESULT,SHELTER_RECOVERY_RESULT={},{},{}
-local GATE_RESULT={}
+local GATE_RESULT,RECIPE_READING_RESULT={},{}
 function P.doubleGatePurpose(id)
     local s=state(id)
     for _,key in ipairs(s and s.order or {}) do local p=s.purposes[key]
@@ -2044,24 +2062,35 @@ function P.consumeDoubleGateResult(id,supplied)
     end;return accepted
 end
 function P.recipeReadingPurpose(id)
+    local rec,s=record(id),state(id);local work=rec and rec.studyWork
+    local owned=work and work.kind=="recipe-reading" and s and s.purposes[work.purposeId]
+    local current=owned and owned.steps[owned.cursor];local ad=owned and owned.admission
+    if owned and (owned.gateAccess or owned.shelterConstruction) and current and current.id==work.purposeStepId
+        and current.owner=="SAO.Study" and current.operation=="learn-recipe" and ad and ad.owner==current.owner
+        and ad.correlationId==work.id and ad.stepId==current.id then return owned,current end
     local p,step=P.doubleGatePurpose(id);if step and step.owner=="SAO.Study" and step.operation=="learn-recipe" then return p,step end
+    p,step=P.shelterPurpose(id);if step and step.owner=="SAO.Study" and step.operation=="learn-recipe" then return p,step end
 end
 function P.admitRecipeReading(id,w)
-    local p,step=P.recipeReadingPurpose(id)
-    if not p or p.admission or step.status~="available" or w.actorId~=id or w.purposeId~=p.id or w.purposeStepId~=step.id
+    local s=state(id);local p=s and s.purposes[w.purposeId];local step=p and p.steps[p.cursor]
+    if not p or not (p.gateAccess or p.shelterConstruction) or p.status=="completed" or p.status=="abandoned"
+        or p.admission or not step or step.status~="available" or w.actorId~=id or w.purposeId~=p.id or w.purposeStepId~=step.id
+        or step.owner~="SAO.Study" or w.owner~=step.owner or w.kind~="recipe-reading" or step.operation~="learn-recipe" or w.operation~=step.operation
+        or step.token~="recipe:knowledge-acquired" or w.token~=step.token or w.target~=step.target or step.target~=step.recipeName
+        or w.requestedPurposeId~=p.id or w.requestedPurposeStepId~=step.id
         or w.recipeName~=step.recipeName or w.itemId~=step.inputItemId or w.itemType~=step.inputItemType then return false end
     return P.noteAdmission(id,p.id,"SAO.Study",w.id,step.id)
 end
 function P.consumeRecipeReading(id,readingId)
-    local row=SAO.Study and SAO.Study.recipeOutcome(id,readingId);local p,step=P.recipeReadingPurpose(id)
+    local row=SAO.Study and SAO.Study.recipeOutcome(id,readingId);local p,step
     if not row then return false end
     local s=state(id);p=s and s.purposes[row.purposeId];step=p and p.steps[p.cursor]
-    if not p or not p.gateAccess then return false end
+    if not p or not (p.gateAccess or p.shelterConstruction) then return false end
     for _,seen in ipairs(p.resultReceipts or {}) do if seen=="SAO.Study:"..row.id then return true end end
     local ad=p.admission
     if not step or not ad or ad.correlationId~=row.id or step.id~=row.purposeStepId or step.recipeName~=row.recipeName
         or row.status=="completed" and (not row.nativeCompleted or row.recipeKnown~=true) then return false end
-    return P.recordResult(id,p.id,{owner="SAO.Study",token=row.token,status=row.status,correlationId=row.id,atHours=row.atHours,reason=row.reason},GATE_RESULT)
+    return P.recordResult(id,p.id,{owner="SAO.Study",token=row.token,status=row.status,correlationId=row.id,atHours=row.atHours,reason=row.reason},RECIPE_READING_RESULT)
 end
 function P.shelterPurpose(id)
     local s=state(id)
@@ -2202,15 +2231,23 @@ function P.planShelterConstruction(id,context)
             and (option.kind~="build-shelter-stairs" or own and #(own.coverNeeds or {})>0 and site.z==own.origin.z)
             and (option.kind~="build-shelter-edge" or not own or #(own.coverNeeds or {})==0)
             and (not own or not own.stageHistory[site.key] or own.stageHistory[site.key].entityId~=option.entityId) then
-            local source,delayed
-            if not ready then source,delayed=materialSource(retained or {},context.materialSources,missing[1].category,at) end
-            ranked[#ranked+1]={option=option,source=source,ready=ready,delayed=delayed,
-                actionable=ready or source~=nil and not delayed,index=i}
+            local source,delayed;local recipeNeeded=option.recipeKnown==false
+            local book=recipeNeeded and context.recipeBooks and context.recipeBooks[option.recipeName] or nil
+            if recipeNeeded and not book then
+                local manuals={} for _,candidate in ipairs(context.materialSources or {}) do
+                    if candidate.category=="shelter-manual" and candidate.recipeName==option.recipeName then manuals[#manuals+1]=candidate end
+                end
+                source,delayed=materialSource(retained or {},manuals,"shelter-manual",at)
+            elseif not recipeNeeded and not ready then source,delayed=materialSource(retained or {},context.materialSources,missing[1].category,at) end
+            ranked[#ranked+1]={option=option,source=source,ready=ready and not recipeNeeded,recipeNeeded=recipeNeeded,book=book,delayed=delayed,
+                actionable=ready and not recipeNeeded or book~=nil or source~=nil and not delayed,index=i}
         end
     end
     table.sort(ranked,function(a,b)
         if a.actionable~=b.actionable then return a.actionable end
         if a.ready~=b.ready then return a.ready end
+        if (a.source~=nil)~=(b.source~=nil) then return a.source~=nil end
+        if (a.delayed==true)~=(b.delayed==true) then return a.delayed==true end
         local da,db=tonumber(a.option.distance) or 100,tonumber(b.option.distance) or 100
         if da~=db then return da<db end
         return a.index<b.index
@@ -2249,7 +2286,7 @@ function P.planShelterConstruction(id,context)
         for _,site in ipairs(context.sites or {}) do
             local history=own and own.stageHistory[site.key]
             if own and site.originX==own.origin.originX and site.originY==own.origin.originY and site.z==own.origin.z
-                and site.mode~="door" and site.mode~="covered-interior" and (not history or history.revision~=site.revision) then missingObserved=true end
+                and site.mode~="door" and site.mode~="covered-interior" and not site.upgradeOpportunity and (not history or history.revision~=site.revision) then missingObserved=true end
         end
         if retained and not missingObserved then
             local own=retained.shelterConstruction
@@ -2270,7 +2307,11 @@ function P.planShelterConstruction(id,context)
         return retained,nil,"shelter-means-unavailable"
     end
     local option,source=selected.option,selected.source
-    if retained and not selected.ready and not source and option.kind=="build-shelter-edge" then
+    if retained and selected.delayed and not source and current and current.owner=="SAO.SourceUse" then
+        retained.status="blocked";retained.blockers={"known-route-retry-delayed"};current.status="blocked"
+        return retained,current
+    end
+    if retained and not selected.ready and not source and not selected.delayed and not selected.recipeNeeded and option.kind=="build-shelter-edge" then
         local target="reobserve:"..option.site.key;local prior=retained.shelterConstruction.accessAttempts and retained.shelterConstruction.accessAttempts[target]
         if not prior or prior.at<option.site.observedAtHours then
             return shelterMovementPlan(retained,"inspect",target,option.site.approachX+.5,option.site.approachY+.5,option.site.approachZ,at)
@@ -2283,7 +2324,18 @@ function P.planShelterConstruction(id,context)
     p.shelterConstruction=p.shelterConstruction or {recoveryKind=context.recoveryKind,origin=origin,
         stageHistory={},completedEdges={},completedSurfaces={},constructionResults={},coverNeeds=dataCopy(context.coverNeeds or {})}
     local steps,blockers={},{}
-    if not selected.ready then
+    if selected.recipeNeeded then
+        local book=selected.book
+        if book then
+            steps[#steps+1]={id="learn-shelter-recipe:"..option.recipeName,verb="study",owner="SAO.Study",operation="learn-recipe",token="recipe:knowledge-acquired",
+                recipeName=option.recipeName,inputItemId=tostring(book.itemId),inputItemType=book.itemType,target=option.recipeName,status="available"}
+        elseif source and not selected.delayed then
+            steps[#steps+1]={id=materialAcquisitionId(source),verb="acquire",owner="SAO.SourceUse",token="resource:acquired",target=source.sourceId..":"..source.itemId,
+                category="shelter-manual",sourceId=source.sourceId,sourceRevision=source.revision,itemId=source.itemId,itemType=source.itemType,place=dataCopy(source.place),quantity=1,quantityUnit="item",status="available"}
+        else blockers[#blockers+1]="native-shelter-recipe-knowledge-unavailable"
+            steps[#steps+1]={id="learn-shelter-recipe:"..option.recipeName,verb="study",owner="SAO.Study",operation="learn-recipe",token="recipe:knowledge-acquired",recipeName=option.recipeName,target=option.recipeName,status="blocked"}
+        end
+    elseif not selected.ready then
         if source and not selected.delayed then
             steps[#steps+1]={id=materialAcquisitionId(source),verb="acquire",owner="SAO.SourceUse",token="resource:acquired",
                 target=source.sourceId..":"..tostring(source.itemId),category=source.category,sourceId=source.sourceId,
@@ -2300,6 +2352,12 @@ function P.planShelterConstruction(id,context)
     -- Replanning observes the next native stage; no hypothetical completed room is inserted here.
     p.materialWork={operation="repair-shelter",entryKey=step.site.key}
     setPlan(p,steps,blockers,dataCopy(view),at);p.selectedStrategy=steps[1].id;p.omittedAlternatives=omitted
+    if option.entityId=="Base.MetalWallLvl2" and not option.site.upgradeOpportunity then
+        local anchor=p.shelterConstruction.selectionAnchors[option.site.key]
+        if anchor then p.shelterConstruction.intendedEdges=p.shelterConstruction.intendedEdges or {}
+            p.shelterConstruction.intendedEdges[option.site.key]=dataCopy(anchor)
+        end
+    end
     return p,p.steps[p.cursor]
 end
 function P.admitShelterConstruction(id,w)
@@ -2331,7 +2389,7 @@ function P.consumeShelterConstructionResult(id,supplied)
         if canonical.kind=="build-shelter-surface" then
             own.completedSurfaces=own.completedSurfaces or {};own.completedSurfaces[canonical.siteKey]=canonical.id
         end
-        if canonical.entityId:find("WoodenWallLvl",1,true) or canonical.entityId:find("WoodenDoorLvl",1,true) then own.completedEdges[canonical.siteKey]=canonical.entityId end
+        if canonical.entityId:find("WoodenWallLvl",1,true) or canonical.entityId:find("WoodenDoorLvl",1,true) or canonical.entityId:find("MetalWallLvl",1,true) or canonical.entityId:find("MetalDoorLvl",1,true) then own.completedEdges[canonical.siteKey]=canonical.entityId end
         own.constructionResults[#own.constructionResults+1]=canonical.id
         p.status="maintained";p.blockers={"awaiting-next-observed-stage-and-usable-shelter"}
     end
@@ -3739,7 +3797,8 @@ function P.recordResult(id, purposeId, result, authority)
     local step = purpose and purpose.steps[purpose.cursor]
     if purpose and purpose.gateAccess then
         if not step or step.owner=="SAO.SourceUse" and authority~=RESOURCE_RESULT
-            or (step.owner=="SAO.ResourceProduction" or step.owner=="SAO.Study") and authority~=GATE_RESULT
+            or step.owner=="SAO.ResourceProduction" and authority~=GATE_RESULT
+            or step.owner=="SAO.Study" and authority~=RECIPE_READING_RESULT
             or step.owner~="SAO.SourceUse" and step.owner~="SAO.ResourceProduction" and step.owner~="SAO.Study" then return false end
     end
     if purpose and purpose.generatorPower then
@@ -3759,7 +3818,8 @@ function P.recordResult(id, purposeId, result, authority)
             (step.token=="resource:shelter-built" and authority~=SHELTER_RESULT
                 or step.token=="resource:shelter-used" and authority~=SHELTER_USE_RESULT)
             or step.owner=="SAONeeds" and authority~=SHELTER_RECOVERY_RESULT
-            or step.owner~="SAO.ResourceProduction" and step.owner~="SAONeeds" and step.owner~="SAO.SourceUse" then return false end
+            or step.owner=="SAO.Study" and authority~=RECIPE_READING_RESULT
+            or step.owner~="SAO.ResourceProduction" and step.owner~="SAONeeds" and step.owner~="SAO.SourceUse" and step.owner~="SAO.Study" then return false end
     end
     if purpose and purpose.bedConstruction then
         if not step or step.owner=="SAO.ResourceProduction" and authority~=BED_RESULT
@@ -4009,7 +4069,7 @@ function P.consumeSourceResult(receipt)
         or step.itemId ~= authoritative.itemId or step.itemType ~= authoritative.itemType
         or step.category ~= authoritative.category or not finite(authoritative.at)
         or authoritative.at < admission.at or authoritative.at > nowHours()) then return false end
-    if purpose.gateAccess and completed and (authoritative.quantityUnit ~= step.quantityUnit
+    if (purpose.gateAccess or purpose.shelterConstruction) and completed and (authoritative.quantityUnit ~= step.quantityUnit
         or authoritative.requestedQuantity ~= step.quantity or authoritative.observedQuantity ~= step.quantity) then return false end
     if completed and (authoritative.measurement ~= "native-item-transfer"
         or (tonumber(authoritative.observedQuantity) or 0) <= 0) then return false end

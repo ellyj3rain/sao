@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.6.12.0-pre-alpha` |
+| Version | `2.6.13.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -3283,3 +3283,10 @@ Controlled native Kahlua result: The native motivating fixture on the old `SAO_W
 Changed runtime source SHA-256 `de2c8d2f5b029cc2cae11201e3437cbf0b8e1948aa349afaf4d1f40ccf4f0b7f` and focused instrument SHA-256 `328da9b66aba101c296c7e081895db5ad80bae0c0bdeb434b9e350b58288331b` are pinned by `inquiry-proof.json` SHA-256 `d22488891f6389c46a81d1cbb6658db52a46370fc104f6fa9b70613acb977bd0`. The current production run and 17 controlled defects qualify admission repair, wrong-body refusal, duplicate prevention, interrupted reconciliation with no borrowed body, and backoff preservation. Each controlled defect fails at its intended fixture stage. The unchanged imported fixture owners, shipped Kahlua/JAR, Lua runner and ports remain exact across these executions. Earlier source qualification, including 55 continuity controls at the preceding runtime pin, remains historical evidence for its unchanged contracts; it is not represented as a new full-suite run.
 
 The guarded one-leaf install receipt `installed-receipt.json` SHA-256 `c4cae407958d29ad39cdf8a5872dfd793a8568607f18baa636cb62d94992ee8a` verifies exact qualified source/installed bytes and original installed preimage. All 121 saved markers, selected default/latest settings, approval hash and 174 actual mods entries remain preserved; source/shipped/installed Java archives stay identical and the game process count is zero. The prior 92,290-file whole-tree receipt retains its historical scope. Native loaded/rendered gameplay and complete D2 leisure acceptance remain unobserved.
+
+
+## F-142 | 2026-10-11 08:56 UTC / 01:56 PDT | Native recipe visibility and actual learned knowledge
+
+The installed CraftRecipeManager.hasPlayerLearnedRecipe convenience method follows CraftRecipe.hasPlayerLearned into the visibility-aware isRecipeKnown(CraftRecipe,false) path. With seeNotLearntRecipe enabled, it reports all five unknown learned metal wall/frame recipes as available. The isRecipeActuallyKnown(CraftRecipe) overload bypasses that display allowance and reports actual learned state. Native ReadLiterature on MetalworkMag1 changes all five from actually unknown to known; both metal door recipes have needToBeLearn=false independently of magazine strings.
+
+The source chain is installed projectzomboid.jar bytecode for CraftRecipeManager, CraftRecipe and IsoGameCharacter plus media/scripts/generated/items/literature.txt:5822-5834. The frozen-native D3.13 prerequisite probe passes eight verdict groups and three detecting controls for omitted reading, false keep classification and visibility substituted for knowledge. Its independent receipt SHA256 is `cdd4b8382fa334def6c71b63faa1e2c1825daa0504deba441cb7d1eb5702deb0`; source/native pins and actual exits remain in the owning ignored proof directory. [D3.13](Batches/D3.13-20261011-0845Z-0145PDT-metal-walls-doors-usable-shelter.md) owns the integration. This finding qualifies the native knowledge seam, with physical construction and usable shelter measured separately.

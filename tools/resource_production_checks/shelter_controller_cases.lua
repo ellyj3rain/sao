@@ -54,6 +54,7 @@ local function materials(f,id)
     end
     f.hammer=f.materials[1];f.tool=f.hammer
 end
+__shelterControllerSetup=setup
 function __runShelterControllerCases()
     local Ctl,R,P,N=SAO.Controller,SAO.ResourceProduction,SAO.ProceduralPlanning,SAO.Needs
     local f=__shelterFixture('ordinary-shelter','N','Base.WoodDoorFrameLvl1');setup(f)

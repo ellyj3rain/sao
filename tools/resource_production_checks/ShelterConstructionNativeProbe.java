@@ -194,7 +194,7 @@ public final class ShelterConstructionNativeProbe {
         throw new IllegalArgumentException("native ObjectInfo absent "+id);
     }
     public static IsoThumpable createShelterPart(String sprite,IsoGridSquare square)throws Exception{
-        String open=selectedEntity.startsWith("Base.WoodenDoorLvl")?info(selectedEntity).getFace(face+"_OPEN").getTileInfo(0,0,0).getSpriteName():null;
+        String open=selectedEntity.startsWith("Base.WoodenDoorLvl")||selectedEntity.startsWith("Base.MetalDoorLvl")?info(selectedEntity).getFace(face+"_OPEN").getTileInfo(0,0,0).getSpriteName():null;
         IsoThumpable object=open==null?new IsoThumpable(square==null?null:square.getCell(),square,sprite,(selectedEntity.equals("Base.Wood_Stairs")?face.equals("S"):face.equals("N")),null)
             :new IsoThumpable(square==null?null:square.getCell(),square,sprite,open,(selectedEntity.equals("Base.Wood_Stairs")?face.equals("S"):face.equals("N")),null);
         object.setName(selectedEntity.substring(5));object.setMaxHealth(500);object.setHealth(500);
@@ -612,6 +612,7 @@ public final class ShelterConstructionNativeProbe {
                 recipe((String)a).getRequiredSkill(((Number)b).intValue()),actor);
             case "policySkillCount":return recipe((String)a).getRequiredSkillCount();
             case "policyLearned":return zombie.entity.components.crafting.recipe.CraftRecipeManager.hasPlayerLearnedRecipe(recipe((String)a),actor);
+            case "policyNeedsLearn":return recipe((String)a).needToBeLearn();
             case "policyTime":return recipe((String)a).getTime(actor);
             case "spriteProp":return entity((String)a).getComponentScriptFor(ComponentType.SpriteConfig).getClass().getMethod((String)b).invoke(entity((String)a).getComponentScriptFor(ComponentType.SpriteConfig));
             case "face":face=(String)a;return true;

@@ -137,6 +137,8 @@ public final class DoubleGateNativeProbe {
             case "known":learned=Boolean.TRUE.equals(a);return true;
             case "skillPass":return zombie.entity.components.crafting.recipe.CraftRecipeManager.hasPlayerRequiredSkill(recipe((String)a).getRequiredSkill(((Number)b).intValue()),actor);
             case "learnedPass":return zombie.entity.components.crafting.recipe.CraftRecipeManager.hasPlayerLearnedRecipe(recipe((String)a),actor);
+            case "needsLearn":return recipe((String)a).needToBeLearn();
+            case "actualKnown":return learned||body.isRecipeActuallyKnown((String)a);
             case "recordInput":return recipe((String)a).getInputs().get(((Number)b).intValue()).isRecordInput();
             case "faceWidth":return info((String)a).getFace((String)b).getWidth();
             case "faceHeight":return info((String)a).getFace((String)b).getHeight();
