@@ -66,7 +66,13 @@ Its observations keep their historical facts; its former completion requirements
 are superseded by the current operator direction. [D2's record](Batches/D2-20261005-2341Z-1641PST-leisure.md)
 and [the batch index](BATCH_LOG.md) describe the delivered product.
 
-### Accepted adaptive delivery pace — 2026-10-11 21:20 UTC / 14:20 PDT
+### Interlocking work organization — 2026-10-11 21:52 UTC / 14:52 PDT
+
+The operator now names Granular, Emmetropic and Beacon and directs grounding in the earlier parent/child, feature-credit and changed-contract mechanisms. DR-064 and GOVERNANCE carry two independently selected, interlocking axes: development controls over actual working units and code/dependency/environment relations; and batch grouping, closure and publication frequency. Every task can use any method on either axis. Names are reference positions along a dynamic control gradient, with actual units/variables specified and no task-category routing. The earlier fine/intermediate/broad naming was tentative and held; it earns no adoption or publication status.
+
+Accepted delivery boundaries remain intact. D3 keeps the selected middle shipment boundary as Emmetropic batch organization; development controls are chosen for each actual task. Finer native checks need not become separate shipments. Useful verified output relative to compute/rework/gate cost and shipment frequency are distinct aims. Existing sufficient verification, review, credit and protected publication rules remain. Full D3 and D4–D6 FIFO stay active. The prior native22-entity metal inventory remains applicable; ten entries have linked construction evidence and twelve await full recipe/consumer inspection before connected capability allocation. This in-place governance correction adds no SAO product credit.
+
+### Earlier delivery terminology — 2026-10-11 21:20 UTC / 14:20 PDT
 
 The operator accepted the three-level guide and explicitly directed integration into the existing system and agent skills before returning to product work. `GOVERNANCE.md` owns SAO's application. D3 now uses capability pace: connected behaviors receive detailed records and sufficient evidence, with integrated review and protected publication at the defined coherent capability boundary. Granular and module pace remain available per project part; recorded switches preserve accepted scope, FIFO, history, dependencies, proof and credit ownership. Kohai/patch/minor follow the unchanged feature-scope rule.
 
