@@ -3881,6 +3881,54 @@ function P.bedSites(id,body)
     end
     return out
 end
+local function shelterSiteCopy(id,row)
+    if type(row)~="table" or getmetatable(row) or row.actorId~=id or row.observed~=true
+        or row.source~="native-personal-visibility" or row.roof~=true
+        or type(row.key)~="string" or #row.key>160 or type(row.revision)~="string" or #row.revision>160
+        or row.face~="N" and row.face~="W" or not finiteSoundNumber(row.observedAtHours) or row.observedAtHours<0 then return nil end
+    local out={}
+    for _,key in ipairs({"key","revision","face","mode","previousEntity","actorId","observed","source","roof","observedAtHours"}) do out[key]=row[key] end
+    for _,key in ipairs({"x","y","z","approachX","approachY","approachZ","insideX","insideY","originX","originY"}) do
+        if not finiteSoundNumber(row[key]) or row[key]%1~=0 then return nil end;out[key]=row[key]
+    end
+    if row.approachZ~=row.z or math.abs(row.x-row.approachX)+math.abs(row.y-row.approachY)>1
+        or not ({["wall-frame"]=true,wall=true,["door-frame"]=true,["door-leaf"]=true,door=true})[row.mode] then return nil end
+    return out
+end
+function P.observeShelterSites(id,body,origin)
+    local at=SAO.History and SAO.History.countyHours()
+    if not collectorObserver(id,body) or not finiteSoundNumber(at) or at<0 or not SAOJavaBridge.worldShelterSites then return false end
+    local ox,oy,z=math.floor(body:getX()),math.floor(body:getY()),math.floor(body:getZ())
+    if type(origin)=="table" then ox,oy,z=origin.originX,origin.originY,origin.z end
+    if not finiteSoundNumber(ox) or not finiteSoundNumber(oy) or not finiteSoundNumber(z) then return false end
+    local ok,rows=pcall(function()return SAOJavaBridge:worldShelterSites(body,ox,oy,z)end)
+    if not ok or type(rows)~="table" or getmetatable(rows) or not collectorObserver(id,body) then return false end
+    local b,n=store(id),0;b.shelterSites=b.shelterSites or {};b.shelterSiteOrder=b.shelterSiteOrder or {}
+    for _,native in ipairs(rows) do
+        n=n+1;if n>32 then return false end
+        local input={};for key,value in pairs(native) do input[key]=value end
+        input.actorId,input.observed,input.observedAtHours,input.source=id,true,at,"native-personal-visibility"
+        local row=shelterSiteCopy(id,input)
+        if row and row.z==math.floor(body:getZ()) then
+            if not b.shelterSites[row.key] then
+                if #b.shelterSiteOrder>=32 then b.shelterSites[table.remove(b.shelterSiteOrder,1)]=nil end
+                b.shelterSiteOrder[#b.shelterSiteOrder+1]=row.key
+            end
+            b.shelterSites[row.key]=row
+        end
+    end
+    P.beliefVersion=P.beliefVersion+1;return true
+end
+function P.shelterSites(id,body)
+    if not collectorObserver(id,body) then return {} end
+    local b,out=P.beliefs[id],{};local at=SAO.History.countyHours()
+    for i,key in ipairs(b and b.shelterSiteOrder or {}) do
+        if i>32 then break end;local row=shelterSiteCopy(id,b.shelterSites[key])
+        if row and row.observedAtHours<=at then out[#out+1]=row end
+    end
+    return out
+end
+
 function P.observeConcepts(id,body,tick)
     if not finiteSoundNumber(tick) then return false,"concept-observer-unavailable" end
     local ordinary=SAO.Needs and SAO.Needs.ownsRecoveryBody

@@ -9,10 +9,10 @@
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C12, C18, C20, C21, C24, C30, C31, C32, C33 |
-| Implementation | CLOSED D3.1-D3.8 deliver native crafting, tool maintenance, usable water and power, firearm reuse and wooden-bed construction through ordinary recovery. Remaining full domain keeps this parent OPEN. |
+| Implementation | CLOSED D3.1-D3.9 deliver native crafting, maintenance, usable water/power, firearm reuse, usable beds and single-edge walls/doors through shelter use. Remaining full domain keeps this parent OPEN. |
 | Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.6.8.0-pre-alpha; kohai child progress under the corrected feature-scope rule. Full D3 completion remains uncredited while OPEN. |
-| Publication | D3.1-D3.7 are self-merged through PR142-PR148. D3.8 follows the same protected child workflow, with actual publication retained in its completion receipt. The whole parent remains OPEN. |
+| Version | 2.6.9.0-pre-alpha; one kohai child increment, with full D3 completion still uncredited while OPEN. |
+| Publication | D3.1-D3.8 are self-merged through PR142-PR149. D3.9 uses the same protected child workflow, with actual merge retained in its completion receipt. |
 
 ## Product and current implementation
 
@@ -203,3 +203,11 @@ The operator corrects the earlier minor classification of D3.1, D3.2, D3.4, D3.5
 ## D3.8 coherent closure - 2026-10-10 21:59 UTC / 14:59 PDT
 
 [D3.8](D3.8-20261010-2124Z-1424PST-usable-bed-construction.md) is CLOSED: the installed wooden-bed recipe and both complete native orientations join exact materials, personally observed permitted placement, native payment/allparts and use through the ordinary recovery system. Construction and bodily recovery retain separate outcomes. This coherent building child receives one kohai; other structures, remaining recipe/pane integration and native server execution remain parent obligations.
+
+## D3.9 walls and doors continuation - 2026-10-10 22:40 UTC / 15:40 PDT
+
+[D3.9](D3.9-20261010-2240Z-1540PST-walls-doors-usable-shelter.md) is OPEN for the complete wooden wall/frame/door family, permitted personally observed roofed-space breaches, exact materials and native stage construction through actual doorway passage/closure and ordinary shelter use. Native edge closure, region enclosure and pre-existing weather cover retain separate measurements. Scope, owners, contracts, dependencies and closure evidence precede implementation. D3.8 reached main through self-merged [PR149](https://github.com/ellyj3rain/sao/pull/149) at b31f1b17e3f9c486b8c20ac0e6c738c5a3ab0904. Full D3 remains OPEN; D3.9 receives one kohai at closure.
+
+## D3.9 coherent closure - 2026-10-11 01:03 UTC / 18:03 PDT
+
+[D3.9](D3.9-20261010-2240Z-1540PST-walls-doors-usable-shelter.md) is CLOSED: the finite single-edge wooden wall/frame/door family joins private roofed-space concern, exact material and stage construction, measured doorway use and ordinary reached shelter consumption. Physical edge closure, native enclosure and pre-existing weather cover keep distinct results. This child receives one kohai. Freestanding double gates, new roof/upper-floor construction, remaining recipes/pane integration and native server execution retain their parent obligations. Full D3 stays OPEN.

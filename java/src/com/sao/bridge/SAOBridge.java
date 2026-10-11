@@ -1868,7 +1868,7 @@ public final class SAOBridge {
                 || category == null || !(category.equals("glass-pane")
                     || category.equals("hammer") || category.equals("plank")
                     || category.equals("pipe-wrench")
-                    || category.equals("garbage-bag") || category.equals("tarp") || category.equals("mattress")
+                    || category.equals("garbage-bag") || category.equals("tarp") || category.equals("mattress") || category.equals("hinge") || category.equals("doorknob")
                     || category.equals("electronics-scrap") || category.equals("petrol") || category.equals("generator-manual")
                     || category.equals("nails") || category.equals("log")
                     || category.equals("saw") || category.equals("file")
@@ -4470,6 +4470,59 @@ public final class SAOBridge {
         try { return object instanceof com.sao.engine.SAOIsoPlayerShell shell && integralUtilityCoordinates(x,y,z)
             ? com.sao.engine.SAOWorldSources.generatorConsumerObject(shell,id,fingerprint,revision,(int)x,(int)y,(int)z) : null;
         } catch (Throwable throwable) { SAOAgent.log("worldGeneratorConsumerObject threw: " + throwable); return null; }
+    }
+
+    public Object worldShelterSites(Object object,double x,double y,double z) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body && integralUtilityCoordinates(x,y,z)
+            ? com.sao.engine.SAOShelterConstruction.observe(body,(int)x,(int)y,(int)z) : null;
+        } catch(Throwable t) { SAOAgent.log("worldShelterSites threw: "+t); return null; }
+    }
+    public Object worldShelterPlacementSquare(Object object,String key,String revision) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body
+            ? com.sao.engine.SAOShelterConstruction.placement(body,key,revision) : null;
+        } catch(Throwable t) { SAOAgent.log("worldShelterPlacementSquare threw: "+t); return null; }
+    }
+    public Object worldShelterPreviousStage(Object object,String key,String revision) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body
+            ? com.sao.engine.SAOShelterConstruction.previous(body,key,revision) : null;
+        } catch(Throwable t) { SAOAgent.log("worldShelterPreviousStage threw: "+t); return null; }
+    }
+    public Object worldShelterDoor(Object object,String key,String revision) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body
+            ? com.sao.engine.SAOShelterConstruction.door(body,key,revision) : null;
+        } catch(Throwable t) { SAOAgent.log("worldShelterDoor threw: "+t); return null; }
+    }
+    public boolean worldShelterCreated(Object object,Object created,Object previous,String entityId,double x,double y,double z,String face) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body && created instanceof zombie.iso.objects.IsoThumpable item
+            && (previous==null||previous instanceof zombie.iso.IsoObject) && integralUtilityCoordinates(x,y,z)
+            && com.sao.engine.SAOShelterConstruction.created(body,item,(zombie.iso.IsoObject)previous,entityId,(int)x,(int)y,(int)z,face);
+        } catch(Throwable t) { SAOAgent.log("worldShelterCreated threw: "+t); return false; }
+    }
+    public String worldShelterBeginPassage(Object object,Object door,String key,String revision,boolean inward) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body && door instanceof zombie.iso.IsoObject item
+            ? com.sao.engine.SAOShelterConstruction.beginPassage(body,item,key,revision,inward) : null;
+        } catch(Throwable t) { SAOAgent.log("worldShelterBeginPassage threw: "+t); return null; }
+    }
+    public boolean worldShelterPassage(Object object,String token) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body && token!=null
+            && com.sao.engine.SAOShelterConstruction.passage(body,token);
+        } catch(Throwable t) { SAOAgent.log("worldShelterPassage threw: "+t); return false; }
+    }
+    public boolean worldShelterForgetPassage(Object object,String token) {
+        try { if(object instanceof com.sao.engine.SAOIsoPlayerShell body && token!=null){
+            com.sao.engine.SAOShelterConstruction.forgetPassage(body,token);return true; } return false;
+        } catch(Throwable t) { SAOAgent.log("worldShelterForgetPassage threw: "+t); return false; }
+    }
+    public boolean worldShelterRecoveryValid(Object object,String key,String revision,double x,double y,double z,boolean reached) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body && key!=null && revision!=null
+            && Double.isFinite(x)&&Double.isFinite(y)&&Double.isFinite(z)
+            && com.sao.engine.SAOShelterConstruction.recoveryValid(body,key,revision,x,y,z,reached);
+        } catch(Throwable t) { SAOAgent.log("worldShelterRecoveryValid threw: "+t); return false; }
+    }
+    public Object worldShelterCover(Object object,double x,double y,double z) {
+        try { return object instanceof com.sao.engine.SAOIsoPlayerShell body && integralUtilityCoordinates(x,y,z)
+            ? com.sao.engine.SAOShelterConstruction.cover(body,(int)x,(int)y,(int)z) : null;
+        } catch(Throwable t) { SAOAgent.log("worldShelterCover threw: "+t); return null; }
     }
 
     public String worldBedSites(Object object) {

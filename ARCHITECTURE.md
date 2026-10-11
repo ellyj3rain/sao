@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.6.8.0-pre-alpha` |
+| Version | `2.6.9.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2452,3 +2452,7 @@ The existing ResourceProduction physical-work claim owns native-item fixing. Reg
 ## Native construction through a usable bed (D3.8)
 
 Private recovery motivation can retain an exact construction purpose. Perception owns detached personally visible full-footprint and approach observations; Standing governs each used square. The existing physical-work claim binds exact actor, inputs, native recipe, site and queue. Installed BuildLogic and ISBuildIsoEntity own payment, tool wear, complete multi-part creation and native sprite/grid properties. The new bed enters ordinary observed bed selection, approach, native pose and measured recovery through the existing Needs and Controller owners. Construction does not manufacture physiological relief. Interruption, independent feedback and saved plain state retain separate ownership and outcomes.
+
+## Walls and doors through usable shelter (D3.9)
+
+A maintained private shelter concern binds personally observed permitted edge/cover facts to exact native stages and materials. The existing physical-work claim owns preparation, recipe payment, measured edge objects and native acknowledgement. Door opening, same-body physical passage and leaf closure retain actual native state and consumer authority; existing native lock/key rules govern access. Native region enclosure and weather cover have separate meanings and clocks; map-room cover may predate repair. Ordinary recovery consumes the reached result. Saved continuity reacquires current native geometry without manufacturing a room, home, claim or bodily effect.

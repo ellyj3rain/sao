@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.6.8.0-pre-alpha` |
+| Version | `2.6.9.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -769,3 +769,7 @@ Installed media/scripts/generated/fixing.txt supplies nineteen firearm definitio
 ## Wooden-bed construction and recovery join (D3.8)
 
 Installed `entity_carpentry_bed.txt` defines `Base.Wood_Bed`, Woodwork4, kept hammer and consumed six planks, four nails and one mattress. Its S/E entity faces produce respectively native FacingE/FacingS two-part grids. `ISBuildIsoEntity` validates every tile and invokes native recipe payment before creating all parts; `ISBuildAction` completion alone supplies no successful structure credit. Observed complete bed grids enter the existing recovery geometry/pose/effect path. Exact native source and proof scope are retained in [D3.8](Batches/D3.8-20261010-2124Z-1424PST-usable-bed-construction.md).
+
+## Single-edge shelter construction and use (D3.9)
+
+The installed finite wooden wall/frame/door family owns recipe skills/materials, facing and stage dependencies. Native creation updates polygonal navigation and IsoRegions; region processing can create native player rooms/buildings through metagrid intake. Native region enclosure does not authenticate a door leaf being closed or locked. Door action completion requires measured actual state, physical crossing and renewed closure; current native roof/room/enclosure observations retain their distinct semantics. The existing ten single-edge definitions and proof scope are recorded in [D3.9](Batches/D3.9-20261010-2240Z-1540PST-walls-doors-usable-shelter.md).
