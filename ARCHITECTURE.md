@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.6.14.0-pre-alpha` |
+| Version | `2.6.15.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2476,3 +2476,7 @@ The existing person-owned shelter concern selects native metal stages from priva
 ## Native metal floors (D3.14)
 
 The existing person-owned surface and shelter owners admit native metal flooring from private supported-site facts, actual access, current Standing and exact acquired means. Native recipe allocation and floor callbacks own payment, creation and physical surface/cover effects. Fresh observations, actual reached use and ordinary bodily recovery retain independent outcomes and saved/queue custody. Complete family/prerequisite and consumer evidence is retained in [D3.14](Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md).
+
+## Native metal enclosure and access (D3.15)
+
+The existing private shelter and held-ground boundary owners retain purpose, knowledge, Standing and exact acquired means. Native construction and movable-window/one-leaf/boundary consumers own their separate physical effects. Construction and use retain authenticated body/world/site/purpose/input/queue custody, plain saved state and independent private feedback. [D3.15](Batches/D3.15-20261011-2245Z-1545PST-metal-enclosure-access.md) carries the exact producer/consumer integration and evidence boundaries.

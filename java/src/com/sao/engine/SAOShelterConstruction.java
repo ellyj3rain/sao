@@ -8,6 +8,7 @@ import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoObject;
 import zombie.iso.objects.IsoThumpable;
 import zombie.iso.objects.IsoDoor;
+import zombie.iso.objects.IsoWindow;
 import zombie.iso.SpriteDetails.IsoFlagType;
 import zombie.iso.SpriteDetails.IsoObjectType;
 
@@ -33,6 +34,7 @@ public final class SAOShelterConstruction {
     }
     private static boolean facing(IsoObject object,boolean north) {
         if(object instanceof IsoDoor door)return door.getNorth()==north;
+        if(object instanceof IsoWindow window)return window.getNorth()==north;
         if(object instanceof IsoThumpable thump)return thump.getNorth()==north;
         var type=object.getType();
         return north?(type==IsoObjectType.doorFrN||type==IsoObjectType.doorN)
@@ -42,10 +44,10 @@ public final class SAOShelterConstruction {
         IsoObject frame=null;
         for(int i=0;i<square.getObjects().size();i++){
             var o=square.getObjects().get(i);if(!facing(o,north))continue;
-            if(o instanceof IsoDoor)return o;
+            if(o instanceof IsoDoor||o instanceof IsoWindow)return o;
             if(o instanceof IsoThumpable thump&&thump.isDoor())return o;
             String id=entity(o);
-            if(id.contains("Wall")||id.contains("DoorFrame")||o.getType()==(north?IsoObjectType.doorFrN:IsoObjectType.doorFrW))frame=o;
+            if(id.contains("Wall")||id.contains("WindowFrame")||id.contains("DoorFrame")||o.getType()==(north?IsoObjectType.doorFrN:IsoObjectType.doorFrW))frame=o;
         }
         return frame;
     }
@@ -53,9 +55,11 @@ public final class SAOShelterConstruction {
         return sq.getCell().getGridSquare(sq.getX()-(north?0:1),sq.getY()-(north?1:0),sq.getZ());
     }
     private static String mode(IsoGridSquare sq,boolean north,IsoObject object){
+        if(object instanceof IsoWindow)return "window";
         if(object instanceof IsoDoor)return "door";
         if(object instanceof IsoThumpable t&&t.isDoor()&&!t.isDestroyed())return "door";
         String id=entity(object);
+        if(id.startsWith("Base.MetalWindowFrame"))return "window-frame";
         if(id.equals("Base.WoodenWallFrame")||id.equals("Base.MetalWallFrame")||id.equals("Base.MetalWallLvl1"))return "wall";
         if(id.startsWith("Base.WoodDoorFrame")||id.startsWith("Base.MetalDoorFrame")||object!=null&&object.getType()==(north?IsoObjectType.doorFrN:IsoObjectType.doorFrW))return "door-leaf";
         var p=sq.getProperties();
@@ -119,7 +123,7 @@ public final class SAOShelterConstruction {
             String occupiedMode=ownsVisibleEdge?mode(sq,north,occupied):"";
             if(occupiedMode.equals("door")||occupiedMode.equals("door-leaf"))hasDoor=true;
             boolean visibleDoor=ownsVisibleEdge&&usableDoor(occupied);
-            boolean visibleUpgrade=ownsVisibleEdge&&entity(occupied).equals("Base.MetalWallLvl1");
+            boolean visibleUpgrade=ownsVisibleEdge&&(entity(occupied).equals("Base.MetalWallLvl1")||entity(occupied).equals("Base.MetalWindowFrameLvl1"));
             // Observed doors can be opened before seeing through them; construction needs the far square.
             if(!neighborVisible&&!visibleDoor&&!visibleUpgrade)continue;
             if(roof.contains(neighbor))continue;
@@ -146,7 +150,7 @@ public final class SAOShelterConstruction {
             }
             var row=table();row.rawset("key",site.key);row.rawset("revision",site.revision);row.rawset("face",north?"N":"W");
             row.rawset("mode",mode);row.rawset("previousEntity",entity(object));
-            if(entity(object).equals("Base.MetalWallLvl1"))row.rawset("upgradeOpportunity",true);
+            if(entity(object).equals("Base.MetalWallLvl1")||entity(object).equals("Base.MetalWindowFrameLvl1"))row.rawset("upgradeOpportunity",true);
             put(row,"x",site.x);put(row,"y",site.y);put(row,"z",site.z);put(row,"approachX",site.ax);put(row,"approachY",site.ay);
             put(row,"approachZ",site.z);put(row,"insideX",site.ix);put(row,"insideY",site.iy);put(row,"originX",ox);put(row,"originY",oy);
             row.rawset("roof",true);out.rawset((double)++count,row);
@@ -190,11 +194,28 @@ public final class SAOShelterConstruction {
         var s=known(body,key,revision);var object=s==null?null:s.previous.get();
         return object instanceof IsoDoor d&&!d.isDestroyed()?d:object instanceof IsoThumpable t&&t.isDoor()&&!t.isDestroyed()?t:null;
     }
+    public static synchronized IsoThumpable windowFrame(SAOIsoPlayerShell body,String key,String revision) {
+        var s=known(body,key,revision);var object=s==null?null:s.previous.get();
+        return object instanceof IsoThumpable frame&&entity(frame).startsWith("Base.MetalWindowFrame")
+            &&!frame.isDestroyed()&&s.square.get().getWindowTo(s.opposite.get())==null?frame:null;
+    }
+    public static synchronized IsoWindow window(SAOIsoPlayerShell body,String key,String revision) {
+        var s=known(body,key,revision);return s!=null&&s.previous.get() instanceof IsoWindow w&&!w.isSmashed()?w:null;
+    }
+    public static boolean glazed(SAOIsoPlayerShell body,IsoThumpable frame,IsoWindow window,String sprite,boolean north) {
+        var sq=frame==null?null:frame.getSquare();
+        return SAOConceptObservation.actor(body)!=null&&sq!=null&&sq.getCell()==body.getCell()&&visible(body,sq)
+            &&sq.getObjects().contains(frame)&&frame.getObjectIndex()>=0&&!frame.isDestroyed()
+            &&window!=null&&window.getSquare()==sq&&window.getObjectIndex()>=0&&sq.getObjects().contains(window)
+            &&window.getNorth()==north&&sprite.equals(window.getSpriteName())&&!window.isSmashed()
+            &&sq.getWindowTo(other(sq,north))==window;
+    }
     private static boolean usableDoor(IsoObject door){
         return door instanceof IsoDoor d&&!d.isDestroyed()||door instanceof IsoThumpable t&&t.isDoor()&&!t.isDestroyed();
     }
+    private static boolean usableAperture(IsoObject o){return usableDoor(o)||o instanceof IsoWindow w&&!w.isSmashed();}
     private static boolean open(IsoObject door){
-        return door instanceof IsoDoor d?d.IsOpen():door instanceof IsoThumpable t&&t.IsOpen();
+        return door instanceof IsoDoor d?d.IsOpen():door instanceof IsoWindow w?w.IsOpen():door instanceof IsoThumpable t&&t.IsOpen();
     }
     private static final Map<SAOIsoPlayerShell,Passage> PASSAGES=new WeakHashMap<>();
     private static final class Passage {
@@ -203,7 +224,7 @@ public final class SAOShelterConstruction {
         final WeakReference<IsoGridSquare> from,to;
         final WeakReference<zombie.iso.IsoCell> cell;
         WeakReference<IsoGridSquare> last;
-        boolean matched;
+        boolean matched,transitioned;
         Passage(String actor,SAOIsoPlayerShell body,IsoObject door,IsoGridSquare from,IsoGridSquare to){
             this.actor=actor;this.door=new WeakReference<>(door);this.from=new WeakReference<>(from);this.to=new WeakReference<>(to);
             cell=new WeakReference<>(body.getCell());last=new WeakReference<>(body.getCurrentSquare());
@@ -211,7 +232,7 @@ public final class SAOShelterConstruction {
     }
     public static synchronized String beginPassage(SAOIsoPlayerShell body,IsoObject door,String key,String revision,boolean inward){
         var s=known(body,key,revision);
-        if(s==null||s.previous.get()!=door||!usableDoor(door)||!open(door))return null;
+        if(s==null||s.previous.get()!=door||!usableAperture(door)||!open(door))return null;
         var inside=s.inside.get();var outside=s.square.get()==inside?s.opposite.get():s.square.get();
         var from=inward?outside:inside;var to=inward?inside:outside;
         if(body.getCurrentSquare()!=from||from==null||to==null||!visible(body,outside)
@@ -221,13 +242,18 @@ public final class SAOShelterConstruction {
     /** Called only after the same shell's actual native physics postupdate. */
     public static synchronized void observePassage(SAOIsoPlayerShell body){
         SAODoubleGate.observePassage(body);
+        SAOEnclosureEdge.observePassage(body);
         var p=PASSAGES.get(body);if(p==null)return;
         var door=p.door.get();var current=body.getCurrentSquare();var last=body.getLastSquare();
         if(!p.actor.equals(SAOConceptObservation.actor(body))||p.cell.get()!=body.getCell()
-            ||!usableDoor(door)||door.getObjectIndex()<0){PASSAGES.remove(body);return;}
+            ||!usableAperture(door)||door.getObjectIndex()<0){PASSAGES.remove(body);return;}
         if(last==p.from.get()&&current==p.to.get()&&open(door)
-            &&door.getSquare()!=null&&(door.getSquare()==p.from.get()||door.getSquare()==p.to.get()))p.matched=true;
+            &&door.getSquare()!=null&&(door.getSquare()==p.from.get()||door.getSquare()==p.to.get()))p.transitioned=true;
+        if(p.transitioned&&current==p.to.get()&&open(door)&&(!(door instanceof IsoWindow)||beyondWindowState(body)))p.matched=true;
         p.last=new WeakReference<>(current);
+    }
+    private static boolean beyondWindowState(SAOIsoPlayerShell body){
+        return body.getCurrentState()!=zombie.ai.states.ClimbThroughWindowState.instance();
     }
     public static synchronized boolean passage(SAOIsoPlayerShell body,String token){
         var p=PASSAGES.get(body);
@@ -241,7 +267,7 @@ public final class SAOShelterConstruction {
         if(actor==null||s==null||!actor.equals(s.actor)||!s.revision.equals(revision)||!Double.isFinite(x)||!Double.isFinite(y)
             ||!Double.isFinite(z)||z!=s.z||body.getCell()!=s.square.get().getCell())return false;
         var door=s.previous.get();var anchor=s.inside.get();var target=body.getCell().getGridSquare((int)Math.floor(x),(int)Math.floor(y),(int)z);
-        if(!usableDoor(door)||open(door)||door.getObjectIndex()<0||door.getSquare()!=s.square.get()
+        if(!usableAperture(door)||open(door)||door.getObjectIndex()<0||door.getSquare()!=s.square.get()
             ||anchor==null||target==null||!target.haveRoof||!anchor.haveRoof||!visible(body,target))return false;
         var original=anchor.getIsoWorldRegion();var current=target.getIsoWorldRegion();
         boolean sameRoom=anchor.getRoom()!=null&&anchor.getRoom()==target.getRoom();

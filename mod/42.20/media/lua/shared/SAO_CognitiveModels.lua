@@ -63,11 +63,11 @@ local SHELTER_ENTITIES={["Base.WoodenWallFrame"]=true,["Base.WoodenWallLvl1"]=tr
     ["Base.WoodDoorFrameLvl1"]=true,["Base.WoodDoorFrameLvl2"]=true,["Base.WoodDoorFrameLvl3"]=true,
     ["Base.WoodenDoorLvl1"]=true,["Base.WoodenDoorLvl2"]=true,["Base.WoodenDoorLvl3"]=true,
     ["Base.WoodFloorLvl1"]=true,["Base.WoodFloorLvl2"]=true,["Base.WoodFloorLvl3"]=true,["Base.Wood_Stairs"]=true,["Base.DoubleDoor"]=true,["Base.DoubleFenceGate"]=true,["Base.DoubleWireGate"]=true,
-                ["Base.MetalWallFrame"]=true,["Base.MetalWallLvl1"]=true,["Base.MetalWallLvl2"]=true,["Base.MetalDoorFrameLvl1"]=true,["Base.MetalDoorFrameLvl2"]=true,["Base.MetalDoorLvl1"]=true,["Base.MetalDoorLvl2"]=true,["Base.MetalFloorLvl1"]=true}
+                ["Base.MetalWallFrame"]=true,["Base.MetalWallLvl1"]=true,["Base.MetalWallLvl2"]=true,["Base.MetalDoorFrameLvl1"]=true,["Base.MetalDoorFrameLvl2"]=true,["Base.MetalDoorLvl1"]=true,["Base.MetalDoorLvl2"]=true,["Base.MetalFloorLvl1"]=true,["Base.MetalWindowFrameLvl1"]=true,["Base.MetalWindowFrameLvl2"]=true,["Base.MetalFenceLvl1"]=true,["Base.MetalFenceLvl2"]=true,["Base.MetalBigMetalFence"]=true,["Base.MetalBigWireFence"]=true,["Base.MetalSmallPoleFence"]=true,["Base.MetalSmallWireFence"]=true,["Base.MetalPoleFenceGate"]=true,["Base.MetalPoleFenceGateSmall"]=true,["Base.MetalWireFenceGate"]=true,["Base.MetalWireFenceGateSmall"]=true}
 local COLLECTOR_ENTITIES = { ["Base.RainCollector"]=true, ["Base.RainCollectorRound"]=true,
     ["Base.RainCollector_Tarp"]=true, ["Base.RainCollectorRound_Tarp"]=true }
 local EXTENDED = { ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true,["collector-construction"]=true,
-    ["animal-care"]=true, ["window-repair"]=true, ["material-crafting"]=true, ["tool-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
+    ["animal-care"]=true, ["window-repair"]=true,["window-installation"]=true, ["material-crafting"]=true, ["tool-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
     ["weekone-performance-hearing"]=true }
@@ -121,7 +121,7 @@ local function occurrencePosition(e)
         or e.kind=="animal-care" and ("animal-care/"..e.actorId.."/")
         or e.kind=="window-repair" and (e.actorId.."/window-result/")
         or e.kind=="material-crafting" and ("resource-production/"..e.actorId.."/")
-        or (e.kind=="tool-repair" or e.kind=="plumbing" or e.kind=="collector-construction" or e.kind=="bed-construction" or e.kind=="shelter-construction" or e.kind=="shelter-use") and ("resource-production/"..e.actorId.."/")
+        or (e.kind=="window-installation" or e.kind=="tool-repair" or e.kind=="plumbing" or e.kind=="collector-construction" or e.kind=="bed-construction" or e.kind=="shelter-construction" or e.kind=="shelter-use") and ("resource-production/"..e.actorId.."/")
         or e.kind=="gate-operation" and ("resource-production/"..e.actorId.."/")
         or e.kind=="shelter-movement" and ("shelter-movement/"..e.actorId.."/")
         or e.kind=="entry-outcome" and ("entry/"..e.actorId.."/")
@@ -271,9 +271,9 @@ local function validEvent(e)
         or e.sourceBorn~=nil or e.sourceBodyId~=nil or e.decisionAtTick~=nil
         or e.claimOwner~=nil or e.sourceProgram~=nil or e.sourceStage~=nil
         or e.startedAtHours~=nil or e.nativeCompletedAtHours~=nil) then return false end
-    if e.kind~="animal-care" and (e.consumedAmount~=nil or e.quantityUnit~=nil) then return false end
+    if e.kind~="animal-care" and e.kind~="window-installation" and (e.consumedAmount~=nil or e.quantityUnit~=nil) then return false end
     if e.category=="animal" and e.kind~="animal-care" then return false end
-    if e.category=="construction" and e.kind~="window-repair" and e.kind~="material-crafting" and e.kind~="tool-repair" and e.kind~="plumbing" and e.kind~="collector-construction" and e.kind~="bed-construction" and e.kind~="shelter-construction" then return false end
+    if e.category=="construction" and e.kind~="window-repair" and e.kind~="window-installation" and e.kind~="material-crafting" and e.kind~="tool-repair" and e.kind~="plumbing" and e.kind~="collector-construction" and e.kind~="bed-construction" and e.kind~="shelter-construction" then return false end
     if e.capabilities~=nil and not capabilities(e.capabilities) then return false end
     for _, key in ipairs({"sourceId","itemType"}) do
         if e[key]~=nil and not text(e[key],160) then return false end
@@ -429,7 +429,7 @@ local function validEvent(e)
             return n>0 and n<=#STATS
         end
         if e.kind=="gate-operation" then
-            return e.category=="body" and e.status=="completed" and text(e.sourceId,160) and e.sourceId:sub(1,12)=="double-gate:"
+            return e.category=="body" and e.status=="completed" and text(e.sourceId,160) and (e.sourceId:sub(1,12)=="double-gate:" or e.sourceId:sub(1,12)=="single-gate:")
                 and (e.actionKind=="open" or e.actionKind=="pass" or e.actionKind=="close") and e.succeeded==true
                 and e.itemId==nil and e.itemType==nil and e.stats==nil and e.beforeValue==nil and e.afterValue==nil
         end
@@ -452,6 +452,11 @@ local function validEvent(e)
                 and (e.quantityUnit=="uses" or e.quantityUnit=="fluid" or e.quantityUnit=="food-hunger")
                 and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
         end
+        if e.kind=="window-installation" then
+            return e.category=="construction" and e.status=="completed" and text(e.itemType,160) and text(e.sourceId,160)
+                and e.sourceId:match("^shelter%-edge:%-?%d+:%-?%d+:%-?%d+:%-?%d+:%-?%d+:[NW]$")~=nil
+                and e.consumedAmount==1 and e.quantityUnit=="item" and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
+        end
         if e.kind=="window-repair" then
             return e.category=="construction" and e.status=="completed"
                 and e.itemType=="RepairableWindows.LargeGlassPane" and text(e.sourceId,160)
@@ -464,12 +469,13 @@ local function validEvent(e)
                 ["Base.WoodDoorFrameLvl1"]=true,["Base.WoodDoorFrameLvl2"]=true,["Base.WoodDoorFrameLvl3"]=true,
                 ["Base.WoodenDoorLvl1"]=true,["Base.WoodenDoorLvl2"]=true,["Base.WoodenDoorLvl3"]=true,
                 ["Base.WoodFloorLvl1"]=true,["Base.WoodFloorLvl2"]=true,["Base.WoodFloorLvl3"]=true,["Base.Wood_Stairs"]=true,["Base.DoubleDoor"]=true,["Base.DoubleFenceGate"]=true,["Base.DoubleWireGate"]=true,
-                ["Base.MetalWallFrame"]=true,["Base.MetalWallLvl1"]=true,["Base.MetalWallLvl2"]=true,["Base.MetalDoorFrameLvl1"]=true,["Base.MetalDoorFrameLvl2"]=true,["Base.MetalDoorLvl1"]=true,["Base.MetalDoorLvl2"]=true,["Base.MetalFloorLvl1"]=true}
+                ["Base.MetalWallFrame"]=true,["Base.MetalWallLvl1"]=true,["Base.MetalWallLvl2"]=true,["Base.MetalDoorFrameLvl1"]=true,["Base.MetalDoorFrameLvl2"]=true,["Base.MetalDoorLvl1"]=true,["Base.MetalDoorLvl2"]=true,["Base.MetalFloorLvl1"]=true,["Base.MetalWindowFrameLvl1"]=true,["Base.MetalWindowFrameLvl2"]=true,["Base.MetalFenceLvl1"]=true,["Base.MetalFenceLvl2"]=true,["Base.MetalBigMetalFence"]=true,["Base.MetalBigWireFence"]=true,["Base.MetalSmallPoleFence"]=true,["Base.MetalSmallWireFence"]=true,["Base.MetalPoleFenceGate"]=true,["Base.MetalPoleFenceGateSmall"]=true,["Base.MetalWireFenceGate"]=true,["Base.MetalWireFenceGateSmall"]=true}
             if e.category~="construction" or e.status~="completed" or not entities[e.entityId]
                 or not text(e.recipeId,160) or not text(e.siteKey,160) or e.sourceId~=e.siteKey
                 or not (e.siteKey:match("^shelter%-edge:%-?%d+:%-?%d+:%-?%d+:%-?%d+:%-?%d+:[NW]$")
                     or e.siteKey:match("^shelter%-surface:%-?%d+:%-?%d+:%-?%d+$")
                     or e.siteKey:match("^shelter%-stair%-site:%-?%d+:%-?%d+:%-?%d+:[SW]$")
+                    or e.siteKey:match("^boundary%-edge:%-?%d+:%-?%d+:%-?%d+:[NW]$")
                     or e.siteKey:match("^double%-gate%-site:%-?%d+:%-?%d+:%-?%d+:[NW]$"))
                 or e.originalFixtureSourceId~=nil or e.feedsFixture~=nil then return false end
             for _,key in ipairs({"siteX","siteY","siteZ"}) do if not finite(e[key]) or e[key]~=math.floor(e[key]) then return false end end
@@ -829,8 +835,11 @@ local function rememberPlanEvidence(state, e, yes)
     elseif e.kind == "plumbing" then retain("plumb", "construction", true)
     elseif e.kind == "generator-operation" and e.actionKind=="verify-power" then retain("power", "utilities", true)
     elseif e.kind=="shelter-construction" then
-        local b=remember(state,planBeliefKey("construct","construction",e.siteKey,e.entityId),"Personally constructed the native shelter edge",true,e)
+        local b=remember(state,planBeliefKey("construct","construction",e.siteKey,e.entityId),"Personally constructed the observed structure or boundary",true,e)
         b.planKind,b.category,b.sourceId,b.itemType="construct","construction",e.siteKey,e.entityId
+    elseif e.kind=="window-installation" then
+        local b=remember(state,"window-installation:"..e.sourceId,"Personally installed a native movable window at the observed frame",true,e)
+        b.planKind,b.category,b.sourceId="window-installation","construction",e.sourceId
     elseif e.kind=="gate-operation" then
         local b=remember(state,"gate-operation:"..e.actionKind..":"..e.sourceId,"Personally operated or passed the native boundary gate",true,e)
         b.planKind,b.category,b.sourceId="gate-operation","body",e.sourceId
@@ -838,7 +847,7 @@ local function rememberPlanEvidence(state, e, yes)
         local b=remember(state,"shelter-movement:"..e.actionKind..":"..e.sourceId,"Personally reached the native shelter work or use level",true,e)
         b.planKind,b.category,b.sourceId="shelter-movement","body",e.sourceId
     elseif e.kind=="shelter-use" then
-        local b=remember(state,planBeliefKey("shelter-use","body",e.sourceId,nil),"Personally passed the doorway and observed reached native shelter",true,e)
+        local b=remember(state,planBeliefKey("shelter-use","body",e.sourceId,nil),"Personally passed the opening and observed reached native shelter",true,e)
         b.planKind,b.category,b.sourceId="shelter-use","body",e.sourceId
     elseif e.kind=="bed-construction" then
         local b=remember(state,planBeliefKey("construct","construction",e.siteKey,e.entityId),"Personally made a complete bed",true,e)
@@ -951,8 +960,8 @@ local function extendedEvidence(modelId,state,e)
             end
         end
     elseif e.kind=="shelter-construction" then
-        if modelId=="ordinary" then remember(state,"direct:shelter-construction:"..e.siteKey,"Native shelter construction changed the observed edge",true,e)
-        else remember(state,"association:constructed-shelter-edge:"..e.entityId,"Exact native materials can produce a shelter edge",true,e) end
+        if modelId=="ordinary" then remember(state,"direct:shelter-construction:"..e.siteKey,"Native construction changed the observed structure or boundary",true,e)
+        else remember(state,"association:constructed-shelter-edge:"..e.entityId,"Exact native materials can produce the observed structure or boundary",true,e) end
     elseif e.kind=="gate-operation" then
         local b=remember(state,"gate-operation:"..e.actionKind..":"..e.sourceId,"Personally operated or passed the native boundary gate",true,e)
         b.planKind,b.category,b.sourceId="gate-operation","body",e.sourceId
@@ -1230,7 +1239,7 @@ local function validConsequences(candidate)
                 or not (c.itemType=="Base.Wood_Bed" and c.sourceId:sub(1,9)=="bed-site:"
                     or COLLECTOR_ENTITIES[c.itemType] and c.sourceId:sub(1,2)=="F:"
                     or SHELTER_ENTITIES[c.itemType] and (c.sourceId:sub(1,13)=="shelter-edge:"
-                        or c.sourceId:sub(1,16)=="shelter-surface:" or c.sourceId:sub(1,19)=="shelter-stair-site:" or c.sourceId:sub(1,17)=="double-gate-site:"))
+                        or c.sourceId:sub(1,16)=="shelter-surface:" or c.sourceId:sub(1,19)=="shelter-stair-site:" or c.sourceId:sub(1,17)=="double-gate-site:" or c.sourceId:sub(1,14)=="boundary-edge:"))
                 or c.condition ~= nil then return false end
         elseif c.kind == "tool-repair" then
             if c.category ~= "construction" or (c.sourceId ~= "Base.FixSaw" and c.sourceId ~= "Base.SharpenBlade"

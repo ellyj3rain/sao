@@ -12,7 +12,7 @@ ROOT,GAME,JDK,LUA=common.ROOT,common.GAME,common.JDK,common.LUA
 PROBE=ROOT/'tools/resource_production_checks/MetalShelterNativeProbe.java'
 CASES=ROOT/'tools/resource_production_checks/metal_shelter_cases.lua'
 EXTRA=[LUA/'client/SAO_Study.lua',LUA/'client/SAO_SourceUse.lua']
-JAVA=[ROOT/f'java/src/com/sao/{path}' for path in ['engine/SAOShelterConstruction.java','engine/SAONeeds.java','engine/SAOWorldSources.java','bridge/SAOBridge.java','engine/SAOIsoPlayerShell.java','engine/SAOShelterStairs.java','engine/SAODoubleGate.java']]
+JAVA=[ROOT/f'java/src/com/sao/{path}' for path in ['engine/SAOShelterConstruction.java','engine/SAONeeds.java','engine/SAOWorldSources.java','bridge/SAOBridge.java','engine/SAOIsoPlayerShell.java','engine/SAOShelterStairs.java','engine/SAODoubleGate.java','engine/SAOEnclosureEdge.java','engine/SAOMovement.java']]
 NATIVE=[GAME/'media/lua/server/CraftRecipeCode/CraftRecipe_BuildMenu.lua',GAME/'media/lua/shared/TimedActions/ISReadABook.lua']
 DEFS=[GAME/f'media/scripts/generated/entities/walls/{name}.txt' for name in ['entity_metal_wallframe','entity_metal_walllvl1','entity_metal_walllvl2','entity_metal_doorframelvl1','entity_metal_doorframelvl2','entity_metal_doorlvl1','entity_metal_doorlvl2']]
 DEFS += [GAME/'media/scripts/generated/items/drainable.txt',GAME/'media/scripts/generated/items/literature.txt']
@@ -36,7 +36,7 @@ CONTROLS=[
     ('current-standing-at-effect','production.lua','local query=current and SAO.Standing.mayTakeCurrent or SAO.Standing.mayAttemptBelieved','if current then return true end\n    local query=current and SAO.Standing.mayTakeCurrent or SAO.Standing.mayAttemptBelieved','current_standing_revocation_before_effect_prevents_native_payment','Guards','shelter.permission'),
     ('metered-charge-payment','production.lua','after~=before-row.quantity','after~=before-row.quantity+1','native_metered_payment_measures_current_charge_decrement','Guards','collector.usePayment'),
     ('exact-native-recipe-identity','production.lua','w.recipeId~=w.entityId','not textId(w.recipeId)','foreign_saved_recipe_identity_cannot_earn_build_credit','Guards','shelter.identity'),
-    ('native-dontrecordinput','production.lua',' or req.recordInput~=(not weld and w.entityId=="Base.DoubleWireGate" and i==3)','','changed_saved_dontrecordinput_contract_cannot_earn_build_credit','Guards','shelter.identity'),
+    ('native-dontrecordinput','production.lua',' or req.recordInput~=(weld and weld.recordInput and weld.recordInput[i]==true or not weld and w.entityId=="Base.DoubleWireGate" and i==3)','','changed_saved_dontrecordinput_contract_cannot_earn_build_credit','Guards','shelter.identity'),
     ('exact-native-metal-policy','production.lua','["Base.MetalWallFrame"]={kind="wall-frame",counts={1,3,1}','["Base.MetalWallFrame"]={kind="wall-frame",counts={1,4,1}','complete_native_metal_recipe_policy_is_available','Policy',None),
     ('native-eligibility-before-cap','sources.lua','if itemFilter then filterOk,eligible=pcall(itemFilter,item and item.type) end','if false then filterOk,eligible=pcall(itemFilter,item and item.type) end','native_exact_material_predicate_filters_before_private_action_capacity','Categories','WS.actionOptions'),
     ('source-quantity-custody','planner.lua','(purpose.gateAccess or purpose.shelterConstruction) and completed','purpose.gateAccess and completed','changed_authoritative_source_item_actor_quantity_cannot_advance_metal_shelter','Acquisition','P.consumeSourceResult'),
@@ -101,7 +101,7 @@ def main():
     if out.exists():raise ValueError('immutable receipt directory already exists')
     out.mkdir(parents=True);before={str(p):digest(p) for p in owned+installed};classes=out/'classes';classes.mkdir()
     cp=os.pathsep.join(map(str,[GAME/'projectzomboid.jar',ROOT/'mod/42.20/media/java/SAO.jar',GAME/'ZombieBuddy.jar']))
-    command=[str(JDK/'javac.exe'),'-cp',cp,'-d',str(classes),str(PROBE),str(common.PROBE),str(ROOT/'tools/luacheck/MovementCrossingProbe.java'),str(ROOT/'tools/luacheck/LuaSyntax.java'),*map(str,JAVA)]
+    command=[str(JDK/'javac.exe'),'-cp',cp,'-d',str(classes),str(PROBE),str(common.PROBE),str(ROOT/'tools/luacheck/MovementCrossingProbe.java'),str(ROOT/'tools/luacheck/ResourceApproachProbe.java'),str(ROOT/'tools/luacheck/LuaSyntax.java'),*map(str,JAVA)]
     compiled=subprocess.run(command,capture_output=True,text=True,timeout=90);(out/'compile.log').write_text(compiled.stdout+compiled.stderr,encoding='utf-8')
     receipt={'status':'FAIL','inputPins':before,'compile':{'command':command,'exitCode':compiled.returncode,'logSha256':digest(out/'compile.log')},'controls':[]}
     if compiled.returncode==0:

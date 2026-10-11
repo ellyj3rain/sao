@@ -356,7 +356,7 @@ local HOBBY_KINDS={ ["leisure-meditation"]=true,["leisure-exercise"]=true,
     ["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true }
 local EXTENDED = { ["generator-operation"] = true, ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true, ["collector-construction"] = true,
-    ["animal-care"] = true, ["window-repair"] = true, ["material-crafting"] = true, ["tool-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
+    ["animal-care"] = true, ["window-repair"] = true,["window-installation"] = true, ["material-crafting"] = true, ["tool-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
     ["weekone-performance-hearing"]=true }
@@ -432,7 +432,7 @@ local function sameData(a, b)
 end
 local BEHAVIOR_RESULT = {}
 function C.experience(id, supplied, authority)
-    if type(supplied)=="table" and (supplied.kind=="generator-operation" or supplied.kind=="gate-operation" or supplied.kind=="shelter-movement" or supplied.kind=="shelter-construction" or supplied.kind=="shelter-use" or supplied.kind=="bed-construction" or supplied.kind=="collector-construction" or supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
+    if type(supplied)=="table" and (supplied.kind=="generator-operation" or supplied.kind=="gate-operation" or supplied.kind=="shelter-movement" or supplied.kind=="shelter-construction" or supplied.kind=="shelter-use" or supplied.kind=="bed-construction" or supplied.kind=="collector-construction" or supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="window-installation" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
         and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
     local now = clock()
     if not C.settings().enabled or not now then return false, "disabled" end
@@ -1245,12 +1245,21 @@ end
 function C.doubleGateOutcome(id,receipt)
     if receipt and receipt.kind=="build-double-gate" then return C.shelterOutcome(id,receipt) end
     local now=clock();local canonical=receipt and SAO.ResourceProduction.outcome(id,receipt.id)
-    if not now or not canonical or not sameData(canonical,receipt) or receipt.actorId~=id or receipt.kind~="operate-double-gate" then return false end
+    if not now or not canonical or not sameData(canonical,receipt) or receipt.actorId~=id or receipt.kind~="operate-double-gate" and receipt.kind~="operate-single-gate" then return false end
     if receipt.status~="completed" then return true,"gate-purpose-retained" end
     if receipt.nativeCredit~=receipt.id or not receipt.nativeCompleted then return false end
     local x=privateFact(id,"gate-operation","body",receipt.id,now,receipt.atHours)
-    x.sourceId,x.actionKind,x.succeeded="double-gate:"..receipt.groupId,receipt.operation,true
+    x.sourceId,x.actionKind,x.succeeded=(receipt.kind=="operate-single-gate" and "single-gate:" or "double-gate:")..receipt.groupId,receipt.operation,true
     return nativeExperience(id,"gate-operation",receipt.sequence,x)
+end
+function C.windowInstallationOutcome(id,receipt)
+    local now=clock();local canonical=receipt and SAO.ResourceProduction.outcome(id,receipt.id)
+    if not now or not canonical or not sameData(canonical,receipt) or receipt.actorId~=id or receipt.kind~="glaze-shelter-window" then return false end
+    if receipt.status~="completed" then return true,"window-installation-purpose-retained" end
+    if receipt.nativeCredit~=receipt.id or not receipt.nativeCompleted or not receipt.itemConsumed or not receipt.frameRetained or not receipt.windowCreated then return false end
+    local x=privateFact(id,"window-installation","construction",receipt.id,now,receipt.atHours)
+    x.sourceId,x.itemId,x.itemType,x.consumedAmount,x.quantityUnit=receipt.siteKey,tonumber(receipt.itemId),receipt.itemType,1,"item"
+    return nativeExperience(id,"window-installation",receipt.sequence,x)
 end
 function C.shelterOutcome(id,receipt)
     local now=clock()

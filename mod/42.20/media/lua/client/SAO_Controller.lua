@@ -5034,6 +5034,18 @@ function Ctl.shelterConstructionContext(id,agent,body,needs,kind)
     SAO.Perception.observeShelterSites(id,body,own and own.origin)
     context.sites=SAO.Perception.shelterSites(id,body)
     context.options=SAO.ResourceProduction.shelterOptions(id,body,own)
+    context.windowGlazing=SAO.ResourceProduction.windowGlazingOptions and SAO.ResourceProduction.windowGlazingOptions(id,body) or {}
+    for _,offer in ipairs(context.windowGlazing)do
+        if not offer.item then
+            for _,source in ipairs(Ctl.resourceContext(id,agent,body,needs,"movable-window",.5).sources or {})do if #context.materialSources<128 then context.materialSources[#context.materialSources+1]=source end end
+        elseif offer.item.placeToolAvailable==false then
+            for _,fullType in ipairs(offer.item.placeToolTypes or {})do
+                for _,source in ipairs(Ctl.resourceContext(id,agent,body,needs,offer.item.placeToolCategory,.5,nil,fullType).sources or {})do
+                    if #context.materialSources<128 then context.materialSources[#context.materialSources+1]=source end
+                end
+            end
+        end
+    end
     local checked={}
     local carried=SAOJavaBridge:privateCarriedItems(body)
     for _,option in ipairs(context.options) do
@@ -5079,7 +5091,7 @@ function Ctl.tryShelterConstruction(id,agent,body,tick,needs,kind)
         end
         return false
     end
-    if step.owner~="SAO.ResourceProduction" or step.productionKind~="build-shelter-edge" and step.productionKind~="build-shelter-surface" and step.productionKind~="build-shelter-stairs" and step.productionKind~="use-shelter" then return false end
+    if step.owner~="SAO.ResourceProduction" or step.productionKind~="build-shelter-edge" and step.productionKind~="build-shelter-surface" and step.productionKind~="build-shelter-stairs" and step.productionKind~="use-shelter" and step.productionKind~="glaze-shelter-window" then return false end
     if not setState(agent,id,"RESOURCE",step.productionKind=="use-shelter" and "uses the repaired shelter doorway" or "repairs shelter for retained recovery","need") then return false end
     if SAO.ResourceProduction.begin(id,body,step,{purposeId=p.id,purposeStepId=step.id}) or agent.rec.resourceProductionWork then
         agent.taskDeadline=tick+5400;return true
@@ -6426,6 +6438,8 @@ function Ctl.doubleGateContext(id,agent,body)
     local context={boundaryConcern=concern and true or false,options={},materialSources={},recipeBooks={},pressure=.5,atHours=SAO.History.countyHours()}
     if not context.boundaryConcern then return context end
     SAO.Perception.observeDoubleGateSites(id,body);context.options=SAO.ResourceProduction.doubleGateOptions(id,body)
+    if SAO.Perception.observeBoundarySites then SAO.Perception.observeBoundarySites(id,body) end
+    for _,option in ipairs(SAO.ResourceProduction.boundaryOptions and SAO.ResourceProduction.boundaryOptions(id,body,p and p.gateAccess) or {})do context.options[#context.options+1]=option end
     local categories={};local inv=SAOJavaBridge:privateCarriedItems(body)
     for _,option in ipairs(context.options) do
         local ready,missing=SAO.ProceduralPlanning.collectorReady(option)
@@ -6435,18 +6449,17 @@ function Ctl.doubleGateContext(id,agent,body)
                     context.recipeBooks[option.recipeName]={itemId=item:getID(),itemType=item:getFullType()};break
                 end
             end
-            categories['gate-manual']=true
+            if not context.recipeBooks[option.recipeName] then
+                for _,source in ipairs(Ctl.resourceContext(id,agent,body,SAO.Needs.read(body),"gate-manual",.5,nil,nil,option.recipeName).sources or {})do
+                    local copy={} for key,value in pairs(source)do copy[key]=value end;copy.recipeName=option.recipeName
+                    if #context.materialSources<128 then context.materialSources[#context.materialSources+1]=copy end
+                end
+            end
         elseif not ready then for _,required in ipairs(missing or {}) do categories[required.category]=true end end
     end
     for category in pairs(categories) do
         for _,source in ipairs(Ctl.resourceContext(id,agent,body,SAO.Needs.read(body),category,.5).sources or {}) do
-            if category=='gate-manual' then
-                for _,name in ipairs({'DoubleFenceGate','DoubleWireGate'}) do
-                    if SAO.Study and SAO.Study.usefulRecipeType(body,source.itemType,name) then
-                        local copy={} for key,value in pairs(source) do copy[key]=value end;copy.recipeName=name;context.materialSources[#context.materialSources+1]=copy
-                    end
-                end
-            else context.materialSources[#context.materialSources+1]=source end
+            if #context.materialSources<128 then context.materialSources[#context.materialSources+1]=source end
         end
     end
     return context

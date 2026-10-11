@@ -1178,6 +1178,10 @@ public final class SAONeeds {
                     && item instanceof InventoryContainer bag && bag.getInventory().isEmpty()
                     && item.getCondition() > 0 && !item.isBroken()
                     && !item.getIsCraftingConsumed();
+            case "movable-window":
+                if(!(item instanceof zombie.inventory.types.Moveable movable)||item.getIsCraftingConsumed()||movable.getWorldSprite()==null)return false;
+                var sprite=zombie.iso.sprite.IsoSpriteManager.instance.getSprite(movable.getWorldSprite());
+                return sprite!=null&&sprite.getProperties().has("IsMoveAble")&&"Window".equals(sprite.getProperties().get("MoveType"));
             case "metal-pipe":
                 return "Base.MetalPipe".equals(item.getFullType())&&!item.getIsCraftingConsumed();
             case "metal-bar":
@@ -1196,10 +1200,10 @@ public final class SAONeeds {
                     &&item.getCurrentUses()>0&&!item.getIsCraftingConsumed();
             case "gate-manual":
                 return item instanceof zombie.inventory.types.Literature guide&&guide.getLearnedRecipes()!=null
-                    &&(guide.getLearnedRecipes().contains("DoubleFenceGate")||guide.getLearnedRecipes().contains("DoubleWireGate"))&&!item.getIsCraftingConsumed();
+                    &&java.util.List.of("DoubleFenceGate","DoubleWireGate","MetalFenceLvl1","MetalBigMetalFence","MetalBigWireFence","MetalSmallPoleFence","MetalSmallWireFence","MetalPoleFenceGate","MetalPoleFenceGateSmall","MetalWireFenceGate","MetalWireFenceGateSmall").stream().anyMatch(guide.getLearnedRecipes()::contains)&&!item.getIsCraftingConsumed();
             case "shelter-manual":
                 return item instanceof zombie.inventory.types.Literature shelterGuide&&shelterGuide.getLearnedRecipes()!=null
-                    &&java.util.List.of("MetalWallFrame","MetalWallLvl1","MetalWallLvl2","MetalDoorFrameLvl1","MetalDoorFrameLvl2","MetalFloorLvl1").stream().anyMatch(shelterGuide.getLearnedRecipes()::contains)
+                    &&java.util.List.of("MetalWallFrame","MetalWallLvl1","MetalWallLvl2","MetalDoorFrameLvl1","MetalDoorFrameLvl2","MetalFloorLvl1","MetalWindowFrameLvl1","MetalWindowFrameLvl2").stream().anyMatch(shelterGuide.getLearnedRecipes()::contains)
                     &&!item.getIsCraftingConsumed();
             case "hinge":
                 return "Base.Hinge".equals(item.getFullType()) && !item.getIsCraftingConsumed();

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.6.14.0-pre-alpha` |
+| Version | `2.6.15.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -793,3 +793,7 @@ The installed metal wall/frame/door family and its exact stage/material/knowledg
 ## Native metal floor construction (D3.14)
 
 Installed metal floor definitions and their actual prerequisite/payment/placement rules flow through the effective native surface and shelter owners. [D3.14](Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md) retains exact inventory, measured floor/cover and ordinary recovery effects, native lifecycle and evidence boundaries.
+
+## Native metal enclosure and access (D3.15)
+
+The complete recorded remaining metal family uses installed recipe, placement, payment and physical-consumer contracts. Window-frame apertures, actual movable glazing, native fence collision/climbability and one-leaf gate operation retain distinct native state. [D3.15](Batches/D3.15-20261011-2245Z-1545PST-metal-enclosure-access.md) supplies exact source anchors and observed native/private lifecycle qualification; loaded/rendered/server effects retain their own proof.

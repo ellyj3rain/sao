@@ -12,7 +12,7 @@ import d3_shelter_construction_test as base
 ROOT=base.ROOT
 PROBE=ROOT/'tools/resource_production_checks/DoubleGateNativeProbe.java'
 CASES=ROOT/'tools/resource_production_checks/double_gate_cases.lua'
-JAVA=[ROOT/'java/src/com/sao/engine'/name for name in ['SAODoubleGate.java','SAOShelterConstruction.java','SAOShelterStairs.java','SAOShelterSurface.java','SAONeeds.java','SAOWorldSources.java','SAOIsoPlayerShell.java']]+[ROOT/'java/src/com/sao/bridge/SAOBridge.java']
+JAVA=[ROOT/'java/src/com/sao/engine'/name for name in ['SAODoubleGate.java','SAOEnclosureEdge.java','SAOMovement.java','SAOShelterConstruction.java','SAOShelterStairs.java','SAOShelterSurface.java','SAONeeds.java','SAOWorldSources.java','SAOIsoPlayerShell.java']]+[ROOT/'java/src/com/sao/bridge/SAOBridge.java']
 PRODUCTION=[*JAVA,*[base.LUA/f'{area}/SAO_{name}.lua' for area,name in [('shared','Perception'),('shared','ProceduralPlanning'),('shared','Cognition'),('shared','CognitiveModels'),('shared','WorldSources'),('client','Controller'),('client','ResourceProduction'),('client','CapabilityExperience')]]]
 INSTRUMENTS=[Path(__file__),PROBE,CASES,base.PROBE,base.CASES,Path(base.__file__),ROOT/'tools/check.sh']
 DEFINITIONS=[base.GAME/f'media/scripts/generated/entities/walls/{name}.txt' for name in ['entity_wood_doubledoor','entity_metal_doublepolegate','entity_metal_doublewiregate']]
@@ -86,7 +86,7 @@ def main():
     reader=ROOT/'tools/resource_production_checks/recipe_reading_cases.lua'
     readerText=reader.read_text(encoding='utf-8-sig');attach=readerText.split('    f.book=__boardingItem(',1)[1].split('    f.purpose={',1)[0]
     chunks['native-recipe-reading.lua']=(base.GAME/'media/lua/shared/TimedActions/ISReadABook.lua').read_text(encoding='utf-8-sig')
-    chunks['reading-ports.lua']=readerText.split('local checks={}',1)[0]+'\nfunction __attachGateRecipeBook(f)\n    f.book=__boardingItem('+attach+'\nend'
+    chunks['reading-ports.lua']=readerText.split('local checks={}',1)[0]+'\nfunction __attachGateRecipeBook(f,literature)\n    literature=literature or \"Base.MetalworkMag3\"\n    f.book=__boardingItem('+attach+'\nend'
     chunks['study.lua']=(base.LUA/'client/SAO_Study.lua').read_text(encoding='utf-8-sig')
     chunks['source-use.lua']=(base.LUA/'client/SAO_SourceUse.lua').read_text(encoding='utf-8-sig')
     chunks['double-gate-cases.lua']=CASES.read_text(encoding='utf-8-sig')

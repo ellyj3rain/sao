@@ -4477,6 +4477,30 @@ public final class SAOBridge {
             ? com.sao.engine.SAOShelterConstruction.observe(body,(int)x,(int)y,(int)z) : null;
         } catch(Throwable t) { SAOAgent.log("worldShelterSites threw: "+t); return null; }
     }
+    public Object worldBoundarySites(Object object) {
+        try{return object instanceof SAOIsoPlayerShell b?com.sao.engine.SAOEnclosureEdge.observe(b):null;}catch(Throwable t){SAOAgent.log("worldBoundarySites threw: "+t);return null;}
+    }
+    public Object worldBoundaryPlacement(Object object,String key,String revision) {
+        try{return object instanceof SAOIsoPlayerShell b?com.sao.engine.SAOEnclosureEdge.placement(b,key,revision):null;}catch(Throwable t){SAOAgent.log("worldBoundaryPlacement threw: "+t);return null;}
+    }
+    public String worldBoundaryCreated(Object object,Object part,String entity,double x,double y,double z,String face) {
+        try{return object instanceof SAOIsoPlayerShell b&&part instanceof zombie.iso.objects.IsoThumpable o?com.sao.engine.SAOEnclosureEdge.created(b,o,entity,(int)x,(int)y,(int)z,face):null;}catch(Throwable t){SAOAgent.log("worldBoundaryCreated threw: "+t);return null;}
+    }
+    public Object worldBoundaryState(Object object,String id,String entity,double x,double y,double z,String face) {
+        try{return object instanceof SAOIsoPlayerShell b?com.sao.engine.SAOEnclosureEdge.state(b,id,entity,(int)x,(int)y,(int)z,face):null;}catch(Throwable t){SAOAgent.log("worldBoundaryState threw: "+t);return null;}
+    }
+    public Object worldBoundaryLeaf(Object object,String id,String entity,double x,double y,double z,String face) {
+        try{return object instanceof SAOIsoPlayerShell b?com.sao.engine.SAOEnclosureEdge.leaf(b,id,entity,(int)x,(int)y,(int)z,face):null;}catch(Throwable t){SAOAgent.log("worldBoundaryLeaf threw: "+t);return null;}
+    }
+    public String worldBoundaryBeginPassage(Object object,String id,String entity,double x,double y,double z,String face,double tx,double ty) {
+        try{return object instanceof SAOIsoPlayerShell b?com.sao.engine.SAOEnclosureEdge.beginPassage(b,id,entity,(int)x,(int)y,(int)z,face,(int)tx,(int)ty):null;}catch(Throwable t){SAOAgent.log("worldBoundaryBeginPassage threw: "+t);return null;}
+    }
+    public boolean worldBoundaryPassage(Object object,String token) {
+        try{return object instanceof SAOIsoPlayerShell b&&com.sao.engine.SAOEnclosureEdge.passage(b,token);}catch(Throwable t){SAOAgent.log("worldBoundaryPassage threw: "+t);return false;}
+    }
+    public void worldBoundaryForgetPassage(Object object,String token) {
+        try{if(object instanceof SAOIsoPlayerShell b)com.sao.engine.SAOEnclosureEdge.forgetPassage(b,token);}catch(Throwable t){SAOAgent.log("worldBoundaryForgetPassage threw: "+t);}
+    }
     public Object worldDoubleGateSites(Object object) {
         try{return object instanceof com.sao.engine.SAOIsoPlayerShell body?com.sao.engine.SAODoubleGate.observe(body):null;}
         catch(Throwable t){SAOAgent.log("worldDoubleGateSites threw: "+t);return null;}
@@ -4556,6 +4580,16 @@ public final class SAOBridge {
         try { return object instanceof com.sao.engine.SAOIsoPlayerShell body
             ? com.sao.engine.SAOShelterConstruction.previous(body,key,revision) : null;
         } catch(Throwable t) { SAOAgent.log("worldShelterPreviousStage threw: "+t); return null; }
+    }
+    public Object worldShelterWindowFrame(Object object,String key,String revision) {
+        try{return object instanceof SAOIsoPlayerShell body?com.sao.engine.SAOShelterConstruction.windowFrame(body,key,revision):null;}catch(Throwable t){SAOAgent.log("worldShelterWindowFrame threw: "+t);return null;}
+    }
+    public Object worldShelterWindow(Object object,String key,String revision) {
+        try{return object instanceof SAOIsoPlayerShell body?com.sao.engine.SAOShelterConstruction.window(body,key,revision):null;}catch(Throwable t){SAOAgent.log("worldShelterWindow threw: "+t);return null;}
+    }
+    public boolean worldShelterGlazed(Object object,Object frame,Object window,String sprite,boolean north) {
+        try{return object instanceof SAOIsoPlayerShell body&&frame instanceof zombie.iso.objects.IsoThumpable f
+            &&window instanceof zombie.iso.objects.IsoWindow w&&com.sao.engine.SAOShelterConstruction.glazed(body,f,w,sprite,north);}catch(Throwable t){SAOAgent.log("worldShelterGlazed threw: "+t);return false;}
     }
     public Object worldShelterDoor(Object object,String key,String revision) {
         try { return object instanceof com.sao.engine.SAOIsoPlayerShell body

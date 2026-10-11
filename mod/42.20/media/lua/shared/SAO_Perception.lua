@@ -3888,12 +3888,12 @@ local function shelterSiteCopy(id,row)
         or row.face~="N" and row.face~="W" or not finiteSoundNumber(row.observedAtHours) or row.observedAtHours<0 then return nil end
     local out={}
     for _,key in ipairs({"key","revision","face","mode","previousEntity","actorId","observed","source","roof","observedAtHours","upgradeOpportunity"}) do out[key]=row[key] end
-    if row.upgradeOpportunity~=nil and (row.upgradeOpportunity~=true or row.previousEntity~="Base.MetalWallLvl1" or row.mode~="wall") then return nil end
+    if row.upgradeOpportunity~=nil and (row.upgradeOpportunity~=true or (row.previousEntity~="Base.MetalWallLvl1" or row.mode~="wall") and (row.previousEntity~="Base.MetalWindowFrameLvl1" or row.mode~="window-frame")) then return nil end
     for _,key in ipairs({"x","y","z","approachX","approachY","approachZ","insideX","insideY","originX","originY"}) do
         if not finiteSoundNumber(row[key]) or row[key]%1~=0 then return nil end;out[key]=row[key]
     end
     if row.approachZ~=row.z or math.abs(row.x-row.approachX)+math.abs(row.y-row.approachY)>1
-        or not ({["wall-frame"]=true,wall=true,["door-frame"]=true,["door-leaf"]=true,door=true,["covered-interior"]=true})[row.mode] then return nil end
+        or not ({["wall-frame"]=true,wall=true,["door-frame"]=true,["door-leaf"]=true,door=true,["window-frame"]=true,window=true,["covered-interior"]=true})[row.mode] then return nil end
     return out
 end
 function P.observeShelterSites(id,body,origin)
@@ -4663,6 +4663,53 @@ if Events and Events.OnGameStart then
     Events.OnGameStart.Add(function()
         pcall(P.bindPersistentStore)
     end)
+end
+
+
+-- One-edge gaps retain the same acquired boundary purpose without four-leaf assumptions.
+local function boundarySiteCopy(id,row)
+    if type(row)~="table" or getmetatable(row) or row.actorId~=id or row.observed~=true or row.boundaryObserved~=true
+        or row.source~="native-personal-visibility" or row.mode~="boundary" or row.face~="N" and row.face~="W"
+        or type(row.key)~="string" or #row.key>160 or type(row.revision)~="string" or #row.revision>160
+        or not finiteSoundNumber(row.observedAtHours) or row.observedAtHours<0 then return nil end
+    local out={}
+    for _,key in ipairs({"key","revision","face","mode","actorId","observed","boundaryObserved","source","observedAtHours"})do out[key]=row[key] end
+    for _,key in ipairs({"x","y","z","width","height","approachX","approachY","approachZ","destinationX","destinationY","destinationZ"})do
+        if not finiteSoundNumber(row[key]) or row[key]%1~=0 then return nil end;out[key]=row[key]
+    end
+    if out.width~=1 or out.height~=1 or out.approachX~=out.x or out.approachY~=out.y or out.approachZ~=out.z
+        or out.destinationX~=out.x-(out.face=="W" and 1 or 0) or out.destinationY~=out.y-(out.face=="N" and 1 or 0)
+        or out.destinationZ~=out.z then return nil end
+    return out
+end
+function P.observeBoundarySites(id,body)
+    local at=SAO.History.countyHours();if not collectorObserver(id,body) or not finiteSoundNumber(at) or at<0 or not SAOJavaBridge.worldBoundarySites then return false end
+    local ok,rows=pcall(function()return SAOJavaBridge:worldBoundarySites(body)end);if not ok or type(rows)~="table" or getmetatable(rows) then return false end
+    local b=store(id);b.boundarySites=b.boundarySites or {};b.boundarySiteOrder=b.boundarySiteOrder or {}
+    for index,native in ipairs(rows) do if index>16 then break end
+        local input={} for k,v in pairs(native)do input[k]=v end;input.actorId,input.observed,input.observedAtHours,input.source=id,true,at,"native-personal-visibility"
+        local row=boundarySiteCopy(id,input)
+        if row and row.z==math.floor(body:getZ()) then
+            if not b.boundarySites[row.key] then if #b.boundarySiteOrder>=32 then b.boundarySites[table.remove(b.boundarySiteOrder,1)]=nil end;b.boundarySiteOrder[#b.boundarySiteOrder+1]=row.key end
+            b.boundarySites[row.key]=row
+        end
+    end;P.beliefVersion=P.beliefVersion+1;return true
+end
+function P.consumeBoundarySite(id,receipt)
+    local row=type(receipt)=="table" and SAO.ResourceProduction and SAO.ResourceProduction.outcome(id,receipt.id)
+    if not row or row.actorId~=id or row.kind~="build-shelter-edge" or row.status~="completed" or row.nativeCredit~=row.id or not row.nativeCompleted
+        or type(row.site)~="table" or not row.site.boundaryObserved or row.site.mode~="fence" and row.site.mode~="single-gate" then return false end
+    local b=store(id);local site=b.boundarySites and b.boundarySites[row.site.key]
+    if not site then return true end
+    if site.revision~=row.site.revision or site.observedAtHours>row.atHours then return false end
+    for _,key in ipairs({"actorId","x","y","z","face","width","height","approachX","approachY","approachZ","destinationX","destinationY","destinationZ"})do if site[key]~=row.site[key] then return false end end
+    b.boundarySites[row.site.key]=nil
+    for index=#(b.boundarySiteOrder or {}),1,-1 do if b.boundarySiteOrder[index]==row.site.key then table.remove(b.boundarySiteOrder,index) end end
+    return true
+end
+function P.boundarySites(id,body)
+    if not collectorObserver(id,body) then return {} end;local b,out=store(id),{};local at=SAO.History.countyHours()
+    for _,key in ipairs(b.boundarySiteOrder or {})do local row=boundarySiteCopy(id,b.boundarySites[key]);if row and row.observedAtHours<=at then out[#out+1]=row end end;return out
 end
 
 return P
