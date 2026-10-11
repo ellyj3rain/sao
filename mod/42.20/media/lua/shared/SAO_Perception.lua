@@ -3943,6 +3943,21 @@ local function shelterSurfaceCopy(id,row)
     if row.approachZ~=row.z or math.abs(row.x-row.approachX)+math.abs(row.y-row.approachY)~=1 then return nil end
     return out
 end
+-- Only a canonical measured construction consumes its exact acquired missing-floor offer.
+function P.consumeShelterSurface(id,receipt)
+    local row=type(receipt)=="table" and SAO.ResourceProduction and SAO.ResourceProduction.outcome(id,receipt.id)
+    if not row or row.actorId~=id or row.kind~="build-shelter-surface" or row.status~="completed"
+        or row.nativeCredit~=row.id or not row.nativeCompleted or type(row.site)~="table" then return false end
+    local b=store(id);local site=b.shelterSurfaces and b.shelterSurfaces[row.site.key]
+    if not site then return true end
+    if site.revision~=row.site.revision or site.observedAtHours>row.atHours then return false end
+    for _,key in ipairs({"actorId","x","y","z","face","mode","supported","missingFloor","approachX","approachY","approachZ"}) do
+        if site[key]~=row.site[key] then return false end
+    end
+    b.shelterSurfaces[row.site.key]=nil
+    for index=#(b.shelterSurfaceOrder or {}),1,-1 do if b.shelterSurfaceOrder[index]==row.site.key then table.remove(b.shelterSurfaceOrder,index) end end
+    return true
+end
 local function shelterStairCopy(id,row)
     if type(row)~="table" or getmetatable(row) or row.actorId~=id or row.observed~=true
         or row.source~="native-personal-visibility" or row.mode~="stairs" or row.supported~=true

@@ -4,11 +4,11 @@
   "sourceVector": [
     {
       "sourceRef": "ARCHITECTURE.md",
-      "revision": "sha256:aff05854e8181f4c664d674f04989e3608d14f7d5e30cc5a152b9448347cb20d"
+      "revision": "sha256:adf7439088e69a423169cd5f53c1bb2db4981fd526c5d2501cdc08d9beae9770"
     },
     {
       "sourceRef": "BATCH_LOG.md",
-      "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb"
+      "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e"
     },
     {
       "sourceRef": "Batches/A1-2026-08-26-repository-and-governance-surface.md",
@@ -496,7 +496,7 @@
     },
     {
       "sourceRef": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-      "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
+      "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
     },
     {
       "sourceRef": "Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md",
@@ -517,6 +517,10 @@
     {
       "sourceRef": "Batches/D3.13-20261011-0845Z-0145PDT-metal-walls-doors-usable-shelter.md",
       "revision": "sha256:3dcfffec15255f2bfd8c9c7a110a7211ff47e00b768b10fcf2c41febb86931ac"
+    },
+    {
+      "sourceRef": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+      "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
     },
     {
       "sourceRef": "Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md",
@@ -1396,15 +1400,15 @@
     },
     {
       "sourceRef": "DECISION_REGISTRY.md",
-      "revision": "sha256:0ec065102377a1541c5b608726e0d25658fd5401d629576f7f4c9034739c5492"
+      "revision": "sha256:166c2f2dae8bd6299f1947ff4e88b5c997be5765914ada0e6fe23b59bd6f8e09"
     },
     {
       "sourceRef": "FINDINGS.md",
-      "revision": "sha256:db7c62a5b98dbe9575340775ed584359f71b9fb400de78d36d9e7b5a184ead6c"
+      "revision": "sha256:61c48f544ee9859837836f02681c781455c2113585710bb05151bc2eb7bf7cd1"
     },
     {
       "sourceRef": "GOVERNANCE.md",
-      "revision": "sha256:603d412f3ea741354cad78e5300368e1d3abd559d9d559c48d55ec6654522df9"
+      "revision": "sha256:57310406faa6cab3f5403622936ceb3e98259721c6006940204e7b366a7e9cde"
     },
     {
       "sourceRef": "NEO.md",
@@ -1412,15 +1416,15 @@
     },
     {
       "sourceRef": "PROJECTS.md",
-      "revision": "sha256:0e558c7545ca929cc8f96440d967d35fbdbdc7c2edb00fa8c10bae5594512848"
+      "revision": "sha256:c68111addc06e2f65ebcba268bb9aa71162f5a4951c5c4bb2eab81c6d8bc51c3"
     },
     {
       "sourceRef": "SESSION_STATE.md",
-      "revision": "sha256:22ef2a24431d88989eb0a5781fd692b5a775ff098e14fd877b306a11f5628cf2"
+      "revision": "sha256:8656b2558f8471c29ffb7fa0f0d4133145414d95f22db2eaae10f939ef465dba"
     },
     {
       "sourceRef": "SUBSTRATE.md",
-      "revision": "sha256:7e68a8dd498cc83d33f66501a729143785bdf637e80d8d68c73b19619ac8dfe5"
+      "revision": "sha256:6e2035901f4b1ae51e0cf314f5d345af420dc2829614626c1d7431a97d7228be"
     },
     {
       "sourceRef": "artifacts/audits/20261003-2310Z-1610PST-shared-boundaries/shared-reasoning-verification.json",
@@ -1568,7 +1572,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_ResourceProduction.lua",
-      "revision": "sha256:c3f503df6a2293ee7253892a70412ca0ef452152db11639de6758fdec96c5443"
+      "revision": "sha256:abfd8ed48c67a967789305fe5ed2f8e106621127d9a25c195984b437d6fd347f"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Sandbox.lua",
@@ -1580,7 +1584,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Study.lua",
-      "revision": "sha256:49b6429b09a5877fd0344b8ebc0d0aded541f2e76fa0385e93cd0c83c7a4c964"
+      "revision": "sha256:9319a8faf1d7ba8e2d212abc5c57ebe23df10d35acffd0912408f81773e4f5a7"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Telemetry.lua",
@@ -1620,7 +1624,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
-      "revision": "sha256:5245fb182c92459014927b681c3f780f08a5a0c50896d0e4414aae5e29c30086"
+      "revision": "sha256:834c998007e0920eb72d9231a8278bd9fd43b5d0da77f2e6000df0619253898c"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Command.lua",
@@ -1708,7 +1712,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Perception.lua",
-      "revision": "sha256:b327083a32760c0b807fe5e81bb5ba10c10ba890e8cf914764c4f8b2b882a7b7"
+      "revision": "sha256:a7fb0ffec97764d2207fd68fe44216a02364ba11ddee79fedc72802a27240c5f"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Pharmacology.lua",
@@ -1728,7 +1732,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-      "revision": "sha256:e092a0592cf34215cf64d632b85fd7b1b1623d8555ab9526163e10b686101f42"
+      "revision": "sha256:d5b86d8a2c5daf551dad53ba65fa5bbea157a3df99842135dc6b8a33b66acc62"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Provisioning.lua",
@@ -1768,7 +1772,7 @@
     },
     {
       "sourceRef": "tools/check.sh",
-      "revision": "sha256:a64a19f4109fd6afa86898892f0086713e9584caef28328559674da561f80dcf"
+      "revision": "sha256:2378dfb3af5e3d4afecea3fe37295d6646e97183fd3f414ee9d324f56ebc799d"
     },
     {
       "sourceRef": "tools/county_episode.py",
@@ -1792,7 +1796,7 @@
     },
     {
       "sourceRef": "tools/version_replay.py",
-      "revision": "sha256:a516374928020ea4d8a6673c1a433f809fec1a3c502fb073942120f21cc3e936"
+      "revision": "sha256:119b3b3e0af91cfa885dcf900e825409bd44370369ba6aa57889906eaa94c42a"
     },
     {
       "sourceRef": "tools/world_lab.py",
@@ -3688,7 +3692,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D1"
         },
         {
@@ -3717,7 +3721,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D2"
         },
         {
@@ -3739,19 +3743,19 @@
       "label": "D3 · Construction, crafting, repair and utilities",
       "summary": "D3 retains its complete accepted module scope and integration obligations. [D3.1](D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is its CLOSED child: native plank crafting for the retained construction purpose. Its reason, scope, owners, contracts, dependencies and required closure evidence were recorded before the new crafting implementation. The first material-work join retains its existing D3 history and supplies the child's integration. Child closure and publication leave this parent active; capability changes receive credit once under the existing odometer.",
       "status": {
-        "implementation": "CLOSED D3.1-D3.13 deliver their coherent linked native crafting, maintenance, utilities, firearm reuse, usable beds, wooden shelter, floors/roof cover, stairs, freestanding gates and metal walls/frames/doors through ordinary shelter. Full remaining scope keeps D3 OPEN.",
+        "implementation": "CLOSED D3.1-D3.14 deliver linked native crafting, maintenance, utilities, firearm reuse, usable beds, wooden shelter, floors/roof cover, stairs, double gates, metal walls/frames/doors and metal floors through ordinary shelter. Full remaining scope keeps D3 OPEN.",
         "verification": "Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below.",
-        "publication": "D3.1-D3.12 self-merged through PR142-PR153; D3.13 follows the same protected workflow with actual merge retained in its completion receipt."
+        "publication": "D3.1-D3.13 self-merged through PR142-PR154; D3.14 follows the same protected workflow with actual merge retained in its completion receipt."
       },
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "Active batch"
         },
         {
           "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
         }
       ],
       "tags": [
@@ -3775,7 +3779,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D3.1"
         },
         {
@@ -3804,7 +3808,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D3.10"
         },
         {
@@ -3833,7 +3837,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D3.11"
         },
         {
@@ -3862,7 +3866,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D3.12"
         },
         {
@@ -3891,7 +3895,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D3.13"
         },
         {
@@ -3908,6 +3912,35 @@
       "closedAt": ""
     },
     {
+      "id": "batch:D3.14",
+      "kind": "batch",
+      "label": "D3.14 · Native metal floors through usable shelter",
+      "summary": "The original person-owned shelter concern selects native metal flooring from privately acquired supported-site facts, existing access, current Standing, capabilities and exact means. General knowledge motivates inquiry without manufacturing a site, route, resource object, permission or learned recipe. Native machinery owns payment and construction; SAO retains intent, attribution, observation, durable outcomes and ordinary shelter recovery.",
+      "status": {
+        "implementation": "CLOSED - installed native metal floor through walking surface/cover and ordinary reached shelter/recovery.",
+        "verification": "PASS scoped native/consumer/control/regression qualification, CLEAN integrated/coherence review and one supported 2.6.14.0 stamped build. Shipping JAR SHA256 6a19dc4124ef331ea6b517a62234045105de5d71ca94a8c3bb706b712797afe5. Selected package/interface/save/version/graph results retain their independent validation receipt.",
+        "publication": "One coherent snapshot through established protected branch/PR self-squash workflow; actual checks, merge and preservation retain separate receipts."
+      },
+      "sources": [
+        {
+          "path": "BATCH_LOG.md",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
+          "locator": "D3.14"
+        },
+        {
+          "path": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+          "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
+        }
+      ],
+      "tags": [
+        "D",
+        "delivered"
+      ],
+      "recordedStatus": "CLOSED - native metal floors through usable shelter",
+      "recordedAt": "",
+      "closedAt": ""
+    },
+    {
       "id": "batch:D3.2",
       "kind": "batch",
       "label": "D3.2 · Native saw maintenance for retained construction",
@@ -3920,7 +3953,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D3.2"
         },
         {
@@ -3949,7 +3982,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D3.3"
         },
         {
@@ -3978,7 +4011,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D3.4"
         },
         {
@@ -4007,7 +4040,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D3.5"
         },
         {
@@ -4036,7 +4069,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D3.6"
         },
         {
@@ -4065,7 +4098,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D3.7"
         },
         {
@@ -4094,7 +4127,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D3.8"
         },
         {
@@ -4123,7 +4156,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e",
           "locator": "D3.9"
         },
         {
@@ -4233,7 +4266,7 @@
       "sources": [
         {
           "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
         }
       ],
       "tags": [
@@ -14881,8 +14914,12 @@
           "revision": "sha256:3dcfffec15255f2bfd8c9c7a110a7211ff47e00b768b10fcf2c41febb86931ac"
         },
         {
+          "path": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+          "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
+        },
+        {
           "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
         }
       ],
       "tags": [
@@ -14995,17 +15032,17 @@
         },
         {
           "path": "SESSION_STATE.md",
-          "revision": "sha256:22ef2a24431d88989eb0a5781fd692b5a775ff098e14fd877b306a11f5628cf2",
+          "revision": "sha256:8656b2558f8471c29ffb7fa0f0d4133145414d95f22db2eaae10f939ef465dba",
           "locator": "shared reasoning continuation"
         },
         {
           "path": "ARCHITECTURE.md",
-          "revision": "sha256:aff05854e8181f4c664d674f04989e3608d14f7d5e30cc5a152b9448347cb20d",
+          "revision": "sha256:adf7439088e69a423169cd5f53c1bb2db4981fd526c5d2501cdc08d9beae9770",
           "locator": "shared reasoning continuation"
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
-          "revision": "sha256:5245fb182c92459014927b681c3f780f08a5a0c50896d0e4414aae5e29c30086"
+          "revision": "sha256:834c998007e0920eb72d9231a8278bd9fd43b5d0da77f2e6000df0619253898c"
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Cognition.lua",
@@ -15017,7 +15054,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-          "revision": "sha256:e092a0592cf34215cf64d632b85fd7b1b1623d8555ab9526163e10b686101f42"
+          "revision": "sha256:d5b86d8a2c5daf551dad53ba65fa5bbea157a3df99842135dc6b8a33b66acc62"
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Needs.lua",
@@ -17083,7 +17120,7 @@
         },
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb"
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e"
         }
       ],
       "tags": [
@@ -17109,7 +17146,7 @@
         },
         {
           "path": "DECISION_REGISTRY.md",
-          "revision": "sha256:0ec065102377a1541c5b608726e0d25658fd5401d629576f7f4c9034739c5492"
+          "revision": "sha256:166c2f2dae8bd6299f1947ff4e88b5c997be5765914ada0e6fe23b59bd6f8e09"
         }
       ],
       "tags": [
@@ -17135,7 +17172,7 @@
         },
         {
           "path": "FINDINGS.md",
-          "revision": "sha256:db7c62a5b98dbe9575340775ed584359f71b9fb400de78d36d9e7b5a184ead6c"
+          "revision": "sha256:61c48f544ee9859837836f02681c781455c2113585710bb05151bc2eb7bf7cd1"
         }
       ],
       "tags": [
@@ -17161,7 +17198,7 @@
         },
         {
           "path": "GOVERNANCE.md",
-          "revision": "sha256:603d412f3ea741354cad78e5300368e1d3abd559d9d559c48d55ec6654522df9"
+          "revision": "sha256:57310406faa6cab3f5403622936ceb3e98259721c6006940204e7b366a7e9cde"
         }
       ],
       "tags": [
@@ -17213,7 +17250,7 @@
         },
         {
           "path": "PROJECTS.md",
-          "revision": "sha256:0e558c7545ca929cc8f96440d967d35fbdbdc7c2edb00fa8c10bae5594512848"
+          "revision": "sha256:c68111addc06e2f65ebcba268bb9aa71162f5a4951c5c4bb2eab81c6d8bc51c3"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -17244,7 +17281,7 @@
         },
         {
           "path": "SUBSTRATE.md",
-          "revision": "sha256:7e68a8dd498cc83d33f66501a729143785bdf637e80d8d68c73b19619ac8dfe5"
+          "revision": "sha256:6e2035901f4b1ae51e0cf314f5d345af420dc2829614626c1d7431a97d7228be"
         }
       ],
       "tags": [
@@ -18182,7 +18219,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_ResourceProduction.lua",
-          "revision": "sha256:c3f503df6a2293ee7253892a70412ca0ef452152db11639de6758fdec96c5443"
+          "revision": "sha256:abfd8ed48c67a967789305fe5ed2f8e106621127d9a25c195984b437d6fd347f"
         }
       ],
       "tags": [
@@ -18270,7 +18307,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Study.lua",
-          "revision": "sha256:49b6429b09a5877fd0344b8ebc0d0aded541f2e76fa0385e93cd0c83c7a4c964"
+          "revision": "sha256:9319a8faf1d7ba8e2d212abc5c57ebe23df10d35acffd0912408f81773e4f5a7"
         }
       ],
       "tags": [
@@ -18545,7 +18582,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
-          "revision": "sha256:5245fb182c92459014927b681c3f780f08a5a0c50896d0e4414aae5e29c30086"
+          "revision": "sha256:834c998007e0920eb72d9231a8278bd9fd43b5d0da77f2e6000df0619253898c"
         }
       ],
       "tags": [
@@ -19152,7 +19189,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Perception.lua",
-          "revision": "sha256:b327083a32760c0b807fe5e81bb5ba10c10ba890e8cf914764c4f8b2b882a7b7"
+          "revision": "sha256:a7fb0ffec97764d2207fd68fe44216a02364ba11ddee79fedc72802a27240c5f"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -19297,7 +19334,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-          "revision": "sha256:e092a0592cf34215cf64d632b85fd7b1b1623d8555ab9526163e10b686101f42"
+          "revision": "sha256:d5b86d8a2c5daf551dad53ba65fa5bbea157a3df99842135dc6b8a33b66acc62"
         }
       ],
       "tags": [
@@ -19546,7 +19583,7 @@
         },
         {
           "path": "tools/check.sh",
-          "revision": "sha256:a64a19f4109fd6afa86898892f0086713e9584caef28328559674da561f80dcf"
+          "revision": "sha256:2378dfb3af5e3d4afecea3fe37295d6646e97183fd3f414ee9d324f56ebc799d"
         }
       ],
       "tags": [
@@ -19676,7 +19713,7 @@
         },
         {
           "path": "tools/version_replay.py",
-          "revision": "sha256:a516374928020ea4d8a6673c1a433f809fec1a3c502fb073942120f21cc3e936"
+          "revision": "sha256:119b3b3e0af91cfa885dcf900e825409bd44370369ba6aa57889906eaa94c42a"
         }
       ],
       "tags": [
@@ -30302,6 +30339,20 @@
       "rationale": "Product-era classification in the current ledger."
     },
     {
+      "id": "edge:03b18858c51e01b4aabb6d1d",
+      "from": "batch:D3.14",
+      "to": "contract:20261003:C33",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+          "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:03c2d02a9ae1b0dda37db6be",
       "from": "source:c-raw-20260919:C27",
       "to": "source:c-raw-20260919:C28",
@@ -30705,20 +30756,6 @@
         }
       ],
       "rationale": "This contract explicitly declares this owner path; shared ownership alone is not a dependency."
-    },
-    {
-      "id": "edge:054f6cfec251ad687ea0a0e6",
-      "from": "batch:D3",
-      "to": "contract:20261003:C32",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:05593d294f129a7352e6dc65",
@@ -31413,6 +31450,20 @@
         }
       ],
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
+      "id": "edge:0923117ba9cd9fda005aedd5",
+      "from": "batch:D3",
+      "to": "era:D",
+      "relation": "concept-membership",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
+        }
+      ],
+      "rationale": "The authoritative index records this numbered batch in its letter era."
     },
     {
       "id": "edge:09366262d8985f843302b4e4",
@@ -34339,6 +34390,20 @@
       "rationale": "The manifest records this blob at the archived Git reference; archivePath is not a working-tree hyperlink."
     },
     {
+      "id": "edge:18aaf9d46e09b7ed56fef522",
+      "from": "batch:D3.13",
+      "to": "batch:D3.14",
+      "relation": "chronology",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+          "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
+        }
+      ],
+      "rationale": "The batch explicitly follows this preserved event or record."
+    },
+    {
       "id": "edge:18bbe3e004797141c0092d8a",
       "from": "source:c-20261003:C20",
       "to": "product:20261005-product-consolidation:C20",
@@ -35202,20 +35267,6 @@
         }
       ],
       "rationale": "Exact retained source belongs to this adjacent product/version unit once."
-    },
-    {
-      "id": "edge:1c827cb5be677fb67890ddfa",
-      "from": "batch:D3",
-      "to": "contract:20261003:C30",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:1c9fa8d61ed90a18fd73e6a1",
@@ -36681,20 +36732,6 @@
         }
       ],
       "rationale": "Current product chronology partitions the retained C source order after B; contract membership remains separate."
-    },
-    {
-      "id": "edge:23935938b65771c900afc66d",
-      "from": "batch:D3",
-      "to": "contract:20261003:C12",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:239551bb4fada2e30be7c83c",
@@ -41299,6 +41336,20 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
+      "id": "edge:393d7da8c2dd3445802cecf1",
+      "from": "batch:D3",
+      "to": "contract:20261003:C20",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:393f0a447b2b1856b63be819",
       "from": "batch:A21",
       "to": "concept:T-004",
@@ -41947,6 +41998,20 @@
         }
       ],
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
+    },
+    {
+      "id": "edge:3c921706609a4ee01a8a98ae",
+      "from": "batch:D3.14",
+      "to": "contract:20261003:C18",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+          "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:3c9d6f6169c9213527b21a8f",
@@ -42695,20 +42760,6 @@
       "rationale": "Current product chronology partitions the retained C source order after B; contract membership remains separate."
     },
     {
-      "id": "edge:3feb73aefd1ac9606e038566",
-      "from": "batch:D2",
-      "to": "batch:D3",
-      "relation": "chronology",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
-        }
-      ],
-      "rationale": "The batch explicitly follows this preserved event or record."
-    },
-    {
       "id": "edge:3ff073fde15430e2c0bea397",
       "from": "product:20261005-product-consolidation:C26",
       "to": "era:C",
@@ -42867,6 +42918,20 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
+      "id": "edge:40696637cdd6eb327c30ad1d",
+      "from": "batch:D2",
+      "to": "batch:D3",
+      "relation": "chronology",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
+        }
+      ],
+      "rationale": "The batch explicitly follows this preserved event or record."
+    },
+    {
       "id": "edge:40809dd2bb7b5ef7ed601d98",
       "from": "batch:A4",
       "to": "concept:T-008",
@@ -42996,15 +43061,15 @@
       "rationale": "Matter/person-specific command acceptance and refusal before execution."
     },
     {
-      "id": "edge:4105bbfeef8c110a7540acc1",
+      "id": "edge:412fea6cc06a62e9317c2623",
       "from": "batch:D3",
-      "to": "contract:20261003:C18",
+      "to": "contract:20261003:C32",
       "relation": "depends-on",
       "evidenceClass": "source-fact",
       "provenance": [
         {
           "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
         }
       ],
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
@@ -45641,24 +45706,6 @@
         }
       ],
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
-      "id": "edge:4de7429653bc4cc5cf14163c",
-      "from": "product:20261005-product-consolidation:C82",
-      "to": "batch:D1",
-      "relation": "chronology",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/C_PRODUCT_CATALOGUE.json",
-          "revision": "sha256:e87d70a2b1a260594428034ad08b69f050df856d9a6d1d391dd37782d4d0e941"
-        },
-        {
-          "path": "BATCH_LOG.md",
-          "revision": "sha256:27b4833ee57bad11aa30efa87b45971132bd05ec5aea28df0b5533c66387efeb"
-        }
-      ],
-      "rationale": "Delivered D follows the current C product chronology; its recorded contract predecessor remains preserved."
     },
     {
       "id": "edge:4debee06c0a13c62958a4bf6",
@@ -51517,6 +51564,20 @@
       "rationale": "Demands and surrender need actual response authority."
     },
     {
+      "id": "edge:6aee001b40c30684c183a0f7",
+      "from": "batch:D3.14",
+      "to": "contract:20261003:C20",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+          "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:6afe34e27c2639e3dabb4545",
       "from": "source:c-20261003:C67",
       "to": "concept:T-008",
@@ -53041,6 +53102,20 @@
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
     },
     {
+      "id": "edge:720b6f59da6f3827277f58fb",
+      "from": "batch:D3.14",
+      "to": "era:D",
+      "relation": "concept-membership",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+          "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
+        }
+      ],
+      "rationale": "The authoritative index records this numbered batch in its letter era."
+    },
+    {
       "id": "edge:721178d9ec0acdd02d3aff21",
       "from": "source:c-20261003:C61",
       "to": "concept:T-008",
@@ -53315,6 +53390,20 @@
         }
       ],
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
+    },
+    {
+      "id": "edge:745964d764487746c17b039a",
+      "from": "batch:D3.14",
+      "to": "contract:20261003:C12",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+          "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:746142b9edaf3039a0668d4c",
@@ -56948,6 +57037,20 @@
       "rationale": "Indexed in era C."
     },
     {
+      "id": "edge:8713639aa128896509fe93ab",
+      "from": "batch:D3.14",
+      "to": "contract:20261003:C30",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+          "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:8763e41f00ef6955bf56ae30",
       "from": "source:c-raw-20260919:C25",
       "to": "source:c-raw-20260919:C26",
@@ -57539,20 +57642,6 @@
         }
       ],
       "rationale": "RestoreTakenZombies defaults false; ledger continues either way."
-    },
-    {
-      "id": "edge:89c5ebec6aad27b4540fe49b",
-      "from": "batch:D3",
-      "to": "contract:20261003:C24",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:89d2e047ec63506282572010",
@@ -60822,6 +60911,20 @@
       "rationale": "The manifest records this blob at the archived Git reference; archivePath is not a working-tree hyperlink."
     },
     {
+      "id": "edge:9a1581a2eebe3ca4667af7c8",
+      "from": "batch:D3",
+      "to": "contract:20261003:C21",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:9a23c50cf2bac4bf9f5b585f",
       "from": "contract:20261003:C20",
       "to": "owner:mod/42.20/media/lua/client/SAO_SourceUse.lua",
@@ -61571,6 +61674,20 @@
       "rationale": "The applied correction records this current product classification without additional version or runtime credit."
     },
     {
+      "id": "edge:9eae0cf4fca050d6f7ff82be",
+      "from": "batch:D3",
+      "to": "branch:neo/d3-construction-crafting-repair-utilities",
+      "relation": "records",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
+        }
+      ],
+      "rationale": "Working branch recorded for the active batch; no publication is inferred."
+    },
+    {
       "id": "edge:9ec794b6ecf85b97106bd556",
       "from": "batch:A13",
       "to": "era:A",
@@ -61720,6 +61837,20 @@
         }
       ],
       "rationale": "This contract explicitly declares this owner path; shared ownership alone is not a dependency."
+    },
+    {
+      "id": "edge:9f75e48ca2bdc58beb6822c4",
+      "from": "batch:D3.14",
+      "to": "contract:20261003:C31",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+          "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:9f7b238cdf54ebba72240045",
@@ -63840,20 +63971,6 @@
         }
       ],
       "rationale": "Current product chronology partitions the retained C source order after B; contract membership remains separate."
-    },
-    {
-      "id": "edge:a9e86e51072469245cf61edd",
-      "from": "batch:D3",
-      "to": "contract:20261003:C21",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:a9ff3104367b936ac6a3375a",
@@ -66134,20 +66251,6 @@
       "rationale": "The manifest records this blob at the archived Git reference; archivePath is not a working-tree hyperlink."
     },
     {
-      "id": "edge:b45a481c8d38f3174f3257c8",
-      "from": "batch:D3",
-      "to": "era:D",
-      "relation": "concept-membership",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
-        }
-      ],
-      "rationale": "The authoritative index records this numbered batch in its letter era."
-    },
-    {
       "id": "edge:b474ae291a60fb8740b04d57",
       "from": "source:c-20261003:C45",
       "to": "concept:T-002",
@@ -66559,6 +66662,24 @@
         }
       ],
       "rationale": "The manifest records this blob at the archived Git reference; archivePath is not a working-tree hyperlink."
+    },
+    {
+      "id": "edge:b69c6e1c688e379d275b5f5b",
+      "from": "product:20261005-product-consolidation:C82",
+      "to": "batch:D1",
+      "relation": "chronology",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/C_PRODUCT_CATALOGUE.json",
+          "revision": "sha256:e87d70a2b1a260594428034ad08b69f050df856d9a6d1d391dd37782d4d0e941"
+        },
+        {
+          "path": "BATCH_LOG.md",
+          "revision": "sha256:0b8406fafd7146a29448fdfcc42ca03d53ccbc04816b5352d996659d5a8da01e"
+        }
+      ],
+      "rationale": "Delivered D follows the current C product chronology; its recorded contract predecessor remains preserved."
     },
     {
       "id": "edge:b6cc69a51630a88364acdcbe",
@@ -67547,20 +67668,6 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
-      "id": "edge:bb992527458b0db8b678038d",
-      "from": "batch:D3",
-      "to": "contract:20261003:C20",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:bbb21efa4fcc14e7e28530f7",
       "from": "batch:A24",
       "to": "commit:1e189fe",
@@ -67942,6 +68049,20 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
+      "id": "edge:bd1af81bd9b31f8266261a1b",
+      "from": "batch:D3",
+      "to": "contract:20261003:C24",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:bd2c44840f4802f8fe573aa1",
       "from": "source:c-raw-20260919:C41",
       "to": "source:c-20261003:C18",
@@ -68115,6 +68236,20 @@
         }
       ],
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
+    },
+    {
+      "id": "edge:be566747c0dbcfec80a7a5ea",
+      "from": "batch:D3.14",
+      "to": "batch:D3",
+      "relation": "child-of",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+          "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
+        }
+      ],
+      "rationale": "The record explicitly names this parent scope; child delivery does not close or credit the parent."
     },
     {
       "id": "edge:be6323d27cb1548aedd8c372",
@@ -69275,6 +69410,20 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
+      "id": "edge:c3a2204a0b5bc723e33d75e1",
+      "from": "batch:D3.14",
+      "to": "contract:20261003:C32",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+          "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:c3a64621e3d0183f6ccfe1b9",
       "from": "source:c-20261003:C44",
       "to": "concept:T-002",
@@ -70158,20 +70307,6 @@
       "rationale": "The manifest records this blob at the archived Git reference; archivePath is not a working-tree hyperlink."
     },
     {
-      "id": "edge:c71e4615faae99f8716a96bc",
-      "from": "batch:D3",
-      "to": "contract:20261003:C33",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:c73832ac3b9005d53709b67f",
       "from": "source:c-20261003:C84",
       "to": "concept:T-007",
@@ -70301,6 +70436,20 @@
         }
       ],
       "rationale": "The manifest records this blob at the archived Git reference; archivePath is not a working-tree hyperlink."
+    },
+    {
+      "id": "edge:c79949b16dd8b94509a514f8",
+      "from": "batch:D3",
+      "to": "contract:20261003:C33",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:c7ac613bf99d945647501820",
@@ -70936,20 +71085,6 @@
         }
       ],
       "rationale": "Preserved source record is an input to this catalogue transformation."
-    },
-    {
-      "id": "edge:ca5890151db888f56ccc160c",
-      "from": "batch:D3",
-      "to": "branch:neo/d3-construction-crafting-repair-utilities",
-      "relation": "records",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
-        }
-      ],
-      "rationale": "Working branch recorded for the active batch; no publication is inferred."
     },
     {
       "id": "edge:ca5e13e5e8a664af677ecf70",
@@ -72002,6 +72137,20 @@
         }
       ],
       "rationale": "Adjacent entries in the preserved development index; dates may differ from index order."
+    },
+    {
+      "id": "edge:cf2613d35bd662fdaa38fb08",
+      "from": "batch:D3",
+      "to": "contract:20261003:C12",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:cf3e276c99793f809e6b0b3f",
@@ -73984,20 +74133,6 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
-      "id": "edge:d6bf0987063f5b7d0c001c6d",
-      "from": "batch:D3",
-      "to": "contract:20261003:C31",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:3906723fa88ff9b84a069b5518b31f1e10d9ad4f813ee2b98025b14cb68919f6"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:d6cf20ab19acf8adf5f90ed1",
       "from": "source:c-raw-20260919:C118",
       "to": "source:c-raw-20260919:C119",
@@ -74668,6 +74803,20 @@
         }
       ],
       "rationale": "Indexed in era C."
+    },
+    {
+      "id": "edge:da8ca81551863e1b45f6c05f",
+      "from": "batch:D3.14",
+      "to": "contract:20261003:C24",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+          "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:da968acc3b5bc5dd7ff4afde",
@@ -76611,6 +76760,20 @@
       "rationale": "Adjacent entries in the preserved development index; dates may differ from index order."
     },
     {
+      "id": "edge:e4d068f500b040f05c734d68",
+      "from": "batch:D3",
+      "to": "contract:20261003:C18",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:e4d13dfc96bddf98a0b38b8a",
       "from": "source:c-20261003:C62",
       "to": "event:catalogue-compression:C:20261003",
@@ -78357,6 +78520,20 @@
       "rationale": "The applied correction records this current product classification without additional version or runtime credit."
     },
     {
+      "id": "edge:eded14c60d28b435c2e889b6",
+      "from": "batch:D3",
+      "to": "contract:20261003:C30",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:ee07cefa33e5589f217b2399",
       "from": "contract:20261003:C35",
       "to": "interface:260c3eb32f3ce915e4f4182d",
@@ -79119,6 +79296,20 @@
       "rationale": "Explicit former-source membership in the 2026-09-19 consolidation."
     },
     {
+      "id": "edge:f16621955dd8a66152a1ef6b",
+      "from": "batch:D3",
+      "to": "contract:20261003:C31",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:3b8cdfc8777995d4d28f674ad9c45c03b15930f13aa27c10d2681ddbec66df1b"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:f16a5ab16641032c191ec31d",
       "from": "source:c-20261003:C17",
       "to": "contract:20261003:C17",
@@ -79295,6 +79486,20 @@
         }
       ],
       "rationale": "Original raw-C identifier sequence, before the 2026-09-19 consolidation."
+    },
+    {
+      "id": "edge:f1fce5f6912f7e9ec68ae56b",
+      "from": "batch:D3.14",
+      "to": "contract:20261003:C21",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md",
+          "revision": "sha256:9dca1c41a4c8cd1da9e0746c76bad2250d3507ce9a9622f83a9ce4e70cf9743d"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:f20bf6bd3ce29d23a5370a83",
@@ -82430,5 +82635,5 @@
       ]
     }
   ],
-  "revision": "sha256:41a7cfc6b2406907842b755d69b382aced15b79349070a6d8da62d64d918606e"
+  "revision": "sha256:b95be1fa0ef34c37533a7ea4938acf2acd1149856e8a058feea81b4a87a8e6b6"
 }

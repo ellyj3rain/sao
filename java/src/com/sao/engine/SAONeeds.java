@@ -1199,7 +1199,7 @@ public final class SAONeeds {
                     &&(guide.getLearnedRecipes().contains("DoubleFenceGate")||guide.getLearnedRecipes().contains("DoubleWireGate"))&&!item.getIsCraftingConsumed();
             case "shelter-manual":
                 return item instanceof zombie.inventory.types.Literature shelterGuide&&shelterGuide.getLearnedRecipes()!=null
-                    &&java.util.List.of("MetalWallFrame","MetalWallLvl1","MetalWallLvl2","MetalDoorFrameLvl1","MetalDoorFrameLvl2").stream().anyMatch(shelterGuide.getLearnedRecipes()::contains)
+                    &&java.util.List.of("MetalWallFrame","MetalWallLvl1","MetalWallLvl2","MetalDoorFrameLvl1","MetalDoorFrameLvl2","MetalFloorLvl1").stream().anyMatch(shelterGuide.getLearnedRecipes()::contains)
                     &&!item.getIsCraftingConsumed();
             case "hinge":
                 return "Base.Hinge".equals(item.getFullType()) && !item.getIsCraftingConsumed();

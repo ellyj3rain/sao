@@ -177,6 +177,7 @@ POST_C_UNITS = [
     ('D3.11', 'kohai', 'Both full native stair orientations, privately permitted footprints, exact materials, genuine upper travel, cover and return through ordinary shelter/recovery deliver coherent building progress within OPEN D3.'),
     ('D3.12', 'kohai', 'Complete native wooden, metal-pole and wire N/W gates, private permitted boundary/access intent, exact knowledge/resources, four-part construction and genuine opening, passage and closure deliver coherent building progress within OPEN D3.'),
     ('D3.13', 'kohai', 'The complete installed metal wall/frame/door family in both orientations, exact acquired knowledge/resources and permitted native stages through actual doorway use and ordinary reached shelter/recovery supplies coherent building progress within OPEN D3.'),
+    ('D3.14', 'kohai', 'The installed native metal floor family, exact acquired knowledge/resources and permitted observed placement through actual walking surface/cover and ordinary reached shelter/recovery supplies coherent building progress within OPEN D3.'),
 ]
 # A closed parent that only aggregates previously credited descendants maps to
 # their exact credit-owner IDs. It is a chronological record, never a new tier.

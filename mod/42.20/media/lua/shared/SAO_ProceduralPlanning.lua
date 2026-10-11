@@ -2103,7 +2103,7 @@ local function shelterSurfaceNeeded(own,site)
     if site.z==own.origin.z then return true end
     for _,need in ipairs(own.coverNeeds or {}) do
         if need.x==site.x and need.y==site.y and need.z+1==site.z
-            and not (own.completedSurfaces and own.completedSurfaces[site.key]) then return true end
+            and not (own.completedSurfaces and own.completedSurfaces[site.key] and own.stageHistory[site.key] and own.stageHistory[site.key].revision==site.revision) then return true end
     end
     return false
 end
@@ -2230,7 +2230,7 @@ function P.planShelterConstruction(id,context)
             and (option.kind~="build-shelter-surface" or shelterSurfaceNeeded(own,site))
             and (option.kind~="build-shelter-stairs" or own and #(own.coverNeeds or {})>0 and site.z==own.origin.z)
             and (option.kind~="build-shelter-edge" or not own or #(own.coverNeeds or {})==0)
-            and (not own or not own.stageHistory[site.key] or own.stageHistory[site.key].entityId~=option.entityId) then
+            and (not own or not own.stageHistory[site.key] or own.stageHistory[site.key].entityId~=option.entityId or option.kind=="build-shelter-surface" and own.stageHistory[site.key].revision~=site.revision) then
             local source,delayed;local recipeNeeded=option.recipeKnown==false
             local book=recipeNeeded and context.recipeBooks and context.recipeBooks[option.recipeName] or nil
             if recipeNeeded and not book then
@@ -2388,6 +2388,7 @@ function P.consumeShelterConstructionResult(id,supplied)
         own.stageHistory[canonical.siteKey]={entityId=canonical.entityId,revision=canonical.siteRevision,workId=canonical.id,at=canonical.atHours}
         if canonical.kind=="build-shelter-surface" then
             own.completedSurfaces=own.completedSurfaces or {};own.completedSurfaces[canonical.siteKey]=canonical.id
+            if SAO.Perception and SAO.Perception.consumeShelterSurface then SAO.Perception.consumeShelterSurface(id,canonical) end
         end
         if canonical.entityId:find("WoodenWallLvl",1,true) or canonical.entityId:find("WoodenDoorLvl",1,true) or canonical.entityId:find("MetalWallLvl",1,true) or canonical.entityId:find("MetalDoorLvl",1,true) then own.completedEdges[canonical.siteKey]=canonical.entityId end
         own.constructionResults[#own.constructionResults+1]=canonical.id

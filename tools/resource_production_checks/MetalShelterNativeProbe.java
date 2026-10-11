@@ -18,8 +18,9 @@ import zombie.scripting.objects.*;
 
 /** Installed metal construction over the existing native shelter/entry/recovery specimen. */
 public final class MetalShelterNativeProbe {
-    private static Path game;private static ScriptModule module;private static int skill=8;private static boolean learned=true;
+    private static boolean floorMode;private static Path game;private static ScriptModule module;private static int skill=8;private static boolean learned=true;
     private static com.sao.engine.SAOIsoPlayerShell body;
+    private static IsoObject waterTap;private static InventoryItem waterBottle;private static int waterTransfers;
     private static IsoThumpable prior;private static int removedIndex=-1;private static int reads;
     private static zombie.inventory.types.Literature magazine;
     private static final Map<Integer,zombie.inventory.types.Literature> readingItems=new HashMap<>();private static int nextBook=901;
@@ -43,14 +44,16 @@ public final class MetalShelterNativeProbe {
             var item=new Item();item.setModule(module);item.setModID("pz-vanilla");item.InitLoadPP(name);item.Load(name,definition);item.setDisplayName(name);module.items.getScriptMap().put(name,item);
         }
         var timed=new TimedActionScript();timed.setModule(module);timed.InitLoadPP("BuildWallMetal");timed.Load("BuildWallMetal",block(game.resolve("media/scripts/generated/timedactions.txt"),"timedAction","BuildWallMetal"));module.timedActionScripts.getScriptMap().put("BuildWallMetal",timed);
+        if(floorMode){call("initialiseFloors",new Class<?>[]{Path.class},game);var low=new TimedActionScript();low.setModule(module);low.InitLoadPP("BuildLowMetal");low.Load("BuildLowMetal",block(game.resolve("media/scripts/generated/timedactions.txt"),"timedAction","BuildLowMetal"));module.timedActionScripts.getScriptMap().put("BuildLowMetal",low);}
+        var families=new ArrayList<String[]>();Collections.addAll(families,FAMILIES);if(floorMode)families.add(new String[]{"MetalFloorLvl1","entity_metal_floorlvl1"});
         var entities=(Map<String,GameEntityScript>)get("entities");var added=new ArrayList<GameEntityScript>();
-        for(var entry:FAMILIES){var script=new GameEntityScript();script.setModule(module);script.setModID("pz-vanilla");script.InitLoadPP(entry[0]);script.Load(entry[0],block(game.resolve("media/scripts/generated/entities/walls/"+entry[1]+".txt"),"entity",entry[0]).replaceAll("(?s)component UiConfig\\s*\\{.*?\\}",""));module.entities.getScriptMap().put(entry[0],script);entities.put("Base."+entry[0],script);added.add(script);}
+        for(var entry:families){var script=new GameEntityScript();script.setModule(module);script.setModID("pz-vanilla");script.InitLoadPP(entry[0]);script.Load(entry[0],block(game.resolve("media/scripts/generated/entities/walls/"+entry[1]+".txt"),"entity",entry[0]).replaceAll("(?s)component UiConfig\\s*\\{.*?\\}",""));module.entities.getScriptMap().put(entry[0],script);entities.put("Base."+entry[0],script);added.add(script);}
         call("indexBuckets",new Class<?>[]{});for(var entity:added)entity.OnScriptsLoaded(ScriptLoadMode.Init);call("indexBuckets",new Class<?>[]{});ItemTags.Init(ScriptManager.instance.getAllItems());for(var entity:added)entity.OnPostWorldDictionaryInit();
         for(var entity:added){var sprites=(zombie.scripting.entity.components.spriteconfig.SpriteConfigScript)entity.getComponentScriptFor(ComponentType.SpriteConfig);for(String name:sprites.getAllTileNames())zombie.iso.sprite.IsoSpriteManager.instance.AddSprite(name).name=name;}
         zombie.entity.components.spriteconfig.SpriteConfigManager.InitScriptsPostTileDef();call("nativeTiles",new Class<?>[]{Path.class},game);zombie.network.GameServer.server=old;
         var engine=zombie.entity.GameEntityManager.class.getDeclaredField("engine");engine.setAccessible(true);engine.set(null,new zombie.entity.Engine());
     }
-    private static String[] materialTypes(String id){return id.contains("DoorLvl")?new String[]{"BlowTorch","SmallSheetMetal","WeldingRods","Hinge","Doorknob"}:id.contains("WallLvl")?new String[]{"BlowTorch","SmallSheetMetal","WeldingRods"}:new String[]{"BlowTorch","MetalBar","WeldingRods"};}
+    private static String[] materialTypes(String id){return id.contains("DoorLvl")?new String[]{"BlowTorch","SmallSheetMetal","WeldingRods","Hinge","Doorknob"}:(id.contains("WallLvl")||id.contains("FloorLvl"))?new String[]{"BlowTorch","SmallSheetMetal","WeldingRods"}:new String[]{"BlowTorch","MetalBar","WeldingRods"};}
     private static void reset(String id)throws Exception{
         if(!id.startsWith("Base.Metal")){call("reset",new Class<?>[]{String.class},id);return;}
         if(id.contains("WallLvl")&&get("created") instanceof IsoThumpable old&&old.getObjectIndex()>=0){prior=old;removedIndex=-1;}
@@ -63,6 +66,7 @@ public final class MetalShelterNativeProbe {
     private static Object op(String name,Object a,Object b)throws Exception{
         switch(name){
             case "reset":reset((String)a);return true;
+            case "surfaceSceneSetup":case "surfaceRoofSceneSetup":{Object value=call("op",new Class<?>[]{String.class,Object.class,Object.class},name,a,b);body=(com.sao.engine.SAOIsoPlayerShell)get("sceneBody");reads=0;nextBook=901;readingItems.clear();return value;}
             case "skill":skill=((Number)a).intValue();return true;
             case "skillValue":return skill;
             case "actualKnown":return learned||body!=null&&body.isRecipeActuallyKnown((String)a);
@@ -85,6 +89,23 @@ public final class MetalShelterNativeProbe {
             case "nativeLock":{var door=(IsoThumpable)get("sceneDoor");door.setKeyId(81031);door.setIsLocked(Boolean.TRUE.equals(a));door.setLockedByKey(Boolean.TRUE.equals(a));return true;}
             case "nativeBarricade":{var door=(IsoThumpable)get("sceneDoor");var bar=zombie.iso.objects.IsoBarricade.AddBarricadeToObject(door,false);if(bar==null)return false;bar.addPlank(body);return door.isBarricaded();}
             case "nativeObstruct":{var door=(IsoThumpable)get("sceneDoor");var sq=door.getSquare();var obstacle=new IsoObject(sq.getCell());obstacle.setSquare(sq);var sprite=new zombie.iso.sprite.IsoSprite();sprite.getProperties().set(zombie.iso.SpriteDetails.IsoFlagType.solid);sprite.getProperties().set(zombie.iso.SpriteDetails.IsoFlagType.solidtrans);obstacle.setSprite(sprite);sq.getObjects().add(obstacle);sq.RecalcAllWithNeighbours(true);return door.isObstructed();}
+            case "waterSetup":{
+                var init=ResourceApproachProbe.class.getDeclaredMethod("initFluids");init.setAccessible(true);init.invoke(null);
+                if(module.getItem("WaterBottle")==null){var script=new Item();script.setModule(module);script.setModID("pz-vanilla");script.InitLoadPP("WaterBottle");script.Load("WaterBottle",block(game.resolve("media/scripts/generated/items/normal.txt"),"item","WaterBottle"));script.setDisplayName("WaterBottle");module.items.getScriptMap().put("WaterBottle",script);call("indexBuckets",new Class<?>[]{});}
+                waterBottle=module.getItem("WaterBottle").InstanceItem(null,false);waterBottle.setID(4000);body.getInventory().AddItem(waterBottle);waterBottle.getFluidContainer().Empty();
+                waterTap=new IsoObject(body.getCell());waterTap.setSquare(body.getCurrentSquare());waterTap.getSquare().getObjects().add(waterTap);
+                var attach=ResourceApproachProbe.class.getDeclaredMethod("fluid",IsoObject.class);attach.setAccessible(true);attach.invoke(null,waterTap);waterTransfers=0;return true;
+            }
+            case "waterAmount":return waterBottle.getFluidContainer().getAmount();
+            case "waterCapacity":return waterBottle.getFluidContainer().getCapacity();
+            case "waterSource":return waterTap.getFluidAmount();
+            case "waterClean":return waterBottle.getFluidContainer().isWaterSource()&&!waterBottle.getFluidContainer().isPoisonous()&&!waterBottle.getFluidContainer().isTainted();
+            case "waterHeld":return body.getInventory().contains(waterBottle);
+            case "waterTransfer":waterTransfers++;return waterTap.transferFluidTo(waterBottle.getFluidContainer(),((Number)a).floatValue());
+            case "waterTransfers":return waterTransfers;
+            case "waterPostTerminalUse":{var destination=zombie.entity.components.fluids.FluidContainer.CreateContainer();destination.setCapacity(1);waterBottle.getFluidContainer().transferTo(destination,.25f);return destination.getAmount()==.25f&&waterBottle.getFluidContainer().getAmount()==.75f;}
+            case "addRepeatSheet":{var actor=(ShelterConstructionNativeProbe.Receiver)get("actor");var items=(Map<Integer,InventoryItem>)get("items");int id=103;var item=module.getItem("SmallSheetMetal").InstanceItem(null,false);item.setID(id);actor.inventory.AddItem(item);items.put(id,item);set("created",null);((List<?>)get("createdParts")).clear();return id;}
+            case "removeSurface":{var object=(IsoThumpable)get("created");if(object==null||object.getObjectIndex()<0)return false;var sq=object.getSquare();sq.transmitRemoveItemFromSquare(object);sq.RecalcAllWithNeighbours(true);return true;}
             case "recordInput":return recipe((String)a).getInputs().get(((Number)b).intValue()).isRecordInput();
             case "previousList":{var info=call("info",new Class<?>[]{String.class},a);var script=info.getClass().getMethod("getScript").invoke(info);var names=(List<String>)script.getClass().getMethod("getPreviousStages").invoke(script);var table=zombie.Lua.LuaManager.platform.newTable();for(int n=0;n<names.size();n++)table.rawset((double)n+1,names.get(n));return table;}
             case "scene":{var update=zombie.MapCollisionData.class.getDeclaredField("squareUpdateBuffer");update.setAccessible(true);if(zombie.MapCollisionData.instance!=null)((ByteBuffer)update.get(zombie.MapCollisionData.instance)).clear();call("sceneSetup",new Class<?>[]{String.class,String.class},(String)b,(String)a);body=(com.sao.engine.SAOIsoPlayerShell)get("sceneBody");prior=null;removedIndex=-1;reads=0;nextBook=901;readingItems.clear();return true;}
@@ -96,7 +117,7 @@ public final class MetalShelterNativeProbe {
             case "captureDoor":{String[] keys=((String)a).split("\\|");set("sceneCaptureKey",keys[0]);set("sceneCaptureRevision",keys[1]);return com.sao.engine.SAOShelterConstruction.beginPassage(body,(IsoThumpable)get("sceneDoor"),keys[0],keys[1],Boolean.TRUE.equals(b));}
             case "doorPass":{var door=(IsoThumpable)get("sceneDoor");boolean inside=Boolean.TRUE.equals(a);var sq=door.getSquare();int x=sq.getX()-(inside||door.getNorth()?0:1),y=sq.getY()-(inside||!door.getNorth()?0:1);var from=body.getCurrentSquare();boolean arrived=(Boolean)call("sceneMove",new Class<?>[]{double.class,double.class,double.class},x+.5,y+.5,0.0);if(arrived&&from!=body.getCurrentSquare()&&from.getX()==sq.getX()-(inside&&!door.getNorth()?1:0)&&from.getY()==sq.getY()-(inside&&door.getNorth()?1:0))set("passageCount",((Integer)get("passageCount"))+1);return arrived;}
             case "wallScene":{String original=(String)get("selectedEntity");String oldFace=(String)get("face");set("face","N");call("removeNorthWall",new Class<?>[]{int.class,int.class},11,20);set("sceneBuildX",11);for(String entity:List.of("Base.WoodDoorFrameLvl1","Base.WoodenDoorLvl1")){set("selectedEntity",entity);String sprite=(String)call("spriteInfo",new Class<?>[]{String.class,int.class},"N",0);var object=call("sceneCreate",new Class<?>[]{String.class},sprite);call("nativeConstructionFlags",new Class<?>[]{IsoThumpable.class},object);}body.getAnimationPlayer().setAngle(-(float)Math.PI*3/4);body.setForwardDirection(-.707f,-.707f);set("sceneBuildX",10);set("face",oldFace);set("selectedEntity",original);((List<?>)get("createdParts")).clear();call("sceneRegions",new Class<?>[]{});return true;}
-            case "creationFlags":{var builder=(KahluaTable)a;var created=(IsoThumpable)get("created");created.setCanPassThrough(Boolean.TRUE.equals(builder.rawget("canPassThrough")));created.setBlockAllTheSquare(Boolean.TRUE.equals(builder.rawget("blockAllTheSquare")));created.setIsThumpable(Boolean.TRUE.equals(builder.rawget("isThumpable")));return true;}
+            case "creationFlags":{if(floorMode)return call("op",new Class<?>[]{String.class,Object.class,Object.class},name,a,b);var builder=(KahluaTable)a;var created=(IsoThumpable)get("created");created.setCanPassThrough(Boolean.TRUE.equals(builder.rawget("canPassThrough")));created.setBlockAllTheSquare(Boolean.TRUE.equals(builder.rawget("blockAllTheSquare")));created.setIsThumpable(Boolean.TRUE.equals(builder.rawget("isThumpable")));return true;}
             case "addCreated":{var created=(IsoThumpable)get("created");created.getSquare().AddSpecialObject(created,((Number)a).intValue());created.getSquare().RecalcAllWithNeighbours(true);call("sceneRegions",new Class<?>[]{});return true;}
             default:return call("op",new Class<?>[]{String.class,Object.class,Object.class},name,a,b);
         }
@@ -116,7 +137,7 @@ public final class MetalShelterNativeProbe {
         }
     }
     public static void main(String[] args)throws Exception{
-        game=Path.of(args[0]);var platform=new J2SEPlatform();var env=platform.newEnvironment();var thread=new KahluaThread(platform,env);thread.debugOwnerThread=Thread.currentThread();zombie.Lua.LuaManager.env=env;zombie.Lua.LuaManager.thread=thread;zombie.Lua.LuaManager.caller=new se.krka.kahlua.integration.LuaCaller(new se.krka.kahlua.converter.KahluaConverterManager());
+        game=Path.of(args[0]);floorMode=args.length>1&&args[1].equals("--surface-runtime");var platform=new J2SEPlatform();var env=platform.newEnvironment();var thread=new KahluaThread(platform,env);thread.debugOwnerThread=Thread.currentThread();zombie.Lua.LuaManager.env=env;zombie.Lua.LuaManager.thread=thread;zombie.Lua.LuaManager.caller=new se.krka.kahlua.integration.LuaCaller(new se.krka.kahlua.converter.KahluaConverterManager());
         env.rawset("print",(JavaFunction)(f,n)->{for(int i=0;i<n;i++)System.out.print((i==0?"":"\t")+f.get(i));System.out.println();return 0;});thread.call(LuaCompiler.loadstring("ISTimedActionQueue={queues={},getTimedActionQueue=function()return {queue={}}end}","empty",env),null,null,null);initialise();
         zombie.ZomboidFileSystem.instance.init();
         Class.forName("zombie.SandboxOptions"); // Native default visibility initializes outside a sampled Lua callback stack.
@@ -126,6 +147,6 @@ public final class MetalShelterNativeProbe {
         env.rawset("__nativeRoundtrip",(JavaFunction)(f,n)->{try{var buffer=ByteBuffer.allocate(2097152);((KahluaTable)f.get(0)).save(buffer);buffer.flip();var out=platform.newTable();out.load(buffer,IsoWorld.WorldVersion);return f.push(out);}catch(Exception e){throw new IllegalStateException(e);}});
         Path source=null;for(String arg:args)if(Path.of(arg).getFileName().toString().equals("production.lua"))source=Path.of(arg);final Path reload=source;
         env.rawset("__reloadProduction",(JavaFunction)(f,n)->{try(Reader reader=Files.newBufferedReader(reload)){Object[] result=thread.pcall(LuaCompiler.loadis(reader,"reload",env),new Object[0]);if(!Boolean.TRUE.equals(result[0]))throw new IllegalStateException(Arrays.toString(result));return f.push(true);}catch(Exception e){throw new IllegalStateException(e);}});
-        for(int n=1;n<args.length;n++)try(Reader reader=Files.newBufferedReader(Path.of(args[n]))){Object[] result=thread.pcall(LuaCompiler.loadis(reader,args[n],env),new Object[0]);if(!Boolean.TRUE.equals(result[0])){System.out.println("ERROR "+args[n]);for(int i=1;i<result.length;i++)System.out.println(result[i]);System.exit(1);}}
+        for(int n=floorMode?2:1;n<args.length;n++)try(Reader reader=Files.newBufferedReader(Path.of(args[n]))){Object[] result=thread.pcall(LuaCompiler.loadis(reader,args[n],env),new Object[0]);if(!Boolean.TRUE.equals(result[0])){System.out.println("ERROR "+args[n]);for(int i=1;i<result.length;i++)System.out.println(result[i]);System.exit(1);}}
     }
 }

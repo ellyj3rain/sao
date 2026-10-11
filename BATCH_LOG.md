@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.6.13.0-pre-alpha` |
+| Version | `2.6.14.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -611,3 +611,9 @@ The [historical transition](Batches/Transitions/VERSION-20261010-feature-scope-c
 | Batch | Date | Name | Threads |
 |---|---|---|---|
 | [D3.13](Batches/D3.13-20261011-0845Z-0145PDT-metal-walls-doors-usable-shelter.md) | 2026-10-11 | Native metal walls, frames and doors through usable shelter | D3 complete native metal construction and ordinary shelter/recovery |
+
+## Native metal floors through usable shelter - 2026-10-11 20:37 UTC / 13:37 PDT
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D3.14](Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md) | 2026-10-11 | Native metal floors through usable shelter | D3 native metal floor, actual surface/cover and ordinary shelter/recovery |

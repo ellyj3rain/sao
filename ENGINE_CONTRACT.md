@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.6.13.0-pre-alpha` |
+| Version | `2.6.14.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -789,3 +789,7 @@ Installed Base.DoubleDoor, Base.DoubleFenceGate and Base.DoubleWireGate supply f
 ## Native metal shelter construction (D3.13)
 
 The installed metal wall/frame/door family and its exact stage/material/knowledge requirements flow through the existing native construction owners. Complete source-linked inventory, native effects, prerequisite and consumer proof, and evidence limits are retained in [D3.13](Batches/D3.13-20261011-0845Z-0145PDT-metal-walls-doors-usable-shelter.md). Native recipe skill requirements and build-menu presentation filters retain their distinct observed rules.
+
+## Native metal floor construction (D3.14)
+
+Installed metal floor definitions and their actual prerequisite/payment/placement rules flow through the effective native surface and shelter owners. [D3.14](Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md) retains exact inventory, measured floor/cover and ordinary recovery effects, native lifecycle and evidence boundaries.

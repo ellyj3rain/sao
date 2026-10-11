@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `2.6.13.0-pre-alpha` |
+| Version | `2.6.14.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -131,3 +131,7 @@ The CLOSED [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md)
 ## D3.13 native metal shelter source
 
 [D3.13](Batches/D3.13-20261011-0845Z-0145PDT-metal-walls-doors-usable-shelter.md) is CLOSED for the complete native metal wall/frame/door family, both orientations, private permitted shelter purpose and exact acquired means through native construction, doorway use and ordinary reached shelter/recovery. Full D3 remains OPEN; one kohai records this coherent building increment.
+
+## D3.14 native metal floor source
+
+[D3.14](Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md) is CLOSED for installed native metal flooring through privately intended permitted supported placement, exact acquired means, actual walking surface/cover and ordinary reached shelter/recovery. Full D3 remains OPEN; one kohai records this coherent building increment.
