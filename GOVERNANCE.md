@@ -174,6 +174,16 @@ regulatory, append-only, or historical.
 - **Deploys.** Deploys go through `tools/deploy.sh`, which refuses while the
   game holds the jar. The refusal is correct behaviour, not a bug.
 
+## Adaptive delivery pace
+
+The operator accepted granular, capability and module delivery paces on 2026-10-11. GZDS Bill Standard 14 owns the rule and Neo governance carries it across hosts. Granular delivers one useful integrated behavior; capability delivers a defined coherent capability and its connected behaviors; module delivers the complete accepted module and integration. Choose per project part from dependencies, uncertainty, integration reach and reusable evidence. Current D3 uses capability pace, with detailed evidence at every pace.
+
+Before implementation, the existing batch/work record states pace and reason, outcome/publication boundary, parent link and retained scope, owner, affected contracts/dependencies, completion evidence and version assessment/credit owner. Nested increments can be implemented and verified while their delivery parent remains open. Record implementation, verification, integration and publication separately. Cases, variants and supporting repairs stay within their coherent behavior. Close and publish at the selected delivery boundary through the normal protected workflow.
+
+The chief may switch pace within accepted scope. Record old/new pace, reason and source, changed unpublished boundaries and increment mapping, retained scope/dependencies/evidence, remaining acceptance and credit ownership. Preserve FIFO, historical identities, earlier credits, append-only history and forward allocation. Material scope, priority, architecture and version-policy changes retain operator authority. Evaluate kohai, patch and minor against the delivered feature scope at every pace; neither a switch nor repeated aggregation adds credit.
+
+Build and verify relevant physical/causal behavior throughout construction. Review the connected candidate once at the selected boundary and check bounded corrections. Preserve valid proof across changes and publication. Broaden only for affected contracts, failures or unresolved obligations. Required external checks retain their requirements; bounded monitoring waits for meaningful state changes. The existing skills carry this practice: project management selects and records pace, principal review assesses the selected candidate, and the liaison preserves scope, states and transitions.
+
 ## Evidence standard
 
 A finding is admitted to `FINDINGS.md` when it is reproducible from stated

@@ -59,6 +59,7 @@ and remain inside the human behavioral envelope regardless of skill.
   requirements. Neo reconstructs accumulated verification and keeps the current
   description accurate using `neo-verification-assessment`. The operator plays
   the aggregate build and supplies ordinary feedback.
+- **Delivery pace.** Follow `GOVERNANCE.md`'s adaptive delivery pace rule. Select granular, capability or module pace for the current project part; keep detailed proof, nested states and feature-scope version assessment. Current D3 uses capability pace. Record switches within accepted scope and publish at the selected coherent boundary.
 - **Scope refinement.** Product outcomes cover their whole relevant installed
   native/modded domain and adjacent mechanics. Examples guide discovery;
   substantive scope becomes clearer through implementation. Shared-contract
