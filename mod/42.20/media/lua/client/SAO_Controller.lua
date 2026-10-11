@@ -5054,7 +5054,7 @@ function Ctl.tryShelterConstruction(id,agent,body,tick,needs,kind)
     if not p or not step or step.status~="available" then return false end
     if step.owner=="SAO.Controller" then return Ctl.beginShelterMovement(id,agent,body,tick,p,step) end
     if step.verb=="acquire" then return Ctl.beginConstructionAcquisition(id,agent,body,tick,p,step) end
-    if step.owner~="SAO.ResourceProduction" or step.productionKind~="build-shelter-edge" and step.productionKind~="build-shelter-surface" and step.productionKind~="use-shelter" then return false end
+    if step.owner~="SAO.ResourceProduction" or step.productionKind~="build-shelter-edge" and step.productionKind~="build-shelter-surface" and step.productionKind~="build-shelter-stairs" and step.productionKind~="use-shelter" then return false end
     if not setState(agent,id,"RESOURCE",step.productionKind=="use-shelter" and "uses the repaired shelter doorway" or "repairs shelter for retained recovery","need") then return false end
     if SAO.ResourceProduction.begin(id,body,step,{purposeId=p.id,purposeStepId=step.id}) or agent.rec.resourceProductionWork then
         agent.taskDeadline=tick+5400;return true

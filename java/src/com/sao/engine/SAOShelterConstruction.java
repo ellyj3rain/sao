@@ -149,6 +149,19 @@ public final class SAOShelterConstruction {
             put(row,"approachZ",site.z);put(row,"insideX",site.ix);put(row,"insideY",site.iy);put(row,"originX",ox);put(row,"originY",oy);
             row.rawset("roof",true);out.rawset((double)++count,row);
         }
+        // A newly covered, visibly continuous interior retires its exact former cover boundary.
+        for(var site:sites.values()){
+            if(count>=32||site.originX!=ox||site.originY!=oy||site.z!=z||boundaries.containsKey(site.key))continue;
+            var square=site.square.get();var opposite=site.opposite.get();
+            if(square==null||opposite==null||!visible(body,square)||!visible(body,opposite)||!square.haveRoof||!opposite.haveRoof
+                ||!mode(square,site.north,edge(square,site.north)).equals("empty")||square.isBlockedTo(opposite)
+                ||square.getRoom()!=opposite.getRoom())continue;
+            var row=table();row.rawset("key",site.key);row.rawset("revision",site.revision);row.rawset("face",site.north?"N":"W");
+            row.rawset("mode","covered-interior");row.rawset("previousEntity","");row.rawset("roof",true);
+            put(row,"x",site.x);put(row,"y",site.y);put(row,"z",site.z);put(row,"approachX",site.ax);put(row,"approachY",site.ay);
+            put(row,"approachZ",site.z);put(row,"insideX",site.ix);put(row,"insideY",site.iy);put(row,"originX",ox);put(row,"originY",oy);
+            out.rawset((double)++count,row);
+        }
         while(sites.size()>128)sites.remove(sites.keySet().iterator().next());return out;
     }
     private static Site known(SAOIsoPlayerShell body,String key,String revision){

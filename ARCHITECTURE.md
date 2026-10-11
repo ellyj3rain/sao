@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.6.10.0-pre-alpha` |
+| Version | `2.6.11.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2460,3 +2460,7 @@ A maintained private shelter concern binds personally observed permitted edge/co
 ## Roofs and floors through usable shelter (D3.10)
 
 The maintained private shelter concern distinguishes its intended use destination from the native surface work level. Person-acquired support and access facts, exact floor recipe/material authority and Standing govern construction. Native floor creation and column cover processing supply physical effects; return and fresh shelter observation precede ordinary recovery and authenticated private feedback. Queue retirement and saved state reacquire actual targets under the original concern.
+
+## Native stairs through usable shelter (D3.11)
+
+Private observed ground footprints and current full-footprint Standing admit the installed three-part stair recipe. Native validity and creation own upper clearance and landing effects; intended effect coordinates become acquired upper geometry after actual travel. Exact materials, measured full creation, genuine same-body access, floor/cover and return continue the retained shelter concern. Positive visible interior facts retire former edge offers while hidden/unavailable facts remain. Physical arrival and pending private feedback retain independent retirement; ordinary reconciliation replays saved movement receipts in order and trims acknowledged history.

@@ -36,9 +36,11 @@ buildUtil.getMaterialOnGroundUses=function() return {} end
 buildUtil.checkCorner=function() end
 buildUtil.setInfo=function(object,builder) object.builder=builder end
 BaseCraftingLogic={callLuaBool=function(name,params)
+    if name=='BuildRecipeCode.stairs.OnIsValid' then return BuildRecipeCode.stairs.OnIsValid(params) end
     if name=='BuildRecipeCode.floor.OnIsValid' then return BuildRecipeCode.floor.OnIsValid(params) end
     return BuildRecipeCode.doorFrame.OnIsValid(params)
 end,callLuaObject=function(name,params)
+    if name=='BuildRecipeCode.stairs.OnCreate' then return BuildRecipeCode.stairs.OnCreate(params) end
     if name=='BuildRecipeCode.floor.OnCreate' then return BuildRecipeCode.floor.OnCreate(params) end
 end}
 luautils={stringStarts=function(s,prefix) return s:sub(1,#prefix)==prefix end}
@@ -63,6 +65,7 @@ end
 local entities={'Base.WoodenWallFrame','Base.WoodenWallLvl1','Base.WoodenWallLvl2','Base.WoodenWallLvl3',
  'Base.WoodDoorFrameLvl1','Base.WoodDoorFrameLvl2','Base.WoodDoorFrameLvl3','Base.WoodenDoorLvl1','Base.WoodenDoorLvl2','Base.WoodenDoorLvl3'}
 if __surfaceCases then for _,id in ipairs({'Base.WoodFloorLvl1','Base.WoodFloorLvl2','Base.WoodFloorLvl3'}) do entities[#entities+1]=id end end
+if __stairCases then entities[#entities+1]='Base.Wood_Stairs' end
 local policies={}
 local nativeBridge=__nativeShelter
 function __nativeShelter(op,a,b) if op=='spriteProp' then print('native property '..tostring(a)..' '..tostring(b)) end;return nativeBridge(op,a,b) end
@@ -98,14 +101,14 @@ for _,id in ipairs(entities) do
         return function() return __nativeShelter('spriteProp',id,key) end
     end})
     local faces={}
-    for _,orientation in ipairs({'N','W','N_OPEN','W_OPEN'}) do
+    for _,orientation in ipairs(id=='Base.Wood_Stairs' and {'S','W'} or {'N','W','N_OPEN','W_OPEN'}) do
         local key=orientation
-        faces[key]={getWidth=function() return 1 end,getHeight=function() return 1 end,
+        faces[key]={getWidth=function() return __nativeShelter('nativeFaceWidth',id,key) end,getHeight=function() return __nativeShelter('nativeFaceHeight',id,key) end,
             getzLayers=function() return 1 end,getFaceName=function() return key end,
-            getTileInfo=function(_,x,y,z) return {getSpriteName=function() return __nativeShelter('partSprite',key,0) end,isBlocking=function() return false end} end}
+            getTileInfo=function(_,x,y,z) return {getSpriteName=function() return __nativeShelter('partSprite',key,id=='Base.Wood_Stairs' and (key=='S' and x or y) or 0) end,isBlocking=function() return false end} end}
     end
     local info={getScript=function() return cfg end,getRecipe=function() return {getCraftRecipe=function() return recipe end} end,
-        getName=function() return id:sub(6) end,getFace=function(_,key) return (key=='N' or key==0) and faces.N or (key=='W' or key==1) and faces.W or key=='N_OPEN' and faces.N_OPEN or key=='W_OPEN' and faces.W_OPEN or nil end}
+        getName=function() return id:sub(6) end,getFace=function(_,key) return (key=='S' or key==2) and faces.S or (key=='N' or key==0) and faces.N or (key=='W' or key==1) and faces.W or key=='N_OPEN' and faces.N_OPEN or key=='W_OPEN' and faces.W_OPEN or nil end}
     policies[id]={info=info,recipe=recipe,inputs=inputs}
 end
 SpriteConfigManager={GetObjectInfoList=function()
@@ -115,7 +118,7 @@ CraftRecipeManager={
     hasPlayerLearnedRecipe=function(recipe,body) return body.recipeUnknown~=true and __nativeShelter('policyLearned',recipe.entityId) end,
     hasPlayerRequiredSkill=function(skill) return __nativeShelter('policySkill',skill.entityId,skill.index) end,
     getValidInputScriptForItem=function(recipe,item)
-        for j=0,(recipe.entityId:find("WoodenDoorLvl",1,true) and 4 or 2) do if item:getID()>=100 and item:getID()<116 and __nativeShelter('inputMatches',recipe.entityId..'|'..j,item:getID()) then return policies[recipe.entityId].inputs[j+1] end end
+        for j=0,(recipe.entityId:find("WoodenDoorLvl",1,true) and 4 or 2) do if item:getID()>=100 and item:getID()<132 and __nativeShelter('inputMatches',recipe.entityId..'|'..j,item:getID()) then return policies[recipe.entityId].inputs[j+1] end end
     end}
 local active
 local function nativeManual(data,input,out)
@@ -170,7 +173,7 @@ BuildLogic={new=function(body)
     return logic
 end}
 GameEntityFactory={CreateIsoObjectEntity=function(object,entity)
-    __nativeShelter('factory',object.sprite)
+    if __stairCases then __nativeShelter('factoryAt',object.sprite,object:getX()..','..object:getY()..','..object:getZ()) else __nativeShelter('factory',object.sprite) end
     object.nativeFactory=true;object.entityId=active.entityId
     __nativeShelter('creationFlags',object.builder)
 end}
@@ -282,7 +285,7 @@ local function fixture(id,orientation,nested)
     f.rec.permissionDenied=false
     f.siteRevision='12345678-1234-1234-1234-123456789abc'
     local modes={};for _,kind in ipairs({'wall-frame','wall','door-frame','door-leaf'}) do modes[kind]=true end
-    f.mode=entityId=='Base.WoodenWallFrame' and 'wall-frame' or entityId:find('WoodenWallLvl',1,true) and 'wall'
+    f.mode=entityId=='Base.Wood_Stairs' and 'stairs' or entityId=='Base.WoodenWallFrame' and 'wall-frame' or entityId:find('WoodenWallLvl',1,true) and 'wall'
         or entityId:find('WoodFloorLvl',1,true) and 'floor'
         or entityId:find('WoodDoorFrame',1,true) and 'door-frame' or 'door-leaf'
     if f.mode=='wall' or f.mode=='door-leaf' then

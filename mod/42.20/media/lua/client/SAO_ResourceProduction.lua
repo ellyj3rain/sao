@@ -7,7 +7,7 @@ local craftBegin, craftInterrupt, craftTick, craftOutcome, craftRecover
 local plumbBegin, plumbInterrupt, plumbTick, plumbOutcome, plumbRecover, plumbOptions
 local collector
 local bed,shelter
-local function nativeEntityKind(kind) return kind=="build-rain-collector" or kind=="build-wood-bed" or kind=="build-shelter-edge" or kind=="build-shelter-surface" or kind=="use-shelter" end
+local function nativeEntityKind(kind) return kind=="build-rain-collector" or kind=="build-wood-bed" or kind=="build-shelter-edge" or kind=="build-shelter-stairs" or kind=="build-shelter-surface" or kind=="use-shelter" end
 local fixing
 local function nativeCraftKind(kind) return kind=="saw-logs" or kind=="repair-held-item" or kind=="fix-held-item" end
 local KNOWN_FIXTURE_SEARCH_RADIUS = 32
@@ -221,7 +221,7 @@ local function reconcile(id)
     local rec, planning = SAO.Identity.get(id), SAO.ProceduralPlanning
     for _, receipt in ipairs(rec and rec.resourceProductionOutcomes or {}) do
         local consumer = planning and (receipt.kind=="use-shelter" and planning.consumeShelterUseResult
-            or (receipt.kind=="build-shelter-edge" or receipt.kind=="build-shelter-surface") and planning.consumeShelterConstructionResult
+            or (receipt.kind=="build-shelter-edge" or receipt.kind=="build-shelter-surface" or receipt.kind=="build-shelter-stairs") and planning.consumeShelterConstructionResult
             or receipt.kind=="build-wood-bed" and planning.consumeBedConstructionResult
             or (receipt.kind == "repair-held-item" or receipt.kind == "fix-held-item") and planning.consumeRepairProductionResult
             or receipt.kind == "saw-logs" and planning.consumeCraftProductionResult
@@ -2169,7 +2169,7 @@ function collector.options(id,body,vessels,options)
 end
 function collector.identity(id,w)
     if w and w.kind=="use-shelter" then return shelter.useIdentity(id,w) end
-    if w and (w.kind=="build-shelter-edge" or w.kind=="build-shelter-surface") then return shelter.identity(id,w) end
+    if w and (w.kind=="build-shelter-edge" or w.kind=="build-shelter-surface" or w.kind=="build-shelter-stairs") then return shelter.identity(id,w) end
     if w and w.kind=="build-wood-bed" then return bed.identity(id,w) end
     if type(w)~="table" or getmetatable(w) or w.kind~="build-rain-collector" or w.category~="water"
         or w.token~="resource:collector-built" or w.actorId~=id or not integer(w.sequence) or w.sequence<1
@@ -2200,7 +2200,7 @@ function collector.identity(id,w)
 end
 function collector.purpose(rec,w)
     if w and w.kind=="use-shelter" then return shelter.usePurpose(rec,w) end
-    if w and (w.kind=="build-shelter-edge" or w.kind=="build-shelter-surface") then return shelter.purpose(rec,w) end
+    if w and (w.kind=="build-shelter-edge" or w.kind=="build-shelter-surface" or w.kind=="build-shelter-stairs") then return shelter.purpose(rec,w) end
     if w and w.kind=="build-wood-bed" then return bed.purpose(rec,w) end
     local state=rec and rec.proceduralPlanning
     local p=state and state.purposes and state.purposes[w.purposeId];local s=p and p.steps[p.cursor];local a=p and p.admission
@@ -2217,7 +2217,7 @@ function collector.purpose(rec,w)
 end
 function collector.anchors(rt,w)
     if rt and rt.kind=="use-shelter" then return shelter.useAnchors(rt,w) end
-    if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface") then return shelter.anchors(rt,w) end
+    if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface" or rt.kind=="build-shelter-stairs") then return shelter.anchors(rt,w) end
     if rt.kind=="build-wood-bed" then return bed.anchors(rt,w) end
     return w.entityId==rt.policy.info:getScript():getParent():getScriptObjectFullType() and w.recipeId==rt.policy.recipeId
         and w.siteKey==rt.site.key and w.siteRevision==rt.site.revision and w.siteX==rt.site.x and w.siteY==rt.site.y
@@ -2226,7 +2226,7 @@ function collector.anchors(rt,w)
 end
 function collector.bound(rt,pre)
     if rt and rt.kind=="use-shelter" then return shelter.useBound(rt) end
-    if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface") then return shelter.bound(rt,pre) end
+    if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface" or rt.kind=="build-shelter-stairs") then return shelter.bound(rt,pre) end
     if rt.kind=="build-wood-bed" then return bed.bound(rt,pre) end
     local body,w=rt.body,rt.work
     if not body or rt.closed or rt.cancelling or runtime[rt.id]~=rt then return false end
@@ -2287,7 +2287,7 @@ function collector.payment(rt)
     return consumed:size()==expected and kept:size()==1
 end
 function collector.measure(rt)
-    if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface") then return shelter.measure(rt) end
+    if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface" or rt.kind=="build-shelter-stairs") then return shelter.measure(rt) end
     if rt.kind=="build-wood-bed" then return bed.measure(rt) end
     local object=rt.builder.saoCreated;local data=rt.logic:getRecipeDataInProgress()
     if not object or rt.beforeObjects[object] or SAOJavaBridge:worldCollectorCreated(rt.body,object,rt.work.entityId,rt.site.x,rt.site.y,rt.site.z)~=true then return false end
@@ -2305,7 +2305,7 @@ function collector.cleanup(rt,a)
 end
 function collector.outcome(id,row)
     if row and row.kind=="use-shelter" then return shelter.useOutcome(id,row) end
-    if row and (row.kind=="build-shelter-edge" or row.kind=="build-shelter-surface") then return shelter.outcome(id,row) end
+    if row and (row.kind=="build-shelter-edge" or row.kind=="build-shelter-surface" or row.kind=="build-shelter-stairs") then return shelter.outcome(id,row) end
     if row and row.kind=="build-wood-bed" then return bed.outcome(id,row) end
     local rec,t=SAO.Identity.get(id),now()
     if not craftLedger(rec) or not collector.identity(id,row) or row.sequence>rec.resourceProductionSequence
@@ -2346,7 +2346,7 @@ function collector.refresh(rt,row)
 end
 function collector.close(rt,status,detail)
     if rt and rt.kind=="use-shelter" then return shelter.useClose(rt,status,detail) end
-    if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface") then return shelter.close(rt,status,detail) end
+    if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface" or rt.kind=="build-shelter-stairs") then return shelter.close(rt,status,detail) end
     if rt.kind=="build-wood-bed" then return bed.close(rt,status,detail) end
     if rt.closed then return true end
     local rec,w,t=SAO.Identity.get(rt.id),rt.work,now()
@@ -2436,7 +2436,7 @@ function collector.begin(id,body,step,context)
     plumbInterrupt(id,body,"native-collector-approach-refused");return false
 end
 function collector.destination(rt)
-    if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface") then return shelter.destination(rt) end
+    if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface" or rt.kind=="build-shelter-stairs") then return shelter.destination(rt) end
     if rt.kind=="build-wood-bed" then return bed.destination(rt) end
     local site=rt.site
     for _,known in ipairs(SAO.Perception.collectorSites(rt.id,rt.body) or {}) do
@@ -2446,7 +2446,7 @@ function collector.destination(rt)
     if rt.body:getZ()~=site.z then return site end
 end
 function collector.queue(rt)
-    if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface") then return shelter.queue(rt) end
+    if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface" or rt.kind=="build-shelter-stairs") then return shelter.queue(rt) end
     if rt.kind=="build-wood-bed" then return bed.queue(rt) end
     local w,body,policy,id=rt.work,rt.body,rt.policy,rt.id
     local sq=SAOJavaBridge:worldCollectorPlacementSquare(body,w.siteX,w.siteY,w.siteZ,w.siteRevision)
@@ -2494,7 +2494,7 @@ function collector.recover(id,body)
     row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISBuildAction","interrupted","collector-runtime-unavailable",t,t
     row.nativeObservability="runtime-unavailable"
     row.nativeAttempted,row.nativeCompleted,row.constructed,row.placed,row.exactInputs,row.inputsConsumed,row.toolRetained,row.feedsFixture=false,false,false,false,false,false,false,false
-    if w.kind=="build-wood-bed" or w.kind=="build-shelter-edge" or w.kind=="build-shelter-surface" then row.feedsFixture=nil;row.parts={} end
+    if w.kind=="build-wood-bed" or w.kind=="build-shelter-edge" or w.kind=="build-shelter-surface" or w.kind=="build-shelter-stairs" then row.feedsFixture=nil;row.parts={} end
     if not collector.outcome(id,row) then return false end
     rows[#rows+1]=row;rec.resourceProductionOutcomes=rows;if #rows>CRAFT_LIMIT then table.remove(rows,1) end
     rec.resourceProductionWork=nil;reconcile(id);return true
@@ -2699,9 +2699,10 @@ function collector.newEntity(rt,containers)
         collector.entityClass=ISBuildIsoEntity:derive("SAORainCollectorEntity")
         collector.entityClass.setInfo=collector.setInfo
     end
-    local direction=(rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface") and (rt.site.face=="N" and 2 or 1) or (rt.site.face=="E" and 3 or 4)
+    local direction=rt.kind=="build-shelter-stairs" and (rt.site.face=="S" and 4 or 1) or (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface") and (rt.site.face=="N" and 2 or 1) or (rt.site.face=="E" and 3 or 4)
     local builder=ISBuildIsoEntity.new(collector.entityClass,rt.body,rt.policy.info,direction,containers,rt.logic)
-    if rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface" then builder.north=rt.site.face=="N" end
+    if rt.kind=="build-shelter-stairs" then builder.north=rt.site.face=="S"
+    elseif rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface" then builder.north=rt.site.face=="N" end
     local nativeCreate=ISBuildIsoEntity.create
     function builder:create(x,y,z,north,sprite)
         local c=rt.current
@@ -2714,7 +2715,8 @@ function collector.newEntity(rt,containers)
         local c=rt.current
         if not c or not c.performing or not plumbCurrent(c) or not rt.nativeAttempted or not collector.bound(rt,false)
             or not collector.payment(rt) or (rt.kind=="build-wood-bed" and not bed.partExpected(rt,square,sprite)
-                or rt.kind~="build-wood-bed" and (square~=rt.siteSquare or sprite~=rt.sprite)) then return false end
+                or rt.kind=="build-shelter-stairs" and not shelter.partExpected(rt,square,sprite)
+                or rt.kind~="build-wood-bed" and rt.kind~="build-shelter-stairs" and (square~=rt.siteSquare or sprite~=rt.sprite)) then return false end
         return collector.setInfo(self,square,north,sprite,openSprite)
     end
     local face=builder:getFace()
@@ -3028,11 +3030,11 @@ shelter={}
 shelter.entities={"Base.WoodenWallFrame","Base.WoodenWallLvl1","Base.WoodenWallLvl2","Base.WoodenWallLvl3",
     "Base.WoodDoorFrameLvl1","Base.WoodDoorFrameLvl2","Base.WoodDoorFrameLvl3",
     "Base.WoodenDoorLvl1","Base.WoodenDoorLvl2","Base.WoodenDoorLvl3",
-    "Base.WoodFloorLvl1","Base.WoodFloorLvl2","Base.WoodFloorLvl3"}
+    "Base.WoodFloorLvl1","Base.WoodFloorLvl2","Base.WoodFloorLvl3","Base.Wood_Stairs"}
 function shelter.spec(entityId)
     for i,name in ipairs(shelter.entities) do if name==entityId then
-        local category=i>10 and "floor" or i==1 and "wall-frame" or i<=4 and "wall" or i<=7 and "door-frame" or "door-leaf"
-        local counts=i>10 and {1,1,1} or i==1 and {1,2,2} or i<=4 and {1,2,4} or i<=7 and {1,4,4} or {1,4,4,2,1}
+        local category=i==14 and "stairs" or i>10 and "floor" or i==1 and "wall-frame" or i<=4 and "wall" or i<=7 and "door-frame" or "door-leaf"
+        local counts=i==14 and {1,13,8} or i>10 and {1,1,1} or i==1 and {1,2,2} or i<=4 and {1,2,4} or i<=7 and {1,4,4} or {1,4,4,2,1}
         return category,counts
     end end
 end
@@ -3055,8 +3057,9 @@ function shelter.recipe(body,entityId)
                 requirements[#requirements+1]={inputIndex=index-1,category=({"hammer","plank","nails","hinge","doorknob"})[index],
                     count=count,mode=input:isKeep() and "keep" or "consume"}
             end
-            for _,name in ipairs(kind=="floor" and {"W"} or {"N","W"}) do local face=info:getFace(name)
-                if not face or face:getWidth()~=1 or face:getHeight()~=1 or face:getzLayers()~=1 then return nil end
+            for _,name in ipairs(kind=="stairs" and {"S","W"} or kind=="floor" and {"W"} or {"N","W"}) do local face=info:getFace(name)
+                local width=kind=="stairs" and name=="S" and 3 or 1;local height=kind=="stairs" and name=="W" and 3 or 1
+                if not face or face:getWidth()~=width or face:getHeight()~=height or face:getzLayers()~=1 then return nil end
             end
             return {info=info,recipe=recipe,recipeId=recipe:getScriptObjectFullType(),entityId=entityId,kind=kind,shelterEdge=true,requirements=requirements}
         end
@@ -3065,12 +3068,24 @@ end
 function shelter.sameSite(a,b)
     if type(a)~="table" or type(b)~="table" then return false end
     for _,key in ipairs({"key","revision","x","y","z","face","approachX","approachY","approachZ","insideX","insideY",
-        "originX","originY","originZ","mode","previousEntity","actorId","observed","roof","supported","missingFloor","observedAtHours","source"}) do
+        "originX","originY","originZ","width","height","landingX","landingY","landingZ","landingObserved","landingBasis","mode","previousEntity","actorId","observed","roof","supported","missingFloor","observedAtHours","source"}) do
         if a[key]~=b[key] then return false end
     end
     return true
 end
 function shelter.site(id,body,site)
+    if type(site)=="table" and site.mode=="stairs" then
+        if site.actorId~=id or site.observed~=true or site.supported~=true or site.landingObserved~=false
+            or site.landingBasis~="native-recipe-effect" or not textId(site.key) or not textId(site.revision)
+            or not finite(site.observedAtHours) or site.observedAtHours>now() then return false end
+        for _,known in ipairs(SAO.Perception.shelterStairSites(id,body)) do
+            if known.key==site.key and known.revision==site.revision and known.observedAtHours>=site.observedAtHours then
+                local same=true for _,key in ipairs({"x","y","z","face","mode","width","height","approachX","approachY","approachZ","landingX","landingY","landingZ","landingObserved","landingBasis","supported"}) do
+                    if known[key]~=site[key] then same=false end
+                end;if same then return true end
+            end
+        end;return false
+    end
     if type(site)=="table" and site.mode=="floor" then
         if site.actorId~=id or site.observed~=true or site.supported~=true or site.missingFloor~=true
             or site.face~="W" or not textId(site.key) or not textId(site.revision) or not finite(site.observedAtHours)
@@ -3107,6 +3122,12 @@ function R.shelterOptions(id,body,retained)
         end
         local out={};local built=retained and retained.completedEdges or {}
         local sites=SAO.Perception.shelterSites(id,body)
+        for _,stairs in ipairs(SAO.Perception.shelterStairSites and SAO.Perception.shelterStairSites(id,body) or {}) do
+            local site=collector.copy(stairs);local origin=retained and retained.origin
+            site.originX,site.originY,site.originZ=origin and origin.originX or math.floor(body:getX()),
+                origin and origin.originY or math.floor(body:getY()),origin and origin.z or math.floor(body:getZ())
+            sites[#sites+1]=site
+        end
         for _,surface in ipairs(SAO.Perception.shelterSurfaces and SAO.Perception.shelterSurfaces(id,body) or {}) do
             local site=collector.copy(surface);local origin=retained and retained.origin
             site.originX,site.originY,site.originZ=origin and origin.originX or math.floor(body:getX()),
@@ -3124,14 +3145,20 @@ function R.shelterOptions(id,body,retained)
                         if need.x==site.x and need.y==site.y and need.z+1==site.z
                             and not (retained.completedSurfaces and retained.completedSurfaces[site.key]) then relevant=true;break end
                     end
+                elseif relevant and site.mode=="stairs" then
+                    relevant=#(retained.coverNeeds or {})>0 and site.z==origin.z
+                    if relevant then for _,access in ipairs(SAO.Perception.shelterAccess(id)) do
+                        if access.z==origin.z and access.observedAtHours<=now() then relevant=false;break end
+                    end end
                 elseif relevant and site.mode~="floor" and #(retained.coverNeeds or {})>0 then relevant=false end
             end
             if relevant and (not retained or not retained.stageHistory[site.key] or retained.stageHistory[site.key].revision~=site.revision)
                 and (not built[site.key] or site.previousEntity~=built[site.key]) and shelter.site(id,body,site)
                 and SAO.Standing.mayAttemptBelieved(id,site.x,site.y,"standing")==true
-                and SAO.Standing.mayAttemptBelieved(id,site.approachX,site.approachY,"standing")==true then
+                and SAO.Standing.mayAttemptBelieved(id,site.approachX,site.approachY,"standing")==true
+                and shelter.permission(id,site,false) then
                 for _,policy in ipairs(policies) do if policy.kind==site.mode then
-                    out[#out+1]={kind=policy.kind=="floor" and "build-shelter-surface" or "build-shelter-edge",known=true,entityId=policy.entityId,recipeId=policy.recipeId,
+                    out[#out+1]={kind=policy.kind=="stairs" and "build-shelter-stairs" or policy.kind=="floor" and "build-shelter-surface" or "build-shelter-edge",known=true,entityId=policy.entityId,recipeId=policy.recipeId,
                         requirements=collector.copy(policy.requirements),inputs=collector.copy(policy.inputs),site=collector.copy(site),
                         distance=math.sqrt((body:getX()-site.approachX-.5)^2+(body:getY()-site.approachY-.5)^2)}
                     if #out>=32 then return out end
@@ -3143,6 +3170,14 @@ function R.shelterOptions(id,body,retained)
     if not ok and SAO.Log and SAO.Log.line then SAO.Log.line("RESOURCE","native shelter means unavailable: "..tostring(out)) end
     return ok and out or {}
 end
+function shelter.permission(id,site,current)
+    local query=current and SAO.Standing.mayTakeCurrent or SAO.Standing.mayAttemptBelieved
+    for x=0,(site.width or 1)-1 do for y=0,(site.height or 1)-1 do
+        if query(id,site.x+x,site.y+y,"standing")~=true then return false end
+    end end
+    return query(id,site.approachX,site.approachY,"standing")==true
+        and (site.mode~="stairs" or query(id,site.landingX,site.landingY,"standing")==true)
+end
 local SHELTER_FIELDS={}
 for _,key in ipairs({"id","workId","sequence","actorId","kind","category","token","entityId","recipeId",
     "purposeId","purposeStepId","requestedPurposeId","requestedPurposeStepId","toolCategory","toolItemId","toolItemType",
@@ -3153,18 +3188,25 @@ for _,key in ipairs({"id","workId","sequence","actorId","kind","category","token
 function shelter.identity(id,w)
     local kind,counts;if type(w)=="table" then kind,counts=shelter.spec(w.entityId) end
     if type(w)~="table" or getmetatable(w) or not kind or w.actorId~=id
-        or w.kind~=(kind=="floor" and "build-shelter-surface" or "build-shelter-edge")
+        or w.kind~=(kind=="stairs" and "build-shelter-stairs" or kind=="floor" and "build-shelter-surface" or "build-shelter-edge")
         or w.category~="construction" or w.token~="resource:shelter-built" or not textId(w.recipeId)
         or not integer(w.sequence) or w.sequence<1 or w.id~="resource-production/"..id.."/"..w.sequence
         or not textId(w.purposeId) or not textId(w.purposeStepId) or not textId(w.world)
         or w.bodyToken~=nil and not textId(w.bodyToken) or not finite(w.startedAt) or w.startedAt<0
         or w.toolCategory~="hammer" or not textId(w.toolItemId) or not textId(w.toolItemType)
         or not textId(w.siteKey) or not textId(w.siteRevision) or not finite(w.siteObservedAtHours)
-        or w.siteObservedAtHours>w.startedAt or w.siteObservedAtHours<0 or w.face~="N" and w.face~="W"
+        or w.siteObservedAtHours>w.startedAt or w.siteObservedAtHours<0 or (kind=="stairs" and w.face~="S" and w.face~="W" or kind~="stairs" and w.face~="N" and w.face~="W")
         or type(w.site)~="table" or w.site.key~=w.siteKey or w.site.revision~=w.siteRevision
         or w.site.face~=w.face or w.site.x~=w.siteX or w.site.y~=w.siteY or w.site.z~=w.siteZ
-        or type(w.inputs)~="table" or getmetatable(w.inputs) or #w.inputs>16
+        or type(w.inputs)~="table" or getmetatable(w.inputs) or #w.inputs>32
         or type(w.requirements)~="table" or getmetatable(w.requirements) or #w.requirements~=#counts then return false end
+    if kind=="stairs" then
+        local site=w.site
+        if site.mode~="stairs" or site.supported~=true or site.landingObserved~=false or site.landingBasis~="native-recipe-effect"
+            or site.width~=(w.face=="S" and 3 or 1) or site.height~=(w.face=="W" and 3 or 1)
+            or site.landingX~=w.siteX-(w.face=="S" and 1 or 0) or site.landingY~=w.siteY-(w.face=="W" and 1 or 0)
+            or site.landingZ~=w.siteZ+1 or site.approachZ~=w.siteZ then return false end
+    end
     for key in pairs(w) do if not SHELTER_FIELDS[key] then return false end end
     for _,key in ipairs({"siteX","siteY","siteZ"}) do if not finite(w[key]) or w[key]%1~=0 then return false end end
     local seen,numbers={},{}
@@ -3213,15 +3255,14 @@ function shelter.bound(rt,pre)
         or body:getCell()~=rt.cell or body:getInventory()~=rt.inventory or ISTimedActionQueue.getTimedActionQueue(body)~=rt.queue
         or p~=rt.purpose or step~=rt.step or not shelter.site(rt.id,body,rt.site)
         or w.stage~="approaching" and (body:getCurrentSquare()~=rt.square or math.abs(body:getX()-rt.x)>.01 or math.abs(body:getY()-rt.y)>.01) then return false end
-    local width,height=1,1
-    for x=0,width-1 do for y=0,height-1 do if SAO.Standing.mayTakeCurrent(rt.id,w.siteX+x,w.siteY+y,"standing")~=true then return false end end end
-    if SAO.Standing.mayTakeCurrent(rt.id,rt.site.approachX,rt.site.approachY,"standing")~=true then return false end
+    if not shelter.permission(rt.id,rt.site,true) then return false end
     if not pre then return true end
-    if w.kind~="build-shelter-surface" and w.stage~="approaching" and SAOJavaBridge:worldShelterPreviousStage(body,w.siteKey,w.siteRevision)~=rt.observedStage then return false end
+    if w.kind=="build-shelter-edge" and w.stage~="approaching" and SAOJavaBridge:worldShelterPreviousStage(body,w.siteKey,w.siteRevision)~=rt.observedStage then return false end
     if rt.nativeAttempted or body:isBuildCheat() or isClient() or isServer() then return false end
     if w.stage~="approaching" then
-        local square=w.kind=="build-shelter-surface" and SAOJavaBridge:worldShelterSurfacePlacementSquare(body,w.siteKey,w.siteRevision)
-            or w.kind~="build-shelter-surface" and SAOJavaBridge:worldShelterPlacementSquare(body,w.siteKey,w.siteRevision)
+        local square=w.kind=="build-shelter-stairs" and SAOJavaBridge:worldShelterStairPlacementSquare(body,w.siteKey,w.siteRevision)
+            or w.kind=="build-shelter-surface" and SAOJavaBridge:worldShelterSurfacePlacementSquare(body,w.siteKey,w.siteRevision)
+            or w.kind=="build-shelter-edge" and SAOJavaBridge:worldShelterPlacementSquare(body,w.siteKey,w.siteRevision)
         if square~=rt.siteSquare then return false end
     end
     for i,row in ipairs(rt.inputs) do local item=rt.materials[i]
@@ -3242,9 +3283,12 @@ function shelter.partExpected(rt,square,sprite)
 end
 function shelter.measure(rt)
     local parts=rt.builder.saoCreatedParts or {}
-    if #parts~=1 or rt.beforeObjects[parts[1]] then return false end
-    local created=rt.kind=="build-shelter-surface" and SAOJavaBridge:worldShelterSurfaceCreated(rt.body,parts[1],rt.policy.entityId,rt.site.x,rt.site.y,rt.site.z)
-        or rt.kind~="build-shelter-surface" and SAOJavaBridge:worldShelterCreated(rt.body,parts[1],rt.previous,rt.policy.entityId,rt.site.x,rt.site.y,rt.site.z,rt.site.face)
+    local count=rt.kind=="build-shelter-stairs" and 3 or 1
+    if #parts~=count then return false end
+    local seen={} for _,part in ipairs(parts) do if rt.beforeObjects[part] or seen[part] then return false end;seen[part]=true end
+    local created=rt.kind=="build-shelter-stairs" and SAOJavaBridge:worldShelterStairsCreated(rt.body,parts,rt.site.x,rt.site.y,rt.site.z,rt.site.face)
+        or rt.kind=="build-shelter-surface" and SAOJavaBridge:worldShelterSurfaceCreated(rt.body,parts[1],rt.policy.entityId,rt.site.x,rt.site.y,rt.site.z)
+        or rt.kind=="build-shelter-edge" and SAOJavaBridge:worldShelterCreated(rt.body,parts[1],rt.previous,rt.policy.entityId,rt.site.x,rt.site.y,rt.site.z,rt.site.face)
     if created~=true then return false end
     if rt.frame and (rt.frame:getSquare()~=rt.siteSquare or not rt.siteSquare:getObjects():contains(rt.frame)) then return false end
     return collector.payment(rt)
@@ -3261,13 +3305,16 @@ function shelter.outcome(id,row)
     for _,key in ipairs({"nativeAttempted","nativeCompleted","constructed","placed","exactInputs","inputsConsumed","toolRetained"}) do
         if type(row[key])~="boolean" then return nil end
     end
-    if type(row.parts)~="table" or getmetatable(row.parts) or #row.parts>1 then return nil end
+    if type(row.parts)~="table" or getmetatable(row.parts) or #row.parts>(row.kind=="build-shelter-stairs" and 3 or 1) then return nil end
     if row.status=="completed" then
         if not row.nativeAttempted or not row.nativeCompleted or not row.constructed or not row.placed
-            or not row.exactInputs or not row.inputsConsumed or not row.toolRetained or row.nativeCredit~=row.id or #row.parts~=1 then return nil end
-        local part=row.parts[1]
-        if type(part)~="table" or part.x~=row.siteX or part.y~=row.siteY or part.z~=row.siteZ
-            or not textId(part.sprite) or not integer(part.objectIndex) then return nil end
+            or not row.exactInputs or not row.inputsConsumed or not row.toolRetained or row.nativeCredit~=row.id or #row.parts~=(row.kind=="build-shelter-stairs" and 3 or 1) then return nil end
+        for index,part in ipairs(row.parts) do
+            local offset=index-1;local stairs=row.kind=="build-shelter-stairs"
+            if type(part)~="table" or part.x~=row.siteX+(stairs and row.face=="S" and offset or 0)
+                or part.y~=row.siteY+(stairs and row.face=="W" and offset or 0) or part.z~=row.siteZ
+                or not textId(part.sprite) or not integer(part.objectIndex) then return nil end
+        end
     elseif row.nativeCredit~=nil then return nil end
     if row.nativeObservability~=nil and (row.nativeObservability~="runtime-unavailable" or row.status~="interrupted"
         or row.nativeAttempted or row.nativeCompleted or row.constructed or row.placed or row.inputsConsumed or row.toolRetained
@@ -3299,7 +3346,7 @@ function shelter.close(rt,status,detail)
     rows[#rows+1]=row;rec.resourceProductionOutcomes=rows;if #rows>CRAFT_LIMIT then table.remove(rows,1) end
     rt.logic:stopCraftAction();rec.resourceProductionWork=nil;rt.closed=true
     if row.status=="completed" then
-        if rt.kind=="build-shelter-surface" then SAO.Perception.observeShelterSurfaces(rt.id,rt.body)
+        if rt.kind=="build-shelter-surface" or rt.kind=="build-shelter-stairs" then SAO.Perception.observeShelterSurfaces(rt.id,rt.body)
         else SAO.Perception.observeShelterSites(rt.id,rt.body,rt.site) end
     end
     plumbDispose(rt);reconcile(rt.id);return true
@@ -3309,11 +3356,12 @@ function shelter.destination(rt)
 end
 function shelter.queue(rt)
     local w,body,policy,id=rt.work,rt.body,rt.policy,rt.id
-    local sq=w.kind=="build-shelter-surface" and SAOJavaBridge:worldShelterSurfacePlacementSquare(body,w.siteKey,w.siteRevision)
-        or w.kind~="build-shelter-surface" and SAOJavaBridge:worldShelterPlacementSquare(body,w.siteKey,w.siteRevision)
+    local sq=w.kind=="build-shelter-stairs" and SAOJavaBridge:worldShelterStairPlacementSquare(body,w.siteKey,w.siteRevision)
+            or w.kind=="build-shelter-surface" and SAOJavaBridge:worldShelterSurfacePlacementSquare(body,w.siteKey,w.siteRevision)
+        or w.kind=="build-shelter-edge" and SAOJavaBridge:worldShelterPlacementSquare(body,w.siteKey,w.siteRevision)
     if not sq then return false end
     rt.siteSquare,rt.square,rt.x,rt.y=sq,body:getCurrentSquare(),body:getX(),body:getY();w.stage="preparing"
-    local observed=w.kind~="build-shelter-surface" and SAOJavaBridge:worldShelterPreviousStage(body,w.siteKey,w.siteRevision) or nil
+    local observed=w.kind=="build-shelter-edge" and SAOJavaBridge:worldShelterPreviousStage(body,w.siteKey,w.siteRevision) or nil
     rt.observedStage=observed;rt.previous=policy.kind=="wall" and observed or nil;rt.frame=policy.kind=="door-leaf" and observed or nil
     rt.builder=collector.newEntity(rt,rt.containers);rt.sprite=rt.builder:getSprite()
     if rt.builder:isValid(sq)~=true or rt.builder.previousStageObject~=rt.previous then return false end
@@ -3337,7 +3385,7 @@ function shelter.begin(id,body,step,context)
     if not policy or not t or not craftLedger(rec) or rec.resourceProductionWork or rec.worldSourceReservation or rec.cookingWork
         or SAO.Needs.busy(body) or SAOJavaBridge:hasPendingActions(body) or step.recipeId~=policy.recipeId
         or step.owner~="SAO.ResourceProduction" or step.token~="resource:shelter-built" or step.category~="construction"
-        or not shelter.spec(step.entityId) or not shelter.site(id,body,step.site) then return false end
+        or not shelter.spec(step.entityId) or not shelter.site(id,body,step.site) or not shelter.permission(id,step.site,true) then return false end
     local p=rec.proceduralPlanning and rec.proceduralPlanning.purposes[context.purposeId]
     if not p or not p.shelterConstruction or p.admission
         or p.steps[p.cursor]~=step or step.id~=context.purposeStepId then return false end
@@ -3345,7 +3393,7 @@ function shelter.begin(id,body,step,context)
     if not SAO.ProceduralPlanning.collectorReady({requirements=policy.requirements,inputs=selected}) or not collector.rowsEqual(selected,step.inputs) or not collector.rowsEqual(policy.requirements,step.requirements) then return false end
     local route=SAO.Locomotion.jobs[id];if route and not route.done then return false end
     local world=getWorld();if not world then return false end
-    local rt={kind=policy.kind=="floor" and "build-shelter-surface" or "build-shelter-edge",id=id,record=rec,body=body,policy=policy,inputs=collector.copy(selected),materials={},
+    local rt={kind=policy.kind=="stairs" and "build-shelter-stairs" or policy.kind=="floor" and "build-shelter-surface" or "build-shelter-edge",id=id,record=rec,body=body,policy=policy,inputs=collector.copy(selected),materials={},
         site=collector.copy(step.site),inventory=body:getInventory(),square=body:getCurrentSquare(),x=body:getX(),y=body:getY(),
         world=world:getWorld(),cell=body:getCell(),queue=ISTimedActionQueue.getTimedActionQueue(body),
         token=body:getModData().SAOExternalToken,startedAt=t,actions={},beforeObjects={}}
@@ -3616,6 +3664,7 @@ function shelter.useBegin(id,body,step,context)
 end
 
 function R.reconcileSaved(id,body)
+    if SAO.ProceduralPlanning and SAO.ProceduralPlanning.reconcileShelterFeedback then SAO.ProceduralPlanning.reconcileShelterFeedback(id) end
     local rec=SAO.Identity.get(id)
     if SAO.Study and SAO.Study.reconcileGeneratorReading and not SAO.Study.reconcileGeneratorReading(id,body) then return false end
     if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="generator-operation" then
@@ -3639,7 +3688,7 @@ function R.begin(id, body, step, context)
     context = context or {}
     if step and step.owner=="SAO.Generator" then return SAO.Generator and SAO.Generator.begin(id,body,step,context) or false end
     if step and step.productionKind == "use-shelter" then return shelter.useBegin(id,body,step,context) end
-    if step and (step.productionKind == "build-shelter-edge" or step.productionKind == "build-shelter-surface") then return shelter.begin(id,body,step,context) end
+    if step and (step.productionKind == "build-shelter-edge" or step.productionKind == "build-shelter-surface" or step.productionKind == "build-shelter-stairs") then return shelter.begin(id,body,step,context) end
     if step and step.productionKind == "build-wood-bed" then return bed.begin(id,body,step,context) end
     if step and step.productionKind == "build-rain-collector" then return collector.begin(id, body, step, context) end
     if step and step.productionKind == "plumb-fixture" then return plumbBegin(id, body, step, context) end

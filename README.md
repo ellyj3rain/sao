@@ -184,7 +184,7 @@ currency with `python tools/development_graph.py --check`.
 
 ## Status
 
-`2.6.10.0-pre-alpha` - the coordinate is computed by the version machine
+`2.6.11.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -699,3 +699,6 @@ The [feature-scope reconciliation](Batches/Transitions/VERSION-20261010-feature-
 
 
 [D3.10](Batches/D3.10-20261011-0126Z-1826PDT-roofs-floors-usable-shelter.md) is CLOSED: native wooden floor construction supplies supported flooring and cover, retains the original shelter-use destination across work levels, and continues through observed shelter and ordinary recovery. Full D3 remains OPEN.
+
+
+[D3.11](Batches/D3.11-20261011-0439Z-2139PDT-native-stairs-usable-shelter.md) is CLOSED: both complete native wooden-stair orientations supply genuine upper access from private permitted footprints and exact materials, then continue through floor/cover, return and ordinary shelter/recovery under the retained purpose. Positive interior observation retires obsolete edges, current permission protects native effect and saved movement feedback replays independently of arrival. Full D3 remains OPEN.
