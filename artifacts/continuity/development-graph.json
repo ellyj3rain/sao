@@ -496,7 +496,7 @@
     },
     {
       "sourceRef": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-      "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
+      "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
     },
     {
       "sourceRef": "Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md",
@@ -1400,7 +1400,7 @@
     },
     {
       "sourceRef": "DECISION_REGISTRY.md",
-      "revision": "sha256:5b5f2a02212a9fcc9b48bf16ce6254e8fd38ee9f66d7807d1d65ffd14da24ff8"
+      "revision": "sha256:f8f377d82150cb664c40e4481b82dccbca8135a10d7d53a35dc1d4bc75dd1ae0"
     },
     {
       "sourceRef": "FINDINGS.md",
@@ -1408,11 +1408,11 @@
     },
     {
       "sourceRef": "GOVERNANCE.md",
-      "revision": "sha256:9df6ff1807212a2fdd81d6d6dda36cb50502ebe81d8dcd16626e7a9ded20a506"
+      "revision": "sha256:1000ea7c83e840686bb0f80d421e2a592376593272635788b68be1150d8a1d3d"
     },
     {
       "sourceRef": "NEO.md",
-      "revision": "sha256:b6397681feaab8813c1ad6e53c09df45611dfd8830640bce8aa655a7f7a7c797"
+      "revision": "sha256:20f8d2007ff9c8117521ca3fde8e08fa7dc1ec5a88846c134ca21c071071dc8d"
     },
     {
       "sourceRef": "PROJECTS.md",
@@ -1420,7 +1420,7 @@
     },
     {
       "sourceRef": "SESSION_STATE.md",
-      "revision": "sha256:e5f01bd19b6905d98fc64e67faef4168567ed1860f0b5a7894366f208393f5f5"
+      "revision": "sha256:0a8ded5212d37dd14c063cc56937ae3f2c6e661d85859e0bd0de5c7e53317251"
     },
     {
       "sourceRef": "SUBSTRATE.md",
@@ -3755,7 +3755,7 @@
         },
         {
           "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
         }
       ],
       "tags": [
@@ -4266,7 +4266,7 @@
       "sources": [
         {
           "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
         }
       ],
       "tags": [
@@ -14919,7 +14919,7 @@
         },
         {
           "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
         }
       ],
       "tags": [
@@ -15032,7 +15032,7 @@
         },
         {
           "path": "SESSION_STATE.md",
-          "revision": "sha256:e5f01bd19b6905d98fc64e67faef4168567ed1860f0b5a7894366f208393f5f5",
+          "revision": "sha256:0a8ded5212d37dd14c063cc56937ae3f2c6e661d85859e0bd0de5c7e53317251",
           "locator": "shared reasoning continuation"
         },
         {
@@ -17146,7 +17146,7 @@
         },
         {
           "path": "DECISION_REGISTRY.md",
-          "revision": "sha256:5b5f2a02212a9fcc9b48bf16ce6254e8fd38ee9f66d7807d1d65ffd14da24ff8"
+          "revision": "sha256:f8f377d82150cb664c40e4481b82dccbca8135a10d7d53a35dc1d4bc75dd1ae0"
         }
       ],
       "tags": [
@@ -17198,7 +17198,7 @@
         },
         {
           "path": "GOVERNANCE.md",
-          "revision": "sha256:9df6ff1807212a2fdd81d6d6dda36cb50502ebe81d8dcd16626e7a9ded20a506"
+          "revision": "sha256:1000ea7c83e840686bb0f80d421e2a592376593272635788b68be1150d8a1d3d"
         }
       ],
       "tags": [
@@ -17224,7 +17224,7 @@
         },
         {
           "path": "NEO.md",
-          "revision": "sha256:b6397681feaab8813c1ad6e53c09df45611dfd8830640bce8aa655a7f7a7c797"
+          "revision": "sha256:20f8d2007ff9c8117521ca3fde8e08fa7dc1ec5a88846c134ca21c071071dc8d"
         }
       ],
       "tags": [
@@ -30152,20 +30152,6 @@
       "rationale": "Explicit former-source membership in the 2026-09-19 consolidation."
     },
     {
-      "id": "edge:02e7c3266916c7954bd380de",
-      "from": "batch:D3",
-      "to": "branch:neo/d3-construction-crafting-repair-utilities",
-      "relation": "records",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
-        }
-      ],
-      "rationale": "Working branch recorded for the active batch; no publication is inferred."
-    },
-    {
       "id": "edge:02f753cd4bd39c0b7d4b7de1",
       "from": "source:c-20261003:C87",
       "to": "contract:20261003:C26",
@@ -31017,6 +31003,20 @@
         }
       ],
       "rationale": "This contract explicitly declares this owner path; shared ownership alone is not a dependency."
+    },
+    {
+      "id": "edge:06a14f6f1bea49984f5d8497",
+      "from": "batch:D3",
+      "to": "contract:20261003:C21",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:06c21e2b471de8466d6f2f10",
@@ -35456,6 +35456,20 @@
       "rationale": "The manifest records this blob at the archived Git reference; archivePath is not a working-tree hyperlink."
     },
     {
+      "id": "edge:1d7e28f4a1bc23f6fa6901e3",
+      "from": "batch:D3",
+      "to": "contract:20261003:C18",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:1d90a8d2ed19fb2fec64fd56",
       "from": "source:c-20261003:C57",
       "to": "era:C",
@@ -37003,20 +37017,6 @@
         }
       ],
       "rationale": "Indexed in era C."
-    },
-    {
-      "id": "edge:24fd243d4da7abaee4733c90",
-      "from": "batch:D3",
-      "to": "era:D",
-      "relation": "concept-membership",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
-        }
-      ],
-      "rationale": "The authoritative index records this numbered batch in its letter era."
     },
     {
       "id": "edge:25131a84e9cc43906b38987a",
@@ -41517,6 +41517,20 @@
       "rationale": "Adjacent entries in the preserved development index; dates may differ from index order."
     },
     {
+      "id": "edge:3a4f5ce7eb5c90f9304afa7d",
+      "from": "batch:D2",
+      "to": "batch:D3",
+      "relation": "chronology",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
+        }
+      ],
+      "rationale": "The batch explicitly follows this preserved event or record."
+    },
+    {
       "id": "edge:3a7c0b64c06ee89c9fd63baa",
       "from": "batch:D3.7",
       "to": "contract:20261003:C24",
@@ -43296,20 +43310,6 @@
         }
       ],
       "rationale": "Explicit preserved thread-index membership."
-    },
-    {
-      "id": "edge:42433140928225dc7e010fde",
-      "from": "batch:D3",
-      "to": "contract:20261003:C12",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:42473624240978ede73ba57f",
@@ -45245,20 +45245,6 @@
         }
       ],
       "rationale": "The applied correction records this current product classification without additional version or runtime credit."
-    },
-    {
-      "id": "edge:4c259f4e83201de9cd0425fd",
-      "from": "batch:D3",
-      "to": "contract:20261003:C32",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:4c439cde4d482d22d85d039e",
@@ -53760,20 +53746,6 @@
       "rationale": "Indexed in era C."
     },
     {
-      "id": "edge:764841baa2d239d4bbda7b8e",
-      "from": "batch:D2",
-      "to": "batch:D3",
-      "relation": "chronology",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
-        }
-      ],
-      "rationale": "The batch explicitly follows this preserved event or record."
-    },
-    {
       "id": "edge:764bd242d97cfdb79d326db6",
       "from": "batch:D3.3",
       "to": "contract:20261003:C24",
@@ -58439,20 +58411,6 @@
       "rationale": "This contract explicitly declares this owner path; shared ownership alone is not a dependency."
     },
     {
-      "id": "edge:8d0cdceb31547800f3c38cde",
-      "from": "batch:D3",
-      "to": "contract:20261003:C21",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:8d2ff9af27fc86b4c42586ea",
       "from": "source:c-raw-20260919:C44",
       "to": "source:c-20261003:C18",
@@ -59660,6 +59618,20 @@
       "rationale": "Output interface: Reproducible draws isolated from unrelated runtime order"
     },
     {
+      "id": "edge:93b74234528c379c2b1d9c7a",
+      "from": "batch:D3",
+      "to": "contract:20261003:C24",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:93b7b8212157ba24a0ed8d75",
       "from": "batch:B42",
       "to": "batch:B43",
@@ -60324,20 +60296,6 @@
         }
       ],
       "rationale": "Indexed in era B."
-    },
-    {
-      "id": "edge:979547444fb45b49914b2f23",
-      "from": "batch:D3",
-      "to": "contract:20261003:C33",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:979ad3d7b9cc0c53bec71e49",
@@ -61792,6 +61750,20 @@
         }
       ],
       "rationale": "Adjacent entries in the preserved development index; dates may differ from index order."
+    },
+    {
+      "id": "edge:9f2e029af8bdc800b3f674cf",
+      "from": "batch:D3",
+      "to": "contract:20261003:C32",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:9f308c4373599cc5c18e7889",
@@ -63806,6 +63778,20 @@
       "rationale": "Original raw-C identifier sequence, before the 2026-09-19 consolidation."
     },
     {
+      "id": "edge:a89ec72d732b755b8612daf9",
+      "from": "batch:D3",
+      "to": "contract:20261003:C20",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:a8b84288c237fc65be55d28a",
       "from": "batch:A21",
       "to": "commit:317ba99",
@@ -65600,20 +65586,6 @@
         }
       ],
       "rationale": "DR-054 proportional pinned validation and separate remote constraints are independent contribution."
-    },
-    {
-      "id": "edge:b12ba46446e9a5c4d85a5343",
-      "from": "batch:D3",
-      "to": "contract:20261003:C30",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:b149dc87e6ad7ebf17161912",
@@ -67414,20 +67386,6 @@
       "rationale": "The applied correction records this current product classification without additional version or runtime credit."
     },
     {
-      "id": "edge:b9b5b5d8132f64b4e998e37a",
-      "from": "batch:D3",
-      "to": "contract:20261003:C31",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:b9bf36da7e3a5a670963ea06",
       "from": "batch:D3.6",
       "to": "contract:20261003:C12",
@@ -67637,6 +67595,20 @@
         }
       ],
       "rationale": "Consume reserved/reconciled source identities and report actual quantity changes."
+    },
+    {
+      "id": "edge:bb10a0028c7d7b8e712c9730",
+      "from": "batch:D3",
+      "to": "contract:20261003:C30",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:bb3938ae41264a92488475e8",
@@ -69083,6 +69055,20 @@
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
     },
     {
+      "id": "edge:c211688cbf5c0752a9c59e14",
+      "from": "batch:D3",
+      "to": "era:D",
+      "relation": "concept-membership",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
+        }
+      ],
+      "rationale": "The authoritative index records this numbered batch in its letter era."
+    },
+    {
       "id": "edge:c2224678475beb60152347a1",
       "from": "batch:B36",
       "to": "commit:9e78ef7",
@@ -69156,20 +69142,6 @@
         }
       ],
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
-    },
-    {
-      "id": "edge:c2571e1fe9074055a4fababa",
-      "from": "batch:D3",
-      "to": "contract:20261003:C24",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:c263835b89c403ba70733f8a",
@@ -74878,6 +74850,20 @@
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
     },
     {
+      "id": "edge:dad5455308ac55ccfb860ff5",
+      "from": "batch:D3",
+      "to": "contract:20261003:C33",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:daf6c3c34bce474f654b75c0",
       "from": "branch:archive/c-era-raw-20260919",
       "to": "source:c-raw-20260919:C51",
@@ -80566,20 +80552,6 @@
       "rationale": "Explicit preserved thread-index membership."
     },
     {
-      "id": "edge:f74873b5bb0190dd7229dcc8",
-      "from": "batch:D3",
-      "to": "contract:20261003:C20",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:f754bcee4dbf2ad75adf4c24",
       "from": "batch:A1",
       "to": "era:A",
@@ -81582,6 +81554,34 @@
       "rationale": "Original raw-C identifier sequence, before the 2026-09-19 consolidation."
     },
     {
+      "id": "edge:fb60d001c6a440bffee1b3b1",
+      "from": "batch:D3",
+      "to": "contract:20261003:C31",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
+      "id": "edge:fb934f378b756a9ed5965419",
+      "from": "batch:D3",
+      "to": "branch:neo/d3-construction-crafting-repair-utilities",
+      "relation": "records",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
+        }
+      ],
+      "rationale": "Working branch recorded for the active batch; no publication is inferred."
+    },
+    {
       "id": "edge:fba93c88715c8d9f1cbb7446",
       "from": "batch:B51",
       "to": "concept:T-030",
@@ -82297,20 +82297,6 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
-      "id": "edge:fea93f00e46089c85cede027",
-      "from": "batch:D3",
-      "to": "contract:20261003:C18",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
-          "revision": "sha256:9509d1430b8b6dd05df1f66ad70d76674fb084ee4e3f71bc4ab2f15c402bc361"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:fea9a8638206029858ec9c05",
       "from": "batch:B48",
       "to": "concept:T-007",
@@ -82344,6 +82330,20 @@
         }
       ],
       "rationale": "Reproduction does not automatically make observations training data."
+    },
+    {
+      "id": "edge:fef8856c1d03ef26a2c0d9b0",
+      "from": "batch:D3",
+      "to": "contract:20261003:C12",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md",
+          "revision": "sha256:e7dd50662d948f26ab28c2146b0844c45d5a03bbbd75dedd4ca5269fb433b27f"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:fefef89194be01b1ab9f45dc",
@@ -82635,5 +82635,5 @@
       ]
     }
   ],
-  "revision": "sha256:85acebc7417526eb1fd07d1eee0420ca38794dc181ab5dd201e57441496d7648"
+  "revision": "sha256:93fd86156a9545b761e2f60624a846cfcacc14f8987ff1a19357562f9cd8867e"
 }
