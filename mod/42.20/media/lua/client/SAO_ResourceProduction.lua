@@ -4,6 +4,7 @@ SAO = SAO or {}
 SAO.ResourceProduction = SAO.ResourceProduction or {}
 local R = SAO.ResourceProduction
 local craftBegin, craftInterrupt, craftTick, craftOutcome, craftRecover
+local craftLedgerRoom
 local plumbBegin, plumbInterrupt, plumbTick, plumbOutcome, plumbRecover, plumbOptions
 local collector
 local bed,shelter,gate
@@ -244,10 +245,44 @@ local function reconcile(id)
         end
     end
 end
+-- A paid, acknowledged water result can wait in the existing saved work claim.
+local function refillTerminal(id,body,work)
+    local rec=owner(id,body);local checkpoint=work and work.terminalReceipt
+    if not rec or rec.resourceProductionWork~=work or work.kind~="refill-water" or type(checkpoint)~="table"
+        or getmetatable(checkpoint) or checkpoint.nativeOwner~="ISTakeWaterAction" or checkpoint.nativeAcknowledged~=true
+        or checkpoint.bodyToken~=rec.bodyOwnerToken or checkpoint.bodyToken~=body:getModData().SAOExternalToken
+        or not getWorld() or checkpoint.world~=getWorld():getWorld() then return nil end
+    local row=checkpoint.receipt;local p=rec.proceduralPlanning and rec.proceduralPlanning.purposes[work.purposeId]
+    local ad=p and p.admission;local step=p and p.steps[p.cursor]
+    if type(row)~="table" or getmetatable(row) or not ad or not step or ad.owner~="SAO.ResourceProduction"
+        or ad.correlationId~=work.id or ad.stepId~=work.purposeStepId or step.id~=work.purposeStepId
+        or step.productionKind~="refill-water" or step.token~="resource:filled" or ad.target~=step.target
+        or row.id~=work.id or row.workId~=work.id or row.actorId~=id or row.kind~="refill-water"
+        or row.token~="resource:filled" or row.status~="completed" or row.nativeCredit~=work.id
+        or row.held~=true or row.clean~=true then return nil end
+    for _,key in ipairs({"sequence","sourceId","sourceRevision","fingerprint","sourceX","sourceY","sourceZ",
+        "sourceChunkX","sourceChunkY","itemId","itemType","purposeId","purposeStepId","startedAt","beforeAmount"}) do
+        if row[key]~=work[key] then return nil end
+    end
+    for _,key in ipairs({"sourceId","sourceRevision","fingerprint","sourceX","sourceY","sourceZ","itemId","itemType"}) do if row[key]~=step[key] then return nil end end
+    for _,key in ipairs({"atHours","startedAt","beforeAmount","afterAmount","nativeGain"}) do
+        local v=row[key];if type(v)~="number" or v~=v or math.abs(v)==math.huge or v<0 then return nil end
+    end
+    if row.startedAt>ad.at or row.atHours<ad.at or row.atHours<row.startedAt or row.atHours>hours() or row.afterAmount<=row.beforeAmount
+        or row.nativeGain<=0 or row.nativeGain<row.afterAmount-row.beforeAmount
+        or row.sequence>rec.resourceProductionSequence or row.sequence%1~=0
+        or row.id~="resource-production/"..id.."/"..row.sequence then return nil end
+    if type(row.place)~="table" or type(work.place)~="table" then return nil end
+    for key,value in pairs(work.place) do if row.place[key]~=value then return nil end end
+    return collector.copy(row)
+end
 local function finish(id, status, detail)
     local rec, rt = SAO.Identity.get(id), runtime[id]
     local work = rec and rec.resourceProductionWork
     if not work or rt and rt.workId ~= work.id then return status end
+    local receipt=rt and rt.terminalReceipt or work.terminalReceipt and refillTerminal(id,rt and rt.body or SAO.Body.get(id),work)
+    if work.terminalReceipt and not receipt then return "terminal-owner-unavailable" end
+    if not receipt then
     local after, held, clean = measured(rt, work)
     local gain = rt and rt.nativeGain or 0
     if status == "completed" and (not rt or not rt.nativeCompleted or not held or not clean
@@ -255,7 +290,7 @@ local function finish(id, status, detail)
         status, detail = "failed", "native-filled-water-not-proven"
     end
     if status ~= "completed" and status ~= "interrupted" then status = "failed" end
-    local receipt = { id = work.id, workId = work.id, sequence = work.sequence, actorId = id,
+    receipt = { id = work.id, workId = work.id, sequence = work.sequence, actorId = id,
         kind = work.kind, sourceId = work.sourceId, sourceRevision = work.sourceRevision,
         place = work.place, sourceX = work.sourceX, sourceY = work.sourceY, sourceZ = work.sourceZ,
         sourceChunkX = work.sourceChunkX, sourceChunkY = work.sourceChunkY,
@@ -265,8 +300,20 @@ local function finish(id, status, detail)
         status = status, detail = detail, startedAt = work.startedAt, atHours = hours(),
         beforeAmount = work.beforeAmount, afterAmount = after, nativeGain = gain, held = held, clean = clean,
         nativeCredit = status == "completed" and work.id or nil }
-    receipt.sourceObservation = { status = "unconfirmed", detail = "no-bound-native-transfer", attempts = 0 }
-    if rt and gain > 0.0001 and rt.fixture then
+    end
+    receipt.sourceObservation = receipt.sourceObservation or { status = "unconfirmed", detail = "no-bound-native-transfer", attempts = 0 }
+    if not craftLedgerRoom(rec) then
+        if rt then
+            rt.terminalReceipt=receipt
+            if receipt.status=="completed" and rt.action and rt.action.saoEnded=="completed" and not queued(rt.action) then
+                work.terminalReceipt=work.terminalReceipt or {nativeOwner="ISTakeWaterAction",nativeAcknowledged=true,
+                    bodyToken=rt.body:getModData().SAOExternalToken,world=getWorld():getWorld(),receipt=collector.copy(receipt)}
+            end
+        end
+        return "awaiting-outcome-capacity"
+    end
+    status=receipt.status
+    if rt and receipt.nativeGain > 0.0001 and rt.fixture then
         sourceRefresh[id] = { receipt = receipt, rt = rt }
         refreshHandledSource(id)
     end
@@ -381,6 +428,15 @@ local CRAFT_FIELDS={id=true,workId=true,sequence=true,actorId=true,kind=true,cat
     beforeSharpness=true,afterSharpness=true,maxSharpness=true,
     beforeHeadCondition=true,afterHeadCondition=true,maxHeadCondition=true,
     purposeDelivered=true,experienceDelivered=true}
+-- Every native producer preserves both undelivered purpose and private feedback.
+craftLedgerRoom=function(rec)
+    if not craftLedger(rec) then return false end
+    local rows=rec.resourceProductionOutcomes or {}
+    if #rows<CRAFT_LIMIT then return true end
+    local oldest=rows[1]
+    return (not oldest.purposeId or oldest.purposeDelivered==true) and oldest.experienceDelivered==true
+end
+
 local function craftIdentity(id, row)
     if row and row.kind=="fix-held-item" then return fixing and fixing.identity(id,row) or false end
     if not (type(row)=="table" and not getmetatable(row) and row.actorId==id
@@ -809,7 +865,7 @@ local function craftClose(rt,status,detail)
         or not craftIdentity(rt.id,work) or not craftLedger(rec) or not t or t<rt.startedAt then return false end
     local rows=rec.resourceProductionOutcomes or {}
     for _,row in ipairs(rows) do if row.id==work.id then return false end end
-    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    if not craftLedgerRoom(rec) then return false end
     local m=craftMeasurement(rt)
     if status=="completed" and rt.kind=="fix-held-item" and (not m.improved or not m.reequipped or not m.paymentConsumed or not m.returnsMeasured) then
         status,detail="failed","native-fixing-without-restored-equipment"
@@ -1541,7 +1597,7 @@ craftRecover=function(id,body)
     if q.current or #q.queue>0 then return false end
     local rows=rec.resourceProductionOutcomes or {}
     for _,row in ipairs(rows) do if row.id==work.id then return false end end
-    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    if not craftLedgerRoom(rec) then return false end
     local row={}
     for key in pairs(CRAFT_FIELDS) do if key~="outputs" then row[key]=work[key] end end
     if work.kind=="fix-held-item" then row=fixing.copy(work) end
@@ -1778,7 +1834,7 @@ local function plumbClose(rt,status,detail)
     if not plumbRetired(rt) or rec~=rt.record or rec.resourceProductionWork~=w or not plumbIdentity(rt.id,w)
         or not plumbPurpose(rec,w) or not craftLedger(rec) or not t or t<w.startedAt then return false end
     local rows=rec.resourceProductionOutcomes or {}
-    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    if not craftLedgerRoom(rec) then return false end
     local row={}
     for k in pairs(PLUMB_FIELDS) do if w[k]~=nil then row[k]=plumbCopy(w[k],0) end end
     row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISPlumbItem",status,detail,t,t
@@ -2002,7 +2058,7 @@ plumbRecover=function(id,body)
     if SAOJavaBridge:hasPendingActions(body) or q.current or #q.queue>0 then return false end
     local rows=rec.resourceProductionOutcomes or {}
     for _,row in ipairs(rows) do if row.id==w.id then return false end end
-    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    if not craftLedgerRoom(rec) then return false end
     local row={};for k in pairs(PLUMB_FIELDS) do if w[k]~=nil then row[k]=plumbCopy(w[k],0) end end
     row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISPlumbItem","interrupted","plumbing-runtime-unavailable",t,t
     row.nativeObservability="runtime-unavailable";row.nativeAttempted,row.nativeCompleted,row.toolRetained,row.connected=false,false,false,false
@@ -2368,7 +2424,7 @@ function collector.close(rt,status,detail)
     if not plumbRetired(rt) or rec~=rt.record or rec.resourceProductionWork~=w or not collector.identity(rt.id,w)
         or not collector.purpose(rec,w) or not collector.anchors(rt,w) or not craftLedger(rec) or not t or t<w.startedAt then return false end
     local rows=rec.resourceProductionOutcomes or {}
-    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    if not craftLedgerRoom(rec) then return false end
     local row=collector.copy(w);row.stage,row.admittedNeeds,row.admittedHealth=nil,nil,nil
     row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISBuildAction",status,detail,t,t
     row.nativeAttempted,row.nativeCompleted=rt.nativeAttempted==true,rt.nativeCompleted==true
@@ -2504,7 +2560,7 @@ function collector.recover(id,body)
     if SAOJavaBridge:hasPendingActions(body) or q.current or #q.queue>0 then return false end
     local rows=rec.resourceProductionOutcomes or {}
     for _,r in ipairs(rows) do if r.id==w.id then return false end end
-    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    if not craftLedgerRoom(rec) then return false end
     local row=collector.copy(w);row.stage,row.admittedNeeds,row.admittedHealth=nil,nil,nil
     row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISBuildAction","interrupted","collector-runtime-unavailable",t,t
     row.nativeObservability="runtime-unavailable"
@@ -2949,7 +3005,7 @@ function bed.close(rt,status,detail)
     if not plumbRetired(rt) or rec~=rt.record or rec.resourceProductionWork~=w or not bed.identity(rt.id,w)
         or not bed.purpose(rec,w) or not bed.anchors(rt,w) or not craftLedger(rec) or not t or t<w.startedAt then return false end
     local rows=rec.resourceProductionOutcomes or {}
-    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    if not craftLedgerRoom(rec) then return false end
     local row=collector.copy(w);row.stage,row.admittedNeeds,row.admittedHealth=nil,nil,nil
     row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISBuildAction",status,detail,t,t
     row.nativeAttempted,row.nativeCompleted=rt.nativeAttempted==true,rt.nativeCompleted==true
@@ -3046,6 +3102,7 @@ end
 -- Observed wall and door stages share this exact native construction claim.
 shelter={}
 shelter.metal={
+    ["Base.MetalFloorLvl1"]={kind="floor",counts={1,1,1},materials={"welding-torch","small-sheet-metal","welding-rods"},types={"Base.BlowTorch","Base.SmallSheetMetal","Base.WeldingRods"},uses={[1]=1,[3]=1}},
     ["Base.MetalWallFrame"]={kind="wall-frame",counts={1,3,1},materials={"welding-torch","metal-bar","welding-rods"},types={"Base.BlowTorch","Base.MetalBar","Base.WeldingRods"},uses={[1]=1,[3]=2}},
     ["Base.MetalWallLvl1"]={kind="wall",counts={1,3,1},materials={"welding-torch","small-sheet-metal","welding-rods"},types={"Base.BlowTorch","Base.SmallSheetMetal","Base.WeldingRods"},uses={[1]=4,[3]=4}},
     ["Base.MetalWallLvl2"]={kind="wall",counts={1,4,1},materials={"welding-torch","small-sheet-metal","welding-rods"},types={"Base.BlowTorch","Base.SmallSheetMetal","Base.WeldingRods"},uses={[1]=4,[3]=4}},
@@ -3058,7 +3115,7 @@ shelter.entities={"Base.WoodenWallFrame","Base.WoodenWallLvl1","Base.WoodenWallL
     "Base.WoodDoorFrameLvl1","Base.WoodDoorFrameLvl2","Base.WoodDoorFrameLvl3",
     "Base.WoodenDoorLvl1","Base.WoodenDoorLvl2","Base.WoodenDoorLvl3",
     "Base.WoodFloorLvl1","Base.WoodFloorLvl2","Base.WoodFloorLvl3","Base.Wood_Stairs","Base.DoubleDoor","Base.DoubleFenceGate","Base.DoubleWireGate"}
-for _,entity in ipairs({"Base.MetalWallFrame","Base.MetalWallLvl1","Base.MetalWallLvl2","Base.MetalDoorFrameLvl1","Base.MetalDoorFrameLvl2","Base.MetalDoorLvl1","Base.MetalDoorLvl2"}) do shelter.entities[#shelter.entities+1]=entity end
+for _,entity in ipairs({"Base.MetalWallFrame","Base.MetalWallLvl1","Base.MetalWallLvl2","Base.MetalDoorFrameLvl1","Base.MetalDoorFrameLvl2","Base.MetalDoorLvl1","Base.MetalDoorLvl2","Base.MetalFloorLvl1"}) do shelter.entities[#shelter.entities+1]=entity end
 function shelter.spec(entityId)
     local metal=shelter.metal[entityId];if metal then return metal.kind,metal.counts end
     for i,name in ipairs(shelter.entities) do if name==entityId then
@@ -3078,7 +3135,7 @@ function shelter.priorMatches(policy,site)
     return false
 end
 function shelter.gradeChoice(body,policy)
-    if not shelter.metal[policy.entityId] or policy.entityId=="Base.MetalWallFrame" then return true end
+    if not shelter.metal[policy.entityId] or policy.entityId=="Base.MetalWallFrame" or policy.entityId=="Base.MetalFloorLvl1" then return true end
     local ok,result=pcall(function()
         require "CraftRecipeCode/CraftRecipe_BuildMenu"
         local grade2=policy.entityId:sub(-4)=="Lvl2"
@@ -3224,7 +3281,7 @@ function R.shelterOptions(id,body,retained)
                     relevant=false
                     for _,need in ipairs(retained.coverNeeds or {}) do
                         if need.x==site.x and need.y==site.y and need.z+1==site.z
-                            and not (retained.completedSurfaces and retained.completedSurfaces[site.key]) then relevant=true;break end
+                            and not (retained.completedSurfaces and retained.completedSurfaces[site.key] and retained.stageHistory[site.key] and retained.stageHistory[site.key].revision==site.revision) then relevant=true;break end
                     end
                 elseif relevant and site.mode=="stairs" then
                     relevant=#(retained.coverNeeds or {})>0 and site.z==origin.z
@@ -3273,6 +3330,7 @@ function shelter.identity(id,w)
     local weld=type(w)=="table" and shelter.metal[w.entityId]
     if type(w)~="table" or getmetatable(w) or not kind or w.actorId~=id
         or w.kind~=(kind=="double-gate" and "build-double-gate" or kind=="stairs" and "build-shelter-stairs" or kind=="floor" and "build-shelter-surface" or "build-shelter-edge")
+        or kind=="floor" and w.face~="W"
         or w.category~="construction" or w.token~=(kind=="double-gate" and "resource:gate-built" or "resource:shelter-built") or w.recipeId~=w.entityId
         or not integer(w.sequence) or w.sequence<1 or w.id~="resource-production/"..id.."/"..w.sequence
         or not textId(w.purposeId) or not textId(w.purposeStepId) or not textId(w.world)
@@ -3440,7 +3498,7 @@ function shelter.close(rt,status,detail)
     if not plumbRetired(rt) or rec~=rt.record or rec.resourceProductionWork~=w or not shelter.identity(rt.id,w)
         or not shelter.purpose(rec,w) or not shelter.anchors(rt,w) or not craftLedger(rec) or not t or t<w.startedAt then return false end
     local rows=rec.resourceProductionOutcomes or {}
-    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    if not craftLedgerRoom(rec) then return false end
     local row=collector.copy(w);row.stage,row.admittedNeeds,row.admittedHealth=nil,nil,nil
     row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISBuildAction",status,detail,t,t
     row.nativeAttempted,row.nativeCompleted=rt.nativeAttempted==true,rt.nativeCompleted==true
@@ -3660,7 +3718,7 @@ function shelter.useClose(rt,status,detail)
     if not plumbRetired(rt) or rec~=rt.record or rec.resourceProductionWork~=w or not shelter.useIdentity(rt.id,w)
         or not shelter.usePurpose(rec,w) or not shelter.useAnchors(rt,w) or not t or t<w.startedAt then return false end
     local rows=rec.resourceProductionOutcomes or {}
-    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    if not craftLedgerRoom(rec) then return false end
     local row=collector.copy(w);row.stage,row.admittedNeeds,row.admittedHealth=nil,nil,nil
     row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISOpenCloseDoor+SAO.Locomotion",status,detail,t,t
     row.nativeAttempted,row.nativeCompleted=rt.nativeAttempted==true,rt.nativeCompleted==true
@@ -3695,7 +3753,7 @@ function shelter.useRecover(id,body)
     if SAOJavaBridge:hasPendingActions(body) or q.current or #q.queue>0 then return false end
     if rec.resourceProductionWork~=w then return true end
     local rows=rec.resourceProductionOutcomes or {}
-    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    if not craftLedgerRoom(rec) then return false end
     local row=collector.copy(w);row.stage,row.admittedNeeds,row.admittedHealth=nil,nil,nil
     row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISOpenCloseDoor+SAO.Locomotion","interrupted","shelter-use-runtime-unavailable",t,t
     row.nativeObservability="runtime-unavailable"
@@ -3904,7 +3962,7 @@ function gate.close(rt,status,detail)
     if rt.closed then return true end;local rec,w,t=SAO.Identity.get(rt.id),rt.work,now()
     if not plumbRetired(rt) or rec~=rt.record or rec.resourceProductionWork~=w or not craftLedger(rec) or not gate.identity(rt.id,w)
         or not gate.anchors(rt,w) or not gate.purpose(rec,w) then return false end
-    local rows=rec.resourceProductionOutcomes or {};if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    local rows=rec.resourceProductionOutcomes or {};if not craftLedgerRoom(rec) then return false end
     local row=collector.copy(w);row.stage=nil;row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISOpenCloseDoor+SAO.Locomotion",status,detail,t,t
     row.nativeAttempted,row.nativeCompleted=rt.nativeAttempted==true,rt.nativeCompleted==true
     row.afterGroup=collector.copy(gate.group(rt));row.nativeCredit=status=="completed" and w.id or nil
@@ -3994,7 +4052,7 @@ function gate.recover(id,body)
     end
     if q.current or #q.queue>0 or body:getCurrentStateName()~="IdleState" then return false end
     local rows=rec.resourceProductionOutcomes or {}
-    if #rows>=CRAFT_LIMIT and rows[1].purposeId and not rows[1].purposeDelivered then return false end
+    if not craftLedgerRoom(rec) then return false end
     local row=collector.copy(w);row.stage=nil;row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISOpenCloseDoor+SAO.Locomotion","interrupted","saved-gate-requires-fresh-group",now(),now()
     row.nativeAttempted,row.nativeCompleted=false,false
     local site=w.site;row.afterGroup=collector.copy(SAOJavaBridge:worldDoubleGateGroup(body,w.groupId,w.entityId,site.x,site.y,site.z,site.face))
@@ -4013,7 +4071,11 @@ function R.reconcileSaved(id,body)
     if rec and rec.resourceProductionWork and nativeEntityKind(rec.resourceProductionWork.kind) then return collector.recover(id,body) end
     if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="plumb-fixture" then return plumbRecover(id,body) end
     if rec and rec.resourceProductionWork and nativeCraftKind(rec.resourceProductionWork.kind) then return craftRecover(id,body) end
-    reconcile(id);return true
+    reconcile(id)
+    if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="refill-water" and rec.resourceProductionWork.terminalReceipt then
+        R.tick(id,body);return rec.resourceProductionWork==nil
+    end
+    return true
 end
 function R.retryCraftCancellations()
     for id,rt in pairs(runtime) do
@@ -4118,7 +4180,7 @@ function R.interrupt(id, body, reason)
     end
     if rt and rt.action and rt.action.saoEnded == "completed" and not queued(rt.action) then
         finish(id, "completed", "native-refill-completed-before-interruption")
-        return true
+        return rec.resourceProductionWork==nil
     end
     if rt then rt.cancelling, rt.cancelReason = true, reason or "higher-priority-work" end
     if rt and queued(rt.action) then
@@ -4131,7 +4193,7 @@ function R.interrupt(id, body, reason)
         if not ok or cancelled ~= "MOVE_CANCELLED" then return false end
     end
     finish(id, "interrupted", reason or "higher-priority-work")
-    return true
+    return rec.resourceProductionWork==nil
 end
 function R.detach(id, body, reason)
     retireRefresh(id, "handled-source-body-retired")
@@ -4193,6 +4255,10 @@ local function tick(id, body)
     if work.kind == "plumb-fixture" then return plumbTick(id, body) end
     if nativeCraftKind(work.kind) then return craftTick(id, body) end
     if not rt then
+        if work.terminalReceipt then
+            if SAO.Needs.busy(body) then return "awaiting-native-queue" end
+            return finish(id,"completed","saved-native-refill-terminal")
+        end
         -- A module reload can leave the exact native action in the queue.
         -- Retire that action before releasing the durable body claim; missing
         -- transient transfer measurements cannot be reconstructed as credit.

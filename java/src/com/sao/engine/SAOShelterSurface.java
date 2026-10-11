@@ -80,12 +80,19 @@ public final class SAOShelterSurface {
         var site=known(body,key,revision);return site!=null&&body.getCurrentSquare()==site.approach.get()
             &&Math.hypot(body.getX()-site.ax-.5,body.getY()-site.ay-.5)<=.35?site.square.get():null;
     }
-    public static boolean created(SAOIsoPlayerShell body,IsoObject object,String entity,int x,int y,int z){
+    public static synchronized boolean created(SAOIsoPlayerShell body,IsoObject object,String entity,int x,int y,int z){
+        String actor=SAOConceptObservation.actor(body);if(actor==null)return false;
         var square=body.getCell().getGridSquare(x,y,z);
-        return SAOConceptObservation.actor(body)!=null&&square!=null&&object!=null&&object.getSquare()==square&&object.getObjectIndex()>=0
+        boolean measured=true&&square!=null&&object!=null&&object.getSquare()==square&&object.getObjectIndex()>=0
             &&square.getObjects().contains(object)&&square.isSolidFloor()&&object.getProperties().has(IsoFlagType.solidfloor)
             &&object.getEntityScript()!=null&&object.getEntityScript().getFullName().equals(entity)
-            &&Set.of("Base.WoodFloorLvl1","Base.WoodFloorLvl2","Base.WoodFloorLvl3").contains(entity)&&visible(body,square);
+            &&Set.of("Base.WoodFloorLvl1","Base.WoodFloorLvl2","Base.WoodFloorLvl3","Base.MetalFloorLvl1").contains(entity)&&visible(body,square);
+        // A later genuinely missing surface needs a fresh observation revision,
+        // even when build/removal/reobservation share the same county clock.
+        if(measured){var sites=SITES.get(body);if(sites!=null)sites.entrySet().removeIf(entry->{
+            var site=entry.getValue();return site.actor.equals(actor)&&site.x==x&&site.y==y&&site.z==z;
+        });}
+        return measured;
     }
     public static KahluaTable coverNeeds(SAOIsoPlayerShell body){
         var out=table();if(SAOConceptObservation.actor(body)==null)return out;var eye=body.getCurrentSquare();int count=0;

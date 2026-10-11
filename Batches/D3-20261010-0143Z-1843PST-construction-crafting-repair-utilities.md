@@ -9,10 +9,10 @@
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C12, C18, C20, C21, C24, C30, C31, C32, C33 |
-| Implementation | CLOSED D3.1-D3.13 deliver their coherent linked native crafting, maintenance, utilities, firearm reuse, usable beds, wooden shelter, floors/roof cover, stairs, freestanding gates and metal walls/frames/doors through ordinary shelter. Full remaining scope keeps D3 OPEN. |
+| Implementation | CLOSED D3.1-D3.14 deliver linked native crafting, maintenance, utilities, firearm reuse, usable beds, wooden shelter, floors/roof cover, stairs, double gates, metal walls/frames/doors and metal floors through ordinary shelter. Full remaining scope keeps D3 OPEN. |
 | Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.6.13.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
-| Publication | D3.1-D3.12 self-merged through PR142-PR153; D3.13 follows the same protected workflow with actual merge retained in its completion receipt. |
+| Version | 2.6.14.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
+| Publication | D3.1-D3.13 self-merged through PR142-PR154; D3.14 follows the same protected workflow with actual merge retained in its completion receipt. |
 
 ## Product and current implementation
 
@@ -243,3 +243,12 @@ The operator corrects the earlier minor classification of D3.1, D3.2, D3.4, D3.5
 ## D3.13 coherent closure - 2026-10-11 10:49 UTC / 03:49 PDT
 
 [D3.13](D3.13-20261011-0845Z-0145PDT-metal-walls-doors-usable-shelter.md) is CLOSED for the complete installed native metal wall, frame and door family in both orientations, exact permitted private work and acquired prerequisites, measured native construction and doorway use through ordinary reached shelter/recovery. One kohai records coherent building progress. Full D3 remains OPEN for other construction families and structures, remaining recipes/pane integration and native server execution; D4-D6 remain downstream in FIFO.
+
+
+## D3.14 continuation - 2026-10-11 19:14 UTC / 12:14 PDT
+
+[D3.14](D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md) is OPEN for the installed native metal floor family through actual surface/cover effects and ordinary reached shelter/recovery. Neo retains the complete D3 parent scope and one coherent child allocation. Full D3 stays OPEN.
+
+## D3.14 coherent closure - 2026-10-11 20:37 UTC / 13:37 PDT
+
+[D3.14](D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md) is CLOSED for native metal flooring through actual walking surface/cover and ordinary reached shelter/recovery under the original private concern. One kohai records coherent building progress. Full D3 remains OPEN for other families and structures, remaining recipes/pane integration and native server execution; D4-D6 remain downstream in FIFO.

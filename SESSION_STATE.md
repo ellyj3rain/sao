@@ -1,13 +1,13 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.6.13.0-pre-alpha` |
+| Version | `2.6.14.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
-**As of** `[D3.13]`, 178 delivered batches: 29 A, 52 B, 82 C products and fifteen delivered D records. D3 is the active OPEN parent.
+**As of** `[D3.14]`, 179 delivered batches: 29 A, 52 B, 82 C products and sixteen delivered D records. D3 is the active OPEN parent.
 
 ## Delivered product
 
@@ -95,6 +95,9 @@ GZDS B2.24/DR-168 reached main through [PR32](https://github.com/ellyj3rain/gzds
 
 ## Continuing outcomes and FIFO
 
+The operator directs native metal floors through usable shelter. [D3.14](Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md) is CLOSED through native floor construction, actual walking surface/cover and ordinary reached shelter/recovery. Protected publication retains its independent completion receipt; full D3 remains OPEN and D4-D6 retain FIFO.
+
+
 The operator directs native metal walls, frames and doors through usable shelter. [D3.13](Batches/D3.13-20261011-0845Z-0145PDT-metal-walls-doors-usable-shelter.md) is CLOSED through native construction, doorway use and ordinary reached shelter/recovery. Neo owns sufficient verification, records and protected publication. Full D3 remains OPEN; D4-D6 remain downstream.
 
 The operator's instruction to build, verify and publish has delivered
@@ -121,7 +124,7 @@ original purpose. Adoption and IDLE recovery reconcile lost native admissions
 without inventing effects or completion. Focused native and Controller proofs
 retain their exact inputs and boundaries. Final regression and review results
 live in the D3 record. The whole construction, crafting, repair and utilities
-parent remains OPEN. Its CLOSED D3.1 through D3.13 children deliver native crafting, held-tool maintenance, plumbing/rain-collector construction through actual usable water, and generator operation through usable consumer power; the current replay derives `2.6.13.0-pre-alpha`.
+parent remains OPEN. Its CLOSED D3.1 through D3.14 children deliver native crafting, held-tool maintenance, plumbing/rain-collector construction through actual usable water, and generator operation through usable consumer power; the current replay derives `2.6.14.0-pre-alpha`.
 
 [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is the
 CLOSED child for native plank crafting. Exact private log and saw
@@ -132,7 +135,7 @@ and delivered version credit follow the canonical module rule independently.
 
 | Outcome | Standing and responsibility |
 |---|---|
-| D3 construction/crafting/repair/utilities | Active OPEN parent; D3.1-D3.13 deliver their linked coherent children. Other structures, remaining recipes/pane integration and native server execution remain with D3. |
+| D3 construction/crafting/repair/utilities | Active OPEN parent; D3.1-D3.14 deliver their linked coherent children. Other structures, remaining recipes/pane integration and native server execution remain with D3. |
 | D3.2 native saw maintenance | CLOSED child under D3; exact native FixSaw, private file acquisition, interpreted maintenance alternatives, measured condition/wear and canonical feedback continue the original construction purpose. Self-merged through [PR143](https://github.com/ellyj3rain/sao/pull/143). |
 | D3.3 portable tool maintenance | CLOSED child: native saw repair and blade sharpening, private file/whetstone acquisition, ordinary kit tending and measured benefits/damage. Self-merged through [PR144](https://github.com/ellyj3rain/sao/pull/144). |
 | D3.4 plumbing to usable water | CLOSED child: exact private wrench acquisition and fixture return, installed plumbing, handled-source refresh and actual clean held water under the same hydration purpose. Self-merged through [PR145](https://github.com/ellyj3rain/sao/pull/145), actual main commit `3120fae3e9d71f3f5664bad48cfa0e409a3e41d7`. |
@@ -144,7 +147,8 @@ and delivered version credit follow the canonical module rule independently.
 | D3.10 roofs and floors | CLOSED child: three native wooden floor grades, supported work-level access, actual construction/cover and return to the retained ordinary shelter/recovery destination. Self-merged through [PR151](https://github.com/ellyj3rain/sao/pull/151) at c63ce31199c6134c608633ff81603ea7332dbe3f. |
 | D3.11 native stairs | CLOSED child: both complete native orientations, exact private materials and permitted footprint, genuine upper access, floor/cover, return and ordinary shelter/recovery with saved independent feedback. Self-merged through [PR152](https://github.com/ellyj3rain/sao/pull/152) at ac9edeeaf4a95ca22565b1428c452424dc3106d1. |
 | D3.12 native double gates | CLOSED child: all six native wooden, metal-pole and wire orientations, exact knowledge/resources and private permitted boundary/access intent through complete construction, actual opening, same-body passage and closure with durable separate outcomes. Self-merged through [PR153](https://github.com/ellyj3rain/sao/pull/153) at f03cabc35c1a29c6231da66478c499f793f0354c. |
-| D3.13 native metal shelter | CLOSED child: the complete native metal wall/frame/door family in both orientations, exact knowledge/materials and permitted private concern through native doorway use and ordinary reached shelter/recovery. Actual publication retains its separate protected merge receipt. |
+| D3.13 native metal shelter | CLOSED child: the complete native metal wall/frame/door family in both orientations, exact knowledge/materials and permitted private concern through native doorway use and ordinary reached shelter/recovery. Self-merged through [PR154](https://github.com/ellyj3rain/sao/pull/154) at 19341cfe0080f8f07371e3402592ddce079a8d60. |
+| D3.14 native metal floors | CLOSED child: installed native metal floor, exact acquired means and observed permitted supported placement through actual surface/cover and ordinary reached shelter/recovery. Actual publication retains its separate protected completion receipt. |
 | D4 whole food/preservation | Follows D3; retains the complete installed domain and adjacent food mechanics. |
 | D5 comprehensive animal care | Follows D4; species and supported actions retain actual source admission. |
 | D6 assessed K-through-college learning | Follows D5; literal sources, comprehension, retention and transfer remain the outcome. |

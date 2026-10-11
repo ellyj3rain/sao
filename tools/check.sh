@@ -2810,6 +2810,10 @@ if ! "$PY" tools/d3_shelter_surface_test.py --out "$sao_d3_proof/shelter-surface
     note "BORDER FINDING - native floor support, roof cover or retained shelter use differs"
     fail=1
 fi
+if ! "$PY" tools/d3_shelter_surface_test.py --case metal-all --out "$sao_d3_proof/metal-floor"; then
+    note "BORDER FINDING - native metal floor prerequisites, payment, cover or reached shelter differs"
+    fail=1
+fi
 if ! "$PY" tools/d3_shelter_stairs_test.py --out "$sao_d3_proof/shelter-stairs"; then
     note "BORDER FINDING - native stair footprint, paid upper access or original shelter use differs"
     fail=1

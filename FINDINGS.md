@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.6.13.0-pre-alpha` |
+| Version | `2.6.14.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -3290,3 +3290,10 @@ The guarded one-leaf install receipt `installed-receipt.json` SHA-256 `c4cae4079
 The installed CraftRecipeManager.hasPlayerLearnedRecipe convenience method follows CraftRecipe.hasPlayerLearned into the visibility-aware isRecipeKnown(CraftRecipe,false) path. With seeNotLearntRecipe enabled, it reports all five unknown learned metal wall/frame recipes as available. The isRecipeActuallyKnown(CraftRecipe) overload bypasses that display allowance and reports actual learned state. Native ReadLiterature on MetalworkMag1 changes all five from actually unknown to known; both metal door recipes have needToBeLearn=false independently of magazine strings.
 
 The source chain is installed projectzomboid.jar bytecode for CraftRecipeManager, CraftRecipe and IsoGameCharacter plus media/scripts/generated/items/literature.txt:5822-5834. The frozen-native D3.13 prerequisite probe passes eight verdict groups and three detecting controls for omitted reading, false keep classification and visibility substituted for knowledge. Its independent receipt SHA256 is `cdd4b8382fa334def6c71b63faa1e2c1825daa0504deba441cb7d1eb5702deb0`; source/native pins and actual exits remain in the owning ignored proof directory. [D3.13](Batches/D3.13-20261011-0845Z-0145PDT-metal-walls-doors-usable-shelter.md) owns the integration. This finding qualifies the native knowledge seam, with physical construction and usable shelter measured separately.
+
+
+## F-143 - Native metal floor Normal inputs and physical payment
+
+The installed `Base.MetalFloorLvl1` declares one W face, native `BuildLowMetal`, learned knowledge and three amount-one `ItemApplyMode.Normal` inputs (BlowTorch, SmallSheetMetal, WeldingRods), all keep=false and record flags false/true/false. Native input mode and keep flags do not predict whole-object destruction: actual BuildLogic allocation/payment consumes one sheet and one charge each from torch/rods. Isolated final-use stock leaves the empty torch held and removes depleted rods; empty-charge stock cannot pay. The recipe declares no skill minimum; an actual native welding-zero character performs after learning. Native MetalworkMag1 reading supplies the exact floor knowledge, separately from the visibility-permissive convenience predicate.
+
+Source anchors are `media/scripts/generated/entities/walls/entity_metal_floorlvl1.txt:3`, `media/scripts/generated/items/literature.txt:5830`, `media/scripts/generated/timedactions.txt:741` and native BuildLogic/CraftRecipeData. Floor callbacks at `media/lua/server/BuildRecipeCode/buildRecipeCode.lua:338` govern placement/creation and roof processing; native checkHaveRoof distinguishes walking surface and cover above/below. Seventeen complete native inspection verdicts and four detecting controls qualify metadata, actual knowledge and payment on frozen D3.13 source/JAR inputs. The inspector receipt SHA256 is `dfe2c296d9d0347e9ffd0414d8784b3d1e81cabbcc9ea366fb049776eafe9223`. Placement, floor/cover enactment, saved custody and reached shelter/recovery remain the coupled [D3.14](Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md) proof; inspector source-only paths do not qualify those effects.

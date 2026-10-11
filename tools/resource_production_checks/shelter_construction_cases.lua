@@ -67,6 +67,7 @@ local entities={'Base.WoodenWallFrame','Base.WoodenWallLvl1','Base.WoodenWallLvl
 if __metalCases then for _,id in ipairs({'Base.MetalWallFrame','Base.MetalWallLvl1','Base.MetalWallLvl2','Base.MetalDoorFrameLvl1','Base.MetalDoorFrameLvl2','Base.MetalDoorLvl1','Base.MetalDoorLvl2'}) do entities[#entities+1]=id end end
 if __surfaceCases then for _,id in ipairs({'Base.WoodFloorLvl1','Base.WoodFloorLvl2','Base.WoodFloorLvl3'}) do entities[#entities+1]=id end end
 if __stairCases then entities[#entities+1]='Base.Wood_Stairs' end
+if __metalFloorCases then entities[#entities+1]='Base.MetalFloorLvl1' end
 local policies={}
 local nativeBridge=__nativeShelter
 function __nativeShelter(op,a,b) if op=='spriteProp' then print('native property '..tostring(a)..' '..tostring(b)) end;return nativeBridge(op,a,b) end
@@ -248,7 +249,7 @@ local function roofSquare(f,x,y)
         if f.entityId=='Base.WoodenWallFrame' then f.mode='wall';f.previous=object
         elseif f.entityId:find('WoodDoorFrame',1,true) or f.entityId:find('MetalDoorFrame',1,true) then f.mode='door-leaf';f.previous=object
         elseif f.entityId:find('WoodenDoorLvl',1,true) or f.entityId:find('MetalDoorLvl',1,true) then f.mode='door';f.previous=object
-        elseif f.entityId:find('WoodFloorLvl',1,true) then f.mode='floor';f.previous=nil
+        elseif f.entityId:find('WoodFloorLvl',1,true) or f.entityId=='Base.MetalFloorLvl1' then f.mode='floor';f.previous=nil
         else f.mode='wall';f.previous=object end
         f.siteRevision=f.siteRevision..'-new'
     end
@@ -289,7 +290,7 @@ local function fixture(id,orientation,nested)
     f.siteRevision='12345678-1234-1234-1234-123456789abc'
     local modes={};for _,kind in ipairs({'wall-frame','wall','door-frame','door-leaf'}) do modes[kind]=true end
     f.mode=entityId=='Base.Wood_Stairs' and 'stairs' or entityId=='Base.WoodenWallFrame' and 'wall-frame' or entityId:find('WoodenWallLvl',1,true) and 'wall'
-        or entityId:find('WoodFloorLvl',1,true) and 'floor'
+        or (entityId:find('WoodFloorLvl',1,true) or entityId=='Base.MetalFloorLvl1') and 'floor'
         or entityId:find('WoodDoorFrame',1,true) and 'door-frame' or 'door-leaf'
     if f.mode=='wall' or f.mode=='door-leaf' then
         local previousId=f.mode=='wall' and 'Base.WoodenWallFrame' or 'Base.WoodDoorFrameLvl1'
