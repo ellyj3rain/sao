@@ -221,13 +221,63 @@ local function physicalWorkEvent(e)
             or not text(w.site.revision,160) or (w.site.face~="S" and w.site.face~="E" and w.site.face~="N" and w.site.face~="W") then return false end
         if e.status~="completed" then return true end
         local m=w.measurement
-        if type(m)~="table" or m.actorId~=e.actorId or m.entityId~=w.entityId or m.recipeId~=w.recipeId or m.face~=w.site.face
+        if type(m)~="table" or m.actorId~=e.actorId or m.recipeId~=w.recipeId or m.face~=w.site.face
             or m.cursor~=w.site.cursor or m.x~=w.site.x or m.y~=w.site.y or m.z~=w.site.z or type(m.geometry)~="table"
             or not finite(m.geometry.occupiedCount) or type(m.parts)~="table" or #m.parts~=m.geometry.occupiedCount then return false end
-        local seen={}
+        -- Canonical source provenance and the actual attached native script
+        -- are separate facts. The legacy archive describes thumpables only.
+        local legacy=m.sourceEntityId==nil and m.factoryPath==nil
+        local factory,expectedSprite=m.factoryPath,nil
+        if w.entityId=="Base.Log_Stool" and factory~="native-moveable-prop"
+            or w.entityId=="Base.BarrelOven" and factory~="native-oncreate-fireplace" then return false end
+        if legacy then
+            if m.entityId~=w.entityId then return false end
+        else
+            if m.sourceEntityId~=w.entityId or not text(m.sourceRevision,512)
+                or m.sourceRevision~=w.site.sourceRevision then return false end
+            if factory=="native-thumpable" then
+                if m.entityId~=w.entityId then return false end
+            elseif factory=="native-moveable-prop" then
+                if w.entityId~="Base.Log_Stool" or w.recipeId~="Base.Log_Stool" or m.entityId~=nil
+                    or (m.face~="S" or m.cursor~=4) and (m.face~="E" or m.cursor~=3) then return false end
+                expectedSprite=m.face=="S" and "crafted_02_94" or "crafted_02_93"
+            elseif factory=="native-oncreate-fireplace" then
+                if w.entityId~="Base.BarrelOven" or w.recipeId~="Base.BarrelOven" or m.entityId~=nil
+                    or m.face~="S" or m.cursor~=4 then return false end
+                expectedSprite="crafted_05_4"
+            else return false end
+            if expectedSprite and (m.geometry.occupiedCount~=1 or #m.parts~=1) then return false end
+            local occupied=0
+            if not denseRows(m.geometry.tiles,256,function(tile)
+                if not finite(tile.x) or not finite(tile.y) or not finite(tile.z) or type(tile.occupied)~="boolean" then return false end
+                if tile.occupied then occupied=occupied+1;return text(tile.sprite,160) end
+                return true
+            end) or occupied~=m.geometry.occupiedCount then return false end
+        end
+        local seen,usedTiles={},{}
         return type(m.parts)=="table" and #m.parts>0 and denseRows(m.parts,256,function(p)
-            if p.entityId~=w.entityId or not text(p.sprite,160) or not finite(p.x) or not finite(p.y) or not finite(p.z)
+            if not text(p.sprite,160) or not finite(p.x) or not finite(p.y) or not finite(p.z)
                 or not finite(p.objectIndex) or p.objectIndex<0 or p.objectIndex%1~=0 then return false end
+            if legacy then
+                if p.entityId~=w.entityId or p.sourceEntityId~=nil or p.factoryPath~=nil
+                    or p.nativeClass~=nil and p.nativeClass~="zombie.iso.objects.IsoThumpable" then return false end
+            else
+                if p.sourceEntityId~=w.entityId or p.factoryPath~=factory then return false end
+                if factory=="native-oncreate-fireplace" then
+                    if p.nativeClass~="zombie.iso.objects.IsoFireplace" or p.entityId~=nil then return false end
+                elseif p.nativeClass~="zombie.iso.objects.IsoThumpable"
+                    or factory=="native-thumpable" and p.entityId~=w.entityId
+                    or factory=="native-moveable-prop" and p.entityId~=nil and p.entityId~=w.entityId then return false end
+                if expectedSprite and (p.sprite~=expectedSprite or p.x~=m.x or p.y~=m.y or p.z~=m.z) then return false end
+                local matched
+                for index,tile in ipairs(m.geometry.tiles) do
+                    if tile.occupied and p.x==m.x+tile.x and p.y==m.y+tile.y and p.z==m.z+tile.z and p.sprite==tile.sprite then
+                        if matched or usedTiles[index] then return false end;matched=index
+                    end
+                end
+                if not matched then return false end
+                usedTiles[matched]=true
+            end
             local key=p.x..":"..p.y..":"..p.z..":"..p.objectIndex
             if seen[key] then return false end;seen[key]=true;return true
         end)

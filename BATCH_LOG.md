@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.7.3.0-pre-alpha` |
+| Version | `2.7.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -18,6 +18,8 @@ The 2026-10-03 map grouped the retained source history into 35 shared ownership 
 ## Development catalogue
 
 Active: [D3 — Construction, crafting, repair and utilities](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md)
+
+Current qualified child: [D3.21 — Native furnishing factories and current functional use](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md), CLOSED inside OPEN D3.
 
 Current qualified child: [D3.20 — Native workspace materials, construction and requesting use](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md), CLOSED inside OPEN D3.
 
@@ -682,3 +684,9 @@ D3.19 protected publication actually completed through PR162 at `c356234069b5034
 | Batch | Date | Name | Threads |
 |---|---|---|---|
 | [D3.20](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md) | 2026-10-12 | Native workspace materials, construction and requesting use | Private source inquiry, original logging/ground acquisition/SawLogs, paid native build, cold result relationship and original upkeep |
+
+## Native furnishing factories and current functional use — 2026-10-12 20:51 UTC / 13:51 PDT
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D3.21](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) | 2026-10-12 | Native furnishing factories and current functional use | Original prop/callback final results, fixed native use payment, ordinary private Stool/cold surface and original upkeep |

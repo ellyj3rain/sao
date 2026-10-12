@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `2.7.3.0-pre-alpha` |
+| Version | `2.7.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -168,3 +168,7 @@ Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md
 ## D3.20 native workspace materials and use
 
 [D3.20](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md) is CLOSED for ordinary private native logging/acquisition/SawLogs, full Table payment/result, canonical native persisted part relationship, cold current workspace and original crafting/upkeep use. Current affected proof and reviews retain their exact scope. One kohai marks progress within OPEN D3; package/protected merge and counterpart archive/model adoption remain separate obligations.
+
+## D3.21 native furnishing factories and use
+
+[D3.21](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) is CLOSED for source-bounded native final factory/partial payment through actual ordinary acquired Stool, native cold canonical surface and original crafting/upkeep use. One kohai records progress within OPEN D3. Exact package/protected publication and pending archive/model contracts retain separate evidence; full D3 continues before D4.

@@ -3597,12 +3597,29 @@ function collector.tick(id,body)
 end
 -- Installed ISBuildIsoEntity.setInfo adapted only at exact actor and measured
 -- created-object boundaries. The native constructor/factory/place path is retained.
+-- Proposed additions inside existing collector. Caller retains its existing
+-- capsule/current-action/Standing/payment/whole-footprint checks.
+function collector.partBaseline(square)
+ local seen={};for i=0,square:getObjects():size()-1 do seen[square:getObjects():get(i)]=true end;return seen
+end
+function collector.rememberFinalNativePart(self,square,sprite,object,before)
+ if not before or not object or before[object]or object:getSquare()~=square or object:getCell()~=self.character:getCell()
+  or object:getObjectIndex()<0 or not square:getObjects():contains(object)
+  or object:getSpriteName()~=sprite then return false end
+ self.saoCreated=object;self.saoCreatedParts=self.saoCreatedParts or {}
+ self.saoCreatedParts[#self.saoCreatedParts+1]=object
+ return true
+end
+
+
 function collector.setInfo(self, square, north, sprite, openSprite)
+    local saoBeforeParts=collector.partBaseline(square)
 
 	if self.objectInfo:getScript():isProp() then
 		local props = ISMoveableSpriteProps.new(IsoObject.new(square, sprite):getSprite())
 		props.rawWeight = 10
-		props:placeMoveableInternal(self.character, square, instanceItem(ItemKey.Weapon.PLANK), sprite)
+		local saoFinal=props:placeMoveableInternal(self.character, square, instanceItem(ItemKey.Weapon.PLANK), sprite)
+        collector.rememberFinalNativePart(self,square,sprite,saoFinal,saoBeforeParts)
 		return;
 	end
 
@@ -3732,8 +3749,7 @@ function collector.setInfo(self, square, north, sprite, openSprite)
 	end
 
 	square:AddSpecialObject(thumpable, replacedObjectIndex);
-    self.saoCreated=thumpable
-    self.saoCreatedParts=self.saoCreatedParts or {};self.saoCreatedParts[#self.saoCreatedParts+1]=thumpable
+    -- Final native reference is captured only after original OnCreate.
 	buildUtil.checkCorner(square:getX(), square:getY(), square:getZ(), north, thumpable, self);
 
 	-- This is so any containers that are in a tile are flagged as "already explored" so they don't spawn loot in them
@@ -3747,6 +3763,9 @@ function collector.setInfo(self, square, north, sprite, openSprite)
 	end
 
 	square:RecalcAllWithNeighbours(true);
+    local saoFinal=thumpable
+    if result and result.replaceObject then saoFinal=result.object end
+    collector.rememberFinalNativePart(self,square,sprite,saoFinal,saoBeforeParts)
 	if result ~= nil then
 		-- object transmitted somewhere in OnCreate function, don't send again
 		-- can be used when you have to transmit not just one object
@@ -4185,26 +4204,85 @@ function workspace.partExpected(rt,square,sprite)
     end
     return false
 end
+-- Existing owner capability only: current native policy/geometry remain required.
+function workspace.resultAdapter(policy)
+    if not policy or not policy.admissible then return nil end
+    local script=policy.info:getScript()
+    local callback=script:getOnCreate()
+    if not script:getPreviousStages():isEmpty() then return nil end
+    if not script:isProp() and (callback==nil or callback=="") then return "native-thumpable" end
+    local entity=policy.entity:getScriptObjectFullType()
+    local recipe=policy.recipe:getScriptObjectFullType()
+    local geometry=policy.geometry.requirement
+    if policy.entity:getModID()~="pz-vanilla" or entity~=recipe or geometry.occupiedCount~=1
+        or #geometry.tiles~=1 or not geometry.tiles[1].occupied then return nil end
+    local face=geometry.selectedFace:upper();local tile=geometry.tiles[1]
+    if tile.x~=0 or tile.y~=0 or tile.z~=0 then return nil end
+    if entity=="Base.Log_Stool" and script:isProp() and (callback==nil or callback=="")
+        and ((face=="S" and geometry.cursor==4 and tile.sprite=="crafted_02_94")
+            or (face=="E" and geometry.cursor==3 and tile.sprite=="crafted_02_93")) then
+        return "native-moveable-prop"
+    end
+    if entity=="Base.BarrelOven" and not script:isProp()
+        and callback=="BuildRecipeCode.barrelOven.OnCreate" and face=="S" and geometry.cursor==4
+        and tile.sprite=="crafted_05_4" then return "native-oncreate-fireplace" end
+    return nil
+end
+function workspace.partialDeclaration(slot)
+    local input=slot.script;local amount=input:getAmount()
+    if input:getResourceType()~=ResourceType.Item or input:isKeep() or input:isDestroy()
+        or input:isVariableAmount() or input:isApplyOnTick() or input:hasConsumeFromItem()
+        or input:hasCreateToItem() or input:isReplace() or not integer(amount) or amount<1
+        or input:getMaxAmount()~=amount then return nil end
+    for _,b in ipairs(slot.baselines) do
+        if not b.partialUse or not integer(b.uses) or b.uses<1
+            or input:getAmount(b.itemType)~=amount or input:getRelativeScale(b.itemType)~=1 then return nil end
+    end
+    return amount
+end
+function workspace.selectionSupported(policy,selected)
+    local adapter=workspace.resultAdapter(policy)
+    if not adapter then return false end
+    for _,slot in ipairs(selected.slots) do
+        local partial=false;for _,b in ipairs(slot.baselines) do if b.partialUse then partial=true end end
+        if partial and (adapter=="native-thumpable" or not workspace.partialDeclaration(slot)) then return false end
+    end
+    return true
+end
 function workspace.payment(rt)
-    local consumed=rt.logic:getRecipeDataInProgress():getAllConsumedItems()
-    local kept=rt.logic:getRecipeDataInProgress():getAllKeepInputItems()
-    local expectedConsumed,expectedKept=0,0
-    for _,slot in ipairs(rt.selected.slots) do for _,b in ipairs(slot.baselines) do
-        local item=b.item
-        if slot.script:isKeep() then
-            expectedKept=expectedKept+1
-            if not kept:contains(item) or not ownItem(rt,item) then return false end
-        elseif b.partialUse then
-            -- Partial payment is measured from the native declaration; this
-            -- first adapter refuses to invent a count-to-use conversion.
-            return false
-        else
-            expectedConsumed=expectedConsumed+1
-            if not consumed:contains(item) or ownItem(rt,item) or craftCarried(rt.body,b.id,b.itemType) then return false end
+    local data=rt.logic:getRecipeDataInProgress()
+    local consumed=data:getAllConsumedItems();local kept=data:getAllKeepInputItems()
+    local expectedConsumed,expectedKept=0,0;local seen={}
+    for _,slot in ipairs(rt.selected.slots) do
+        local partial=false;for _,b in ipairs(slot.baselines) do if b.partialUse then partial=true end end
+        local amount=partial and workspace.partialDeclaration(slot) or nil
+        if partial and (not amount or workspace.resultAdapter(rt.policy)=="native-thumpable"
+            or not workspace.resultAdapter(rt.policy)) then return false end
+        local paidUses=0
+        for _,b in ipairs(slot.baselines) do
+            local item=b.item
+            if seen[item] or tostring(item:getID())~=b.id or item:getFullType()~=b.itemType then return false end
+            seen[item]=true
+            if slot.script:isKeep() then
+                expectedKept=expectedKept+1
+                if not kept:contains(item) or not ownItem(rt,item) then return false end
+            elseif b.partialUse then
+                expectedConsumed=expectedConsumed+1
+                local after=item:getCurrentUses();local delta=b.uses-after
+                if not consumed:contains(item) or not integer(after) or after<0 or delta<=0 or delta>b.uses
+                    or (after>0 and not ownItem(rt,item))
+                    or (item:getContainer()~=nil and not ownItem(rt,item)) then return false end
+                paidUses=paidUses+delta
+            else
+                expectedConsumed=expectedConsumed+1
+                if not consumed:contains(item) or ownItem(rt,item) or craftCarried(rt.body,b.id,b.itemType) then return false end
+            end
         end
-    end end
+        if partial and paidUses~=amount then return false end
+    end
     return consumed:size()==expectedConsumed and kept:size()==expectedKept
 end
+
 function workspace.newEntity(rt,containers)
     if not collector.entityClass then
         collector.entityClass=ISBuildIsoEntity:derive("SAORainCollectorEntity")
@@ -4379,12 +4457,7 @@ function R.workspaceOptions(id,body,demand,means,sites)
                                 and(not SAO.WorldSources.recipeInputAvailable or SAO.WorldSources.recipeInputAvailable(id,tostring(item:getID()))==true)
                         end},containers)
                         if selected then
-                            local callback=policy.info:getScript():getOnCreate()
-                            local supported=not policy.info:getScript():isProp()and(callback==nil or callback=="")
-                                and policy.info:getScript():getPreviousStages():isEmpty()
-                            for _,slot in ipairs(selected.slots)do for _,baseline in ipairs(slot.baselines)do
-                                if baseline.partialUse then supported=false end
-                            end end
+                            local supported=workspace.selectionSupported(policy,selected)
                             option.recipeInputs={}
                             for _,slot in ipairs(selected.slots)do local row={index=slot.index,items={}}
                                 for n=0,slot.items:size()-1 do local item=slot.items:get(n);row.items[#row.items+1]={itemId=tostring(item:getID()),itemType=item:getFullType()}end
@@ -4414,9 +4487,7 @@ function workspace.begin(id,body,step,context)
     if not p or not p.workspaceConstruction or p.admission or p.steps[p.cursor]~=step or step.id~=context.purposeStepId then return false end
     local policy=C.describe(step.entityId,body,step.constructionDemand,{face=step.site.face,cursor=step.site.cursor})
     if not policy or not policy.admissible or policy.recipe:getScriptObjectFullType()~=step.recipeId
-        or policy.info:getScript():isProp() then return false end
-    local onCreate=policy.info:getScript():getOnCreate()
-    if onCreate~=nil and onCreate~="" then return false end
+        or not workspace.resultAdapter(policy) then return false end
     local bindings=recipeWork.inputMap(step.recipeInputs);if not bindings then return false end
     local inventory=body:getInventory();local containers=ArrayList.new();containers:add(inventory)
     local selected=C.selectInputs(policy,body,{ownerId=id,purposeId=policy.recipePolicy.purpose.id,canUse=function(item,index)
@@ -4425,10 +4496,10 @@ function workspace.begin(id,body,step,context)
             and inventory:getItems():contains(item) and (not SAO.WorldSources.recipeInputAvailable
                 or SAO.WorldSources.recipeInputAvailable(id,tostring(item:getID()))==true)
     end},containers)
-    if not selected then return false end
+    if not selected or not workspace.selectionSupported(policy,selected) then return false end
     local materials={}
     for _,slot in ipairs(selected.slots) do for _,b in ipairs(slot.baselines) do
-        if b.partialUse then return false end;materials[#materials+1]=b.item
+        materials[#materials+1]=b.item
     end end
     local world=getWorld();if not world then return false end
     local seq=(rec.resourceProductionSequence or 0)+1

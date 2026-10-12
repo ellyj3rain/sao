@@ -2787,6 +2787,18 @@ if ! "$PY" tools/d3_workspace_consumer_test.py --out "$sao_d3_proof/workspace-co
     note "BORDER FINDING - native workspace supply, result correspondence or original requesting use differs"
     fail=1
 fi
+if ! "$PY" tools/d3_workspace_consumer_test.py --case prop --out "$sao_d3_proof/workspace-prop"; then
+    note "BORDER FINDING - native prop payment, saved source correspondence or original requesting use differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_workspace_consumer_test.py --case prop-negative --out "$sao_d3_proof/workspace-prop-negative"; then
+    note "BORDER FINDING - native prop script identity or unrelated replacement refusal differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_workspace_consumer_test.py --case prop-negative --control prop-script --out "$sao_d3_proof/workspace-prop-script-control"; then
+    note "BORDER FINDING - native prop script predicate omission was not detected"
+    fail=1
+fi
 if ! "$PY" tools/d3_material_categories_test.py --out "$sao_d3_proof/materials"; then
     note "BORDER FINDING - exact native construction-material admission differs"
     fail=1

@@ -25,8 +25,8 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.7.3.0-pre-alpha` |
-| Classified delivered scope | `A1-D3.20` |
+| Current version | `2.7.4.0-pre-alpha` |
+| Classified delivered scope | `A1-D3.21` |
 | Current C generation | `20261005-product-consolidation` |
 | Feature-scope reconciliation | [20261010](Batches/VERSION_SCOPE_RECONCILIATION.json); prior replay retained |
 | Unconsumed scope | `D3` |
@@ -231,6 +231,7 @@ the machine. Names, dates, and threads below come from
 | `D3.18` | 2026-10-12 | kohai | `2.7.1.0-pre-alpha` | Furniture relocation through usable recovery | Original shared human/NPC furniture relocation conserves native members and contents through private observation, alteration and passage Standing, individual interpretation, actual effort/retreat and measured effects; fresh ordinary native recovery, independent benefit and interrupted/reconstructed/once-only saved work form useful progress within OPEN D3. Full construction/crafting/repair/utilities and shared learning remain unfinished. |
 | `D3.19` | 2026-10-12 | kohai | `2.7.2.0-pre-alpha` | Purpose-bound stock production and upkeep | Purpose-bound native stock/upkeep joins personal source inquiry and exact ingredient acquisition, current registered IO/quantity/state/knowledge/workplace, original physical payment/effect and fresh held/dropped output to actual retained requesting use, independent feedback and interrupted/rebound/once-only saved work. Useful progress within OPEN full D3; source/service/authority and shared learning obligations remain. |
 | `D3.20` | 2026-10-12 | kohai | `2.7.3.0-pre-alpha` | Native workspace materials, construction and requesting use | Ordinary private missing-workspace demand joins actual logging, exact native dropped-input acquisition and SawLogs stock, original full paid native construction, canonical persisted result relationship and cold current workspace to the original crafting/upkeep use, independent feedback and interrupted/rebound/replay continuity. Useful progress within unfinished full D3; complete source/service/authority and shared learning obligations remain. |
+| `D3.21` | 2026-10-12 | kohai | `2.7.4.0-pre-alpha` | Native furnishing factories and current functional use | Original native furnishing factory final results and exact partial-use payment join ordinary private source inquiry/material acquisition/default choice, paid Stool construction, current and cold canonical native surface, original Whetstone/Scissors use, source-aware independent feedback and saved once-only continuity. Useful progress within unfinished full D3; source/service/authority and shared model adoption remain. |
 
 Dotted labels record child scope. Each capability row above receives credit once;
 child delivery leaves its explicitly active parent open. Closed parent aggregation
@@ -354,6 +355,6 @@ another batch. Subsequent delivered work determines its own tier:
 
 | If newly delivered scope is | Result |
 |---|---|
-| patch or hotfix | `2.7.3.1-pre-alpha` |
-| kohai | `2.7.4.0-pre-alpha` |
+| patch or hotfix | `2.7.4.1-pre-alpha` |
+| kohai | `2.7.5.0-pre-alpha` |
 | minor | `2.8.0.0-pre-alpha` |
