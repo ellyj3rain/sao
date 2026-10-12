@@ -411,6 +411,12 @@ SCOPED['d3_recipe_consumer_test.py'] = (
     'controller/native stock/upkeep, dropped stock, original requesting use, '
     'independent feedback and save/lifecycle with omission controls. Select affected '
     'producer/consumer owners; optional native absence remains NATIVE_UNAVAILABLE.')
+SCOPED['d3_workspace_consumer_test.py'] = (
+    'D3.20 actual personal native material extraction/acquisition, original stock '
+    'production, full workspace placement, canonical native result correspondence '
+    'through save/rebind and original requesting use. Select affected source, '
+    'producer/observer/consumer and lifecycle contracts; native absence remains '
+    'explicit NATIVE_UNAVAILABLE, while missing owned inputs always fail.')
 
 FAILS = re.compile(r"return 1\b|sys\.exit\(1\)|else 1\b")
 

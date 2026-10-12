@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.7.2.0-pre-alpha` |
+| Version | `2.7.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -18,6 +18,8 @@ The 2026-10-03 map grouped the retained source history into 35 shared ownership 
 ## Development catalogue
 
 Active: [D3 — Construction, crafting, repair and utilities](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md)
+
+Current qualified child: [D3.20 — Native workspace materials, construction and requesting use](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md), CLOSED inside OPEN D3.
 
 Current qualified child: [D3.19 — Purpose-bound stock production and upkeep](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md), CLOSED inside OPEN D3.
 
@@ -672,3 +674,11 @@ remains its separate publication evidence; full D3 stays active.
 | Batch | Date | Name | Threads |
 |---|---|---|---|
 | [D3.19](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md) | 2026-10-12 | Purpose-bound stock production and upkeep | Private source inquiry/acquisition, original native stock/upkeep, fresh output and retained requesting use |
+
+D3.19 protected publication actually completed through PR162 at `c356234069b5034b91ae3875273e8c1065dd3295`. D3.20 is prerecorded above; no delivered row or version credit applies at opening.
+
+## Native workspace materials, construction and requesting use — 2026-10-12 19:18 UTC / 12:18 PDT
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D3.20](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md) | 2026-10-12 | Native workspace materials, construction and requesting use | Private source inquiry, original logging/ground acquisition/SawLogs, paid native build, cold result relationship and original upkeep |

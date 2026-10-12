@@ -3505,6 +3505,25 @@ rebuildKnownSources = function(belief)
     belief.sourceRevision = table.concat(revisions, ",")
 end
 
+-- Personally inspected types survive a summary refresh of the same holder.
+-- They motivate inquiry; they carry no current item identity or quantity.
+local function retainSourceItemTypes(fact,prior)
+    if type(fact)~="table" then return fact end
+    local types={}
+    local function remember(value)
+        if type(value)=="string"and #value>0 and #value<=160 then types[value]=true end
+    end
+    if type(prior)=="table"and prior.id==fact.id and prior.fingerprint==fact.fingerprint then
+        for _,value in ipairs(prior.rememberedItemTypes or{})do remember(value)end
+        for _,item in ipairs(prior.observedItems or{})do remember(item.type)end
+    end
+    for _,item in ipairs(fact.observedItems or{})do remember(item.type)end
+    local known={};for value in pairs(types)do known[#known+1]=value end
+    SAO.Ordering.sort(known,function(a,b)return a<b end)
+    if #known>0 then fact.rememberedItemTypes=known end
+    return fact
+end
+
 -- Refresh only the source this actor physically handled. Whole-building
 -- learning here would reveal unrelated changes made outside their observation.
 function P.learnSource(id, place, sourceId, tick, source)
@@ -3514,6 +3533,7 @@ function P.learnSource(id, place, sourceId, tick, source)
     local belief = b.known[place.id] or b.known[tostring(place.id)]
     if not belief then return false end
     belief.sourceFacts = belief.sourceFacts or {}
+    local priorFact = belief.sourceFacts[tostring(sourceId)]
     belief.sourceFacts[tostring(sourceId)] = nil
     local fact = nil
     pcall(function() fact = SAO.WorldSources.beliefFact(sourceId, nil, id) end)
@@ -3522,7 +3542,7 @@ function P.learnSource(id, place, sourceId, tick, source)
             and place.maxX and place.maxY
             and fact.x >= place.minX and fact.x < place.maxX
             and fact.y >= place.minY and fact.y < place.maxY))
-    if belongs then belief.sourceFacts[tostring(sourceId)] = fact end
+    if belongs then belief.sourceFacts[tostring(sourceId)] = retainSourceItemTypes(fact,priorFact) end
     rebuildKnownSources(belief)
     belief.at = tick or b.lastScanAt
     belief.source = tostring(source or "observed-source")
@@ -3558,7 +3578,7 @@ function P.learnInspectedSource(id, place, sourceId, tick, source)
     local priorFact = belief.sourceFacts[tostring(sourceId)]
     if source == "native-visible-ground" and priorFact and priorFact.knowledgeKind ~= "visible-ground"
         and priorFact.revision == fact.revision and priorFact.fingerprint == fact.fingerprint then fact = priorFact end
-    belief.sourceFacts[tostring(sourceId)] = fact
+    belief.sourceFacts[tostring(sourceId)] = retainSourceItemTypes(fact,priorFact)
     rebuildKnownSources(belief)
     belief.at = tick or b.lastScanAt
     belief.source = tostring(source or "unknown")
@@ -4807,6 +4827,206 @@ function P.recipeWorkplace(id,body,anchor)
  if not ok or type(current)~="table" or not current.object or current.key~=anchor.key
   or current.revision~=anchor.revision or not collectorObserver(id,body) then return nil end
  return current
+end
+
+-- Acquired source/site facts stay in this existing person's belief store.
+local function workFactCopy(value,seen)
+    if type(value)=="number"then return finiteSoundNumber(value)and value or nil end
+    if type(value)=="string"or type(value)=="boolean"then return value end
+    if type(value)~="table"or getmetatable(value)then return nil end
+    seen=seen or{};if seen[value]then return nil end;seen[value]=true
+    local out={};for key,item in pairs(value)do
+        if type(key)~="string"and type(key)~="number"then return nil end
+        local copied=workFactCopy(item,seen);if copied==nil then return nil end;out[key]=copied
+    end
+    seen[value]=nil;return out
+end
+local function workFactEqual(a,b)
+    if type(a)~=type(b)then return false end
+    if type(a)~="table"then return a==b end
+    if getmetatable(a)or getmetatable(b)then return false end
+    for key,value in pairs(a)do if not workFactEqual(value,b[key])then return false end end
+    for key in pairs(b)do if a[key]==nil then return false end end
+    return true
+end
+function P.observeConstructionSite(id,body,mean,x,y,z,radius)
+    if not collectorObserver(id,body)or type(mean)~="table"or not SAOJavaBridge.constructionSite then return nil end
+    local face=type(mean.face)=="string"and mean.face:upper()or nil
+    local ok,row=pcall(function()return SAOJavaBridge:constructionSite(body,mean.entityId,face,mean.cursor,x,y,z,radius)end)
+    if not ok or type(row)~="table"or row.actorId~=id or row.entityId~=mean.entityId or row.recipeId~=mean.recipeId
+        or row.face~=face or row.cursor~=mean.cursor or type(row.key)~="string"or type(row.revision)~="string"then return nil end
+    local fact=workFactCopy(row);local at=SAO.History.countyHours()
+    if not fact or not finiteSoundNumber(at)or not collectorObserver(id,body)then return nil end
+    fact.source="native-personal-visibility";fact.observed=true;fact.nativeObservedAtHours=fact.observedAtHours;fact.observedAtHours=at
+    local b=store(id);b.constructionSites=b.constructionSites or{};b.constructionSites[fact.key]=fact
+    P.beliefVersion=P.beliefVersion+1;return workFactCopy(fact)
+end
+function P.constructionSites(id,body,entityId)
+    if not collectorObserver(id,body)then return{}end
+    local rows={};for _,fact in pairs(store(id).constructionSites or{})do
+        if fact.actorId==id and fact.source=="native-personal-visibility"and fact.observedAtHours<=SAO.History.countyHours()
+            and(not entityId or fact.entityId==entityId)then rows[#rows+1]=workFactCopy(fact)end
+    end
+    SAO.Ordering.sort(rows,function(a,b)return a.key<b.key end);return rows
+end
+local function acquiredConstructionSite(id,body,site)
+    if not collectorObserver(id,body)or type(site)~="table"then return nil end
+    local acquired=store(id).constructionSites and store(id).constructionSites[site.key]
+    if not acquired or acquired.actorId~=id or acquired.source~="native-personal-visibility"
+        or acquired.observedAtHours>SAO.History.countyHours()or not SAO.ResourceProduction then return nil end
+    for _,key in ipairs({"key","revision","sourceRevision","entityId","recipeId","face","cursor","x","y","z","approachX","approachY","approachZ"})do
+        if acquired[key]~=site[key]then return nil end
+    end
+    if not workFactEqual(acquired.geometry,site.geometry)then return nil end
+    return acquired
+end
+function P.constructionSiteSquare(id,body,site)
+    if not acquiredConstructionSite(id,body,site)or not SAOJavaBridge.exactConstructionSite then return nil end
+    local ok,square=pcall(function()return SAOJavaBridge:exactConstructionSite(body,site)end)
+    return ok and collectorObserver(id,body)and square or nil
+end
+function P.constructionSiteCurrent(id,body,site,pre)
+    if not acquiredConstructionSite(id,body,site)then return false end
+    if not pre then return true end
+    local ok,current=pcall(function()return SAOJavaBridge:constructionSite(body,site.entityId,site.face,site.cursor,site.x,site.y,site.z,SAO.Needs.PERCEPTION_TILES)end)
+    return ok and type(current)=="table"and current.actorId==id and current.key==site.key and current.revision==site.revision
+        and collectorObserver(id,body)~=nil or false
+end
+function P.constructionMeansCurrent(id,body,own)
+    if not collectorObserver(id,body)or type(own)~="table"or not SAOJavaBridge.constructionMeans then return false end
+    local request={actorId=id,purposeId=own.parentPurposeId,stepId=own.parentStepId,recipeId=own.requestingRecipeId,
+        sourceRevision=own.constructionDemand.sourceRevision,nativeRevision=own.requestingNativeRevision,anySurface=own.anySurface==true,specificWorkstation=own.specificWorkstation==true}
+    local ok,rows=pcall(function()return SAOJavaBridge:constructionMeans(body,request)end)
+    if not ok or type(rows)~="table"then return false end
+    for _,mean in ipairs(rows)do
+        if mean.entityId==own.entityId and mean.recipeId==own.recipeId and mean.face:upper()==own.site.face:upper()and mean.cursor==own.site.cursor
+            and mean.nativeRevision==own.nativeRevision and mean.knowledgeKind==own.knowledgeKind and mean.acquisitionId==own.acquisitionId then return true end
+    end
+    return false
+end
+function P.constructedWorkspaceMatches(id,body,workId,anchor)
+    if not collectorObserver(id,body)then return false end
+    local canonical=SAO.ResourceProduction.outcome(id,workId)
+    if not canonical or canonical.actorId~=id or canonical.kind~="build-place"or canonical.status~="completed"or canonical.nativeCredit~=canonical.id then return false end
+    local measurement=canonical.resultMeasurement
+    if type(measurement)~="table"or measurement.sourceEntityId~=canonical.entityId or measurement.recipeId~=canonical.recipeId then
+        return false,"result-native-instance-binding-unavailable"
+    end
+    local current=P.recipeWorkplace(id,body,anchor);local object=current and current.object
+    if not object then return false end
+    local world=getWorld and getWorld()
+    if not world or not world.getWorld or world:getWorld()~=canonical.world then return false end
+    for index,part in ipairs(measurement.parts or{})do
+        local bound=part.recipeWorkplace
+        if part.sourceEntityId==canonical.entityId and part.factoryPath==measurement.factoryPath
+            and object:getX()==part.x and object:getY()==part.y and object:getZ()==part.z
+            and object:getSpriteName()==part.sprite then
+            local nativeEntity=object:getEntityScript()
+            local nativeMatches=part.entityId==nil and nativeEntity==nil or nativeEntity and nativeEntity:getScriptObjectFullType()==part.entityId
+            if nativeMatches then
+                local relation=part.physicalResult
+                local expected=canonical.site and {schema="sao.native-physical-result/1",workId=canonical.id,actorId=canonical.actorId,
+                    world=canonical.world,bodyToken=canonical.bodyToken,partIndex=index,sourceEntityId=canonical.entityId,recipeId=canonical.recipeId,
+                    siteKey=canonical.site.key,sourceRevision=canonical.site.sourceRevision,face=canonical.site.face,cursor=canonical.site.cursor,
+                    x=part.x,y=part.y,z=part.z,sprite=part.sprite,nativeClass=part.nativeClass}
+                local validRelation=type(relation)=="table"and expected and workFactEqual(relation,expected)
+                    and workFactEqual(object:getModData().SAOPhysicalResult,relation)
+                if relation~=nil and not validRelation then return false end
+                if type(bound)=="table"and anchor.key==bound.key and anchor.revision==bound.revision
+                    and anchor.x==bound.x and anchor.y==bound.y and anchor.z==bound.z then return true end
+                if validRelation and SAOJavaBridge.constructionCreated then
+                    -- Read the full source geometry/current physical facts;
+                    -- never stamp, repair or promote an observed relation.
+                    local parts={}
+                    for partIndex,recorded in ipairs(measurement.parts)do
+                        local square=body:getCell():getGridSquare(recorded.x,recorded.y,recorded.z)
+                        if not square then return false end
+                        local exact
+                        for objectIndex=0,square:getObjects():size()-1 do
+                            local candidate=square:getObjects():get(objectIndex)
+                            if candidate:getSpriteName()==recorded.sprite and type(recorded.physicalResult)=="table"
+                                and workFactEqual(candidate:getModData().SAOPhysicalResult,recorded.physicalResult)then
+                                if exact then return false end;exact=candidate
+                            end
+                        end
+                        if not exact then return false end;parts[partIndex]=exact
+                    end
+                    local site=canonical.site
+                    local ok,observed=pcall(function()return SAOJavaBridge:constructionCreated(body,parts,canonical.entityId,site.face,site.cursor,site.x,site.y,site.z)end)
+                    local measured=ok and observed and observed.parts and observed.parts[index]
+                    if measured and observed.sourceRevision==measurement.sourceRevision and workFactEqual(observed.geometry,measurement.geometry)
+                        and measured.nativeClass==part.nativeClass and measured.sourceEntityId==part.sourceEntityId
+                        and measured.factoryPath==part.factoryPath and workFactEqual(measured.physicalResult,relation)then return true end
+                end
+            end
+        end
+    end
+    return false,"result-native-instance-binding-unavailable"
+end
+
+local function extractionFact(row)
+    if type(row)~="table"or getmetatable(row)or row.present~=true or type(row.sourceId)~="string"then return nil end
+    local fact={sourceId=row.sourceId,kind=row.kind,bodyIdentity=row.bodyIdentity,sourceIdentity=row.sourceIdentity,
+        squareIdentity=row.squareIdentity,x=row.x,y=row.y,z=row.z,sprite=row.sprite,health=row.health,size=row.size,shovelled=row.shovelled==true}
+    fact.sourceRevision=table.concat({fact.sourceId,tostring(fact.bodyIdentity),tostring(fact.squareIdentity),tostring(fact.sprite),tostring(fact.health),tostring(fact.size),tostring(fact.shovelled)},"|")
+    return fact
+end
+function P.observeExtractionSource(id,body,object,square,radius)
+    if not collectorObserver(id,body)or not SAOJavaBridge.extractionSourceObservation then return nil end
+    local ok,row=pcall(function()return SAOJavaBridge:extractionSourceObservation(body,object,square,radius)end)
+    local fact=ok and extractionFact(row)
+    if not fact or row.actorId~=id or not collectorObserver(id,body)then return nil end
+    fact.actorId=id;fact.source="native-personal-visibility";fact.observedAtHours=SAO.History.countyHours()
+    local b=store(id);b.extractionSources=b.extractionSources or{};b.extractionSources[fact.sourceId]=fact
+    P.beliefVersion=P.beliefVersion+1;return workFactCopy(fact)
+end
+-- A retained material inquiry uses the original observer on locally visible
+-- native trees. Their registration supplies no private source knowledge.
+function P.observeExtractionSources(id,body,radius)
+    radius=radius or 3
+    if not collectorObserver(id,body)or not finiteSoundNumber(radius)or radius~=math.floor(radius)or radius<1 or radius>8 then return false end
+    local cell=body:getCell();local x,y,z=math.floor(body:getX()),math.floor(body:getY()),math.floor(body:getZ())
+    for dx=-radius,radius do for dy=-radius,radius do
+        if dx*dx+dy*dy<=radius*radius then
+            local square=cell:getGridSquare(x+dx,y+dy,z)
+            if square then
+                local objects=square:getObjects()
+                for index=0,objects:size()-1 do
+                    local object=objects:get(index)
+                    if instanceof(object,"IsoTree")then P.observeExtractionSource(id,body,object,square,radius)end
+                end
+            end
+        end
+    end end
+    return collectorObserver(id,body)~=nil
+end
+function P.extractionSources(id,body,kind)
+    if not collectorObserver(id,body)then return{}end
+    local rows={};for _,fact in pairs(store(id).extractionSources or{})do
+        if fact.actorId==id and fact.source=="native-personal-visibility"and fact.observedAtHours<=SAO.History.countyHours()
+            and(not kind or fact.kind==kind)then rows[#rows+1]=workFactCopy(fact)end
+    end
+    SAO.Ordering.sort(rows,function(a,b)return a.sourceId<b.sourceId end);return rows
+end
+function P.extractionSource(id,body,anchor)
+    if not collectorObserver(id,body)or type(anchor)~="table"or not SAOJavaBridge.extractionSourceObservation then return nil end
+    local known=store(id).extractionSources and store(id).extractionSources[anchor.sourceId]
+    if not known or known.actorId~=id or known.source~="native-personal-visibility"or known.sourceRevision~=anchor.sourceRevision then return nil end
+    local square=body:getCell():getGridSquare(anchor.x,anchor.y,anchor.z)
+    if not square then return nil end
+    local objects=square:getObjects()
+    for i=0,objects:size()-1 do
+        local object=objects:get(i)
+        local ok,row=pcall(function()return SAOJavaBridge:extractionSourceObservation(body,object,square,3)end)
+        local fact=ok and extractionFact(row)
+        if fact and row.actorId==id and fact.sourceId==anchor.sourceId and fact.sourceRevision==anchor.sourceRevision then
+            return{object=object,square=square,observe=function(currentBody,currentObject,currentSquare,radius)
+                if currentBody~=body or currentObject~=object or currentSquare~=square or not collectorObserver(id,body)then return nil end
+                return SAOJavaBridge:extractionSourceObservation(body,object,square,radius)
+            end}
+        end
+    end
+    return nil
 end
 
 return P

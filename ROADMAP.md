@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.7.2.0-pre-alpha` |
+| Version | `2.7.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -491,3 +491,7 @@ Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md
 ## Stock/upkeep through retained requesting work (D3.19)
 
 [D3.19](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md) closes useful private acquisition→native production/maintenance→fresh output→original use progress. Complete D3 retains native construction repertoire, extraction/site preparation, equipment and service maintenance, original utilities and authoritative execution. Qualified supporting policy/extraction units join those actual consumers next. The whole wider goal set and D4-D6 FIFO remain; package/merge, archive admission and model mastery retain separate evidence.
+
+## Native workspace materials and original use (D3.20)
+
+[D3.20](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md) closes useful ordinary person logging/acquisition/material/construction/cold-workspace/original-use progress. Complete D3 retains source-specific prop/callback/stage/resource results, material/site/finishing work, equipment/service maintenance, five original utilities and required authoritative execution. Full accepted parent and broader goals remain active; D4-D6 follow FIFO.

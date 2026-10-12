@@ -25,6 +25,9 @@ local HOBBY_RESULT = {}
 local GENERATOR_RESULT = {}
 local GENERATOR_READING_RESULT = {}
 local RECIPE_RESULT = {}
+local WORKSPACE_RESULT = {}
+local EXTRACTION_RESULT = {}
+local noteExtractionInputAcquired
 
 local MAX_PURPOSES, MAX_FACTS, MAX_EVENTS = 12, 64, 32
 local MAX_RESIDENCE_ATTEMPTS = 16
@@ -3878,6 +3881,11 @@ function P.recordResult(id, purposeId, result, authority)
             or step.owner=="SAO.Study" and authority~=RECIPE_READING_RESULT
             or step.owner~="SAO.ResourceProduction" and step.owner~="SAONeeds" and step.owner~="SAO.SourceUse" and step.owner~="SAO.Study" then return false end
     end
+    if purpose and purpose.workspaceConstruction then
+        if not step or step.owner=="SAO.ResourceProduction" and authority~=WORKSPACE_RESULT
+            or (step.owner=="SAO.SourceUse" or step.owner=="SAO.WorldSources") and authority~=RESOURCE_RESULT
+            or step.owner~="SAO.ResourceProduction" and step.owner~="SAO.SourceUse" and step.owner~="SAO.WorldSources" then return false end
+    end
     if purpose and purpose.bedConstruction then
         if not step or step.owner=="SAO.ResourceProduction" and authority~=BED_RESULT
             or step.owner=="SAONeeds" and authority~=BED_RECOVERY_RESULT
@@ -3892,13 +3900,15 @@ function P.recordResult(id, purposeId, result, authority)
         if step.owner == "SAO.ResourceProduction" and (step.verb ~= "produce"
             or step.token == "resource:crafted" and authority ~= CRAFT_RESULT
             or step.token == "resource:repaired" and authority ~= REPAIR_RESULT
+            or step.token == "resource:place-built" and authority ~= WORKSPACE_RESULT
+            or step.token == "resource:extracted" and authority ~= EXTRACTION_RESULT
             or step.token == "resource:bed-built" and authority ~= BED_RESULT
             or step.token == "resource:shelter-built" and authority ~= SHELTER_RESULT
             or step.token == "resource:shelter-used" and authority ~= SHELTER_USE_RESULT
             or step.token == "resource:window-installed" and authority ~= WINDOW_GLAZING_RESULT
             or (step.token == "resource:recipe-produced" or step.token == "resource:recipe-maintained") and authority ~= RECIPE_RESULT
             or step.token ~= "resource:crafted" and step.token ~= "resource:repaired" and step.token ~= "resource:bed-built" and step.token ~= "resource:shelter-built" and step.token ~= "resource:shelter-used" and step.token ~= "resource:window-installed"
-                and step.token ~= "resource:recipe-produced" and step.token ~= "resource:recipe-maintained") then return false end
+                and step.token ~= "resource:recipe-produced" and step.token ~= "resource:recipe-maintained" and step.token ~= "resource:place-built" and step.token ~= "resource:extracted") then return false end
     end
     if purpose and purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
     if purpose and purpose.noteReading and authority ~= NOTE_RESULT then return false end
@@ -4220,6 +4230,9 @@ function P.consumeSourceResult(receipt)
     }, RESOURCE_RESULT)
     if accepted and completed and (purpose.shelterConstruction or purpose.gateAccess) and purpose.status=="completed" then
         purpose.status="maintained";purpose.blockers={"awaiting native construction, use and ordinary recovery"}
+    end
+    if accepted and completed and noteExtractionInputAcquired then
+        noteExtractionInputAcquired(receipt.actorId,purpose,step,authoritative)
     end
     if accepted and acquisition then
         if completed then acquisition.resultId=authoritative.reservationId else acquisition.failedAt=nowHours() end
@@ -5371,7 +5384,7 @@ function P.recipePurpose(id,purposeId)
  for index=#(s and s.order or {}),1,-1 do
   local key=s.order[index]
   local p=s.purposes[key]
-  if p and p.recipeSupply and (not purposeId or p.id==purposeId)
+  if p and p.recipeSupply and (not p.workspaceConstruction or purposeId~=nil) and (not purposeId or p.id==purposeId)
    and p.status~="completed" and p.status~="abandoned" then return p,p.steps[p.cursor] end
  end
 end
@@ -5443,11 +5456,11 @@ function P.planRecipeWork(id,context)
  local view=interpretations(id,choices,{domain="construction",pressure=context.pressure or 0,atHours=nowHours()})
  local selected=view and offers[view.selected]
  if not selected then p.status="blocked";p.blockers={"recipe-work-deferred"};return p,nil,"recipe-work-deferred" end
- local supply=p.recipeSupply;supply.recipeId=selected.recipeId;supply.requirements=dataCopy(selected.requirements,0,12,256)
+ local supply=p.recipeSupply;supply.recipeId=selected.recipeId;supply.nativeRevision=selected.nativeRevision;supply.requirements=dataCopy(selected.requirements,0,12,256)
  supply.knowledgeKind,supply.acquisitionId=selected.knowledgeKind,selected.acquisitionId
  local produce={id="recipe-produce:"..selected.recipeId..":"..tostring(p.recipeSupply.productionAttempt or 1),verb="produce",owner="SAO.ResourceProduction",
   token=d.kind=="recipe-stock" and "resource:recipe-produced" or "resource:recipe-maintained",
-  target=selected.recipeId,recipeId=selected.recipeId,sourceRevision=d.sourceRevision,productionKind=d.kind,
+  target=selected.recipeId,recipeId=selected.recipeId,sourceRevision=d.sourceRevision,nativeRevision=selected.nativeRevision,productionKind=d.kind,
   category="material",recipeDemand=dataCopy(d,0,12,256),recipeInputs=dataCopy(selected.recipeInputs,0,12,256),
   recipeWorkplace=dataCopy(selected.recipeWorkplace),status=selected.ready and "available" or "blocked"}
  local steps,blockers={},{ }
@@ -5702,6 +5715,322 @@ function P.reconcileRecipeConsumers(id,body)
    end
   end
  end
+ return true
+end
+
+-- Existing personal planning owner. WORKSPACE_RESULT is its private result
+-- authority; native construction and SourceUse keep their physical ownership.
+function P.workspacePurpose(id,purposeId)
+    local s=state(id)
+    for index=#(s and s.order or {}),1,-1 do
+        local p=s.purposes[s.order[index]]
+        if p and p.workspaceConstruction and (not purposeId or p.id==purposeId)
+            and p.status~="completed" and p.status~="abandoned" then return p,p.steps[p.cursor] end
+    end
+end
+function P.planWorkspaceConstruction(id,context)
+    context=type(context)=="table" and context or {};local rec=record(id);local s=state(id,true)
+    local parent=s and s.purposes[context.parentPurposeId]
+    local requesting=parent and parent.steps and parent.steps[parent.cursor]
+    local demand=context.demand
+    if not rec or rec.dead or not parent or parent.status=="completed" or parent.status=="abandoned"
+        or not requesting or requesting.id~=context.parentStepId or requesting.recipeId~=context.requestingRecipeId
+        or type(demand)~="table" or demand.kind~="build-place" or demand.parentId~=parent.id
+        or demand.stepId~=requesting.id or demand.sourceRevision~=requesting.sourceRevision then return nil,nil,"original-workspace-request-changed" end
+    local p=purposeByKey(s,"workspace-demand:"..demand.id)
+    if p and (p.admission or p.workspaceConstruction.builtWorkId) then return p,p.steps[p.cursor] end
+    local choices={{id="continue",evidence=1,continuity=.7,novelty=0,informationGain=0,blockers=0,utility=.1}}
+    local offers={}
+    for _,option in ipairs(context.options or {}) do
+        if option.kind=="build-place" and option.owner=="SAO.ResourceProduction" and option.known==true
+            and recipeSame(option.constructionDemand,demand) and type(option.site)=="table"
+            and option.site.actorId==id and option.site.observed==true and finite(option.site.observedAtHours)
+            and option.site.observedAtHours<=nowHours() and type(option.requirements)=="table" then
+            local key="workspace:"..option.entityId..":"..option.site.key
+            if not offers[key] then
+                offers[key]=option
+                choices[#choices+1]={id=key,evidence=1,continuity=p and p.workspaceConstruction.entityId==option.entityId and 1 or .7,
+                    novelty=.1,informationGain=.2,blockers=(option.ready or option.inputSourcesKnown) and 0 or 1,
+                    workspaceConstruction={parentPurposeId=parent.id,parentStepId=requesting.id,requestingRecipeId=requesting.recipeId,
+                        requestingNativeRevision=requesting.nativeRevision,anySurface=context.anySurface==true,specificWorkstation=context.specificWorkstation==true,
+                        constructionDemand=dataCopy(demand,0,12,256),entityId=option.entityId,recipeId=option.recipeId,
+                        site=dataCopy(option.site,0,12,256),nativeRevision=option.nativeRevision,knowledgeKind=option.knowledgeKind,acquisitionId=option.acquisitionId},
+                    consequences={{kind="construct",category="construction",sourceId=option.site.key,itemType=option.entityId,value=context.pressure or .5}}}
+            end
+        end
+    end
+    SAO.Ordering.sort(choices,function(a,b)
+        if a.id=="continue"then return b.id~="continue"end;if b.id=="continue"then return false end
+        local ar,br=offers[a.id].ready==true,offers[b.id].ready==true
+        if ar~=br then return ar end;return a.id<b.id
+    end)
+    while #choices>16 do table.remove(choices)end
+    local view=interpretations(id,choices,{domain="construction",pressure=context.pressure or .5,atHours=nowHours()})
+    local chosen=view and offers[view.selected]
+    if not chosen then return p,nil,"workspace-means-deferred" end
+    p=p or P.maintain(id,{key="workspace-demand:"..demand.id,domain="construction",objective="make a workspace for retained native work",origin=parent.id,atHours=nowHours()})
+    if not p then return nil,nil,"purpose-capacity"end
+    local own=p.workspaceConstruction or {}
+    if own.constructionDemand and not recipeSame(own.constructionDemand,demand)then return p,nil,"workspace-demand-changed"end
+    own.parentPurposeId,own.parentStepId,own.requestingRecipeId=parent.id,requesting.id,requesting.recipeId
+    own.requestingNativeRevision=requesting.nativeRevision
+    own.anySurface,own.specificWorkstation=context.anySurface==true,context.specificWorkstation==true
+    own.nativeRevision=chosen.nativeRevision
+    own.constructionDemand=dataCopy(demand,0,12,256);own.entityId=chosen.entityId;own.recipeId=chosen.recipeId
+    own.site=dataCopy(chosen.site,0,12,256);own.knowledgeKind,own.acquisitionId=chosen.knowledgeKind,chosen.acquisitionId
+    p.workspaceConstruction=own
+    -- Exact native input inquiry/acquisition uses the existing recipe-supply
+    -- contract. Default kit work continues to select stock/upkeep purposes.
+    p.recipeSupply=p.recipeSupply or {};p.recipeSupply.recipeId=chosen.recipeId
+    p.recipeSupply.knowledgeKind,p.recipeSupply.acquisitionId=chosen.knowledgeKind,chosen.acquisitionId
+    p.recipeSupply.requirements=dataCopy(chosen.requirements,0,12,256)
+    p.materialWork={operation="build-workspace",entryKey=own.site.key,recipeDemand=dataCopy(demand,0,12,256)}
+    local steps,blockers={},{}
+    local produce={id="workspace-build:"..chosen.entityId..":"..own.site.key,verb="produce",owner="SAO.ResourceProduction",
+        productionKind="build-place",token="resource:place-built",category="construction",target=chosen.entityId,
+        entityId=chosen.entityId,recipeId=chosen.recipeId,sourceRevision=demand.sourceRevision,
+        site=dataCopy(own.site,0,12,256),constructionDemand=dataCopy(demand,0,12,256),recipeInputs=dataCopy(chosen.recipeInputs,0,12,256),
+        status=chosen.ready and "available"or"blocked"}
+    if not chosen.ready then
+        for _,slot in ipairs(context.inputNeeds and context.inputNeeds[chosen.recipeId]and context.inputNeeds[chosen.recipeId].slots or {})do
+            if slot.channelStatus=="item"and tonumber(slot.remainingFraction)and slot.remainingFraction>0 then
+                local req=SAO.Material.recipeRequirement({requirements=chosen.requirements},slot.index)
+                if req then
+                    local stepId="workspace-input:"..chosen.recipeId..":"..slot.index
+                    req.purposeId,req.stepId,req.demandId=p.id,stepId,demand.id
+                    steps[1]={id=stepId,verb="acquire",owner="SAO.SourceUse",token="resource:acquired",category="recipe-input",
+                        target="native-slot:"..chosen.recipeId..":"..slot.index,recipeRequirement=req,quantity=1,quantityUnit="item",status="available"}
+                    p.recipeSupply.pendingInputIndex=slot.index;produce.status="dependent";break
+                end
+            end
+        end
+        if #steps==0 then blockers[1]=chosen.reason or"workspace-input-or-site-unavailable"end
+    end
+    steps[#steps+1]=produce
+    setPlan(p,steps,blockers,dataCopy(view),nowHours());return p,p.steps[p.cursor]
+end
+function P.workspaceRequestCurrent(id,work)
+    local s=state(id);local p=s and work and s.purposes[work.purposeId];local own=p and p.workspaceConstruction
+    local parent=own and s.purposes[own.parentPurposeId];local current=parent and parent.steps and parent.steps[parent.cursor]
+    if not own or not parent or parent.status=="completed"or parent.status=="abandoned"or not current
+        or current.id~=own.parentStepId or current.recipeId~=own.requestingRecipeId
+        or current.nativeRevision~=own.requestingNativeRevision or not recipeSame(work.constructionDemand,own.constructionDemand)
+        or own.constructionDemand.parentId~=parent.id or own.constructionDemand.stepId~=current.id
+        or current.sourceRevision~=own.constructionDemand.sourceRevision then return false end
+    return SAO.Perception.constructionMeansCurrent(id,SAO.Body.get(id),own)==true
+end
+function P.admitWorkspaceConstruction(id,work)
+    local p,step=P.workspacePurpose(id,work and work.purposeId)
+    local own=p and p.workspaceConstruction
+    if not own or p.admission or not step or step.status~="available"or step.verb~="produce"
+        or step.owner~="SAO.ResourceProduction"or step.productionKind~="build-place"or step.token~="resource:place-built"
+        or work.actorId~=id or work.purposeStepId~=step.id or work.entityId~=step.entityId or work.recipeId~=step.recipeId
+        or not recipeSame(work.site,step.site)or not recipeSame(work.constructionDemand,own.constructionDemand)
+        or not recipeSame(work.recipeInputs,step.recipeInputs)then return false end
+    local s=state(id);local parent=s and s.purposes[own.parentPurposeId]
+    local current=parent and parent.steps[parent.cursor]
+    if not current or current.id~=own.parentStepId or current.recipeId~=own.requestingRecipeId
+        or parent.status=="completed"or parent.status=="abandoned"then return false end
+    if not P.workspaceRequestCurrent(id,work) then return false end
+    return P.noteAdmission(id,p.id,"SAO.ResourceProduction",work.id,step.id)
+end
+function P.consumeWorkspaceConstructionResult(id,supplied)
+    local c=type(supplied)=="table"and SAO.ResourceProduction.outcome(id,supplied.id)
+    if not c or c.actorId~=id or c.kind~="build-place"or c.token~="resource:place-built"
+        or c.nativeOwner~="ISBuildAction"or not finite(c.atHours)or c.atHours>nowHours()then return false end
+    local s=state(id);local p=s and s.purposes[c.purposeId]
+    if not p or p.status=="abandoned"then return true end
+    for _,key in ipairs(p.resultReceipts or {})do if key=="SAO.ResourceProduction:"..c.id then return true end end
+    local own,step,a=p.workspaceConstruction,p.steps[p.cursor],p.admission
+    if not own or not step or not a or a.owner~="SAO.ResourceProduction"or a.correlationId~=c.id
+        or a.stepId~=step.id or c.purposeStepId~=step.id or c.atHours<a.at or c.entityId~=step.entityId
+        or c.recipeId~=step.recipeId or not recipeSame(c.site,step.site)
+        or not recipeSame(c.constructionDemand,own.constructionDemand)or not recipeSame(c.recipeInputs,step.recipeInputs)then return false end
+    local accepted=P.recordResult(id,p.id,{owner="SAO.ResourceProduction",token=c.token,status=c.status,
+        correlationId=c.id,reason=c.detail,atHours=c.atHours},WORKSPACE_RESULT)
+    if accepted and c.status=="completed"then
+        own.builtWorkId,own.builtAt=c.id,c.atHours;own.resultMeasurement=dataCopy(c.resultMeasurement,0,12,256)
+        p.status="maintained";p.blockers={"fresh-workspace-and-original-requesting-use-required"}
+    end
+    return accepted
+end
+function P.reconcileWorkspaceUse(id,body)
+    local s=state(id);if not s or SAO.Body.get(id)~=body then return false end
+    for _,key in ipairs(s.order)do
+        local p=s.purposes[key];local own=p and p.workspaceConstruction
+        if own and own.builtWorkId and p.status~="completed"and p.status~="abandoned"then
+            for _,row in ipairs(record(id).resourceProductionOutcomes or {})do
+                local c=SAO.ResourceProduction.outcome(id,row.id)
+                if c and c.status=="completed"and c.nativeCredit==c.id and c.purposeId==own.parentPurposeId
+                    and c.purposeStepId==own.parentStepId and c.recipeId==own.requestingRecipeId
+                    and finite(c.startedAt)and c.startedAt>=own.builtAt then
+                    local used=false;local anchor=c.recipeWorkplace
+                    for _,part in ipairs(own.resultMeasurement and own.resultMeasurement.parts or {})do
+                        if anchor and anchor.x==part.x and anchor.y==part.y and anchor.z==part.z
+                            and SAO.Perception.constructedWorkspaceMatches(id,body,own.builtWorkId,anchor)then used=true end
+                    end
+                    if p.admission==nil then
+                        p.resolvedAt=c.atHours;p.blockers={}
+                        if used then
+                            p.status="completed";own.useWorkId=c.id;p.resolution="constructed-workspace-used-by-original-native-request"
+                            addEvent(p,"requesting-workspace-use-completed",c.id,c.atHours)
+                        else
+                            p.status="abandoned";own.retiredByWorkId=c.id;p.resolution="original-request-completed-by-another-workspace"
+                            addEvent(p,"requesting-workspace-use-retired",c.id,c.atHours)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return true
+end
+
+-- Added inside the existing ProceduralPlanning lexical owner before return P.
+local function extractionParent(id,own)
+ local parent,step=P.recipePurpose(id,own and own.parentPurposeId)
+ local req=step and step.recipeRequirement
+ if not parent or parent.admission or not req or step.id~=own.parentStepId
+  or not recipeSame(req,own.recipeRequirement)
+  or not P.recipeInputAdmission(id,req.demandId,parent.id,step.id,req.recipeId,req.index,req.declaration)then return nil end
+ return parent,step
+end
+local function extractionRequestDefinition(id,recipeId)
+ local body=SAO.Body.get(id)
+ if not body or not SAOJavaBridge or not SAOJavaBridge.recipeSupplyNeeds then return nil end
+ local ok,view=pcall(function()return SAOJavaBridge:recipeSupplyNeeds(body,recipeId)end)
+ if ok and type(view)=="table"and view.actorId==id and view.recipeId==recipeId and type(view.nativeRevision)=="string"then return view.nativeRevision end
+end
+function P.extractionRequestCurrent(id,work)
+ local s=state(id);local p=s and work and s.purposes[work.purposeId];local own=p and p.materialExtraction
+ if type(own)~="table"then return false end
+ local parent,step=extractionParent(id,own)
+ return parent~=nil and type(own.requestingNativeRevision)=="string"
+  and extractionRequestDefinition(id,own.recipeRequirement.recipeId)==own.requestingNativeRevision or false
+end
+function P.extractionPurpose(id,parentId,stepId)
+ local s=state(id)
+ for index=#(s and s.order or{}),1,-1 do
+  local p=s.purposes[s.order[index]];local own=p and p.materialExtraction
+  if own and(not parentId or own.parentPurposeId==parentId)and(not stepId or own.parentStepId==stepId)
+   and p.status~="completed"and p.status~="abandoned"then return p,p.steps[p.cursor]end
+ end
+end
+function P.planMaterialExtraction(id,context)
+ local rec=record(id);context=type(context)=="table"and context or{}
+ local parent,requesting=P.recipePurpose(id,context.parentPurposeId)
+ local req=requesting and requesting.recipeRequirement
+ if not rec or rec.dead or not parent or parent.admission or not req
+  or requesting.id~=context.parentStepId or not recipeSame(req,context.recipeRequirement)
+  or not P.recipeInputAdmission(id,req.demandId,parent.id,requesting.id,req.recipeId,req.index,req.declaration)
+  or not SAO.Material.recipeObservedType(req,"Base.Log")then return nil,nil,"retained-log-input-required"end
+ local requestingNativeRevision=extractionRequestDefinition(id,req.recipeId)
+ if not requestingNativeRevision then return nil,nil,"current-native-input-definition-required"end
+ local existing=P.extractionPurpose(id,parent.id,requesting.id)
+ if existing and(existing.admission or existing.materialExtraction.lastWorkId)then return existing,existing.steps[existing.cursor]end
+ local choices={{id="continue",evidence=1,continuity=.7,novelty=0,informationGain=0,blockers=0,utility=.1}};local offers={}
+ for _,option in ipairs(context.options or{})do
+  if option.actorId==id and option.extractionKind=="tree"and option.desiredType=="Base.Log"
+   and type(option.source)=="table"and option.source.actorId==id and option.source.kind=="tree"
+   and option.source.source=="native-personal-visibility"and finite(option.source.observedAtHours)
+   and option.source.observedAtHours<=nowHours()and type(option.toolItemId)=="string"and type(option.toolItemType)=="string"
+   and type(option.id)=="string"and finite(option.distance)
+   and SAO.Perception and SAO.Perception.extractionSource
+   and SAO.Perception.extractionSource(id,SAO.Body.get(id),option.source)then
+   offers[option.id]=option
+   choices[#choices+1]={id=option.id,evidence=1,continuity=.7,novelty=.1,informationGain=.2,blockers=0,
+    utility=1-option.distance/100}
+  end
+ end
+ SAO.Ordering.sort(choices,function(a,b)return a.id<b.id end)
+ while #choices>16 do table.remove(choices)end
+ local view=interpretations(id,choices,{domain="construction",pressure=context.pressure or .5,atHours=nowHours()})
+ local chosen=view and offers[view.selected]
+ if not chosen then return existing,nil,"extraction-means-deferred"end
+ local p=existing or P.maintain(id,{key="extraction-input:"..parent.id..":"..requesting.id,domain="construction",
+  objective="obtain a retained native ingredient through observed material work",origin=parent.id,atHours=nowHours()})
+ if not p then return nil,nil,"purpose-capacity"end
+ local own=p.materialExtraction or{parentPurposeId=parent.id,parentStepId=requesting.id,recipeRequirement=dataCopy(req,0,12,256)}
+ if not extractionParent(id,own)then return nil,nil,"original-input-changed"end
+ if own.requestingNativeRevision and own.requestingNativeRevision~=requestingNativeRevision then return p,nil,"original-input-definition-changed"end
+ own.requestingNativeRevision=requestingNativeRevision
+ local demand={id="extraction:"..req.demandId..":"..requesting.id,consumerId=parent.id..":"..requesting.id,
+  desiredType="Base.Log",desiredAmount=requesting.quantity or 1,sourceRevision=req.sourceRevision}
+ local step={id="extract:"..chosen.source.sourceId..":"..chosen.source.sourceRevision,verb="produce",owner="SAO.ResourceProduction",
+  productionKind="extract-material",token="resource:extracted",category="material",target=chosen.source.sourceId,status="available",
+  extractionKind="tree",source=dataCopy(chosen.source,0,12,256),extractionDemand=dataCopy(demand),
+  toolItemId=chosen.toolItemId,toolItemType=chosen.toolItemType}
+ p.materialExtraction=own;p.materialWork={entryKey=p.key,extractionDemand=dataCopy(demand)}
+ setPlan(p,{step},{},dataCopy(view),nowHours())
+ return p,p.steps[p.cursor]
+end
+function P.admitExtractionProduction(id,work)
+ local s=state(id);local p=s and work and s.purposes[work.purposeId]
+ local step=p and p.steps[p.cursor];local own=p and p.materialExtraction
+ if not own or not step or p.admission or step.status~="available"or step.verb~="produce"
+  or not P.extractionRequestCurrent(id,work)or work.actorId~=id or work.purposeStepId~=step.id
+  or work.kind~="extract-material"or work.category~=step.category or work.token~=step.token or work.extractionKind~=step.extractionKind
+  or work.toolItemId~=step.toolItemId or work.toolItemType~=step.toolItemType
+  or work.bagItemId~=step.bagItemId or work.bagItemType~=step.bagItemType
+  or not recipeSame(work.source,step.source)or not recipeSame(work.extractionDemand,step.extractionDemand)
+  or work.entryKey~=p.materialWork.entryKey then return false end
+ return P.noteAdmission(id,p.id,"SAO.ResourceProduction",work.id,step.id)
+end
+function P.consumeExtractionProductionResult(id,supplied)
+ local c=type(supplied)=="table"and SAO.ResourceProduction.outcome(id,supplied.id)
+ if not c or c.actorId~=id or c.kind~="extract-material"or c.category~="material"or c.token~="resource:extracted"
+  or not finite(c.atHours)or c.atHours>nowHours()then return false end
+ local s=state(id);local p=s and s.purposes[c.purposeId]
+ if not p then return false end
+ for _,key in ipairs(p.resultReceipts or{})do if key=="SAO.ResourceProduction:"..c.id then return true end end
+ local own,step,a=p.materialExtraction,p.steps[p.cursor],p.admission
+ if not own or not step or not a or a.owner~="SAO.ResourceProduction"or a.correlationId~=c.id or a.stepId~=step.id
+  or c.purposeStepId~=step.id or c.atHours<a.at or c.extractionKind~=step.extractionKind
+  or c.toolItemId~=step.toolItemId or c.toolItemType~=step.toolItemType
+  or c.bagItemId~=step.bagItemId or c.bagItemType~=step.bagItemType
+  or not recipeSame(c.source,step.source)or not recipeSame(c.extractionDemand,p.materialWork.extractionDemand)then return false end
+ local accepted=P.recordResult(id,p.id,{owner="SAO.ResourceProduction",token=c.token,status=c.status,
+  correlationId=c.id,reason=c.detail,atHours=c.atHours},EXTRACTION_RESULT)
+ if accepted and c.status=="completed"then
+  own.lastWorkId,own.effectAt=c.id,c.atHours;own.newDrops=dataCopy(c.newDrops,0,12,256)
+  p.status="maintained";p.blockers={"fresh-extracted-stock-acquisition-required"}
+ end
+ return accepted
+end
+function P.reconcileExtractionInput(id,body,parentId)
+ if SAO.Body.get(id)~=body then return false end
+ local p=P.extractionPurpose(id,parentId);local own=p and p.materialExtraction
+ if not own or p.admission then return false end
+ local parent,step=extractionParent(id,own)
+ if not parent then
+  p.status="abandoned";p.resolution="original-input-changed";return false
+ end
+ if not own.lastWorkId then return false end
+ local offered=SAO.Controller.recipeInputOffers(id,body,parent,step)
+ local fresh={actorId=id,recipeRequirement=step.recipeRequirement,options={}};local drops={}
+ for _,drop in ipairs(own.newDrops or{})do if drop.type=="Base.Log"then drops[tostring(drop.id)]=true end end
+ for _,option in ipairs(offered.options or{})do
+  if option.parameters and drops[tostring(option.parameters.itemId)]then fresh.options[#fresh.options+1]=option end
+ end
+ if not P.selectRecipeInput(id,parent.id,fresh)then return false end
+ own.selectedDropId=tostring(step.itemId);p.status="maintained"
+ p.blockers={"exact-extracted-drop-transfer-required"}
+ -- Selection supplies only an acquisition request. SourceUse still owns actual
+ -- inventory transfer and the original native consumer owns subsequent work.
+ return true
+end
+-- Called only after consumeSourceResult has authenticated and accepted the
+-- existing native transfer, retaining its original step before cursor advance.
+noteExtractionInputAcquired=function(id,parent,step,canonical)
+ if not canonical or canonical.status~="completed"or canonical.actorId~=id
+  or canonical.operation~="acquire"or canonical.measurement~="native-item-transfer"
+  or canonical.observedQuantity~=1 or canonical.purposeId~=parent.id or canonical.purposeStepId~=step.id
+  or tostring(canonical.itemId)~=tostring(step.itemId)or canonical.itemType~=step.itemType then return false end
+ local p=P.extractionPurpose(id,parent.id,step.id);local own=p and p.materialExtraction
+ if not own or not own.lastWorkId or own.selectedDropId~=tostring(canonical.itemId)
+  or not recipeSame(canonical.recipeRequirement,own.recipeRequirement)then return false end
+ own.acquisitionId=canonical.reservationId;p.status="completed";p.resolvedAt=canonical.at
+ p.resolution="extracted-stock-acquired-for-original-input";p.blockers={}
  return true
 end
 

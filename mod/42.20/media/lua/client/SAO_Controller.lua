@@ -6446,7 +6446,8 @@ function Ctl.beginConstructionProduction(id, agent, body, tick, purpose, step)
     if not production or not step or step.status ~= "available" or step.verb ~= "produce"
         or step.owner ~= "SAO.ResourceProduction" or (step.productionKind ~= "saw-logs"
             and step.productionKind ~= "repair-held-item" and step.productionKind ~= "fix-held-item"
-            and step.productionKind ~= "recipe-stock" and step.productionKind ~= "recipe-upkeep") then return false end
+            and step.productionKind ~= "recipe-stock" and step.productionKind ~= "recipe-upkeep"
+            and step.productionKind ~= "build-place" and step.productionKind ~= "extract-material") then return false end
     local repairing = step.productionKind == "repair-held-item" or step.productionKind=="fix-held-item" or step.productionKind=="recipe-upkeep"
     if not setState(agent, id, "RESOURCE", repairing and "maintains an exact carried tool"
         or "produces stock for retained native work") then return false end
@@ -6529,6 +6530,11 @@ function Ctl.advanceRecipeWork(id,agent,body,tick,purpose,step)
  end
  if not step then return false end
  if step.verb=="acquire" and step.recipeRequirement then
+  local extracting=SAO.ProceduralPlanning.extractionPurpose(id,purpose.id,step.id)
+  if extracting and extracting.materialExtraction.lastWorkId then
+   if SAO.Perception.observeLooseItems then SAO.Perception.observeLooseItems(id,body)end
+   SAO.ProceduralPlanning.reconcileExtractionInput(id,body,purpose.id)
+  end
   local inquiry=purpose.recipeSupply.sourceInquiry
   if inquiry then
    local context=SAO.WorldSources.inspectionCandidate(id,body,"standing",SAO.Needs.PERCEPTION_TILES,inquiry.sourceId)
@@ -6556,6 +6562,7 @@ function Ctl.advanceRecipeWork(id,agent,body,tick,purpose,step)
      return Ctl.advanceRecipeWork(id,agent,body,tick,purpose,step)
     end
     if not purpose.recipeSupply.lastWorkId and Ctl.tryRecipeSupplyForPurpose(id,agent,body,tick,purpose) then return true end
+    if Ctl.tryExtractionForRecipe(id,agent,body,tick,purpose,step)then return true end
     local context=SAO.WorldSources.inspectionCandidate(id,body,"standing",SAO.Needs.PERCEPTION_TILES)
     local inspect=context and SAO.ProceduralPlanning.prepareRecipeInspection(id,purpose.id,context)
     if inspect and SAO.WorldSources.beginPurposeInspection(id,body,context,purpose.id,inspect.id) then
@@ -6585,7 +6592,7 @@ function Ctl.advanceRecipeWork(id,agent,body,tick,purpose,step)
    end
   end
  end
- return false
+ return Ctl.tryWorkspaceForRecipe(id,agent,body,tick,purpose,step)
 end
 function Ctl.recipeUpkeepTarget(row)
  local metric=row.desiredState and row.desiredState.metric
@@ -12181,6 +12188,128 @@ function Ctl.describe(id)
     return "state=" .. agent.state
         .. " | " .. SAO.Perception.describe(tostring(id), tickCount)
         .. " | " .. SAO.Standing.describe(tostring(id))
+end
+
+function Ctl.workspaceInputSourcesKnown(id,body,option,needs)
+    if type(needs)~="table"or needs.actorId~=id or needs.recipeId~=option.recipeId then return false end
+    local missing=false
+    for _,slot in ipairs(needs.slots or{})do
+        if tonumber(slot.remainingFraction)and slot.remainingFraction>0 then
+            missing=true
+            if slot.channelStatus~="item"then return false end
+            local requirement=SAO.Material.recipeRequirement({requirements=option.requirements},slot.index)
+            if not requirement then return false end
+            local known=false
+            for _,place in pairs(SAO.Perception.knownPlaces(id,true)or{})do
+                for _,fact in pairs(place.sourceFacts or{})do
+                    if(fact.kind=="container"or fact.kind=="ground")and type(fact.id)=="string"
+                        and type(fact.fingerprint)=="string"and type(fact.revision)=="string"
+                        and type(fact.x)=="number"and type(fact.y)=="number"
+                        and SAO.Standing.mayAttemptBelieved(id,fact.x+.5,fact.y+.5,"standing")then
+                        for _,item in ipairs(fact.observedItems or{})do if SAO.Material.recipeObservedType(requirement,item.type)then known=true end end
+                        for _,itemType in ipairs(fact.rememberedItemTypes or{})do if SAO.Material.recipeObservedType(requirement,itemType)then known=true end end
+                        if fact.visibleItem and SAO.Material.recipeObservedType(requirement,fact.visibleItem.type)then known=true end
+                    end
+                end
+            end
+            if not known then return false end
+        end
+    end
+    return missing
+end
+function Ctl.workspaceContext(id,body,parent,requesting)
+    local work=parent.recipeSupply and parent.recipeSupply.requirements and parent.recipeSupply.requirements.workplace
+    if not work or not(work.specific or work.anySurface)or type(requesting.nativeRevision)~="string"then return nil end
+    local demand={id="workspace:"..parent.id..":"..requesting.id,consumerId=parent.materialWork.recipeDemand.consumerId,
+        kind="build-place",sourceRevision=requesting.sourceRevision,parentId=parent.id,stepId=requesting.id}
+    local request={actorId=id,purposeId=parent.id,stepId=requesting.id,recipeId=requesting.recipeId,
+        sourceRevision=requesting.sourceRevision,nativeRevision=requesting.nativeRevision,anySurface=work.anySurface==true,specificWorkstation=work.specific==true}
+    local ok,means=pcall(function()return SAOJavaBridge:constructionMeans(body,request)end)
+    if not ok or type(means)~="table"then return nil end
+    local context={demand=demand,parentPurposeId=parent.id,parentStepId=requesting.id,requestingRecipeId=requesting.recipeId,
+        anySurface=request.anySurface,specificWorkstation=request.specificWorkstation,options={},inputNeeds={},pressure=.5}
+    local points={};local radius=SAO.Needs.PERCEPTION_TILES
+    for dx=-radius,radius do for dy=-radius,radius do
+        if dx*dx+dy*dy<=radius*radius then points[#points+1]={x=math.floor(body:getX())+dx,y=math.floor(body:getY())+dy,z=math.floor(body:getZ()),distance=dx*dx+dy*dy}end
+    end end
+    SAO.Ordering.sort(points,function(a,b)return a.distance==b.distance and(a.x==b.x and a.y<b.y or a.x<b.x)or a.distance<b.distance end)
+    local sites={}
+    for _,mean in ipairs(means)do
+        local selected
+        for _,known in ipairs(SAO.Perception.constructionSites(id,body,mean.entityId))do
+            if known.face:upper()==mean.face:upper()and known.cursor==mean.cursor and SAO.Perception.constructionSiteCurrent(id,body,known,true)then selected=known;break end
+        end
+        if not selected then
+            -- Choose the closest observed eligible site for each acquired or
+            -- intrinsic construction mean; this is a spatial preference.
+            for _,point in ipairs(points)do
+                local fact=SAO.Perception.observeConstructionSite(id,body,mean,point.x,point.y,point.z,radius)
+                if fact then
+                    local permitted=SAO.Standing.mayTakeCurrent(id,fact.approachX,fact.approachY,"standing")==true
+                    for _,tile in ipairs(fact.geometry.tiles or{})do
+                        if(tile.occupied or tile.blocking)and SAO.Standing.mayTakeCurrent(id,fact.x+tile.x,fact.y+tile.y,"standing")~=true then permitted=false end
+                    end
+                    if permitted then selected=fact;break end
+                end
+            end
+        end
+        if selected then sites[#sites+1]=selected end
+    end
+    context.options=SAO.ResourceProduction.workspaceOptions(id,body,demand,means,sites)
+    for _,option in ipairs(context.options)do
+        local read,needs=pcall(function()return SAOJavaBridge:recipeSupplyNeeds(body,option.recipeId)end)
+        if read and type(needs)=="table"and needs.actorId==id and needs.recipeId==option.recipeId then
+            context.inputNeeds[option.recipeId]=needs
+            option.inputSourcesKnown=Ctl.workspaceInputSourcesKnown(id,body,option,needs)
+        end
+    end
+    return context
+end
+function Ctl.tryWorkspaceForRecipe(id,agent,body,tick,parent,requesting)
+    if not parent or parent.admission or not requesting or agent.state~="IDLE"or agent.passive
+        or not SAO.Needs.workAvailable(body)or agent.rec.resourceProductionWork or agent.rec.worldSourceReservation then return false end
+    SAO.ProceduralPlanning.reconcileWorkspaceUse(id,body)
+    local context=Ctl.workspaceContext(id,body,parent,requesting)
+    if not context then return false end
+    local p,step=SAO.ProceduralPlanning.planWorkspaceConstruction(id,context)
+    if not p or p.admission or p.workspaceConstruction.builtWorkId then return false end
+    if step and step.verb=="acquire"then return Ctl.advanceRecipeWork(id,agent,body,tick,p,step)end
+    if step and step.verb=="produce"and step.status=="available"then return Ctl.beginConstructionProduction(id,agent,body,tick,p,step)end
+    return p and Ctl.tryRecipeSupplyForPurpose(id,agent,body,tick,p)or false
+end
+
+-- Added inside the existing Controller lexical owner before return Ctl.
+function Ctl.extractionInputContext(id,body,parent,requesting)
+ local req=requesting and requesting.recipeRequirement
+ local context={parentPurposeId=parent.id,parentStepId=requesting.id,recipeRequirement=req,options={},pressure=.5}
+ if not req or SAO.Body.get(id)~=body or not SAO.Material.recipeObservedType(req,"Base.Log")then return context end
+ SAO.Perception.observeExtractionSources(id,body,3)
+ local tool=body:getPrimaryHandItem();if not tool then return context end
+ for _,source in ipairs(SAO.Perception.extractionSources(id,body,"tree"))do
+  local resolution=SAO.Perception.extractionSource(id,body,source)
+  if resolution and SAO.Standing.mayTakeCurrent(id,source.x,source.y,"standing")==true
+   and body:getCurrentSquare():canReachTo(resolution.square)and body:getZ()==source.z
+   and math.abs(body:getX()-(source.x+.5))<=2 and math.abs(body:getY()-(source.y+.5))<=2 then
+   local policy=SAO.ExtractionPolicy.describe("tree",body,resolution.object,{id=parent.id,actorId=id,
+    consumerId=parent.id..":"..requesting.id,sourceId=source.sourceId,sourceRevision=source.sourceRevision},resolution.observe,{radius=3})
+   local projected=policy and SAO.ExtractionPolicy.project(policy)
+   if projected then context.options[#context.options+1]={id="tree:"..source.sourceId..":"..source.sourceRevision,actorId=id,
+    extractionKind="tree",desiredType="Base.Log",source=source,toolItemId=projected.toolId,toolItemType=projected.toolType,
+    distance=math.sqrt((body:getX()-source.x)^2+(body:getY()-source.y)^2)}end
+  end
+ end
+ return context
+end
+function Ctl.tryExtractionForRecipe(id,agent,body,tick,parent,requesting)
+ if not parent or parent.admission or not requesting or agent.state~="IDLE"or agent.passive
+  or not SAO.Needs.workAvailable(body)or agent.rec.resourceProductionWork or agent.rec.worldSourceReservation then return false end
+ if SAO.Perception.observeLooseItems then SAO.Perception.observeLooseItems(id,body)end
+ if SAO.ProceduralPlanning.reconcileExtractionInput(id,body,parent.id)then
+  return Ctl.beginConstructionAcquisition(id,agent,body,tick,parent,requesting)
+ end
+ local p,step=SAO.ProceduralPlanning.planMaterialExtraction(id,Ctl.extractionInputContext(id,body,parent,requesting))
+ if not p or p.admission or p.materialExtraction.lastWorkId or not step then return false end
+ return Ctl.beginConstructionProduction(id,agent,body,tick,p,step)
 end
 
 return Ctl

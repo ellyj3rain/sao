@@ -5203,4 +5203,41 @@ public final class SAOBridge {
             }
         }
     }
+    /** Current native construction facts; private knowledge/Standing/work stay with their owners. */
+    public Object constructionSite(Object object,String entityId,String face,double cursor,double x,double y,double z,double radius) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell body) || !integralUtilityCoordinates(x,y,z)
+                    || !Double.isFinite(cursor) || cursor!=Math.rint(cursor) || cursor<1 || cursor>4
+                    || !Double.isFinite(radius) || radius<0) return null;
+            return com.sao.engine.SAOWorldSources.constructionSite(body,entityId,face,(int)cursor,(int)x,(int)y,(int)z,radius);
+        } catch(Throwable unavailable) { return null; }
+    }
+    public Object exactConstructionSite(Object object,Object site) {
+        try { return object instanceof SAOIsoPlayerShell body && site instanceof se.krka.kahlua.vm.KahluaTable plain
+            ? com.sao.engine.SAOWorldSources.exactConstructionSite(body,plain) : null;
+        } catch(Throwable unavailable) { return null; }
+    }
+    public Object constructionCreated(Object object,Object parts,String entityId,String face,double cursor,double x,double y,double z) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell body) || !(parts instanceof se.krka.kahlua.vm.KahluaTable supplied)
+                    || !integralUtilityCoordinates(x,y,z) || !Double.isFinite(cursor) || cursor!=Math.rint(cursor)
+                    || cursor<1 || cursor>4) return null;
+            return com.sao.engine.SAOWorldSources.constructionCreated(body,supplied,entityId,face,(int)cursor,(int)x,(int)y,(int)z);
+        } catch(Throwable unavailable) { return null; }
+    }
+    public Object extractionSourceObservation(Object object,Object source,Object square,double radius) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell body) || !(source instanceof zombie.iso.IsoObject target)
+                    || !(square instanceof IsoGridSquare location) || !Double.isFinite(radius)
+                    || radius!=Math.rint(radius) || radius<1 || radius>8) return null;
+            return com.sao.engine.SAOExtractionObservation.observeExact(body,target,location,(int)radius);
+        } catch(Throwable unavailable) { return null; }
+    }
+
+    public Object constructionMeans(Object object,Object request) {
+        try { return object instanceof SAOIsoPlayerShell body && request instanceof se.krka.kahlua.vm.KahluaTable plain
+            ? com.sao.engine.SAOWorldSources.constructionMeans(body,plain) : null;
+        } catch(Throwable unavailable) { return null; }
+    }
+
 }

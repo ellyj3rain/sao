@@ -355,7 +355,7 @@ local KINDS = { inspection = true, acquire = true, store = true, consume = true 
 local HOBBY_KINDS={ ["leisure-meditation"]=true,["leisure-exercise"]=true,
     ["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true }
-local EXTENDED = { ["furniture-use"]=true,["furniture-relocation"]=true, ["generator-operation"] = true, ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true, ["collector-construction"] = true,
+local EXTENDED = { ["workspace-construction"]=true,["material-extraction"]=true, ["furniture-use"]=true,["furniture-relocation"]=true, ["generator-operation"] = true, ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true, ["collector-construction"] = true,
     ["animal-care"] = true, ["window-repair"] = true,["window-installation"] = true, ["material-crafting"] = true, ["tool-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["reading-assessment"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -432,6 +432,8 @@ local function sameData(a, b)
 end
 local BEHAVIOR_RESULT = {}
 function C.experience(id, supplied, authority)
+    if type(supplied)=="table" and (supplied.kind=="workspace-construction" or supplied.kind=="material-extraction")
+        and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
     if type(supplied)=="table" and (supplied.kind=="furniture-use" or supplied.kind=="furniture-relocation" or supplied.kind=="generator-operation" or supplied.kind=="gate-operation" or supplied.kind=="shelter-movement" or supplied.kind=="shelter-construction" or supplied.kind=="shelter-use" or supplied.kind=="bed-construction" or supplied.kind=="collector-construction" or supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="window-installation" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="reading-assessment" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
         and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
     local now = clock()
@@ -1380,6 +1382,56 @@ function C.furnitureOutcome(id,receipt)
     fact.sourceId=receipt.sourceId;fact.succeeded=receipt.status=="completed" and receipt.nativeCompleted==true
     fact.actionKind=receipt.geometry.mode
     return nativeExperience(id,"furniture-relocation",receipt.sequence,fact)
+end
+
+-- Original physical work remains distinct from later stock acquisition and use.
+local function physicalProductionReceipt(id,receipt,kind,token,nativeOwner)
+    local at,rec=clock(),record(id)
+    if not at or not rec or type(receipt)~="table" or receipt.actorId~=id or receipt.kind~=kind
+        or receipt.token~=token or receipt.nativeOwner~=nativeOwner or receipt.bodyToken~=rec.bodyOwnerToken
+        or not text(receipt.bodyToken,160) or not finite(receipt.sequence,1,9007199254740991)
+        or receipt.sequence~=math.floor(receipt.sequence)
+        or receipt.id~="resource-production/"..id.."/"..tostring(receipt.sequence) or receipt.workId~=receipt.id
+        or not finite(receipt.atHours,0,at) or not finite(receipt.startedAt,0,receipt.atHours) then return nil end
+    local canonical=SAO.ResourceProduction and SAO.ResourceProduction.outcome(id,receipt.id)
+    if not canonical or not sameData(canonical,receipt) then return nil end
+    return at
+end
+function C.workspaceConstructionOutcome(id,receipt)
+    local at=physicalProductionReceipt(id,receipt,"build-place","resource:place-built","ISBuildAction")
+    if not at then return false,"construction-owner-unavailable" end
+    if receipt.status=="completed" and (receipt.nativeCredit~=receipt.id or receipt.nativeAttempted~=true or receipt.nativeCompleted~=true
+        or receipt.constructed~=true or receipt.placed~=true or receipt.exactInputs~=true or receipt.inputsConsumed~=true) then return false end
+    local x=privateFact(id,"workspace-construction","construction",receipt.id,at,receipt.atHours)
+    x.sourceId=receipt.site and receipt.site.key
+    x.status=receipt.status=="completed" and "completed" or receipt.status=="interrupted" and "interrupted" or "unavailable"
+    x.physicalWork=detached({purposeId=receipt.purposeId,purposeStepId=receipt.purposeStepId,
+        bodyToken=receipt.bodyToken,world=receipt.world,detail=receipt.detail,entityId=receipt.entityId,recipeId=receipt.recipeId,
+        site=receipt.site,demand=receipt.constructionDemand,measurement=receipt.resultMeasurement,
+        outcomeStatus=receipt.status,nativeAttempted=receipt.nativeAttempted,nativeCompleted=receipt.nativeCompleted,
+        stockAcquired=false,consumerCompleted=false})
+    return nativeExperience(id,"workspace-construction",receipt.sequence,x)
+end
+function C.materialExtractionOutcome(id,receipt)
+    local kind=type(receipt)=="table" and receipt.extractionKind
+    local at=physicalProductionReceipt(id,receipt,"extract-material","resource:extracted",
+        kind=="tree" and "ISChopTreeAction" or "ISShovelGround")
+    if not at then return false,"extraction-owner-unavailable" end
+    if receipt.stockAcquired~=false or receipt.consumerCompleted~=false then return false end
+    if receipt.status=="completed" and (receipt.nativeCredit~=receipt.id or receipt.nativeAttempted~=true
+        or receipt.nativeCompleted~=true or receipt.resourceGain~=true or receipt.effectObserved~=true) then return false end
+    local x=privateFact(id,"material-extraction","construction",receipt.id,at,receipt.atHours)
+    x.sourceId=receipt.source and receipt.source.sourceId
+    x.status=receipt.status=="completed" and "completed" or receipt.status=="interrupted" and "interrupted" or "unavailable"
+    x.physicalWork=detached({purposeId=receipt.purposeId,purposeStepId=receipt.purposeStepId,bodyToken=receipt.bodyToken,
+        world=receipt.world,detail=receipt.detail,demand=receipt.extractionDemand,source=receipt.source,extractionKind=kind,
+        toolItemId=receipt.toolItemId,toolItemType=receipt.toolItemType,bagItemId=receipt.bagItemId,bagItemType=receipt.bagItemType,
+        damage=receipt.damage,sourceRemoved=receipt.sourceRemoved==true,sourceChanged=receipt.sourceChanged==true,
+        newDrops=receipt.newDrops,bagGain=receipt.bagGain,bagEffects=receipt.bagEffects,
+        outcomeStatus=receipt.status,nativeAttempted=receipt.nativeAttempted,
+        resourceGain=receipt.resourceGain,effectObserved=receipt.effectObserved,nativeCompleted=receipt.nativeCompleted,
+        stockAcquired=false,consumerCompleted=false})
+    return nativeExperience(id,"material-extraction",receipt.sequence,x)
 end
 
 function C.bedConstructionOutcome(id,receipt)
