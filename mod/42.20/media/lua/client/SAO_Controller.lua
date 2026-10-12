@@ -5339,6 +5339,12 @@ function Ctl.leisureOffers(id, agent, body, tick)
             instrument:getFullType(),"native:sound:BlowHarmonica",
             {kind="recreate",category="leisure",sourceId="native:sound:BlowHarmonica",itemType=instrument:getFullType(),value=1})
     end
+    local learning=SAO.Study and SAO.Study.learningOffer and SAO.Study.learningOffer(id,body)
+    if learning and tick >= (agent.nextAssessmentAt or 0) then
+        add("assessment:"..learning.sourceId,"reading","check a response to read literature",
+            {kind="reading-assessment",offer=learning},learning.itemId,learning.itemType,learning.sourceId,
+            {kind="study",category="learning",sourceId=learning.sourceId,itemType=learning.itemType,value=.5})
+    end
     local reading=SAO.Study and SAO.Study.offerLeisure and SAO.Study.offerLeisure(id,body)
     if reading and not body:tooDarkToRead() and tick >= (agent.nextPageAt or 0) then
         local note=reading:canBeWrite()
@@ -5481,6 +5487,9 @@ function Ctl.beginLeisureOffer(id, agent, body, tick, offered)
         if proposal then agent.rec.duetInvitation={atHours=SAO.History.countyHours(),processId=proposal.processId,
             recipientId=invitation.recipientId,choiceId=invitation.choiceId,partnerRole=invitation.partnerRole,
             transport=reason,agreement="unobserved"} end
+    elseif receiver.kind=="reading-assessment" then
+        admitted=SAO.Study and SAO.Study.beginAssessment(id,body,receiver.offer)
+        if admitted then agent.nextAssessmentAt=tick+3000;owner="SAO.Study" end
     elseif receiver.kind=="reading" then
         admitted=SAO.Study and SAO.Study.beginLeisure(id,body,receiver.item)
         if admitted then agent.nextPageAt=tick+3000;owner="SAO.Study" end
@@ -5818,6 +5827,15 @@ function Ctl.chooseOrdinaryPurpose(id, agent, body, tick, needs, excluded)
     end
     -- Continuing is the floor for unappealing alternatives, not an idle hold.
     -- Its dispatch returns to existing residence, company and local activity.
+    if not studying and planning.literatureInquiryOffer then
+        local inquiry=planning.literatureInquiryOffer(id,tick)
+        local target=inquiry and planning.conceptInquiryTarget(inquiry)
+        if target and SAO.Standing.mayAttemptBelieved(id,target.x,target.y,"standing") then
+            add("literature-inquiry:"..inquiry.goal..":"..target.key,"inquiry",.35+initiative*.3,
+                {kind="investigate",category="learning",value=.6},inquiry,
+                {goal=inquiry.goal,qualification="retained-assessed-source-and-private-purpose",informationGain=.5})
+        end
+    end
     local situationOffer,situationView
     if not studying and planning.situationInquiryOffer then
         situationOffer,situationView=planning.situationInquiryOffer(id,body,tick)
@@ -9131,6 +9149,7 @@ local function decide(id, agent, body)
         }
     end
 
+    if SAO.Study and SAO.Study.reconcileLearning then SAO.Study.reconcileLearning(id,body) end
     if Ctl.preemptStudyForCoordination(id, agent, body) then return end
     if SAO.Study and SAO.Study.active(id, body) then
         agent.pressure = { answer = "chosen rest", detail = SAO.Study.describe(id), at = tick }

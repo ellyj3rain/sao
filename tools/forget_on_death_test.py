@@ -473,6 +473,7 @@ for filename in LEISURE_ROUTES:
         'finish', 'leisure-retirement',
         'exact native hobby handles end through the existing controller detach/death route and captured source terminal owner')
 CACHES.update({
+    ('SAO_Study.lua', 'learningRuntime'): ('S.forget', 'named', 'disposable exact-body response cache; death retires owned assessment and directly drops the entry, retaining the plain person and native corpse/foreign queue owners'),
     ('SAO_Perception.lua', 'conceptObservers'): ('P.forget', 'named', 'current native conceptual observation body owner'),
     ('SAO_Perception.lua', 'weekOneNativeSignals'): ('P.forgetSoundCues', 'named', 'listener-private current source native sound witnesses'),
     ('SAO_LeisureRadio.lua', 'sources'): ('R.onNativeTick', 'native-radio-sweep', 'live native radio source callbacks expire with their exact body/token'),
@@ -671,7 +672,9 @@ def check_files(files, preserved=None):
                     f"name, and `local {alias} = SAO.Something` is not in "
                     "its file - so there is no way to know what the rest of "
                     "the tree has to write to reach it")
-            elif (ns + "." + fn) not in dead_body:
+            elif not re.search(r'(?:\bpcall\s*\(\s*' + re.escape(ns + '.' + fn)
+                               + r'\s*,|(?<![\w.])' + re.escape(ns + '.' + fn) + r'\s*\()',
+                               strip_lua(dead_body)):
                 # C58 preserves the public Population API as a forwarding
                 # function. Prove both calls instead of treating the old
                 # module name as the cache owner.
@@ -915,6 +918,8 @@ def main():
     if status:
         return status
     controls = [
+        ('SAO_Study.lua', 'learningRuntime[id] = nil', 'learningRuntime[id] = learningRuntime[id]', 'nothing in it sets an entry to nil'),
+        ('SAO_Identity.lua', 'pcall(SAO.Study.forget, rec.id)', 'do end', 'Identity.markDead does not name it'),
         ('SAO_Leisure.lua', 'runtime[id] = nil', 'runtime[id] = runtime[id]', 'nothing in it sets an entry to nil'),
         ('SAO_Controller.lua', 'Ctl.retireLeisureWork(id,Ctl.agents[id],body,"death")', 'do end', 'native death no longer reaches exact leisure retirement'),
         ('SAO_LeisureSkill.lua', 'inFlight[id]=nil', 'inFlight[id]=true', 'nothing in it sets an entry to nil'),

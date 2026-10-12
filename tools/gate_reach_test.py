@@ -77,7 +77,11 @@ ONE_OFF = {'d2_newmusic_loot_diagnostic_test.py': 'D2 loot repair qualification 
  'world_lab_start_cache05_test.py': 'C120/D2 cache repair compares selected compiled cohorts and optional '
                                     'recorded preimages.'}
 
-SCOPED = {'age_visual_transition_test.py': 'C120/D1/D2 contract qualification: Run age presentation and inverse '
+SCOPED = {'literature_learning_test.py': 'D3.16 original native literature, private reading, independently produced responses, source-bound maintenance and ordinary inquiry/catalogue qualification with detecting controls. Select when its owned source or learning contract changes; preserve applicable receipts.',
+ 'd3_metal_enclosure_prerequisites_test.py': 'D3.15 installed native metal recipe and prerequisite qualification with detecting controls. Select when its native source or prerequisite contract changes; preserve applicable receipts.',
+ 'd3_metal_enclosure_test.py': 'D3.15 private metal enclosure construction, boundary and access qualification with native and ordinary consumer controls. Select when its owned source or contract changes; preserve applicable receipts.',
+ 'd3_metal_enclosure_window_test.py': 'D3.15 native movable glazing, window use and private continuation qualification with detecting controls. Select when its owned source or contract changes; preserve applicable receipts.',
+ 'age_visual_transition_test.py': 'C120/D1/D2 contract qualification: Run age presentation and inverse '
                                   'controls in the installed Kahlua VM. Select when its owned source or '
                                   'contract changes; preserve applicable receipts.',
  'appearance_base_visual_test.py': 'C120/D1/D2 contract qualification: Verify native visual ownership and '

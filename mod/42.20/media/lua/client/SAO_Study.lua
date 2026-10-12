@@ -1,5 +1,6 @@
 -- Native reading over the person's maintained study or leisure purpose.
 require "TimedActions/ISReadABook"
+require "SAO_StudySources"
 
 SAO = SAO or {}
 SAO.Study = SAO.Study or {}
@@ -186,6 +187,7 @@ function S.readingEligibility(id, body, item, kind, continuing, recipeName)
     local writable = item:canBeWrite()
     local content, contentWhy
     if writable then
+        if S.sources and S.sources.definition(item:getFullType()) and not S.sources.binding(item) then return false,"literature-source-changed-or-unavailable" end
         if kind ~= "leisure" then return false, "note-is-not-a-skill-manual" end
         content, contentWhy = noteContent(item)
         if not content then return false, contentWhy end
@@ -294,6 +296,8 @@ function S.noteOutcome(id, sequence)
         if row.actorId == id and row.sequence == sequence then
             local copy = {}
             for key, value in pairs(row) do if key ~= "content" then copy[key] = value end end
+            copy.literature = row.literature and {sourceId=row.literature.sourceId,revision=row.literature.revision,textHash=row.literature.textHash,
+                itemId=row.literature.itemId,fullType=row.literature.fullType} or nil
             copy.content = { pages = {}, pageCount = row.content.pageCount, bytes = row.content.bytes,
                 source = row.content.source, meaning = row.content.meaning }
             for index, text in ipairs(row.content.pages) do copy.content.pages[index] = text end
@@ -337,6 +341,7 @@ local function close(action, status, reason)
                 purposeId = work.purposeId, status = "completed", nativeOwner = "SAONoteReadAction/ISBaseTimedAction",
                 token = "note:text-exposed", itemId = work.itemId, itemType = work.fullType,
                 content = action.noteContent, contentBinding = work.id,
+                literature=work.literature, nativeCompleted=action.nativeCompleted==true,progress=work.progress,
                 bodyGenerationKnown = work.bodyGenerationKnown, bodyToken = work.bodyToken,
                 beganAt = work.beganAt, startedAt = work.startedAt, endedAt = work.endedAt, atHours = work.endedAt,
                 meaning = "completed-text-exposure; comprehension-unassessed" }
@@ -548,7 +553,259 @@ end
 local function queued(action)
     return ISTimedActionQueue and ISTimedActionQueue.hasAction(action) == true
 end
+-- A distinct timed response follows exposure. Neither queue admission nor
+-- source reading supplies a correct response; Cognition owns the response.
+local learningRuntime={}
+local function learningCopy(v,depth,budget,seen)
+    depth,budget,seen=depth or 0,budget or {left=8192},seen or {}
+    if type(v)=="string" then assert(#v<=16384,"learning-string-bound");return v end
+    if type(v)=="number" then assert(v==v and v~=math.huge and v~=-math.huge,"learning-number-bound");return v end
+    if type(v)=="nil" or type(v)=="boolean" then return v end
+    assert(type(v)=="table" and not getmetatable(v) and depth<12 and not seen[v],"learning-plain-data-bound")
+    seen[v]=true;local out={}
+    for k,x in pairs(v) do
+        budget.left=budget.left-1
+        assert(budget.left>=0 and (type(k)=="string" or type(k)=="number"),"learning-data-bound")
+        out[k]=learningCopy(x,depth+1,budget,seen)
+    end
+    seen[v]=nil;return out
+end
+function S.sourceExposure(id,sequence)
+    local row=S.noteOutcome(id,sequence)
+    local source=S.sources
+    local b=row and row.literature
+    if not row or row.actorId~=id or row.status~="completed" or row.nativeOwner~="SAONoteReadAction/ISBaseTimedAction"
+        or row.sequence~=sequence or type(sequence)~="number" or sequence~=math.floor(sequence)
+        or sequence<1 or sequence>(rec(id).studySequence or 0) or row.workId~="study/"..sequence
+        or row.token~="note:text-exposed" or row.contentBinding~=row.workId or row.nativeCompleted~=true
+        or row.progress==nil or row.progress<=0 or not row.startedAt or row.startedAt<row.beganAt
+        or row.atHours<row.startedAt or row.atHours>hours() or not source or not b
+        or b.itemId~=row.itemId or b.fullType~=row.itemType
+        or not source.matches(b.sourceId,b.revision,b.textHash,row.content.pages)
+        or source.relevance(b.sourceId).status~="fictional-edition-available" then return nil end
+    row.sourceId,row.revision,row.textHash=b.sourceId,b.revision,b.textHash
+    return row
+end
+local function learningHeld(id,body,item,b)
+    local source=S.sources
+    local current=source and source.binding(item)
+    return live(id,body) and held(body,item) and not body:hasTrait(CharacterTrait.ILLITERATE)
+        and SAO.History.literacyOf(id)~="none" and current and b and current.sourceId==b.sourceId
+        and current.revision==b.revision and current.textHash==b.textHash and current.itemId==b.itemId
+        and current.fullType==b.fullType
+end
+function S.learningOffer(id,body,desiredItem)
+    if not live(id,body) or not S.sources or not SAO.ConceptKnowledge or body:tooDarkToRead() then return nil end
+    local items=SAOJavaBridge:privateCarriedItems(body)
+    for index=0,math.min(128,items:size())-1 do
+        local item=items:get(index);local binding=(not desiredItem or item==desiredItem) and S.sources.binding(item) or nil
+        if binding then
+            local e
+            for _,row in ipairs(rec(id).noteReadingOutcomes or {}) do
+                if row.itemId==binding.itemId then e=S.sourceExposure(id,row.sequence) or e end
+            end
+            if e then
+                local memory=SAO.ConceptKnowledge.assessmentMemory(id,binding.sourceId)
+                local prior
+                for _,row in ipairs(rec(id).studyAssessmentOutcomes or {}) do
+                    if row.sourceId==binding.sourceId then prior=row end
+                end
+                local mode=not memory and "comprehension" or memory.ageChanged and "retrieval" or memory.retained and memory.mode~="transfer" and "transfer"
+                    or not memory.retained and "comprehension" or "retrieval"
+                -- Successful responses can later fail after forgetting. A
+                -- failed answer waits rather than entering an answer-copy loop.
+                if not prior or hours()-(prior.atHours or hours())>=
+                    (prior.verdict=="passed" and (mode=="transfer" or memory and memory.ageChanged) and .25
+                        or prior.verdict=="passed" and 24 or 6) then
+                    return {actorId=id,item=item,itemId=binding.itemId,itemType=binding.fullType,binding=binding,
+                        exposureSequence=e.sequence,exposureWorkId=e.workId,sourceId=binding.sourceId,
+                        revision=binding.revision,textHash=binding.textHash,mode=mode,
+                        task=S.sources.task(binding.sourceId,mode),atHours=hours()}
+                end
+            end
+        end
+    end
+end
+local function learningBound(action)
+    local rt=learningRuntime[action.personId];local person=rec(action.personId)
+    local w=person and person.studyAssessmentWork
+    return rt and rt.action==action and rt.record==person and w and rt.work==w and w.status=="responding"
+        and w.id==action.workId and w.bodyToken==action.character:getModData().SAOExternalToken
+        and learningHeld(action.personId,action.character,action.item,w.binding)
+        and hours()>=w.beganAt and S.sourceExposure(action.personId,w.exposureSequence)~=nil
+end
+function S.assessmentWork(id)
+    local rt=learningRuntime[id]
+    if not rt or not learningBound(rt.action) then return nil end
+    local out=learningCopy(rt.work)
+    out.pages=out.mode=="comprehension" and learningCopy(S.sourceExposure(id,out.exposureSequence).content.pages) or nil
+    out.memory=out.mode~="comprehension" and SAO.ConceptKnowledge.assessmentMemory(id,out.sourceId) or nil
+    return out
+end
+function S.submitResponse(id,body,workId,response)
+    local rt=learningRuntime[id]
+    if not rt or rt.action.character~=body or not learningBound(rt.action) or rt.work.id~=workId
+        or not rt.action.nativeStarted or rt.work.response~=nil or type(response)~="table" then return false end
+    -- No answer is generated here. The actual response owner may submit an
+    -- unsupported explanation, a wrong reconstruction or an omitted recall.
+    local ok,plain=pcall(learningCopy,response)
+    if not ok then return false end
+    rt.work.response=plain;rt.work.responseActorId=id;rt.work.respondedAt=hours()
+    return true
+end
+function S.assessmentOutcome(id,sequence)
+    for _,row in ipairs(rec(id) and rec(id).studyAssessmentOutcomes or {}) do
+        if row.actorId==id and row.sequence==sequence then return learningCopy(row) end
+    end
+end
+local function finishLearning(action,status,reason)
+    local rt=learningRuntime[action.personId];local person=rec(action.personId);local w=person and person.studyAssessmentWork
+    if not rt or rt.action~=action or rt.work~=w or w.status~="responding" then return false end
+    if status=="completed" and (not learningBound(action) or not action.nativeStarted or not action.nativeCompleted
+        or not rt.performed or not w.startedAt or (w.progress or 0)<=0 or not w.response or w.responseActorId~=person.id) then
+        status,reason="interrupted","assessment-owner-response-or-progress-unproven"
+    end
+    w.status,w.endedAt,w.reason=status,hours(),reason
+    learningRuntime[action.personId]=nil
+    local p=SAO.ProceduralPlanning
+    if status~="completed" then
+        if p and p.releaseAssessment then p.releaseAssessment(person.id,w.purposeId,w.id) end
+        if p and p.interrupt then p.interrupt(person.id,w.purposeId,reason,w.endedAt) end
+        return true
+    end
+    local grade=S.sources.grade(w.sourceId,w.task,w.response)
+    local row={id=w.id,sequence=w.sequence,actorId=person.id,owner="SAO.Study",token="learning:response-assessed",
+        nativeOwner="SAOStudyResponseAction/ISBaseTimedAction",nativeStarted=true,nativeCompleted=true,
+        bodyToken=w.bodyToken,itemId=w.itemId,itemType=w.itemType,sourceId=w.sourceId,revision=w.revision,textHash=w.textHash,
+        exposureSequence=w.exposureSequence,exposureWorkId=w.exposureWorkId,
+        pages=learningCopy(S.sourceExposure(person.id,w.exposureSequence).content.pages),task=learningCopy(w.task),
+        response=learningCopy(w.response),responseCondition=learningCopy(w.responseCondition),responseActorId=w.responseActorId,responseOwner=w.responseOwner or "explicit-person-response",
+        status="completed",verdict=grade.status,semanticExplanation="unscored",beganAt=w.beganAt,startedAt=w.startedAt,
+        atHours=w.endedAt,progress=w.progress,policy=SAO.ConceptKnowledge.assessmentPolicy(person.id,w.sourceId),
+        lastUsedAt=w.endedAt,usageCount=0,purposeId=w.purposeId}
+    person.studyAssessmentOutcomes=person.studyAssessmentOutcomes or {}
+    if #person.studyAssessmentOutcomes>=32 then table.remove(person.studyAssessmentOutcomes,1) end
+    person.studyAssessmentOutcomes[#person.studyAssessmentOutcomes+1]=row
+    if SAO.ConceptKnowledge.consumeAssessment(person.id,row.sequence) then
+        row.delivered=true
+        if p and p.consumeAssessmentOutcome then p.consumeAssessmentOutcome(person.id,row.sequence) end
+        if SAO.Cognition and SAO.Cognition.assessmentOutcome then SAO.Cognition.assessmentOutcome(person.id,row.sequence) end
+    end
+    return true
+end
+SAOStudyResponseAction=ISBaseTimedAction:derive("SAOStudyResponseAction")
+function SAOStudyResponseAction:isValid() return learningBound(self) and not self.character:tooDarkToRead() end
+function SAOStudyResponseAction:start()
+    if not self:isValid() then self:forceStop();return end
+    self.nativeStarted=true;learningRuntime[self.personId].work.startedAt=hours()
+    self:setActionAnim(CharacterActionAnims.Read);self:setOverrideHandModels(nil,self.item)
+end
+function SAOStudyResponseAction:update()
+    if not self:isValid() then self:forceStop();return end
+    local w=learningRuntime[self.personId].work;local delta=self:getJobDelta()
+    if self.nativeStarted and delta>0 then
+        w.progress=delta
+        if w.response==nil and SAO.Cognition and SAO.Cognition.produceStudyResponse then
+            SAO.Cognition.produceStudyResponse(self.personId,self.character,w.id)
+        end
+    end
+end
+function SAOStudyResponseAction:perform()
+    if self.performed or not queued(self) or not self:isValid() or not self.action or self:getJobDelta()<1 then return end
+    self.performed=true;learningRuntime[self.personId].performed=true;ISBaseTimedAction.perform(self)
+end
+function SAOStudyResponseAction:complete()
+    if not self:isValid() or not self.action or self:getJobDelta()<1 then return finishLearning(self,"interrupted","assessment-completion-unproven") end
+    self.nativeCompleted=true;return finishLearning(self,"completed")
+end
+function SAOStudyResponseAction:stop()
+    finishLearning(self,"interrupted","assessment-stopped");ISBaseTimedAction.stop(self)
+end
+function SAOStudyResponseAction:forceCancel() return finishLearning(self,"interrupted","assessment-cancelled") end
+function S.beginAssessment(id,body,offer)
+    local current=S.learningOffer(id,body,type(offer)=="table" and offer.item or nil)
+    if learningRuntime[id] or S.active(id,body) or not current or type(offer)~="table"
+        or offer.actorId~=id or current.item~=offer.item or current.sourceId~=offer.sourceId or current.exposureSequence~=offer.exposureSequence
+        or current.itemId~=offer.itemId or current.itemType~=offer.itemType or current.revision~=offer.revision
+        or current.textHash~=offer.textHash or current.exposureWorkId~=offer.exposureWorkId
+        or current.mode~=offer.mode or offer.atHours~=hours() or not SAO.Needs.workAvailable(body)
+        or not learningHeld(id,body,offer.item,offer.binding) or not SAO.Standing.mayAttemptBelieved(id,body:getX(),body:getY(),"standing") then return false end
+    local person=rec(id);local p,step=SAO.ProceduralPlanning.planAssessment(id,current)
+    if not p or not step then return false end
+    local seq=(person.studyAssessmentSequence or 0)+1
+    local w={id="assessment/"..id.."/"..seq,sequence=seq,actorId=id,mode=current.mode,
+        sourceId=current.sourceId,revision=current.revision,textHash=current.textHash,binding=learningCopy(current.binding),
+        itemId=current.itemId,itemType=current.itemType,exposureSequence=current.exposureSequence,
+        exposureWorkId=current.exposureWorkId,task=learningCopy(current.task),purposeId=p.id,
+        status="responding",beganAt=hours(),bodyToken=body:getModData().SAOExternalToken,progress=0}
+    local a=ISBaseTimedAction.new(SAOStudyResponseAction,body)
+    a.personId,a.workId,a.item,a.maxTime=id,w.id,current.item,120
+    a._SAOAssessmentRetireSaved=function(actor,currentBody,saved)
+        if actor~=id or currentBody~=body or saved~=w or rec(id)~=person or person.studyAssessmentWork~=saved or saved.id~=a.workId
+            or saved.bodyToken~=body:getModData().SAOExternalToken or not live(id,body) then return false end
+        if w.status=="responding" then finishLearning(a,"interrupted","assessment-runtime-unavailable") end
+        if a.action then a:forceStop() end
+        local q=ISTimedActionQueue.getTimedActionQueue(body)
+        q:removeFromQueue(a);if q.current==a then q.current=nil end
+        learningRuntime[id]=nil
+        return true
+    end
+    person.studyAssessmentWork=w;learningRuntime[id]={work=w,record=person,action=a}
+    if not SAO.ProceduralPlanning.noteAdmission(id,p.id,"SAO.Study",w.id,step.id) then
+        finishLearning(a,"interrupted","assessment-purpose-refused");return false
+    end
+    person.studyAssessmentSequence=seq
+    if not SAO.Needs.queueVerified(a) then finishLearning(a,"interrupted","assessment-queue-refused");return false end
+    return true
+end
+function S.assessmentActive(id,body)
+    local rt=learningRuntime[id];local person=rec(id);local w=person and person.studyAssessmentWork
+    if not w or w.status~="responding" then return false end
+    if rt and rt.action.character==body and learningBound(rt.action) and queued(rt.action) then return true end
+    S.interruptAssessment(id,body,"assessment-runtime-unavailable");return false
+end
+function S.interruptAssessment(id,body,reason)
+    local rt=learningRuntime[id];local person=rec(id);local w=person and person.studyAssessmentWork
+    if rt then
+        if body and rt.action.character~=body then return false end
+        local a=rt.action;finishLearning(a,"interrupted",reason or "different native work")
+        if queued(a) and live(id,a.character) then a._SAOAssessmentRetireSaved(id,a.character,w) end
+    elseif w and w.status=="responding" then
+        -- A same-VM reload can leave its exact old queue action alive. Ask
+        -- that action's owner to retire it, preserving unrelated queue work.
+        for _,q in pairs(ISTimedActionQueue.queues or {}) do
+            local pending={} for _,a in ipairs(q.queue or {}) do pending[#pending+1]=a end
+            if q.current and q.current.workId==w.id then pending[#pending+1]=q.current end
+            for _,a in ipairs(pending) do
+                if a.personId==id and a.workId==w.id then
+                    if type(a._SAOAssessmentRetireSaved)~="function"
+                        or not a._SAOAssessmentRetireSaved(id,body or a.character,w) then return false end
+                end
+            end
+        end
+        if w.status~="responding" then return true end
+        w.status,w.endedAt,w.reason="interrupted",hours(),reason or "assessment-runtime-unavailable"
+        if SAO.ProceduralPlanning then
+            SAO.ProceduralPlanning.releaseAssessment(id,w.purposeId,w.id)
+            SAO.ProceduralPlanning.interrupt(id,w.purposeId,w.reason,w.endedAt)
+        end
+    end
+    return true
+end
+function S.reconcileLearning(id,body)
+    if not S.assessmentActive(id,body) then S.interruptAssessment(id,body,"assessment-runtime-unavailable") end
+    for _,row in ipairs(rec(id) and rec(id).studyAssessmentOutcomes or {}) do
+        if not row.delivered and SAO.ConceptKnowledge.consumeAssessment(id,row.sequence) then row.delivered=true end
+        if row.delivered then
+            if SAO.ProceduralPlanning.consumeAssessmentOutcome then SAO.ProceduralPlanning.consumeAssessmentOutcome(id,row.sequence) end
+            if SAO.Cognition and SAO.Cognition.assessmentOutcome then SAO.Cognition.assessmentOutcome(id,row.sequence) end
+        end
+    end
+    return true
+end
+
 function S.interrupt(id, body, reason)
+    S.interruptAssessment(id,body,reason)
     local person = rec(id)
     local work, active = person and person.studyWork, runtime[id]
     if not work or work.status ~= "reading" then return true end
@@ -579,6 +836,7 @@ function S.interrupt(id, body, reason)
     return true
 end
 function S.active(id, body)
+    if S.assessmentActive(id,body) then return true end
     local person = rec(id)
     local work, active = person and person.studyWork, runtime[id]
     if not work or work.status ~= "reading" then return false end
@@ -596,6 +854,9 @@ function S.active(id, body)
     return false
 end
 function S.forget(id)
+    local learning = learningRuntime[id]
+    S.interruptAssessment(id, learning and learning.action.character, "death")
+    learningRuntime[id] = nil
     local active = runtime[id]
     S.interrupt(id, active and active.action.character, "death")
     runtime[id] = nil
@@ -605,6 +866,8 @@ function S.beforeQueue(action)
     if not body then return end
     local id = body:getModData().SAOPersonId
     local active = id and runtime[id]
+    local learning=learningRuntime[id]
+    if learning and learning.action~=action then S.interruptAssessment(id,body,"different native work") end
     if active and active.action ~= action and active.action.character == body then
         S.interrupt(id, body, "different native work")
     end
@@ -714,6 +977,7 @@ local function begin(id, body, item, kind, context)
         contentSource = content and content.source }
     local action = content and SAONoteReadAction:new(body, item, content.pageCount) or SAOStudyAction:new(body, item)
     action.noteContent = content
+    work.literature = S.sources and S.sources.binding(item) or nil
     action.personId, action.workId, action.purposeId = id, workId, purpose.id
     action.readingKind = work.kind
     action.recipeName = context and context.recipeName
@@ -940,6 +1204,7 @@ end
 function S.reconcileGeneratorReading(id,body) return generatorReading.reconcile(id,body,"generator-reading") end
 function S.reconcileRecipe(id,body) return generatorReading.reconcile(id,body,"recipe-reading") end
 function S.describe(id)
+    if learningRuntime[id] then return "checks a response to personally read literature; comprehension remains bounded" end
     local work = S.snapshot(id)
     if not work then return "wants to read; no native reading admitted" end
     if work.phase == "executing" then
@@ -973,6 +1238,7 @@ function S.snapshot(id)
         exposureCompleted = work.exposureCompleted == true }
 end
 local function reset()
+    learningRuntime={}
     local retained={}
     for id,rt in pairs(runtime) do if rt.recipeReading and not generatorReading.interrupt(id,rt.body,"world-reset") then retained[id]=rt end end
     runtime = retained

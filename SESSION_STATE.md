@@ -1,13 +1,13 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.6.15.0-pre-alpha` |
+| Version | `2.6.16.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
-**As of** `[D3.15]`, 180 delivered batches: 29 A, 52 B, 82 C products and seventeen delivered D records. D3 is the active OPEN parent.
+**As of** `[D3.16]`, 181 delivered batches: 29 A, 52 B, 82 C products and eighteen delivered D records. D3 is the active OPEN parent.
 
 ## Delivered product
 
@@ -136,7 +136,7 @@ original purpose. Adoption and IDLE recovery reconcile lost native admissions
 without inventing effects or completion. Focused native and Controller proofs
 retain their exact inputs and boundaries. Final regression and review results
 live in the D3 record. The whole construction, crafting, repair and utilities
-parent remains OPEN. Its CLOSED D3.1 through D3.14 children deliver native crafting, held-tool maintenance, plumbing/rain-collector construction through actual usable water, and generator operation through usable consumer power; the current replay derives `2.6.15.0-pre-alpha`.
+parent remains OPEN. Its CLOSED D3.1 through D3.14 children deliver native crafting, held-tool maintenance, plumbing/rain-collector construction through actual usable water, and generator operation through usable consumer power; the current replay derives `2.6.16.0-pre-alpha`.
 
 [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is the
 CLOSED child for native plank crafting. Exact private log and saw
@@ -218,3 +218,23 @@ Neo continues the operator-authorized D3 main line under the settled Granular/Em
 Owner Neo. The operator directs inspection of installed architectural/engineering and military-doctrinal literature, followed by authored literature and knowledge conveyance where native content is absent or shallow. The complete scope includes varied civilian architecture, patrols, supply lines, choke points, defensive/offensive architecture, historical and world-date-contemporary strategies, broad engineering concerns and organic battleplan/grand-strategy synthesis shaped by the individual, their purposes and will to power. Civilian buildings and infrastructure retain their varied uses, material/engineering/environmental constraints and cultural/institutional context.
 
 SAO owns person-private acquisition, comprehension, retained memory and learning, uncertainty, appraisal and actual planning/action/experience. Literature content carries source, revision and world-date relevance; knowledge does not grant local observation or Standing. Speakeasy explanatory/knowledge and later ZAO consumers retain their owning bridge contracts. This continuing line links the existing D3 building and broader knowledge/learning scope; it does not expand D3.15, erase D4-D6 FIFO or prescribe actor plans/outcomes. Read-only installed/source intake proceeds alongside D3.15 bounded corrections. A coherent authored-conveyance increment is recorded before implementation once its native gap and owning contracts are established.
+
+## D3.16 delivered authored-conveyance increment - 2026-10-12 00:10 UTC / 17:10 PST
+
+D3.15 is published through PR158 at c4d439a56c231daeaf2a0c62c70ce8bcdb049be9. [D3.16](Batches/D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md) is CLOSED for the first source-bound architectural literature and person-private learning increment under the operator-added direction. Native civilian/military titles are retained; the first original Buildings, routes and upkeep family carries actual item/content/exposure, explicit assessment/retention/retrieval and private conceptual application. The complete civilian/doctrine/engineering and organic strategy scope remains active, alongside full D3 and D4-D6 FIFO. Neo owns implementation/qualification/current records/publication; peer surfaces retain their own contact/ownership.
+
+The operator's subsequent knowledge-maintenance clarification applies across upcoming batch groups: attributes, health and aging affect maintained knowledge, retention and retrieval alongside use and rehearsal. D3.16 carries the first owned source-bound application; D6 and broader cognitive/lifespan work retain the full requirement. Speakeasy remains the owner of its knowledge-maintenance models and current source contract; shared integration retains the existing liaison and two-way owner-contact requirement. Saved exposure and assessment receipts do not imply permanently accessible understanding.
+
+The operator further requires thorough Speakeasy ML interdependency awareness. D3.16 is checked against the actual understander/retriever/speaker, shared foundation, educational assessment and adaptation goals, with acquired source inputs, person-state maintenance, independent responses and physical feedback traced to their owning contracts. Native literal/arithmetic behavior retains its bounded meaning; learned understanding/retrieval/speech and model activation remain their own implementation and evidence obligations. Neo carries these dependencies into upcoming learning/cognitive groups instead of allowing an independent SAO knowledge direction to form.
+
+## Shared Neo contract continuity - global mechanical correction
+
+The operator clarifies that repository and departmental separation requires a global mechanical continuity mechanism in Neo's skills and Mousecat. The shared lifecycle compiler now validates source-supported repository-contract inventories, actual predecessor coverage, endpoint/source revisions, current contact evidence, attributed changes and dependent-goal standing. Scion/Progenitor preserve that inventory and its bounded unknowns; the existing Mousecat History projection retains and verifies the same source-qualified data. These are shared mechanisms across mandates, rather than an SAO-only process note.
+
+The owned shared packages are supported-installed at framework version 1.2.0. Source qualification, integrated corrections, fresh native loading and actual current working Scion registration/History readback are complete. The working snapshot retains 77 goals and 46 progeny records, including all inherited scope and actual current delegations. Counterpart owner selection and unfinished shared ML work remain explicit pending obligations; the live session, D3 and D4-D6 FIFO continue. Private native receipts retain exact source/package/History identities, old failed packets and unchanged source/index custody.
+
+## D3.16 closure and next mainline - 2026-10-12 01:14 UTC / 18:14 PST
+
+The first authored family and native private maintenance/inquiry/current-claim outcome are delivered with the qualified proof and review in [D3.16](Batches/D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md). Full D3 remains active for remaining construction/crafting/repair/utilities and integration. Wider civilian/doctrinal/lifespan/strategic and shared ML work retain their accepted scope and owner dependencies. Actual stamped package and protected publication retain separate receipts; no game/save/character/scenario intervention is part of this closure.
+
+Required CI identified the reader grammar declaration and disposable assessment death-cache lifetime. The in-place D3.16 repair binds all four fixed grammar/verb callers to the exact reader function, verifies native pattern progress and rejects nullable or outside-owner variants. Death cleanup explicitly retires the actor's exact assessment and unconditionally clears its temporary learning cache; eight focused native checks and a detecting omission control cover active, stale, terminal and mismatched work while preserving durable private history and foreign queues. The corrected death scanner verifies actual direct or protected death calls and cache-clear/death-call controls. Original CI failures and preceding qualification remain retained; the shipping JAR and credit stay unchanged. This repair receives narrow review/source qualification inside the same child and protected PR.

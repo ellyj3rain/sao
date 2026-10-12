@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.6.15.0-pre-alpha` |
+| Version | `2.6.16.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2480,3 +2480,7 @@ The existing person-owned surface and shelter owners admit native metal flooring
 ## Native metal enclosure and access (D3.15)
 
 The existing private shelter and held-ground boundary owners retain purpose, knowledge, Standing and exact acquired means. Native construction and movable-window/one-leaf/boundary consumers own their separate physical effects. Construction and use retain authenticated body/world/site/purpose/input/queue custody, plain saved state and independent private feedback. [D3.15](Batches/D3.15-20261011-2245Z-1545PST-metal-enclosure-access.md) carries the exact producer/consumer integration and evidence boundaries.
+
+## Architectural literature and maintained private learning (D3.16)
+
+StudySources owns original source identity, exact natural pages, fictional edition relevance and separate scorer projections. Native Literature and ordinary source acquisition/reading own physical exposure. Existing Study produces distinct person responses; ConceptKnowledge retains source-bound assessed reading and unassessed received associations with individual maintenance, current-state retrieval and separate once-only use ledgers. Planner/Controller inquiry uses actual acquired native room/frontier facts and Standing; Knowledge projects current claims and refuses obsolete selections. Actual Communication reception owns teaching. Education/2 stays under its existing imported custody. [D3.16](Batches/D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md) records exact evidence and remaining shared ML/lifespan/strategy scope.

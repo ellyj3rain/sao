@@ -179,6 +179,7 @@ POST_C_UNITS = [
     ('D3.13', 'kohai', 'The complete installed metal wall/frame/door family in both orientations, exact acquired knowledge/resources and permitted native stages through actual doorway use and ordinary reached shelter/recovery supplies coherent building progress within OPEN D3.'),
     ('D3.14', 'kohai', 'The installed native metal floor family, exact acquired knowledge/resources and permitted observed placement through actual walking surface/cover and ordinary reached shelter/recovery supplies coherent building progress within OPEN D3.'),
     ('D3.15', 'kohai', 'The complete recorded remaining native metal enclosure/access family joins privately intended permitted construction, exact acquired native means and actual distinct physical consumers with durable feedback and queue/save custody as connected building progress within OPEN D3; the full metal-building feature and D3 module are not claimed complete.'),
+    ('D3.16', 'kohai', 'Three original native literature carriers join actual private acquisition/exposure, independent bounded responses, maintained assessed and unassessed received memory, current claim selection and ordinary source-specific inquiry with source/save/replay controls as coherent building progress within OPEN D3 and broader learning scope; full doctrine, curriculum, learned ML and strategic modules remain unfinished.'),
 ]
 # A closed parent that only aggregates previously credited descendants maps to
 # their exact credit-owner IDs. It is a chronological record, never a new tier.

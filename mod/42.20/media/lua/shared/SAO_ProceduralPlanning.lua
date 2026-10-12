@@ -20,6 +20,7 @@ local BED_RESULT = {}
 local BED_RECOVERY_RESULT = {}
 local INSTRUMENT_RESULT = {}
 local NOTE_RESULT = {}
+local ASSESSMENT_RESULT = {}
 local HOBBY_RESULT = {}
 local GENERATOR_RESULT = {}
 local GENERATOR_READING_RESULT = {}
@@ -3721,6 +3722,7 @@ function P.planConceptInquiry(id,offer,tick,inspectionContext)
             status="available",x=anchor.cx,y=anchor.cy,z=anchor.z}}
     end
     purpose.cursor,purpose.status=1,"maintained"
+    if SAO.ConceptKnowledge.consumeInquiryUse then SAO.ConceptKnowledge.consumeInquiryUse(id,purpose.id) end
     return purpose,purpose.steps[1]
 end
 function P.interruptConceptInquiry(id,reason)
@@ -3896,6 +3898,7 @@ function P.recordResult(id, purposeId, result, authority)
     end
     if purpose and purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
     if purpose and purpose.noteReading and authority ~= NOTE_RESULT then return false end
+    if purpose and purpose.readingAssessment and authority~=ASSESSMENT_RESULT then return false end
     if purpose and purpose.hobby and authority ~= HOBBY_RESULT then return false end
     -- Inspection of a conceptual means is consumed only from WorldSources'
     -- canonical private receipt, never a caller-authored completion table.
@@ -3966,12 +3969,72 @@ function P.recordResult(id, purposeId, result, authority)
         purpose.resultReceipts[#purpose.resultReceipts + 1] = receiptKey
         if #purpose.resultReceipts > MAX_EVENTS then table.remove(purpose.resultReceipts, 1) end
     end
-    if purpose.resourceCategory or purpose.materialWork or purpose.windowRepair or purpose.leisure or purpose.leisureAcquisition or purpose.generatorPower or purpose.gateAccess then
+    if purpose.readingAssessment or purpose.resourceCategory or purpose.materialWork or purpose.windowRepair or purpose.leisure or purpose.leisureAcquisition or purpose.generatorPower or purpose.gateAccess then
         purpose.lastAdmission = dataCopy(purpose.admission)
         purpose.admission = nil
     end
     addEvent(purpose, "result", result.status .. ":" .. result.token, at)
     return true
+end
+
+function P.planAssessment(id,offer)
+    if type(offer)~="table" or offer.actorId~=id or offer.atHours~=nowHours()
+        or not SAO.Study or not SAO.Study.sourceExposure(id,offer.exposureSequence) then return nil end
+    local purpose=P.maintain(id,{key="reading-assessment:"..offer.sourceId..":"..offer.exposureSequence..":"..offer.mode,
+        domain="learning",origin="private-reading",objective="check a response to carried literature"})
+    if not purpose or purpose.admission then return nil end
+    purpose.readingAssessment={sourceId=offer.sourceId,revision=offer.revision,textHash=offer.textHash,
+        exposureSequence=offer.exposureSequence,mode=offer.mode}
+    purpose.steps={{id="respond",owner="SAO.Study",verb="assess",token="learning:response-assessed",target=offer.sourceId,status="available"}}
+    purpose.cursor,purpose.status=1,"maintained"
+    return purpose,purpose.steps[1]
+end
+function P.releaseAssessment(id,purposeId,workId)
+    local person=record(id);local s=state(id,false);local work=person and person.studyAssessmentWork
+    local purpose=s and s.purposes[purposeId];local a=purpose and purpose.admission
+    if not work or work.id~=workId or work.purposeId~=purposeId or work.status~="interrupted"
+        or not finite(work.endedAt) or work.endedAt>nowHours() or not purpose.readingAssessment or not a
+        or a.owner~="SAO.Study" or a.correlationId~=workId then return false end
+    purpose.lastAdmission,purpose.admission=dataCopy(a),nil
+    return true
+end
+function P.consumeAssessmentOutcome(id,sequence)
+    local row=SAO.Study and SAO.Study.assessmentOutcome(id,sequence)
+    local s=state(id,false);local purpose=row and s and s.purposes[row.purposeId]
+    local l=purpose and purpose.readingAssessment
+    if not row or row.actorId~=id or not l or l.sourceId~=row.sourceId or l.revision~=row.revision
+        or l.textHash~=row.textHash or l.exposureSequence~=row.exposureSequence then return false end
+    local admitted=false
+    for _,held in ipairs(SAO.ConceptKnowledge.assessmentReceipts(id)) do if held.id==row.id then admitted=true end end
+    if not admitted then return false end
+    return P.recordResult(id,purpose.id,{owner="SAO.Study",token="learning:response-assessed",status="completed",
+        correlationId=row.id,atHours=row.atHours},ASSESSMENT_RESULT)
+end
+-- Existing purposes select the question. The existing private conceptual
+-- inquiry supplies the observed frontier and its existing Standing consumer.
+function P.literatureInquiryOffer(id,tick)
+    local s=state(id,false);if not s or not SAO.ConceptKnowledge then return nil end
+    local goals={}
+    for _,identity in ipairs(s.order) do
+        local p=s.purposes[identity]
+        if p and p.status~="completed" and p.status~="abandoned" then
+            if p.domain=="shelter" or p.domain=="body" then goals[#goals+1]="privacy" end
+            if p.domain=="social" or p.domain=="organization" then goals[#goals+1]="cooperation" end
+            if p.materialWork or p.shelterConstruction or p.generatorPower or p.domain=="construction" then goals[#goals+1]="serviceability" end
+            if p.resourceCategory or p.domain=="resources" or p.domain=="conflict" then goals[#goals+1]="supply-continuity" end
+        end
+    end
+    for _,goal in ipairs(goals) do
+        local offer=P.conceptInquiryOffer(id,goal,tick)
+        local sourceBound=false
+        for _,edge in ipairs(offer and offer.path and offer.path.roots or {}) do
+            if (edge.basis=="assessed-reading-association" or edge.basis=="received-literature-association") and edge.actorId==id then sourceBound=true end
+        end
+        if offer and offer.status=="actionable" and sourceBound then
+            offer.literatureUse=true
+            return offer
+        end
+    end
 end
 
 function P.consumeNoteOutcome(id, sequence)
