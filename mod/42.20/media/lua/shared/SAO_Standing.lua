@@ -3527,6 +3527,17 @@ local function mayPassHolder(id, owner)
     return S.isHostileTo(id, owner) or S.isHostileTo(owner, id)
 end
 
+-- Altering acquired local furniture is a distinct intent from passage.
+function S.mayRelocateBelieved(id,x,y,admission)
+    if tostring(admission or "standing")=="desperate" or S.insideClaim(id,x,y) then return true end
+    local owner=SAO.Perception and SAO.Perception.believesClaimed and SAO.Perception.believesClaimed(id,x,y) or nil
+    if not owner or owner==id then return true end
+    local group,other=S.groupOf(id),S.groupOf(owner) or owner
+    if group and group==other then return true end
+    if group and other and S.feudBetween and S.feudBetween(group,other) then return true end
+    return S.isHostileTo(id,owner) or S.isHostileTo(owner,id)
+end
+
 function S.mayEnterBelieved(id, x, y)
     if S.insideClaim(id, x, y) then return true end
     local owner = SAO.Perception and SAO.Perception.believesClaimed

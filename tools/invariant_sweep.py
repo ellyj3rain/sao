@@ -145,7 +145,7 @@ loco = set(re.findall(r'agent\.state == "(\w+)"',
                                 ctl, re.S).group(1)))
 action_src = ctl[ctl.index('-- Need-action holds'):]
 action = set(re.findall(r'agent\.state == "(\w+)"', action_src[:600]))
-gated = set(re.findall(r'if agent\.state == "(\w+)" then', ctl))
+gated = set(re.findall(r'if\s+agent\.state\s*==\s*"(\w+)"\s+then', ctl))
 orphans = sorted(s for s in targets
                  if s not in RE_EVALUATED and s not in gated
                  and not (s in mv and s in loco) and s not in action)

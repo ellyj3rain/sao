@@ -1254,6 +1254,7 @@ local function retainRecoveryExperience(id,work,needs,now)
     if #rec.recoveryExperiences>32 then table.remove(rec.recoveryExperiences,1) end
     if SAO.Cognition and SAO.Cognition.behaviorOutcome then SAO.Cognition.behaviorOutcome(id,receipt) end
     if SAO.ProceduralPlanning and SAO.ProceduralPlanning.consumeBedRecovery then SAO.ProceduralPlanning.consumeBedRecovery(id,work.sequence) end
+    if SAO.ProceduralPlanning and SAO.ProceduralPlanning.consumeFurnitureRecovery then SAO.ProceduralPlanning.consumeFurnitureRecovery(id,work.sequence) end
     if SAO.ProceduralPlanning and SAO.ProceduralPlanning.consumeShelterRecovery then SAO.ProceduralPlanning.consumeShelterRecovery(id,work.sequence) end
     return true
 end
@@ -1296,6 +1297,7 @@ local function retainMeansResult(id,rec,place,scope,available,reason,kind)
     rows[#rows+1]=row
     if #rows>32 then table.remove(rows,1) end
     rec.recoveryMeansResults=rows
+    if SAO.FurnitureWork and SAO.FurnitureWork.consumeUse then SAO.FurnitureWork.consumeUse(id,"means",row.sequence) end
     if SAO.ProceduralPlanning and SAO.ProceduralPlanning.meansResult then
         SAO.ProceduralPlanning.meansResult(id,"SAO.Needs",row.sequence)
     end
@@ -1432,6 +1434,7 @@ end
 function N.beginRecovery(id, body, kind, place)
     if SAO.ProceduralPlanning and SAO.ProceduralPlanning.reconcileBedRecovery then SAO.ProceduralPlanning.reconcileBedRecovery(id,body) end
     if SAO.ProceduralPlanning and SAO.ProceduralPlanning.reconcileShelterRecovery then SAO.ProceduralPlanning.reconcileShelterRecovery(id,body) end
+    if SAO.ProceduralPlanning and SAO.ProceduralPlanning.reconcileFurnitureRecovery then SAO.ProceduralPlanning.reconcileFurnitureRecovery(id,body) end
     local rec = recoveryOwner(id, body)
     if not rec or not N.read(body) or recoveries[id] or not N.workAvailable(body)
         or kind ~= "sleep" and kind ~= "rest" then return false, "body-unavailable" end
@@ -1577,6 +1580,7 @@ function N.stopRecovery(id, body, reason, retireOnly)
     end
     if SAO.ProceduralPlanning and SAO.ProceduralPlanning.reconcileBedRecovery then SAO.ProceduralPlanning.reconcileBedRecovery(id,body) end
     if SAO.ProceduralPlanning and SAO.ProceduralPlanning.reconcileShelterRecovery then SAO.ProceduralPlanning.reconcileShelterRecovery(id,body) end
+    if SAO.ProceduralPlanning and SAO.ProceduralPlanning.reconcileFurnitureRecovery then SAO.ProceduralPlanning.reconcileFurnitureRecovery(id,body) end
     return true
 end
 

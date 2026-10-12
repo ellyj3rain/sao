@@ -2473,6 +2473,25 @@ public final class SAOBridge {
         }
     }
 
+    public String furnitureObjectIdentity(Object object) {
+        try {
+            return object instanceof zombie.iso.IsoObject nativeObject
+                ? Integer.toHexString(System.identityHashCode(nativeObject)) : null;
+        } catch (Throwable error) {
+            SAOAgent.log("furniture identity unavailable: " + error);
+            return null;
+        }
+    }
+
+    public se.krka.kahlua.vm.KahluaTable furnitureObservation(Object object, int radius) {
+        try {
+            return object instanceof SAOIsoPlayerShell body
+                ? com.sao.engine.SAOFurnitureObservation.observe(body,radius) : null;
+        } catch(Throwable error) {
+            SAOAgent.log("furniture observation unavailable: "+error);
+            return null;
+        }
+    }
     public se.krka.kahlua.vm.KahluaTable recoveryPlaces(Object object, int radius) {
         try {
             var result=object instanceof SAOIsoPlayerShell body

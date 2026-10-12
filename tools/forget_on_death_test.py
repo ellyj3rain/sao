@@ -76,6 +76,11 @@ MARK_DEAD = "markDead"
 #   "calls"  - the clearing function calls Identity.markDead itself,
 #              so the clear and the death are the same event
 CACHES = {
+    ("SAO_FurnitureWork.lua", "runtime"): (
+        "F.forget", "named",
+        "exact loaded furniture action/return handles belong to a living person; "
+        "Identity.markDead calls FurnitureWork.forget, which interrupts owned "
+        "work and clears runtime while durable results and benefit remain"),
     ("SAO_Gesture.lua", "yielding"): (
         "G.releaseConflict", "gesture-retirement",
         "a selected response retains only its exact pending optional-action "
@@ -918,6 +923,11 @@ def main():
     if status:
         return status
     controls = [
+        ('SAO_FurnitureWork.lua', 'function F.forget(id)F.interrupt(id,nil,"owner-retired");runtime[id]=nil end',
+         'function F.forget(id)F.interrupt(id,nil,"owner-retired");runtime[id]=runtime[id] end',
+         'nothing in it sets an entry to nil'),
+        ('SAO_Identity.lua', 'pcall(SAO.FurnitureWork.forget, rec.id)', 'do end',
+         'Identity.markDead does not name it'),
         ('SAO_Study.lua', 'learningRuntime[id] = nil', 'learningRuntime[id] = learningRuntime[id]', 'nothing in it sets an entry to nil'),
         ('SAO_Identity.lua', 'pcall(SAO.Study.forget, rec.id)', 'do end', 'Identity.markDead does not name it'),
         ('SAO_Leisure.lua', 'runtime[id] = nil', 'runtime[id] = runtime[id]', 'nothing in it sets an entry to nil'),

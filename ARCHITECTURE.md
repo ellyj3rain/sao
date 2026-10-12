@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.0.0-pre-alpha` |
+| Version | `2.7.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -248,30 +248,15 @@ DR-053 applies these ownership rules to the whole installed candidate collection
 Source adaptation and compatible shared APIs preserve one physical mechanism
 per effect; source registration alone supplies no private knowledge or practice.
 
-### Shared furniture relocation (C117)
+### Shared furniture relocation and ordinary recovery (C117 / D3.18)
 
-`SAO_FurnitureMovement` guards the optional installed single-player push/pull
-path. The installed module owns animation, native pickup and placement,
-container transfer and feedback. SAO owns a bounded delayed-push queue because
-the installed private queue resolves later work by coordinates and sprite
-without an exact cancellation identity. The original shove runs with its own
-queue disabled; each retained move pins its actor, object, member footprint,
-destination and item instances until the physical boundary.
+`SAO.FurnitureRelocation` owns original native full-member pickup/placement, exact contents, partial salvage and utility guards for the admitted floor-object family. `SAO.FurnitureRelocationAction` owns timed effort, current queue custody and measured pull retreat. `SAO_FurnitureMenu` supplies ordinary human entry; `SAO_FurnitureMovement` retains the optional forwarding and unchanged content/bath/empty-water compatibility guards. Their current source uses native engine assets by reference.
 
-Both installed relocation functions enter one outer measurement, including
-multi-part delegation. A completed diagnostic requires measured relocation and
-exact retained contents. Effort completion alone supplies no movement result.
-The bounded detached outcomes contain scalar diagnostics; they do not advance
-person knowledge, practice or a maintained NPC purpose. The production caller
-is the installed player's existing push/pull action. NPC furniture selection,
-admission and private completion remain separate implementation work.
+`SAOFurnitureObservation` and the read-only Bridge expose personally visible current member, footprint and recovery facts. Perception retains acquired facts; Standing separately owns alteration of every member/site and passage to contact/retreat. ProceduralPlanning retains the individual's interpreted purpose; FurnitureWork and Controller dispatch exact owned native work. Effort, physical relocation, recovery admission and independently measured bodily benefit have separate authority.
 
-Native carrying wrappers and object events retain plumbing and electricity
-ownership. Registered tub-system members refuse before movement. WaterPipes
-registration reconciliation uses its owning commands after verified physical
-relocation; fixtures outside the safely established state refuse before effects.
-Multiplayer retains the installed path. Controlled installed-source execution
-establishes the actor/object binding, relocation measurement and utility guards.
+After native work, existing Needs and RecoveryPose execute fresh ordinary recovery. Current source appearance/grid/footprint and actual Needs eligibility bind reconstructed bed objects from new private observation; the former runtime key remains provenance and conveys no persistent pointer identity. Exact quiet-native furniture admission reconciliation preserves uncertain benefit through interruption and reload, including after admission. Current/foreign action and route successors retain custody; durable work/result/use/feedback sequences reject replayed credit. Actual source-defined server authority and non-admitted utility states remain explicit parent work.
+
+`simulation.cognition/1` retains native performed relocation/use and contrary evidence for ordinary and associative private learning. The pinned Speakeasy intake accepts bounded summaries and refuses full furniture archives; Scion/Mousecat retain the actual source/schema-owner adaptation obligation. Local feedback, archive admission and trained shared learning remain separate evidence.
 
 ### Native window repair and private completion (C112)
 

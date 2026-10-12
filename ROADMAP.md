@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.7.0.0-pre-alpha` |
+| Version | `2.7.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -483,3 +483,7 @@ D4-D6 retain FIFO.
 Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) first resolves normal-Main installation, native perform-before-complete custody and shared direct-action geometry before reclaiming delivery. Prior qualified packets remain reusable only within their demonstrated boundaries. No next child, additional version credit or FIFO change follows.
 
 Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is reclosed after actual normal Main, native perform-before-complete handoff and shared geometry qualification. The same assessed kohai coordinate remains; current package/publication have their distinct receipts. Full D3, wider goals and FIFO remain active.
+
+## Furniture relocation through usable recovery (D3.18)
+
+[D3.18](Batches/D3.18-20261012-0703Z-0003PDT-furniture-relocation-recovery.md) qualifies original shared movement and independent ordinary recovery with current Standing, native custody and saved reconstruction. [D3.19](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md) continues useful stock/upkeep through actual private consumers. Full D3 retains its finite source-discovered families, original utility incorporation, required authoritative execution and shared private-experience export integration. Broader varied civilian/doctrinal architecture, strategy, maintained knowledge, attributes/health/aging and Speakeasy/ZAO ML goals remain active through D4-D6 FIFO.

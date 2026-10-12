@@ -214,6 +214,7 @@ MODULES = [
 # out quietly - otherwise the check reports a real gap in the same
 # breath as five expected ones and nobody reads it.
 NOT_DORMANT = {
+    'FurnitureWork': 'owns exact loaded furniture actions, native retreat/return and ordinary recovery receivers; the bodyless county has no materialized source, action queue or benefit executor',
     'CompanionExecution': 'executes agreed companion movement and native interaction through a loaded Controller/body; the dormant county has no physical executor',
     'Leisure': 'owns exact source hobby actions, carried material and loaded native callback lifetime',
     'LeisureAcquisition': 'observes loaded world objects and executes native acquisition before source hobby use',

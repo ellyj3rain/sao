@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `2.7.0.0-pre-alpha` |
+| Version | `2.7.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -156,3 +156,7 @@ evidence layers.
 Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is reopened and OPEN before merge for three actual native-path corrections. Consult its latest acceptance section and retained source/package/CI packets; earlier candidate closure does not establish current delivery.
 
 Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is reclosed after actual normal Main, native perform-before-complete handoff and shared geometry qualification. The same assessed kohai coordinate remains; current package/publication have their distinct receipts. Full D3, wider goals and FIFO remain active.
+
+## D3.18 original shared furniture and ordinary recovery
+
+[D3.18](Batches/D3.18-20261012-0703Z-0003PDT-furniture-relocation-recovery.md) is CLOSED for original shared native movement through private observation/Standing/choice, reached use, independent benefit and current interrupted/reconstructed saved work. One kohai records progress inside OPEN D3. Actual source/package/protected merge receipts retain their layers. D3.19 and complete remaining scope continue until D4; source-linked Scion/Mousecat retain the concrete full private-experience intake seam and pending counterpart selection.
