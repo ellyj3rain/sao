@@ -40,6 +40,7 @@ public final class SAOAgent {
         SAOCalloutWeave.install(instrumentation);
         SAORadioPlaybackWeave.install(instrumentation);
         SAODanceCycleWeave.install(instrumentation);
+        SAOWindowPaneDefinitionWeave.install(instrumentation);
         SAOBridgeBootstrap.start();
     }
 

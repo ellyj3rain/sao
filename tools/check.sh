@@ -2770,6 +2770,10 @@ if ! "$PY" tools/d3_window_preparation_test.py --out "$sao_d3_proof/window"; the
     note "BORDER FINDING - native window material preparation or saved custody differs"
     fail=1
 fi
+if ! "$PY" tools/d3_window_pane_native_handoff_test.py --out "$sao_d3_proof/owned-pane-native-handoff"; then
+    note "BORDER FINDING - normal pane startup or native perform/complete custody differs"
+    fail=1
+fi
 if ! "$PY" tools/d3_native_boarding_test.py --out "$sao_d3_proof/boarding"; then
     note "BORDER FINDING - native boarding admission or measured effects differ"
     fail=1
@@ -2942,12 +2946,8 @@ if ! "$PY" tools/mod_integration_inventory_test.py; then
     fail=1
 fi
 
-# Border 232 - exact native window repair consumes its pinned pane and
-# acknowledges private completion through the existing planning and models.
-if ! "$PY" tools/window_repair_test.py; then
-    note "BORDER FINDING - native window repair ownership or private result differs"
-    fail=1
-fi
+# Border 232's captured complete-first fixtures remain historical source
+# evidence. Current window ownership uses the D3 native-handoff gate above.
 
 # Border 233 - native camera areas can change independently of saved people;
 # sealed layouts require matching simultaneous native viewports.

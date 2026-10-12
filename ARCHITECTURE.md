@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.6.16.0-pre-alpha` |
+| Version | `2.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -285,14 +285,33 @@ SourceUse acquisition, return and native preparation before repair admission.
 The scan admits no hidden building layout. Admission records accepted work
 identity and advances no completed construction step.
 
-The optional installed AddWindowAction remains the physical completion owner.
-Its bespoke wrapper freezes the exact pane on the first native validity query
-and checks actor, record, world, cell, queue, window, inventory and material
-again immediately before completion. A completed canonical result requires
-both native pane consumption and measured restored glass. An exact nested pane
-first moves into the root inventory through installed native transfer; repair
-starts only after its measured transfer state. Valid player queues use the same
-physical action and material guard.
+`SAO.WindowPaneAction` owns the shared native timed repair producer.
+`SAO_WindowRepair` wraps that owned action, freezes the exact eligible pane
+on the first native validity query and checks actor, record, world, cell, queue,
+window, inventory and material again immediately before completion.
+`SAO_WindowPaneMenu` supplies the ordinary human entry. Optional
+`AddWindowAction` callers forward to this same guarded owned producer.
+Genuine saved `AddWindowAction.complete` result identities remain readable
+by the authenticated result and cognition consumers; they are historical
+completion provenance rather than another live physical producer.
+
+A completed canonical result requires native pane consumption and measured
+restored glass. The owned effect calls `setGlassRemoved(false)` before
+`setSmashed(false)`, preserving native sprite/health restoration and current
+window state. An exact nested pane first moves into the root inventory through
+installed native transfer; repair starts only after its measured transfer state.
+Human and NPC queues use the same physical action and material guard.
+
+`SAOWindowPaneDefinitions` supplies the three compatible material definitions
+and three native supply recipes. The narrow
+`SAOWindowPaneDefinitionWeave` enters `WorldDictionary.ScriptsLoaded` before
+native script-item closure and runs only for active SurvivorAwareness.
+Conditional registration retains existing equal or conflicting foreign
+definitions and their dictionary/save identities; a conflicting material set
+holds the owned supply recipes. The legacy large-pane identity,
+0.8 weight, native assets, large-sheet mold and four-crucible scale remain
+explicit source facts. [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md)
+owns this connected supply/repair integration and its qualification.
 
 Each action owns a private token-checked binding capsule holding the exact
 native handles. NPC runtime retains that capsule and original queue until
@@ -310,7 +329,7 @@ this action still owning its current first entry. The NPC clears its old
 farming flag before queue completion starts a legitimate successor. An
 obsolete callback removes only its old exact entry and acknowledges that
 owner, without resetting a replacement or advanced queue, dispatching
-orphaned work or clearing successor flags. Perform requires the same original current-queue custody. Force-cancel
+orphaned work or clearing successor flags. Native perform requires the original current-queue custody and authenticated action end. Its retained post-perform completion validates the exact retirement queue and successor snapshot, then applies the old effect without changing successor flags. Force-cancel
 refuses changed captured body/window receivers and preserves native queue
 iteration while scheduling exact old-owner cancellation.
 
@@ -2484,3 +2503,15 @@ The existing private shelter and held-ground boundary owners retain purpose, kno
 ## Architectural literature and maintained private learning (D3.16)
 
 StudySources owns original source identity, exact natural pages, fictional edition relevance and separate scorer projections. Native Literature and ordinary source acquisition/reading own physical exposure. Existing Study produces distinct person responses; ConceptKnowledge retains source-bound assessed reading and unassessed received associations with individual maintenance, current-state retrieval and separate once-only use ledgers. Planner/Controller inquiry uses actual acquired native room/frontier facts and Standing; Knowledge projects current claims and refuses obsolete selections. Actual Communication reception owns teaching. Education/2 stays under its existing imported custody. [D3.16](Batches/D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md) records exact evidence and remaining shared ML/lifespan/strategy scope.
+
+## Normal pane startup and native completion handoff (D3.17)
+
+Normal `Main.main` installs the pane definition weave through supported
+self-attach, alongside the agent path. Native Java-mod loading precedes
+ScriptManager.Load and the dictionary closure. The shared pane action owns
+current-cell/floor/member and existing reach2/native-helper geometry independently
+of the client wrapper. Actual native perform retires the action before complete;
+the sealed wrapper retains exact post-perform body/item/window/queue and
+successor custody for once-only completion, preserving successor flags.
+[D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) records actual Main23, handoff27/6 and helper bounds18/1.
+Earlier injected and manually ordered proofs retain their historical scope.

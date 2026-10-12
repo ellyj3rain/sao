@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.6.16.0-pre-alpha` |
+| Version | `2.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -629,3 +629,30 @@ The [historical transition](Batches/Transitions/VERSION-20261010-feature-scope-c
 | Batch | Date | Name | Threads |
 |---|---|---|---|
 | [D3.16](Batches/D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md) | 2026-10-12 | Architectural literature and person-private learning | D3 authored source conveyance, private maintained learning and ordinary inquiry/current claims |
+
+## Owned window pane supply and repair - 2026-10-12 04:36 UTC / 21:36 PDT
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) | 2026-10-12 | Owned window pane supply and repair | D3 original pane supply and shared human/private native repair |
+
+## D3.17 unpublished candidate standing supersession - 2026-10-12 05:20 UTC / 22:20 PDT
+
+The preceding D3.17 catalogue row records its earlier qualified but unpublished
+candidate. Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is reopened and OPEN before merge:
+normal shipping installation, actual timed-action completion order and shared
+physical geometry require confirmed corrections. That preceding row supplies
+retained candidate chronology and evidence; it is not current delivered-product
+standing. Actual delivered scope remains through D3.16 (181 units) until D3.17
+recloses with its required integration/proof/package/publication. The existing
+assessed kohai coordinate remains pending this same outcome; its arithmetic is
+not rolled back or credited again. Append-only history, full D3 and FIFO survive.
+
+## D3.17 current actual-path standing - 2026-10-12 06:29 UTC / 23:29 PDT
+
+[D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is reclosed with actual normal-entry/native-order/shared
+geometry evidence. Its earlier row remains the single chronological and kohai
+entry; current delivered source scope again totals182. The reopened acceptance
+and its correction history remain appended. There is no second credit, batch
+allocation or rewrite of previous source packets. Protected PR160 completion
+remains its separate publication evidence; full D3 stays active.

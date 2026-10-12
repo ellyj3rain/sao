@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.6.16.0-pre-alpha` |
+| Version | `2.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -2192,3 +2192,62 @@ This supersedes the current A/B/C/D tier projection using the source-linked171-u
 **Control contract.** Apply the methods to any task on two independent, interlocking axes: development controls over actual units, code/dependency/environment relationships, execution/integration, check/review scope and proof reuse; batch organization of units into integrated increments, coherent connected outcomes or full parent deliveries. Record concrete units/variables, their relationship to the shipment boundary and the actual throughput constraint. Changing one axis can retain the other. Preserve scope, sufficient evidence, ownership, dependencies, historical identities and once-only credit. Useful-output throughput and publication frequency are assessed separately, with observed and expected gains distinguished.
 
 **Application.** D3 keeps Emmetropic batch organization and contextual development controls. Native probes can use Granular controls inside that shipment, and Beacon parent integration retains necessary fine proof. All D3 obligations and D4–D6 FIFO continue. Existing PM, review, liaison, governance and native instruction consumers carry the rule. No new automatic selector, grant, version policy or SAO product credit is established.
+
+## DR-065 | 2026-10-12 04:16 UTC / 21:16 PDT | Owned pane registration and shared repair
+
+**Status.** Implementation application of DR-058, DR-060 and DR-061 within
+the accepted D3.17 outcome; native source and the first integrated reviews
+retain their proof and bounded corrections.
+
+**Source and reason.** Native source inspection establishes that
+`WorldDictionary.ScriptsLoaded` closes script-item loading before Lua's
+`OnGameBoot`; the required `ScriptLoadMode` and `ScriptBucket` parsing
+types are not exposed at that late Lua event. Conditional registration must
+resolve absent, equal and conflicting legacy definitions while native loading
+is still open. The original definition owner therefore uses the existing
+SAO agent weave at `WorldDictionary.ScriptsLoaded` entry, gated by active
+SurvivorAwareness, before native closure. Its temporary native source-loading
+context is restored. Existing foreign definition objects and dictionary/save
+identities retain their ownership.
+
+**Application.** The owned three materials and three large-sheet supply recipes
+preserve the inspected compatibility names, native asset references,
+0.8 large-pane weight, mold and four-crucible scale. The shared Lua
+`SAO.WindowPaneAction` remains the live repair producer; human/private
+consumers and optional forwarding rejoin its guarded admission and measured
+payment/restoration. Authenticated saved `AddWindowAction.complete`
+identities retain legacy reader continuity. This narrow native startup seam
+serves the same owned supply/repair finishing condition rather than creating
+a new product, architectural programme or blanket source override.
+
+**Evidence and continuation.** Qualification04 and first correctness/coherence
+reviews support the native lifecycle, source-preserving registration and
+shared effect within their declared controlled environment. The available-pane
+binding correction and genuine legacy-owner replay proof remain explicit
+pending acceptance. D3.17 closes only with sufficient affected qualification,
+one stamped package and the protected publication workflow. Full D3,
+furniture/remaining repertoire/server and wider learning/strategy obligations
+remain active; one delivered kohai is assessed once at closure.
+
+### DR-065 qualified D3.17 application - 2026-10-12 04:36 UTC / 21:36 PDT
+
+The original startup/supply/shared repair outcome and required native source
+facts are qualified. The shared available-pane correction and authentic legacy
+producer/save/current-consumer replay are confirmed by both same reviewers.
+Source-applicable native phases remain retained; the public historical replay
+instrument now pins the qualified old producer with explicit missing-input
+standing. One kohai records useful progress under unfinished D3 and mechanically
+carries the coordinate; stamped package and protected publication retain their
+actual receipts. The registration seam, ownership and remaining scope are
+unchanged.
+
+### DR-065 actual shipping and native lifecycle correction - 2026-10-12 06:29 UTC / 23:29 PDT
+
+The same D3.17 application now qualifies normal Main installation/self-attach,
+actual perform-before-complete custody and independent shared physical bounds.
+The three actual automated findings are resolved by source and focused proof,
+rather than an approval bypass. The native startup seam remains pre-closure
+and one producer owns the effect. Earlier source/package tests retain their
+exact limited meaning. One assessed kohai is earned once; actual Java changes
+require the second supported build without a numerical build quota or new
+scope. Full D3 and FIFO remain active.

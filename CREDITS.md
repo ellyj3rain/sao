@@ -31,20 +31,30 @@ no shipped clinical or trait-registration claim in this batch.
 Workshop 3378304610, mod id `RepairableWindows`, installed version 2.1.0 with
 Build 42.13 minimum; upstream project
 <https://github.com/demiurgeQuantified/RepairableWindows>.
-**Optional installed API integration; no source or assets copied.**
+**Inspected behavior/data facts and original SAO implementation; no source or custom assets copied.**
 
-C112 invokes the installed AddWindowAction for the native glass replacement
+C112 introduced the optional installed AddWindowAction bridge for native glass replacement
 and exact pane consumption, with a bespoke actor/body/world/window/material
 binding guard and measured completion receipt. The same wrapper preserves valid
 player action queues and closes the installed missing-pane completion race.
 The optional package retains its own definitions, UI, media and StarlitLibrary
 dependency. SAO owns autonomous admission, native-result attribution, private
 performed experience and cancellation lifecycle. A source-adoption grant is
-unestablished; this integration uses the installed API and redistributes none
+unestablished; the historical bridge used the installed API and redistributed none
 of that package's source or media.
 Installed native constructor argument projection retains the exact character
 and window names. SAO's private binding capsules and disposal callbacks are
 bespoke integration state and never enter the optional package's arguments.
+
+D3.17 owns original compatibility definitions, native large-sheet supply and
+one guarded shared human/NPC repair producer. The inspected legacy item/mold
+names, 0.8 large-pane scale, four-crucible supply and native asset references
+retain albion/source attribution. Native engine assets remain references;
+no RepairableWindows runtime or custom media is redistributed. Optional
+callers forward to the owned producer, and genuine historical completed-owner
+identities retain saved-result reader continuity. The source-owned package
+works without requiring RepairableWindows or Starlit for this defined outcome.
+[D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) states the exact qualification and remaining scope.
 
 ## Colonist Awareness Overhaul (CAO)
 
