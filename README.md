@@ -184,7 +184,7 @@ currency with `python tools/development_graph.py --check`.
 
 ## Status
 
-`2.6.15.0-pre-alpha` - the coordinate is computed by the version machine
+`2.6.16.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -712,3 +712,5 @@ The [feature-scope reconciliation](Batches/Transitions/VERSION-20261010-feature-
 [D3.14](Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md) is CLOSED: native metal flooring joins exact acquired recipe knowledge/materials, permitted supported placement and native payment to actual walking surface/cover and ordinary reached shelter/recovery. Full D3 remains OPEN.
 
 [D3.15](Batches/D3.15-20261011-2245Z-1545PST-metal-enclosure-access.md) is CLOSED for the connected remaining native metal enclosure/access outcome through exact private acquired means, native physical producers, ordinary distinct consumers and saved feedback. Full D3 remains OPEN; the delivered increment receives one kohai.
+
+[D3.16](Batches/D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md) is CLOSED for three original native pamphlets through private acquisition/reading, independently produced bounded responses, maintained memory/received teaching and ordinary inquiry/current claims. The first family includes varied civilian architecture, serviceability, routes and supply. Full D3, broader doctrine/strategy and learned ML remain OPEN; this coherent increment receives one kohai.

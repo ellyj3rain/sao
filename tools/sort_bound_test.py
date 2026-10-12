@@ -63,6 +63,8 @@ SORT = re.compile(r"table\.sort\s*\(\s*([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)")
 
 # (file, the list being sorted) -> what bounds its length.
 BOUNDED = {
+    ("SAO_ProceduralPlanning.lua", "eligible"):
+        "planDoubleGate stops scanning context.options after index128 before inserting at most one eligible row per option; at most128 rows reach the sort, before the distinct-entity selection retains15",
     ("SAO_ProceduralPlanning.lua", "prior"):
         "generatorPower.rejectedGenerators retains at most32 exact identities; one current insertion yields at most33 entries, and prior excludes that current key before sorting, so at most32 keys are sorted before retaining31 plus the current identity",
     ("SAO_ProceduralPlanning.lua", "ranked"):

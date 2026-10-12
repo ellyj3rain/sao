@@ -74,6 +74,7 @@ STDLIB = PZ_DIR / "stdlib.lua"
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from menu_reach import strip_lua                       # noqa: E402
+from lua_read import function_body                    # noqa: E402
 
 # Every gmatch, anchored on the word itself so both spellings are
 # caught: `string.gmatch(subject, "pat")` and `subject:gmatch("pat")`.
@@ -144,6 +145,8 @@ def literal_pattern(args):
 
 # Patterns built at runtime, and why they cannot match empty.
 DYNAMIC = {
+    ("SAO_Cognition.lua", "study-literal-grammar"):
+        "only the local retainLiteral loop inside C.produceStudyResponse; all four callers must be the registered literal natural grammar and relation pairs, and each actual extracted pattern is checked in native stdlib",
     ("SAO_LeisureMusic.lua", "source-dance-choice"):
         "extracts the two fixed JukeboxMenu onEnableDancing/onDisableDancing function definitions; every pattern requires the nonempty literal function prefix and closing end",
     ("SAO_Perception.lua", "split"):
@@ -153,13 +156,62 @@ DYNAMIC = {
         "\":\" - single characters that are inert inside a set",
 }
 
+# Closed producer/helper ownership, including every actual literal caller.
+# A new grammar, alias, caller, argument or site requires its own examination.
+SCOPED = {
+    ('SAO_Cognition.lua', 'C.produceStudyResponse', 'retainLiteral'): {
+        '[Aa]n? ([%a ]+) may contain an? ([%a ]+)%.': 'may-contain',
+        '[Aa]n? ([%a ]+) may contain (maintenance access)%.': 'may-contain',
+        '[Aa]n? ([%a ]+) may cause ([%a ]+)%.': 'may-cause',
+        '[Aa]n? ([%a ]+) can support ([%a ]+)%.': 'supports',
+    },
+}
 
-def registered_dynamic(name, args, src):
+
+def scoped_literal_patterns(name, args, src, site):
+    key = (name, 'C.produceStudyResponse', 'retainLiteral')
+    if key not in SCOPED or args != 'pattern' or site is None:
+        return None
+    owner = function_body(src, key[1])
+    helper = function_body(src, key[2])
+    if not owner or not helper or src.count(owner) != 1 or src.count(helper) != 1:
+        return None
+    owner_at, helper_at = src.index(owner), src.index(helper)
+    if not (owner_at <= helper_at < site < helper_at + len(helper) <= owner_at + len(owner)):
+        return None
+    code = strip_lua(src)
+    declarations = list(re.finditer(r'\blocal\s+function\s+retainLiteral\s*\(\s*pattern\s*,\s*verb\s*\)', code))
+    if len(declarations) != 1 or not (owner_at <= declarations[0].start() < helper_at):
+        return None
+    if (re.sub(r'\s+', '', helper).count('page:gmatch(pattern)') != 1
+            or len(re.findall(r'\bpattern\b', strip_lua(helper))) != 2):
+        return None
+    calls = list(re.finditer(r'\bretainLiteral\s*\(', src))
+    # Reject escaping references as well as unexamined calls.
+    if len(re.findall(r'\bretainLiteral\b', code)) != len(calls):
+        return None
+    actual = {}
+    for call in calls:
+        text = call_text(src, call.end() - 1)
+        if call.start() < helper_at and owner_at <= call.start() and text and re.sub(r'\s+', '', text) == 'pattern,verb':
+            continue
+        if not (helper_at + len(helper) <= call.start() < owner_at + len(owner)):
+            return None
+        pair = re.fullmatch(r'\s*"((?:[^"\\]|\\.)*)"\s*,\s*"((?:[^"\\]|\\.)*)"\s*', text or '')
+        if not pair or pair.group(1) in actual:
+            return None
+        actual[pair.group(1)] = pair.group(2)
+    return tuple(actual) if actual == SCOPED[key] else None
+
+
+def registered_dynamic(name, args, src, site=None):
     """Only the declared split construction and its actual inert separators.
 
     A filename alone is not authority for another dynamic gmatch site. A new
     construction or separator must be examined rather than inherit this claim.
     """
+    if scoped_literal_patterns(name, args, src, site) is not None:
+        return (name, 'study-literal-grammar')
     if name == 'SAO_LeisureMusic.lua' and args is not None:
         compact = re.sub(r"\s+", "", args)
         declaration = 'localpattern="JukeboxMenu%."..name.."=function%(player%)%s+.-%s+end"'
@@ -186,6 +238,36 @@ def registered_dynamic(name, args, src):
             return None
         separators.append(pattern)
     return (name, "split") if separators and set(separators) == {"|", ":"} else None
+
+
+def scoped_controls(src):
+    site = src.index('page:gmatch(pattern)') + len('page:')
+    expected = ('SAO_Cognition.lua', 'study-literal-grammar')
+    if registered_dynamic('SAO_Cognition.lua', 'pattern', src, site) != expected:
+        return ['actual closed study grammar is not registered']
+    first = 'retainLiteral("[Aa]n? ([%a ]+) may contain an? ([%a ]+)%.","may-contain")'
+    controls = [
+        ('nullable grammar', first, 'retainLiteral("([^|]*)","may-contain")'),
+        ('unregistered grammar', first, 'retainLiteral("unexamined (%a+)","may-contain")'),
+        ('escaped helper reference', first, first + '\nlocal escaped=retainLiteral'),
+        ('pattern rewritten inside helper', 'local function retainLiteral(pattern,verb)',
+         'local function retainLiteral(pattern,verb)\npattern="[^|]*"'),
+    ]
+    failures=[]
+    for label,before,after in controls:
+        if src.count(before)!=1:
+            failures.append(label + ' control anchor drift');continue
+        changed=src.replace(before,after,1)
+        changed_site=changed.index('page:gmatch(pattern)')+len('page:')
+        if registered_dynamic('SAO_Cognition.lua','pattern',changed,changed_site) is not None:
+            failures.append(label + ' escaped scoped declaration')
+        else: print('  CONTROL rejected: ' + label)
+    outside=src+'\nfunction C.unownedGrammar(page,pattern) for value in page:gmatch(pattern) do end end\n'
+    outside_site=outside.rindex('page:gmatch(pattern)')+len('page:')
+    if registered_dynamic('SAO_Cognition.lua','pattern',outside,outside_site) is not None:
+        failures.append('another dynamic owner inherited this filename')
+    else: print('  CONTROL rejected: outside-owner dynamic site')
+    return failures
 
 
 def build():
@@ -244,12 +326,15 @@ def main():
             else:
                 if baseline.preserved(path, line):
                     continue
-                registered = registered_dynamic(path.name, args, src)
+                registered = registered_dynamic(path.name, args, src, m.start())
                 dynamic.append((path.name, line, registered))
                 if registered == ('SAO_LeisureMusic.lua', 'source-dance-choice'):
                     for name in ('onEnableDancing', 'onDisableDancing'):
                         pattern = 'JukeboxMenu%.' + name + ' = function%(player%)%s+.-%s+end'
                         literal.setdefault(pattern, []).append(f'{path.name}:{line} fixed dynamic variant')
+                elif registered == ('SAO_Cognition.lua', 'study-literal-grammar'):
+                    for pattern in scoped_literal_patterns(path.name, args, src, m.start()):
+                        literal.setdefault(pattern, []).append(f'{path.name}:{line} actual scoped caller')
 
     print(f"  gmatch call sites : {total}")
     print(f"  literal patterns  : {len(literal)}")
@@ -301,6 +386,13 @@ def main():
             faults.append(
                 f"DYNAMIC argues {key[0]}'s `{key[1]}` and it no longer "
                 "builds a pattern at runtime - the entry describes no code")
+
+    cognitive_source=strip_lua((LUA/'shared/SAO_Cognition.lua').read_text(encoding='utf-8'),strings=False)
+    faults.extend(scoped_controls(cognitive_source))
+    if JDK.exists() and PZ.exists() and STDLIB.exists() and SRC.exists():
+        answer,err=ask_engine(['[^|]*'])
+        if answer!='Y': faults.append('native nullable-pattern control did not report an empty match: '+str(err))
+        else: print('  CONTROL detected: native nullable pattern matches empty')
 
     print()
     print("VERDICT:")

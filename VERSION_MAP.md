@@ -25,8 +25,8 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.6.15.0-pre-alpha` |
-| Classified delivered scope | `A1-D3.15` |
+| Current version | `2.6.16.0-pre-alpha` |
+| Classified delivered scope | `A1-D3.16` |
 | Current C generation | `20261005-product-consolidation` |
 | Feature-scope reconciliation | [20261010](Batches/VERSION_SCOPE_RECONCILIATION.json); prior replay retained |
 | Unconsumed scope | `D3` |
@@ -226,6 +226,7 @@ the machine. Names, dates, and threads below come from
 | `D3.13` | 2026-10-11 | kohai | `2.6.13.0-pre-alpha` | Native metal walls, frames and doors through usable shelter | The complete installed metal wall/frame/door family in both orientations, exact acquired knowledge/resources and permitted native stages through actual doorway use and ordinary reached shelter/recovery supplies coherent building progress within OPEN D3. |
 | `D3.14` | 2026-10-11 | kohai | `2.6.14.0-pre-alpha` | Native metal floors through usable shelter | The installed native metal floor family, exact acquired knowledge/resources and permitted observed placement through actual walking surface/cover and ordinary reached shelter/recovery supplies coherent building progress within OPEN D3. |
 | `D3.15` | 2026-10-11 | kohai | `2.6.15.0-pre-alpha` | Native metal enclosure and access through physical use | The complete recorded remaining native metal enclosure/access family joins privately intended permitted construction, exact acquired native means and actual distinct physical consumers with durable feedback and queue/save custody as connected building progress within OPEN D3; the full metal-building feature and D3 module are not claimed complete. |
+| `D3.16` | 2026-10-12 | kohai | `2.6.16.0-pre-alpha` | Architectural literature and person-private learning | Three original native literature carriers join actual private acquisition/exposure, independent bounded responses, maintained assessed and unassessed received memory, current claim selection and ordinary source-specific inquiry with source/save/replay controls as coherent building progress within OPEN D3 and broader learning scope; full doctrine, curriculum, learned ML and strategic modules remain unfinished. |
 
 Dotted labels record child scope. Each capability row above receives credit once;
 child delivery leaves its explicitly active parent open. Closed parent aggregation
@@ -349,6 +350,6 @@ another batch. Subsequent delivered work determines its own tier:
 
 | If newly delivered scope is | Result |
 |---|---|
-| patch or hotfix | `2.6.15.1-pre-alpha` |
-| kohai | `2.6.16.0-pre-alpha` |
+| patch or hotfix | `2.6.16.1-pre-alpha` |
+| kohai | `2.7.0.0-pre-alpha` |
 | minor | `2.7.0.0-pre-alpha` |

@@ -150,6 +150,7 @@ local function retain(id, edge, provenance)
     local identity=key(edge)
     local prior=s.relations[identity]
     if reusable(prior,id,identity,provenance.acquiredAt) and prior.affirmed==(edge.affirmed~=false)
+        and provenance.literature==nil
         and prior.basis==provenance.basis then
         witness(s,prior,provenance)
         return true,copy(prior)
@@ -166,7 +167,11 @@ local function retain(id, edge, provenance)
         relation=edge.relation,contextId=edge.contextId,affirmed=edge.affirmed~=false,
         basis=provenance.basis,sourceId=provenance.sourceId,speakerId=provenance.speakerId,
         acquiredAt=provenance.acquiredAt,channel=provenance.channel,
-        parentId=provenance.parentId,modal=provenance.basis~="observed-relation"}
+        parentId=provenance.parentId,modal=provenance.basis~="observed-relation",
+        literature=provenance.literature and copy(provenance.literature) or nil,
+        policy=provenance.policy and copy(provenance.policy) or nil,
+        lastUsedAt=provenance.literature and provenance.acquiredAt or nil,
+        usageCount=provenance.literature and 0 or nil}
     s.relations[identity]=row
     witness(s,row,provenance)
     return true,copy(row)
@@ -188,6 +193,288 @@ function K.observeRelation(id, roomKey, objectKey)
     end
     return accepted,receipt
 end
+-- Owned assessment remains in the person's existing conceptual store. Saved
+-- answers carry their exact exposure and source; queries only project decay.
+local LEARNING_LIMIT=32
+local function learningRows(id,create)
+    local s=state(id,create)
+    if not s then return nil end
+    if create and not s.readingAssessments then s.readingAssessments={sequence=0,rows={},readThrough=0,useReceipts={}} end
+    local l=s.readingAssessments
+    return type(l)=="table" and finite(l.sequence) and type(l.rows)=="table" and #l.rows<=LEARNING_LIMIT
+        and finite(l.readThrough) and type(l.useReceipts)=="table" and l or nil
+end
+local function learningSource() return SAO.Study and SAO.Study.sources end
+local function exposure(id,sequence)
+    local study=SAO.Study
+    local row=study and study.sourceExposure and study.sourceExposure(id,sequence)
+    return type(row)=="table" and row.actorId==id and finite(row.atHours) and row.atHours<=SAO.History.countyHours()
+        and row.status=="completed" and row or nil
+end
+local function validAssessment(id,row,at)
+    local source=learningSource()
+    if type(row)~="table" or row.actorId~=id or not finite(row.sequence) or row.sequence%1~=0 or row.sequence<1
+        or row.sequence>(record(id).studyAssessmentSequence or 0)
+        or row.id~="assessment/"..id.."/"..row.sequence or not finite(row.atHours) or row.atHours>at
+        or not finite(row.startedAt) or row.startedAt>row.atHours or not finite(row.beganAt) or row.beganAt>row.startedAt
+        or not source or not source.matches(row.sourceId,row.revision,row.textHash,row.pages)
+        or source.relevance(row.sourceId).status~="fictional-edition-available"
+        or type(row.task)~="table" or type(row.response)~="table" or not finite(row.exposureSequence)
+        or row.exposureSequence%1~=0 or type(row.itemId)~="string" or type(row.itemType)~="string"
+        or row.exposureWorkId==nil or row.owner~="SAO.Study" or row.token~="learning:response-assessed"
+        or row.responseActorId~=id or row.nativeOwner~="SAOStudyResponseAction/ISBaseTimedAction"
+        or row.nativeStarted~=true or row.nativeCompleted~=true or not finite(row.progress) or row.progress<=0
+        or row.status~="completed" or type(row.policy)~="table" or row.policy.id~="sao-reading-retention/1"
+        or not finite(row.policy.halfLifeHours) or row.policy.halfLifeHours<12 or row.policy.halfLifeHours>720
+        or not finite(row.policy.threshold) or row.policy.threshold~=.35
+        or not finite(row.lastUsedAt) or row.lastUsedAt<row.atHours or row.lastUsedAt>at
+        or not finite(row.usageCount) or row.usageCount<0 or row.usageCount%1~=0 or row.usageCount>64
+        then return nil end
+    local grade=source.grade(row.sourceId,row.task,row.response)
+    if grade.status~=row.verdict then return nil end
+    return grade
+end
+local function retention(row,at)
+    local age=math.max(0,at-row.lastUsedAt)
+    local halfLife=row.policy.halfLifeHours*(1+math.min(row.usageCount,8)*.1)
+    return math.exp(-math.log(2)*age/halfLife)
+end
+function K.learningCondition(id,body)
+    if not record(id) then return nil end
+    local out={actorId=id,atHours=SAO.History.countyHours(),status="body-unavailable",ageCurve="not-established"}
+    local ok,age=pcall(function() return SAO.History.ageOf(id) end)
+    if ok and finite(age) and age>=0 and age<=130 then out.age=age end
+    local okTraits,traits=pcall(function() return SAO.Disposition.traits(id) end)
+    if okTraits and type(traits)=="table" and finite(traits.discipline) then out.discipline=traits.discipline end
+    if body and SAO.Needs and SAO.Needs.ownsRecoveryBody(id,body) then
+        local okRead,needs=pcall(SAO.Needs.read,body)
+        local okTemper,temper=pcall(SAO.Needs.temper,body)
+        local okRange,painMaximum,drunkMaximum=pcall(function()
+            return CharacterStat.PAIN:getMaximumValue(),CharacterStat.INTOXICATION:getMaximumValue()
+        end)
+        if okRead and type(needs)=="table" and finite(needs.fatigue) and needs.fatigue>=0 and needs.fatigue<=1
+            and okRange and finite(painMaximum) and painMaximum>0 and finite(drunkMaximum) and drunkMaximum>0
+            and okTemper and type(temper)=="table" and finite(temper.pain) and temper.pain>=0 and temper.pain<=painMaximum
+            and finite(temper.drunk) and temper.drunk>=0 and temper.drunk<=drunkMaximum and out.discipline then
+            out.fatigue,out.pain,out.drunk=needs.fatigue,temper.pain/painMaximum,temper.drunk/drunkMaximum
+            out.healthScale="native-CharacterStat-maximum"
+            out.status="acquired-current-body"
+            out.bodyToken=body:getModData().SAOExternalToken
+        end
+    end
+    return out
+end
+local function retrievalCondition(id,row)
+    local body=SAO.Body and SAO.Body.get(id)
+    local current=K.learningCondition(id,body)
+    local formation=row.maintenanceCondition or row.policy.formationCondition
+    local ageChanged=current and formation and current.age~=nil and formation.age~=nil and current.age~=formation.age
+    local multiplier=1
+    if current and current.status=="acquired-current-body" then
+        -- Temporary body state changes recall availability rather than
+        -- rewriting elapsed memory age or the person's acquired chronology.
+        multiplier=math.max(.1,1-.5*current.fatigue-.3*current.pain-.3*current.drunk)
+    end
+    return multiplier,ageChanged,current
+end
+
+function K.assessmentInterest(id,topic)
+    local person=record(id)
+    local s=person and person.proceduralPlanning
+    local interest=.2
+    for _,identity in ipairs(s and s.order or {}) do
+        local p=s.purposes[identity]
+        if p and p.status~="completed" and p.status~="abandoned" then
+            if topic=="civilian" and (p.domain=="social" or p.domain=="shelter" or p.leisure)
+                or topic=="engineering" and (p.domain=="construction" or p.materialWork or p.shelterConstruction or p.generatorPower)
+                or topic=="military" and (p.domain=="conflict" or p.domain=="resources" or p.resourceCategory) then interest=.85 end
+        end
+    end
+    return interest
+end
+function K.assessmentPolicy(id,sourceId)
+    local source=learningSource();local d=source and source.source(sourceId)
+    if not d then return nil end
+    -- Age means age of this remembered response. This declared model makes
+    -- current purpose and actual recorded uses influence retention, not skill.
+    local interest=K.assessmentInterest(id,d.topic)
+    local condition=K.learningCondition(id,SAO.Body and SAO.Body.get(id))
+    local discipline=condition and condition.discipline or .5
+    return {id="sao-reading-retention/1",formationCondition=condition,halfLifeHours=(24+96*interest)*(.75+.5*discipline),threshold=.35,interestAtAssessment=interest,
+        meaning="modeled bounded response retention; not observed general mastery"}
+end
+function K.consumeAssessment(id,sequence)
+    local study=SAO.Study
+    local row=study and study.assessmentOutcome and study.assessmentOutcome(id,sequence)
+    local at=SAO.History.countyHours()
+    if not row or row.sequence~=sequence or not validAssessment(id,row,at) then return false,"assessment-owner-unavailable" end
+    local e=exposure(id,row.exposureSequence)
+    if not e or e.workId~=row.exposureWorkId or e.itemId~=row.itemId or e.itemType~=row.itemType
+        or e.sourceId~=row.sourceId or e.revision~=row.revision or e.textHash~=row.textHash
+        or e.atHours>row.beganAt then return false,"exact-exposure-unavailable" end
+    local l=learningRows(id,true)
+    if not l then return false,"learning-store-unavailable" end
+    if sequence<=l.readThrough then
+        for _,held in ipairs(l.rows) do if held.id==row.id then return true,"already-consumed" end end
+        return false,"retired-assessment"
+    end
+    if #l.rows>=LEARNING_LIMIT then table.remove(l.rows,1) end
+    l.rows[#l.rows+1]=copy(row);l.sequence=l.sequence+1;l.readThrough=sequence
+    return true,"consumed"
+end
+function K.assessedRelations(id)
+    local l=learningRows(id,false);local at=SAO.History.countyHours()
+    local latest,order={},{}
+    for _,row in ipairs(l and l.rows or {}) do
+        local grade=validAssessment(id,row,at)
+        if grade then
+            if latest[row.sourceId]==nil then order[#order+1]=row.sourceId end
+            latest[row.sourceId]={row=row,grade=grade}
+        end
+    end
+    local out={}
+    for _,sourceId in ipairs(order) do
+        local held=latest[sourceId];local row,grade=held.row,held.grade
+        local recallFactor=retrievalCondition(id,row)
+        local strength=retention(row,at)*recallFactor
+        if grade.status=="passed" and strength>=row.policy.threshold then
+            for index,edge in ipairs(grade.relations) do
+                local e=copy(edge)
+                e.id=row.id..":"..index;e.actorId=id;e.sourceId=sourceId;e.sourceRevision=row.revision
+                e.textHash=row.textHash;e.exposureWorkId=row.exposureWorkId;e.exposureSequence=row.exposureSequence
+                e.assessmentId=row.id;e.acquiredAt=row.atHours;e.basis="assessed-reading-association"
+                e.modal=true;e.affirmed=true;e.retention="assessed-modeled";e.strength=strength
+                e.assessmentMeaning=grade.meaning
+                out[#out+1]=e
+            end
+        end
+    end
+    return out
+end
+function K.assessmentMemory(id,sourceId)
+    local l=learningRows(id,false);local at=SAO.History.countyHours()
+    local latest
+    for _,row in ipairs(l and l.rows or {}) do
+        if row.sourceId==sourceId and validAssessment(id,row,at) then latest=row end
+    end
+    if not latest then return nil end
+    local recallFactor,ageChanged,condition=retrievalCondition(id,latest)
+    local strength=retention(latest,at)*recallFactor
+    return {actorId=id,sourceId=sourceId,assessmentId=latest.id,verdict=latest.verdict,
+        strength=strength,ageChanged=ageChanged,currentCondition=condition,retained=latest.verdict=="passed" and strength>=latest.policy.threshold,
+        response=latest.verdict=="passed" and strength>=latest.policy.threshold and copy(latest.response) or nil,
+        lastUsedAt=latest.lastUsedAt,usageCount=latest.usageCount,mode=latest.task.mode,atHours=at,
+        meaning="bounded explicitly assessed response; general policy unproved"}
+end
+function K.assessmentReceipts(id)
+    local l=learningRows(id,false);local at=SAO.History.countyHours();local out={}
+    for _,row in ipairs(l and l.rows or {}) do if validAssessment(id,row,at) then out[#out+1]=copy(row) end end
+    return out
+end
+local function receivedValid(id,row,at)
+    local l=type(row)=="table" and row.literature
+    local source=learningSource()
+    return valid(row) and row.actorId==id and row.basis=="received-literature-association"
+        and type(row.id)=="string" and row.id:sub(1,#("concept/"..id.."/"))=="concept/"..id.."/"
+        and type(row.sourceId)=="string" and type(row.speakerId)=="string" and row.speakerId~=id
+        and finite(row.acquiredAt) and row.acquiredAt<=at and type(l)=="table" and source
+        and source.hasRelation(l.sourceId,l.revision,l.textHash,row)
+        and source.relevance(l.sourceId).status=="fictional-edition-available"
+        and type(l.assessmentActorId)=="string" and type(l.assessmentId)=="string"
+        and l.assessmentId:sub(1,#("assessment/"..l.assessmentActorId.."/"))=="assessment/"..l.assessmentActorId.."/"
+        and l.assessmentVerdict=="passed" and l.recipientAssessment=="unassessed"
+        and type(row.policy)=="table" and row.policy.id=="sao-reading-retention/1"
+        and finite(row.policy.halfLifeHours) and row.policy.halfLifeHours>=12 and row.policy.halfLifeHours<=720
+        and row.policy.threshold==.35 and finite(row.lastUsedAt) and row.lastUsedAt>=row.acquiredAt and row.lastUsedAt<=at
+        and finite(row.usageCount) and row.usageCount>=0 and row.usageCount<=64 and row.usageCount%1==0
+end
+function K.receivedLiteratureMemory(id,edgeId)
+    local s=state(id,false);local at=SAO.History.countyHours()
+    for _,identity in ipairs(s and s.order or {}) do
+        local row=s.relations[identity]
+        if row and row.id==edgeId and receivedValid(id,row,at) then
+            local factor,ageChanged,condition=retrievalCondition(id,row)
+            local strength=retention(row,at)*factor
+            local retained=strength>=row.policy.threshold
+            return {actorId=id,edgeId=edgeId,sourceId=row.literature.sourceId,sourceRevision=row.literature.revision,
+                textHash=row.literature.textHash,receivedAt=row.acquiredAt,lastUsedAt=row.lastUsedAt,usageCount=row.usageCount,
+                strength=strength,retained=retained,maintenanceDue=ageChanged,currentCondition=condition,
+                originalAssessment=copy(row.literature),recipientAssessment="unassessed",
+                response=retained and {from=row.from,relation=row.relation,into=row.into} or nil,
+                meaning="recipient recall of received conditional association; comprehension unassessed"}
+        end
+    end
+end
+function K.receivedLiteratureRelations(id)
+    local s=state(id,false);local at=SAO.History.countyHours();local out={}
+    for _,identity in ipairs(s and s.order or {}) do
+        local row=s.relations[identity]
+        if receivedValid(id,row,at) then
+            local memory=K.receivedLiteratureMemory(id,row.id)
+            if memory and memory.retained then
+                local edge=copy(row)
+                edge.receptionId=row.sourceId;edge.sourceId=row.literature.sourceId
+                edge.sourceRevision=row.literature.revision;edge.textHash=row.literature.textHash
+                edge.retention="recipient-modeled-reception";edge.strength=memory.strength
+                edge.sourceAssessmentActorId=row.literature.assessmentActorId
+                edge.sourceAssessmentId=row.literature.assessmentId;edge.recipientAssessment="unassessed"
+                out[#out+1]=edge
+            end
+        end
+    end
+    return out
+end
+
+-- A current maintained inquiry is the owner of this cognitive use. Generic
+-- caller-authored relation tables cannot refresh a source's remembered answer.
+function K.consumeInquiryUse(id,purposeId)
+    local person=record(id);local s=person and person.proceduralPlanning
+    local p=s and s.purposes[purposeId]
+    local inquiry=p and p.inquiry
+    local at=SAO.History.countyHours()
+    if not p or p.origin~="personal-expectation" or p.status~="maintained" or not inquiry or not inquiry.path
+        or type(inquiry.path.roots)~="table" then return false end
+    local l=learningRows(id,false)
+    local conceptState=state(id,false)
+    if not conceptState then return false end
+    local receipt=purposeId.."|"..inquiry.path.id
+    for _,ledger in ipairs({l and l.useReceipts or {},conceptState.receivedUseReceipts or {}}) do
+        for _,old in ipairs(ledger) do if old==receipt then return true end end
+    end
+    local active={} for _,edge in ipairs(K.assessedRelations(id)) do active[edge.assessmentId]=true end
+    local heard={} for _,edge in ipairs(K.receivedLiteratureRelations(id)) do heard[edge.id]=true end
+    local used,touched=false,{}
+    for _,edge in ipairs(inquiry.path.roots) do
+        if edge.actorId==id and active[edge.assessmentId] and not touched[edge.assessmentId] then
+            touched[edge.assessmentId]=true
+            for _,row in ipairs(l.rows) do if row.id==edge.assessmentId and row.lastUsedAt<=at then
+                row.lastUsedAt=at;row.usageCount=math.min(64,row.usageCount+1);used=true
+            end end
+        end
+    end
+    for _,edge in ipairs(inquiry.path.roots) do
+        if edge.actorId==id and heard[edge.id] and not touched[edge.id] then
+            local row=conceptState.relations[key(edge)]
+            if row and row.id==edge.id then
+                touched[edge.id]=true;row.lastUsedAt=at;row.usageCount=math.min(64,row.usageCount+1)
+                row.maintenanceCondition=K.learningCondition(id,SAO.Body and SAO.Body.get(id))
+                row.maintenanceReceipts=row.maintenanceReceipts or {}
+                if #row.maintenanceReceipts>=8 then table.remove(row.maintenanceReceipts,1) end
+                row.maintenanceReceipts[#row.maintenanceReceipts+1]={actorId=id,owner="SAO.ProceduralPlanning",purposeId=purposeId,
+                    pathId=inquiry.path.id,atHours=at,condition=copy(row.maintenanceCondition),meaning="actual-source-dependent-plan-use"}
+                used=true
+            end
+        end
+    end
+    if used then
+        local receipts
+        if l then receipts=l.useReceipts else conceptState.receivedUseReceipts=conceptState.receivedUseReceipts or {};receipts=conceptState.receivedUseReceipts end
+        if #receipts>=LEARNING_LIMIT then table.remove(receipts,1) end
+        receipts[#receipts+1]=receipt
+    end
+    return used
+end
+
 local function available(id,contextId,background)
     local edges,denied,recalledContrary={},{},{}
     local sourceOmitted,sourceTruncated=0,false
@@ -216,6 +503,8 @@ local function available(id,contextId,background)
         local edge=s.relations[identity]
         if personal(edge) and edge.affirmed and (edge.contextId==nil or edge.contextId==contextId) then edges[#edges+1]=copy(edge) end
     end
+    for _,edge in ipairs(K.assessedRelations(id)) do edges[#edges+1]=copy(edge) end
+    for _,edge in ipairs(K.receivedLiteratureRelations(id)) do edges[#edges+1]=copy(edge) end
     local education=SAO.Education
     if education and type(education.backgroundRelations)=="function" then
         local ok,roots=pcall(education.backgroundRelations,id)
@@ -267,7 +556,7 @@ function K.teachingOffer(fromId,toId)
     local ours=available(fromId,nil)
     for _,edge in ipairs(ours) do
         if edge.contextId==nil and edge.affirmed and edge.modal
-            and (edge.basis=="personal-association" or edge.basis=="taught-association")
+            and (edge.basis=="personal-association" or edge.basis=="taught-association" or edge.basis=="assessed-reading-association" or edge.basis=="received-literature-association")
             and not spoken[edge.id] then return copy(edge) end
     end
     return nil
@@ -286,6 +575,19 @@ function K.receiveAssociation(id,message)
     if denied[receipt.edge.from.."|"..receipt.edge.into] then return false,"own-contrary-evidence" end
     for _,edge in ipairs(theirs) do
         if key(edge)==key(receipt.edge) then return false,"already-known" end
+    end
+    local edge=receipt.edge
+    if edge.basis=="assessed-reading-association" or edge.basis=="received-literature-association" then
+        local source=learningSource()
+        local origin=edge.literature or {sourceId=edge.sourceId,revision=edge.sourceRevision,textHash=edge.textHash,
+            assessmentActorId=edge.actorId,assessmentId=edge.assessmentId,assessmentVerdict="passed"}
+        if not source or not source.hasRelation(origin.sourceId,origin.revision,origin.textHash,edge)
+            or type(origin.assessmentActorId)~="string" or type(origin.assessmentId)~="string"
+            or origin.assessmentVerdict~="passed" then return false,"received-literature-source-unavailable" end
+        origin=copy(origin);origin.recipientAssessment="unassessed"
+        return retain(id,edge,{basis="received-literature-association",sourceId=receipt.id,
+            speakerId=receipt.from,parentId=edge.id,channel=receipt.channel,acquiredAt=receipt.at,
+            literature=origin,policy=K.assessmentPolicy(id,origin.sourceId)})
     end
     return retain(id,receipt.edge,{basis="taught-association",
         sourceId=receipt.id,speakerId=receipt.from,parentId=receipt.edge.id,

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.6.15.0-pre-alpha` |
+| Version | `2.6.16.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -797,3 +797,7 @@ Installed metal floor definitions and their actual prerequisite/payment/placemen
 ## Native metal enclosure and access (D3.15)
 
 The complete recorded remaining metal family uses installed recipe, placement, payment and physical-consumer contracts. Window-frame apertures, actual movable glazing, native fence collision/climbability and one-leaf gate operation retain distinct native state. [D3.15](Batches/D3.15-20261011-2245Z-1545PST-metal-enclosure-access.md) supplies exact source anchors and observed native/private lifecycle qualification; loaded/rendered/server effects retain their own proof.
+
+## Native original literature and inquiry (D3.16)
+
+Installed Item.Load/initialiseItem, Literature custom pages, native transfer/reading and actual room/door/LOS observation supply the physical source and private context. The source-bound person store owns assessment and modeled maintenance; native identity/table serialization preserves it without replay credit. [D3.16](Batches/D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md) distinguishes actual native APIs from controlled actors/clock/queue/geometry and bounded literal/arithmetic cognition; no trained ML or rendered acceptance is inferred.

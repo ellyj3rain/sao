@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.6.15.0-pre-alpha` |
+| Version | `2.6.16.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -464,3 +464,7 @@ assigned at closure.
 ## Architectural and doctrinal learning source
 
 The operator adds varied civilian architecture and architectural/engineering/military literature as a continuing knowledge-conveyance line. Inspect actual native content and carriers, then fill missing or shallow content through person-private reading/instruction/experience, retained comprehension and transfer. Individual purpose, ambition, relationships and circumstances shape architectural choices and organic tactical/strategic synthesis. Historical and contemporary material respects the world date. SAO owns acquisition/learning/action; Speakeasy and later ZAO retain their bridge ownership. D3.15 and D4-D6 order remain as recorded in SESSION_STATE.
+
+Knowledge must be maintained. Attributes, health and aging affect retention and retrieval alongside use, rehearsal, interest and contrary experience, under the operator's Speakeasy knowledge direction. D3.16 supplies the first source-bound SAO application; upcoming learning and cognitive batch groups, including D6, carry the broader requirement. Reading exposure, assessed understanding, retained memory and current accessibility remain distinct. Current Speakeasy model and bridge integration require its owning source and two-way liaison contact; this dependency does not change FIFO or allocate future group numbers.
+
+SAO's source acquisition, person-private maintenance, response, appraisal and physical experience remain coupled to Speakeasy's understander, retriever, speaker, shared foundation and adaptation goals. Each upcoming learning increment identifies its actual model inputs, output authority, source and model revisions, assessment isolation and feedback consumers. Bounded native learning mechanisms retain their measured behavior while learned ML competence and runtime integration continue through the shared owning contracts.

@@ -62,7 +62,7 @@ K.TOPICS = { "self", "person", "zombies", "dead", "food", "water",
              "mutations",
              "world",
              -- [C38] the life before, and the day it started.
-             "before", "started" }
+             "before", "started", "literature" }
 
 function K.topics()
     local out = {}
@@ -568,6 +568,30 @@ local function aboutWorld(id, opts)
     return out
 end
 
+-- Current person-owned assessed relations join the existing conversation
+-- catalogue. General expectations retain uncertainty and no action authority.
+local function aboutLiterature(id,opts)
+    if not SAO.ConceptKnowledge then return {} end
+    local ok,rows=readSource("conceptKnowledge.assessedRelations",function()
+        return SAO.ConceptKnowledge.assessedRelations(id)
+    end)
+    if not ok or type(rows)~="table" then return nil end
+    local out={}
+    for _,row in ipairs(SAO.ConceptKnowledge.receivedLiteratureRelations(id)) do rows[#rows+1]=row end
+    for _,row in ipairs(rows) do
+        if row.actorId==id and (row.basis=="assessed-reading-association" or row.basis=="received-literature-association") and row.modal==true then
+            out[#out+1]={fact=row.basis=="received-literature-association" and "received-literature-association" or "assessed-literature-association",
+                recipientAssessment=row.recipientAssessment,sourceAssessmentActorId=row.sourceAssessmentActorId,
+                sourceAssessmentId=row.sourceAssessmentId,receptionId=row.receptionId,actorId=id,claimId=row.id,
+                sourceId=row.sourceId,sourceRevision=row.sourceRevision,textHash=row.textHash,
+                assessmentId=row.assessmentId,exposureWorkId=row.exposureWorkId,acquiredHour=row.acquiredAt,
+                from=row.from,relation=row.relation,into=row.into,retention=row.basis=="received-literature-association" and "currently-retained-received-association" or "currently-retained-assessed-response",
+                knowledgeKind="conditional-general-association",uncertainty="Local facts, permission and broader understanding remain unresolved."}
+        end
+    end
+    return out
+end
+
 local ABOUT = {
     self = aboutSelf,
     person = aboutPerson,
@@ -580,6 +604,7 @@ local ABOUT = {
     lessons = aboutLessons,
     mutations = aboutMutations,
     world = aboutWorld,
+    literature = aboutLiterature,
     before = aboutBefore,
     started = aboutStarted,
 }
@@ -1218,7 +1243,20 @@ function K.selectClaims(catalogue, selection)
     local claims = {}
     for index = 1, checked.count do
         local ref = catalogue.claims[index].ref
-        if wanted[ref] then claims[#claims + 1] = checked.byRef[ref] end
+        if wanted[ref] then
+            local entry=checked.byRef[ref]
+            if entry.topic=="literature" then
+                local current=aboutLiterature(catalogue.personId,{})
+                local matching=false
+                local _,heldBytes=detach(entry.fact)
+                for _,fact in ipairs(current or {}) do
+                    local _,bytes=detach(fact)
+                    if bytes==heldBytes then matching=true;break end
+                end
+                if not matching then return nil,"literature-claim-no-longer-current" end
+            end
+            claims[#claims + 1]=entry
+        end
     end
     return {
         schema = "sao-claim-selection",

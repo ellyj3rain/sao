@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `2.6.15.0-pre-alpha` |
+| Version | `2.6.16.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -139,3 +139,7 @@ The CLOSED [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md)
 ## D3.15 connected metal enclosure/access source
 
 [D3.15](Batches/D3.15-20261011-2245Z-1545PST-metal-enclosure-access.md) is CLOSED for the remaining recorded native family through actual distinct physical consumers, exact private means and saved custody. Parent D3 remains OPEN; one kohai credits this Emmetropic building increment.
+
+## D3.16 source-owned literary learning
+
+[D3.16](Batches/D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md) is CLOSED for the first original family through native source conveyance, maintained private and received memory, actual ordinary inquiry and current claims. Full D3 and broader learning/architecture/doctrine/strategy remain active. Shared Neo source-defined contract continuity keeps inter-repository obligations mechanical across Scions and existing Mousecat History.

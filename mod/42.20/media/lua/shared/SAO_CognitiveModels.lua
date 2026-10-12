@@ -67,7 +67,7 @@ local SHELTER_ENTITIES={["Base.WoodenWallFrame"]=true,["Base.WoodenWallLvl1"]=tr
 local COLLECTOR_ENTITIES = { ["Base.RainCollector"]=true, ["Base.RainCollectorRound"]=true,
     ["Base.RainCollector_Tarp"]=true, ["Base.RainCollectorRound_Tarp"]=true }
 local EXTENDED = { ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true,["collector-construction"]=true,
-    ["animal-care"]=true, ["window-repair"]=true,["window-installation"]=true, ["material-crafting"]=true, ["tool-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
+    ["animal-care"]=true, ["window-repair"]=true,["window-installation"]=true, ["material-crafting"]=true, ["tool-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["reading-assessment"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
     ["weekone-performance-hearing"]=true }
@@ -126,6 +126,7 @@ local function occurrencePosition(e)
         or e.kind=="shelter-movement" and ("shelter-movement/"..e.actorId.."/")
         or e.kind=="entry-outcome" and ("entry/"..e.actorId.."/")
         or e.kind=="recovery-outcome" and ("recovery/"..e.actorId.."/")
+        or e.kind=="reading-assessment" and ("assessment/"..e.actorId.."/")
         or e.kind=="study-outcome" and ("study/"..e.actorId.."/")
         or e.kind=="commitment-outcome" and ("commitment/"..e.actorId.."/")
         or e.kind=="instrument-use" and ("instrument/"..e.actorId.."/")
@@ -185,6 +186,17 @@ local function validEvent(e)
         or (e.status~="completed" and e.status~="no-effect"
             and e.status~="interrupted" and e.status~="unavailable")
         or (e.perspective~="performed" and e.perspective~="observed") then return false end
+    if e.kind=="reading-assessment" then
+        return plainKeys(e,{id=true,actorId=true,observerId=true,worldHours=true,occurredAtHours=true,kind=true,category=true,
+            perspective=true,status=true,sourceId=true,itemId=true,itemType=true,actionKind=true,succeeded=true,detail=true,capabilities=true})
+            and e.actorId==e.observerId and e.perspective=="performed" and e.status=="completed" and e.category=="learning"
+            and occurrencePosition(e)~=nil and text(e.sourceId,160) and e.sourceId:sub(1,4)=="sao:"
+            and text(e.itemType,160) and finite(e.itemId) and e.itemId==math.floor(e.itemId)
+            and finite(e.occurredAtHours) and e.occurredAtHours<=e.worldHours and e.occurredAtHours>=0
+            and (e.actionKind=="comprehension" or e.actionKind=="retrieval" or e.actionKind=="transfer")
+            and type(e.succeeded)=="boolean" and text(e.detail,160)
+            and (e.capabilities==nil or capabilities(e.capabilities))
+    end
     if e.kind=="generator-operation" then
         if not plainKeys(e, GENERATOR_EVENT_KEYS) or e.category~="utilities"
             or e.status~="completed" or e.perspective~="performed" or e.actorId~=e.observerId
@@ -861,6 +873,7 @@ local function rememberPlanEvidence(state, e, yes)
         if e.effectMetric=="sharpness" or text(e.sourceId,160) and e.sourceId:sub(1,7)=="fixing:" then
             retain("tool-repair", "construction", (e.conditionLoss or 0)>0 or (e.headConditionLoss or 0)>0, "damage")
         end
+    elseif e.kind == "reading-assessment" then retain("study", "learning", e.succeeded)
     elseif e.kind == "study-outcome" then retain("study", "learning", true)
     elseif e.kind == "commitment-outcome" then retain("commitment", "social", true)
     elseif e.kind == "instrument-use" then retain("recreate", "leisure", e.succeeded)
@@ -888,6 +901,8 @@ local function extendedEvidence(modelId,state,e)
         remember(state,key,"Personally performed "..e.actionKind.." outcome",e.succeeded,e)
     elseif e.kind=="commitment-outcome" then
         remember(state,"direct:accepted-work:"..e.sourceId..":"..e.actionKind,"Personally performed accepted "..e.actionKind.." work; broader social effects unmeasured",true,e)
+    elseif e.kind=="reading-assessment" then
+        remember(state,"direct:assessment:"..e.sourceId..":"..e.actionKind,"Personally produced an assessed bounded response; broader understanding unproved",e.succeeded,e)
     elseif e.kind=="study-outcome" then
         remember(state,"direct:study:"..e.itemType,"Personally completed native manual reading; understanding and competence unassessed",true,e)
     elseif e.kind=="instrument-use" then

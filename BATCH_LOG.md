@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.6.15.0-pre-alpha` |
+| Version | `2.6.16.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -623,3 +623,9 @@ The [historical transition](Batches/Transitions/VERSION-20261010-feature-scope-c
 | Batch | Date | Name | Threads |
 |---|---|---|---|
 | [D3.15](Batches/D3.15-20261011-2245Z-1545PST-metal-enclosure-access.md) | 2026-10-11 | Native metal enclosure and access through physical use | D3 connected native metal enclosure/access and independent physical consumers |
+
+## Architectural literature and person-private learning - 2026-10-12 01:14 UTC / 18:14 PST
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D3.16](Batches/D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md) | 2026-10-12 | Architectural literature and person-private learning | D3 authored source conveyance, private maintained learning and ordinary inquiry/current claims |

@@ -356,7 +356,7 @@ local HOBBY_KINDS={ ["leisure-meditation"]=true,["leisure-exercise"]=true,
     ["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true }
 local EXTENDED = { ["generator-operation"] = true, ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true, ["collector-construction"] = true,
-    ["animal-care"] = true, ["window-repair"] = true,["window-installation"] = true, ["material-crafting"] = true, ["tool-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
+    ["animal-care"] = true, ["window-repair"] = true,["window-installation"] = true, ["material-crafting"] = true, ["tool-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["reading-assessment"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
     ["weekone-performance-hearing"]=true }
@@ -432,7 +432,7 @@ local function sameData(a, b)
 end
 local BEHAVIOR_RESULT = {}
 function C.experience(id, supplied, authority)
-    if type(supplied)=="table" and (supplied.kind=="generator-operation" or supplied.kind=="gate-operation" or supplied.kind=="shelter-movement" or supplied.kind=="shelter-construction" or supplied.kind=="shelter-use" or supplied.kind=="bed-construction" or supplied.kind=="collector-construction" or supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="window-installation" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
+    if type(supplied)=="table" and (supplied.kind=="generator-operation" or supplied.kind=="gate-operation" or supplied.kind=="shelter-movement" or supplied.kind=="shelter-construction" or supplied.kind=="shelter-use" or supplied.kind=="bed-construction" or supplied.kind=="collector-construction" or supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="window-installation" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="reading-assessment" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
         and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
     local now = clock()
     if not C.settings().enabled or not now then return false, "disabled" end
@@ -639,6 +639,71 @@ end
 
 -- Reading pages is an acquired execution fact. Neither this receipt nor its
 -- prediction claims understanding, assessed knowledge, skill or practice XP.
+-- A bounded ordinary responder, separate from the held source rubric. It
+-- reconstructs explicit literal associations and calculates stated arithmetic.
+-- Free explanations and broader semantic interpretation remain unscored.
+function C.produceStudyResponse(id,body,workId)
+    local study=SAO.Study;local w=study and study.assessmentWork and study.assessmentWork(id)
+    if not w or w.actorId~=id or w.id~=workId or w.status~="responding" or w.response~=nil
+        or not SAO.Needs.ownsRecoveryBody(id,body) then return false end
+    local condition=SAO.ConceptKnowledge.learningCondition(id,body)
+    if not condition or condition.status~="acquired-current-body" then return false end
+    local answer={kind="structured-reconstruction",relations={},explanation="Unscored; local conditions still need observation."}
+    local budget=math.max(1,math.min(12,math.floor(4+8*condition.discipline-5*condition.fatigue-4*condition.pain-4*condition.drunk)))
+    local relations={}
+    if w.mode=="comprehension" and type(w.pages)=="table" then
+        for _,page in ipairs(w.pages) do
+            -- Only these bounded natural sentence forms are reconstructed.
+            -- No access to source projections or the grader's answers occurs.
+            local function retainLiteral(pattern,verb)
+                for from,into in page:gmatch(pattern) do
+                    if #from<=48 and #into<=48 then
+                        local function term(text) return text:lower():gsub(" ","-") end
+                        local edge={from=term(from),relation=verb,into=term(into)}
+                        local found=false
+                        for _,old in ipairs(relations) do if old.from==edge.from and old.relation==edge.relation and old.into==edge.into then found=true end end
+                        if not found then relations[#relations+1]=edge end
+                    end
+                end
+            end
+            retainLiteral("[Aa]n? ([%a ]+) may contain an? ([%a ]+)%.","may-contain")
+            retainLiteral("[Aa]n? ([%a ]+) may contain (maintenance access)%.","may-contain")
+            retainLiteral("[Aa]n? ([%a ]+) may cause ([%a ]+)%.","may-cause")
+            retainLiteral("[Aa]n? ([%a ]+) can support ([%a ]+)%.","supports")
+            for into in page:gmatch("Maintenance access can support ([%a ]+)%.") do
+                relations[#relations+1]={from="maintenance-access",relation="supports",into=into:lower():gsub(" ","-")}
+            end
+        end
+    elseif w.memory and w.memory.actorId==id and w.memory.retained and w.memory.response then
+        relations=w.memory.response.relations or {}
+    end
+    for index=1,math.min(budget,#relations) do answer.relations[index]=copy(relations[index]) end
+    if w.task.kind=="interval-and-relations" and #relations>0
+        and type(w.task.stock)=="number" and type(w.task.dailyDraw)=="number" and w.task.dailyDraw>0 then
+        answer.days=w.task.stock/w.task.dailyDraw
+    end
+    local accepted=study.submitResponse(id,body,workId,answer)
+    if accepted then
+        local person=SAO.Identity.get(id);person.studyAssessmentWork.responseOwner="SAO.Cognition.literal-and-arithmetic/1"
+        person.studyAssessmentWork.responseCondition=copy(condition)
+    end
+    return accepted
+end
+function C.assessmentOutcome(id,sequence)
+    local rows=SAO.ConceptKnowledge and SAO.ConceptKnowledge.assessmentReceipts(id) or {}
+    local r for _,row in ipairs(rows) do if row.sequence==sequence then r=row;break end end
+    if not r or r.verdict=="unscored" then return false,"unscored-or-unavailable" end
+    local canonical=SAO.Study and SAO.Study.assessmentOutcome(id,sequence)
+    if not canonical or canonical.sourceId~=r.sourceId or canonical.textHash~=r.textHash
+        or canonical.revision~=r.revision or not sameData(canonical.response,r.response) then return false,"assessment-owner-unavailable" end
+    local now=clock();if not now then return false,"clock-unavailable" end
+    local x=privateFact(id,"reading-assessment","learning",r.id,now,r.atHours)
+    x.sourceId,x.itemType,x.itemId=r.sourceId,r.itemType,tonumber(r.itemId)
+    x.actionKind,x.succeeded=r.task.mode,r.verdict=="passed"
+    x.detail=r.textHash..":"..r.revision..":"..r.task.id
+    return nativeExperience(id,"reading-assessment",sequence,x)
+end
+
 function C.studyOutcome(id,receipt)
     local now=clock()
     if not now or type(receipt)~="table" or receipt.actorId~=id or receipt.status~="completed"

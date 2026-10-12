@@ -8,10 +8,10 @@
 | Branch | neo/d3-construction-crafting-repair-utilities |
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
-| Shared contracts | C12, C18, C20, C21, C24, C30, C31, C32, C33 |
+| Shared contracts | C3, C6, C12, C13, C16, C18, C19, C20, C21, C24, C26, C28, C30, C31, C32, C33 |
 | Implementation | CLOSED D3.1-D3.15 deliver linked crafting, maintenance, utilities and native construction through actual ordinary consumers. Complete remaining D3 scope remains OPEN. |
 | Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.6.15.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
+| Version | 2.6.16.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
 | Publication | D3.1-D3.13 self-merged through PR142-PR154; D3.14 follows the same protected workflow with actual merge retained in its completion receipt. |
 
 ## Product and current implementation
@@ -268,3 +268,11 @@ The operator selects Granular, Emmetropic and Beacon after preserving delivery b
 ## D3.15 coherent closure - 2026-10-11 23:50 UTC / 16:50 PST
 
 [D3.15](D3.15-20261011-2245Z-1545PST-metal-enclosure-access.md) is CLOSED for the recorded remaining metal enclosure and access family through actual native physical use. One kohai records this connected building progress. Full D3 remains OPEN for its remaining construction/crafting/repair/utilities and integration obligations; D4-D6 retain FIFO. Detailed native controls, integrated review and one protected publication follow the selected Emmetropic boundary.
+
+## D3.16 source-bound literature continuation - 2026-10-12 00:10 UTC / 17:10 PST
+
+[D3.16](D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md) is OPEN under the operator-added architectural/civilian/military learning direction. The first original physical source family joins actual private exposure to explicit assessed retention and conceptual transfer through existing owners. This connected building-support increment retains all wider knowledge/doctrine, peer-bridge and D3-D6 obligations. Reason, owner, scope, controls, dependencies and evidence precede implementation; one kohai is assessed only on delivered scope at closure.
+
+## D3.16 coherent authored-conveyance closure - 2026-10-12 01:14 UTC / 18:14 PST
+
+[D3.16](D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md) is CLOSED for the first original architectural literature family through native acquisition/reading, distinct bounded responses, maintained private and received memory, actual ordinary inquiry and current claims. It receives one kohai as progress within the unfinished building/knowledge scope. Full D3 and wider civilian/doctrinal/engineering/strategy/ML obligations remain OPEN; D4-D6 retain FIFO. The global shared Neo continuity correction retains its separate source and qualification.

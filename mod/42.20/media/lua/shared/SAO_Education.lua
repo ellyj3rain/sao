@@ -348,3 +348,8 @@ function E.applyFeedbackPrior(person, rawJson, rawSha, request, bindings, tick)
         then return false, "education-feedback-stale-previous" end
     return E.import(rec, rawJson, rawSha, bindings, tick)
 end
+
+-- Detached SAO-owned assessed receipts; the imported Education /2 schema is unchanged.
+function E.ownedReadingAssessments(id)
+    return SAO.ConceptKnowledge and SAO.ConceptKnowledge.assessmentReceipts(id) or {}
+end

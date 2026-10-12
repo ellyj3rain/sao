@@ -1,0 +1,46 @@
+module SAO
+{
+    imports { Base }
+    item BuildingsRoutesUpkeep_Civilian
+    {
+        DisplayName = Buildings routes and upkeep - Civilian,
+        DisplayCategory = Literature,
+        ItemType = base:literature,
+        Weight = 0.2,
+        Icon = Notebook,
+        CanBeWrite = true,
+        PageToWrite = 4,
+        StaticModel = EmptyNotebook,
+        WorldStaticModel = EmptyNotebook,
+        ReadType = newspaper,
+        OnCreate = SAO_Literature_OnCreate,
+    }
+    item BuildingsRoutesUpkeep_Engineering
+    {
+        DisplayName = Buildings routes and upkeep - Engineering,
+        DisplayCategory = Literature,
+        ItemType = base:literature,
+        Weight = 0.2,
+        Icon = Notebook,
+        CanBeWrite = true,
+        PageToWrite = 4,
+        StaticModel = EmptyNotebook,
+        WorldStaticModel = EmptyNotebook,
+        ReadType = newspaper,
+        OnCreate = SAO_Literature_OnCreate,
+    }
+    item BuildingsRoutesUpkeep_Military
+    {
+        DisplayName = Buildings routes and upkeep - Military,
+        DisplayCategory = Literature,
+        ItemType = base:literature,
+        Weight = 0.2,
+        Icon = Notebook,
+        CanBeWrite = true,
+        PageToWrite = 4,
+        StaticModel = EmptyNotebook,
+        WorldStaticModel = EmptyNotebook,
+        ReadType = newspaper,
+        OnCreate = SAO_Literature_OnCreate,
+    }
+}
