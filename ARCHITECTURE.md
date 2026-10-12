@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.3.0-pre-alpha` |
+| Version | `2.7.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2514,3 +2514,7 @@ Fresh output availability and actual original consumer input effects govern supp
 Existing person perception, source inquiry, model choice and procedural purposes retain the original consumer identity. Registered ConstructionPolicy/BuildLogic and ExtractionPolicy/native action callbacks extend the existing ResourceProduction claim/capsule/action/result owners. Remembered inspected types motivate inquiry; signed current source observations and native input roles admit exact transfer. Original handcraft allocation runs before start; current owned action/queue/phase and exact manual inputs govern continuation after native queued reservation becomes active.
 
 Native world locators identify position/index, not instance generation. The existing physical owner commits the full paid fresh canonical result before writing exact work/part relationships through native object modData. WorldSources observes source-specific type, whole geometry and current capability, retaining source provenance separately from native identity. Existing weak exact-object bindings qualify current instances; persisted canonical backlinks plus current private observation/native geometry qualify cold reconstruction. Missing or replaced relationships refuse prior-build use credit without erasing physical truth. Observers never mint links. [D3.20](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md) retains source-specific scope and complete parent obligations.
+
+## Native factory provenance and partial use (D3.21)
+
+Existing ResourceProduction captures the original native prop return or explicit callback replacement after native payment/create, preserving full fresh canonical ownership and part relationships. Fixed native InputScript use amounts bind selected identities, applied consumed/keep lists and actual before/after units. A source entity is provenance; a native part may carry no script or the exact source-associated script, and its class/full geometry/current object remain independently measured. Models preserves this distinction alongside legacy thumpable evidence and canonical callback authenticity. [D3.21](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) qualifies ordinary acquired Stool/current and cold surface/original work; unknown callbacks/stages/resource channels and thermal consumers retain owning parent requirements.

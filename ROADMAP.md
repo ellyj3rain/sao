@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.7.3.0-pre-alpha` |
+| Version | `2.7.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -495,3 +495,7 @@ Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md
 ## Native workspace materials and original use (D3.20)
 
 [D3.20](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md) closes useful ordinary person logging/acquisition/material/construction/cold-workspace/original-use progress. Complete D3 retains source-specific prop/callback/stage/resource results, material/site/finishing work, equipment/service maintenance, five original utilities and required authoritative execution. Full accepted parent and broader goals remain active; D4-D6 follow FIFO.
+
+## Native furnishing factory/current-use progress (D3.21)
+
+[D3.21](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) closes useful native factory/partial-payment through ordinary current and cold surface/original work. Complete D3 retains other source/stage/resource adapters, material/site/finishing/salvage/security, equipment/vehicle/garment maintenance, five original utilities and authoritative execution. Private physical helper support, actual service, shared archive/model adoption and mastery remain separate; D4-D6 retain FIFO.

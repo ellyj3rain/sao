@@ -9,9 +9,9 @@
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C3, C6, C12, C13, C16, C18, C19, C20, C21, C24, C26, C28, C30, C31, C32, C33 |
-| Implementation | CLOSED D3.1-D3.20 retain qualified useful outcomes. Complete native construction/material/site/service/authority integration remains under this OPEN parent before D4. |
+| Implementation | CLOSED D3.1-D3.21 retain qualified useful outcomes. Complete native construction/material/site/service/authority integration remains under this OPEN parent before D4. |
 | Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.7.3.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
+| Version | 2.7.4.0-pre-alpha; one kohai child progress increment while full D3 remains OPEN. |
 | Publication | D3.1-D3.18 retain protected publication through PR142-PR161 with exact completion receipts. D3.18 merged at `47c701823d5d520a6214c6fad693eaabf51bbb2e`; D3.19 qualified closure and selected stamped package await their actual protected merge. Full D3 continues through the operator-directed D4 transition. |
 
 ## Product and current implementation
@@ -385,3 +385,11 @@ D3.19 actually merged PR162 at `c356234069b5034b91ae3875273e8c1065dd3295`, with 
 ## D3.20 qualified progress — 2026-10-12 19:18 UTC / 12:18 PDT
 
 [D3.20](D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md) closes actual private logging and dropped-input acquisition through two original SawLogs effects, full paid Table construction, native cold persisted result matching and original stock/upkeep use. One kohai records useful progress. Remaining complete source-effect repertoire, site/finishing/equipment/service and authoritative execution stay under full D3; five original water/power mechanisms and wider shared learning/knowledge/doctrine goals retain their owners. Supported package/publication and counterpart archive/model adoption remain separate evidence. D4-D6 retain FIFO.
+
+## Native furnishing factory continuation — 2026-10-12 20:14 UTC / 13:14 PDT
+
+D3.20 actually merged PR163 at `aa46d424f63027b7418372155879114fd1e9e54d`, with current required CI/CodeQL, exact qualified package and independent custody release. [D3.21](D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) records the next coherent native factory/partial-payment through ordinary current surface/original-use dependency before public implementation. Root conservation/topology and factory candidates remain supporting units; no opening credit applies. Complete remaining D3 scope and D4-D6 FIFO continue.
+
+## D3.21 qualified progress and remaining parent — 2026-10-12 20:51 UTC / 13:51 PDT
+
+[D3.21](D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) closes source-bounded native factory/partial-payment through actual ordinary acquired Stool materials, paid prop, cold current surface and original Whetstone/Scissors use with independent feedback. One kohai records progress. Complete remaining construction/stage/resources, site/finishing/salvage/security, equipment/vehicle/garment, five original utility mechanisms and native authority stay active through D4; source/native helper packets do not close those consumers. Package/protected merge and shared archive/model adoption remain separate evidence.

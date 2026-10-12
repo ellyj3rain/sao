@@ -15,7 +15,8 @@ ROOT = Path(__file__).resolve().parent.parent
 CHECKS = ROOT / "tools/workspace_consumer_checks"
 GAME = Path(os.environ.get("PZ_DIR", r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid"))
 JDK = Path(os.environ.get("JDK_BIN", r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin"))
-CASES = {"normal": "logging-cases.lua", "saveflow": "logging-saveflow.lua"}
+CASES = {"normal": "logging-cases.lua", "saveflow": "logging-saveflow.lua",
+         "prop": "prop-cases.lua", "prop-negative": "prop-negative.lua"}
 CASES.update({f"parent-{name}": f"logging-parent-{name}.lua" for name in ("abandon", "cursor", "definition")})
 CASES.update({f"craft-{name}": f"logging-craft-{name}.lua" for name in ("manual", "phase", "owner")})
 CASES.update({f"relation-{name}": f"logging-relation-{name}.lua" for name in ("replace", "missing", "corrupt")})
@@ -27,7 +28,11 @@ JAVA = [ROOT / name for name in (
     "java/src/com/sao/engine/SAOExtractionObservation.java", "tools/recipe_ingredient_checks/RecipeIngredientNativeProbe.java",
     "tools/construction_policy_checks/ConstructionPolicyNativeProbe.java", "tools/recipe_policy_checks/RecipePolicyNativeProbe.java",
     "tools/luacheck/MovementCrossingProbe.java")] + HELPERS
+PROP_HELPER = CHECKS / "PropWorkspaceConsumerProbe.java"
 CONTROLS = {
+    "prop-script": ("prop-negative", "SAOWorldSources.java",
+        "if(part.getClass()!=IsoThumpable.class||nativeEntity!=null&&nativeEntity!=d.entity)return null;",
+        "if(part.getClass()!=IsoThumpable.class)return null;", "workspace_prop_wrong_native_script_refused"),
     "request": ("parent-abandon", "SAO_ResourceProduction.lua",
         "or not SAO.ProceduralPlanning.extractionRequestCurrent or SAO.ProceduralPlanning.extractionRequestCurrent(rt.id,rt.work)~=true",
         "or false", "workspace_logging_parent_change_refuses_tree"),
@@ -61,9 +66,11 @@ def main():
     out.mkdir(parents=True, exist_ok=False)
     classes = out / "classes"
     classes.mkdir()
+    prop = args.case in ("prop", "prop-negative")
+    java_sources = JAVA + [PROP_HELPER] if prop else JAVA
     base_driver = ROOT / "tools/d3_recipe_consumer_test.py"
     prelude_source = ROOT / "tools/recipe_consumer_checks/prelude.lua"
-    local_owned = [Path(__file__), base_driver, prelude_source, CHECKS / "scene-ports.lua", *JAVA,
+    local_owned = [Path(__file__), base_driver, prelude_source, CHECKS / "scene-ports.lua", PROP_HELPER, CHECKS / "prop-moveable-ports.lua", *JAVA,
                    *(CHECKS / name for name in CASES.values()), ROOT / "java/dist/SAOAgent.jar"]
     missing = [str(path) for path in local_owned if not path.is_file()]
     if missing:
@@ -81,6 +88,10 @@ def main():
         "media/lua/client/BuildingObjects/TimedActions/ISBuildAction.lua", "media/lua/shared/TimedActions/ISEquipWeaponAction.lua",
         "media/lua/server/CraftRecipeCode/CraftRecipe_BuildMenu.lua", "media/lua/server/BuildingObjects/ISShovelGroundCursor.lua",
         "media/lua/shared/BuildingObjects/TimedActions/ISShovelGround.lua")]
+    if prop:
+        native = [GAME / "media/lua/shared/luautils.lua", *native,
+                  GAME / "media/lua/shared/Moveables/ISMoveableDefinitions.lua",
+                  GAME / "media/lua/shared/Moveables/ISMoveableSpriteProps.lua"]
     declarations = sorted((GAME / "media/scripts/generated/items").glob("*.txt"))
     declarations += [GAME / name for name in (
         "media/scripts/generated/fluids.txt", "media/scripts/generated/energies.txt", "media/scripts/generated/timedactions.txt",
@@ -89,6 +100,8 @@ def main():
         "media/scripts/generated/recipes/recipes_ammunition.txt",
         "media/scripts/generated/entities/furniture/entity_carpentry_table_lvl1.txt",
         "media/scripts/generated/entities/blacksmith/workstations/entity_grindstone.txt", "media/newtiledefinitions.tiles")]
+    if prop:
+        declarations.append(GAME / "media/scripts/generated/entities/furniture/entity_log_stool.txt")
     native_inputs = [*native, *declarations, GAME / "projectzomboid.jar", GAME / "ZombieBuddy.jar", GAME / "stdlib.lua",
                      JDK / "java.exe", JDK / "javac.exe", Path(sys.executable)]
     missing_owned = [str(path) for path in owned if not path.is_file()]
@@ -103,7 +116,7 @@ def main():
         return 1 if missing_owned or args.required else 0
     inputs = list(dict.fromkeys([*local_owned, *owned, *native_inputs]))
     pins = {str(path): digest(path) for path in inputs}
-    compile_inputs = [*JAVA, ROOT / "java/dist/SAOAgent.jar", GAME / "projectzomboid.jar", GAME / "ZombieBuddy.jar", JDK / "javac.exe"]
+    compile_inputs = [*java_sources, ROOT / "java/dist/SAOAgent.jar", GAME / "projectzomboid.jar", GAME / "ZombieBuddy.jar", JDK / "javac.exe"]
     compile_pins = {str(path): digest(path) for path in compile_inputs}
     cp = os.pathsep.join(map(str, [ROOT / "java/dist/SAOAgent.jar", GAME / "projectzomboid.jar", GAME / "ZombieBuddy.jar"]))
     wrapper_source = ROOT / "tools/recipe_ingredient_checks/RecipeIngredientNativeProbe.java"
@@ -112,7 +125,22 @@ def main():
     if content.count("System.exit(0);") != 1:
         raise ValueError("private bootstrap wrapper requires exactly one original final exit")
     wrapper.write_text(content.replace("System.exit(0);", ""), encoding="utf-8")
-    compilation_sources = [wrapper if path == wrapper_source else path for path in JAVA]
+    compilation_sources = [wrapper if path == wrapper_source else path for path in java_sources]
+    compile_control = None
+    if args.control and CONTROLS[args.control][1].endswith(".java"):
+        if args.reuse_classes:
+            parser.error("native Java omission control requires its own current compilation")
+        _, filename, before, after, _ = CONTROLS[args.control]
+        source = next(path for path in java_sources if path.name == filename)
+        content = source.read_text(encoding="utf-8-sig")
+        if content.count(before) != 1:
+            raise ValueError("Java control must change exactly one current source clause")
+        controlled = out / "controlled-source" / filename
+        controlled.parent.mkdir()
+        controlled.write_text(content.replace(before, after), encoding="utf-8")
+        compile_pins["private-control:" + filename] = digest(controlled)
+        compilation_sources = [controlled if path == source else path for path in compilation_sources]
+        compile_control = {"source": str(source), "beforeSha256": digest(source), "captured": str(controlled), "capturedSha256": digest(controlled), "before": before, "after": after}
     compile_command = [str(JDK / "javac.exe"), "-encoding", "UTF-8", "-cp", cp, "-d", str(classes), *map(str, compilation_sources)]
     reused = None
     if args.reuse_classes:
@@ -143,8 +171,13 @@ def main():
     prelude = out / "prelude.lua"
     content = prelude_source.read_text(encoding="utf-8-sig").replace("__prepareIntegratedNative()", "__prepareWorkspaceNative()")
     content = content.replace("setPerkLevelDebug(Perks.Maintenance,10)", "setPerkLevelDebug(Perks.Maintenance,2)")
-    prelude.write_text(content + "\nfunction getDebug()return false end -- isolated nonrendering endpoint\n", encoding="utf-8")
-    selected = [prelude, *native, *owned, CHECKS / "scene-ports.lua", CHECKS / CASES[args.case]]
+    tail = "\nfunction getDebug()return false end -- isolated nonrendering endpoint\n"
+    extra = []
+    if prop:
+        tail = "\n__configurePropScene()\nfunction getDebug()return false end -- isolated nonrendering endpoint\nfunction getCore()return {getGameMode=function()return \"Sandbox\"end,isDedicated=function()return false end,getGoodHighlitedColor=function()return {}end,getBadHighlitedColor=function()return {}end}end\nfunction getScriptManager()return ScriptManager.instance end\n"
+        extra = [CHECKS / "prop-moveable-ports.lua"]
+    prelude.write_text(content + tail, encoding="utf-8")
+    selected = [prelude, *native, *extra, *owned, CHECKS / "scene-ports.lua", CHECKS / CASES[args.case]]
     captured = []
     for index, source in enumerate(selected):
         target = out / f"{index:02d}-{source.name}"
@@ -159,7 +192,7 @@ def main():
     shutil.copy2(GAME / "stdlib.lua", out / "stdlib.lua")
     command = [str(JDK / "java.exe"), "--enable-native-access=ALL-UNNAMED", "-Duser.home=" + str(out),
                "-Djava.library.path=" + str(GAME), "-Dsao.game=" + str(GAME), "-cp", str(classes) + os.pathsep + cp,
-               "LoggingWorkspaceConsumerProbe", str(GAME), *map(str, captured)]
+               "PropWorkspaceConsumerProbe" if prop else "LoggingWorkspaceConsumerProbe", str(GAME), *map(str, captured)]
     run = subprocess.run(command, cwd=GAME, capture_output=True, text=True, timeout=120)
     (out / "run.log").write_text(run.stdout + run.stderr, encoding="utf-8")
     checks = dict(re.findall(r"CHECK (workspace_[a-z0-9_]+)=(true|false)", run.stdout))
@@ -168,7 +201,7 @@ def main():
     status = "PASS" if stable and run.returncode == 0 and set(checks) == expected and all(value == "true" for value in checks.values()) else "FAIL"
     receipt = {"schema": "sao-d3.20-native-workspace-consumer/1", "status": status, "case": args.case,
                "pins": pins, "inputStable": stable, "compilePins": compile_pins, "compileExit": compile_exit,
-               "compileCommand": compile_command, "reusedCompilation": reused, "privateWrapperDelta": "remove only original final System.exit(0)",
+               "compileCommand": compile_command, "compileControl": compile_control, "reusedCompilation": reused, "privateWrapperDelta": "remove only original final System.exit(0)",
                "executables": {str(path.relative_to(classes)): digest(path) for path in classes.rglob("*.class")},
                "exitCode": run.returncode, "checks": checks, "missing": sorted(expected - set(checks)),
                "command": command, "logSha256": digest(out / "run.log"),

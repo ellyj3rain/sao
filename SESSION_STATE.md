@@ -1,17 +1,17 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.3.0-pre-alpha` |
+| Version | `2.7.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
-**As of** `[D3.20]`, 185 delivered source outcomes: 29 A, 52 B, 82 C products and twenty-two D records. D3 is the active OPEN parent. D3.20 is qualified CLOSED; supported package and protected publication retain separate receipts.
+**As of** `[D3.21]`, 186 delivered source outcomes: 29 A, 52 B, 82 C products and twenty-three D records. D3 remains the active OPEN parent. D3.21 is qualified CLOSED; supported package and protected publication retain separate receipts.
 
-Current qualified child: [D3.20 — Native workspace materials, construction and requesting use](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md), CLOSED inside OPEN D3. Complete source/service/authority delivery continues before D4.
+Current qualified child: [D3.21 — Native furnishing factories and current functional use](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md), CLOSED inside OPEN D3; complete source/service/authority work continues before D4.
 
-D3.20 qualifies ordinary personal native material acquisition, full construction, persisted current result and original stock/upkeep use. One kohai records progress at `2.7.3.0-pre-alpha`. Native proofs and bounded reviews pass; supported package and protected publication retain separate receipts.
+D3.21 qualifies ordinary native factory/partial-input construction, cold current surface and original crafting/upkeep use. One kohai records progress at `2.7.4.0-pre-alpha`; supported package and protected publication retain separate actual receipts.
 
 ## Delivered product
 
@@ -140,7 +140,7 @@ original purpose. Adoption and IDLE recovery reconcile lost native admissions
 without inventing effects or completion. Focused native and Controller proofs
 retain their exact inputs and boundaries. Final regression and review results
 live in the D3 record. The whole construction, crafting, repair and utilities
-parent remains OPEN. Its CLOSED D3.1 through D3.20 children retain native material work and usable consumers, source-bound architectural learning, pane supply/repair, furniture/recovery and purpose-bound stock/upkeep with saved continuity. Current replay derives `2.7.3.0-pre-alpha`; D3.20 receives one kohai inside the unfinished parent.
+parent remains OPEN. Its CLOSED D3.1 through D3.21 children retain native material work and usable consumers, source-bound architectural learning, pane supply/repair, furniture/recovery and purpose-bound stock/upkeep with saved continuity. Current replay derives `2.7.4.0-pre-alpha`; D3.21 receives one kohai inside the unfinished parent.
 
 [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is the
 CLOSED child for native plank crafting. Exact private log and saw
@@ -317,3 +317,11 @@ D3.19 is actually protected-merged through PR162 at `c356234069b5034b91ae3875273
 ## D3.20 qualified closure and continued D3 — 2026-10-12 19:18 UTC / 12:18 PDT
 
 [D3.20](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md) qualifies ordinary private native logging, exact new Log acquisition, SawLogs material supply, whole paid Table construction and actual cold saved result matching through the original Whetstone craft and Scissors repair. Current native73, focused dropped-input save/rebind37, affected lifecycle/refusal/omission packets and independent bounded reviews retain exact applicability. The current coordinate is `2.7.3.0-pre-alpha` with one kohai; supported package and protected publication retain actual receipts. Full D3 continues complete native/source/maintenance/utility/authority scope before D4. Broader knowledge, health/aging, civilian/military doctrine, strategy, Speakeasy/ZAO and source/model/adoption obligations remain active.
+
+## D3.20 publication and D3.21 opening — 2026-10-12 20:14 UTC / 13:14 PDT
+
+D3.20 is actually merged through PR163 at `aa46d424f63027b7418372155879114fd1e9e54d`, current version `2.7.3.0-pre-alpha`; current required367 and CodeQL passed and the exact qualified package/source/index/held/peer state was independently reanchored. [D3.21](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) is OPEN under full D3 for source-bounded native prop/callback final effects and partial native payment joined to ordinary acquired materials, fresh/cold surface and original requesting use. No opening credit applies. Complete construction/material/site/finishing/maintenance/five-utility/authority scope, wider knowledge/health/aging/doctrine/strategy/ML obligations and D4-D6 FIFO remain.
+
+## D3.21 qualified closure and continued full D3 — 2026-10-12 20:51 UTC / 13:51 PDT
+
+[D3.21](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) qualifies original native factory/partial-use payment and ordinary acquired Stool construction through native cold relationship/current surface and the original Whetstone/Scissors consumer. Public native54/negative36/omission, source-aware feedback and permanent driver qualification pass with exact applicability. Current coordinate `2.7.4.0-pre-alpha` credits one kohai. Supported package/protected publication retain separate receipts. Full D3, complete remaining source/maintenance/five-utility/authority work, wider knowledge/aging/doctrine/strategy/interrepo/ML contracts and D4-D6 FIFO remain active.

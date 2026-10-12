@@ -2998,7 +2998,7 @@ public final class SAOWorldSources {
                 if("native-thumpable".equals(factory)) {
                     if(!(part instanceof IsoThumpable)||nativeEntity!=d.entity)return null;
                 }else if("native-moveable-prop".equals(factory)) {
-                    if(part.getClass()!=IsoThumpable.class||nativeEntity!=null)return null;
+                    if(part.getClass()!=IsoThumpable.class||nativeEntity!=null&&nativeEntity!=d.entity)return null;
                 }else if(part.getClass()!=zombie.iso.objects.IsoFireplace.class||nativeEntity!=null)return null;
                 zombie.entity.components.crafting.CraftBench bench=part.getComponent(zombie.entity.ComponentType.CraftBench);
                 var required=d.entity.getComponentScriptFor(zombie.entity.ComponentType.CraftBench);
