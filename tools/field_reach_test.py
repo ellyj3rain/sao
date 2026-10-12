@@ -170,20 +170,85 @@ def dynamic_readers(src_all):
     return readers, literals
 
 
+def returned_observation_spans(source):
+    """Fresh typed observations may use a record-like local name.
+
+    Require lexical function ownership, an explicit schema/observed constructor,
+    direct return and no alias escape or reassignment. Ambiguous tables and
+    person identity constructors remain record candidates.
+    """
+    from menu_reach import strip_lua
+    code = strip_lua(source)
+    stack, functions = [], []
+    for token in re.finditer(r"\b(function|if|for|while|repeat|do|end|until)\b", code):
+        word = token.group()
+        if word in {"function", "if", "for", "while", "repeat"}:
+            stack.append([word, token.start(), word in {"for", "while"}])
+        elif word == "do":
+            if stack and stack[-1][2]:
+                stack[-1][2] = False
+            else:
+                stack.append(["do", token.start(), False])
+        elif stack:
+            block = stack.pop()
+            if block[0] == "function":
+                functions.append((block[1], token.end()))
+    spans = []
+    for declaration in re.finditer(r"\blocal\s+(?P<alias>" + RECORD + r")\s*=\s*\{", code):
+        alias = declaration.group("alias")
+        owners = [span for span in functions if span[0] < declaration.start() < span[1]]
+        if not owners:
+            continue
+        _, end = min(owners, key=lambda span: span[1] - span[0])
+        depth, finish = 1, declaration.end()
+        while finish < end and depth:
+            depth += (code[finish] == "{") - (code[finish] == "}")
+            finish += 1
+        if depth:
+            continue
+        constructor = code[declaration.end():finish - 1]
+        if (not re.search(r"\bschema\s*=", constructor)
+                or not re.search(r"\bobserved\s*=", constructor)
+                or re.search(r"\b(?:id|personId|proceduralPlanning)\s*=", constructor)):
+            continue
+        tail = code[finish:end]
+        if not re.search(r"\breturn\s+" + re.escape(alias) + r"\b", tail):
+            continue
+        safe = True
+        for use in re.finditer(r"\b" + re.escape(alias) + r"\b", tail):
+            after = tail[use.end():]
+            before = tail[:use.start()]
+            if after.lstrip().startswith(".") or re.search(r"\breturn\s*$", before):
+                continue
+            safe = False
+            break
+        if safe:
+            spans.append((declaration.end(), end, alias))
+    return spans
+
+
+def person_writes(source):
+    observations = returned_observation_spans(source)
+    for match in WRITE.finditer(source):
+        alias = source[match.start():].split(".", 1)[0]
+        if not any(start <= match.start() < end and alias == local
+                   for start, end, local in observations):
+            yield match
+
+
 def main():
     src_all = files()
     tree = "".join(src_all.values())
 
     written = {}
     for path, text in src_all.items():
-        for i, line in enumerate(text.splitlines(), start=1):
-            s = line.strip()
-            if s.startswith("--"):
+        from menu_reach import strip_lua
+        source = strip_lua(text, strings=False)
+        for m in person_writes(source):
+            if not is_write(m.group(2)):
                 continue
-            for m in WRITE.finditer(line):
-                if not is_write(m.group(2)):
-                    continue
-                written.setdefault(m.group(1), f"{path.name}:{i}")
+            line = source.count("\n", 0, m.start()) + 1
+            written.setdefault(m.group(1), f"{path.name}:{line}")
 
     readers, dyn = dynamic_readers(src_all)
 

@@ -9,9 +9,9 @@
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C3, C6, C12, C13, C16, C18, C19, C20, C21, C24, C26, C28, C30, C31, C32, C33 |
-| Implementation | CLOSED D3.1-D3.19 retain qualified useful outcomes. Complete native construction/material/site/service/authority integration remains under this OPEN parent and continues before D4. |
+| Implementation | CLOSED D3.1-D3.20 retain qualified useful outcomes. Complete native construction/material/site/service/authority integration remains under this OPEN parent before D4. |
 | Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.7.2.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
+| Version | 2.7.3.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
 | Publication | D3.1-D3.18 retain protected publication through PR142-PR161 with exact completion receipts. D3.18 merged at `47c701823d5d520a6214c6fad693eaabf51bbb2e`; D3.19 qualified closure and selected stamped package await their actual protected merge. Full D3 continues through the operator-directed D4 transition. |
 
 ## Product and current implementation
@@ -377,3 +377,11 @@ D3.18 protected publication is complete through self-merged PR161 at `47c701823d
 ## D3.19 qualified progress and remaining D3 — 2026-10-12 14:09 UTC / 07:09 PDT
 
 [D3.19](D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md) closes private exact ingredient acquisition through original native stock/upkeep, fresh current output and actual retained requesting use, including ordinary free-workstation dispatch and saved owner/replay continuity. One kohai records progress. Native repertoire, material/site work, equipment and service maintenance, original water/power mechanisms and required authoritative execution continue under the retained finite intake and complete parent scope. Supporting construction and extraction units remain unpublished enabling work. Package/protected merge and counterpart archive/model adoption retain distinct evidence; D4-D6 FIFO remains.
+
+## Native workspace continuation — 2026-10-12 15:48 UTC / 08:48 PDT
+
+D3.19 actually merged PR162 at `c356234069b5034b91ae3875273e8c1065dd3295`, with current required CI/CodeQL, exact qualified package and independently verified source custody. [D3.20 — Native workspace materials, construction and requesting use](D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md) records the next coherent child before public implementation: an original missing-workspace request obtains material, constructs through the original native owner, freshly observes the full result and resumes the same native work. Supporting source policy, extraction, native build and site observation remain internal units. No opening credit applies; full D3 source/service/authority scope and D4-D6 FIFO continue.
+
+## D3.20 qualified progress — 2026-10-12 19:18 UTC / 12:18 PDT
+
+[D3.20](D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md) closes actual private logging and dropped-input acquisition through two original SawLogs effects, full paid Table construction, native cold persisted result matching and original stock/upkeep use. One kohai records useful progress. Remaining complete source-effect repertoire, site/finishing/equipment/service and authoritative execution stay under full D3; five original water/power mechanisms and wider shared learning/knowledge/doctrine goals retain their owners. Supported package/publication and counterpart archive/model adoption remain separate evidence. D4-D6 retain FIFO.

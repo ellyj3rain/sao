@@ -1,17 +1,17 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.2.0-pre-alpha` |
+| Version | `2.7.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
-**As of** `[D3.19]`, 184 delivered source outcomes: 29 A, 52 B, 82 C products and twenty-one D records. D3 remains the active OPEN parent. D3.19 is qualified CLOSED; its supported selected package and actual protected publication retain separate receipts.
+**As of** `[D3.20]`, 185 delivered source outcomes: 29 A, 52 B, 82 C products and twenty-two D records. D3 is the active OPEN parent. D3.20 is qualified CLOSED; supported package and protected publication retain separate receipts.
 
-Current qualified child: [D3.19 — Purpose-bound stock production and upkeep](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md), CLOSED. Full D3 continues through complete native material/construction/service/authority delivery before D4.
+Current qualified child: [D3.20 — Native workspace materials, construction and requesting use](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md), CLOSED inside OPEN D3. Complete source/service/authority delivery continues before D4.
 
-D3.19 is qualified CLOSED with actual private ingredient inquiry/acquisition, original native stock/upkeep, ordinary free-bench dispatch, fresh held/dropped output and resumed requesting use. One kohai records this useful progress at `2.7.2.0-pre-alpha`. Current bounded reviews and source/native/save proof pass; selected package and protected publication retain their separate actual receipts. Full D3 remains active.
+D3.20 qualifies ordinary personal native material acquisition, full construction, persisted current result and original stock/upkeep use. One kohai records progress at `2.7.3.0-pre-alpha`. Native proofs and bounded reviews pass; supported package and protected publication retain separate receipts.
 
 ## Delivered product
 
@@ -140,7 +140,7 @@ original purpose. Adoption and IDLE recovery reconcile lost native admissions
 without inventing effects or completion. Focused native and Controller proofs
 retain their exact inputs and boundaries. Final regression and review results
 live in the D3 record. The whole construction, crafting, repair and utilities
-parent remains OPEN. Its CLOSED D3.1 through D3.19 children retain native material work and usable consumers, source-bound architectural learning, pane supply/repair, furniture/recovery and purpose-bound stock/upkeep with saved continuity. Current replay derives `2.7.2.0-pre-alpha`; D3.19 receives one kohai inside the unfinished parent.
+parent remains OPEN. Its CLOSED D3.1 through D3.20 children retain native material work and usable consumers, source-bound architectural learning, pane supply/repair, furniture/recovery and purpose-bound stock/upkeep with saved continuity. Current replay derives `2.7.3.0-pre-alpha`; D3.20 receives one kohai inside the unfinished parent.
 
 [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is the
 CLOSED child for native plank crafting. Exact private log and saw
@@ -309,3 +309,11 @@ Beacon now reconciles the finite remaining native/source domain and parent closu
 ## D3.19 qualified closure and continued D3 — 2026-10-12 14:09 UTC / 07:09 PDT
 
 [D3.19](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md) qualifies actual private ingredient inquiry/acquisition, original native stock/upkeep and free-workstation dispatch, fresh dropped/held output and retained requesting use with independent private feedback and saved/revoked/once-only ownership. Current source review and affected proof close the four recorded findings. The selected stamped package and protected publication remain separately measured. Full D3 proceeds through the already discovered construction/material/site/equipment/service/authority mechanisms; helpers are enabling source, not shipments. Complete broader goals, maintained knowledge/health/aging, Speakeasy/ZAO and private/shared ML contracts and D4-D6 FIFO remain active.
+
+## D3.19 publication and D3.20 opening — 2026-10-12 15:48 UTC / 08:48 PDT
+
+D3.19 is actually protected-merged through PR162 at `c356234069b5034b91ae3875273e8c1065dd3295`, current version `2.7.2.0-pre-alpha`. Required product contracts and CodeQL passed against its corrected snapshot; qualified dual JARs, selected source and working custody were independently verified. The publisher retired. [D3.20 — Native workspace materials, construction and requesting use](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md) is OPEN under the full OPEN D3 parent and records the next actual source/site/material/native-build/result/use join before public implementation. Private prerequisite qualification is supporting evidence; ordinary individual choice, original effect/consumer use, persistence and remaining parent scope continue through actual D4 transition. All wider goals, pending attributed interrepo contracts and D4-D6 FIFO remain.
+
+## D3.20 qualified closure and continued D3 — 2026-10-12 19:18 UTC / 12:18 PDT
+
+[D3.20](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md) qualifies ordinary private native logging, exact new Log acquisition, SawLogs material supply, whole paid Table construction and actual cold saved result matching through the original Whetstone craft and Scissors repair. Current native73, focused dropped-input save/rebind37, affected lifecycle/refusal/omission packets and independent bounded reviews retain exact applicability. The current coordinate is `2.7.3.0-pre-alpha` with one kohai; supported package and protected publication retain actual receipts. Full D3 continues complete native/source/maintenance/utility/authority scope before D4. Broader knowledge, health/aging, civilian/military doctrine, strategy, Speakeasy/ZAO and source/model/adoption obligations remain active.

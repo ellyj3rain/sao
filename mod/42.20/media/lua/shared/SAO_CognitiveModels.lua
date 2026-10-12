@@ -14,7 +14,7 @@ local FRAME_KEYS = { id=true, actorId=true, worldHours=true, hunger=true,
     thirst=true, fatigue=true, eatAt=true, drinkAt=true, foodAllowed=true,
     waterAllowed=true, inspectionAllowed=true, knownFood=true, knownWater=true,
     knownPlaces=true, capabilities=true, priorIntent=true }
-local EVENT_KEYS = { id=true, actorId=true, observerId=true, worldHours=true, consumerId=true,
+local EVENT_KEYS = { physicalWork=true, id=true, actorId=true, observerId=true, worldHours=true, consumerId=true,
     entityId=true, recipeId=true, originalFixtureSourceId=true,
     siteKey=true, siteX=true, siteY=true, siteZ=true, feedsFixture=true,
     kind=true, category=true, sourceId=true, itemType=true, perspective=true,
@@ -66,7 +66,7 @@ local SHELTER_ENTITIES={["Base.WoodenWallFrame"]=true,["Base.WoodenWallLvl1"]=tr
                 ["Base.MetalWallFrame"]=true,["Base.MetalWallLvl1"]=true,["Base.MetalWallLvl2"]=true,["Base.MetalDoorFrameLvl1"]=true,["Base.MetalDoorFrameLvl2"]=true,["Base.MetalDoorLvl1"]=true,["Base.MetalDoorLvl2"]=true,["Base.MetalFloorLvl1"]=true,["Base.MetalWindowFrameLvl1"]=true,["Base.MetalWindowFrameLvl2"]=true,["Base.MetalFenceLvl1"]=true,["Base.MetalFenceLvl2"]=true,["Base.MetalBigMetalFence"]=true,["Base.MetalBigWireFence"]=true,["Base.MetalSmallPoleFence"]=true,["Base.MetalSmallWireFence"]=true,["Base.MetalPoleFenceGate"]=true,["Base.MetalPoleFenceGateSmall"]=true,["Base.MetalWireFenceGate"]=true,["Base.MetalWireFenceGateSmall"]=true}
 local COLLECTOR_ENTITIES = { ["Base.RainCollector"]=true, ["Base.RainCollectorRound"]=true,
     ["Base.RainCollector_Tarp"]=true, ["Base.RainCollectorRound_Tarp"]=true }
-local EXTENDED = { ["furniture-use"]=true,["furniture-relocation"]=true, ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true,["collector-construction"]=true,
+local EXTENDED = { ["workspace-construction"]=true,["material-extraction"]=true, ["furniture-use"]=true,["furniture-relocation"]=true, ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true,["collector-construction"]=true,
     ["animal-care"]=true, ["window-repair"]=true,["window-installation"]=true, ["material-crafting"]=true, ["tool-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["reading-assessment"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -114,7 +114,8 @@ local function capabilities(value)
 end
 local function model(id) return id=="ordinary" or id=="associative" end
 local function occurrencePosition(e)
-    local prefix=e.kind=="medication-use" and "medication/"
+    local prefix=(e.kind=="workspace-construction" or e.kind=="material-extraction") and ("resource-production/"..e.actorId.."/")
+        or e.kind=="medication-use" and "medication/"
         or e.kind=="physical-change" and "physical/"
         or e.kind=="preparation" and ("cooking/"..e.actorId.."/")
         or e.kind=="generator-operation" and ("generator/"..e.actorId.."/")
@@ -179,6 +180,85 @@ local GENERATOR_EVENT_KEYS = {id=true, actorId=true, observerId=true, worldHours
     itemId=true, itemType=true, beforeValue=true, afterValue=true, capabilities=true}
 local GENERATOR_OPERATIONS = {inspect=true, repair=true, fuel=true, connect=true,
     activate=true, ["verify-power"]=true}
+local function physicalData(v,depth,budget,seen)
+    depth,budget,seen=depth or 0,budget or {left=4096},seen or {}
+    if type(v)=="nil" or type(v)=="boolean" then return true end
+    if type(v)=="number" then return finite(v) and math.abs(v)<=1000000000000 end
+    if type(v)=="string" then return #v<=4096 end
+    if type(v)~="table" or getmetatable(v) or depth>=12 or seen[v] then return false end
+    seen[v]=true
+    for k,x in pairs(v) do
+        budget.left=budget.left-1
+        if budget.left<0 or type(k)~="string" and type(k)~="number" or not physicalData(x,depth+1,budget,seen) then return false end
+    end
+    seen[v]=nil;return true
+end
+local function denseRows(rows,limit,qualify)
+    if type(rows)~="table" or #rows>limit then return false end
+    local n=0;for k in pairs(rows) do if not finite(k) or k%1~=0 or k<1 or k>#rows then return false end;n=n+1 end
+    if n~=#rows then return false end
+    for _,row in ipairs(rows) do if type(row)~="table" or not qualify(row) then return false end end
+    return true
+end
+local function physicalWorkEvent(e)
+    local w=e.physicalWork
+    if not plainKeys(e,{id=true,actorId=true,observerId=true,worldHours=true,occurredAtHours=true,kind=true,
+        category=true,perspective=true,status=true,sourceId=true,physicalWork=true,capabilities=true})
+        or e.category~="construction" or e.actorId~=e.observerId or e.perspective~="performed"
+        or not occurrencePosition(e) or not finite(e.occurredAtHours) or e.occurredAtHours<0 or e.occurredAtHours>e.worldHours
+        or not physicalData(w) or type(w)~="table" or not text(e.sourceId,512)
+        or not text(w.bodyToken,160) or not text(w.world,160) or not text(w.purposeId,512) or not text(w.purposeStepId,512)
+        or type(w.demand)~="table" or not text(w.demand.id,512) or w.stockAcquired~=false or w.consumerCompleted~=false
+        or type(w.nativeAttempted)~="boolean" or type(w.nativeCompleted)~="boolean" or not text(w.detail,512)
+        or (e.capabilities~=nil and not capabilities(e.capabilities)) then return false end
+    local status=w.outcomeStatus=="completed" and "completed" or w.outcomeStatus=="interrupted" and "interrupted"
+        or w.outcomeStatus=="failed" and "unavailable" or nil
+    if e.status~=status or e.status=="completed" and (not w.nativeAttempted or not w.nativeCompleted) then return false end
+    if e.kind=="workspace-construction" then
+        if not plainKeys(w,{purposeId=true,purposeStepId=true,bodyToken=true,world=true,entityId=true,recipeId=true,
+            site=true,demand=true,measurement=true,detail=true,outcomeStatus=true,nativeAttempted=true,nativeCompleted=true,stockAcquired=true,consumerCompleted=true})
+            or not text(w.entityId,160) or not text(w.recipeId,160) or type(w.site)~="table" or e.sourceId~=w.site.key
+            or not text(w.site.revision,160) or (w.site.face~="S" and w.site.face~="E" and w.site.face~="N" and w.site.face~="W") then return false end
+        if e.status~="completed" then return true end
+        local m=w.measurement
+        if type(m)~="table" or m.actorId~=e.actorId or m.entityId~=w.entityId or m.recipeId~=w.recipeId or m.face~=w.site.face
+            or m.cursor~=w.site.cursor or m.x~=w.site.x or m.y~=w.site.y or m.z~=w.site.z or type(m.geometry)~="table"
+            or not finite(m.geometry.occupiedCount) or type(m.parts)~="table" or #m.parts~=m.geometry.occupiedCount then return false end
+        local seen={}
+        return type(m.parts)=="table" and #m.parts>0 and denseRows(m.parts,256,function(p)
+            if p.entityId~=w.entityId or not text(p.sprite,160) or not finite(p.x) or not finite(p.y) or not finite(p.z)
+                or not finite(p.objectIndex) or p.objectIndex<0 or p.objectIndex%1~=0 then return false end
+            local key=p.x..":"..p.y..":"..p.z..":"..p.objectIndex
+            if seen[key] then return false end;seen[key]=true;return true
+        end)
+    end
+    if not plainKeys(w,{purposeId=true,purposeStepId=true,bodyToken=true,world=true,demand=true,source=true,extractionKind=true,
+        toolItemId=true,toolItemType=true,bagItemId=true,bagItemType=true,damage=true,sourceRemoved=true,sourceChanged=true,
+        newDrops=true,bagGain=true,bagEffects=true,resourceGain=true,effectObserved=true,detail=true,outcomeStatus=true,
+        nativeAttempted=true,nativeCompleted=true,stockAcquired=true,consumerCompleted=true})
+        or type(w.source)~="table" or e.sourceId~=w.source.sourceId or not text(w.source.sourceRevision,512)
+        or not text(w.toolItemId,160) or not text(w.toolItemType,160) or not text(w.demand.consumerId,512)
+        or not finite(w.damage) or w.damage<0 or not finite(w.bagGain) or w.bagGain<0
+        or type(w.sourceRemoved)~="boolean" or type(w.sourceChanged)~="boolean" or type(w.effectObserved)~="boolean"
+        or type(w.resourceGain)~="boolean" then return false end
+    local seen={}
+    if not denseRows(w.newDrops,256,function(p)
+        if not text(p.id,160) or not text(p.type,160) or seen[p.id] then return false end;seen[p.id]=true;return true
+    end) then return false end
+    if not denseRows(w.bagEffects,256,function(p)
+        return text(p.itemId,160) and text(p.itemType,160) and text(p.previousBagId,160)
+            and finite(p.beforeFraction) and finite(p.afterFraction) and p.beforeFraction>=0
+            and p.afterFraction>p.beforeFraction and p.afterFraction<=1 and type(p.sameIdentity)=="boolean"
+            and (not p.sameIdentity or p.itemId==p.previousBagId)
+    end) then return false end
+    local tree=w.extractionKind=="tree"
+    if not tree and w.extractionKind~="dirt" and w.extractionKind~="sand" and w.extractionKind~="gravel" and w.extractionKind~="clay" then return false end
+    if not tree and (not text(w.bagItemId,160) or not text(w.bagItemType,160)) then return false end
+    if w.resourceGain~=(#w.newDrops>0 or w.bagGain>0) then return false end
+    if e.status~="completed" then return true end
+    return w.effectObserved and w.resourceGain and (tree and w.sourceRemoved and #w.newDrops>0
+        or not tree and w.bagGain>0 and #w.bagEffects>0)
+end
 local function validEvent(e)
     if not plainKeys(e, EVENT_KEYS) or not text(e.id,128)
         or not text(e.actorId,128) or not text(e.observerId,128)
@@ -188,6 +268,8 @@ local function validEvent(e)
         or (e.status~="completed" and e.status~="no-effect"
             and e.status~="interrupted" and e.status~="unavailable")
         or (e.perspective~="performed" and e.perspective~="observed") then return false end
+    if e.kind=="workspace-construction" or e.kind=="material-extraction" then return physicalWorkEvent(e) end
+    if e.physicalWork~=nil then return false end
     if e.kind=="furniture-use" then
         return plainKeys(e,{id=true,actorId=true,observerId=true,worldHours=true,occurredAtHours=true,kind=true,category=true,
             perspective=true,status=true,sourceId=true,consumerId=true,actionKind=true,succeeded=true,capabilities=true})
@@ -884,7 +966,11 @@ local function rememberPlanEvidence(state, e, yes)
             "Personally acquired "..kind.." evidence for "..category, result, e)
         b.planKind, b.category, b.sourceId, b.itemType, b.condition = kind, category, e.sourceId, item, condition
     end
-    if e.kind=="furniture-use" then retain((e.actionKind=="sleep" or e.actionKind=="rest") and "relocation-benefit" or "relocation-access","body",e.succeeded)
+    if e.kind=="workspace-construction" then
+        local b=remember(state,planBeliefKey("construct","construction",e.sourceId,e.physicalWork.entityId),"Personally placed the original native construction; use remains unobserved",true,e)
+        b.planKind,b.category,b.sourceId,b.itemType="construct","construction",e.sourceId,e.physicalWork.entityId
+    elseif e.kind=="material-extraction" then retain("extract","construction",true,e.physicalWork.extractionKind)
+    elseif e.kind=="furniture-use" then retain((e.actionKind=="sleep" or e.actionKind=="rest") and "relocation-benefit" or "relocation-access","body",e.succeeded)
     elseif e.kind=="furniture-relocation" then retain("relocate","body",e.succeeded)
     elseif e.kind == "acquire" then retain("acquire", e.category, yes)
     elseif e.kind == "preparation" then retain("prepare", "food", true)
@@ -939,7 +1025,13 @@ local function rememberPlanEvidence(state, e, yes)
 end
 
 local function extendedEvidence(modelId,state,e)
-    if e.kind=="entry-outcome" or e.kind=="recovery-outcome" then
+    if e.kind=="workspace-construction" then
+        if modelId=="ordinary" then remember(state,"direct:workspace-construction:"..e.sourceId,"Original native construction was placed; use and benefit remain unobserved",true,e)
+        else relation(state,"construct","recipe:"..e.physicalWork.recipeId,"placed:"..e.sourceId,true,e,"manufacturing") end
+    elseif e.kind=="material-extraction" then
+        if modelId=="ordinary" then remember(state,"direct:material-extraction:"..e.sourceId,"Native material effects were measured; acquisition and consumer use remain separate",true,e)
+        else relation(state,"transform",e.sourceId,"material:"..e.physicalWork.demand.desiredType,true,e,"manufacturing") end
+    elseif e.kind=="entry-outcome" or e.kind=="recovery-outcome" then
         local key=e.kind=="entry-outcome" and ("entry:"..e.sourceId..":"..e.apertureState)
             or ("recovery:"..e.actionKind)
         remember(state,key,"Personally performed "..e.actionKind.." outcome",e.succeeded,e)
@@ -1258,7 +1350,26 @@ local function boundedArray(value, maximum, minimum)
     end
     return count == #value
 end
-local function validConsequences(candidate)
+local function workspaceConsequence(candidate,c,context)
+    local own=candidate.workspaceConstruction
+    local id=context and context.actorId
+    if not context or context.domain~="construction" or not text(id,128) or type(own)~="table" or not physicalData(own)
+        or not text(own.parentPurposeId,512) or not text(own.parentStepId,512) or not text(own.requestingRecipeId,160)
+        or not text(own.requestingNativeRevision,160) or not text(own.nativeRevision,160)
+        or not text(own.recipeId,160) or c.itemType~=own.entityId or type(own.site)~="table" or c.sourceId~=own.site.key
+        or own.site.actorId~=id or own.site.entityId~=own.entityId or own.site.recipeId~=own.recipeId
+        or type(own.constructionDemand)~="table" or own.constructionDemand.parentId~=own.parentPurposeId
+        or own.constructionDemand.stepId~=own.parentStepId or not text(own.constructionDemand.sourceRevision,512)
+        or (own.knowledgeKind~="intrinsic" and own.knowledgeKind~="acquired") then return false end
+    local body=SAO.Body and SAO.Body.get and SAO.Body.get(id)
+    local P=SAO.Perception
+    if not body or not P or not P.constructionMeansCurrent or not P.constructionSiteCurrent then return false end
+    local ok,known=pcall(P.constructionMeansCurrent,id,body,own)
+    if not ok or known~=true then return false end
+    local observed,current=pcall(P.constructionSiteCurrent,id,body,own.site,true)
+    return observed and current==true
+end
+local function validConsequences(candidate,context)
     if candidate.consequences == nil then return true end
     if not boundedArray(candidate.consequences, 4) then return false end
     for _, consequence in ipairs(candidate.consequences) do
@@ -1301,8 +1412,10 @@ local function validConsequences(candidate)
             if c.category~="utilities" or not text(c.sourceId,160) or c.sourceId:sub(1,2)~="J:"
                 or c.condition~=nil or c.itemType~=nil then return false end
         elseif c.kind == "construct" then
+            local registeredWorkspace=candidate.workspaceConstruction~=nil and workspaceConsequence(candidate,c,context)
+            if candidate.workspaceConstruction~=nil and not registeredWorkspace then return false end
             if c.category ~= "construction" or not text(c.sourceId,160)
-                or not (c.itemType=="Base.Wood_Bed" and c.sourceId:sub(1,9)=="bed-site:"
+                or not (registeredWorkspace or c.itemType=="Base.Wood_Bed" and c.sourceId:sub(1,9)=="bed-site:"
                     or COLLECTOR_ENTITIES[c.itemType] and c.sourceId:sub(1,2)=="F:"
                     or SHELTER_ENTITIES[c.itemType] and (c.sourceId:sub(1,13)=="shelter-edge:"
                         or c.sourceId:sub(1,16)=="shelter-surface:" or c.sourceId:sub(1,19)=="shelter-stair-site:" or c.sourceId:sub(1,17)=="double-gate-site:" or c.sourceId:sub(1,14)=="boundary-edge:"))
@@ -1347,7 +1460,7 @@ local function planCandidate(candidate, context, structural)
     -- Neutral fallback consumes only these structural values and leaves its
     -- exact identity intact for the native owner.
     if not structural and (not text(candidate.id, 128)
-        or not validConsequences(candidate)) then return false end
+        or not validConsequences(candidate,context)) then return false end
     local a = candidate.appraisal
     if a ~= nil and (type(a) ~= "table" or context and a.actorId ~= context.actorId
         or type(a.danger) ~= "table" or not unit(a.danger.ordinal)

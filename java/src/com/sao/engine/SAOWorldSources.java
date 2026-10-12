@@ -2777,4 +2777,358 @@ public final class SAOWorldSources {
             return out;
         }
     }
+    // Proposed original generic site/result observation. Physical/private work
+    // and all Standing/admission/freshness receipts remain existing Lua owners.
+    private static final Map<SAOIsoPlayerShell,LinkedHashMap<String,ConstructionSiteBinding>> CONSTRUCTION_SITES=new WeakHashMap<>();
+    private static final int[][] CONSTRUCTION_SIDES={{-1,0},{1,0},{0,-1},{0,1}};
+    private static final class ConstructionDefinition {
+        final zombie.scripting.entity.GameEntityScript entity;
+        final zombie.entity.components.spriteconfig.SpriteConfigManager.ObjectInfo info;
+        final zombie.entity.components.spriteconfig.SpriteConfigManager.FaceInfo face;
+        final String entityId,recipeId,faceName,sourceRevision;
+        final int cursor;
+        ConstructionDefinition(String entityId,String name,int cursor) {
+            this.entityId=entityId;this.cursor=cursor;
+            entity=zombie.scripting.ScriptManager.instance.getGameEntityScript(entityId);
+            if(entity==null)throw new IllegalArgumentException("registered construction entity required");
+            var config=(zombie.scripting.entity.components.spriteconfig.SpriteConfigScript)entity.getComponentScriptFor(zombie.entity.ComponentType.SpriteConfig);
+            var recipeComponent=(zombie.scripting.entity.components.crafting.CraftRecipeComponentScript)entity.getComponentScriptFor(zombie.entity.ComponentType.CraftRecipe);
+            if(config==null||recipeComponent==null)throw new IllegalArgumentException("native build components required");
+            info=zombie.entity.components.spriteconfig.SpriteConfigManager.GetObjectInfo(config.getName());
+            var recipe=recipeComponent.getCraftRecipe();
+            if(info==null||info.getScript()!=config||info.getRecipe()==null||info.getRecipe().getCraftRecipe()!=recipe
+                    ||zombie.scripting.ScriptManager.instance.getCraftRecipe(recipe.getScriptObjectFullType())!=recipe)
+                throw new IllegalArgumentException("current registered recipe identity required");
+            String expected=cursor==1?"W":cursor==2?"N":cursor==3?"E":cursor==4?"S":null;
+            if(expected==null||name==null||!expected.equalsIgnoreCase(name))throw new IllegalArgumentException("exact selected cursor required");
+            face=info.getFace(name);if(face==null||!expected.equalsIgnoreCase(face.getFaceName()))throw new IllegalArgumentException("face fallback refused");
+            faceName=expected;recipeId=recipe.getScriptObjectFullType();
+            StringBuilder signature=new StringBuilder(recipeRevision(recipe));
+            signature.append('|').append(entityId).append('|').append(info.getVersion()).append('|').append(cursor)
+                .append('|').append(config.isProp()).append('|').append(config.getOnIsValid()).append('|').append(config.getOnCreate())
+                .append('|').append(face.getWidth()).append('|').append(face.getHeight()).append('|').append(face.getzLayers())
+                .append('|').append(face.getMasterX()).append('|').append(face.getMasterY()).append('|').append(face.getMasterZ());
+            for(int i=0;i<config.getPreviousStages().size();i++)signature.append('|').append(config.getPreviousStages().get(i));
+            var benchScript=(zombie.scripting.entity.components.crafting.CraftBenchScript)entity.getComponentScriptFor(zombie.entity.ComponentType.CraftBench);
+            if(benchScript!=null){signature.append("|bench:").append(benchScript.getRecipeTagQuery());if(benchScript.getRecipes()!=null)for(var r:benchScript.getRecipes())signature.append('|').append(recipeRevision(r));}
+            for(int z=0;z<face.getzLayers();z++)for(int y=0;y<face.getHeight();y++)for(int x=0;x<face.getWidth();x++){
+                var tile=face.getTileInfo(x,y,z);signature.append('|').append(x).append(',').append(y).append(',').append(z);
+                if(tile!=null)signature.append(':').append(tile.getSpriteName()).append(':').append(tile.isBlocking()).append(':').append(tile.isMaster())
+                    .append(':').append(tile.getMasterOffsetX()).append(':').append(tile.getMasterOffsetY()).append(':').append(tile.getMasterOffsetZ());
+            }
+            sourceRevision=digest(signature.toString());
+        }
+        boolean member(int x,int y,int z){var t=face.getTileInfo(x,y,z);return t!=null&&(t.getSpriteName()!=null||t.isBlocking());}
+        se.krka.kahlua.vm.KahluaTable geometry(){
+            var row=recipeTable();row.rawset("face",face.getFaceName());row.rawset("selectedFace",faceName);row.rawset("cursor",(double)cursor);
+            row.rawset("width",(double)face.getWidth());row.rawset("height",(double)face.getHeight());row.rawset("zLayers",(double)face.getzLayers());
+            row.rawset("masterX",(double)face.getMasterX());row.rawset("masterY",(double)face.getMasterY());row.rawset("masterZ",(double)face.getMasterZ());
+            row.rawset("masterSet",face.isMasterSet());row.rawset("multiSquare",face.isMultiSquare());var tiles=recipeTable();int count=0,occupied=0,blocking=0;
+            for(int z=0;z<face.getzLayers();z++)for(int y=0;y<face.getHeight();y++)for(int x=0;x<face.getWidth();x++){
+                var t=face.getTileInfo(x,y,z);if(t==null)continue;var v=recipeTable();v.rawset("x",(double)t.getX());v.rawset("y",(double)t.getY());v.rawset("z",(double)t.getZ());
+                v.rawset("sprite",t.getSpriteName());v.rawset("occupied",t.getSpriteName()!=null);v.rawset("blocking",t.isBlocking());v.rawset("empty",t.isEmpty());v.rawset("master",t.isMaster());
+                v.rawset("masterOffsetX",(double)t.getMasterOffsetX());v.rawset("masterOffsetY",(double)t.getMasterOffsetY());v.rawset("masterOffsetZ",(double)t.getMasterOffsetZ());
+                if(t.getSpriteName()!=null)occupied++;if(t.isBlocking())blocking++;tiles.rawset((double)++count,v);
+            }
+            row.rawset("tiles",tiles);row.rawset("occupiedCount",(double)occupied);row.rawset("blockingCount",(double)blocking);return row;
+        }
+    }
+    private static final class ConstructionSquareSnapshot {
+        final java.lang.ref.WeakReference<IsoGridSquare> square;
+        final ArrayList<java.lang.ref.WeakReference<IsoObject>> objects=new ArrayList<>();final ArrayList<String> sprites=new ArrayList<>();
+        ConstructionSquareSnapshot(IsoGridSquare s){square=new java.lang.ref.WeakReference<>(s);for(int i=0;i<s.getObjects().size();i++){var o=s.getObjects().get(i);objects.add(new java.lang.ref.WeakReference<>(o));sprites.add(o.getSpriteName());}}
+        boolean matches(IsoGridSquare s){if(s==null||square.get()!=s||objects.size()!=s.getObjects().size())return false;
+            for(int i=0;i<objects.size();i++)if(objects.get(i).get()!=s.getObjects().get(i)||!java.util.Objects.equals(sprites.get(i),s.getObjects().get(i).getSpriteName()))return false;return true;}
+    }
+    private static final class ConstructionSiteBinding {
+        final String actor,key,revision=UUID.randomUUID().toString(),sourceRevision;final ConstructionDefinition definition;
+        final int x,y,z,ax,ay,az;final ArrayList<ConstructionSquareSnapshot> squares=new ArrayList<>();final ConstructionSquareSnapshot approach;
+        ConstructionSiteBinding(String actor,String key,SAOIsoPlayerShell body,ConstructionDefinition d,int x,int y,int z,IsoGridSquare a){
+            this.actor=actor;this.key=key;definition=d;sourceRevision=d.sourceRevision;this.x=x;this.y=y;this.z=z;ax=a.getX();ay=a.getY();az=a.getZ();approach=new ConstructionSquareSnapshot(a);
+            for(int dz=0;dz<d.face.getzLayers();dz++)for(int dy=0;dy<d.face.getHeight();dy++)for(int dx=0;dx<d.face.getWidth();dx++)if(d.member(dx,dy,dz))squares.add(new ConstructionSquareSnapshot(body.getCell().getGridSquare(x+dx,y+dy,z+dz)));
+        }
+        boolean matches(String actor,SAOIsoPlayerShell body,ConstructionDefinition d){
+            if(!this.actor.equals(actor)||definition.entity!=d.entity||definition.info!=d.info||definition.face!=d.face||!sourceRevision.equals(d.sourceRevision))return false;
+            int i=0;for(int dz=0;dz<d.face.getzLayers();dz++)for(int dy=0;dy<d.face.getHeight();dy++)for(int dx=0;dx<d.face.getWidth();dx++)if(d.member(dx,dy,dz))
+                if(!squares.get(i++).matches(body.getCell().getGridSquare(x+dx,y+dy,z+dz)))return false;
+            return approach.matches(body.getCell().getGridSquare(ax,ay,az));
+        }
+        se.krka.kahlua.vm.KahluaTable plain(){var t=recipeTable();t.rawset("key",key);t.rawset("revision",revision);t.rawset("sourceRevision",sourceRevision);t.rawset("entityId",definition.entityId);t.rawset("recipeId",definition.recipeId);
+            t.rawset("actorId",actor);t.rawset("face",definition.faceName);t.rawset("cursor",(double)definition.cursor);t.rawset("x",(double)x);t.rawset("y",(double)y);t.rawset("z",(double)z);
+            t.rawset("approachX",(double)ax);t.rawset("approachY",(double)ay);t.rawset("approachZ",(double)az);t.rawset("geometry",definition.geometry());t.rawset("observedAtHours",zombie.GameTime.getInstance().getWorldAgeHours());
+            t.rawset("standingRequired",true);t.rawset("privateAcquisitionRequired",true);t.rawset("physicalWorkReceiptRequired",true);return t;}
+    }
+    private static boolean constructionVisible(SAOIsoPlayerShell body,IsoGridSquare s,float radius){return SAOPerceptionScanner.canSeeWorldSquareNow(body,s,radius);}
+    private static boolean constructionApproachFree(SAOIsoPlayerShell body,IsoGridSquare square){
+        if(square==null||!square.isSolidFloor()||!square.isFree(false)||square.isSolid()||square.isSolidTrans()||square.HasStairs()||square.HasTree()||square.haveFire()||square.isVehicleIntersecting())return false;
+        for(var m:square.getMovingObjects())if(m!=body&&m.isCharacter())return false;return true;
+    }
+    private static se.krka.kahlua.vm.KahluaTable constructionCursor(SAOIsoPlayerShell body,ConstructionDefinition d){
+        var env=zombie.Lua.LuaManager.env;var cls=table(env.rawget("ISBuildIsoEntity"));if(cls==null||cls.rawget("new")==null)throw new IllegalArgumentException("installed construction cursor unavailable");
+        var containers=new ArrayList<ItemContainer>();containers.add(body.getInventory());var logic=new zombie.entity.components.build.BuildLogic(body,null,null);logic.setContainers(containers);
+        // The exact ObjectInfo/recipe is already registered and supplied.
+        // Native setRecipes is an unrelated UI filter with implicit player0.
+        var preference=body.getModData().rawget("buildLastRecipe");
+        try{logic.setRecipe(d.info.getRecipe().getCraftRecipe());
+            Object[] returned=zombie.Lua.LuaManager.caller.pcall(zombie.Lua.LuaManager.thread,cls.rawget("new"),cls,body,d.info,(double)d.cursor,containers,logic);
+            if(returned.length<2||!Boolean.TRUE.equals(returned[0])||!(returned[1]instanceof se.krka.kahlua.vm.KahluaTable cursor))throw new IllegalArgumentException("native cursor initialization refused");return cursor;
+        }finally{body.getModData().rawset("buildLastRecipe",preference);}
+    }
+    private static boolean constructionNativeFootprint(SAOIsoPlayerShell body,ConstructionDefinition d,int x,int y,int z,float radius){
+        var cursor=constructionCursor(body,d);var cls=table(zombie.Lua.LuaManager.env.rawget("ISBuildIsoEntity"));Object method=cls.rawget("isValidPerSquare");if(method==null)return false;
+        // Material-independent native placement policy. Original effect-time
+        // isValid and exact material/action admission remain the physical owner.
+        cursor.rawset("north",d.cursor==2);cursor.rawset("west",d.cursor==1);cursor.rawset("east",d.cursor==3);cursor.rawset("south",d.cursor==4);
+        for(int dz=0;dz<d.face.getzLayers();dz++)for(int dy=0;dy<d.face.getHeight();dy++)for(int dx=0;dx<d.face.getWidth();dx++)if(d.member(dx,dy,dz)){
+            var square=body.getCell().getGridSquare(x+dx,y+dy,z+dz);if(!constructionVisible(body,square,radius))return false;
+            Object[] returned=zombie.Lua.LuaManager.caller.pcall(zombie.Lua.LuaManager.thread,method,cursor,square,d.face.getTileInfo(dx,dy,dz),dz==0,dy>0,dx>0);
+            if(returned.length<2||!Boolean.TRUE.equals(returned[0])||!Boolean.TRUE.equals(returned[1]))return false;
+        }return true;
+    }
+    private static boolean constructionApproachEligible(SAOIsoPlayerShell body,ConstructionDefinition d,int x,int y,int z,IsoGridSquare square,float radius){
+        if(!constructionVisible(body,square,radius)||!constructionApproachFree(body,square)||square.getCell()!=body.getCell()
+                ||body.getCell().getGridSquare(square.getX(),square.getY(),square.getZ())!=square||square.getZ()!=z)return false;
+        int ax=square.getX(),ay=square.getY();
+        if(ax>=x&&ax<x+d.face.getWidth()&&ay>=y&&ay<y+d.face.getHeight()&&d.member(ax-x,ay-y,0))return false;
+        for(int dy=0;dy<d.face.getHeight();dy++)for(int dx=0;dx<d.face.getWidth();dx++)if(d.member(dx,dy,0)&&Math.abs(ax-x-dx)+Math.abs(ay-y-dy)==1){
+            var touched=body.getCell().getGridSquare(x+dx,y+dy,z);
+            if(touched!=null&&square.getRoom()==touched.getRoom()&&!square.isBlockedTo(touched)&&!square.isWallTo(touched)
+                    &&!square.isDoorTo(touched)&&!square.isWindowTo(touched)&&!square.isHoppableTo(touched))return true;
+        }return false;
+    }
+    private static IsoGridSquare constructionApproach(SAOIsoPlayerShell body,ConstructionDefinition d,int x,int y,int z,float radius){
+        IsoGridSquare best=null;double distance=Double.POSITIVE_INFINITY;
+        for(int dy=0;dy<d.face.getHeight();dy++)for(int dx=0;dx<d.face.getWidth();dx++)if(d.member(dx,dy,0))for(var side:CONSTRUCTION_SIDES){
+            int ax=x+dx+side[0],ay=y+dy+side[1];if(ax>=x&&ax<x+d.face.getWidth()&&ay>=y&&ay<y+d.face.getHeight()&&d.member(ax-x,ay-y,0))continue;
+            var square=body.getCell().getGridSquare(ax,ay,z);var touched=body.getCell().getGridSquare(x+dx,y+dy,z);
+            if(!constructionApproachEligible(body,d,x,y,z,square,radius))continue;
+            double value=Math.hypot(body.getX()-ax-.5,body.getY()-ay-.5);if(value<distance){best=square;distance=value;}
+        }return best;
+    }
+    public static synchronized Object constructionSite(SAOIsoPlayerShell body,String entityId,String face,int cursor,int x,int y,int z,double radius){
+        try{String actor=recipeActor(body);if(actor==null||!Double.isFinite(radius)||radius<0||Math.floor(body.getZ())!=z)return null;
+            float range=(float)Math.min(INSPECTION_RANGE,radius);var d=new ConstructionDefinition(entityId,face,cursor);
+            if(!constructionNativeFootprint(body,d,x,y,z,range))return null;var approach=constructionApproach(body,d,x,y,z,range);if(approach==null)return null;
+            String key=entityId+":"+d.faceName+":"+cursor+":"+x+":"+y+":"+z;var sites=CONSTRUCTION_SITES.computeIfAbsent(body,ignored->new LinkedHashMap<>());var site=sites.get(key);
+            if(site==null||!site.matches(actor,body,d)||!constructionApproachEligible(body,d,x,y,z,body.getCell().getGridSquare(site.ax,site.ay,site.az),range)){site=new ConstructionSiteBinding(actor,key,body,d,x,y,z,approach);sites.put(key,site);}
+            while(sites.size()>MAX_INSPECTION_OPTIONS)sites.remove(sites.keySet().iterator().next());return site.plain();
+        }catch(Throwable unavailable){return null;}
+    }
+    private static boolean constructionPlainSame(Object a,Object b){
+        if(a instanceof se.krka.kahlua.vm.KahluaTable x&&b instanceof se.krka.kahlua.vm.KahluaTable y){
+            if(x.getMetatable()!=null||y.getMetatable()!=null)return false;int n=0;var it=x.iterator();while(it.advance()){n++;if(!constructionPlainSame(it.getValue(),y.rawget(it.getKey())))return false;}
+            int m=0;var jt=y.iterator();while(jt.advance())m++;return n==m;
+        }return java.util.Objects.equals(a,b);
+    }
+    public static synchronized Object exactConstructionSite(SAOIsoPlayerShell body,se.krka.kahlua.vm.KahluaTable plain){
+        try{String actor=recipeActor(body);if(actor==null||plain==null||plain.getMetatable()!=null)return null;var sites=CONSTRUCTION_SITES.get(body);var site=sites==null?null:sites.get((String)plain.rawget("key"));
+            if(site==null||!site.revision.equals(plain.rawget("revision"))||!actor.equals(plain.rawget("actorId")))return null;
+            var d=new ConstructionDefinition(site.definition.entityId,site.definition.faceName,site.definition.cursor);
+            var expected=site.plain();for(String name:new String[]{"sourceRevision","entityId","recipeId","face","cursor","x","y","z","approachX","approachY","approachZ","geometry"})if(!constructionPlainSame(plain.rawget(name),expected.rawget(name)))return null;
+            var approach=body.getCell().getGridSquare(site.ax,site.ay,site.az);
+            if(!site.matches(actor,body,d)||!constructionApproachEligible(body,d,site.x,site.y,site.z,approach,INSPECTION_RANGE)
+                    ||Math.hypot(body.getX()-site.ax-.5,body.getY()-site.ay-.5)>.35||Math.abs(body.getZ()-site.az)>.1
+                    ||!constructionNativeFootprint(body,d,site.x,site.y,site.z,INSPECTION_RANGE))return null;
+            return body.getCell().getGridSquare(site.x,site.y,site.z);
+        }catch(Throwable unavailable){return null;}
+    }
+    // Result source provenance is distinct from each actual native object's identity.
+    private static String constructionResultFactory(ConstructionDefinition d) {
+        var script=d.info.getScript();String callback=script.getOnCreate();
+        if(!script.getPreviousStages().isEmpty())return null;
+        boolean hasCallback=callback!=null&&!callback.isBlank();
+        if(script.isProp()) {
+            return !hasCallback&&"Base.Log_Stool".equals(d.entityId)&&"Base.Log_Stool".equals(d.recipeId)
+                &&("S".equals(d.faceName)||"E".equals(d.faceName))&&d.face.getWidth()==1&&d.face.getHeight()==1&&d.face.getzLayers()==1
+                &&d.entity.getComponentScriptFor(zombie.entity.ComponentType.CraftBench)==null ? "native-moveable-prop" : null;
+        }
+        if(hasCallback) {
+            return "Base.BarrelOven".equals(d.entityId)&&"Base.BarrelOven".equals(d.recipeId)&&"S".equals(d.faceName)
+                &&"BuildRecipeCode.barrelOven.OnCreate".equals(callback)&&d.face.getWidth()==1&&d.face.getHeight()==1&&d.face.getzLayers()==1
+                &&d.entity.getComponentScriptFor(zombie.entity.ComponentType.CraftBench)==null ? "native-oncreate-fireplace" : null;
+        }
+        return "native-thumpable";
+    }
+    // Reuse the existing exact-object workplace binding; private acquisition
+    // and a fresh canonical owned work/result remain the Lua owners' authority.
+    private static se.krka.kahlua.vm.KahluaTable constructionResultWorkplace(SAOIsoPlayerShell body,String actor,IsoObject part,
+            zombie.entity.components.crafting.CraftBench bench,boolean surface) {
+        if(bench==null&&!surface)return null;
+        var square=part.getSquare();String key="W:"+square.getX()+":"+square.getY()+":"+square.getZ()+":"+part.getObjectIndex();
+        var bindings=RECIPE_WORKPLACES.computeIfAbsent(body,ignored->new LinkedHashMap<>());
+        var binding=bindings.get(key);
+        if(binding==null||!binding.matches(actor,part,bench)){binding=new RecipeWorkplaceBinding(actor,key,part,bench);bindings.put(key,binding);}
+        while(bindings.size()>MAX_INSPECTION_OPTIONS)bindings.remove(bindings.keySet().iterator().next());
+        var row=recipeTable();row.rawset("key",key);row.rawset("revision",binding.revision);
+        row.rawset("x",(double)square.getX());row.rawset("y",(double)square.getY());row.rawset("z",(double)square.getZ());return row;
+    }
+    private static se.krka.kahlua.vm.KahluaTable constructionResultRelation(IsoObject part,ConstructionDefinition d,int index,String actor) {
+        if(!part.hasModData())return null;
+        var relation=table(part.getModData().rawget("SAOPhysicalResult"));
+        if(relation==null||relation.getMetatable()!=null)return null;
+        var fields=java.util.Set.of("schema","workId","actorId","world","bodyToken","partIndex","sourceEntityId","recipeId",
+            "siteKey","sourceRevision","face","cursor","x","y","z","sprite","nativeClass");
+        var numeric=java.util.Set.of("partIndex","cursor","x","y","z");
+        var out=recipeTable();int count=0;var iterator=relation.iterator();
+        while(iterator.advance()){
+            Object key=iterator.getKey(),value=iterator.getValue();if(!(key instanceof String name)||!fields.contains(name))return null;
+            if(numeric.contains(name)) {
+                if(!(value instanceof Number n))return null;double v=n.doubleValue();if(!Double.isFinite(v)||v!=Math.rint(v)||Math.abs(v)>2147483647)return null;
+            }else if(!(value instanceof String s)||s.isBlank()||s.length()>512)return null;
+            out.rawset(key,value);count++;
+        }
+        if(count!=fields.size()||!"sao.native-physical-result/1".equals(out.rawget("schema"))||!actor.equals(out.rawget("actorId"))
+            ||!d.entityId.equals(out.rawget("sourceEntityId"))||!d.recipeId.equals(out.rawget("recipeId"))||!d.sourceRevision.equals(out.rawget("sourceRevision"))
+            ||!d.faceName.equals(out.rawget("face"))||!Double.valueOf(d.cursor).equals(out.rawget("cursor"))||!Double.valueOf(index).equals(out.rawget("partIndex"))
+            ||!Double.valueOf(part.getX()).equals(out.rawget("x"))||!Double.valueOf(part.getY()).equals(out.rawget("y"))||!Double.valueOf(part.getZ()).equals(out.rawget("z"))
+            ||!part.getSpriteName().equals(out.rawget("sprite"))||!part.getClass().getName().equals(out.rawget("nativeClass")))return null;
+        return out;
+    }
+    public static synchronized Object constructionCreated(SAOIsoPlayerShell body,se.krka.kahlua.vm.KahluaTable supplied,String entityId,String face,int cursor,int x,int y,int z){
+        try{String actor=recipeActor(body);if(actor==null||supplied==null||supplied.getMetatable()!=null)return null;
+            var d=new ConstructionDefinition(entityId,face,cursor);String factory=constructionResultFactory(d);if(factory==null)return null;
+            var measured=recipeTable();var seen=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<IsoObject,Boolean>());int count=0;
+            for(int dz=0;dz<d.face.getzLayers();dz++)for(int dy=0;dy<d.face.getHeight();dy++)for(int dx=0;dx<d.face.getWidth();dx++){
+                var tile=d.face.getTileInfo(dx,dy,dz);if(tile==null||tile.getSpriteName()==null)continue;Object candidate=supplied.rawget((double)++count);
+                if(!(candidate instanceof IsoObject part)||!seen.add(part))return null;
+                var square=body.getCell().getGridSquare(x+dx,y+dy,z+dz);
+                if(square==null||part.getSquare()!=square||part.getCell()!=body.getCell()||part.getObjectIndex()<0||!square.getObjects().contains(part)
+                        ||!constructionVisible(body,square,INSPECTION_RANGE)||!tile.getSpriteName().equals(part.getSpriteName()))return null;
+                var nativeEntity=part.getEntityScript();
+                if("native-thumpable".equals(factory)) {
+                    if(!(part instanceof IsoThumpable)||nativeEntity!=d.entity)return null;
+                }else if("native-moveable-prop".equals(factory)) {
+                    if(part.getClass()!=IsoThumpable.class||nativeEntity!=null)return null;
+                }else if(part.getClass()!=zombie.iso.objects.IsoFireplace.class||nativeEntity!=null)return null;
+                zombie.entity.components.crafting.CraftBench bench=part.getComponent(zombie.entity.ComponentType.CraftBench);
+                var required=d.entity.getComponentScriptFor(zombie.entity.ComponentType.CraftBench);
+                if(required instanceof zombie.scripting.entity.components.crafting.CraftBenchScript expected
+                    &&(bench==null||bench.getGameEntity()!=part||!java.util.Objects.equals(bench.getRecipeTagQuery(),expected.getRecipeTagQuery())))return null;
+                var row=recipeTable();row.rawset("x",(double)square.getX());row.rawset("y",(double)square.getY());row.rawset("z",(double)square.getZ());
+                row.rawset("sprite",part.getSpriteName());row.rawset("nativeClass",part.getClass().getName());
+                row.rawset("sourceEntityId",entityId);row.rawset("factoryPath",factory);
+                if(nativeEntity!=null)row.rawset("entityId",nativeEntity.getScriptObjectFullType());
+                row.rawset("objectIndex",(double)part.getObjectIndex());row.rawset("nativeEntityNetId",Long.toString(part.getEntityNetID()));
+                row.rawset("nativeEntityNetIdKind","position-index");row.rawset("nativeInstanceIdentityEstablished",false);
+                var relation=constructionResultRelation(part,d,count,actor);if(relation!=null)row.rawset("physicalResult",relation);
+                row.rawset("master",tile.isMaster());row.rawset("blocking",tile.isBlocking());
+                boolean surface=body.canUseAsGenericCraftingSurface(part);
+                row.rawset("genericSurface",part.isGenericCraftingSurface());row.rawset("currentUsableSurface",surface);row.rawset("craftBench",bench!=null);
+                var workplace=constructionResultWorkplace(body,actor,part,bench,surface);
+                if(workplace!=null)row.rawset("recipeWorkplace",workplace);
+                if(bench!=null)row.rawset("recipeTagQuery",bench.getRecipeTagQuery());measured.rawset((double)count,row);
+            }
+            if(count==0||supplied.len()!=count)return null;
+            var result=recipeTable();result.rawset("actorId",actor);result.rawset("sourceEntityId",entityId);result.rawset("recipeId",d.recipeId);
+            if("native-thumpable".equals(factory))result.rawset("entityId",entityId);
+            result.rawset("factoryPath",factory);result.rawset("sourceRevision",d.sourceRevision);
+            result.rawset("face",d.faceName);result.rawset("cursor",(double)cursor);result.rawset("x",(double)x);result.rawset("y",(double)y);result.rawset("z",(double)z);
+            result.rawset("geometry",d.geometry());result.rawset("parts",measured);result.rawset("observedAtHours",zombie.GameTime.getInstance().getWorldAgeHours());
+            result.rawset("ownedPhysicalReceiptRequired",true);result.rawset("preexistingBaselineRequired",true);result.rawset("standingRequired",true);result.rawset("observationOnly",true);return result;
+        }catch(Throwable unavailable){return null;}
+    }
+
+    /** Registered potential workspace means; no local site, stock or station observation. */
+    public static synchronized Object constructionMeans(SAOIsoPlayerShell body, se.krka.kahlua.vm.KahluaTable request) {
+        try {
+            var out=recipeTable();String actor=recipeActor(body);
+            var purpose=constructionMeansPurpose(body,actor,request);
+            if(purpose==null)return out;
+            String requestingId=(String)request.rawget("recipeId"),sourceRevision=(String)request.rawget("sourceRevision");
+            var requesting=zombie.scripting.ScriptManager.instance.getCraftRecipe(requestingId);
+            if(requesting==null || requesting.needToBeLearn()&&!body.isRecipeActuallyKnown(requesting)
+                    || !Boolean.valueOf(requesting.isAnySurfaceCraft()).equals(request.rawget("anySurface"))
+                    || !Boolean.valueOf(requesting.requiresSpecificWorkstation()).equals(request.rawget("specificWorkstation")))return out;
+            boolean anySurface=requesting.isAnySurfaceCraft(),specific=requesting.requiresSpecificWorkstation();
+            if(!anySurface&&!specific)return out;
+            var sao=table(zombie.Lua.LuaManager.env.rawget("SAO"));
+            var policy=sao==null?null:table(sao.rawget("ConstructionPolicy"));
+            Object describe=policy==null?null:policy.rawget("describe");
+            if(describe==null)return null;
+            int count=0;
+            // Native BuildLogic lookup may refresh the manager's returned list.
+            for(var entity:new ArrayList<>(zombie.scripting.ScriptManager.instance.getAllGameEntities())) {
+                String entityId=entity.getScriptObjectFullType();
+                if(zombie.scripting.ScriptManager.instance.getGameEntityScript(entityId)!=entity)continue;
+                zombie.scripting.entity.components.spriteconfig.SpriteConfigScript sprite=entity.getComponentScriptFor(zombie.entity.ComponentType.SpriteConfig);
+                zombie.scripting.entity.components.crafting.CraftRecipeComponentScript component=entity.getComponentScriptFor(zombie.entity.ComponentType.CraftRecipe);
+                if(sprite==null||component==null)continue;
+                var recipe=component.getCraftRecipe();
+                if(recipe==null||zombie.scripting.ScriptManager.instance.getCraftRecipe(recipe.getScriptObjectFullType())!=recipe
+                        || recipe.needToBeLearn()&&!body.isRecipeActuallyKnown(recipe))continue;
+                boolean skills=true;
+                for(int n=0;n<recipe.getRequiredSkillCount();n++)if(!zombie.entity.components.crafting.recipe.CraftRecipeManager.hasPlayerRequiredSkill(recipe.getRequiredSkill(n),body))skills=false;
+                if(!skills)continue;
+                var info=zombie.entity.components.spriteconfig.SpriteConfigManager.GetObjectInfo(sprite.getName());
+                if(info==null||info.getScript()!=sprite||info.getRecipe()!=component)continue;
+                zombie.scripting.entity.components.crafting.CraftBenchScript bench=entity.getComponentScriptFor(zombie.entity.ComponentType.CraftBench);
+                boolean supportedBench=specific&&bench!=null&&bench.getRecipes()!=null&&bench.getRecipes().contains(requesting);
+                if(specific&&!supportedBench)continue;
+                String[] cardinal={"W","N","E","S"};
+                for(int direction=0;direction<4;direction++) {
+                    var face=info.getFace(cardinal[direction]);if(face==null)continue;
+                    String supportSprite=null;
+                    if(anySurface) {
+                        for(int z=0;z<face.getzLayers()&&supportSprite==null;z++)
+                        for(int y=0;y<face.getHeight()&&supportSprite==null;y++)
+                        for(int x=0;x<face.getWidth()&&supportSprite==null;x++) {
+                            var tile=face.getTileInfo(x,y,z);if(tile==null||tile.getSpriteName()==null)continue;
+                            var original=zombie.iso.sprite.IsoSpriteManager.instance.getSprite(tile.getSpriteName());
+                            if(original==null||!tile.getSpriteName().equals(original.getName()))continue;
+                            // Metadata-only native receiver: never placed, inserted or given components.
+                            var receiver=new IsoObject(null,null,original);
+                            if(receiver.isGenericCraftingSurface())supportSprite=tile.getSpriteName();
+                        }
+                        if(supportSprite==null)continue;
+                    }
+                    var selected=recipeTable();selected.rawset("face",cardinal[direction]);selected.rawset("cursor",(double)(direction+1));
+                    Object[] described=zombie.Lua.LuaManager.caller.pcall(zombie.Lua.LuaManager.thread,describe,
+                        new Object[]{entityId,body,purpose,selected});
+                    var candidate=described.length>1&&Boolean.TRUE.equals(described[0])?table(described[1]):null;
+                    if(candidate==null||!Boolean.TRUE.equals(candidate.rawget("admissible")))continue;
+                    var requirements=table(candidate.rawget("requirements"));var shape=requirements==null?null:table(requirements.rawget("geometry"));
+                    if(requirements==null||shape==null||!entityId.equals(requirements.rawget("entity"))
+                            ||!recipe.getScriptObjectFullType().equals(requirements.rawget("recipe")))continue;
+                    var row=recipeTable();var relationship=recipeTable();
+                    row.rawset("entityId",entityId);row.rawset("recipeId",recipe.getScriptObjectFullType());row.rawset("face",shape.rawget("face"));
+                    row.rawset("cursor",(double)(direction+1));row.rawset("sourceRevision",sourceRevision);
+                    String nativeRevision=digest(entityId+"|"+info.getVersion()+"|"+recipeRevision(recipe)+"|"+cardinal[direction]
+                        +"|"+requestingId+"|"+(bench==null?"":bench.getRecipeTagQuery())+"|"+value(supportSprite));
+                    row.rawset("nativeRevision",nativeRevision);row.rawset("knowledgeKind",recipe.needToBeLearn()?"acquired":"intrinsic");
+                    if(recipe.needToBeLearn())row.rawset("acquisitionId","native-known:"+actor+":"+recipe.getScriptObjectFullType()+":"+recipeRevision(recipe));
+                    relationship.rawset("status","potential");relationship.rawset("requestingRecipeId",requestingId);
+                    relationship.rawset("kind",specific?"specific-workstation":"generic-surface");
+                    if(specific)relationship.rawset("recipeTagQuery",bench.getRecipeTagQuery());
+                    if(supportSprite!=null)relationship.rawset("sprite",supportSprite);
+                    relationship.rawset("localObservation",false);relationship.rawset("stockKnown",false);relationship.rawset("siteKnown",false);
+                    row.rawset("workspaceRelationship",relationship);out.rawset((double)++count,row);
+                }
+            }
+            return out;
+        }catch(Throwable unavailable){return null;}
+    }
+
+    private static se.krka.kahlua.vm.KahluaTable constructionMeansPurpose(SAOIsoPlayerShell body,String actor,se.krka.kahlua.vm.KahluaTable request) {
+        if(actor==null||request==null||!actor.equals(request.rawget("actorId"))
+                ||!(request.rawget("purposeId") instanceof String purposeId)||purposeId.isBlank()
+                ||!(request.rawget("stepId") instanceof String stepId)||stepId.isBlank()
+                ||!(request.rawget("recipeId") instanceof String recipeId)||recipeId.isBlank()
+                ||!(request.rawget("sourceRevision") instanceof String revision)||revision.isBlank()
+                ||!(request.rawget("nativeRevision") instanceof String nativeRevision)||nativeRevision.isBlank())return null;
+        var recordsRoot=zombie.world.moddata.GlobalModData.instance.get("SurvivorAwareness_Records");
+        var records=recordsRoot==null?null:table(recordsRoot.rawget("records"));var record=records==null?null:table(records.rawget(actor));
+        var planning=record==null?null:table(record.rawget("proceduralPlanning"));var purposes=planning==null?null:table(planning.rawget("purposes"));
+        var purpose=purposes==null?null:table(purposes.rawget(purposeId));
+        var steps=purpose==null?null:table(purpose.rawget("steps"));Object cursor=purpose==null?null:purpose.rawget("cursor");
+        var step=steps==null||!(cursor instanceof Number n)?null:table(steps.rawget(n.doubleValue()));
+        if(purpose==null||"completed".equals(purpose.rawget("status"))||"abandoned".equals(purpose.rawget("status"))
+                ||step==null||!stepId.equals(step.rawget("id"))||!recipeId.equals(step.rawget("recipeId"))
+                ||!revision.equals(step.rawget("sourceRevision"))||"completed".equals(step.rawget("status")))return null;
+        var requesting=zombie.scripting.ScriptManager.instance.getCraftRecipe(recipeId);
+        if(requesting==null||!nativeRevision.equals(step.rawget("nativeRevision"))
+                ||!nativeRevision.equals(recipeRevision(requesting)))return null;
+        var out=recipeTable();out.rawset("id",purposeId);out.rawset("actorId",actor);out.rawset("consumerId",stepId);
+        out.rawset("kind","construction-workspace");out.rawset("sourceRevision",revision);return out;
+    }
+
 }

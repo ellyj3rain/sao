@@ -68,6 +68,12 @@ end
 end
 SAO.ResourceProduction.onOutcome = function(id, receipt)
     local canonical = receipt and SAO.ResourceProduction.outcome(id, receipt.id)
+    if canonical and canonical.kind=="build-place" then
+        return SAO.Cognition and SAO.Cognition.workspaceConstructionOutcome and SAO.Cognition.workspaceConstructionOutcome(id,canonical) or false
+    end
+    if canonical and canonical.kind=="extract-material" then
+        return SAO.Cognition and SAO.Cognition.materialExtractionOutcome and SAO.Cognition.materialExtractionOutcome(id,canonical) or false
+    end
     if canonical and canonical.kind=="glaze-shelter-window" then return SAO.Cognition and SAO.Cognition.windowInstallationOutcome and SAO.Cognition.windowInstallationOutcome(id,canonical) or false end
     if canonical and (canonical.kind=="build-double-gate" or canonical.kind=="operate-double-gate" or canonical.kind=="operate-single-gate") then
         return SAO.Cognition and SAO.Cognition.doubleGateOutcome and SAO.Cognition.doubleGateOutcome(id,canonical) or false

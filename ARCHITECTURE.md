@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.2.0-pre-alpha` |
+| Version | `2.7.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2508,3 +2508,9 @@ RecipePolicy reads registered native IO declarations, current input tests, quant
 Existing WorldSources/Bridge observations bind complete personally inspected item identity/revision and native recipe input role without changing intrinsic categories. Perception retains item-type and workplace facts. ProceduralPlanning and Controller interpret one retained consumer demand, inquiry/approach, fresh exact acquisition, production and original use. A prospective free-bench allocation is read-only; ResourceProduction claims it, selects again and exclusively owns native timed action/payment/effect, outcomes and release.
 
 Fresh output availability and actual original consumer input effects govern supply completion. Cognition, CognitiveModels and CapabilityExperience retain separate native stock/upkeep facts and once-only private learning. Full person persistence preserves raw negative/unperformed work and admitted archive fields; source-refused acquisition facts retain their canonical transfer/Perception representation. Full shared intake/model adoption and broader authoritative execution remain owning contracts. [D3.19](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md) records current bounded proof and parent obligations.
+
+## Native material-to-workspace continuity (D3.20)
+
+Existing person perception, source inquiry, model choice and procedural purposes retain the original consumer identity. Registered ConstructionPolicy/BuildLogic and ExtractionPolicy/native action callbacks extend the existing ResourceProduction claim/capsule/action/result owners. Remembered inspected types motivate inquiry; signed current source observations and native input roles admit exact transfer. Original handcraft allocation runs before start; current owned action/queue/phase and exact manual inputs govern continuation after native queued reservation becomes active.
+
+Native world locators identify position/index, not instance generation. The existing physical owner commits the full paid fresh canonical result before writing exact work/part relationships through native object modData. WorldSources observes source-specific type, whole geometry and current capability, retaining source provenance separately from native identity. Existing weak exact-object bindings qualify current instances; persisted canonical backlinks plus current private observation/native geometry qualify cold reconstruction. Missing or replaced relationships refuse prior-build use credit without erasing physical truth. Observers never mint links. [D3.20](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md) retains source-specific scope and complete parent obligations.

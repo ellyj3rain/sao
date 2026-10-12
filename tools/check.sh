@@ -2781,6 +2781,12 @@ if ! "$PY" tools/d3_recipe_consumer_test.py --out "$sao_d3_proof/recipe-consumer
     note "BORDER FINDING - private native stock acquisition, resumed requesting work or saved lifecycle differ"
     fail=1
 fi
+# D3.20 keeps requested material, native workspace construction, durable result
+# correspondence and original private use in one connected qualification.
+if ! "$PY" tools/d3_workspace_consumer_test.py --out "$sao_d3_proof/workspace-consumer"; then
+    note "BORDER FINDING - native workspace supply, result correspondence or original requesting use differs"
+    fail=1
+fi
 if ! "$PY" tools/d3_material_categories_test.py --out "$sao_d3_proof/materials"; then
     note "BORDER FINDING - exact native construction-material admission differs"
     fail=1

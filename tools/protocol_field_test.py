@@ -132,6 +132,109 @@ def protects(body, ch):
     return bool(explicit and percent)
 
 
+def java_code(source):
+    """Mask Java comments and literal bodies without moving source offsets."""
+    pattern = r'/\*.*?\*/|//[^\n]*|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\''
+    return re.sub(pattern, lambda match: "".join(
+        "\n" if char == "\n" else " " for char in match.group()), source, flags=re.S)
+
+
+def digest_sink(source, name):
+    """Require a native hash of the sole input and a hex-only result."""
+    header = re.search(r"\bString\s+" + re.escape(name)
+                       + r"\s*\(\s*String\s+(\w+)\s*\)", source)
+    body = method_body(source, name)
+    if not header or not body:
+        return False
+    parameter = header.group(1)
+    code = java_code(body)
+    engine = re.search(r'MessageDigest\s+(\w+)\s*=\s*MessageDigest\.getInstance\("SHA-256"\)', body)
+    if not engine:
+        return False
+    hashed = re.search(r"byte\[\]\s+(\w+)\s*=\s*" + re.escape(engine.group(1))
+                       + r"\.digest\(\s*" + re.escape(parameter)
+                       + r"\.getBytes\(StandardCharsets\.UTF_8\)\)", code)
+    if not hashed:
+        return False
+    encoded = re.search(r"StringBuilder\s+(\w+)\s*=\s*new StringBuilder\(\s*"
+                        + re.escape(hashed.group(1)) + r"\.length\s*\*\s*2\s*\)", code)
+    if not encoded:
+        return False
+    output = re.escape(encoded.group(1))
+    return (bool(re.search(r"for\s*\(byte\s+\w+\s*:\s*" + re.escape(hashed.group(1)) + r"\)", code))
+            and len(re.findall(r"\b" + re.escape(parameter) + r"\b", code)) == 1
+            and len(re.findall(r"\breturn\b", code)) == 1
+            and bool(re.search(r"return\s+" + output + r"\.toString\(\)\s*;", code))
+            and len(re.findall(r"\b" + output + r"\.append\(Character\.forDigit\(", code)) == 2
+            and len(re.findall(r"\.append\(", code)) == 2)
+
+
+def internal_digest_spans(source):
+    """Exclude only local builders whose complete use is append then hash.
+
+    A raw return, shared field, transport call or other use restores the normal
+    undeclared-wire finding. Constructors follow the same local scope rule.
+    """
+    code = java_code(source)
+    stack, scopes = [], []
+    for match in re.finditer(r"[{}]", code):
+        if match.group() == "{":
+            stack.append(match.start())
+        elif stack:
+            scopes.append((stack.pop(), match.end()))
+    spans = []
+    for declaration in re.finditer(r"\bStringBuilder\s+(\w+)\s*=\s*new\s+StringBuilder\(", code):
+        variable = declaration.group(1)
+        owners = []
+        for scope in scopes:
+            if not scope[0] < declaration.start() < scope[1]:
+                continue
+            header = re.search(r"\b(\w+)\s*\([^{};]*\)\s*(?:throws\s+[\w., ]+)?\s*$",
+                               code[:scope[0]])
+            if header and header.group(1) not in {"if", "for", "while", "switch", "catch", "synchronized"}:
+                owners.append(scope)
+        if not owners:
+            continue
+        start, end = min(owners, key=lambda scope: scope[1] - scope[0])
+        body = code[declaration.end():end]
+        sinks = list(re.finditer(r"\b(\w+)\(\s*" + re.escape(variable)
+                                + r"\.toString\(\)\s*\)", body))
+        if (len(sinks) != 1 or re.search(r"\.\s*$", body[:sinks[0].start()])
+                or not digest_sink(source, sinks[0].group(1))):
+            continue
+        safe = True
+        for use in re.finditer(r"\b" + re.escape(variable) + r"\b", body):
+            if re.search(r"\.\s*$", body[:use.start()]):
+                continue  # A same-named member is not this lexical local.
+            if any(sink.start() <= use.start() < sink.end() for sink in sinks):
+                continue
+            if re.match(r"\s*\.append\s*\(", body[use.end():]):
+                continue
+            safe = False
+            break
+        if safe:
+            # Only this receiver's top-level append chain is digest input.
+            # Another builder in the same lexical block is still transport.
+            for chain in re.finditer(r"\b" + re.escape(variable) + r"\s*\.append\s*\(", body):
+                if re.search(r"\.\s*$", body[:chain.start()]):
+                    continue
+                call = re.search(r"(append)\s*\(", chain.group())
+                position, offset = chain.end(), chain.start() + call.start(1)
+                while True:
+                    spans.append((declaration.end() + offset,
+                                  declaration.end() + offset + len("append"), variable))
+                    depth = 1
+                    while position < len(body) and depth:
+                        depth += (body[position] == "(") - (body[position] == ")")
+                        position += 1
+                    following = re.match(r"\s*\.\s*(append)\s*\(", body[position:])
+                    if depth or not following:
+                        break
+                    offset = position + following.start(1)
+                    position += following.end()
+    return spans
+
+
 def main():
     faults = []
     print("=" * 74)
@@ -188,7 +291,10 @@ def main():
 
     declared = {(f, m) for f, m in BUILDERS}
     for fname, src in sorted(srcs.items()):
+        digests = internal_digest_spans(src)
         for m in re.finditer(r"append\(\s*['\"][|,@=]['\"]\s*\)", src):
+            if any(start <= m.start() < end for start, end, _ in digests):
+                continue
             line = src.count("\n", 0, m.start()) + 1
             owner = None
             for (f, meth) in declared:
