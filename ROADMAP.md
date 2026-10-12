@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.6.16.0-pre-alpha` |
+| Version | `2.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -468,3 +468,18 @@ The operator adds varied civilian architecture and architectural/engineering/mil
 Knowledge must be maintained. Attributes, health and aging affect retention and retrieval alongside use, rehearsal, interest and contrary experience, under the operator's Speakeasy knowledge direction. D3.16 supplies the first source-bound SAO application; upcoming learning and cognitive batch groups, including D6, carry the broader requirement. Reading exposure, assessed understanding, retained memory and current accessibility remain distinct. Current Speakeasy model and bridge integration require its owning source and two-way liaison contact; this dependency does not change FIFO or allocate future group numbers.
 
 SAO's source acquisition, person-private maintenance, response, appraisal and physical experience remain coupled to Speakeasy's understander, retriever, speaker, shared foundation and adaptation goals. Each upcoming learning increment identifies its actual model inputs, output authority, source and model revisions, assessment isolation and feedback consumers. Bounded native learning mechanisms retain their measured behavior while learned ML competence and runtime integration continue through the shared owning contracts.
+
+## Owned window pane supply and repair (D3.17)
+
+[D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) delivers original compatible material/supply registration
+and shared human/private repair through current native consumers, exact payment
+and restored-window measurement, optional forwarding and authentic legacy
+saved-result replay. Earlier C112 and D3 acquisition/preparation evidence retain
+their stated source-qualified scope. Full D3 continues furniture, source-admitted
+remaining repertoire and server authority. General autonomous pane recipe
+execution and wider architecture/doctrine/learning remain their owning goals;
+D4-D6 retain FIFO.
+
+Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) first resolves normal-Main installation, native perform-before-complete custody and shared direct-action geometry before reclaiming delivery. Prior qualified packets remain reusable only within their demonstrated boundaries. No next child, additional version credit or FIFO change follows.
+
+Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is reclosed after actual normal Main, native perform-before-complete handoff and shared geometry qualification. The same assessed kohai coordinate remains; current package/publication have their distinct receipts. Full D3, wider goals and FIFO remain active.

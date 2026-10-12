@@ -1,4 +1,4 @@
--- Actor-bound admission and measured completion over an optional installed action.
+-- Actor-bound admission and measured completion over the owned pane action.
 SAO = SAO or {}
 SAO.WindowRepair = SAO.WindowRepair or {}
 local W = SAO.WindowRepair
@@ -20,6 +20,8 @@ local MAX_CANCELLATIONS_PER_TICK = 32
 local MAX_LEARNING_SCANS, MAX_LEARNING_OWNERS = 256, 32
 local learningRecords, learningIterator = nil, nil
 local PANE = "RepairableWindows.LargeGlassPane"
+local OWNED_OWNER = "SAO.WindowPaneAction.complete"
+local LEGACY_OWNER = "AddWindowAction.complete"
 local function availablePane(item)
     return item and item:getFullType() == PANE and item:getIsCraftingConsumed() ~= true
 end
@@ -224,7 +226,7 @@ local function bound(b, material, sight)
             if not source or source == b.inventory or b.pane:getContainer() ~= source
                 or source:getOutermostContainer() ~= b.inventory or not source:contains(b.pane) then return false end
         elseif b.pane:getContainer() ~= b.inventory or not b.inventory:contains(b.pane)
-            or b.inventory:getFirstType(PANE) ~= b.pane then return false end
+            or b.inventory:getFirstTypeEval(PANE, availablePane) ~= b.pane then return false end
     end
     return true
 end
@@ -233,6 +235,13 @@ local function queued(action)
     local q = b and b.queue
     if q then return q:indexOf(action) ~= -1 or q.current == action end
     return ISTimedActionQueue and ISTimedActionQueue.hasAction(action) == true
+end
+local function nativeEnded(action)
+    local ok, ended = pcall(function()
+        return action.action and action.action:isStarted()
+            and (action.action:finished() or action.action:isForceComplete())
+    end)
+    return ok and ended == true
 end
 local function scheduleCancellation(active)
     if active.retryQueued then return end
@@ -294,7 +303,7 @@ function W.outcome(id, sequence)
         return copy(row)
     end
     if row.recoveryOnly ~= nil or row.nativeObservability ~= nil or type(row.world) ~= "string"
-        or row.nativeOwner ~= "AddWindowAction.complete" or type(row.paneConsumed) ~= "boolean" or type(row.nativeAttempted) ~= "boolean"
+        or row.nativeOwner ~= OWNED_OWNER and row.nativeOwner ~= LEGACY_OWNER or type(row.paneConsumed) ~= "boolean" or type(row.nativeAttempted) ~= "boolean"
         or type(row.smashedAfter) ~= "boolean" or type(row.glassRemovedAfter) ~= "boolean"
         or (row.status == "completed" and (not row.nativeAttempted or not row.paneConsumed or row.smashedBefore ~= true
             or row.smashedAfter or row.glassRemovedAfter))
@@ -354,7 +363,7 @@ local function close(b, status, reason)
         startedAt = work.startedAt, endedAt = at, status = status, reason = reason,
         paneConsumed = b.paneConsumed == true, nativeAttempted = b.nativeAttempted == true,
         smashedBefore = true, smashedAfter = b.window:isSmashed(),
-        glassRemovedAfter = b.window:isGlassRemoved(), nativeOwner = "AddWindowAction.complete" }
+        glassRemovedAfter = b.window:isGlassRemoved(), nativeOwner = OWNED_OWNER }
     work.status, work.reason, work.resultSequence = status, reason, s.nextResult
     s.outcomes[tostring(s.nextResult)] = row
     s.order[#s.order + 1] = s.nextResult
@@ -383,7 +392,7 @@ end
 function W.install()
     if installed then return true end
     if type(require) ~= "function" then return false end
-    local ok, base = pcall(require, "RepairableWindows/AddWindowAction")
+    local ok, base = pcall(require, "SAO_WindowPaneAction")
     if not ok or type(base) ~= "table" or type(base.new) ~= "function"
         or type(base.complete) ~= "function" or type(base.isValid) ~= "function"
         or type(base.isValidStart) ~= "function" or type(base.stop) ~= "function" then return false end
@@ -412,21 +421,45 @@ function W.install()
     end
     function base:complete()
         local b = binding(self)
+        local function acknowledge()
+            if not b or not b.performed then return end
+            b.stopAcknowledged = true
+            if not queued(self) then
+                if not b.work then releaseBinding(self, b)
+                else
+                    local active = runtime[b.personId]
+                    if active and active.binding == b and active.closed then retireAcknowledged(b.personId, active) end
+                end
+            end
+        end
         if not b or b.preparing or self.character ~= b.body or self.window ~= b.window or b.spent or b.cancelled or not bound(b, true, false) or not self.window:isSmashed() then
             refuse(b, "window-material-or-owner-changed")
+            acknowledge()
+            return false
+        end
+        -- The native engine dispatches perform before complete. The sealed
+        -- performed owner retains exact retirement and any legitimate next
+        -- action; completion never retires or resets that successor.
+        if not b.performed or b.performFailed or ISTimedActionQueue.getTimedActionQueue(b.body) ~= b.queue
+            or b.queue:indexOf(self) ~= -1 or b.queue.current ~= b.retirementCurrent
+            or b.queue.queue[1] ~= b.retirementFirst or #b.queue.queue ~= b.retirementLength then
+            refuse(b, "window-native-queue-owner-changed")
+            acknowledge()
             return false
         end
         b.spent = true -- A second completion cannot consume another pane or issue another outcome.
         b.nativeAttempted = true
-        local okComplete, result = pcall(nativeComplete, self)
+        local okComplete, result = pcall(nativeComplete, self, b.pane)
         b.paneConsumed = not b.inventory:contains(b.pane)
         local measured = bound(b, false, false) and b.paneConsumed
             and not b.window:isSmashed() and not b.window:isGlassRemoved()
         if not okComplete or result ~= true or not measured then
             close(b, "interrupted", "native-window-effect-unconfirmed")
+            acknowledge()
             return false
         end
         close(b, "completed", "native-window-and-pane-measured")
+        acknowledge()
         return true
     end
     function base:stop()
@@ -469,7 +502,8 @@ function W.install()
     function base:perform()
         local b = binding(self)
         -- A released action is a terminal tombstone, never another queue owner.
-        if not b or self.character ~= b.body or self.window ~= b.window then return false end
+        if not b or b.performed or b.spent or b.cancelled or b.preparing
+            or self.character ~= b.body or self.window ~= b.window then return false end
         if not queued(self) then
             if not b.work then releaseBinding(self, b)
             else
@@ -482,13 +516,13 @@ function W.install()
         -- only while that lookup still names our originally captured queue.
         if ISTimedActionQueue.getTimedActionQueue(b.body) ~= b.queue
             or b.queue.current ~= self or b.queue:indexOf(self) ~= 1 then return false end
-        local okPerform, result = pcall(nativePerform, self)
-        if not b.work and not queued(self) then releaseBinding(self, b)
-        elseif b.work then
-            local active = runtime[b.personId]
-            if active and active.binding == b and active.closed then retireAcknowledged(b.personId, active) end
+        if not nativeEnded(self) or not bound(b, true, false) or nativeValid(self) ~= true then
+            return refuse(b, "window-perform-owner-or-native-end-changed")
         end
-        if not okPerform then error(result) end
+        b.performed = true
+        local okPerform, result = pcall(nativePerform, self)
+        b.retirementCurrent, b.retirementFirst, b.retirementLength = b.queue.current, b.queue.queue[1], #b.queue.queue
+        if not okPerform then b.performFailed = true; refuse(b, "window-native-perform-failed"); error(result) end
         return result
     end
     function base:forceCancel()
@@ -510,6 +544,19 @@ function W.install()
         end
         return false
     end
+    -- Optional callers forward to the same guarded owned producer. Their
+    -- existing removal callback is retained; no third-party effect is invoked.
+    local optionalOK, optional = pcall(require, "RepairableWindows/AddWindowAction")
+    if optionalOK and type(optional)=="table" and optional~=base and type(optional.new)=="function" then
+        optional.new=function(_,character,window) return base:new(character,window) end
+        optional.queueNew=function(character,window)
+            local menu=SAO.WindowPaneMenu
+            if not menu then local ok,loaded=pcall(require,"SAO_WindowPaneMenu");if ok then menu=loaded end end
+            return menu and menu.queueNew and menu.queueNew(character,window) or false
+        end
+        if type(optional.Type)=="string" then _G[optional.Type]=base end
+        W.optionalPaneMenu=true
+    else W.optionalPaneMenu=false end
     installed = base
     return true
 end
@@ -700,7 +747,7 @@ function W.begin(id, body, offer)
     s.nextWork = s.nextWork + 1
     local work = { id = id .. "/window-work/" .. s.nextWork, purposeId = purpose.id, entryKey = offer.entryKey,
         status = "repairing", startedAt = at, itemId = observed.itemId,
-        actorId = id, stepId = purpose.steps[purpose.cursor].id, nativeOwner = "AddWindowAction.complete",
+        actorId = id, stepId = purpose.steps[purpose.cursor].id, nativeOwner = OWNED_OWNER,
         world = observed.world, bodyToken = observed.token, x = observed.square:getX(), y = observed.square:getY(),
         z = observed.square:getZ(), windowIndex = observed.index, north = observed.north }
     local action = installed:new(body, observed.window)
@@ -836,7 +883,7 @@ function W.reconcileSaved(id, body)
     -- Original schema-1 work has only the six admission scalars above. New
     -- work also preserves detached native anchors, whose complete shape is checked.
     if work.actorId ~= nil or work.world ~= nil or work.nativeOwner ~= nil or work.stepId ~= nil then
-        if work.actorId ~= id or work.stepId ~= step.id or work.nativeOwner ~= "AddWindowAction.complete"
+        if work.actorId ~= id or work.stepId ~= step.id or work.nativeOwner ~= OWNED_OWNER and work.nativeOwner ~= LEGACY_OWNER
             or type(work.world) ~= "string" or work.world ~= getWorld():getWorld()
             or work.bodyToken ~= nil and type(work.bodyToken) ~= "string"
             or not finite(work.x) or not finite(work.y) or not finite(work.z)

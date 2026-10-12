@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.6.16.0-pre-alpha` |
+| Version | `2.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -801,3 +801,28 @@ The complete recorded remaining metal family uses installed recipe, placement, p
 ## Native original literature and inquiry (D3.16)
 
 Installed Item.Load/initialiseItem, Literature custom pages, native transfer/reading and actual room/door/LOS observation supply the physical source and private context. The source-bound person store owns assessment and modeled maintenance; native identity/table serialization preserves it without replay credit. [D3.16](Batches/D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md) distinguishes actual native APIs from controlled actors/clock/queue/geometry and bounded literal/arithmetic cognition; no trained ML or rendered acceptance is inferred.
+
+## Owned pane registration and native repair (D3.17)
+
+Native script-item closure requires the owned conditional definitions to enter
+`WorldDictionary.ScriptsLoaded` through the existing active-mod agent weave.
+Foreign objects and native dictionary identities remain unchanged. Native
+Item/CraftRecipe factories and save processing retain compatibility item scale,
+assets, prerequisites and kept inputs. The shared owned timed action pays the
+exact available pane and calls removed-glass clearing before smashed restoration.
+Current private consumers authenticate their own admissions/results; historical
+completed-owner identities remain readable without another physical effect.
+[D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) and DR-065 retain the source facts, native proof boundaries
+and legacy continuity. General server execution and loaded game acceptance
+remain separately unobserved.
+
+## Normal pane installation and native handoff (D3.17)
+
+ZombieBuddy's actual Main entry precedes native ScriptManager loading.
+Main installs the idempotent pane weave through supported self-attach. The
+shared primitive enforces loaded-cell/floor/member and existing reach2/native
+helper geometry at each physical admission. Actual native dispatch retires
+perform before complete; sealed exact retirement/successor custody permits
+one completion without resetting successor queue/flags. [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md)
+separates this actual-path evidence from its retained injected/manual-order
+history and unobserved loaded-game/server/graphical layers.

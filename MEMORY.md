@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `2.6.16.0-pre-alpha` |
+| Version | `2.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -143,3 +143,16 @@ The CLOSED [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md)
 ## D3.16 source-owned literary learning
 
 [D3.16](Batches/D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md) is CLOSED for the first original family through native source conveyance, maintained private and received memory, actual ordinary inquiry and current claims. Full D3 and broader learning/architecture/doctrine/strategy remain active. Shared Neo source-defined contract continuity keeps inter-repository obligations mechanical across Scions and existing Mousecat History.
+
+## D3.17 owned pane supply and repair
+
+[D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is CLOSED for original compatible startup definitions,
+native large-sheet supply and shared human/private repair with genuine old-owner
+save/replay continuity. One kohai mechanically carries to `2.7.0.0-pre-alpha`.
+Full D3 retains remaining furniture/repertoire/server and broader goals/FIFO;
+native, stamped-package and protected-publication receipts keep their distinct
+evidence layers.
+
+Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is reopened and OPEN before merge for three actual native-path corrections. Consult its latest acceptance section and retained source/package/CI packets; earlier candidate closure does not establish current delivery.
+
+Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is reclosed after actual normal Main, native perform-before-complete handoff and shared geometry qualification. The same assessed kohai coordinate remains; current package/publication have their distinct receipts. Full D3, wider goals and FIFO remain active.

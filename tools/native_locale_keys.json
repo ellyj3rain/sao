@@ -68,6 +68,18 @@
       ]
     },
     {
+      "lookup": "ContextMenu_Window",
+      "files": [
+        {
+          "path": "media/lua/shared/Translate/EN/ContextMenu.json",
+          "sha256": "5222ed338f510ff2fd6f87520900cb615f60a3e7847bb16c3addb0028e40a356",
+          "declaredKeys": [
+            "ContextMenu_Window"
+          ]
+        }
+      ]
+    },
+    {
       "lookup": "EC_Locked",
       "files": [
         {

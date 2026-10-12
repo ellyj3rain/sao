@@ -51,6 +51,7 @@ public final class Main {
         // this narrow weave cannot be established.
         com.sao.agent.SAOLootDensityWeave.install();
         com.sao.agent.SAOOrientationWeave.install();
+        com.sao.agent.SAOWindowPaneDefinitionWeave.install();
         SAOBridgeBootstrap.start();
         SAOViewpointBootstrap.start();
     }

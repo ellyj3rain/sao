@@ -1,13 +1,13 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.6.16.0-pre-alpha` |
+| Version | `2.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
-**As of** `[D3.16]`, 181 delivered batches: 29 A, 52 B, 82 C products and eighteen delivered D records. D3 is the active OPEN parent.
+**As of** `[D3.17]`, 182 delivered source outcomes: 29 A, 52 B, 82 C products and nineteen D records. D3 is the active OPEN parent; D3.17 is reclosed on actual-path qualification with protected publication pending.
 
 ## Delivered product
 
@@ -136,7 +136,7 @@ original purpose. Adoption and IDLE recovery reconcile lost native admissions
 without inventing effects or completion. Focused native and Controller proofs
 retain their exact inputs and boundaries. Final regression and review results
 live in the D3 record. The whole construction, crafting, repair and utilities
-parent remains OPEN. Its CLOSED D3.1 through D3.14 children deliver native crafting, held-tool maintenance, plumbing/rain-collector construction through actual usable water, and generator operation through usable consumer power; the current replay derives `2.6.16.0-pre-alpha`.
+parent remains OPEN. Its CLOSED D3.1 through D3.17 children deliver native material work and usable consumers, source-bound architectural learning, and owned pane supply/repair with saved continuity; the current replay derives `2.7.0.0-pre-alpha` through a kohai-cap carry.
 
 [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is the
 CLOSED child for native plank crafting. Exact private log and saw
@@ -238,3 +238,56 @@ The owned shared packages are supported-installed at framework version 1.2.0. So
 The first authored family and native private maintenance/inquiry/current-claim outcome are delivered with the qualified proof and review in [D3.16](Batches/D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md). Full D3 remains active for remaining construction/crafting/repair/utilities and integration. Wider civilian/doctrinal/lifespan/strategic and shared ML work retain their accepted scope and owner dependencies. Actual stamped package and protected publication retain separate receipts; no game/save/character/scenario intervention is part of this closure.
 
 Required CI identified the reader grammar declaration and disposable assessment death-cache lifetime. The in-place D3.16 repair binds all four fixed grammar/verb callers to the exact reader function, verifies native pattern progress and rejects nullable or outside-owner variants. Death cleanup explicitly retires the actor's exact assessment and unconditionally clears its temporary learning cache; eight focused native checks and a detecting omission control cover active, stale, terminal and mismatched work while preserving durable private history and foreign queues. The corrected death scanner verifies actual direct or protected death calls and cache-clear/death-call controls. Original CI failures and preceding qualification remain retained; the shipping JAR and credit stay unchanged. This repair receives narrow review/source qualification inside the same child and protected PR.
+
+
+## Pragmatic work organization and D3 continuation - 2026-10-12 03:05 UTC / 20:05 PDT
+
+The original operator request is implemented as the shared Granular/Emmetropic/Beacon native skill framework and four supported-installed packages, with specialist bindings, explicit work-boundary assessment and source reconciliation. Source/installed/real D3 application evidence remains in private operational receipts; existing orchestration and current grants retain their owners. Full D3 remains OPEN. [D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is the next connected delivery: owned large-pane supply and shared human/NPC native repair, using the existing private consumer integration and preserved legacy material/save policy. Furniture and other admitted repertoire/server gaps remain parent work; broader architecture/doctrine/ML goals and FIFO remain retained.
+
+## D3.17 first integrated review and correction - 2026-10-12 04:16 UTC / 21:16 PDT
+
+[D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) remains OPEN. Owned three-material/three-recipe startup
+registration, native repair and shared human/private consumers have a complete
+qualification04 packet. The first correctness/coherence reviews agree on one
+root-pane availability guard mismatch and retain the genuine legacy-owner replay
+proof gap. The builder owns their bounded correction and final applicability;
+Neo's Emmetropic integration owner reconciles canonical records. Version,
+supported shipping build and protected publication await correction
+confirmation and root release. Full D3 and wider scope/FIFO remain retained.
+
+## D3.17 qualified closure and remaining mainline - 2026-10-12 04:36 UTC / 21:36 PDT
+
+[D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is CLOSED for original compatible pane/mold supply and
+one owned human/private repair producer. The availability guard correction,
+authentic old-owner save replay and both bounded confirmations are complete.
+Exact qualified native phases and source-scoped acquisition/material evidence
+are reused. The owning machine records one kohai at `2.7.0.0-pre-alpha`; this
+is a mechanical cap carry, with full D3 still OPEN. One supported stamped build
+and actual required CI/protected publication retain their separate receipts.
+Furniture, other admitted native repertoire, server authority and broader
+architecture/doctrine/lifespan/strategic/ML obligations remain active; D4-D6
+retain FIFO. Normal game/save/character/scenario flow remains operator-owned.
+
+## D3.17 reopened actual-path acceptance - 2026-10-12 05:20 UTC / 22:20 PDT
+
+D3.17 is OPEN again before protected merge. All required product and CodeQL
+checks pass on PR160's prior candidate, but three unresolved automated
+conversations identify genuine normal-Main startup, perform-before-complete
+custody and direct shared-action cell/range gaps. Source owners confirm them;
+their bounded corrections and actual-path proofs proceed inside the same
+child. Prior injected/manual-order proof and package/CI packets remain retained
+at their real boundaries. Version stays at the one assessed candidate
+`2.7.0.0-pre-alpha`; actual delivery is pending and no new credit or rollback
+is applied. Publication and recenter have not occurred. Full D3 and wider
+scope/FIFO remain active.
+
+## D3.17 actual-path reclosure and publication - 2026-10-12 06:29 UTC / 23:29 PDT
+
+D3.17 is reclosed after actual normal Main23, native human/NPC dispatch/handoff27
+with six controls, current helper/radius18 with one control and37 applicable
+prior bounds checks. The focused reviewer confirms all three contracts.
+Historical injected/manual-order packets remain narrower evidence. The one
+assessed kohai coordinate stays `2.7.0.0-pre-alpha`; current Java inputs
+justify the second supported build and the same protected PR160 snapshot
+amendment. Current CI, addressed conversations, merge and recenter retain their
+own actual receipts. Full D3 and broader scope/FIFO remain OPEN.

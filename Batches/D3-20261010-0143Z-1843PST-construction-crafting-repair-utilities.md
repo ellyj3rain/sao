@@ -9,10 +9,10 @@
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C3, C6, C12, C13, C16, C18, C19, C20, C21, C24, C26, C28, C30, C31, C32, C33 |
-| Implementation | CLOSED D3.1-D3.15 deliver linked crafting, maintenance, utilities and native construction through actual ordinary consumers. Complete remaining D3 scope remains OPEN. |
+| Implementation | CLOSED D3.1-D3.17 retain their qualified useful outcomes; D3.17 actual normal-entry, native-order and shared-geometry correction is reclosed. Complete remaining D3 scope remains OPEN. |
 | Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.6.16.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
-| Publication | D3.1-D3.13 self-merged through PR142-PR154; D3.14 follows the same protected workflow with actual merge retained in its completion receipt. |
+| Version | 2.7.0.0-pre-alpha; one kohai child increment with mechanical carry while full D3 remains OPEN. |
+| Publication | D3.1-D3.16 are protected-published through PR142-PR159 with exact completion receipts. D3.17 uses the same one-snapshot protected workflow; its actual CI/merge retains its separate completion receipt. |
 
 ## Product and current implementation
 
@@ -276,3 +276,50 @@ The operator selects Granular, Emmetropic and Beacon after preserving delivery b
 ## D3.16 coherent authored-conveyance closure - 2026-10-12 01:14 UTC / 18:14 PST
 
 [D3.16](D3.16-20261012-0010Z-1710PST-architectural-literature-learning.md) is CLOSED for the first original architectural literature family through native acquisition/reading, distinct bounded responses, maintained private and received memory, actual ordinary inquiry and current claims. It receives one kohai as progress within the unfinished building/knowledge scope. Full D3 and wider civilian/doctrinal/engineering/strategy/ML obligations remain OPEN; D4-D6 retain FIFO. The global shared Neo continuity correction retains its separate source and qualification.
+
+
+## D3.17 owned pane continuation - 2026-10-12 03:05 UTC / 20:05 PDT
+
+[D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md](D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is OPEN for original packaged large-pane supply and shared human/NPC native repair, resolving the retained standalone pane dependency. The installed Granular/Emmetropic/Beacon framework and actual source intake inform its finite connected boundary, unchanged material policy, required evidence and remaining parent obligations. Full D3 and D4-D6 FIFO remain active. No credit is allocated at opening.
+
+## D3.17 owned pane supply and repair candidate - 2026-10-12 04:16 UTC / 21:16 PDT
+
+[D3.17](D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is OPEN for original compatible pane/mold
+definitions, native large-sheet supply and one shared owned human/NPC repair
+producer through existing private acquisition, preparation, return and
+authenticated feedback/save consumers. Native startup registration and legacy
+result admission are necessary dependencies inside this finite outcome.
+The first complete source/native packet and integrated reviews retain their
+actual evidence; one available-pane binding correction and genuine legacy-owner
+replay qualification are pending. Shipping version/build/publication remain
+separate unfinished integration steps. Full D3, furniture, other admitted
+native repertoire, authoritative server execution and broader
+architectural/doctrinal/lifespan/strategic/ML goals remain active; D4-D6
+retain FIFO. This candidate creates no additional credit.
+
+## D3.17 coherent owned supply and repair closure - 2026-10-12 04:36 UTC / 21:36 PDT
+
+[D3.17](D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is CLOSED for owned compatible pane/mold
+definitions and native large-sheet supply through one shared human/NPC timed
+repair producer, exact private material-work consumers and authentic saved-owner
+continuity. The integrated reviews and bounded correction establish the child
+with sufficient linked native/source evidence. One kohai records this progress;
+its mechanical carry to `2.7.0.0-pre-alpha` declares no completed module or release.
+Full D3, furniture, admitted remaining native repertoire, authoritative server
+execution and wider architectural/doctrinal/lifespan/strategic/ML scope remain
+OPEN. D4-D6 retain FIFO. Stamped package and protected publication retain their
+separate completion receipts.
+
+## D3.17 reopened native integration - 2026-10-12 05:20 UTC / 22:20 PDT
+
+[D3.17](D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is reopened before merge for three
+source-confirmed shipping-entry, native timed-action order and shared physical
+range gaps. Its earlier source/package/native packets retain their qualified
+boundaries. The same connected supply/repair outcome receives the necessary
+correction and requalification, with no new child or repeated credit.
+The assessed candidate coordinate remains pending actual delivery. Full D3,
+remaining furniture/repertoire/server, broader goals and FIFO remain active.
+
+## D3.17 actual-path reclosure - 2026-10-12 06:29 UTC / 23:29 PDT
+
+[D3.17](D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) recloses its original supply/shared repair outcome after actual normal Main, native perform-before-complete custody and independent shared geometry qualification. The same one kohai coordinate is retained; a necessary second build follows actual Java changes. Full D3/furniture/remainder/server, wider architecture/doctrine/lifespan/strategic/ML scope and FIFO remain active.

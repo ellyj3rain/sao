@@ -1167,7 +1167,7 @@ function C.windowRepairOutcome(id, receipt)
         or receipt.status ~= "completed" or receipt.paneConsumed ~= true
         or receipt.nativeAttempted ~= true or receipt.smashedBefore ~= true
         or receipt.smashedAfter ~= false or receipt.glassRemovedAfter ~= false
-        or receipt.nativeOwner ~= "AddWindowAction.complete"
+        or receipt.nativeOwner ~= "SAO.WindowPaneAction.complete" and receipt.nativeOwner ~= "AddWindowAction.complete"
         or not finite(receipt.sequence, 1, 9007199254740991)
         or receipt.sequence ~= math.floor(receipt.sequence)
         or receipt.id ~= id .. "/window-result/" .. tostring(receipt.sequence)
