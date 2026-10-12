@@ -271,6 +271,17 @@ def main(root):
         with mock.patch.object(Sweep, 'MODULES', removed):
             if not rejects(lambda: Sweep.require_modules(lua)):
                 faults.append('missing personal owner accepted: ' + owner)
+    # The current shared planner sorts plain candidate pools with the published
+    # iterative utility. This helper needs no native body or stock executor.
+    if 'Ordering' not in loaded or 'Ordering' in Sweep.NOT_DORMANT:
+        faults.append('shared ordering utility was excluded: Ordering')
+    without_ordering = [path for path in Sweep.MODULES
+                       if path != 'shared/SAO_Ordering.lua']
+    if len(without_ordering) != len(Sweep.MODULES) - 1:
+        faults.append('ordering load-removal control did not land')
+    with mock.patch.object(Sweep, 'MODULES', without_ordering):
+        if not rejects(lambda: Sweep.require_modules(lua)):
+            faults.append('missing shared ordering utility accepted')
     order = {path: index for index, path in enumerate(Sweep.MODULES)}
     for producer, consumer in (('SituationAppraisal', 'Cognition'),
                                ('SituationAppraisal', 'ProceduralPlanning'),
@@ -278,7 +289,7 @@ def main(root):
                                ('Education', 'EducationRegistry')):
         if order['shared/SAO_' + producer + '.lua'] >= order['shared/SAO_' + consumer + '.lua']:
             faults.append('personal binding load order reversed: ' + producer + '/' + consumer)
-    for owner in ('SourceUse', 'ResourceProduction', 'Generator', 'ModMechanics', 'WindowRepair', 'Build', 'RecoveryPose', 'FurnitureWork',
+    for owner in ('SourceUse', 'ResourceProduction', 'RecipePolicy', 'Generator', 'ModMechanics', 'WindowRepair', 'Build', 'RecoveryPose', 'FurnitureWork',
                   'ConflictResponse', 'CompanionExecution', 'Leisure',
                   'LeisureAcquisition', 'LeisureArt', 'LeisureExercise',
                   'LeisureGames', 'LeisureLifestyle', 'LeisureMusic',

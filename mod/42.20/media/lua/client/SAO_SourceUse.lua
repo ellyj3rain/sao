@@ -12,6 +12,44 @@ SAO = SAO or {}
 SAO.SourceUse = SAO.SourceUse or {}
 local SU = SAO.SourceUse
 
+function SU.recipeInputCurrent(reservation,item,body)
+    if not reservation or not reservation.recipeRequirement or not item or not body
+        or reservation.status~="reserved" or SAO.Body.get(reservation.actorId)~=body
+        or SAO.WorldSources.reservation(reservation.id)~=reservation
+        or tostring(item:getID())~=tostring(reservation.itemId) or item:getFullType()~=reservation.itemType then return false end
+    if reservation.category=="recipe-input" then
+        local requirement=reservation.recipeRequirement
+        local planning=SAO.ProceduralPlanning
+        local ok,admitted=pcall(function() return planning and planning.recipeInputAdmission
+            and planning.recipeInputAdmission(tostring(reservation.actorId),requirement.demandId,
+                requirement.purposeId,requirement.stepId,requirement.recipeId,requirement.index,requirement.declaration) end)
+        if not ok or admitted~=true or reservation.purposeId~=requirement.purposeId
+            or reservation.purposeStepId~=requirement.stepId then return false end
+    end
+    if not SAO.RecipePolicy then pcall(require,"SAO_RecipePolicy") end
+    return SAO.RecipePolicy and SAO.RecipePolicy.inputEligible(reservation.recipeRequirement,item,body)==true or false
+end
+
+function SU.recipeTransferCurrent(reservation,item,body)
+    if SU.recipeInputCurrent(reservation,item,body)~=true then return false end
+    if reservation.category~="recipe-input" then return true end
+    local requirement=reservation.recipeRequirement
+    local ok,observation=pcall(function() return SAOJavaBridge:recipeInputObservation(body,reservation.sourceId,
+        reservation.fingerprint,reservation.revision,requirement.recipeId,requirement.index,requirement.declaration,
+        requirement.demandId,requirement.purposeId,requirement.stepId) end)
+    if not ok or type(observation)~="table" or observation.actorId~=tostring(reservation.actorId)
+        or observation.sourceId~=reservation.sourceId or observation.fingerprint~=reservation.fingerprint
+        or observation.revision~=reservation.revision or observation.recipeId~=requirement.recipeId
+        or observation.index~=requirement.index or observation.declaration~=requirement.declaration
+        or observation.demandId~=requirement.demandId or observation.purposeId~=requirement.purposeId
+        or observation.stepId~=requirement.stepId then return false end
+    for _,row in ipairs(observation.items or {}) do
+        if tostring(row.itemId)==tostring(reservation.itemId) and row.itemType==reservation.itemType
+            and row.nativeEligible==true then return true end
+    end
+    return false
+end
+
 -- SourceUse remains the sole owner of the world-source reservation, exact
 -- transfer and native-use receipt.  A registered execution owner may select
 -- the native timed action after the exact item is carried; this lets a living
@@ -352,6 +390,15 @@ local function queueTransfer(id, body, reservation)
         clearBinding(body)
         return false, "REVISION_CHANGED"
     end
+    local recipeItem
+    if reservation.recipeRequirement then
+        local ok,item=pcall(function() return SAOJavaBridge:worldSourceActionItem(body) end)
+        if not SAO.RecipePolicy then pcall(require,"SAO_RecipePolicy") end
+        if not ok or not item or SU.recipeInputCurrent(reservation,item,body)~=true then
+            clearBinding(body);return false,"native-recipe-input-state-refused"
+        end
+        recipeItem=item
+    end
     local action = nil
     if reservation.operation == "store" then
         local okItem, item = pcall(function()
@@ -394,6 +441,31 @@ local function queueTransfer(id, body, reservation)
     if action then
         action.saoSourceReservation = reservation.id
         action.saoSourceActor = tostring(id)
+        if reservation.recipeRequirement then
+            local nativeValid,nativePerform,nativeTransfer=action.isValid,action.perform,action.transferItem
+            local requirement=reservation.recipeRequirement
+            local function eligible()
+                return reservation.recipeRequirement==requirement and SU.recipeInputCurrent(reservation,recipeItem,body)==true
+            end
+            function action:isValid() return eligible() and nativeValid(self)==true end
+            function action:perform()
+                if not eligible() then return false end
+                return nativePerform(self)
+            end
+            if nativeTransfer then
+                function action:transferItem(item)
+                    local exact=item
+                    if reservation.sourceKind=="ground" then
+                        local ok,held=pcall(function() return item:getItem() end)
+                        exact=ok and held or nil
+                    end
+                    if exact~=recipeItem or not eligible() or SU.recipeTransferCurrent(reservation,recipeItem,body)~=true then
+                        self.dontAdd=true;return false
+                    end
+                    return nativeTransfer(self,item)
+                end
+            end
+        end
     end
     if action == nil or not SAO.Needs.queueVerified(action) then
         clearBinding(body)
@@ -486,8 +558,11 @@ function SU.begin(id, body, place, category, admission, decisionContext)
     local context = type(decisionContext) == "table" and decisionContext or {}
     local operation = context.operation or "consume"
     local quantity = category == "water" and 0.01 or 1
-    local offered, why = SAO.WorldSources.actionOptions(place, category,
-        id, body, quantity, admission, operation, operation=="acquire" and context.itemType or nil)
+    local offered,why
+    if context.recipeRequirement and operation=="acquire" then
+        offered,why=SAO.WorldSources.recipeSlotOptions(place,category,id,body,context.recipeRequirement,admission)
+    else offered,why=SAO.WorldSources.actionOptions(place, category,
+        id, body, quantity, admission, operation, operation=="acquire" and context.itemType or nil) end
     if not offered then return false, why end
     offered.context = decisionContext
     local selected = SU.chooseOption(offered)
@@ -503,8 +578,16 @@ function SU.begin(id, body, place, category, admission, decisionContext)
     end
     local reservation
     reservation, why = SAO.WorldSources.beginAction(place, category,
-        id, body, quantity, admission, selected, operation)
+        id, body, quantity, admission, selected, operation,context.recipeRequirement)
     if not reservation then return false, why end
+    if context.recipeRequirement then
+        local policy=SAO.RecipePolicy
+        local copy=policy and policy.project({requirements=context.recipeRequirement})
+        if not copy or not SAO.Material.recipeObservedType(copy,reservation.itemType) then
+            SAO.WorldSources.release(reservation.id,"recipe-input-requirement-changed");return false,"recipe-input-requirement-changed"
+        end
+        reservation.recipeRequirement=copy
+    end
     -- Persist only the registered owner name and bounded scalar consent.  The
     -- selected item and all physical proof remain in WorldSources; no runtime
     -- body, offer table or private mind snapshot enters durable graph state.

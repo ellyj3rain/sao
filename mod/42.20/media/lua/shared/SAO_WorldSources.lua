@@ -321,7 +321,7 @@ local function itemSignature(item, knownSignature)
     -- Old observations did not record these optional native fields. Compare
     -- every field the saved observation knew; a later reader cannot invent a
     -- missing historical condition or drainable baseline.
-    for _, key in ipairs({ "condition", "currentUses", "hydrationAmount" }) do
+    for _, key in ipairs({ "condition", "currentUses", "hydrationAmount", "sharpness" }) do
         if (not knownSignature or string.find(knownSignature,
             "|" .. key .. "=", 1, true)) and item[key] ~= nil then
             signature = signature .. "|" .. key .. "="
@@ -330,6 +330,9 @@ local function itemSignature(item, knownSignature)
     end
     if (not knownSignature or string.find(knownSignature, "|tainted=", 1, true)) and item.tainted ~= nil then
         signature = signature .. "|tainted=" .. (item.tainted and "1" or "0")
+    end
+    if (not knownSignature or string.find(knownSignature,"|ingredientState=",1,true)) and item.ingredientState~=nil then
+        signature=signature.."|ingredientState="..item.ingredientState
     end
     return signature
 end
@@ -445,11 +448,15 @@ function WS.parse(text)
                     if raw.tainted ~= "0" and raw.tainted ~= "1" then return nil end
                     item.tainted = raw.tainted == "1"
                 end
-                for _, key in ipairs({ "condition", "currentUses", "hydrationAmount" }) do
+                for _, key in ipairs({ "condition", "currentUses", "hydrationAmount", "sharpness" }) do
                     if raw[key] ~= nil then
                         item[key] = finiteNumber(raw[key], 0, 1000000, false)
                         if item[key] == nil then return nil end
                     end
+                end
+                if raw.ingredientState~=nil then
+                    if #raw.ingredientState~=64 or not string.match(raw.ingredientState,"^[0-9a-f]+$") then return nil end
+                    item.ingredientState=raw.ingredientState
                 end
                 local key = tostring(item.id)
                 if source.items[key] then return nil end
@@ -1027,7 +1034,7 @@ local function sourceBelongsToPlace(source, place)
         and source.y >= place.minY and source.y < place.maxY
 end
 
-local function beliefFact(source)
+local function beliefFact(source, includeObservedItems)
     if not source then return nil end
     local fact = {
         id = source.id, fingerprint = source.fingerprint,
@@ -1041,12 +1048,16 @@ local function beliefFact(source)
         inspected=source.inspected,condition=source.condition,fuel=source.fuel,maxFuel=source.maxFuel,
         connected=source.connected,active=source.active,outside=source.outside,powered=source.powered,
     }
+    if includeObservedItems then fact.observedItems = {} end
     for category, quantity in pairs(source.quantities or {}) do
         fact.quantities[category] = quantity
     end
     for _, key in ipairs(source.itemOrder or {}) do
         local item = source.items and source.items[key] or nil
         if item then
+            if includeObservedItems then
+                fact.observedItems[#fact.observedItems+1]={id=item.id,type=item.type}
+            end
             for category, present in pairs(item.categories or {}) do
                 if present and not fact.candidates[category] then
                     fact.candidates[category] = {
@@ -1161,7 +1172,7 @@ function WS.beliefFact(sourceId, observationKind, actorId)
         end
         return fact
     end
-    return source and beliefFact(source) or nil
+    return source and beliefFact(source, observationKind == "inspected-container") or nil
 end
 
 local function rememberedPlace(placeId, belief)
@@ -1354,7 +1365,7 @@ function WS.actionOptions(place, category, actorId, body, quantity, admission, o
                         local visible = source.knowledgeKind == "visible-ground"
                         local candidate = visible and source.candidates and source.candidates[category]
                         local filterOk,eligible=true,true
-                        if itemFilter then filterOk,eligible=pcall(itemFilter,item and item.type) end
+                        if itemFilter then filterOk,eligible=pcall(itemFilter,item and item.type,item) end
                         if item and item.categories and item.categories[category]
                             and (expectedItemType==nil or item.type==expectedItemType)
                             and filterOk and eligible==true
@@ -1421,6 +1432,99 @@ function WS.actionOptions(place, category, actorId, body, quantity, admission, o
     return offered
 end
 
+local function recipeDemandCurrent(actorId,requirement)
+    local planning=SAO.ProceduralPlanning
+    if type(requirement)~="table" or not planning or not planning.recipeInputAdmission then return false end
+    local ok,admitted=pcall(planning.recipeInputAdmission,tostring(actorId),requirement.demandId,
+        requirement.purposeId,requirement.stepId,requirement.recipeId,requirement.index,requirement.declaration)
+    return ok and admitted==true
+end
+
+-- The ingredient role belongs to an exact retained demand. Intrinsic source
+-- categories remain the native observation's original categories.
+function WS.recipeSlotOptions(place,category,actorId,body,requirement,admission)
+    if not SAO.Material or not SAO.Material.recipeObservedType or type(requirement)~="table" then return nil,"recipe-requirement-required" end
+    if category=="recipe-input" then
+        actorId=tostring(actorId or "")
+        local value=store()
+        local record=SAO.Identity and SAO.Identity.get(actorId)
+        if not value or not place or not place.id or not body or not record or record.dead
+            or not SAO.Body or SAO.Body.get(actorId)~=body then return nil,"no-live-body" end
+        if record.worldSourceReservation then return nil,"already-pending" end
+        if not recipeDemandCurrent(actorId,requirement) then return nil,"recipe-demand-not-current" end
+        admission=tostring(admission or "standing")
+        if not SAO.Standing.mayAttemptBelieved(actorId,place.cx,place.cy,admission) then return nil,"standing-refused" end
+        local room,roomWhy=reservationRoom(value);if not room then return nil,roomWhy end
+        local known=SAO.Perception and SAO.Perception.knownPlaces and SAO.Perception.knownPlaces(actorId,true)
+        local belief=known and (known[place.id] or known[tostring(place.id)])
+        if not belief then return nil,"not-privately-observed" end
+        local offered={schemaVersion=1,actorId=actorId,category=category,quantity=1,admission=admission,
+            atHours=nowHours(),options={},candidateCount=0,limit=MAX_ACTION_OPTIONS,recipeRequirement=requirement,
+            nativeState="revalidate-exact-item-on-arrival"}
+        for id,source in pairs(belief.sourceFacts or {}) do
+            local physical=value.sources[tostring(id)]
+            if sourceBelongsToPlace(source,place) and (source.state=="available" or source.state=="spent")
+                and (source.explored==true or source.kind=="ground" and source.knowledgeKind=="visible-ground")
+                and physical and physical.revision==source.revision
+                and physical.fingerprint==source.fingerprint and beliefHasRevision(belief,id,source.revision)
+                and not pendingFor(value,id,nil) then
+                local ok,native=pcall(function() return SAOJavaBridge:recipeInputObservation(body,source.id,source.fingerprint,
+                    source.revision,requirement.recipeId,requirement.index,requirement.declaration,
+                    requirement.demandId,requirement.purposeId,requirement.stepId) end)
+                if ok and type(native)=="table" and native.actorId==actorId and native.sourceId==source.id
+                    and native.fingerprint==source.fingerprint and native.revision==source.revision
+                    and native.recipeId==requirement.recipeId and native.index==requirement.index
+                    and native.declaration==requirement.declaration and native.demandId==requirement.demandId
+                    and native.purposeId==requirement.purposeId and native.stepId==requirement.stepId then
+                    for _,row in ipairs(native.items or {}) do
+                        local item=physical.items[tostring(row.itemId)]
+                        if row.nativeEligible==true and item and item.type==row.itemType
+                            and WS.recipeInputAvailable(actorId,row.itemId)==true
+                            and SAO.Material.recipeObservedType(requirement,item.type) then
+                            local option={id=tostring(id)..":item:"..tostring(item.id),owner="SAO.SourceUse",parameters={
+                                action="attempt-source-use",actorId=actorId,placeId=tostring(place.id),category=category,
+                                admission=admission,quantity=1,sourceId=source.id,sourceKind=source.kind,
+                                sourceX=source.x,sourceY=source.y,sourceZ=source.z,chunkX=source.chunkX,chunkY=source.chunkY,
+                                fingerprint=source.fingerprint,revision=source.revision,itemId=item.id,itemType=item.type,
+                                itemAmount=tonumber(item.amount) or 0,itemUses=tonumber(item.uses) or 0,
+                                itemHydrationAmount=item.hydrationAmount,itemSignature=itemSignature(item),operation="acquire",
+                                recipeId=requirement.recipeId,recipeInputIndex=requirement.index,recipeDeclaration=requirement.declaration,
+                                recipeDemandId=requirement.demandId,recipePurposeId=requirement.purposeId,recipeStepId=requirement.stepId,
+                                recipeSourceRevision=requirement.sourceRevision},eligibility={status="eligible"}}
+                            offered.candidateCount=offered.candidateCount+1
+                            local at=#offered.options+1
+                            while at>1 and offered.options[at-1].id>option.id do at=at-1 end
+                            if at<=MAX_ACTION_OPTIONS then table.insert(offered.options,at,option)
+                                if #offered.options>MAX_ACTION_OPTIONS then table.remove(offered.options) end end
+                        end
+                    end
+                end
+            end
+        end
+        if #offered.options==0 then return nil,"native-ingredient-observation-required" end
+        offered.truncated=offered.candidateCount>#offered.options
+        return offered
+    end
+    local offered,why=WS.actionOptions(place,category,actorId,body,1,admission,"acquire",nil,
+        function(itemType,item)
+            -- Zero uses can be an eligible empty/replacement target. Native
+            -- slot status, rather than a blanket quantity alias, owns that.
+            return SAO.Material.recipeObservedType(requirement,itemType)
+        end)
+    if not offered then return nil,why=="observed-revision-unavailable" and "native-ingredient-observation-required" or why end
+    offered.recipeRequirement=requirement
+    offered.nativeState="revalidate-exact-item-on-arrival"
+    return offered
+end
+
+function WS.recipeInputAvailable(actorId,itemId)
+    local value=store();if not value then return false end
+    for _,reservation in pairs(value.reservations) do
+        if reservation.status=="reserved" and tostring(reservation.itemId)==tostring(itemId) then return false end
+    end
+    return true
+end
+
 function WS.privatelyKnowsItem(actorId, sourceId, itemId)
     local value = store()
     local physical = value and value.sources[tostring(sourceId)]
@@ -1464,7 +1568,8 @@ local function transferItemRow(line)
         or string.sub(line, -1) == "|" then return nil end
     local allowed = { operation = true, source = true, id = true, type = true,
         uses = true, amount = true, fluid = true, poison = true, rotten = true,
-        cats = true, condition = true, currentUses = true, tainted = true, hydrationAmount = true }
+        cats = true, condition = true, currentUses = true, tainted = true, hydrationAmount = true,
+        sharpness=true,ingredientState=true }
     local raw = {}
     for part in string.gmatch(string.sub(line, 3), "[^|]+") do
         local key, encoded = string.match(part, "^([^=]+)=(.*)$")
@@ -1489,11 +1594,15 @@ local function transferItemRow(line)
         if raw.tainted ~= "0" and raw.tainted ~= "1" then return nil end
         item.tainted = raw.tainted == "1"
     end
-    for _, key in ipairs({ "condition", "currentUses", "hydrationAmount" }) do
+    for _, key in ipairs({ "condition", "currentUses", "hydrationAmount", "sharpness" }) do
         if raw[key] ~= nil then
             item[key] = finiteNumber(raw[key], 0, 1000000, false)
             if item[key] == nil then return nil end
         end
+    end
+    if raw.ingredientState~=nil then
+        if #raw.ingredientState~=64 or not string.match(raw.ingredientState,"^[0-9a-f]+$") then return nil end
+        item.ingredientState=raw.ingredientState
     end
     return item, raw
 end
@@ -2152,10 +2261,14 @@ end
 -- Re-enumerate the actor's current eligible attempts before reserving. A
 -- changed or forged selected descriptor is refused; a different source is
 -- never silently substituted. The omitted selection retains the legacy API.
-function WS.beginAction(place, category, actorId, body, quantity, admission, selected, operation)
-    local offered, why = WS.actionOptions(place, category, actorId, body,
+function WS.beginAction(place, category, actorId, body, quantity, admission, selected, operation, recipeRequirement)
+    local offered,why
+    if category=="recipe-input" then
+        if operation~="acquire" then return nil,"unsupported-operation" end
+        offered,why=WS.recipeSlotOptions(place,category,actorId,body,recipeRequirement,admission)
+    else offered, why = WS.actionOptions(place, category, actorId, body,
         quantity, admission, operation, operation=="acquire" and selected and selected.parameters
-            and selected.parameters.itemType or nil)
+            and selected.parameters.itemType or nil) end
     if not offered then return nil, why end
     local option = offered.options[1]
     if selected ~= nil then
@@ -2203,6 +2316,12 @@ function WS.beginAction(place, category, actorId, body, quantity, admission, sel
         reservedAt = nowHours(),
     }
     value.reservations[reservationId] = reservation
+    if category=="recipe-input" then
+        local copy=SAO.RecipePolicy and SAO.RecipePolicy.project({requirements=recipeRequirement})
+        if not copy or not recipeDemandCurrent(actorId,copy) then value.reservations[reservationId]=nil;return nil,"recipe-demand-not-current" end
+        reservation.recipeRequirement=copy
+        reservation.purposeId,reservation.purposeStepId=copy.purposeId,copy.stepId
+    end
     record.worldSourceReservation = reservationId
     return reservation
 end
@@ -2477,6 +2596,7 @@ local function result(value, reservation, status, detail)
         itemRotten = reservation.itemRotten,
         itemCategories = reservation.itemCategories,
         itemSignature = reservation.itemSignature,
+        recipeRequirement = reservation.recipeRequirement,
         itemCondition = reservation.itemCondition,
         itemCurrentUses = reservation.itemCurrentUses,
         category = reservation.category,
@@ -2552,6 +2672,7 @@ local function receiptCopy(receipt)
         itemSignature = receipt.itemSignature,
         itemCondition = receipt.itemCondition,
         itemCurrentUses = receipt.itemCurrentUses,
+        recipeRequirement = SAO.RecipePolicy and SAO.RecipePolicy.project({requirements=receipt.recipeRequirement}) or nil,
         category = receipt.category,
         provisioningGroup = receipt.provisioningGroup,
         provisioningContext = receipt.provisioningContext,
@@ -2876,6 +2997,7 @@ function WS.sourceProjection(id, actorId)
                 id = item.id,
                 type = item.type,
                 uses = item.uses,
+                condition=item.condition,currentUses=item.currentUses,sharpness=item.sharpness,ingredientState=item.ingredientState,
                 amount = item.amount,
                 fluid = item.fluid,
                 tainted = item.tainted, hydrationAmount = item.hydrationAmount,

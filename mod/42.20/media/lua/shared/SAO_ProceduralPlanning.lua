@@ -24,6 +24,7 @@ local ASSESSMENT_RESULT = {}
 local HOBBY_RESULT = {}
 local GENERATOR_RESULT = {}
 local GENERATOR_READING_RESULT = {}
+local RECIPE_RESULT = {}
 
 local MAX_PURPOSES, MAX_FACTS, MAX_EVENTS = 12, 64, 32
 local MAX_RESIDENCE_ATTEMPTS = 16
@@ -3895,7 +3896,9 @@ function P.recordResult(id, purposeId, result, authority)
             or step.token == "resource:shelter-built" and authority ~= SHELTER_RESULT
             or step.token == "resource:shelter-used" and authority ~= SHELTER_USE_RESULT
             or step.token == "resource:window-installed" and authority ~= WINDOW_GLAZING_RESULT
-            or step.token ~= "resource:crafted" and step.token ~= "resource:repaired" and step.token ~= "resource:bed-built" and step.token ~= "resource:shelter-built" and step.token ~= "resource:shelter-used" and step.token ~= "resource:window-installed") then return false end
+            or (step.token == "resource:recipe-produced" or step.token == "resource:recipe-maintained") and authority ~= RECIPE_RESULT
+            or step.token ~= "resource:crafted" and step.token ~= "resource:repaired" and step.token ~= "resource:bed-built" and step.token ~= "resource:shelter-built" and step.token ~= "resource:shelter-used" and step.token ~= "resource:window-installed"
+                and step.token ~= "resource:recipe-produced" and step.token ~= "resource:recipe-maintained") then return false end
     end
     if purpose and purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
     if purpose and purpose.noteReading and authority ~= NOTE_RESULT then return false end
@@ -4173,6 +4176,15 @@ function P.consumeSourceResult(receipt)
         or step.itemId ~= authoritative.itemId or step.itemType ~= authoritative.itemType
         or step.category ~= authoritative.category or not finite(authoritative.at)
         or authoritative.at < admission.at or authoritative.at > nowHours()) then return false end
+    if step.recipeRequirement then
+        local req,actual=step.recipeRequirement,authoritative.recipeRequirement
+        if type(actual)~="table" then return false end
+        for _,field in ipairs({"recipeId","index","declaration","sourceRevision","demandId","purposeId","stepId"}) do
+            if actual[field]~=req[field] then return false end
+        end
+        if completed and (authoritative.quantityUnit~="item" or authoritative.requestedQuantity~=1
+            or authoritative.observedQuantity~=1) then return false end
+    end
     if purpose.plumbing and (authoritative.actorId ~= receipt.actorId
         or authoritative.reservationId ~= receipt.reservationId or step.owner ~= "SAO.SourceUse"
         or step.verb ~= "acquire" or step.token ~= "resource:acquired" or admission.owner ~= step.owner
@@ -4229,7 +4241,7 @@ function P.admitInspection(id, receipt)
     local step = purpose and purpose.steps[purpose.cursor]
     local concept=purpose and purpose.inquiry and purpose.inquiry.mode=="inspect-holder"
         and purpose.inquiry.sourceId==receipt.sourceId
-    if not purpose or not (purpose.resourceCategory or concept) or purpose.status == "completed" or purpose.status == "abandoned"
+    if not purpose or not (purpose.resourceCategory or purpose.recipeSupply or concept) or purpose.status == "completed" or purpose.status == "abandoned"
         or not step or step.status ~= "available" or step.owner ~= "SAO.WorldSources"
         or step.token ~= (concept and "inquiry:inspected" or "resource:inspected") or step.id ~= receipt.purposeStepId
         or type(step.sourceId) ~= "string" or step.target ~= step.sourceId
@@ -5342,6 +5354,355 @@ function P.consumeFurnitureRecovery(id,sequence)
   atHours=c.atHours,reason="independent-fatigue-reduction-after-relocation"},BED_RESULT)
  if accepted then f.uncertainBenefit=false;f.recoveryReceipt=sequence end
  return accepted
+end
+
+-- Recipe supply is a personal subpurpose. The requesting work keeps its own
+-- native admission and completion; a production receipt cannot finish it.
+local function recipeSame(a,b)
+ if type(a)~=type(b) then return false end
+ if type(a)~="table" then return a==b end
+ if getmetatable(a) or getmetatable(b) then return false end
+ for key,value in pairs(a) do if not recipeSame(value,b[key]) then return false end end
+ for key in pairs(b) do if a[key]==nil then return false end end
+ return true
+end
+function P.recipePurpose(id,purposeId)
+ local s=state(id)
+ for index=#(s and s.order or {}),1,-1 do
+  local key=s.order[index]
+  local p=s.purposes[key]
+  if p and p.recipeSupply and (not purposeId or p.id==purposeId)
+   and p.status~="completed" and p.status~="abandoned" then return p,p.steps[p.cursor] end
+ end
+end
+function P.recipeInputAdmission(id,demandId,purposeId,stepId,recipeId,inputIndex,declaration)
+ local rec=record(id);local s=state(id);local p=s and s.purposes[purposeId]
+ local step=p and p.steps[p.cursor];local req=step and step.recipeRequirement
+ local demand=p and p.materialWork and p.materialWork.recipeDemand
+ return rec~=nil and not rec.dead and p~=nil and p.recipeSupply~=nil
+  and p.status~="completed" and p.status~="abandoned" and demand~=nil and demand.id==demandId
+  and step~=nil and step.id==stepId and step.verb=="acquire" and step.owner=="SAO.SourceUse"
+  and step.status=="available" and req~=nil and req.demandId==demandId
+  and req.purposeId==purposeId and req.stepId==stepId and req.recipeId==recipeId
+  and req.index==inputIndex and req.declaration==declaration and req.sourceRevision==demand.sourceRevision
+  and p.recipeSupply.recipeId==recipeId
+  and (p.admission==nil or p.admission.owner=="SAO.SourceUse" and p.admission.stepId==stepId) or false
+end
+function P.planRecipeWork(id,context)
+ context=type(context)=="table" and context or {}
+ local rec=record(id);local s=state(id,true);local d=context.demand
+ if not rec or rec.dead or not s or type(d)~="table" or type(d.id)~="string"
+  or type(d.consumerId)~="string" or type(d.sourceRevision)~="string"
+  or d.kind~="recipe-stock" and d.kind~="recipe-upkeep" then return nil,nil,"recipe-demand-required" end
+ local parent=context.parentPurposeId and s.purposes[context.parentPurposeId]
+ local requesting
+ if parent then for index=parent.cursor,#parent.steps do
+  local candidate=parent.steps[index]
+  if candidate.id==context.parentStepId and candidate.status~="completed" then requesting=candidate;break end
+ end end
+ if context.parentPurposeId and (not parent or parent.status=="completed" or parent.status=="abandoned"
+  or not requesting or requesting.id~=context.parentStepId
+  or requesting.recipeId~=d.consumerRecipeId) then return nil,nil,"original-request-changed" end
+ local key="recipe-demand:"..d.id
+ local p=purposeByKey(s,key)
+ if p and p.admission then return p,p.steps[p.cursor] end
+ if p and p.recipeSupply.lastWorkId then return p,p.steps[p.cursor],"fresh-output-and-requesting-use-required" end
+ p=p or P.maintain(id,{key=key,objective=d.kind=="recipe-stock" and "supply retained native work" or "maintain an exact carried item",
+  domain="construction",origin=parent and parent.id or "kit-tending",atHours=context.atHours})
+ if not p then return nil,nil,"purpose-capacity" end
+ if p.materialWork and not recipeSame(p.materialWork.recipeDemand,d) then return p,nil,"recipe-demand-changed" end
+ p.materialWork={operation="recipe-demand",entryKey=key,recipeDemand=dataCopy(d,0,12,256)}
+ p.recipeSupply=p.recipeSupply or {parentPurposeId=context.parentPurposeId,parentStepId=context.parentStepId,
+  requestedAt=nowHours(),originalConsumerId=d.consumerId}
+ p.recipeSupply.targetItemType=context.targetItemType or p.recipeSupply.targetItemType
+ local choices={{id="continue-use",evidence=1,continuity=.7,novelty=0,informationGain=0,blockers=0,utility=.1}}
+ local offers={}
+ for _,option in ipairs(context.options or {}) do
+  if option.owner=="SAO.ResourceProduction" and option.productionKind==d.kind
+   and option.sourceRevision==d.sourceRevision and recipeSame(option.recipeDemand,d)
+   and type(option.recipeId)=="string" and type(option.requirements)=="table" then
+   local choice="recipe:"..option.recipeId
+   if not offers[choice] then
+    offers[choice]=option
+    local deficit=d.kind=="recipe-upkeep" and tonumber(context.deficit) or 1
+    choices[#choices+1]={id=choice,evidence=1,continuity=p.recipeSupply.recipeId==option.recipeId and 1 or .7,
+     novelty=0,informationGain=.2,blockers=option.ready and 0 or 1,
+     consequences=d.kind=="recipe-upkeep" and {{kind="tool-repair",category="construction",sourceId=option.recipeId,
+      itemType=p.recipeSupply.targetItemType,value=math.max(0,deficit or .5)}} or nil}
+   end
+  end
+ end
+ -- The existing interpreter bounds its admitted alternatives. Retain exact
+ -- ready means first; unresolved means remain a private inquiry or acquisition.
+ SAO.Ordering.sort(choices,function(a,b)
+  if a.id=="continue-use" then return b.id~="continue-use" end;if b.id=="continue-use" then return false end
+  local ar,br=offers[a.id].ready==true,offers[b.id].ready==true
+  if ar~=br then return ar end;return a.id<b.id
+ end)
+ while #choices>16 do table.remove(choices) end
+ local view=interpretations(id,choices,{domain="construction",pressure=context.pressure or 0,atHours=nowHours()})
+ local selected=view and offers[view.selected]
+ if not selected then p.status="blocked";p.blockers={"recipe-work-deferred"};return p,nil,"recipe-work-deferred" end
+ local supply=p.recipeSupply;supply.recipeId=selected.recipeId;supply.requirements=dataCopy(selected.requirements,0,12,256)
+ supply.knowledgeKind,supply.acquisitionId=selected.knowledgeKind,selected.acquisitionId
+ local produce={id="recipe-produce:"..selected.recipeId..":"..tostring(p.recipeSupply.productionAttempt or 1),verb="produce",owner="SAO.ResourceProduction",
+  token=d.kind=="recipe-stock" and "resource:recipe-produced" or "resource:recipe-maintained",
+  target=selected.recipeId,recipeId=selected.recipeId,sourceRevision=d.sourceRevision,productionKind=d.kind,
+  category="material",recipeDemand=dataCopy(d,0,12,256),recipeInputs=dataCopy(selected.recipeInputs,0,12,256),
+  recipeWorkplace=dataCopy(selected.recipeWorkplace),status=selected.ready and "available" or "blocked"}
+ local steps,blockers={},{ }
+ if not selected.ready then
+  local needs=context.inputNeeds and context.inputNeeds[selected.recipeId]
+  for _,slot in ipairs(needs and needs.slots or {}) do
+   if slot.channelStatus=="item" and tonumber(slot.remainingFraction) and slot.remainingFraction>0 then
+    local req=SAO.Material.recipeRequirement({requirements=selected.requirements},slot.index)
+    if req then
+     local stepId="recipe-input:"..selected.recipeId..":"..tostring(slot.index)
+     req.purposeId,req.stepId,req.demandId=p.id,stepId,d.id
+     steps[1]={id=stepId,verb="acquire",owner="SAO.SourceUse",token="resource:acquired",
+      target="native-slot:"..selected.recipeId..":"..tostring(slot.index),category="recipe-input",
+      recipeRequirement=req,quantity=1,quantityUnit="item",status="available"}
+     supply.pendingInputIndex=slot.index;produce.status="dependent";break
+    end
+   end
+  end
+  if #steps==0 then blockers[1]=selected.reason or "native-recipe-workplace-or-inputs-unavailable" end
+ end
+ steps[#steps+1]=produce
+ setPlan(p,steps,blockers,dataCopy(view),nowHours())
+ return p,p.steps[p.cursor]
+end
+function P.selectRecipeInput(id,purposeId,offered)
+ local p,step=P.recipePurpose(id,purposeId)
+ local req=step and step.recipeRequirement
+ if not req or p.admission or not P.recipeInputAdmission(id,req.demandId,p.id,step.id,req.recipeId,req.index,req.declaration)
+  or type(offered)~="table" or offered.actorId~=id then return false end
+ local choices,byId={},{}
+ for _,option in ipairs(offered.options or {}) do
+  local a=option.parameters
+  if option.owner=="SAO.SourceUse" and a and a.actorId==id and a.operation=="acquire"
+   and a.category=="recipe-input" and type(a.itemType)=="string"
+   and (step.expectedItemId==nil or tostring(a.itemId)==step.expectedItemId)
+   and (step.expectedItemType==nil or a.itemType==step.expectedItemType)
+   and SAO.Material.recipeObservedType(req,a.itemType) then
+   byId[option.id]=option
+   choices[#choices+1]={id=option.id,evidence=1,continuity=1,novelty=0,informationGain=.1,blockers=0,
+    utility=1-(tonumber(option.distance) or 0)/100}
+  end
+ end
+ if #choices==0 then p.blockers={"native-ingredient-observation-required"};return false end
+ SAO.Ordering.sort(choices,function(a,b) return a.utility==b.utility and a.id<b.id or a.utility>b.utility end)
+ while #choices>16 do table.remove(choices) end
+ local view=interpretations(id,choices,{domain="construction",pressure=.5,atHours=nowHours()})
+ local option=view and byId[view.selected];if not option then return false end
+ local a=option.parameters
+ step.target=a.sourceId..":"..tostring(a.itemId);step.sourceId=a.sourceId;step.sourceRevision=a.revision
+ step.itemId=a.itemId;step.itemType=a.itemType;step.place=dataCopy(option.place or offered.place)
+ step.status="available";p.status="maintained";p.blockers={};p.recipeSupply.inputChoice=dataCopy(view)
+ return step.place~=nil
+end
+-- Acquired item-type memory supports an inquiry route only. Current native
+-- eligibility, exact selection and reservation follow fresh observation.
+function P.recipeSourceInquiry(id,body,purposeId)
+ local p,step=P.recipePurpose(id,purposeId);local req=step and step.recipeRequirement
+ if not p or p.admission or not req or SAO.Body.get(id)~=body
+  or not P.recipeInputAdmission(id,req.demandId,p.id,step.id,req.recipeId,req.index,req.declaration) then return nil end
+ local retained=p.recipeSupply.sourceInquiry
+ if retained and retained.stepId==step.id then return retained end
+ local choices,byId={},{}
+ for _,place in pairs(SAO.Perception.knownPlaces(id,true) or {})do
+  for _,fact in pairs(place.sourceFacts or {})do
+   local possible=false
+   for _,item in ipairs(fact.observedItems or {})do
+    if SAO.Material.recipeObservedType(req,item.type) and (not step.expectedItemId or tostring(item.id)==step.expectedItemId)then possible=true end
+   end
+   local item=fact.visibleItem
+   if item and SAO.Material.recipeObservedType(req,item.type) and (not step.expectedItemId or tostring(item.id)==step.expectedItemId)then possible=true end
+   for _,candidate in pairs(fact.candidates or {})do
+    if fact.observedItems==nil and SAO.Material.recipeObservedType(req,candidate.type)then possible=true end
+   end
+   local previous=p.recipeSupply.lastSourceInquiry
+   if possible and (fact.kind=="container" or fact.kind=="ground") and type(fact.id)=="string"
+    and type(fact.fingerprint)=="string" and type(fact.revision)=="string" and finite(fact.x)and finite(fact.y)and finite(fact.z)
+    and (not previous or previous.sourceId~=fact.id or previous.revision~=fact.revision)
+    and (math.floor(body:getX())~=fact.x or math.floor(body:getY())~=fact.y)
+    and SAO.Standing.mayAttemptBelieved(id,fact.x+.5,fact.y+.5,"standing")then
+    local key=fact.id.."@"..fact.revision
+    local distance=math.sqrt((body:getX()-fact.x)^2+(body:getY()-fact.y)^2)
+    byId[key]={actorId=id,purposeId=p.id,stepId=step.id,demandId=req.demandId,sourceId=fact.id,
+     fingerprint=fact.fingerprint,revision=fact.revision,x=fact.x,y=fact.y,z=fact.z,knowledgeKind="acquired-item-type-memory"}
+    choices[#choices+1]={id=key,evidence=.8,continuity=1,novelty=0,informationGain=1,blockers=0,utility=1-distance/100}
+   end
+  end
+ end
+ if #choices==0 then return nil end
+ SAO.Ordering.sort(choices,function(a,b)return a.utility==b.utility and a.id<b.id or a.utility>b.utility end)
+ while #choices>16 do table.remove(choices)end
+ local view=interpretations(id,choices,{domain="construction",pressure=.5,atHours=nowHours()})
+ local selected=view and byId[view.selected];if not selected then return nil end
+ p.recipeSupply.sourceInquiry=dataCopy(selected);p.recipeSupply.sourceInquiryChoice=dataCopy(view)
+ p.blockers={"remembered-ingredient-requires-current-inspection"}
+ return p.recipeSupply.sourceInquiry
+end
+function P.finishRecipeSourceInquiry(id,purposeId)
+ local p=P.recipePurpose(id,purposeId);local own=p and p.recipeSupply
+ if not own or not own.sourceInquiry then return false end
+ own.lastSourceInquiry=own.sourceInquiry;own.sourceInquiry=nil
+ return true
+end
+function P.prepareRecipeInspection(id,purposeId,context)
+ local p,current=P.recipePurpose(id,purposeId)
+ if not p or p.admission or not current or current.owner~="SAO.SourceUse" or not current.recipeRequirement
+  or context.actorId~=id or type(context.sourceId)~="string" or type(context.fingerprint)~="string" then return nil end
+ local step={id="recipe-inspection:"..context.sourceId..":"..context.fingerprint,verb="inspect",owner="SAO.WorldSources",
+  token="resource:inspected",target=context.sourceId,sourceId=context.sourceId,fingerprint=context.fingerprint,
+  sourceX=context.sourceX,sourceY=context.sourceY,sourceZ=context.sourceZ,status="available"}
+ table.insert(p.steps,p.cursor,step);current.status="dependent";p.status="maintained"
+ return step
+end
+function P.admitRecipeProduction(id,work)
+ local p,step=P.recipePurpose(id,work and work.purposeId)
+ local d=p and p.materialWork.recipeDemand
+ if not p or p.admission or not step or step.status~="available" or step.verb~="produce"
+  or work.actorId~=id or work.purposeStepId~=step.id or work.kind~=step.productionKind
+  or work.recipeId~=step.recipeId or work.sourceRevision~=step.sourceRevision
+  or not recipeSame(work.recipeDemand,d) or not recipeSame(work.recipeInputs,step.recipeInputs)
+  or not recipeSame(work.recipeWorkplace,step.recipeWorkplace) then return false end
+ local ok,means=pcall(function() return SAOJavaBridge:recipeMeansForDemand(SAO.Body.get(id),d) end)
+ local known=false
+ if ok and type(means)=="table" then for _,mean in ipairs(means) do
+  if mean.recipeId==step.recipeId and mean.sourceRevision==d.sourceRevision
+   and mean.knowledgeKind==p.recipeSupply.knowledgeKind and mean.acquisitionId==p.recipeSupply.acquisitionId then known=true end
+ end end
+ if not known then return false end
+ return P.noteAdmission(id,p.id,"SAO.ResourceProduction",work.id,step.id)
+end
+function P.consumeRecipeProductionResult(id,supplied)
+ local c=type(supplied)=="table" and SAO.ResourceProduction.outcome(id,supplied.id)
+ if not c or c.actorId~=id or c.kind~="recipe-stock" and c.kind~="recipe-upkeep"
+  or not finite(c.atHours) or c.atHours>nowHours() then return false end
+ local s=state(id);local p=s and s.purposes[c.purposeId]
+ if not p or p.status=="abandoned" then return true end
+ for _,key in ipairs(p.resultReceipts or {}) do if key=="SAO.ResourceProduction:"..c.id then return true end end
+ local step,a=p.steps[p.cursor],p.admission
+ if not p.recipeSupply or not step or not a or a.owner~="SAO.ResourceProduction"
+  or a.correlationId~=c.id or a.stepId~=step.id or c.purposeStepId~=step.id or c.atHours<a.at
+  or c.recipeId~=step.recipeId or c.kind~=step.productionKind or c.token~=step.token
+  or not recipeSame(c.recipeDemand,step.recipeDemand) or not recipeSame(c.recipeInputs,step.recipeInputs)
+  or not recipeSame(c.recipeWorkplace,step.recipeWorkplace) then return false end
+ local accepted=P.recordResult(id,p.id,{owner="SAO.ResourceProduction",token=c.token,status=c.status,
+  correlationId=c.id,reason=c.detail,atHours=c.atHours},RECIPE_RESULT)
+ if accepted and c.status=="completed" then
+  p.recipeSupply.productionAttempt=(p.recipeSupply.productionAttempt or 1)+1
+  p.recipeSupply.lastWorkId=c.id;p.recipeSupply.effectAt=c.atHours
+  if c.kind=="recipe-stock" or p.recipeSupply.parentPurposeId then
+   p.status="maintained";p.blockers={"fresh-output-and-original-requesting-use-required"}
+  end
+ end
+ return accepted
+end
+function P.refreshRecipeSupply(id,body,purposeId)
+ local p=P.recipePurpose(id,purposeId);local own=p and p.recipeSupply
+ if not own or not own.lastWorkId or SAO.Body.get(id)~=body then return false end
+ local current=SAO.ResourceProduction.recipeOutputAvailability(id,body,own.lastWorkId)
+ if not current then return false end
+ local seen={};for _,item in ipairs(current.heldOutputs or {}) do seen[item.itemId]=true end
+ for _,workId in ipairs(own.productionHistory or {}) do
+  local prior=SAO.ResourceProduction.recipeOutputAvailability(id,body,workId)
+  for _,item in ipairs(prior and prior.heldOutputs or {}) do
+   if not seen[item.itemId] then current.heldOutputs[#current.heldOutputs+1]=item;seen[item.itemId]=true end
+  end
+ end
+ own.currentAvailability=dataCopy(current,0,12,256)
+ local d=p.materialWork.recipeDemand
+ local ready=d.kind=="recipe-stock" and current.requestedStockAvailable==true
+  or d.kind=="recipe-upkeep" and current.targetHeld==true
+ if not ready then
+  own.ready=false;p.blockers={"current-produced-stock-unavailable"}
+  if d.kind=="recipe-stock" then
+   local row=SAO.ResourceProduction.outcome(id,own.lastWorkId);local allHeld=row~=nil
+   for _,output in ipairs(row and row.outputs or {}) do if not seen[output.itemId] then allHeld=false end end
+   if allHeld then
+    own.productionHistory=own.productionHistory or {};own.productionHistory[#own.productionHistory+1]=own.lastWorkId
+    if #own.productionHistory>MAX_EVENTS then table.remove(own.productionHistory,1);own.omittedProductionHistory=true end
+    own.lastWorkId=nil;p.cursor=1;p.blockers={"partial-stock-demand-requires-further-production"}
+   end
+  end
+  return false
+ end
+ own.ready=true;p.blockers={"awaiting-original-native-consumer"}
+ return true
+end
+function P.prepareRecipeOutputAcquisition(id,body,purposeId)
+ local p=P.recipePurpose(id,purposeId);local own=p and p.recipeSupply
+ local d=p and p.materialWork.recipeDemand
+ if not own or not own.lastWorkId or d.kind~="recipe-stock" or p.admission
+  or SAO.Body.get(id)~=body then return nil end
+ local row=SAO.ResourceProduction.outcome(id,own.lastWorkId)
+ if not row or row.status~="completed" then return nil end
+ local recipe=ScriptManager.instance:getCraftRecipe(d.consumerRecipeId)
+ local policy=recipe and SAO.RecipePolicy.describe(recipe,body,d)
+ if not policy then return nil end
+ for _,output in ipairs(row.outputs or {}) do
+  if output.itemType==d.desiredType then
+   local held=false
+   for _,current in ipairs(own.currentAvailability and own.currentAvailability.heldOutputs or {}) do
+    if current.itemId==output.itemId then held=true end
+   end
+   if not held then
+    for _,slot in ipairs(policy.requirements.slots or {}) do
+     local req=SAO.Material.recipeRequirement(policy,slot.index)
+     if req and SAO.Material.recipeObservedType(req,output.itemType) then
+      local stepId="recipe-output:"..row.id..":"..output.itemId
+      req.purposeId,req.stepId,req.demandId=p.id,stepId,d.id
+      local step={id=stepId,verb="acquire",owner="SAO.SourceUse",token="resource:acquired",
+       target="native-output:"..output.itemId,category="recipe-input",recipeRequirement=req,
+       expectedItemId=output.itemId,expectedItemType=output.itemType,quantity=1,quantityUnit="item",status="available"}
+      own.recipeId=req.recipeId
+      p.steps={step,{id="original-use:"..d.consumerId,owner="original-consumer",status="blocked"}}
+      p.cursor=1;p.status="maintained";p.blockers={"produced-output-requires-current-observation-and-acquisition"}
+      return step
+     end
+    end
+   end
+  end
+ end
+end
+function P.reconcileRecipeConsumers(id,body)
+ local rec=record(id);local s=state(id)
+ if not rec or rec.dead or SAO.Body.get(id)~=body then return false end
+ for _,key in ipairs(s and s.order or {}) do
+  local p=s.purposes[key];local own=p and p.recipeSupply
+  if own and own.parentPurposeId and own.lastWorkId and p.status~="completed" and p.status~="abandoned" then
+   local parent=s.purposes[own.parentPurposeId]
+   if not parent or parent.status=="abandoned" then
+    p.status="abandoned";p.resolution="original-request-retired"
+   else
+    local available=own.currentAvailability;local produced={}
+    for _,item in ipairs(available and available.heldOutputs or {}) do produced[item.itemId]=true end
+    for _,stored in ipairs(rec.resourceProductionOutcomes or {}) do
+     local c=SAO.ResourceProduction.outcome(id,stored.id)
+     if c and c.purposeId==parent.id and c.purposeStepId==own.parentStepId and c.status=="completed"
+      and c.nativeCredit==c.id and c.atHours>=own.effectAt then
+      local used=false
+      for _,input in ipairs(c.inputEffects or c.inputs or {}) do
+       if produced[tostring(input.itemId)] and (input.consumedNative==true or input.keptNative==true
+        or input.destroyedNative==true or c.nativeCompleted==true or c.created==true) then used=true end
+      end
+      if used then p.status="completed";p.resolvedAt=c.atHours;own.consumerWorkId=c.id
+       p.resolution="produced-stock-used-by-original-native-request";p.blockers={}
+       addEvent(p,"requesting-use-completed",c.id,c.atHours)
+      elseif p.admission==nil then
+       p.status="abandoned";p.resolvedAt=c.atHours;own.retiredByWorkId=c.id
+       p.resolution="original-request-completed-by-other-means";p.blockers={}
+       addEvent(p,"requesting-use-retired",c.id,c.atHours)
+      end
+     end
+    end
+   end
+  end
+ end
+ return true
 end
 
 return P

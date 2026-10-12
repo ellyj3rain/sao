@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.1.0-pre-alpha` |
+| Version | `2.7.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2500,3 +2500,11 @@ the sealed wrapper retains exact post-perform body/item/window/queue and
 successor custody for once-only completion, preserving successor flags.
 [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) records actual Main23, handoff27/6 and helper bounds18/1.
 Earlier injected and manually ordered proofs retain their historical scope.
+
+## Purpose-bound native stock and upkeep (D3.19)
+
+RecipePolicy reads registered native IO declarations, current input tests, quantities, outputs, knowledge and workplace requirements. Its shared selector uses original HandcraftLogic by default and an explicitly supplied initialized BuildLogic for the existing construction caller. Unsupported native resource channels retain their owning source requirements.
+
+Existing WorldSources/Bridge observations bind complete personally inspected item identity/revision and native recipe input role without changing intrinsic categories. Perception retains item-type and workplace facts. ProceduralPlanning and Controller interpret one retained consumer demand, inquiry/approach, fresh exact acquisition, production and original use. A prospective free-bench allocation is read-only; ResourceProduction claims it, selects again and exclusively owns native timed action/payment/effect, outcomes and release.
+
+Fresh output availability and actual original consumer input effects govern supply completion. Cognition, CognitiveModels and CapabilityExperience retain separate native stock/upkeep facts and once-only private learning. Full person persistence preserves raw negative/unperformed work and admitted archive fields; source-refused acquisition facts retain their canonical transfer/Perception representation. Full shared intake/model adoption and broader authoritative execution remain owning contracts. [D3.19](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md) records current bounded proof and parent obligations.

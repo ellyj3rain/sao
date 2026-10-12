@@ -16,6 +16,13 @@ CALLS = {
     'client/SAO_WeekOneContinuity.lua': ('found', 'candidates'),
     'client/SAO_MousecatInteraction.lua': ('candidates',),
 }
+D319_CALLS = (
+    ('client/SAO_Controller.lua', 'Ctl.recipeWorkContext', 'context.options'),
+    ('client/SAO_Controller.lua', 'Ctl.recipeInputOffers', 'offered.options'),
+    ('shared/SAO_ProceduralPlanning.lua', 'P.planRecipeWork', 'choices'),
+    ('shared/SAO_ProceduralPlanning.lua', 'P.selectRecipeInput', 'choices'),
+    ('shared/SAO_ProceduralPlanning.lua', 'P.recipeSourceInquiry', 'choices'),
+)
 
 
 def probe(source):
@@ -89,6 +96,10 @@ def main():
         for pool in pools:
             assert source.count('SAO.Ordering.sort(' + pool + ',') == 1, (relative, pool)
             assert 'table.sort(' + pool + ',' not in source, (relative, pool)
+    for relative, name, pool in D319_CALLS:
+        body = function_body((LUA / relative).read_text(encoding='utf-8'), name)
+        assert body and body.count('SAO.Ordering.sort(' + pool + ',') == 1, (name, pool)
+        assert 'table.sort(' + pool + ',' not in body, (name, pool)
     helper = (LUA / 'shared/SAO_Ordering.lua').read_text(encoding='utf-8')
     source = (LUA / 'client/SAO_Controller.lua').read_text(encoding='utf-8')
     controller = function_body(source, 'Ctl.limitPurposeComparison')
@@ -104,7 +115,7 @@ def main():
     mutated = helper.replace('width = width * 2', 'width = count')
     assert mutated != helper
     assert probe(expression(mutated, controller)) is None, 'single-pass mutation survived'
-    print('nonrecursive ordering: PASS ' + result + ' native assertions, four production routes, one rejected growth mutation')
+    print('nonrecursive ordering: PASS ' + result + ' native assertions, four original and five D319 production routes, one rejected growth mutation')
     return 0
 
 

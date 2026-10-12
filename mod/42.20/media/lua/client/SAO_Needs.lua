@@ -156,6 +156,13 @@ end
 -- the current authority check at the actual native mutation boundary.
 function SAOVerifiedWorldTransferAction:transferItem(item)
     if not self:isValid() then self.dontAdd = true; return end
+    if self.saoSourceReservation then
+        local reservation=SAO.WorldSources and SAO.WorldSources.reservation(self.saoSourceReservation)
+        if reservation and reservation.recipeRequirement
+            and (item==nil or SAO.SourceUse.recipeTransferCurrent(reservation,item,self.character)~=true) then
+            self.dontAdd=true;return false
+        end
+    end
     local checked, fresh = pcall(function()
         return SAO.SourceUse and SAO.SourceUse.nativeTransferPending
             and SAO.SourceUse.nativeTransferPending(self.saoSourceActor,

@@ -9,10 +9,10 @@
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C3, C6, C12, C13, C16, C18, C19, C20, C21, C24, C26, C28, C30, C31, C32, C33 |
-| Implementation | CLOSED D3.1-D3.18 retain their qualified useful outcomes. D3.19 purpose-bound stock production and upkeep is OPEN; complete domain/source/consumer/authority integration remains under this parent. |
+| Implementation | CLOSED D3.1-D3.19 retain qualified useful outcomes. Complete native construction/material/site/service/authority integration remains under this OPEN parent and continues before D4. |
 | Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.7.1.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
-| Publication | D3.1-D3.17 are protected-published through PR142-PR160 with exact completion receipts. D3.17 merged at `b91c02f23ef7aa04180505994ef372c28e7edbfc`; full D3 continues through the operator-directed D4 transition. |
+| Version | 2.7.2.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
+| Publication | D3.1-D3.18 retain protected publication through PR142-PR161 with exact completion receipts. D3.18 merged at `47c701823d5d520a6214c6fad693eaabf51bbb2e`; D3.19 qualified closure and selected stamped package await their actual protected merge. Full D3 continues through the operator-directed D4 transition. |
 
 ## Product and current implementation
 
@@ -371,3 +371,9 @@ Neo assigns an independent Granular implementation unit for `mod/42.20/media/lua
 ## D3.18 qualified progress and D3.19 continuation — 2026-10-12 10:19 UTC / 03:19 PDT
 
 [D3.18](D3.18-20261012-0703Z-0003PDT-furniture-relocation-recovery.md) closes the original shared movement through native ordinary recovery and separate benefit, including current passage, callback and reconstructed-source continuity. One kohai records this verified progress. [D3.19](D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md) continues actual ingredient acquisition, native stock/upkeep and resumed requesting work. Package/publication evidence remains distinct. Full D3 and its remaining source-defined mechanisms, shared contracts and D4-D6 FIFO remain active.
+
+D3.18 protected publication is complete through self-merged PR161 at `47c701823d5d520a6214c6fad693eaabf51bbb2e`; required CI, CodeQL, the qualified stamped package and preserved working state have their actual receipts. D3.19 now owns the coupled person/observation/source-acquisition join. Its existing work record carries the native ingredient/workplace and private demand/consumer ownership, exact source/recipe custody, necessary output-policy correction and remaining integrated acceptance. Full D3 stays OPEN through the complete native/source/service/authority outcome before D4; this ongoing work creates no additional closure or credit.
+
+## D3.19 qualified progress and remaining D3 — 2026-10-12 14:09 UTC / 07:09 PDT
+
+[D3.19](D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md) closes private exact ingredient acquisition through original native stock/upkeep, fresh current output and actual retained requesting use, including ordinary free-workstation dispatch and saved owner/replay continuity. One kohai records progress. Native repertoire, material/site work, equipment and service maintenance, original water/power mechanisms and required authoritative execution continue under the retained finite intake and complete parent scope. Supporting construction and extraction units remain unpublished enabling work. Package/protected merge and counterpart archive/model adoption retain distinct evidence; D4-D6 FIFO remains.

@@ -879,6 +879,18 @@ end
 -- membership, proximity and receipt reconciliation never add witnesses.
 function P.receiveTransferResult(receipt)
     if type(receipt) ~= "table" then return false, "invalid-result" end
+    local ingredient=receipt.category=="recipe-input"
+    if ingredient then
+        local canonical=SAO.WorldSources and SAO.WorldSources.actionOutcome
+            and SAO.WorldSources.actionOutcome(receipt.reservationId,receipt.actorId)
+        local requirement=canonical and canonical.recipeRequirement
+        if not canonical or canonical.category~="recipe-input" or canonical.operation~="acquire"
+            or type(requirement)~="table" or type(requirement.recipeId)~="string"
+            or type(requirement.demandId)~="string" or type(requirement.purposeId)~="string"
+            or type(requirement.stepId)~="string" or type(requirement.index)~="number"
+            or type(requirement.declaration)~="string" then return false,"recipe-transfer-owner-unavailable" end
+        receipt=canonical
+    end
     local observation = receipt.transferObservation
     if receipt.status ~= "completed" and receipt.status ~= "conflict"
         and receipt.status ~= "released" and receipt.status ~= "interrupted" then
@@ -901,7 +913,7 @@ function P.receiveTransferResult(receipt)
         or observation.actorId ~= receipt.actorId
         or type(receipt.itemType) ~= "string" or receipt.itemType == ""
         or type(receipt.sourceId) ~= "string" or receipt.sourceId == ""
-        or (receipt.category ~= "food" and receipt.category ~= "water")
+        or (receipt.category ~= "food" and receipt.category ~= "water" and not ingredient)
         or not transferNumber(observation.at) or observation.at < 0
         or not transferNumber(receipt.at) or observation.at > receipt.at
         or receipt.at > now or not transferNumber(observation.x)
@@ -910,7 +922,9 @@ function P.receiveTransferResult(receipt)
     end
     local fact = { eventId = receipt.reservationId, actorId = receipt.actorId,
         operation = receipt.operation, itemType = receipt.itemType,
-        category = receipt.category, sourceId = receipt.sourceId,
+        -- A witness sees an item move. The actor's recipe demand stays in its
+        -- canonical private purpose and native receipt, rather than in testimony.
+        category = ingredient and "item" or receipt.category, sourceId = receipt.sourceId,
         placeId = receipt.placeId and tostring(receipt.placeId) or nil,
         x = observation.x, y = observation.y, z = observation.z,
         eventAt = observation.at, acquiredAt = observation.at,
@@ -959,7 +973,7 @@ function P.receiveTransferResult(receipt)
         fact.source, fact.originSource, fact.originId = source, source, id
         fact.appraisal = source == "observed" and appraisals and appraisals[id] or nil
         rememberTransfer(id, fact)
-        if source == "observed" and SAO.Cognition then
+        if source == "observed" and SAO.Cognition and not ingredient then
             pcall(SAO.Cognition.experience, id, {
                 id = "world-transfer/" .. receipt.reservationId,
                 actorId = receipt.actorId, observerId = id,
@@ -3522,7 +3536,8 @@ end
 function P.learnInspectedSource(id, place, sourceId, tick, source)
     if not place or place.id == nil or not sourceId then return false end
     local fact = SAO.WorldSources and SAO.WorldSources.beliefFact(sourceId,
-        source == "native-visible-ground" and "visible-ground" or nil, id)
+        source == "native-visible-ground" and "visible-ground"
+            or (source == "native-container-inspection" or source == "native-transfer-inspection") and "inspected-container" or nil, id)
     if not fact then return false end
     local belongs = tostring(fact.buildingId) == tostring(place.id)
         or tostring(place.sourceId or "") == tostring(sourceId)
@@ -4741,6 +4756,57 @@ function P.furnitureFacts(id,body)
  if not v or v.actorId~=id or v.source~="native-personal-visibility" or v.atHours>SAO.History.countyHours() then return nil end
  local function clone(x)if type(x)~="table" then return x end;local o={};for k,n in pairs(x)do o[k]=clone(n)end;return o end
  return clone(v)
+end
+
+-- Native workplace handles remain transient. These are acquired person facts;
+-- a saved key is not authority to resolve an unseen or changed native object.
+function P.observeRecipeWorkplaces(id,body)
+ if not collectorObserver(id,body) or not SAOJavaBridge.observeRecipeWorkplaces then return false end
+ local ok,rows=pcall(function() return SAOJavaBridge:observeRecipeWorkplaces(body,SAO.Needs and SAO.Needs.PERCEPTION_TILES or 12) end)
+ if not ok or type(rows)~="table" or getmetatable(rows) or not collectorObserver(id,body) then return false end
+ local at=SAO.History.countyHours();local current={}
+ if not finiteSoundNumber(at) or at<0 then return false end
+ for _,row in ipairs(rows) do
+  if type(row)~="table" or getmetatable(row) or type(row.key)~="string" or row.key==""
+   or type(row.revision)~="string" or row.revision=="" or row.actorId~=id then return false end
+  for _,field in ipairs({"x","y","z"}) do if not finiteSoundNumber(row[field]) or row[field]%1~=0 then return false end end
+  if row.z~=math.floor(body:getZ()) or type(row.support)~="boolean" or type(row.craftBench)~="boolean"
+   or type(row.occupied)~="boolean" then return false end
+  local recipes={};for _,recipeId in ipairs(row.recipeIds or {}) do
+   if type(recipeId)~="string" then return false end;recipes[#recipes+1]=recipeId
+  end
+  current[row.key]={key=row.key,revision=row.revision,x=row.x,y=row.y,z=row.z,actorId=id,
+   sprite=row.sprite,entityType=row.entityType,support=row.support,craftBench=row.craftBench,
+   occupied=row.occupied,genericSurface=row.genericSurface==true,recipeIds=recipes,
+   source="native-personal-visibility",observedAtHours=at}
+ end
+ local b=store(id);b.recipeWorkplaces=current;P.beliefVersion=P.beliefVersion+1
+ return true
+end
+function P.recipeWorkplaces(id,body)
+ if not collectorObserver(id,body) then return {} end
+ local rows,out=store(id).recipeWorkplaces or {},{};local at=SAO.History.countyHours()
+ for _,row in pairs(rows) do
+  if row.actorId==id and row.source=="native-personal-visibility" and row.observedAtHours<=at then
+   local copy={};for key,value in pairs(row) do if key~="recipeIds" then copy[key]=value end end
+   copy.recipeIds={};for _,recipeId in ipairs(row.recipeIds or {}) do copy.recipeIds[#copy.recipeIds+1]=recipeId end
+   out[#out+1]=copy
+  end
+ end
+ table.sort(out,function(a,b) return a.key<b.key end)
+ return out
+end
+function P.recipeWorkplace(id,body,anchor)
+ if not collectorObserver(id,body) or type(anchor)~="table" or getmetatable(anchor)
+  or not SAOJavaBridge.recipeWorkplace then return nil end
+ local known=store(id).recipeWorkplaces;local acquired=known and known[anchor.key]
+ if not acquired or acquired.actorId~=id or acquired.source~="native-personal-visibility"
+  or acquired.observedAtHours>SAO.History.countyHours() then return nil end
+ for _,field in ipairs({"key","revision","x","y","z"}) do if anchor[field]~=acquired[field] then return nil end end
+ local ok,current=pcall(function() return SAOJavaBridge:recipeWorkplace(body,anchor.key,anchor.revision,anchor.x,anchor.y,anchor.z) end)
+ if not ok or type(current)~="table" or not current.object or current.key~=anchor.key
+  or current.revision~=anchor.revision or not collectorObserver(id,body) then return nil end
+ return current
 end
 
 return P

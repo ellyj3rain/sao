@@ -2687,7 +2687,9 @@ function Ctl.beginHydrationAcquisition(id, agent, body, tick, needs)
     local context = Ctl.resourceContext(id, agent, body, needs, "water", 0.5, true)
     hydrationProductionContext(id, agent, body, context)
     local purpose, step = planning.planResource(id, context)
-    if not purpose or not step or step.status ~= "available" then return false end
+    if not purpose or not step or step.status ~= "available" then
+        return purpose and Ctl.tryRecipeSupplyForPurpose(id,agent,body,tick,purpose) or false
+    end
     if step.verb == "produce" and step.owner == "SAO.ResourceProduction" and SAO.ResourceProduction then
         if SAO.ResourceProduction.begin(id, body, step, { purposeId = purpose.id, purposeStepId = step.id }) then
             setState(agent, id, "RESOURCE", step.productionKind == "build-rain-collector"
@@ -4983,7 +4985,7 @@ function Ctl.tryBedConstruction(id,agent,body,tick,needs)
     local retained=SAO.ProceduralPlanning.bedPurpose(id)
     if retained and retained.bedConstruction.constructedWorkId then return false end
     local p,step=SAO.ProceduralPlanning.planBedConstruction(id,Ctl.bedConstructionContext(id,agent,body,needs))
-    if not p or not step or step.status~="available" then return false end
+    if not p or not step or step.status~="available" then return p and Ctl.tryRecipeSupplyForPurpose(id,agent,body,tick,p) or false end
     if step.verb=="acquire" then return Ctl.beginConstructionAcquisition(id,agent,body,tick,p,step) end
     if step.owner~="SAO.ResourceProduction" or step.productionKind~="build-wood-bed" then return false end
     if not setState(agent,id,"RESOURCE","makes a bed for retained sleep","need") then return false end
@@ -5085,7 +5087,7 @@ function Ctl.tryShelterConstruction(id,agent,body,tick,needs,kind)
     local retained=SAO.ProceduralPlanning.shelterPurpose(id)
     if retained and retained.shelterConstruction.usedWorkId then return false end
     local p,step=SAO.ProceduralPlanning.planShelterConstruction(id,Ctl.shelterConstructionContext(id,agent,body,needs,kind))
-    if not p or not step or step.status~="available" then return false end
+    if not p or not step or step.status~="available" then return p and Ctl.tryRecipeSupplyForPurpose(id,agent,body,tick,p) or false end
     if step.owner=="SAO.Controller" then return Ctl.beginShelterMovement(id,agent,body,tick,p,step) end
     if step.verb=="acquire" then return Ctl.beginConstructionAcquisition(id,agent,body,tick,p,step) end
     if step.owner=="SAO.Study" and step.operation=="learn-recipe" then
@@ -6430,6 +6432,7 @@ function Ctl.tryToolMaintenance(id, agent, body, tick, context)
         or agent.passive or not SAO.Needs.workAvailable(body) then return false end
     if not Ctl.reconcileConstruction(id, body) then return true end
     if agent.rec.resourceProductionWork or agent.rec.worldSourceReservation then return true end
+    if not context and Ctl.tryRecipeWork and Ctl.tryRecipeWork(id,agent,body,tick) then return true end
     local retained = planning.maintenancePurpose(id)
     if retained and retained.admission then return true end
     local purpose, step = planning.planToolMaintenance(id, context or Ctl.toolMaintenanceContext(id, agent, body))
@@ -6442,10 +6445,11 @@ function Ctl.beginConstructionProduction(id, agent, body, tick, purpose, step)
     local production = SAO.ResourceProduction
     if not production or not step or step.status ~= "available" or step.verb ~= "produce"
         or step.owner ~= "SAO.ResourceProduction" or (step.productionKind ~= "saw-logs"
-            and step.productionKind ~= "repair-held-item" and step.productionKind ~= "fix-held-item") then return false end
-    local repairing = step.productionKind == "repair-held-item" or step.productionKind=="fix-held-item"
+            and step.productionKind ~= "repair-held-item" and step.productionKind ~= "fix-held-item"
+            and step.productionKind ~= "recipe-stock" and step.productionKind ~= "recipe-upkeep") then return false end
+    local repairing = step.productionKind == "repair-held-item" or step.productionKind=="fix-held-item" or step.productionKind=="recipe-upkeep"
     if not setState(agent, id, "RESOURCE", repairing and "maintains an exact carried tool"
-        or "makes native planks for a retained boarding task") then return false end
+        or "produces stock for retained native work") then return false end
     if production.begin(id, body, step, { purposeId = purpose.id, purposeStepId = step.id })
         or agent.rec.resourceProductionWork then
         agent.taskDeadline = tick + 5400
@@ -6460,7 +6464,8 @@ function Ctl.beginConstructionAcquisition(id, agent, body, tick, purpose, step)
     if not SAO.SourceUse or not step or step.status ~= "available" or step.verb ~= "acquire" then return false end
     local started = SAO.SourceUse.beginAcquisition(id, body, step.place, step.category, {
         purposeId = purpose.id, purposeStepId = step.id, sourceId = step.sourceId,
-        sourceRevision = step.sourceRevision, itemId = step.itemId, itemType = step.itemType })
+        sourceRevision = step.sourceRevision, itemId = step.itemId, itemType = step.itemType,
+        recipeRequirement = step.recipeRequirement })
     if not started then
         SAO.ProceduralPlanning.deferResourceRoute(id, purpose.id, step.id,
             "the privately remembered material could not be acquired")
@@ -6468,6 +6473,203 @@ function Ctl.beginConstructionAcquisition(id, agent, body, tick, purpose, step)
     end
     agent.taskDeadline = tick + 5400
     return setState(agent, id, "SOURCEWARD", "acquires a privately observed material for retained work")
+end
+
+function Ctl.recipeWorkContext(id,body,demand,parentPurposeId,parentStepId,target)
+ local context={demand=demand,parentPurposeId=parentPurposeId,parentStepId=parentStepId,
+  atHours=SAO.History.countyHours(),options={},inputNeeds={},pressure=.5,
+  targetItemType=target and target.itemType,deficit=target and target.deficit}
+ local ok,means=pcall(function() return SAOJavaBridge:recipeMeansForDemand(body,demand) end)
+ if not ok or type(means)~="table" then return context end
+ SAO.Perception.observeRecipeWorkplaces(id,body)
+ local byRecipe={}
+ local function add(anchor)
+  for _,option in ipairs(SAO.ResourceProduction.recipeOptions(id,body,demand,means,anchor) or {}) do
+   local prior=byRecipe[option.recipeId]
+   if not prior or not prior.ready and option.ready then byRecipe[option.recipeId]=option end
+  end
+ end
+ add(nil)
+ for _,anchor in ipairs(SAO.Perception.recipeWorkplaces(id,body)) do
+  if not anchor.occupied and SAO.Perception.recipeWorkplace(id,body,anchor) then add(anchor) end
+ end
+ for recipeId,option in pairs(byRecipe) do
+  context.options[#context.options+1]=option
+  local read,needs=pcall(function() return SAOJavaBridge:recipeSupplyNeeds(body,recipeId) end)
+  if read and type(needs)=="table" and needs.actorId==id and needs.recipeId==recipeId then context.inputNeeds[recipeId]=needs end
+ end
+ SAO.Ordering.sort(context.options,function(a,b) return a.recipeId<b.recipeId end)
+ return context
+end
+function Ctl.recipeInputOffers(id,body,purpose,step)
+ local req=step and step.recipeRequirement
+ local offered={actorId=id,recipeRequirement=req,options={}}
+ if not req then return offered end
+ local known=SAO.Perception.knownPlaces(id,true)
+ for _,place in pairs(known or {}) do
+  local rows=SAO.WorldSources.recipeSlotOptions(place,"recipe-input",id,body,req,"standing")
+  for _,option in ipairs(rows and rows.options or {}) do
+   local p=option.parameters
+   option.place={id=place.id,sourceId=place.sourceId,cx=place.cx,cy=place.cy,z=place.z,
+    minX=place.minX,minY=place.minY,maxX=place.maxX,maxY=place.maxY}
+   option.distance=math.sqrt((body:getX()-p.sourceX)^2+(body:getY()-p.sourceY)^2)
+   offered.options[#offered.options+1]=option
+  end
+ end
+ SAO.Ordering.sort(offered.options,function(a,b) return a.id<b.id end)
+ return offered
+end
+function Ctl.advanceRecipeWork(id,agent,body,tick,purpose,step)
+ if not purpose or purpose.admission or agent.state~="IDLE" then return false end
+ if purpose.recipeSupply.lastWorkId then
+  if SAO.ProceduralPlanning.refreshRecipeSupply(id,body,purpose.id) then return false end
+  if not purpose.recipeSupply.lastWorkId then return false end
+  if SAO.Perception.observeLooseItems then SAO.Perception.observeLooseItems(id,body) end
+  step=SAO.ProceduralPlanning.prepareRecipeOutputAcquisition(id,body,purpose.id)
+ end
+ if not step then return false end
+ if step.verb=="acquire" and step.recipeRequirement then
+  local inquiry=purpose.recipeSupply.sourceInquiry
+  if inquiry then
+   local context=SAO.WorldSources.inspectionCandidate(id,body,"standing",SAO.Needs.PERCEPTION_TILES,inquiry.sourceId)
+   if context and context.fingerprint==inquiry.fingerprint then
+    local inspect=SAO.ProceduralPlanning.prepareRecipeInspection(id,purpose.id,context)
+    SAO.ProceduralPlanning.finishRecipeSourceInquiry(id,purpose.id)
+    if inspect and SAO.WorldSources.beginPurposeInspection(id,body,context,purpose.id,inspect.id)then
+     return beginContainerInspection(id,agent,body,0,"recipe-input",tick,context)
+    end
+    return false
+   end
+   if math.floor(body:getX())==inquiry.x and math.floor(body:getY())==inquiry.y then
+    SAO.ProceduralPlanning.finishRecipeSourceInquiry(id,purpose.id);return false
+   end
+   if mayEnterBelieved(id,inquiry.x,inquiry.y)
+    and orderTravelState(agent,id,body,inquiry.x,inquiry.y,inquiry.z,"TRAVEL","checks an acquired ingredient source")then
+    agent.taskDeadline=tick+5400;return true
+   end
+   return false
+  end
+  if not step.sourceId then
+   local offered=Ctl.recipeInputOffers(id,body,purpose,step)
+   if not SAO.ProceduralPlanning.selectRecipeInput(id,purpose.id,offered) then
+    if SAO.ProceduralPlanning.recipeSourceInquiry(id,body,purpose.id)then
+     return Ctl.advanceRecipeWork(id,agent,body,tick,purpose,step)
+    end
+    if not purpose.recipeSupply.lastWorkId and Ctl.tryRecipeSupplyForPurpose(id,agent,body,tick,purpose) then return true end
+    local context=SAO.WorldSources.inspectionCandidate(id,body,"standing",SAO.Needs.PERCEPTION_TILES)
+    local inspect=context and SAO.ProceduralPlanning.prepareRecipeInspection(id,purpose.id,context)
+    if inspect and SAO.WorldSources.beginPurposeInspection(id,body,context,purpose.id,inspect.id) then
+     return beginContainerInspection(id,agent,body,0,"recipe-input",tick,context)
+    end
+    return false
+   end
+  end
+  return Ctl.beginConstructionAcquisition(id,agent,body,tick,purpose,step)
+ end
+ if step.status=="available" and step.verb=="produce" then
+  return Ctl.beginConstructionProduction(id,agent,body,tick,purpose,step)
+ end
+ -- Only acquired native support/recipe facts select an approach. Reaching
+ -- it supplies no production admission; the ordinary next decision rechecks.
+ local req=purpose.recipeSupply.requirements
+ local work=req and req.workplace
+ if work and (work.specific or work.anySurface) then
+  for _,anchor in ipairs(SAO.Perception.recipeWorkplaces(id,body)) do
+   local supported=not work.specific and anchor.genericSurface==true
+   for _,recipeId in ipairs(anchor.recipeIds or {}) do if recipeId==purpose.recipeSupply.recipeId then supported=true end end
+   if supported and not anchor.occupied and mayEnterBelieved(id,anchor.x,anchor.y)
+    and (math.floor(body:getX())~=anchor.x or math.floor(body:getY())~=anchor.y) then
+    if orderTravelState(agent,id,body,anchor.x,anchor.y,anchor.z,"TRAVEL","approaches an acquired native workplace") then
+     agent.taskDeadline=tick+5400;return true
+    end
+   end
+  end
+ end
+ return false
+end
+function Ctl.recipeUpkeepTarget(row)
+ local metric=row.desiredState and row.desiredState.metric
+ local current=metric=="uses" and row.currentUses or metric and row[metric]
+ local maximum=row.desiredState and row.desiredState.minimum
+ return {itemType=row.itemType,deficit=type(current)=="number" and type(maximum)=="number" and maximum>0 and 1-current/maximum or .5}
+end
+function Ctl.tryRecipeWork(id,agent,body,tick)
+ local planning,production=SAO.ProceduralPlanning,SAO.ResourceProduction
+ if not planning or not production or not production.recipeOptions or agent.passive or agent.state~="IDLE"
+  or agent.rec.resourceProductionWork or agent.rec.worldSourceReservation or not SAO.Needs.workAvailable(body) then return false end
+ planning.reconcileRecipeConsumers(id,body)
+ local retained=planning.recipePurpose(id)
+ if retained then
+  if retained.recipeSupply.lastWorkId then
+   local active=Ctl.advanceRecipeWork(id,agent,body,tick,retained,retained.steps[retained.cursor])
+   if active then return true end
+   if retained.recipeSupply.ready then
+    local parent=retained.recipeSupply.parentPurposeId and planning.recipePurpose(id,retained.recipeSupply.parentPurposeId)
+    if parent then
+     local c=Ctl.recipeWorkContext(id,body,parent.materialWork.recipeDemand,parent.recipeSupply.parentPurposeId,parent.recipeSupply.parentStepId)
+     local p,step=planning.planRecipeWork(id,c)
+     return Ctl.advanceRecipeWork(id,agent,body,tick,p,step)
+    end
+    return false
+   end
+  end
+  local d=retained.materialWork.recipeDemand
+  local c=Ctl.recipeWorkContext(id,body,d,retained.recipeSupply.parentPurposeId,retained.recipeSupply.parentStepId)
+  local p,step=planning.planRecipeWork(id,c)
+  return Ctl.advanceRecipeWork(id,agent,body,tick,p,step)
+ end
+ local ok,rows=pcall(function() return SAOJavaBridge:recipeUpkeepDemands(body) end)
+ if not ok or type(rows)~="table" then return false end
+ for _,row in ipairs(rows) do
+  if row.actorId==id and type(row.targetItemId)=="string" and type(row.recipeId)=="string" then
+   local demand={id="upkeep:"..row.targetItemId..":"..row.recipeId,consumerId="held-item:"..row.targetItemId,
+    kind="recipe-upkeep",sourceRevision=row.sourceRevision,targetItemId=row.targetItemId,
+    targetSlotIndex=row.targetSlotIndex,desiredState=row.desiredState}
+   local target=Ctl.recipeUpkeepTarget(row)
+   local p,step=planning.planRecipeWork(id,Ctl.recipeWorkContext(id,body,demand,nil,nil,target))
+   if p then return Ctl.advanceRecipeWork(id,agent,body,tick,p,step) end
+  end
+ end
+ return false
+end
+function Ctl.tryRecipeSupplyForPurpose(id,agent,body,tick,parent)
+ if not parent or parent.admission or parent.status=="completed" or parent.status=="abandoned"
+  or agent.state~="IDLE" or agent.passive then return false end
+ local planning=SAO.ProceduralPlanning
+ planning.reconcileRecipeConsumers(id,body)
+ local retained=planning.recipePurpose(id)
+ if retained and retained.recipeSupply.parentPurposeId==parent.id then
+  if retained.recipeSupply.lastWorkId and planning.refreshRecipeSupply(id,body,retained.id) then return false end
+  local c=Ctl.recipeWorkContext(id,body,retained.materialWork.recipeDemand,parent.id,retained.recipeSupply.parentStepId)
+  local p,step=planning.planRecipeWork(id,c)
+  return Ctl.advanceRecipeWork(id,agent,body,tick,p,step)
+ end
+ local requesting
+ for index=parent.cursor,#parent.steps do
+  local step=parent.steps[index]
+  if step.owner=="SAO.ResourceProduction" and type(step.recipeId)=="string" and step.status~="completed" then requesting=step;break end
+ end
+ if not requesting then return false end
+ local ok,needs=pcall(function() return SAOJavaBridge:recipeSupplyNeeds(body,requesting.recipeId) end)
+ if not ok or type(needs)~="table" or needs.actorId~=id or needs.recipeId~=requesting.recipeId then return false end
+ for _,slot in ipairs(needs.slots or {}) do
+  if slot.channelStatus=="item" and slot.remainingFraction>0 then
+   for _,alternative in ipairs(slot.alternatives or {}) do
+    if alternative.desiredAmount>0 then
+     local d={id="stock:"..parent.id..":"..requesting.id..":"..tostring(slot.index)..":"..alternative.itemType,
+      consumerId=parent.id..":"..requesting.id,kind="recipe-stock",sourceRevision=needs.nativeRevision,
+      desiredType=alternative.itemType,desiredAmount=alternative.desiredAmount,quantityUnit=alternative.quantityUnit,
+      consumerRecipeId=requesting.recipeId}
+     local c=Ctl.recipeWorkContext(id,body,d,parent.id,requesting.id)
+     if #c.options>0 then
+      local p,step=planning.planRecipeWork(id,c)
+      return Ctl.advanceRecipeWork(id,agent,body,tick,p,step)
+     end
+    end
+   end
+  end
+ end
+ return false
 end
 
 local function rememberConstructionDestination(id, operation, destination)
@@ -6514,7 +6716,7 @@ function Ctl.tryDoubleGate(id,agent,body,tick)
     if agent.passive or agent.state~='IDLE' or agent.rec.resourceProductionWork or agent.rec.worldSourceReservation or not SAO.Needs.workAvailable(body) then return false end
     if SAO.Study and SAO.Study.reconcileRecipe and not SAO.Study.reconcileRecipe(id,body) then return false end
     local p,step=SAO.ProceduralPlanning.planDoubleGate(id,Ctl.doubleGateContext(id,agent,body))
-    if not p or not step or step.status~='available' then return false end
+    if not p or not step or step.status~='available' then return p and Ctl.tryRecipeSupplyForPurpose(id,agent,body,tick,p) or false end
     if step.verb=='acquire' then return Ctl.beginConstructionAcquisition(id,agent,body,tick,p,step) end
     if step.operation=='learn-recipe' then
         local items=SAOJavaBridge:privateCarriedItems(body);local book

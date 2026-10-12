@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.7.1.0-pre-alpha` |
+| Version | `2.7.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -487,3 +487,7 @@ Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md
 ## Furniture relocation through usable recovery (D3.18)
 
 [D3.18](Batches/D3.18-20261012-0703Z-0003PDT-furniture-relocation-recovery.md) qualifies original shared movement and independent ordinary recovery with current Standing, native custody and saved reconstruction. [D3.19](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md) continues useful stock/upkeep through actual private consumers. Full D3 retains its finite source-discovered families, original utility incorporation, required authoritative execution and shared private-experience export integration. Broader varied civilian/doctrinal architecture, strategy, maintained knowledge, attributes/health/aging and Speakeasy/ZAO ML goals remain active through D4-D6 FIFO.
+
+## Stock/upkeep through retained requesting work (D3.19)
+
+[D3.19](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md) closes useful private acquisition→native production/maintenance→fresh output→original use progress. Complete D3 retains native construction repertoire, extraction/site preparation, equipment and service maintenance, original utilities and authoritative execution. Qualified supporting policy/extraction units join those actual consumers next. The whole wider goal set and D4-D6 FIFO remain; package/merge, archive admission and model mastery retain separate evidence.

@@ -409,7 +409,7 @@ local function experienceCopy(id, x, now)
 end
 local function qualified(x)
     if x.status ~= "completed" and x.status ~= "no-effect" then return false end
-    if EXTENDED[x.kind] then return x.status == "completed" or x.kind == "tool-repair" and x.status == "no-effect" end
+    if EXTENDED[x.kind] then return x.status == "completed" or (x.kind == "tool-repair" or x.kind == "material-crafting") and x.status == "no-effect" end
     if x.kind == "inspection" then return type(x.foodPresent) == "boolean" and type(x.waterPresent) == "boolean" end
     if x.kind == "consume" then
         return x.category == "food" and x.hungerDelta ~= nil
@@ -1187,6 +1187,7 @@ end
 -- The native transformation owner certifies exact inputs and held outputs.
 -- This private fact records performed crafting; competence stays native.
 function C.materialCraftOutcome(id, receipt)
+    if type(receipt)=="table" and receipt.kind=="recipe-stock" then return C.recipeProductionOutcome(id,receipt) end
     local now = clock()
     if not now or type(receipt) ~= "table" or receipt.actorId ~= id
         or receipt.kind ~= "saw-logs" or receipt.recipeId ~= "Base.SawLogs"
@@ -1216,6 +1217,7 @@ function C.materialCraftOutcome(id, receipt)
 end
 
 function C.toolRepairOutcome(id, receipt)
+    if type(receipt)=="table" and receipt.kind=="recipe-upkeep" then return C.recipeProductionOutcome(id,receipt) end
     local now = clock()
     if not now or type(receipt) ~= "table" or receipt.actorId ~= id
         or (receipt.kind ~= "repair-held-item" and receipt.kind ~= "fix-held-item") or (receipt.kind=="fix-held-item"
@@ -2001,4 +2003,38 @@ if Events and Events.OnGameStart then
     end
     Events.OnGameStart.Add(C.onGameStart)
 end
+-- Registered production remains authenticated by its physical owner. Current
+-- acquisition and requesting use have their own observations and completions.
+function C.recipeProductionOutcome(id,receipt)
+ local now=clock()
+ if not now or type(receipt)~="table" or receipt.actorId~=id
+  or receipt.kind~="recipe-stock" and receipt.kind~="recipe-upkeep"
+  or receipt.nativeOwner~="ISHandcraftAction" or not finite(receipt.sequence,1,9007199254740991)
+  or receipt.sequence~=math.floor(receipt.sequence) or receipt.id~="resource-production/"..id.."/"..tostring(receipt.sequence)
+  or not finite(receipt.atHours,0,now) or not finite(receipt.startedAt,0,receipt.atHours) then return false end
+ local canonical=SAO.ResourceProduction and SAO.ResourceProduction.outcome(id,receipt.id)
+ if not canonical or not sameData(canonical,receipt) then return false,"recipe-owner-unavailable" end
+ if receipt.nativeAttempted~=true or receipt.nativeCompleted~=true then return true,"unperformed-recipe-retained-by-planner" end
+ local d=receipt.recipeDemand
+ if type(d)~="table" or type(d.consumerId)~="string" or type(receipt.recipeId)~="string" then return false end
+ local stock=receipt.kind=="recipe-stock"
+ local x=privateFact(id,stock and "material-crafting" or "tool-repair","construction",receipt.id,now,receipt.atHours)
+ x.sourceId,x.recipeId,x.consumerId=receipt.recipeId,receipt.recipeId,d.consumerId
+ x.status=receipt.improved and "completed" or "no-effect"
+ if stock then
+  x.itemType=d.desiredType
+  for _,item in ipairs(receipt.outputs or {}) do if item.itemType==d.desiredType then x.itemId=tonumber(item.itemId);break end end
+ else
+  local before,after=receipt.targetBefore,receipt.targetAfter;local metric=d.desiredState and d.desiredState.metric
+  if not before or not after or metric~="condition" and metric~="sharpness" and metric~="uses"
+   or not finite(before[metric],0,1000000000) or not finite(after[metric],0,1000000000)
+   or receipt.improved~=(after[metric]>before[metric]) then return false end
+  x.itemId,x.itemType=tonumber(receipt.replacementItemId or receipt.targetItemId),receipt.targetItemType
+  x.beforeValue,x.afterValue,x.effectMetric=before[metric],after[metric],metric
+  x.conditionLoss=math.max(0,before.condition-after.condition)
+  if before.headCondition~=nil and after.headCondition~=nil then x.headConditionLoss=math.max(0,before.headCondition-after.headCondition) end
+ end
+ return nativeExperience(id,stock and "material-crafting" or "tool-repair",receipt.sequence,x)
+end
+
 return C

@@ -10,7 +10,9 @@ local collector
 local bed,shelter,gate
 local function nativeEntityKind(kind) return kind=="build-rain-collector" or kind=="build-wood-bed" or kind=="build-shelter-edge" or kind=="build-double-gate" or (kind=="operate-double-gate" or kind=="operate-single-gate") or kind=="build-shelter-stairs" or kind=="build-shelter-surface" or kind=="use-shelter" or kind=="glaze-shelter-window" end
 local fixing
-local function nativeCraftKind(kind) return kind=="saw-logs" or kind=="repair-held-item" or kind=="fix-held-item" end
+local recipeWork
+local function recipeWorkKind(kind) return kind=="recipe-stock" or kind=="recipe-upkeep" end
+local function nativeCraftKind(kind) return kind=="saw-logs" or kind=="repair-held-item" or kind=="fix-held-item" or recipeWorkKind(kind) end
 local KNOWN_FIXTURE_SEARCH_RADIUS = 32
 local MAX_CARRIED_RELIEF_ITEMS = 240
 local runtime = {}
@@ -225,6 +227,7 @@ local function reconcile(id)
             or (receipt.kind=="build-double-gate" or receipt.kind=="build-shelter-edge" and receipt.site and receipt.site.boundaryObserved) and planning.consumeDoubleGateResult or receipt.kind=="glaze-shelter-window" and planning.consumeWindowGlazingResult or receipt.kind=="use-shelter" and planning.consumeShelterUseResult
             or (receipt.kind=="build-shelter-edge" or receipt.kind=="build-shelter-surface" or receipt.kind=="build-shelter-stairs" or receipt.kind=="build-double-gate") and planning.consumeShelterConstructionResult
             or receipt.kind=="build-wood-bed" and planning.consumeBedConstructionResult
+            or recipeWorkKind(receipt.kind) and planning.consumeRecipeProductionResult
             or (receipt.kind == "repair-held-item" or receipt.kind == "fix-held-item") and planning.consumeRepairProductionResult
             or receipt.kind == "saw-logs" and planning.consumeCraftProductionResult
             or not nativeCraftKind(receipt.kind) and planning.consumeProductionResult)
@@ -438,6 +441,7 @@ craftLedgerRoom=function(rec)
 end
 
 local function craftIdentity(id, row)
+    if row and recipeWorkKind(row.kind) then return recipeWork and recipeWork.identity(id,row) or false end
     if row and row.kind=="fix-held-item" then return fixing and fixing.identity(id,row) or false end
     if not (type(row)=="table" and not getmetatable(row) and row.actorId==id
         and row.id=="resource-production/"..tostring(id).."/"..tostring(row.sequence)
@@ -514,6 +518,7 @@ local function repairOutcome(id,row)
     return out
 end
 craftOutcome=function(id,row)
+    if row and recipeWorkKind(row.kind) then return recipeWork and recipeWork.outcome(id,row) end
     if row and row.kind=="fix-held-item" then return fixing and fixing.outcome(id,row) end
     local rec=SAO.Identity.get(id)
     if not craftLedger(rec) or not craftIdentity(id,row) or row.sequence>rec.resourceProductionSequence
@@ -670,6 +675,7 @@ end
 local function craftPurposeTarget(p,work)
     local material=p and p.materialWork
     if not material or material.entryKey~=work.entryKey then return false end
+    if recipeWorkKind(work.kind) then return recipeWork.target(p,work) end
     if material.operation=="board" then return true end
     return (work.kind=="repair-held-item" or work.kind=="fix-held-item") and material.operation=="maintain-tool"
         and material.entryKey=="held-item:"..work.targetItemId
@@ -686,7 +692,9 @@ local function craftPurpose(rec,work)
         or step.target~=work.recipeId or step.category~=work.category
         or not a or a.owner~=step.owner or a.correlationId~=work.id or a.stepId~=step.id
         or a.target~=step.target or not finite(a.at) or a.at<work.startedAt then return nil end
-    if work.kind=="fix-held-item" then
+    if recipeWorkKind(work.kind) then
+        if not recipeWork.sameStep(step,work) then return nil end
+    elseif work.kind=="fix-held-item" then
         if not fixing.sameStep(step,work) then return nil end
     elseif work.kind=="repair-held-item" then
         if step.targetItemId~=work.targetItemId or step.targetItemType~=work.targetItemType
@@ -699,6 +707,7 @@ local function craftPurpose(rec,work)
 end
 local function craftAnchors(rt,work)
     if work.kind~=rt.kind or work.recipeId~=rt.recipeId then return false end
+    if recipeWorkKind(rt.kind) then return recipeWork.anchors(rt,work) end
     if rt.kind=="fix-held-item" then return fixing.anchors(rt,work) end
     if rt.kind=="repair-held-item" then
         return work.targetItemId==rt.targetItemId and work.targetItemType==rt.targetItemType
@@ -730,6 +739,7 @@ local function craftBound(rt,materials)
         or ISTimedActionQueue.getTimedActionQueue(body)~=rt.queue
         or (rt.kind~="fix-held-item" and registeredRecipe(work.recipeId)~=rt.recipe) then return false end
     if rt.kind=="fix-held-item" then return fixing.bound(rt,materials) end
+    if recipeWorkKind(rt.kind) then return recipeWork.bound(rt,materials) end
     if materials then
         if rt.kind=="repair-held-item" then
             if not ownItem(rt,rt.target) or not ownItem(rt,rt.tool)
@@ -755,6 +765,7 @@ local function craftBound(rt,materials)
     return true
 end
 local function craftSelection(rt)
+    if recipeWorkKind(rt.kind) then return recipeWork.selection(rt) end
     local logic=HandcraftLogic.new(rt.body,nil,nil)
     local containers=ArrayList.new(); containers:add(rt.inventory)
     for _,item in ipairs(rt.inputs) do
@@ -779,6 +790,7 @@ local function craftSelection(rt)
     return logic,containers,manual,logic:getRecipeData():getAllInputItems()
 end
 local function craftExactInputs(c)
+    if recipeWorkKind(c.rt.kind) then return recipeWork.exact(c) end
     local a,rt=c.action,c.rt
     if a.craftRecipe~=rt.recipe or a.character~=rt.body or a.isoObject~=nil or a.craftBench~=nil
         or a.recipeItem~=nil or a.force or a.variableInputRatio~=1 or a.eatPercentage~=0
@@ -815,6 +827,7 @@ local function craftRetired(rt)
     return true
 end
 local function craftMeasurement(rt)
+    if recipeWorkKind(rt.kind) then return recipeWork.copy(rt.effectMeasurement) or recipeWork.measure(rt) end
     if rt.kind=="fix-held-item" then return fixing.measure(rt) end
     local work=rt.work
     if rt.kind=="repair-held-item" then
@@ -850,6 +863,7 @@ local function craftMeasurement(rt)
     return measured
 end
 local function craftDispose(rt)
+    if recipeWorkKind(rt.kind) then recipeWork.releaseWorkplace(rt) end
     runtime[rt.id]=nil
     for _,c in ipairs(rt.actions) do
         local a=c.action; a._SAOCraftBinding=false
@@ -867,7 +881,10 @@ local function craftClose(rt,status,detail)
     for _,row in ipairs(rows) do if row.id==work.id then return false end end
     if not craftLedgerRoom(rec) then return false end
     local m=craftMeasurement(rt)
-    if status=="completed" and rt.kind=="fix-held-item" and (not m.improved or not m.reequipped or not m.paymentConsumed or not m.returnsMeasured) then
+    if status=="completed" and recipeWorkKind(rt.kind) and (not m.nativeCompleted or not m.paymentMeasured
+        or not m.improved) then
+        status,detail="failed","native-recipe-without-demanded-effect"
+    elseif status=="completed" and rt.kind=="fix-held-item" and (not m.improved or not m.reequipped or not m.paymentConsumed or not m.returnsMeasured) then
         status,detail="failed","native-fixing-without-restored-equipment"
     elseif status=="completed" and rt.kind=="repair-held-item" and not m.improved then
         status,detail="failed","native-repair-without-held-improvement"
@@ -878,6 +895,7 @@ local function craftClose(rt,status,detail)
     local row={}
     for key in pairs(CRAFT_FIELDS) do if key~="outputs" then row[key]=work[key] end end
     if rt.kind=="fix-held-item" then row=fixing.copy(work) end
+    if recipeWorkKind(rt.kind) then row=recipeWork.copy(work);row.stage,row.terminalReceipt=nil,nil end
     row.workId,row.status,row.detail,row.nativeOwner=work.id,status,detail,rt.kind=="fix-held-item" and "ISFixAction" or "ISHandcraftAction"
     row.atHours,row.endedAt=t,t
     for k,v in pairs(m) do row[k]=v end
@@ -887,7 +905,8 @@ local function craftClose(rt,status,detail)
     if not craftOutcome(rt.id,row) then table.remove(rows); return false end
     rec.resourceProductionWork=nil; rt.closed=true; craftDispose(rt); reconcile(rt.id)
     if SAO.Observation then pcall(SAO.Observation.record,rt.id,"ResourceProduction",status,
-        rt.kind=="repair-held-item" and (status=="completed" and "Maintained a carried tool" or "Tool maintenance: "..detail)
+        recipeWorkKind(rt.kind) and (status=="completed" and "Completed requested material work" or "Material work: "..detail)
+            or rt.kind=="repair-held-item" and (status=="completed" and "Maintained a carried tool" or "Tool maintenance: "..detail)
             or status=="completed" and "Sawed a carried log into planks" or "Plank crafting: "..detail) end
     return true
 end
@@ -989,7 +1008,8 @@ local function craftTransfer(rt,item)
     craftSavedRetirement(rt,c)
 end
 local function craftAction(rt,containers,manual,items)
-    local a=ISHandcraftAction:new(rt.body,rt.recipe,containers,nil,nil,manual,items,nil,1,0)
+    local workplace=rt.recipeWorkplace
+    local a=ISHandcraftAction:new(rt.body,rt.recipe,containers,workplace and workplace.object,workplace and workplace.bench,manual,items,nil,1,0)
     local c={rt=rt,action=a,kind="craft",manual=a.manualInputs,containers=containers,items=items}
     a._SAOCraftBinding=function(seal) if seal==CRAFT_SEAL then return c end end
     local valid,start,perform,complete,performRecipe=a.isValid,a.start,a.perform,a.complete,a.performRecipe
@@ -1012,13 +1032,28 @@ local function craftAction(rt,containers,manual,items)
             or not self.craftStarted or c.logic:isManualSelectInputs()~=true
             or c.logic:canPerformCurrentRecipe()~=true then return craftRefuse(rt,"craft-effect-owner-changed") end
         local applied=c.logic:getRecipeData():getAllInputItems()
-        if applied:size()~=2 or not applied:contains(rt.inputs[1]) or not applied:contains(rt.inputs[2]) then
+        if recipeWorkKind(rt.kind) and not recipeWork.applied(rt,applied)
+            or not recipeWorkKind(rt.kind) and (applied:size()~=2 or not applied:contains(rt.inputs[1]) or not applied:contains(rt.inputs[2])) then
             return craftRefuse(rt,"craft-applied-inputs-changed")
         end
         c.effectInvoked,rt.nativeAttempted=true,true
-        local ok=pcall(performRecipe,self)
+        local ok
+        if recipeWorkKind(rt.kind) then ok=recipeWork.invoke(c,performRecipe,self)
+        else ok=pcall(performRecipe,self) end
         local data=c.logic:getRecipeData()
         local made,consumed=data:getAllCreatedItems(),data:getAllConsumedItems()
+        if recipeWorkKind(rt.kind) then
+            local measuredEffect=recipeWork.effect(rt,data)
+            rt.nativeCompleted=ok and not rt.cancelling and craftBound(rt,false) and measuredEffect
+            -- Native perform retires this action and may start its successor.
+            -- Preserve the authenticated effect/custody before that handoff;
+            -- current downstream availability has its own fresh reader.
+            rt.effectMeasurement=recipeWork.measure(rt)
+            rt.effectMeasurement.measuredAt=now()
+            recipeWork.releaseWorkplace(rt)
+            if not rt.nativeCompleted then craftRefuse(rt,"native-recipe-effect-unconfirmed") end
+            return rt.nativeCompleted
+        end
         if rt.kind=="repair-held-item" then
             local kept=data:getAllKeepInputItems()
             rt.nativeCompleted=ok and not rt.cancelling and craftBound(rt,false)
@@ -1053,14 +1088,17 @@ local function craftAction(rt,containers,manual,items)
     end
     function a:complete()
         if c.done or not c.performed or not c.effectInvoked or craftCapsule(self)~=c
-            or rt.queue:indexOf(self)~=-1 or rt.queue.current or #rt.queue.queue>0 then
+            or rt.queue:indexOf(self)~=-1 or rt.queue.current==self then
             return craftRefuse(rt,"craft-complete-owner-changed")
         end
         c.done,c.ack=true,true
         local ok,result=pcall(complete,self)
-        local completed=ok and result==true and rt.nativeCompleted and not rt.cancelling and craftBound(rt,false)
+        local completed=ok and result==true and rt.nativeCompleted and not rt.cancelling
+            and craftRecoveryAnchor(rt,rt.record,rt.work)
+        if completed and recipeWorkKind(rt.kind) then recipeWork.checkpoint(rt) end
         return craftClose(rt,completed and "completed" or "interrupted",
-            completed and (rt.kind=="repair-held-item" and "native-tool-benefit-and-wear-measured"
+            completed and (recipeWorkKind(rt.kind) and "native-recipe-payment-and-effect-measured"
+                or rt.kind=="repair-held-item" and "native-tool-benefit-and-wear-measured"
                 or "native-log-payment-and-planks-measured") or rt.cancelReason or "native-craft-completion-unconfirmed")
     end
     craftGuardStop(rt,c,false)
@@ -1565,6 +1603,604 @@ function fixing.begin(id,body,step,context)
     return true
 end
 
+-- Registered fixed-item work is an adapter of this same capsule, action,
+-- claim and outcome ledger. Native recipes remain the registry and executor.
+recipeWork={copy=fixing.copy}
+function recipeWork.equal(a,b)
+    if type(a)~=type(b) then return false end
+    if type(a)~="table" then return a==b end
+    if getmetatable(a) or getmetatable(b) then return false end
+    for k,v in pairs(a) do if not recipeWork.equal(v,b[k]) then return false end end
+    for k in pairs(b) do if a[k]==nil then return false end end
+    return true
+end
+function recipeWork.itemState(item)
+    local out={uses=item:getCurrentUses(),usesFloat=item:getCurrentUsesFloat(),condition=item:getCondition(),maxCondition=item:getConditionMax(),
+        repairCount=item:getHaveBeenRepaired()}
+    if item:hasSharpness() then out.sharpness,out.maxSharpness=item:getSharpness(),item:getMaxSharpness() end
+    if item:hasHeadCondition() then out.headCondition,out.maxHeadCondition=item:getHeadCondition(),item:getHeadConditionMax() end
+    return out
+end
+function recipeWork.worldItem(item)
+    local world=item:getWorldItem()
+    if not world or world:getItem()~=item or world:getWorldObjectIndex()<0 then return nil end
+    local square=world:getSquare()
+    if not square then return nil end
+    return {x=square:getX(),y=square:getY(),z=square:getZ()}
+end
+function recipeWork.stateSupported(state)
+    if state==nil then return true end
+    if type(state)~="table" or getmetatable(state) then return false end
+    for key in pairs(state) do if key~="metric" and key~="minimum" and key~="held" then return false end end
+    if state.held~=nil and state.held~=true then return false end
+    if state.metric~=nil and state.metric~="condition" and state.metric~="sharpness" and state.metric~="uses" then return false end
+    return state.minimum==nil or state.metric~=nil and finite(state.minimum) and state.minimum>=0
+end
+function recipeWork.stateMeets(state,request)
+    if not request or request.minimum==nil then return true end
+    return state and finite(state[request.metric]) and state[request.metric]>=request.minimum or false
+end
+function recipeWork.consumerAccepts(rt,item)
+    local demand=rt.work and rt.work.recipeDemand or rt.step.recipeDemand
+    if demand.consumerOwner=="SAO.Generator" then return item:getFullType()=="Base.ElectronicsScrap" end
+    local consumer=registeredRecipe(demand.consumerRecipeId)
+    if not consumer then return false end
+    local inputs=consumer:getInputs()
+    for n=0,inputs:size()-1 do if CraftRecipeManager.isItemValidForInputScript(inputs:get(n),item,rt.body)==true then return true end end
+    return false
+end
+function recipeWork.workplace(id,body,anchor)
+    if anchor==nil then return nil end
+    local perception=SAO.Perception
+    if not perception or not perception.recipeWorkplace then return nil,"private-workplace-owner-unavailable" end
+    local ok,workplace=pcall(perception.recipeWorkplace,id,body,anchor)
+    if not ok or not workplace or workplace.key~=anchor.key or workplace.revision~=anchor.revision
+        or not workplace.object then return nil,"acquired-workplace-changed" end
+    local square=workplace.object:getSquare()
+    if not square or square:getX()~=anchor.x or square:getY()~=anchor.y or square:getZ()~=anchor.z
+        or body:getCell():getGridSquare(anchor.x,anchor.y,anchor.z)~=square
+        or SAO.Standing.mayTakeCurrent(id,anchor.x,anchor.y,"standing")~=true then return nil,"current-workplace-standing-refused" end
+    workplace.authorized=true
+    return workplace
+end
+function recipeWork.claimWorkplace(rt)
+    local anchor=rt.step.recipeWorkplace
+    if not anchor then return true end
+    local workplace=recipeWork.workplace(rt.id,rt.body,anchor)
+    if not workplace then return false end
+    rt.recipeWorkplace=workplace
+    if not workplace.bench then return true end
+    local object=workplace.object
+    local using=object:getUsingPlayer()
+    if using~=nil and using~=rt.body then return false end
+    if using==rt.body then return object:isUsingPlayer(rt.body)==true end
+    local ok=pcall(function() object:setUsingPlayer(rt.body) end)
+    rt.workplaceClaimed=object:getUsingPlayer()==rt.body
+    return ok and rt.workplaceClaimed and object:isUsingPlayer(rt.body)==true
+end
+function recipeWork.releaseWorkplace(rt)
+    if not rt.workplaceClaimed then return true end
+    local object=rt.recipeWorkplace and rt.recipeWorkplace.object
+    if object and object:getUsingPlayer()==rt.body then
+        local ok=pcall(function() object:setUsingPlayer(nil) end)
+        if not ok or object:getUsingPlayer()==rt.body then return false end
+    end
+    rt.workplaceClaimed=nil
+    return true
+end
+function recipeWork.demandAllowed(recipe,demand)
+    if type(demand)~="table" or not textId(demand.id) or not textId(demand.consumerId)
+        or not textId(demand.kind) or not textId(demand.sourceRevision) or not recipeWork.stateSupported(demand.desiredState)
+        or demand.quantityUnit~=nil and demand.quantityUnit~="items" and demand.quantityUnit~="uses" then return false end
+    if demand.kind=="recipe-upkeep" then
+        return (recipe:getCategory()=="Repair" or recipe:getScriptObjectFullType()=="Base.RefillBlowTorch")
+            and textId(demand.targetItemId) and integer(demand.targetSlotIndex)
+            and type(demand.desiredState)=="table" and (demand.desiredState.metric=="condition"
+                or demand.desiredState.metric=="sharpness" or demand.desiredState.metric=="uses")
+    end
+    if demand.kind~="recipe-stock" or not textId(demand.desiredType) or not finite(demand.desiredAmount)
+        or demand.desiredAmount<=0 then return false end
+    local needed=false
+    if demand.consumerOwner=="SAO.Generator" and demand.consumerOperation=="repair" then
+        -- The existing native generator repair owner consumes this exact
+        -- stock type (ISFixGenerator/SAO_Generator.inputEligible).
+        needed=demand.desiredType=="Base.ElectronicsScrap" and SAO.Generator~=nil
+    elseif textId(demand.consumerRecipeId) then
+        local consumer=registeredRecipe(demand.consumerRecipeId)
+        if not consumer or not (consumer:isBuildableRecipe() or consumer:getCategory()=="Repair"
+            or consumer:getScriptObjectFullType()=="Base.RefillBlowTorch") then return false end
+        local inputs=consumer:getInputs()
+        for n=0,inputs:size()-1 do if inputs:get(n):canUseItem(demand.desiredType) then needed=true end end
+    end
+    if not needed then return false end
+    local outputs=recipe:getOutputs()
+    local item=ScriptManager.instance:getItem(demand.desiredType)
+    if not item then return false end
+    for n=0,outputs:size()-1 do
+        local possible=outputs:get(n):getPossibleResultItems()
+        if possible and possible:contains(item) then return true end
+    end
+    return false
+end
+function recipeWork.policy(id,body,recipeId,demand,anchor)
+    if not SAO.RecipePolicy then pcall(require,"SAO_RecipePolicy") end
+    local recipe=registeredRecipe(recipeId)
+    if not SAO.RecipePolicy or not recipe or not recipeWork.demandAllowed(recipe,demand) then return nil,"recipe-demand-outside-material-work" end
+    local workplace,why=recipeWork.workplace(id,body,anchor)
+    if anchor and not workplace then return nil,why end
+    return SAO.RecipePolicy.describe(recipe,body,demand,workplace)
+end
+function recipeWork.inputMap(inputs)
+    if type(inputs)~="table" or getmetatable(inputs) then return nil end
+    local map,ids,count={},{},0
+    for _,slot in ipairs(inputs) do
+        if type(slot)~="table" or not integer(slot.index) or map[slot.index] or type(slot.items)~="table" or #slot.items==0 then return nil end
+        local items={}
+        for _,item in ipairs(slot.items) do
+            if type(item)~="table" or not textId(item.itemId) or not textId(item.itemType) or ids[item.itemId] then return nil end
+            items[item.itemId]=item;ids[item.itemId]=true;count=count+1
+        end
+        map[slot.index]=items
+    end
+    return map,count
+end
+function recipeWork.projection(policy,bindings)
+    local projection=SAO.RecipePolicy.project(policy)
+    local selected={}
+    for _,slot in ipairs(bindings or {}) do
+        local types={}
+        for _,item in ipairs(slot.items) do types[item.itemType]=true end
+        selected[slot.index]=types
+    end
+    for _,slot in ipairs(projection.slots) do
+        local types=selected[slot.index] or {}
+        local alternatives={}
+        for _,item in ipairs(slot.itemAlternatives or {}) do if types[item.itemType] then alternatives[#alternatives+1]=item end end
+        -- The source declaration/tags retain the native predicate. A durable
+        -- execution receipt carries its selected types, not the whole loaded
+        -- item catalogue behind a broad tag or accepts-any-item input.
+        slot.selectedItemTypes={}
+        for _,item in ipairs(alternatives) do slot.selectedItemTypes[#slot.selectedItemTypes+1]=item.itemType end
+        slot.itemTypes=nil;slot.itemAlternatives=alternatives
+        if slot.resource=="Item" then slot.fluids,slot.energies=nil,nil end
+    end
+    projection.inputProjectionScope="selected-native-input-identities"
+    return projection
+end
+function recipeWork.identity(id,row)
+    if type(row)~="table" or getmetatable(row) or not recipeWorkKind(row.kind) or row.actorId~=id
+        or not integer(row.sequence) or row.sequence<1 or row.id~="resource-production/"..tostring(id).."/"..row.sequence
+        or not textId(row.recipeId) or not textId(row.sourceRevision) or not textId(row.purposeId) or not textId(row.purposeStepId)
+        or not textId(row.entryKey) or not textId(row.world) or row.bodyToken~=nil and not textId(row.bodyToken)
+        or not finite(row.startedAt) or row.startedAt<0 or not finite(row.x) or row.x%1~=0
+        or not finite(row.y) or row.y%1~=0 or not finite(row.z) or row.z%1~=0
+        or row.token~=(row.kind=="recipe-stock" and "resource:recipe-produced" or "resource:recipe-maintained")
+        or type(row.recipeDemand)~="table" or row.recipeDemand.kind~=row.kind
+        or row.sourceRevision~=row.recipeDemand.sourceRevision or not recipeWork.inputMap(row.recipeInputs)
+        or type(row.recipePolicy)~="table" or row.recipePolicy.recipe~=row.recipeId
+        or row.recipePolicy.sourceRevision~=row.sourceRevision or not recipeWork.copy(row) then return false end
+    return true
+end
+function recipeWork.target(p,work)
+    return p.materialWork and recipeWork.equal(p.materialWork.recipeDemand,work.recipeDemand)
+        and p.materialWork.entryKey==work.entryKey
+end
+function recipeWork.sameStep(step,work)
+    return step.sourceRevision==work.sourceRevision and recipeWork.equal(step.recipeDemand,work.recipeDemand)
+        and recipeWork.equal(step.recipeInputs,work.recipeInputs) and recipeWork.equal(step.recipeWorkplace,work.recipeWorkplace)
+end
+function recipeWork.anchors(rt,work)
+    return work.sourceRevision==rt.sourceRevision and recipeWork.equal(work.recipeDemand,rt.frozen.recipeDemand)
+        and recipeWork.equal(work.recipeInputs,rt.frozen.recipeInputs)
+        and recipeWork.equal(work.recipePolicy,rt.frozen.recipePolicy)
+        and recipeWork.equal(work.recipeWorkplace,rt.frozen.recipeWorkplace)
+        and recipeWork.equal(work.inputBaselines,rt.frozen.inputBaselines)
+end
+function recipeWork.bound(rt,materials)
+    if rt.work.recipeWorkplace then
+        local workplace=recipeWork.workplace(rt.id,rt.body,rt.work.recipeWorkplace)
+        if not workplace or workplace.object~=rt.recipeWorkplace.object or workplace.bench~=rt.recipeWorkplace.bench then return false end
+        if workplace.bench and not workplace.object:isUsingPlayer(rt.body) then return false end
+    end
+    if not materials then return true end
+    local policy=recipeWork.policy(rt.id,rt.body,rt.recipeId,rt.work.recipeDemand,rt.work.recipeWorkplace)
+    if not policy or #policy.unmet>0 or #policy.requirements.unsupported>0
+        or not recipeWork.equal(recipeWork.projection(policy,rt.work.recipeInputs),rt.frozen.recipePolicy) then return false end
+    for _,baseline in ipairs(rt.baselines) do
+        local item=baseline.item
+        if not ownItem(rt,item) or craftCarried(rt.body,baseline.itemId,baseline.itemType)~=item
+            or not recipeWork.equal(recipeWork.itemState(item),baseline.state) or item:getIsCraftingConsumed()
+            or rt.prepared and item:getContainer()~=rt.inventory
+            or SAO.WorldSources.recipeInputAvailable and SAO.WorldSources.recipeInputAvailable(rt.id,baseline.itemId)~=true then return false end
+    end
+    return true
+end
+function recipeWork.selection(rt)
+    local policy=recipeWork.policy(rt.id,rt.body,rt.recipeId,rt.step.recipeDemand,rt.step.recipeWorkplace)
+    if not policy or #policy.unmet>0 or #policy.requirements.unsupported>0 then return nil end
+    local slots=recipeWork.inputMap(rt.step.recipeInputs)
+    if not slots then return nil end
+    local containers=ArrayList.new();containers:add(rt.inventory)
+    for _,item in ipairs(rt.inputs) do if not containers:contains(item:getContainer()) then containers:add(item:getContainer()) end end
+    local selected=SAO.RecipePolicy.selectInputs(policy,rt.body,{ownerId=rt.id,purposeId=policy.purpose.id,
+        canUse=function(item,index)
+            local binding=slots[index] and slots[index][tostring(item:getID())]
+            return binding~=nil and binding.itemType==item:getFullType() and ownItem(rt,item)
+                and (not SAO.WorldSources.recipeInputAvailable or SAO.WorldSources.recipeInputAvailable(rt.id,tostring(item:getID()))==true)
+        end},containers)
+    if not selected then return nil end
+    local manual={}
+    for _,slot in ipairs(selected.slots) do manual[slot.index]=slot.items end
+    rt.policy,rt.recipeWorkplace,rt.selected=selected.policy,selected.policy.workplace,selected
+    return selected.logic,containers,manual,selected.logic:getRecipeData():getAllInputItems()
+end
+function recipeWork.applied(rt,items)
+    if not items or items:size()~=#rt.inputs then return false end
+    for _,item in ipairs(rt.inputs) do if not items:contains(item) then return false end end
+    return true
+end
+function recipeWork.exact(c)
+    local a,rt=c.action,c.rt
+    local w=rt.recipeWorkplace
+    if a.craftRecipe~=rt.recipe or a.character~=rt.body or a.isoObject~=(w and w.object)
+        or a.craftBench~=(w and w.bench) or a.recipeItem~=nil or a.force or a.variableInputRatio~=1
+        or a.eatPercentage~=0 or a.manualInputs~=c.manual or a.containers~=c.containers or a.items~=c.items then return false end
+    local count,seen=0,{}
+    for index,items in pairs(a.manualInputs) do
+        local expected=rt.selected and rt.selected.slots
+        local match
+        for _,slot in ipairs(expected or {}) do if slot.index==index then match=slot end end
+        local input=rt.recipe:getIOForIndex(index)
+        if not match or input~=match.script or items~=match.items then return false end
+        for n=0,items:size()-1 do
+            local item=items:get(n)
+            if seen[item] or not CraftRecipeManager.isItemValidForInputScript(input,item,rt.body) then return false end
+            seen[item]=true;count=count+1
+        end
+    end
+    return count==#rt.inputs and recipeWork.applied(rt,c.items)
+end
+function recipeWork.invoke(c,native,action)
+    local logic=c.logic
+    local proxy={performCurrentRecipe=function()
+        if c.engineInvoked then return false end
+        c.engineInvoked=true;c.enginePerformed=logic:performCurrentRecipe()==true
+        return c.enginePerformed
+    end,getCreatedOutputItems=function(_,items) return logic:getCreatedOutputItems(items) end,
+        getRecipeData=function() return logic:getRecipeData() end}
+    action.logic=proxy
+    local ok=pcall(native,action)
+    action.logic=logic
+    return ok and c.enginePerformed==true
+end
+function recipeWork.effect(rt,data)
+    local kept,consumed,destroyed,putBack=data:getAllKeepInputItems(),data:getAllConsumedItems(),data:getAllDestroyInputItems(),data:getAllPutBackInputItems()
+    local effects,paid={},true
+    for _,baseline in ipairs(rt.baselines) do
+        local input=rt.recipe:getIOForIndex(baseline.index)
+        local item=baseline.item
+        local held=ownItem(rt,item) and craftCarried(rt.body,baseline.itemId,baseline.itemType)==item or false
+        local after=recipeWork.itemState(item)
+        local effect={index=baseline.index,itemId=baseline.itemId,itemType=baseline.itemType,before=recipeWork.copy(baseline.state),after=after,
+            held=held,world=recipeWork.worldItem(item),keptNative=kept:contains(item),consumedNative=consumed:contains(item),
+            destroyedNative=destroyed:contains(item),putBackNative=putBack:contains(item)}
+        if input:isKeep() then
+            paid=paid and effect.keptNative and held and not effect.destroyedNative
+        elseif input:isDestroy() then paid=paid and effect.destroyedNative and not held
+        else paid=paid and effect.consumedNative and (after.uses<baseline.state.uses or not held) end
+        effects[#effects+1]=effect
+    end
+    rt.inputEffects,rt.paymentMeasured,rt.outputItems=effects,paid,{}
+    local made=data:getAllCreatedItems()
+    for n=0,made:size()-1 do rt.outputItems[#rt.outputItems+1]=made:get(n) end
+    return paid
+end
+function recipeWork.measure(rt)
+    local result={nativeAttempted=rt.nativeAttempted==true,nativeCompleted=rt.nativeCompleted==true,
+        paymentMeasured=rt.paymentMeasured==true,inputEffects=recipeWork.copy(rt.inputEffects or {}),outputs={},outputCount=0,
+        requestedOutputAmount=0,availableOutputAmount=0,afterAvailableAmount=0,held=true,stockAvailable=false,improved=false}
+    local seen={}
+    local demand=rt.work.recipeDemand
+    if not rt.inputEffects then
+        for _,baseline in ipairs(rt.baselines) do result.inputEffects[#result.inputEffects+1]={index=baseline.index,itemId=baseline.itemId,itemType=baseline.itemType,
+            before=recipeWork.copy(baseline.state),after=recipeWork.itemState(baseline.item),held=ownItem(rt,baseline.item) and true or false,
+            keptNative=false,consumedNative=false,destroyedNative=false,putBackNative=false} end
+    end
+    for _,item in ipairs(rt.outputItems or {}) do
+        local id=tostring(item:getID())
+        local held=ownItem(rt,item) and craftCarried(rt.body,id,item:getFullType(),514)==item or false
+        local world=recipeWork.worldItem(item)
+        if seen[id] or rt.beforeIds[id] or not held and not world then result.held=false;result.nativeCompleted=false end
+        seen[id]=true
+        local output={itemId=id,itemType=item:getFullType(),state=recipeWork.itemState(item),held=held,world=world,
+            custody=held and "held" or world and "world-unacquired" or "unconfirmed"}
+        output.meetsRequestedState=recipeWork.stateMeets(output.state,demand.desiredState)
+        output.consumerEligible=rt.kind=="recipe-stock" and item:getFullType()==demand.desiredType and recipeWork.consumerAccepts(rt,item) or false
+        result.outputs[#result.outputs+1]=output;result.held=result.held and held
+        if item:getFullType()==demand.desiredType then
+            result.requestedOutputAmount=result.requestedOutputAmount+1
+            if held and output.meetsRequestedState and output.consumerEligible then
+                result.availableOutputAmount=result.availableOutputAmount+(demand.quantityUnit=="uses" and output.state.uses or 1)
+            end
+        end
+    end
+    result.outputCount=#result.outputs
+    if rt.kind=="recipe-upkeep" then
+        local target=rt.target
+        if not ownItem(rt,target) or craftCarried(rt.body,rt.targetItemId,rt.targetItemType)~=target then
+            target=nil
+            for _,item in ipairs(rt.outputItems or {}) do if item:getFullType()==rt.targetItemType
+                and (ownItem(rt,item) or recipeWork.worldItem(item)) then
+                if target then target=nil;break end;target=item
+            end end
+        end
+        local after=target and recipeWork.itemState(target)
+        local metric=demand.desiredState.metric
+        result.targetItemId,result.targetItemType=rt.targetItemId,rt.targetItemType
+        result.targetBefore=recipeWork.copy(rt.targetBefore);result.targetAfter=after
+        result.replacementItemId=target and tostring(target:getID())~=rt.targetItemId and tostring(target:getID()) or nil
+        result.targetHeld=target~=nil and ownItem(rt,target) and true or false
+        result.targetRetained=result.targetHeld and tostring(target:getID())==rt.targetItemId
+        result.improved=result.nativeCompleted and after~=nil and finite(after[metric]) and finite(rt.targetBefore[metric]) and after[metric]>rt.targetBefore[metric]
+        result.stockAvailable=result.improved and result.targetHeld and recipeWork.stateMeets(after,demand.desiredState)
+        result.held=result.held and result.targetHeld
+    else
+        local carriedItems=SAOJavaBridge:privateCarriedItems(rt.body)
+        if carriedItems:size()<=514 then for n=0,carriedItems:size()-1 do local item=carriedItems:get(n)
+            if ownItem(rt,item) and item:getFullType()==demand.desiredType and recipeWork.consumerAccepts(rt,item)
+                and recipeWork.stateMeets(recipeWork.itemState(item),demand.desiredState) then
+                result.afterAvailableAmount=result.afterAvailableAmount+(demand.quantityUnit=="uses" and item:getCurrentUses() or 1)
+            end
+        end end
+        result.stockAvailable=result.nativeCompleted and result.availableOutputAmount>0 and result.afterAvailableAmount>=demand.desiredAmount
+        result.improved=result.nativeCompleted and result.requestedOutputAmount>0
+    end
+    return result
+end
+function recipeWork.outcome(id,row)
+    local rec=SAO.Identity.get(id)
+    if not craftLedger(rec) or not recipeWork.identity(id,row) or row.sequence>rec.resourceProductionSequence
+        or row.workId~=row.id or row.nativeOwner~="ISHandcraftAction" or not textId(row.detail)
+        or not finite(row.atHours) or row.atHours<row.startedAt or row.endedAt~=row.atHours
+        or row.status~="completed" and row.status~="interrupted" and row.status~="failed" then return nil end
+    if row.measuredAt~=nil and (not finite(row.measuredAt) or row.measuredAt<row.startedAt or row.measuredAt>row.atHours) then return nil end
+    if row.nativeAttempted and row.nativeObservability==nil and not finite(row.measuredAt) then return nil end
+    for _,key in ipairs({"nativeAttempted","nativeCompleted","paymentMeasured","held","stockAvailable","improved"}) do if type(row[key])~="boolean" then return nil end end
+    if not integer(row.outputCount) or type(row.outputs)~="table" or row.outputCount~=#row.outputs
+        or type(row.inputEffects)~="table" or not integer(row.requestedOutputAmount) then return nil end
+    local seen={}
+    for _,item in ipairs(row.outputs) do
+        if not textId(item.itemId) or not textId(item.itemType) or seen[item.itemId] or type(item.held)~="boolean"
+            or item.custody~=(item.held and "held" or item.world and "world-unacquired" or "unconfirmed") then return nil end
+        seen[item.itemId]=true
+    end
+    if row.nativeObservability~=nil and row.nativeObservability~="runtime-unavailable" then return nil end
+    if row.nativeObservability=="runtime-unavailable" then
+        if row.status~="interrupted" or row.nativeAttempted or row.nativeCompleted or row.paymentMeasured or row.improved
+            or row.outputCount~=0 or #row.inputEffects~=0 or row.stockAvailable or row.nativeCredit then return nil end
+    else
+        if #row.inputEffects~=#row.inputBaselines then return nil end
+        local requirements={}
+        for _,slot in ipairs(row.recipePolicy.slots or {}) do requirements[slot.index]=slot end
+        local paid=true
+        for n,effect in ipairs(row.inputEffects) do
+            local baseline=row.inputBaselines[n]
+            local requirement=baseline and requirements[baseline.index]
+            if not baseline or not requirement or effect.index~=baseline.index or effect.itemId~=baseline.itemId
+                or effect.itemType~=baseline.itemType or not recipeWork.equal(effect.before,baseline.state)
+                or type(effect.after)~="table" or not finite(effect.after.uses) or effect.after.uses<0
+                or not finite(effect.after.condition) or not finite(effect.after.usesFloat)
+                or type(effect.held)~="boolean" then return nil end
+            for _,key in ipairs({"keptNative","consumedNative","destroyedNative","putBackNative"}) do if type(effect[key])~="boolean" then return nil end end
+            if not row.nativeAttempted and (effect.keptNative or effect.consumedNative or effect.destroyedNative) then return nil end
+            if requirement.flags.isKeep then paid=paid and effect.keptNative and effect.held and not effect.destroyedNative
+            elseif requirement.flags.isDestroy then paid=paid and effect.destroyedNative and not effect.held
+            else paid=paid and effect.consumedNative and (effect.after.uses<effect.before.uses or not effect.held) end
+        end
+        if row.nativeCompleted and (not paid or not row.paymentMeasured) then return nil end
+    end
+    local requestedAmount,availableOutputAmount,allHeld=0,0,true
+    for _,item in ipairs(row.outputs) do
+        if item.itemType==row.recipeDemand.desiredType then requestedAmount=requestedAmount+1 end
+        if item.itemType==row.recipeDemand.desiredType and item.held and item.consumerEligible and item.meetsRequestedState then
+            availableOutputAmount=availableOutputAmount+(row.recipeDemand.quantityUnit=="uses" and item.state.uses or 1)
+        end
+        allHeld=allHeld and item.held
+    end
+    if row.requestedOutputAmount~=requestedAmount then return nil end
+    if not finite(row.availableOutputAmount) or row.availableOutputAmount~=availableOutputAmount
+        or not finite(row.afterAvailableAmount) or row.afterAvailableAmount<availableOutputAmount then return nil end
+    if row.kind=="recipe-stock" and row.nativeObservability==nil then
+        if row.held~=allHeld or row.improved~=(row.nativeCompleted and requestedAmount>0)
+            or row.stockAvailable~=(row.nativeCompleted and availableOutputAmount>0 and row.afterAvailableAmount>=row.recipeDemand.desiredAmount) then return nil end
+    elseif row.kind=="recipe-upkeep" and row.nativeObservability==nil then
+        local demand=row.recipeDemand
+        local targetBaseline
+        for _,baseline in ipairs(row.inputBaselines) do if baseline.itemId==demand.targetItemId and baseline.index==demand.targetSlotIndex then targetBaseline=baseline end end
+        if not targetBaseline or row.targetItemId~=targetBaseline.itemId or row.targetItemType~=targetBaseline.itemType
+            or not recipeWork.equal(row.targetBefore,targetBaseline.state) or type(row.targetHeld)~="boolean"
+            or type(row.targetRetained)~="boolean" then return nil end
+        local after=row.targetAfter
+        local metric=demand.desiredState and demand.desiredState.metric
+        local improved=row.nativeCompleted and after~=nil and finite(after[metric]) and finite(row.targetBefore[metric]) and after[metric]>row.targetBefore[metric]
+        if row.improved~=(improved and true or false) or row.stockAvailable~=(row.improved and row.targetHeld and recipeWork.stateMeets(after,demand.desiredState))
+            or row.held~=(allHeld and row.targetHeld) then return nil end
+        if row.replacementItemId then
+            local replacement
+            for _,item in ipairs(row.outputs) do if item.itemId==row.replacementItemId and item.itemType==row.targetItemType then replacement=item end end
+            if not replacement or row.targetRetained or not recipeWork.equal(row.targetAfter,replacement.state) then return nil end
+        elseif row.targetRetained~=(row.targetHeld and true or false) then return nil end
+    end
+    if row.nativeCompleted and (not row.nativeAttempted or not row.paymentMeasured)
+        or row.stockAvailable and not row.nativeCompleted
+        or row.status=="completed" and (not row.nativeCompleted or not row.paymentMeasured or row.nativeCredit~=row.id
+            or not row.improved)
+        or row.status~="completed" and row.nativeCredit~=nil then return nil end
+    return recipeWork.copy(row)
+end
+function recipeWork.checkpoint(rt)
+    local row=recipeWork.copy(rt.work);row.stage,row.terminalReceipt=nil,nil
+    for key,value in pairs(craftMeasurement(rt)) do row[key]=value end
+    row.workId,row.status,row.detail,row.nativeOwner=rt.workId,"completed","native-recipe-acknowledged","ISHandcraftAction"
+    row.atHours,row.endedAt,row.nativeCredit=now(),now(),rt.workId
+    if rt.kind=="recipe-upkeep" and not row.improved then row.status,row.nativeCredit,row.detail="failed",nil,"native-upkeep-without-benefit" end
+    if recipeWork.outcome(rt.id,row) then rt.work.terminalReceipt={nativeAcknowledged=true,world=rt.world,bodyToken=rt.token,receipt=row} end
+end
+function recipeWork.recoverTerminal(id,body,rec,work)
+    local checkpoint=work.terminalReceipt
+    local row=checkpoint and checkpoint.receipt
+    if not checkpoint or checkpoint.nativeAcknowledged~=true or not body or checkpoint.bodyToken~=body:getModData().SAOExternalToken
+        or checkpoint.world~=getWorld():getWorld() or not recipeWork.outcome(id,row) or row.id~=work.id
+        or not recipeWork.equal(row.recipeInputs,work.recipeInputs) or not recipeWork.equal(row.recipeDemand,work.recipeDemand)
+        or not craftLedgerRoom(rec) then return false end
+    for _,existing in ipairs(rec.resourceProductionOutcomes or {}) do if existing.id==work.id then return false end end
+    local rows=rec.resourceProductionOutcomes or {};rows[#rows+1]=recipeWork.copy(row)
+    rec.resourceProductionOutcomes=rows;if #rows>CRAFT_LIMIT then table.remove(rows,1) end
+    rec.resourceProductionWork=nil
+    local rt=runtime[id];if rt then rt.closed=true;craftDispose(rt) end
+    reconcile(id);return true
+end
+function recipeWork.begin(id,body,step,context)
+    local rec=owner(id,body)
+    if not rec or runtime[id] or rec.resourceProductionWork or rec.worldSourceReservation or rec.cookingWork
+        or not craftLedgerRoom(rec) or SAO.Needs.busy(body) or not craftPosition(id,body) or isClient() or isServer()
+        or step.owner~="SAO.ResourceProduction" or not textId(step.recipeId) or not textId(step.sourceRevision)
+        or step.target~=step.recipeId or not recipeWorkKind(step.productionKind) then return false end
+    local p=rec.proceduralPlanning and rec.proceduralPlanning.purposes[context.purposeId]
+    if not p or not p.materialWork or not textId(p.materialWork.entryKey) or p.admission
+        or p.steps[p.cursor]~=step or step.id~=context.purposeStepId
+        or p.status=="completed" or p.status=="abandoned" or step.verb~="produce" or step.status~="available"
+        or not recipeWork.equal(p.materialWork.recipeDemand,step.recipeDemand) then return false end
+    local route=SAO.Locomotion.jobs[id];if route and not route.done then return false end
+    local map,count=recipeWork.inputMap(step.recipeInputs)
+    if not map or count>512 then return false end
+    local square,world=body:getCurrentSquare(),getWorld()
+    local rt={kind=step.productionKind,id=id,body=body,record=rec,inventory=body:getInventory(),recipe=registeredRecipe(step.recipeId),
+        recipeId=step.recipeId,sourceRevision=step.sourceRevision,inputs={},baselines={},actions={},beforeIds={},
+        queue=ISTimedActionQueue.getTimedActionQueue(body),purpose=p,step=step,square=square,cell=body:getCell(),
+        world=world:getWorld(),token=body:getModData().SAOExternalToken,x=body:getX(),y=body:getY(),startedAt=now()}
+    if rt.queue.current or #rt.queue.queue>0 or not rt.startedAt then return false end
+    local held=SAOJavaBridge:privateCarriedItems(body);if held:size()>512 then return false end
+    for n=0,held:size()-1 do rt.beforeIds[tostring(held:get(n):getID())]=true end
+    for _,slot in ipairs(step.recipeInputs) do for _,binding in ipairs(slot.items) do
+        local item=craftCarried(body,binding.itemId,binding.itemType)
+        if not item or not ownItem(rt,item) or item:getIsCraftingConsumed() then return false end
+        rt.inputs[#rt.inputs+1]=item
+        rt.baselines[#rt.baselines+1]={index=slot.index,itemId=binding.itemId,itemType=binding.itemType,item=item,state=recipeWork.itemState(item)}
+    end end
+    if not recipeWork.claimWorkplace(rt) then recipeWork.releaseWorkplace(rt);return false end
+    local logic,containers,manual,items=craftSelection(rt)
+    if not logic or not recipeWork.applied(rt,items) then recipeWork.releaseWorkplace(rt);return false end
+    local seq=(rec.resourceProductionSequence or 0)+1
+    local work={id="resource-production/"..tostring(id).."/"..seq,sequence=seq,actorId=id,kind=rt.kind,
+        recipeId=rt.recipeId,sourceRevision=rt.sourceRevision,category=step.category,token=step.token,
+        requestedPurposeId=context.purposeId,requestedPurposeStepId=context.purposeStepId,purposeId=context.purposeId,purposeStepId=context.purposeStepId,
+        entryKey=p.materialWork.entryKey,world=rt.world,bodyToken=rt.token,x=square:getX(),y=square:getY(),z=square:getZ(),
+        recipeDemand=recipeWork.copy(step.recipeDemand),recipeInputs=recipeWork.copy(step.recipeInputs),recipeWorkplace=recipeWork.copy(step.recipeWorkplace),
+        recipePolicy=recipeWork.projection(rt.policy,step.recipeInputs),inputBaselines={},startedAt=rt.startedAt,stage="preparing",status="crafting"}
+    for _,baseline in ipairs(rt.baselines) do work.inputBaselines[#work.inputBaselines+1]={index=baseline.index,itemId=baseline.itemId,itemType=baseline.itemType,state=recipeWork.copy(baseline.state)} end
+    if rt.kind=="recipe-upkeep" then
+        local targetId=work.recipeDemand.targetItemId
+        for _,baseline in ipairs(rt.baselines) do if baseline.itemId==targetId and baseline.index==work.recipeDemand.targetSlotIndex then
+            rt.target,rt.targetItemId,rt.targetItemType,rt.targetBefore=baseline.item,targetId,baseline.itemType,recipeWork.copy(baseline.state)
+        end end
+        if not rt.target then recipeWork.releaseWorkplace(rt);return false end
+    end
+    rt.work,rt.workId,rt.entryKey,rt.frozen=work,work.id,work.entryKey,recipeWork.copy(work)
+    if not rt.frozen or not recipeWork.identity(id,work) then recipeWork.releaseWorkplace(rt);return false end
+    for _,item in ipairs(rt.inputs) do if item:getContainer()~=rt.inventory then craftTransfer(rt,item) end end
+    craftAction(rt,containers,manual,items)
+    rec.resourceProductionSequence,rec.resourceProductionWork,runtime[id]=seq,work,rt
+    local planning=SAO.ProceduralPlanning
+    if not planning or not planning.admitRecipeProduction or planning.admitRecipeProduction(id,work)~=true then
+        rec.resourceProductionWork=nil;craftDispose(rt);return false
+    end
+    if not craftBound(rt,true) or not craftEnqueue(rt,1) then craftInterrupt(id,body,"native-recipe-admission-refused");return false end
+    return true
+end
+function R.recipePolicy(id,body,recipeId,demand,workplace)
+    if not owner(id,body) or not craftPosition(id,body) then return nil,"current-person-body-required" end
+    return recipeWork.policy(id,body,recipeId,demand,workplace)
+end
+-- The caller supplies its acquired/intrinsic recipe means under one actual
+-- retained demand. Registry availability does not populate person knowledge.
+function R.recipeOptions(id,body,demand,means,workplace)
+    local out={}
+    if not owner(id,body) or not craftPosition(id,body) or type(means)~="table" then return out end
+    local inventory=body:getInventory()
+    local containers=ArrayList.new();containers:add(inventory)
+    local carriedItems=SAOJavaBridge:privateCarriedItems(body)
+    if carriedItems:size()>512 then return out end
+    for n=0,carriedItems:size()-1 do local container=carriedItems:get(n):getContainer()
+        if container and (container==inventory or container:getOutermostContainer()==inventory) and not containers:contains(container) then containers:add(container) end
+    end
+    for _,mean in ipairs(means) do
+        if type(mean)=="table" and textId(mean.recipeId) and mean.sourceRevision==demand.sourceRevision
+            and (mean.knowledgeKind=="intrinsic" or mean.knowledgeKind=="acquired" and textId(mean.acquisitionId)) then
+            local ok,option=pcall(function()
+                local policy,why=recipeWork.policy(id,body,mean.recipeId,demand,workplace)
+                if not policy then return nil end
+                local option={recipeId=mean.recipeId,sourceRevision=mean.sourceRevision,productionKind=demand.kind,
+                    owner="SAO.ResourceProduction",target=mean.recipeId,recipeDemand=recipeWork.copy(demand),
+                    recipeWorkplace=recipeWork.copy(workplace),requirements=SAO.RecipePolicy.project(policy),ready=false,reason=why,
+                    knowledgeKind=mean.knowledgeKind,acquisitionId=mean.acquisitionId}
+                local w=policy.workplace
+                option.workplaceClaimable=w~=nil and w.bench~=nil and w.object:getUsingPlayer()==nil or false
+                local selected,reasons=SAO.RecipePolicy.selectInputs(policy,body,{ownerId=id,purposeId=demand.id,
+                    prospectiveWorkstation=true,
+                    canUse=function(item) return inventory:containsRecursive(item) and not item:getIsCraftingConsumed()
+                        and (not SAO.WorldSources.recipeInputAvailable or SAO.WorldSources.recipeInputAvailable(id,tostring(item:getID()))==true) end},containers)
+                if selected then
+                    option.ready,option.recipeInputs=true,{}
+                    for _,slot in ipairs(selected.slots) do
+                        local row={index=slot.index,items={}}
+                        for n=0,slot.items:size()-1 do local item=slot.items:get(n);row.items[#row.items+1]={itemId=tostring(item:getID()),itemType=item:getFullType()} end
+                        option.recipeInputs[#option.recipeInputs+1]=row
+                    end
+                else option.unmet=recipeWork.copy(reasons);option.reason=option.reason or reasons and reasons[1] and reasons[1].reason end
+                return option
+            end)
+            if ok and option then out[#out+1]=option end
+        end
+    end
+    return out
+end
+function R.recipeOutputAvailability(id,body,workId)
+    local row=R.outcome(id,workId)
+    if not row or not recipeWorkKind(row.kind) or not owner(id,body) then return nil,"current-owned-recipe-result-required" end
+    local result={workId=workId,atHours=now(),heldOutputs={},availableAmount=0,totalAvailableAmount=0,targetHeld=false}
+    local demand=row.recipeDemand
+    local rt={body=body,inventory=body:getInventory(),work=row}
+    for _,output in ipairs(row.outputs) do
+        local item=craftCarried(body,output.itemId,output.itemType,514)
+        if item and ownItem(rt,item) then
+            local state=recipeWork.itemState(item)
+            result.heldOutputs[#result.heldOutputs+1]={itemId=output.itemId,itemType=output.itemType,state=state}
+            if row.kind=="recipe-stock" and item:getFullType()==demand.desiredType
+                and recipeWork.stateMeets(state,demand.desiredState) and recipeWork.consumerAccepts(rt,item) then
+                result.availableAmount=result.availableAmount+(demand.quantityUnit=="uses" and state.uses or 1)
+            end
+        end
+    end
+    if row.kind=="recipe-upkeep" then
+        local target=craftCarried(body,row.replacementItemId or row.targetItemId,row.targetItemType,514)
+        result.targetHeld=target~=nil and ownItem(rt,target) and true or false
+        result.targetItemId=result.targetHeld and tostring(target:getID()) or nil
+        result.targetState=result.targetHeld and recipeWork.itemState(target) or nil
+    else
+        local current=SAOJavaBridge:privateCarriedItems(body)
+        if current:size()>514 then return nil,"current-carried-output-bound" end
+        for n=0,current:size()-1 do local item=current:get(n)
+            if ownItem(rt,item) and item:getFullType()==demand.desiredType and recipeWork.consumerAccepts(rt,item)
+                and recipeWork.stateMeets(recipeWork.itemState(item),demand.desiredState) then
+                result.totalAvailableAmount=result.totalAvailableAmount+(demand.quantityUnit=="uses" and item:getCurrentUses() or 1)
+            end
+        end
+        result.requestedStockAvailable=result.totalAvailableAmount>=demand.desiredAmount
+    end
+    return result
+end
+
 craftRecover=function(id,body)
     reconcile(id)
     -- Quiescence is separate from permission to drive physical effects. An
@@ -1572,6 +2208,7 @@ craftRecover=function(id,body)
     local rec=SAO.Identity.get(id)
     local work=rec and rec.resourceProductionWork
     if not work then return true end
+    if recipeWorkKind(work.kind) and work.terminalReceipt and recipeWork.recoverTerminal(id,body,rec,work) then return true end
     if runtime[id] then return craftInterrupt(id,body,"craft-owner-reconciled") end
     local t=now()
     if not craftLedger(rec) or not craftIdentity(id,work) or work.sequence>rec.resourceProductionSequence
@@ -1601,9 +2238,15 @@ craftRecover=function(id,body)
     local row={}
     for key in pairs(CRAFT_FIELDS) do if key~="outputs" then row[key]=work[key] end end
     if work.kind=="fix-held-item" then row=fixing.copy(work) end
+    if recipeWorkKind(work.kind) then row=recipeWork.copy(work);row.stage,row.terminalReceipt=nil,nil end
     row.workId,row.status,row.detail,row.nativeOwner=work.id,"interrupted","craft-runtime-unavailable",work.kind=="fix-held-item" and "ISFixAction" or "ISHandcraftAction"
     row.atHours,row.endedAt,row.nativeObservability=t,t,"runtime-unavailable"
-    if work.kind=="fix-held-item" then
+    if recipeWorkKind(work.kind) then
+        row.nativeAttempted,row.nativeCompleted,row.paymentMeasured,row.improved,row.held,row.stockAvailable=false,false,false,false,false,false
+        row.inputEffects,row.outputs={},{}
+        row.outputCount,row.requestedOutputAmount=0,0
+        row.availableOutputAmount,row.afterAvailableAmount=0,0
+    elseif work.kind=="fix-held-item" then
         row.nativeAttempted,row.nativeCompleted,row.targetRetained,row.paymentConsumed,row.returnsMeasured,row.reequipped,row.held,row.improved,row.fullRestoration=false,false,false,false,false,false,false,false,false
         row.returnedItems={}
     elseif work.kind=="repair-held-item" then
@@ -1636,6 +2279,9 @@ end
 craftTick=function(id,body)
     local rt=runtime[id]
     if not rt then return craftRecover(id,body) and "interrupted" or "cancelling" end
+    if rt.nativeCompleted and craftRetired(rt) and not rt.cancelling then
+        return craftClose(rt,"completed","native-craft-completed-before-successor") and "completed" or "cancelling"
+    end
     if rt.cancelling or rt.body~=body or not craftBound(rt,not rt.nativeAttempted)
         or not now() or now()-rt.startedAt>.5 then
         return craftInterrupt(id,rt.body,rt.cancelReason or "craft-owner-or-material-changed") and "interrupted" or "cancelling"
@@ -4164,6 +4810,7 @@ if Events and Events.OnTick then Events.OnTick.Add(R.retryCraftCancellations) en
 
 function R.begin(id, body, step, context)
     context = context or {}
+    if step and recipeWorkKind(step.productionKind) then return recipeWork.begin(id,body,step,context) end
     if step and step.owner=="SAO.Generator" then return SAO.Generator and SAO.Generator.begin(id,body,step,context) or false end
     if step and (step.productionKind=="operate-double-gate" or step.productionKind=="operate-single-gate") then return gate.begin(id,body,step,context) end
     if step and step.productionKind=="build-double-gate" then return shelter.begin(id,body,step,context) end

@@ -176,6 +176,7 @@ MODULES = [
     # Personal model state survives loaded/dormant transitions. Native action
     # proposals still require the loaded Controller and its real executors.
     "shared/SAO_CognitiveModels.lua", "shared/SAO_Cognition.lua",
+    "shared/SAO_Ordering.lua",
     "shared/SAO_ProceduralPlanning.lua",
     "shared/SAO_Disposition.lua", "shared/SAO_Conditions.lua",
     "shared/SAO_Course.lua", "shared/SAO_Neuro.lua",
@@ -214,6 +215,7 @@ MODULES = [
 # out quietly - otherwise the check reports a real gap in the same
 # breath as five expected ones and nobody reads it.
 NOT_DORMANT = {
+    'RecipePolicy': 'describes registered native recipes and selects exact inputs against a current native body, containers and crafting logic for loaded ResourceProduction; the bodyless county has no native recipe allocation environment',
     'FurnitureWork': 'owns exact loaded furniture actions, native retreat/return and ordinary recovery receivers; the bodyless county has no materialized source, action queue or benefit executor',
     'CompanionExecution': 'executes agreed companion movement and native interaction through a loaded Controller/body; the dormant county has no physical executor',
     'Leisure': 'owns exact source hobby actions, carried material and loaded native callback lifetime',
