@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.7.1.0-pre-alpha` |
+| Version | `2.7.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -19,7 +19,7 @@ The 2026-10-03 map grouped the retained source history into 35 shared ownership 
 
 Active: [D3 — Construction, crafting, repair and utilities](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md)
 
-Current child: [D3.19 — Purpose-bound stock production and upkeep](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md), OPEN within the retained D3 parent.
+Current qualified child: [D3.19 — Purpose-bound stock production and upkeep](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md), CLOSED inside OPEN D3.
 
 D3.18 qualified closure is indexed below; its actual package and protected publication retain separate completion receipts. D3.19 receives no delivered row or version credit at opening.
 
@@ -666,3 +666,9 @@ remains its separate publication evidence; full D3 stays active.
 | Batch | Date | Name | Threads |
 |---|---|---|---|
 | [D3.18](Batches/D3.18-20261012-0703Z-0003PDT-furniture-relocation-recovery.md) | 2026-10-12 | Furniture relocation through usable recovery | Original shared movement, private Standing/choice, fresh native use and independent benefit |
+
+## Purpose-bound stock production and upkeep — 2026-10-12 14:09 UTC / 07:09 PDT
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D3.19](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md) | 2026-10-12 | Purpose-bound stock production and upkeep | Private source inquiry/acquisition, original native stock/upkeep, fresh output and retained requesting use |

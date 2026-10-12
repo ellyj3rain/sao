@@ -234,9 +234,12 @@ local function validEvent(e)
         end
         return e.itemId==nil and e.itemType==nil and e.beforeValue==nil and e.afterValue==nil
     end
-    if e.category=="utilities" or e.consumerId~=nil then return false end
+    local registeredProduction=(e.kind=="material-crafting" or e.kind=="tool-repair")
+        and text(e.recipeId,160) and e.recipeId==e.sourceId and e.recipeId:match("^[%w_]+%.[%w_]+$")~=nil
+        and text(e.consumerId,512)
+    if e.category=="utilities" or e.consumerId~=nil and not registeredProduction then return false end
     if e.kind ~= "tool-repair" and (e.effectMetric ~= nil or e.conditionLoss ~= nil or e.headConditionLoss ~= nil) then return false end
-    if e.kind ~= "collector-construction" and e.kind~="bed-construction" and e.kind~="shelter-construction" and (e.entityId ~= nil or e.recipeId ~= nil
+    if e.kind ~= "collector-construction" and e.kind~="bed-construction" and e.kind~="shelter-construction" and not registeredProduction and (e.entityId ~= nil or e.recipeId ~= nil
         or e.originalFixtureSourceId ~= nil or e.siteKey ~= nil or e.siteX ~= nil
         or e.siteY ~= nil or e.siteZ ~= nil or e.feedsFixture ~= nil) then return false end
     local behavior=e.kind=="entry-outcome" or e.kind=="recovery-outcome"
@@ -538,10 +541,29 @@ local function validEvent(e)
                 and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
         end
         if e.kind=="material-crafting" then
+            if registeredProduction then
+                return e.category=="construction" and (e.status=="completed" or e.status=="no-effect")
+                    and text(e.itemType,160) and e.entityId==nil and e.originalFixtureSourceId==nil
+                    and e.siteKey==nil and e.siteX==nil and e.siteY==nil and e.siteZ==nil and e.feedsFixture==nil
+                    and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
+            end
             return e.category=="construction" and e.status=="completed" and e.sourceId=="Base.SawLogs"
                 and e.itemType=="Base.Plank" and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
         end
         if e.kind=="tool-repair" then
+            if registeredProduction then
+                return e.category=="construction" and text(e.itemType,160)
+                    and (e.effectMetric=="condition" or e.effectMetric=="sharpness" or e.effectMetric=="uses")
+                    and finite(e.beforeValue) and e.beforeValue>=0 and e.beforeValue<=1000000000
+                    and finite(e.afterValue) and e.afterValue>=0 and e.afterValue<=1000000000
+                    and (e.status=="completed" and e.afterValue>e.beforeValue
+                        or e.status=="no-effect" and e.afterValue<=e.beforeValue)
+                    and (e.conditionLoss==nil or finite(e.conditionLoss) and e.conditionLoss>=0 and e.conditionLoss<=1000000000)
+                    and (e.headConditionLoss==nil or finite(e.headConditionLoss) and e.headConditionLoss>=0 and e.headConditionLoss<=1000000000)
+                    and e.entityId==nil and e.originalFixtureSourceId==nil and e.siteKey==nil
+                    and e.siteX==nil and e.siteY==nil and e.siteZ==nil and e.feedsFixture==nil
+                    and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
+            end
             local sharp = e.sourceId=="Base.SharpenBlade" or e.sourceId=="Base.SharpenBladePoorlyWithFile"
             local fixed = text(e.sourceId,160) and e.sourceId:sub(1,7)=="fixing:"
             return e.category=="construction" and (e.sourceId=="Base.FixSaw" or sharp or fixed)
@@ -829,7 +851,7 @@ end
 local function measurable(e)
     if e.status=="interrupted" or e.status=="unavailable" then return nil,"censored-access-or-interruption" end
     if EXTENDED[e.kind] then
-        if e.kind=="tool-repair" and e.status=="no-effect" then return "private-fact",false end
+        if (e.kind=="tool-repair" or e.kind=="material-crafting") and e.status=="no-effect" then return "private-fact",false end
         if e.status~="completed" then return nil,"completion-unmeasured" end
         return "private-fact",true
     end
@@ -1026,10 +1048,11 @@ local function extendedEvidence(modelId,state,e)
                 "Connected "..e.sourceId.." using "..e.itemType,true,e)
         else relation(state,"operate","tool:"..e.itemType,e.sourceId,true,e,"manufacturing") end
     elseif e.kind=="material-crafting" then
+        local produced=e.status=="completed"
         if modelId=="ordinary" then
             remember(state,"direct:material-crafting:"..e.sourceId..":"..e.itemType,
-                "Made held "..e.itemType.." through native "..e.sourceId,true,e)
-        else relation(state,"transform","recipe:"..e.sourceId,"output:"..e.itemType,true,e,"manufacturing") end
+                "Native "..e.sourceId..(produced and " produced " or " did not produce ")..e.itemType.."; current acquisition and use are separate",produced,e)
+        else relation(state,"transform","recipe:"..e.sourceId,"output:"..e.itemType,produced,e,"manufacturing") end
     elseif e.kind=="window-repair" then
         if modelId=="ordinary" then
             remember(state,"direct:window-repair:"..e.sourceId..":"..e.itemType,
@@ -1286,7 +1309,8 @@ local function validConsequences(candidate)
                 or c.condition ~= nil then return false end
         elseif c.kind == "tool-repair" then
             if c.category ~= "construction" or (c.sourceId ~= "Base.FixSaw" and c.sourceId ~= "Base.SharpenBlade"
-                and c.sourceId ~= "Base.SharpenBladePoorlyWithFile" and not (text(c.sourceId,160) and c.sourceId:sub(1,7)=="fixing:")) or not text(c.itemType,160)
+                and c.sourceId ~= "Base.SharpenBladePoorlyWithFile" and not (text(c.sourceId,160) and (c.sourceId:sub(1,7)=="fixing:"
+                    or c.sourceId:match("^[%w_]+%.[%w_]+$")~=nil))) or not text(c.itemType,160)
                 or c.condition~=nil and c.condition~="damage" then return false end
         elseif c.kind == "acquire" then
             if c.category ~= "food" and c.category ~= "water" then return false end

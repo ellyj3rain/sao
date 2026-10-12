@@ -184,7 +184,7 @@ currency with `python tools/development_graph.py --check`.
 
 ## Status
 
-`2.7.1.0-pre-alpha` - the coordinate is computed by the version machine
+`2.7.2.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -723,3 +723,5 @@ Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md
 Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is reclosed after actual normal Main, native perform-before-complete handoff and shared geometry qualification. The same assessed kohai coordinate remains; current package/publication have their distinct receipts. Full D3, wider goals and FIFO remain active.
 
 [D3.18](Batches/D3.18-20261012-0703Z-0003PDT-furniture-relocation-recovery.md) supplies original shared human/NPC furniture relocation through exact private observation, alteration/passage Standing, ordinary individual choice, actual effort/retreat and conserved native contents. Fresh ordinary bed use and native fatigue relief produce separate authenticated feedback. Current callbacks and interrupted/reconstructed saved work retain once-only custody. Full D3 remains OPEN at `2.7.1.0-pre-alpha`; D3.19 and the remaining native/source/service/authority contracts continue before D4.
+
+[D3.19](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md) joins an individual's native supply/upkeep demand to personally inspected ingredients, ordinary source inquiry/acquisition, original registered recipe execution and fresh output used by the retained requesting work. Native bench use, independent feedback and interrupted/rebound/once-only save state are qualified. Full D3 remains OPEN at `2.7.2.0-pre-alpha` and continues its construction/material/service/authority scope before D4.

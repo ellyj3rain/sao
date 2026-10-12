@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `2.7.1.0-pre-alpha` |
+| Version | `2.7.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -160,3 +160,7 @@ Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md
 ## D3.18 original shared furniture and ordinary recovery
 
 [D3.18](Batches/D3.18-20261012-0703Z-0003PDT-furniture-relocation-recovery.md) is CLOSED for original shared native movement through private observation/Standing/choice, reached use, independent benefit and current interrupted/reconstructed saved work. One kohai records progress inside OPEN D3. Actual source/package/protected merge receipts retain their layers. D3.19 and complete remaining scope continue until D4; source-linked Scion/Mousecat retain the concrete full private-experience intake seam and pending counterpart selection.
+
+## D3.19 purpose-bound stock/upkeep
+
+[D3.19](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md) is CLOSED for actual private source inquiry/acquisition, native stock/upkeep/workplace, fresh output and resumed original consumer with saved ownership and independent feedback. One kohai records useful progress inside OPEN D3. Current selected source/package/protected publication and pending full shared archive/model contracts retain exact evidence. Construction/extraction helpers remain unpublished enabling work; full D3 continues before D4.

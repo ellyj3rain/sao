@@ -4755,6 +4755,39 @@ public final class SAOBridge {
         }
     }
 
+    public Object recipeInputObservation(Object object, String sourceId, String fingerprint,
+            String revision, String recipeId, double inputIndex, String declaration,
+            String demandId, String purposeId, String stepId) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell && inputIndex == (int) inputIndex
+            ? com.sao.engine.SAOWorldSources.recipeInputObservation(shell, sourceId, fingerprint,
+                revision, recipeId, (int) inputIndex, declaration, demandId, purposeId, stepId) : null;
+    }
+
+    public Object observeRecipeWorkplaces(Object object, double radius) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell && radius == (int) radius
+            ? com.sao.engine.SAOWorldSources.observeRecipeWorkplaces(shell, (int) radius) : null;
+    }
+
+    public Object recipeWorkplace(Object object, String key, String revision, double x, double y, double z) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell && x == (int) x && y == (int) y && z == (int) z
+            ? com.sao.engine.SAOWorldSources.recipeWorkplace(shell, key, revision, (int) x, (int) y, (int) z) : null;
+    }
+
+    public Object recipeMeansForDemand(Object object, Object demand) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell && demand instanceof se.krka.kahlua.vm.KahluaTable request
+            ? com.sao.engine.SAOWorldSources.recipeMeansForDemand(shell, request) : null;
+    }
+
+    public Object recipeUpkeepDemands(Object object) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.recipeUpkeepDemands(shell) : null;
+    }
+
+    public Object recipeSupplyNeeds(Object object, String consumerRecipeId) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.recipeSupplyNeeds(shell, consumerRecipeId) : null;
+    }
+
     public Object worldSourceActionItem(Object object) {
         return object instanceof com.sao.engine.SAOIsoPlayerShell shell
             ? com.sao.engine.SAOWorldSources.actionItem(shell) : null;

@@ -74,6 +74,376 @@ public final class SAOWorldSources {
     private static final Map<IsoPlayer, Map<String, UtilityBinding>> UTILITY_BINDINGS = new WeakHashMap<>();
     private static boolean transactionActive;
 
+    // Read-only native recipe observations; durable demand and acquisition live in Lua.
+    private static final Map<IsoPlayer, Map<String, RecipeWorkplaceBinding>> RECIPE_WORKPLACES = new WeakHashMap<>();
+
+    private static se.krka.kahlua.vm.KahluaTable recipeTable() {
+        return zombie.Lua.LuaManager.platform.newTable();
+    }
+
+    private static String recipeActor(SAOIsoPlayerShell body) {
+        String actor = SAOConceptObservation.actor(body);
+        var sao = table(zombie.Lua.LuaManager.env.rawget("SAO"));
+        var bodies = sao == null ? null : table(sao.rawget("Body"));
+        var active = bodies == null ? null : table(bodies.rawget("active"));
+        var recordsRoot=zombie.world.moddata.GlobalModData.instance.get("SurvivorAwareness_Records");
+        var records=recordsRoot==null ? null : table(recordsRoot.rawget("records"));
+        var record=records==null || actor==null ? null : table(records.rawget(actor));
+        return actor != null && active != null && active.rawget(actor) == body && record!=null
+            && actor.equals(record.rawget("id")) && !Boolean.TRUE.equals(record.rawget("dead")) ? actor : null;
+    }
+
+    private static String recipeRevision(zombie.scripting.entity.components.crafting.CraftRecipe recipe) {
+        StringBuilder signature = new StringBuilder();
+        appendLengthPrefixed(signature, recipe.getScriptObjectFullType());
+        appendLengthPrefixed(signature, recipe.getModID());
+        appendLengthPrefixed(signature, recipe.getCategory());
+        appendLengthPrefixed(signature, Boolean.toString(recipe.needToBeLearn()));
+        for (var input : recipe.getInputs()) {
+            appendLengthPrefixed(signature, Integer.toString(recipe.getIndexForIO(input)));
+            appendLengthPrefixed(signature, input.getOriginalLine());
+        }
+        for (var output : recipe.getOutputs()) {
+            appendLengthPrefixed(signature, Integer.toString(recipe.getIndexForIO(output)));
+            appendLengthPrefixed(signature, output.getOriginalLine());
+        }
+        return digest(signature.toString());
+    }
+
+    private static zombie.scripting.entity.components.crafting.InputScript recipeInput(String recipeId, int index, String declaration) {
+        var recipe = zombie.scripting.ScriptManager.instance.getCraftRecipe(recipeId);
+        var io = recipe == null ? null : recipe.getIOForIndex(index);
+        if (!(io instanceof zombie.scripting.entity.components.crafting.InputScript input)
+                || recipe.getIndexForIO(input) != index || !java.util.Objects.equals(declaration, input.getOriginalLine())
+                || input.getResourceType() != zombie.entity.components.resources.ResourceType.Item
+                || input.isVariableAmount() || input.isApplyOnTick() || input.isAutomationOnly()
+                || input.hasCreateToItem() || input.hasConsumeFromItem() || input.hasParentScript()) return null;
+        return input;
+    }
+
+    private static se.krka.kahlua.vm.KahluaTable privateRecipeSource(String actor, String id, String fingerprint, String revision) {
+        var sao = table(zombie.Lua.LuaManager.env.rawget("SAO"));
+        var perception = sao == null ? null : table(sao.rawget("Perception"));
+        var beliefs = perception == null ? null : table(perception.rawget("beliefs"));
+        var mind = beliefs == null ? null : table(beliefs.rawget(actor));
+        var known = mind == null ? null : table(mind.rawget("known"));
+        if (known == null) return null;
+        var places = known.iterator();
+        while (places.advance()) {
+            var place = table(places.getValue());
+            var facts = place == null ? null : table(place.rawget("sourceFacts"));
+            var fact = facts == null ? null : table(facts.rawget(id));
+            if (fact != null && fingerprint.equals(fact.rawget("fingerprint")) && revision.equals(fact.rawget("revision"))
+                    && ("available".equals(fact.rawget("state")) || "spent".equals(fact.rawget("state")))
+                    && (Boolean.TRUE.equals(fact.rawget("explored"))
+                        || id.startsWith("G:") && "visible-ground".equals(fact.rawget("knowledgeKind")))) return fact;
+        }
+        return null;
+    }
+
+    public static synchronized Object recipeInputObservation(SAOIsoPlayerShell body, String sourceId,
+            String fingerprint, String revision, String recipeId, int inputIndex, String declaration,
+            String demandId, String purposeId, String stepId) {
+        try {
+            String actor = recipeActor(body);
+            var input = recipeInput(recipeId, inputIndex, declaration);
+            if (actor == null || transactionActive || input == null || demandId == null || demandId.isBlank()
+                    || purposeId == null || purposeId.isBlank() || stepId == null || stepId.isBlank()) return null;
+            var sao=table(zombie.Lua.LuaManager.env.rawget("SAO"));
+            var planning=sao==null ? null : table(sao.rawget("ProceduralPlanning"));
+            Object admission=planning==null ? null : planning.rawget("recipeInputAdmission");
+            if (admission==null || !Boolean.TRUE.equals(zombie.Lua.LuaManager.caller.pcallBoolean(
+                    zombie.Lua.LuaManager.thread,admission,new Object[]{actor,demandId,purposeId,stepId,recipeId,(double)inputIndex,declaration}))) return null;
+            var fact = privateRecipeSource(actor, sourceId, fingerprint, revision);
+            if (fact == null || !(fact.rawget("x") instanceof Number x) || !(fact.rawget("y") instanceof Number y)
+                    || !(fact.rawget("z") instanceof Number z)) return null;
+            var rows = recipeTable(); int count = 0;
+            // Full inspected facts intentionally carry source identity rather than every item.
+            var source = resolveRecipeSource(body, sourceId, fingerprint, revision, x.intValue(), y.intValue(), z.intValue());
+            if (source == null) return null;
+            for (var item : source) {
+                if (!input.canUseItem(item.getFullType())) continue;
+                var row = recipeItemState(item);
+                row.rawset("nativeEligible", zombie.entity.components.crafting.recipe.CraftRecipeManager.isItemValidForInputScript(input, item, body));
+                var status = recipeTable();
+                status.rawset("favorite", input.passesFavoriteTest(item)); status.rawset("rotten", input.passesRottenTest(item));
+                status.rawset("frozen", input.passesFrozenTest(item)); status.rawset("broken", input.passesBrokenTest(item));
+                status.rawset("sealed", input.passesSealedTest(item)); status.rawset("routine", input.doesItemPassRoutineStatusTests(item, body));
+                status.rawset("clothing", input.doesItemPassClothingTypeStatusTests(item)); status.rawset("sharpness", input.doesItemPassSharpnessStatusTests(item));
+                status.rawset("damage", input.doesItemPassDamageStatusTests(item)); status.rawset("fullEmpty", input.doesItemPassIsOrNotEmptyAndFullTests(item));
+                status.rawset("foodCooking", input.doesItemPassFoodAndCookingTests(item)); row.rawset("status", status);
+                rows.rawset((double) ++count, row);
+            }
+            var out = recipeTable(); out.rawset("actorId", actor); out.rawset("sourceId", sourceId);
+            out.rawset("fingerprint", fingerprint); out.rawset("revision", revision); out.rawset("recipeId", recipeId);
+            out.rawset("index", (double) inputIndex); out.rawset("declaration", declaration);
+            out.rawset("demandId", demandId); out.rawset("purposeId", purposeId); out.rawset("stepId", stepId); out.rawset("items", rows);
+            return out;
+        } catch (Throwable unavailable) { return null; }
+    }
+
+    private static List<InventoryItem> resolveRecipeSource(SAOIsoPlayerShell body, String id, String fingerprint,
+            String revision, int x, int y, int z) throws ActionRefusal {
+        var square = body.getCell().getGridSquare(x, y, z);
+        if (!SAOPerceptionScanner.canSeeWorldSquareNow(body, square, INSPECTION_RANGE)) return null;
+        String[] parts = id.split(":");
+        if (parts.length == 3 && "C".equals(parts[0])) {
+            int index = Integer.parseInt(parts[2]);
+            for (int objectIndex = 0; objectIndex < square.getObjects().size(); objectIndex++) {
+                var object = square.getObjects().get(objectIndex);
+                if (!parts[1].equals(object.getModData().rawget(SOURCE_TOKEN)) || index < 0 || index >= object.getContainerCount()) continue;
+                var container = object.getContainerByIndex(index);
+                if (container == null || !knowsContainerContents(body, object, container, index)) return null;
+                var source = containerSourceKnown(square, object, container, index, parts[1]);
+                if (!fingerprint.equals(source.fingerprint) || !revision.equals(source.revision)
+                        || !SAONeeds.containerAccessibleNow(body, container)) return null;
+                return SAOPrivateInventory.containerItems(container);
+            }
+        } else if (parts.length == 2 && "G".equals(parts[0])) {
+            for (var world : square.getWorldObjects()) {
+                var item = world.getItem();
+                if (item == null || !parts[1].equals(item.getModData().rawget(ITEM_TOKEN))) continue;
+                var source = groundSourceKnown(square, world, parts[1]);
+                if (!fingerprint.equals(source.fingerprint) || !revision.equals(source.revision)) return null;
+                return List.of(item);
+            }
+        }
+        return null;
+    }
+
+    private static se.krka.kahlua.vm.KahluaTable recipeItemState(InventoryItem item) {
+        var row = recipeTable(); row.rawset("itemId", Integer.toString(item.getID())); row.rawset("itemType", item.getFullType());
+        row.rawset("currentUses", (double) item.getCurrentUsesFloat()); row.rawset("condition", (double) item.getCondition());
+        row.rawset("maxCondition", (double) item.getConditionMax()); row.rawset("sharpness", (double) item.getSharpness());
+        row.rawset("maxSharpness", (double) item.getMaxSharpness()); row.rawset("maxUses", (double) item.getMaxUses());
+        return row;
+    }
+
+    public static synchronized Object recipeSupplyNeeds(SAOIsoPlayerShell body, String recipeId) {
+        try {
+            String actor = recipeActor(body); var recipe = zombie.scripting.ScriptManager.instance.getCraftRecipe(recipeId);
+            if (actor == null || recipe == null || !(!recipe.needToBeLearn() || body.isRecipeActuallyKnown(recipe))) return null;
+            var out = recipeTable(); var slots = recipeTable(); out.rawset("actorId", actor); out.rawset("recipeId", recipeId);
+            out.rawset("nativeRevision", recipeRevision(recipe)); out.rawset("slots", slots);
+            var items = SAOPrivateInventory.carriedItems(body); var used = new java.util.HashSet<Integer>(); int count = 0;
+            for (var input : recipe.getInputs()) {
+                int index = recipe.getIndexForIO(input); var row = recipeTable(); var held = recipeTable(); var alternatives = recipeTable();
+                row.rawset("index", (double) index); row.rawset("declaration", input.getOriginalLine());
+                row.rawset("requiredAmount", (double) input.getAmount()); row.rawset("heldItems", held); row.rawset("alternatives", alternatives);
+                boolean supported = recipeInput(recipeId, index, input.getOriginalLine()) == input;
+                row.rawset("channelStatus", supported ? "item" : "unsupported-native-channel");
+                double fraction = 0; int itemCount = 0, alternativeCount = 0;
+                if (supported) {
+                    for (var item : items) {
+                        if (fraction >= 1 || used.contains(item.getID()) || item.getIsCraftingConsumed()
+                                || !recipeItemUnreserved(item.getID())
+                                || !zombie.entity.components.crafting.recipe.CraftRecipeManager.isItemValidForInputScript(input, item, body)) continue;
+                        float amount = input.getAmount(item.getFullType());
+                        if (!(amount > 0)) continue;
+                        double contribution = input.isUsesPartialItem(item.getScriptItem()) ? item.getCurrentUsesFloat() : 1;
+                        if (!(contribution > 0)) continue;
+                        used.add(item.getID()); fraction += contribution / amount;
+                        held.rawset((double) ++itemCount, recipeItemState(item));
+                    }
+                    var possible = input.getPossibleInputItems();
+                    if (possible != null) for (var item : possible) {
+                        var alternative = recipeTable(); double amount = input.getAmount(item.getFullName());
+                        boolean partial = input.isUsesPartialItem(item);
+                        alternative.rawset("itemType", item.getFullName()); alternative.rawset("amount", amount);
+                        alternative.rawset("maxAmount", (double) input.getMaxAmount(item.getFullName())); alternative.rawset("partialUse", partial);
+                        alternative.rawset("desiredAmount", amount * Math.max(0, 1 - fraction)); alternative.rawset("quantityUnit", partial ? "uses" : "items");
+                        alternatives.rawset((double) ++alternativeCount, alternative);
+                    }
+                }
+                row.rawset("heldFraction", fraction); row.rawset("remainingFraction", Math.max(0, 1 - fraction));
+                slots.rawset((double) ++count, row);
+            }
+            return out;
+        } catch (Throwable unavailable) { return null; }
+    }
+
+    private static boolean recipeItemUnreserved(int itemId) {
+        var data = zombie.world.moddata.GlobalModData.instance.get("SurvivorAwareness_WorldSources");
+        var reservations = data == null ? null : table(data.rawget("reservations"));
+        if (reservations == null) return true;
+        var it = reservations.iterator();
+        while (it.advance()) {
+            var reservation = table(it.getValue());
+            Object reservedId = reservation == null ? null : reservation.rawget("itemId");
+            if (reservation != null && "reserved".equals(reservation.rawget("status"))
+                    && (reservedId instanceof Number n && n.intValue() == itemId
+                        || Integer.toString(itemId).equals(reservedId))) return false;
+        }
+        return true;
+    }
+
+    private static String upkeepMetric(zombie.scripting.entity.components.crafting.CraftRecipe recipe,
+            zombie.scripting.entity.components.crafting.InputScript input, InventoryItem item) {
+        if (input.isSharpenable() && item.hasSharpness() && item.getSharpness() < item.getMaxSharpness()) return "sharpness";
+        if (input.notFull() && "Base.RefillBlowTorch".equals(recipe.getScriptObjectFullType())
+                && item.getCurrentUsesFloat() < item.getMaxUses()) return "uses";
+        boolean replacement = input.isDestroy() && recipe.getOutputs().stream().anyMatch(output -> output.getPossibleResultItems()!=null && output.getPossibleResultItems().contains(item.getScriptItem()));
+        if ((input.isKeep() && input.isDamaged() || replacement) && item.getCondition() < item.getConditionMax()) return "condition";
+        return null;
+    }
+
+    public static synchronized Object recipeUpkeepDemands(SAOIsoPlayerShell body) {
+        try {
+            var out = recipeTable();
+            String actor = recipeActor(body); if (actor == null) return out;
+            var items = SAOPrivateInventory.carriedItems(body); int count = 0;
+            for (var recipe : zombie.scripting.ScriptManager.instance.getAllCraftRecipes()) {
+                if (!("Repair".equals(recipe.getCategory()) || "Base.RefillBlowTorch".equals(recipe.getScriptObjectFullType()))
+                        || !(!recipe.needToBeLearn() || body.isRecipeActuallyKnown(recipe))) continue;
+                for (var input : recipe.getInputs()) for (var item : items) {
+                    int index = recipe.getIndexForIO(input); String metric = upkeepMetric(recipe, input, item);
+                    if (metric == null || recipeInput(recipe.getScriptObjectFullType(), index, input.getOriginalLine()) != input
+                            || item.getIsCraftingConsumed() || !recipeItemUnreserved(item.getID())
+                            || !zombie.entity.components.crafting.recipe.CraftRecipeManager.isItemValidForInputScript(input, item, body)) continue;
+                    var row = recipeItemState(item); var state = recipeTable(); state.rawset("metric", metric); state.rawset("held", true);
+                    double maximum = metric.equals("condition") ? item.getConditionMax() : metric.equals("sharpness") ? item.getMaxSharpness() : item.getMaxUses();
+                    state.rawset("minimum", maximum); row.rawset("actorId", actor); row.rawset("targetItemId", Integer.toString(item.getID()));
+                    row.rawset("recipeId", recipe.getScriptObjectFullType()); row.rawset("targetSlotIndex", (double) index);
+                    row.rawset("declaration", input.getOriginalLine()); row.rawset("desiredState", state);
+                    row.rawset("sourceRevision", recipeRevision(recipe)); row.rawset("nativeRevision", recipeRevision(recipe));
+                    out.rawset((double) ++count, row);
+                }
+            }
+            return out;
+        } catch (Throwable unavailable) { return null; }
+    }
+
+    public static synchronized Object recipeMeansForDemand(SAOIsoPlayerShell body, se.krka.kahlua.vm.KahluaTable demand) {
+        try {
+            var out = recipeTable();
+            String actor = recipeActor(body); if (actor == null || demand == null) return out;
+            Object kind = demand.rawget("kind"), revision = demand.rawget("sourceRevision");
+            if (!(revision instanceof String sourceRevision) || sourceRevision.isBlank()) return out;
+            InventoryItem target = null;
+            String desired = demand.rawget("desiredType") instanceof String name ? name : null;
+            boolean stock = "recipe-stock".equals(kind), upkeep = "recipe-upkeep".equals(kind);
+            if (stock) {
+                if (desired == null || !(demand.rawget("desiredAmount") instanceof Number amount) || !(amount.doubleValue() > 0)) return out;
+                boolean needed = "SAO.Generator".equals(demand.rawget("consumerOwner")) && "repair".equals(demand.rawget("consumerOperation"))
+                    && "Base.ElectronicsScrap".equals(desired);
+                var consumer = demand.rawget("consumerRecipeId") instanceof String id ? zombie.scripting.ScriptManager.instance.getCraftRecipe(id) : null;
+                if (consumer != null && (consumer.isBuildableRecipe() || "Repair".equals(consumer.getCategory())
+                        || "Base.RefillBlowTorch".equals(consumer.getScriptObjectFullType())))
+                    for (var input : consumer.getInputs()) if (input.canUseItem(desired)) needed = true;
+                if (!needed) return out;
+            } else if (upkeep) {
+                Object identity = demand.rawget("targetItemId");
+                for (var item : SAOPrivateInventory.carriedItems(body)) if (Integer.toString(item.getID()).equals(identity)) {
+                    if (target != null) return out; target = item;
+                }
+                if (target == null || !(demand.rawget("targetSlotIndex") instanceof Number) || table(demand.rawget("desiredState")) == null) return out;
+            } else return out;
+            int count = 0;
+            for (var recipe : zombie.scripting.ScriptManager.instance.getAllCraftRecipes()) {
+                boolean matches = false;
+                if (stock) {
+                    var item = zombie.scripting.ScriptManager.instance.getItem(desired);
+                    if (item != null) for (var output : recipe.getOutputs()) if (output.getPossibleResultItems()!=null && output.getPossibleResultItems().contains(item)) matches = true;
+                } else if ("Repair".equals(recipe.getCategory()) || "Base.RefillBlowTorch".equals(recipe.getScriptObjectFullType())) {
+                    int index = ((Number) demand.rawget("targetSlotIndex")).intValue();
+                    var io = recipe.getIOForIndex(index);
+                    if (io instanceof zombie.scripting.entity.components.crafting.InputScript input) {
+                        String metric = upkeepMetric(recipe, input, target);
+                        var state = table(demand.rawget("desiredState"));
+                        matches = metric != null && metric.equals(state.rawget("metric"))
+                            && recipeInput(recipe.getScriptObjectFullType(), index, input.getOriginalLine()) == input
+                            && !target.getIsCraftingConsumed() && recipeItemUnreserved(target.getID())
+                            && zombie.entity.components.crafting.recipe.CraftRecipeManager.isItemValidForInputScript(input, target, body);
+                    }
+                }
+                if (!matches || !(!recipe.needToBeLearn() || body.isRecipeActuallyKnown(recipe))) continue;
+                var row = recipeTable(); row.rawset("recipeId", recipe.getScriptObjectFullType()); row.rawset("sourceRevision", sourceRevision);
+                row.rawset("nativeRevision", recipeRevision(recipe)); row.rawset("knowledgeKind", recipe.needToBeLearn() ? "acquired" : "intrinsic");
+                if (recipe.needToBeLearn()) row.rawset("acquisitionId", "native-known:" + actor + ":" + recipe.getScriptObjectFullType() + ":" + recipeRevision(recipe));
+                out.rawset((double) ++count, row);
+            }
+            return out;
+        } catch (Throwable unavailable) { return null; }
+    }
+
+    private static final class RecipeWorkplaceBinding {
+        final String actor, key, revision; final java.lang.ref.WeakReference<IsoObject> object;
+        final java.lang.ref.WeakReference<zombie.entity.components.crafting.CraftBench> bench;
+        final String sprite, entityType, benchQuery; final IsoGridSquare square;
+        RecipeWorkplaceBinding(String actor, String key, IsoObject object, zombie.entity.components.crafting.CraftBench bench) {
+            this.actor = actor; this.key = key; this.object = new java.lang.ref.WeakReference<>(object);
+            this.bench = new java.lang.ref.WeakReference<>(bench); this.square = object.getSquare();
+            this.sprite = value(object.getSpriteName()); this.entityType = object.getEntityScript() == null ? "" : object.getEntityScript().getFullName();
+            this.benchQuery = bench == null ? "" : value(bench.getRecipeTagQuery()); this.revision = UUID.randomUUID().toString();
+        }
+        boolean matches(String actor, IsoObject object, zombie.entity.components.crafting.CraftBench bench) {
+            return this.actor.equals(actor) && this.object.get() == object && this.bench.get() == bench
+                && object.getSquare() == square && sprite.equals(value(object.getSpriteName()))
+                && entityType.equals(object.getEntityScript() == null ? "" : object.getEntityScript().getFullName())
+                && benchQuery.equals(bench == null ? "" : value(bench.getRecipeTagQuery()));
+        }
+    }
+
+    public static synchronized Object observeRecipeWorkplaces(SAOIsoPlayerShell body, int radius) {
+        try {
+            var out = recipeTable();
+            String actor = recipeActor(body); if (actor == null || radius < 1 || radius > INSPECTION_RANGE) return out;
+            var bindings = RECIPE_WORKPLACES.computeIfAbsent(body, ignored -> new LinkedHashMap<>()); int count = 0;
+            var eye = body.getCurrentSquare();
+            for (int dy = -radius; dy <= radius; dy++) for (int dx = -radius; dx <= radius; dx++) {
+                var square = body.getCell().getGridSquare(eye.getX() + dx, eye.getY() + dy, eye.getZ());
+                if (!SAOPerceptionScanner.canSeeWorldSquareNow(body, square, radius) || !square.isSolidFloor()) continue;
+                for (int index = 0; index < square.getObjects().size(); index++) {
+                    var object = square.getObjects().get(index); if (object == null || object.getSquare() != square) continue;
+                    zombie.entity.components.crafting.CraftBench bench = object.getComponent(zombie.entity.ComponentType.CraftBench);
+                    boolean surface = body.canUseAsGenericCraftingSurface(object);
+                    if (bench == null && !surface) continue;
+                    String key = "W:" + square.getX() + ":" + square.getY() + ":" + square.getZ() + ":" + index;
+                    var binding = bindings.get(key);
+                    if (binding == null || !binding.matches(actor, object, bench)) {
+                        binding = new RecipeWorkplaceBinding(actor, key, object, bench); bindings.put(key, binding);
+                    }
+                    var row = recipeTable(); row.rawset("key", key); row.rawset("revision", binding.revision);
+                    row.rawset("x", (double) square.getX()); row.rawset("y", (double) square.getY()); row.rawset("z", (double) square.getZ());
+                    row.rawset("sprite", binding.sprite); row.rawset("entityType", binding.entityType); row.rawset("support", true);
+                    row.rawset("craftBench", bench != null); row.rawset("genericSurface", surface);
+                    row.rawset("occupied", object.getUsingPlayer() != null && object.getUsingPlayer() != body);
+                    row.rawset("actorId", actor); rowsafeRecipes(row, bench); out.rawset((double) ++count, row);
+                    if (count >= MAX_INSPECTION_OPTIONS) return out;
+                }
+            }
+            if (bindings.size() > MAX_INSPECTION_OPTIONS) {
+                var keys = new ArrayList<>(bindings.keySet()); for (int n = 0; n < keys.size() - MAX_INSPECTION_OPTIONS; n++) bindings.remove(keys.get(n));
+            }
+            return out;
+        } catch (Throwable unavailable) { return null; }
+    }
+
+    private static void rowsafeRecipes(se.krka.kahlua.vm.KahluaTable row, zombie.entity.components.crafting.CraftBench bench) {
+        // Bench capability is a local observed fact. Recipe knowledge stays with person admission.
+        if (bench != null) {
+            row.rawset("recipeTagQuery", value(bench.getRecipeTagQuery()));
+            var ids=recipeTable();int count=0;
+            for (var recipe:bench.getRecipes()) ids.rawset((double)++count,recipe.getScriptObjectFullType());
+            row.rawset("recipeIds",ids);
+        }
+    }
+
+    public static synchronized Object recipeWorkplace(SAOIsoPlayerShell body, String key, String revision, int x, int y, int z) {
+        try {
+            String actor = recipeActor(body); var bindings = RECIPE_WORKPLACES.get(body);
+            var binding = bindings == null ? null : bindings.get(key); if (actor == null || binding == null || !binding.revision.equals(revision)) return null;
+            var object = binding.object.get(); var bench = binding.bench.get(); var square = body.getCell().getGridSquare(x, y, z);
+            if (object == null || square == null || object.getSquare() != square || !square.getObjects().contains(object)
+                    || object.getComponent(zombie.entity.ComponentType.CraftBench) != bench || !binding.matches(actor, object, bench)
+                    || !square.isSolidFloor() || !SAOPerceptionScanner.canSeeWorldSquareNow(body, square, INSPECTION_RANGE)
+                    || !squareWithinReach(body, square) || !body.getCurrentSquare().canReachTo(square)
+                    || bench == null && !body.canUseAsGenericCraftingSurface(object)
+                    || object.getUsingPlayer() != null && object.getUsingPlayer() != body) return null;
+            var out = recipeTable(); out.rawset("object", object); out.rawset("bench", bench); out.rawset("key", key); out.rawset("revision", revision); return out;
+        } catch (Throwable unavailable) { return null; }
+    }
+
     private SAOWorldSources() {
     }
 
@@ -94,6 +464,7 @@ public final class SAOWorldSources {
         INSPECTION_MEMORY.clear();
         COLLECTOR_SITES.clear();
         UTILITY_BINDINGS.clear();
+        RECIPE_WORKPLACES.clear();
     }
 
     /** Kahlua does not implement Lua weak tables. Keep body keys on the JVM;
@@ -1760,7 +2131,8 @@ public final class SAOWorldSources {
             + "|fluid=" + field(item.fluid) + "|poison=" + (item.poison ? 1 : 0)
             + "|tainted=" + (item.tainted ? 1 : 0) + "|hydrationAmount=" + number(item.hydrationAmount)
             + "|rotten=" + (item.rotten ? 1 : 0)
-            + "|cats=" + field(String.join(",", item.categories));
+            + "|cats=" + field(String.join(",", item.categories))
+            + (item.ingredientState == null ? "" : "|ingredientState=" + item.ingredientState + "|sharpness=" + number(item.sharpness));
     }
 
     private static String error(String status, String detail, int chunkX, int chunkY) {
@@ -2290,6 +2662,8 @@ public final class SAOWorldSources {
         final boolean tainted;
         final float hydrationAmount;
         final ArrayList<String> categories;
+        String ingredientState;
+        float sharpness;
         ItemRow(int itemId, String fullType, int uses, float currentUses,
                 int condition, float amount, String fluid,
                 boolean poison, boolean rotten, boolean cleanWater, boolean tainted, float hydrationAmount,
@@ -2319,11 +2693,16 @@ public final class SAOWorldSources {
                 && fluids.isWaterSource() && !poison && !fluids.isTainted();
             ArrayList<String> categories = categories(item, fluids, amount,
                 cleanWater);
-            return new ItemRow(item.getID(), value(item.getFullType()), item.getUses(),
+            var row = new ItemRow(item.getID(), value(item.getFullType()), item.getUses(),
                 item.getCurrentUsesFloat(), item.getCondition(), amount,
                 primary == null ? "" : value(primary.getFluidTypeString()),
                 poison, rotten, cleanWater, fluids != null && fluids.isTainted(),
                 Math.max(0.0f, SAONeeds.hydrationAmount(fluids)), categories);
+            row.sharpness=item.getSharpness();
+            row.ingredientState=digest(Float.toHexString(item.getSharpness())+"|"+item.isBroken()+"|"+item.isSealed()
+                +"|"+item.isFavorite()+"|"+item.isEmptyOfFluid()+"|"+item.isFullOfFluid()+"|"+item.isCooked()+"|"+item.isBurnt()
+                +"|"+(item instanceof zombie.inventory.types.Food food && food.isFrozen()));
+            return row;
         }
 
         static ItemRow fluid(IsoObject object, float amount, Fluid fluid,
@@ -2355,7 +2734,8 @@ public final class SAOWorldSources {
                 + Float.toHexString(currentUses) + "|" + condition + "|"
                 + Float.toHexString(amount) + "|" + fluid + "|" + poison + "|"
                 + rotten + "|" + tainted + "|" + Float.toHexString(hydrationAmount)
-                + "|" + String.join(",", categories);
+                + "|" + String.join(",", categories)
+                + (ingredientState==null ? "" : "|ingredientState="+ingredientState);
         }
 
         private static ArrayList<String> categories(InventoryItem item,

@@ -20,6 +20,52 @@ function Material.storeOf(id)
     return Material.stores[id] or nil
 end
 
+-- Recipe requirements describe demand over existing physical stock. These
+-- helpers create no material store or observed source/category facts.
+function Material.recipeRequirement(policy,index)
+    local projection=SAO.RecipePolicy and SAO.RecipePolicy.project(policy)
+    if not projection then return nil,"registered-recipe-policy-required" end
+    for _,slot in ipairs(projection.slots or {}) do if slot.index==index then
+        if slot.resource~="Item" or slot.variable or slot.applyOnTick or slot.automationOnly
+            or slot.createToItem or slot.consumeFromItem or slot.parentIndex~=nil then return nil,"recipe-input-channel-unsupported" end
+        return {recipeId=projection.recipe,sourceRevision=projection.sourceRevision,index=index,
+            declaration=slot.declaration,amount=slot.amount,flags=slot.flags,itemTypes=slot.itemTypes,
+            itemAlternatives=slot.itemAlternatives,tags=slot.tags,purposeId=projection.purpose.id,consumerId=projection.purpose.consumerId}
+    end end
+    return nil,"native-input-slot-missing"
+end
+
+function Material.recipeObservedType(requirement,itemType)
+    if type(requirement)~="table" or type(itemType)~="string" then return false end
+    local ok,eligible=pcall(function()
+        local recipe=ScriptManager.instance:getCraftRecipe(requirement.recipeId)
+        local input=recipe and recipe:getIOForIndex(requirement.index)
+        return input and input:getOriginalLine()==requirement.declaration and input:getResourceType()==ResourceType.Item
+            and input:canUseItem(itemType)==true
+    end)
+    return ok and eligible==true
+end
+
+-- Native uses may differ by admitted item type. The amount is declared
+-- demand; current actor-native satisfaction remains the admission authority.
+function Material.recipeOutstanding(requirement,verifiedItems)
+    if type(requirement)~="table" then return nil end
+    local alternatives={}
+    for _,item in ipairs(requirement.itemAlternatives or {}) do alternatives[item.itemType]=item end
+    local fraction,seen=0,{}
+    for _,item in ipairs(verifiedItems or {}) do
+        local alternative=alternatives[item.itemType]
+        if type(item.itemId)~="string" or seen[item.itemId] or item.nativeEligible~=true or item.reserved==true
+            or not alternative or not tonumber(item.currentUses) or item.currentUses<0 then return nil,"current-native-input-proof-required" end
+        seen[item.itemId]=true
+        local amount=tonumber(alternative.amount) or 0
+        if amount<=0 then return nil,"native-type-amount-required" end
+        fraction=fraction+(alternative.partialUse and item.currentUses or 1)/amount
+    end
+    return {requiredAmount=requirement.amount,remainingFraction=math.max(0,1-fraction),
+        quantityUnit="native-slot-fraction",satisfaction="revalidate-with-native-selection"}
+end
+
 local function copyScalarMap(value)
     local copy = {}
     if type(value) ~= "table" then return copy end

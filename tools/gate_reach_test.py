@@ -394,6 +394,24 @@ SCOPED['d3_furniture_recovery_test.py'] = (
     'producer/consumer/save owners; '
     'absent installed inputs are reported as NATIVE_UNAVAILABLE, not native proof.')
 
+SCOPED['d3_recipe_policy_test.py'] = (
+    'D3.19 registered native recipe requirements and exact slot/predicate/reservation '
+    'selection, plain projection and detecting controls. Select affected native policy '
+    'inputs; optional native absence is explicit NATIVE_UNAVAILABLE, never executed proof.')
+SCOPED['d3_stock_upkeep_test.py'] = (
+    'D3.19 existing native stock/upkeep capsule: payment, retained/replaced items, '
+    'current output, workplace custody and replay with detecting controls. Reuse '
+    'applicable physical receipts; optional native absence remains NATIVE_UNAVAILABLE.')
+SCOPED['d3_recipe_ingredient_test.py'] = (
+    'D3.19 signed exact recipe input/source/demand relationship, native predicate '
+    'and acquired workplace observation with detecting controls. Select actual '
+    'observation/transfer owners; optional native absence remains NATIVE_UNAVAILABLE.')
+SCOPED['d3_recipe_consumer_test.py'] = (
+    'D3.19 actual personal demand/choice, signed source acquisition, ordinary '
+    'controller/native stock/upkeep, dropped stock, original requesting use, '
+    'independent feedback and save/lifecycle with omission controls. Select affected '
+    'producer/consumer owners; optional native absence remains NATIVE_UNAVAILABLE.')
+
 FAILS = re.compile(r"return 1\b|sys\.exit\(1\)|else 1\b")
 
 

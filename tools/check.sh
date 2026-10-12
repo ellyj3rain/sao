@@ -2762,6 +2762,25 @@ fi
 # D3 native material work: installed producers report their actual availability;
 # each focused proof keeps an isolated output directory and its fault controls.
 sao_d3_proof="$(mktemp -d)"
+# D3.19 keeps exact native policy, physical stock/upkeep, signed ingredient
+# observation and ordinary private requesting-consumer work in one delivery.
+# Each driver records optional native absence and uses its own proof directory.
+if ! "$PY" tools/d3_recipe_policy_test.py --out "$sao_d3_proof/recipe-policy"; then
+    note "BORDER FINDING - exact native recipe input policy or declared resource requirements differ"
+    fail=1
+fi
+if ! "$PY" tools/d3_stock_upkeep_test.py --out "$sao_d3_proof/stock-upkeep"; then
+    note "BORDER FINDING - native stock or upkeep payment, effects, current availability or saved custody differ"
+    fail=1
+fi
+if ! "$PY" tools/d3_recipe_ingredient_test.py --out "$sao_d3_proof/recipe-ingredients"; then
+    note "BORDER FINDING - signed recipe ingredients, native predicates or workplace custody differ"
+    fail=1
+fi
+if ! "$PY" tools/d3_recipe_consumer_test.py --out "$sao_d3_proof/recipe-consumer"; then
+    note "BORDER FINDING - private native stock acquisition, resumed requesting work or saved lifecycle differ"
+    fail=1
+fi
 if ! "$PY" tools/d3_material_categories_test.py --out "$sao_d3_proof/materials"; then
     note "BORDER FINDING - exact native construction-material admission differs"
     fail=1
