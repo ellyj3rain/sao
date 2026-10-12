@@ -385,6 +385,15 @@ SCOPED = {'d3_owned_window_pane_test.py': 'D3.17 retained qualification04 inject
                                            'provenance at the participant archive boundary. Select when its '
                                            'owned source or contract changes; preserve applicable receipts.'}
 
+SCOPED['d3_furniture_recovery_test.py'] = (
+    'D3.18 original shared furniture relocation: native, private, human, '
+    'lifecycle and admitted-recovery phases with detecting controls over physical members, '
+    'private effort/retreat, restored work, use replay, independent cognition '
+    'alteration Standing, retired human-walk custody and reconciliation after '
+    'recovery admission. Select affected '
+    'producer/consumer/save owners; '
+    'absent installed inputs are reported as NATIVE_UNAVAILABLE, not native proof.')
+
 FAILS = re.compile(r"return 1\b|sys\.exit\(1\)|else 1\b")
 
 
@@ -855,10 +864,13 @@ def ci_execute(plan, lane, output, root=ROOT):
         log = output / (str(row["id"]) + ".log")
         log.write_text(text, encoding="utf-8")
         ok = ci_verdict(row["path"], result.returncode, text)
+        native_unavailable = "NATIVE_UNAVAILABLE" in text
         results.append({**row, "argv": argv, "exitCode": result.returncode, "passed": ok,
-                        "observedSkip": "SKIP" in text, "log": log.name,
+                        "observedSkip": "SKIP" in text,
+                        "observedNativeUnavailable": native_unavailable, "log": log.name,
                         "sha256": hashlib.sha256(text.encode()).hexdigest()})
-        print(("PASS " if ok else "FAIL ") + row["path"] + " -> " + str(log), flush=True)
+        label = "NATIVE_UNAVAILABLE " if ok and native_unavailable else "PASS " if ok else "FAIL "
+        print(label + row["path"] + " -> " + str(log), flush=True)
     if lane == "required":
         faults = []
         for path in plan["pythonParse"]:
@@ -892,6 +904,7 @@ def ci_execute(plan, lane, output, root=ROOT):
                " changed inputs from the full PR diff; " + str(len(results)) + " results.", "",
                "| Check | Result |", "| --- | --- |"]
     summary += ["| " + r["path"] + " | " + ("failed" if not r["passed"] else
+                "native input unavailable (recorded)" if r.get("observedNativeUnavailable") else
                 "skipped native input reported" if r.get("observedSkip") else "passed") + " |" for r in results]
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as stream:
@@ -945,6 +958,16 @@ def ci_controls():
         assert ci_execute(maintenance, "advisory", root / "advisory", root) == 1
         write("mod/runtime.lua", "bad")
         assert ci_execute(executable, "required", root / "fail", root) == 1
+        # Optional installed-input absence retains its actual boundary in the
+        # result and summary. A required-input refusal still fails the lane.
+        write("tools/native_absence_test.py", 'print("NATIVE_UNAVAILABLE installed input absent")\n')
+        unavailable = {**executable, "pythonParse": [], "required": [
+            {"path": "tools/native_absence_test.py", "args": [], "reasons": ["native availability"]}]}
+        assert ci_execute(unavailable, "required", root / "unavailable", root) == 0
+        observed = json.loads((root / "unavailable/results.json").read_text())['results'][-1]
+        assert observed['observedNativeUnavailable'] and not observed['observedSkip']
+        write("tools/native_absence_test.py", 'print("NATIVE_UNAVAILABLE required input absent")\nraise SystemExit(1)\n')
+        assert ci_execute(unavailable, "required", root / "unavailable-required", root) == 1
         # A later documentation commit does not erase an earlier failed input.
         def git(*args):
             return subprocess.run(["git", *args], cwd=root, check=True, capture_output=True, text=True).stdout.strip()

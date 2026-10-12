@@ -55,6 +55,19 @@ def canonical_module(module, aliases):
     return module
 
 
+def local_module_aliases(source):
+    """Resolve parallel local bindings only when each RHS is an SAO module."""
+    found = {}
+    for match in re.finditer(
+            r'^\s*local\s+([\w\s,]+)\s*=\s*(SAO\.\w+(?:\s*,\s*SAO\.\w+)*)\s*$',
+            strip(source), re.M):
+        names = [value.strip() for value in match.group(1).split(',')]
+        modules = [value.strip() for value in match.group(2).split(',')]
+        if len(names) == len(modules) and all(re.fullmatch(r'\w+', name) for name in names):
+            found.update(zip(names, modules))
+    return found
+
+
 def main():
     print("=" * 74)
     print("EVERY CALL HAS A TARGET")
@@ -73,7 +86,12 @@ def main():
     assert canonical_module('SAO.Old', module_aliases(['SAO.Old = SAO.Current'])) == 'SAO.Current'
     assert canonical_module('SAO.Old', module_aliases(['-- SAO.Old = SAO.Current'])) == 'SAO.Old'
     alias_of = {}
+    assert local_module_aliases('local A,R=SAO.Action,SAO.Relocation') == {'A': 'SAO.Action', 'R': 'SAO.Relocation'}
+    assert not local_module_aliases('-- local A,R=SAO.Action,SAO.Relocation')
+    assert not local_module_aliases('local A,R=SAO.Action')
     for p, src in files.items():
+        for alias, module in local_module_aliases(src).items():
+            alias_of[(p, alias)] = canonical_module(module, aliases)
         for m in re.finditer(r"^local\s+(\w+)\s*=\s*(SAO\.\w+)\s*$",
                              src, re.M):
             alias_of[(p, m.group(1))] = canonical_module(m.group(2), aliases)

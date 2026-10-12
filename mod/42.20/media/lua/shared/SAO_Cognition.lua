@@ -355,7 +355,7 @@ local KINDS = { inspection = true, acquire = true, store = true, consume = true 
 local HOBBY_KINDS={ ["leisure-meditation"]=true,["leisure-exercise"]=true,
     ["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true }
-local EXTENDED = { ["generator-operation"] = true, ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true, ["collector-construction"] = true,
+local EXTENDED = { ["furniture-use"]=true,["furniture-relocation"]=true, ["generator-operation"] = true, ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true, ["collector-construction"] = true,
     ["animal-care"] = true, ["window-repair"] = true,["window-installation"] = true, ["material-crafting"] = true, ["tool-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["reading-assessment"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -432,7 +432,7 @@ local function sameData(a, b)
 end
 local BEHAVIOR_RESULT = {}
 function C.experience(id, supplied, authority)
-    if type(supplied)=="table" and (supplied.kind=="generator-operation" or supplied.kind=="gate-operation" or supplied.kind=="shelter-movement" or supplied.kind=="shelter-construction" or supplied.kind=="shelter-use" or supplied.kind=="bed-construction" or supplied.kind=="collector-construction" or supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="window-installation" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="reading-assessment" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
+    if type(supplied)=="table" and (supplied.kind=="furniture-use" or supplied.kind=="furniture-relocation" or supplied.kind=="generator-operation" or supplied.kind=="gate-operation" or supplied.kind=="shelter-movement" or supplied.kind=="shelter-construction" or supplied.kind=="shelter-use" or supplied.kind=="bed-construction" or supplied.kind=="collector-construction" or supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="window-installation" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="reading-assessment" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
         and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
     local now = clock()
     if not C.settings().enabled or not now then return false, "disabled" end
@@ -1350,6 +1350,34 @@ function C.shelterOutcome(id,receipt)
     elseif not receipt.opened or not receipt.crossedOut or not receipt.crossedIn or not receipt.closedDoor
         or not receipt.enclosureConfirmed then return false end
     return nativeExperience(id,build and "shelter-construction" or "shelter-use",receipt.sequence,x)
+end
+
+function C.furnitureUseOutcome(id,receipt)
+    local at=clock()
+    if not at or type(receipt)~="table" or receipt.actorId~=id or not finite(receipt.sequence,1,9007199254740991)
+        or receipt.sequence~=math.floor(receipt.sequence) or receipt.id~=id.."/furniture-use/"..receipt.sequence
+        or not finite(receipt.atHours,0,at) then return false end
+    local canonical=SAO.FurnitureWork and SAO.FurnitureWork.useOutcome(id,receipt.sequence)
+    if not canonical or not sameData(canonical,receipt) then return false end
+    local x=privateFact(id,"furniture-use","body",receipt.id,at,receipt.atHours)
+    x.sourceId,x.consumerId,x.actionKind,x.succeeded=receipt.sourceId,receipt.consumerId,receipt.actionKind,receipt.succeeded
+    if receipt.origin=="means" then x.perspective="observed" end
+    return nativeExperience(id,"furniture-use",receipt.sequence,x)
+end
+
+function C.furnitureOutcome(id,receipt)
+    local at=clock()
+    if not at or type(receipt)~="table" or receipt.actorId~=id or receipt.kind~="furniture-relocation"
+        or receipt.nativeOwner~="SAO.FurnitureRelocation.commit" or not finite(receipt.sequence,1,9007199254740991)
+        or receipt.sequence~=math.floor(receipt.sequence) or receipt.id~=id.."/furniture-result/"..receipt.sequence
+        or not finite(receipt.atHours,0,at) then return false end
+    local canonical=SAO.FurnitureWork and SAO.FurnitureWork.outcome(id,receipt.sequence)
+    if not canonical or not sameData(canonical,receipt) then return false end
+    if receipt.nativeAttempted~=true then return true,"unperformed-work-retained" end
+    local fact=privateFact(id,"furniture-relocation","body",receipt.id,at,receipt.atHours)
+    fact.sourceId=receipt.sourceId;fact.succeeded=receipt.status=="completed" and receipt.nativeCompleted==true
+    fact.actionKind=receipt.geometry.mode
+    return nativeExperience(id,"furniture-relocation",receipt.sequence,fact)
 end
 
 function C.bedConstructionOutcome(id,receipt)

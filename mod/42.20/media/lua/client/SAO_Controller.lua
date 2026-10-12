@@ -40,6 +40,7 @@ if not SAO.LeisureAcquisition and type(require) == "function" then pcall(require
 if not SAO.LeisureLifestyle and type(require) == "function" then pcall(require, "SAO_LeisureLifestyle") end
 if not SAO.ResourceProduction and type(require) == "function" then pcall(require, "SAO_ResourceProduction") end
 if not SAO.WindowRepair and type(require) == "function" then pcall(require, "SAO_WindowRepair") end
+if not SAO.FurnitureWork and type(require)=="function" then pcall(require,"SAO_FurnitureWork") end
 if not SAO.Build and type(require) == "function" then pcall(require, "SAO_Build") end
 if not SAO.ConceptKnowledge and type(require) == "function" then pcall(require, "SAO_ConceptKnowledge") end
 if not SAO.ConflictResponse and type(require) == "function" then pcall(require, "SAO_ConflictResponse") end
@@ -864,6 +865,7 @@ end
 local function setState(agent, id, state, why, answer, repairingSourceProjection)
     if agent.state ~= state and not repairingSourceProjection then
         local sourceBody = SAO.Body.get(id)
+        if state ~= "FURNITURE" and SAO.FurnitureWork then SAO.FurnitureWork.interrupt(id,sourceBody,"state-change:"..tostring(state)) end
         if state ~= "BOARDING" and SAO.Build
             and SAO.Build.interrupt(id, sourceBody, "state-change:" .. tostring(state)) ~= true then
             return false
@@ -4684,6 +4686,7 @@ function Ctl.admitRecoveryPlace(id,agent,body,tick,kind,place,retrying)
         end
         return false,reason
     end
+    if SAO.ProceduralPlanning.admitFurnitureRecovery then SAO.ProceduralPlanning.admitFurnitureRecovery(id,kind,place) end
     agent.recoveryAdmission=nil
     agent.recovery,agent.resting,agent.sleeping=true,true,nil
     agent.recoveryBody=body
@@ -4792,6 +4795,7 @@ function Ctl.pollRecoveryAdmission(id,agent,body,tick,needs,threat)
     return false
 end
 function Ctl.resumePreparingRecovery(id,agent,body,tick,needs,threat)
+    if SAO.ProceduralPlanning.reconcileFurnitureRecovery and not SAO.ProceduralPlanning.reconcileFurnitureRecovery(id,body) then return false,"furniture-recovery-still-owned" end
     if not agent or SAO.Identity.get(id)~=agent.rec or not SAO.Needs.ownsRecoveryBody(id,body) then
         return false,"body-binding-lost"
     end
@@ -5100,6 +5104,25 @@ function Ctl.tryShelterConstruction(id,agent,body,tick,needs,kind)
     return false
 end
 
+function Ctl.tryFurnitureRecovery(id,agent,body,tick,needs,kind,places)
+    if not SAO.FurnitureWork or kind~="sleep" then return false end
+    SAO.FurnitureWork.reconcile(id,body)
+    if not SAO.ProceduralPlanning.reconcileFurnitureRecovery(id,body) then return false end
+    SAO.FurnitureWork.rebindRecovery(id,body,places)
+    local options=SAO.FurnitureWork.options(id,body,kind,"standing")
+    local p,step=SAO.ProceduralPlanning.planFurnitureRecovery(id,{kind=kind,fatigue=needs.fatigue or 0,
+        options=options,recoveryPlaces=places,constructionAvailable=SAO.ProceduralPlanning.bedPurpose(id)~=nil})
+    if p and step and step.owner=="SAONeeds" and not p.admission and p.furnitureRelocation.resultId then
+        if not setState(agent,id,"FURNITURE","returns to the retained recovery approach","need") then return false end
+        if SAO.FurnitureWork.returnForRecovery(id,body,p) then agent.taskDeadline=tick+5400;return true end
+        setState(agent,id,"IDLE","recovery approach return is unavailable");return false
+    end
+    if not p or not step or step.owner~="SAO.FurnitureWork" or p.admission then return false end
+    if not setState(agent,id,"FURNITURE","moves furniture for a retained recovery purpose","need") then return false end
+    if SAO.FurnitureWork.begin(id,body,p,p.furnitureRelocation.option) then agent.taskDeadline=tick+5400;return true end
+    setState(agent,id,"IDLE","furniture work refused");return false
+end
+
 function Ctl.offerRecovery(id, agent, body, tick, needs, selectedKind)
     if not SAO.Needs.recoveryPreference or not needs or agent.recovery
         or agent.resting or SAO.History.countyHours() < (agent.nextRecoveryHours or 0)
@@ -5116,6 +5139,7 @@ function Ctl.offerRecovery(id, agent, body, tick, needs, selectedKind)
     end
     if SAO.ProceduralPlanning.reconcileBedRecovery and not SAO.ProceduralPlanning.reconcileBedRecovery(id,body) then return false end
     if SAO.ProceduralPlanning.reconcileShelterRecovery and not SAO.ProceduralPlanning.reconcileShelterRecovery(id,body) then return false end
+    if SAO.ProceduralPlanning.reconcileFurnitureRecovery and not SAO.ProceduralPlanning.reconcileFurnitureRecovery(id,body) then return false end
     if SAO.ProceduralPlanning.reconcileShelterMovement and not SAO.ProceduralPlanning.reconcileShelterMovement(id,body) then return false end
     local kind, reasoning = SAO.Needs.recoveryPreference(id, needs, {
         emergency = policy().desperation, committed = agent.coordinationCommitment ~= nil,
@@ -5154,9 +5178,12 @@ function Ctl.offerRecovery(id, agent, body, tick, needs, selectedKind)
     for key,retry in pairs(agent.recoveryPlaceRetry or {}) do
         if tick>=retry then agent.recoveryPlaceRetry[key]=nil end
     end
-    for _,place in ipairs(SAO.Needs.recoveryPlaces(id,body)) do
+    local freshlyObserved=SAO.Needs.recoveryPlaces(id,body)
+    SAO.FurnitureWork.rebindRecovery(id,body,freshlyObserved)
+    for _,place in ipairs(freshlyObserved) do
         if (not shelterUse or not shelterUse.usedWorkId or SAOJavaBridge:worldShelterRecoveryValid(body,
             shelterUse.useSite.key,shelterUse.useSite.revision,place.x,place.y,place.z,false)==true)
+            and (not SAO.ProceduralPlanning.furnitureRecoveryPlace or SAO.ProceduralPlanning.furnitureRecoveryPlace(id,place))
             and (kind=="sleep" or place.kind=="ground")
             and tick>=(agent.recoveryPlaceRetry and agent.recoveryPlaceRetry[SAO.Needs.recoveryApproachKey(place)] or 0)
             and not SAO.Needs.recoveryMeansUnavailable(id,kind,place)
@@ -5172,6 +5199,7 @@ function Ctl.offerRecovery(id, agent, body, tick, needs, selectedKind)
     end)
     local observedBed=false
     for _,place in ipairs(choices) do if place.kind=="bed" then observedBed=true;break end end
+    if Ctl.tryFurnitureRecovery(id,agent,body,tick,needs,kind,choices) then return true end
     if kind=="sleep" and not observedBed and Ctl.tryBedConstruction(id,agent,body,tick,needs) then return true end
     for _,place in ipairs(choices) do
         if SAO.Needs.recoveryPlaceAt(id,body,place) then
@@ -10879,6 +10907,13 @@ local function updateAgent(id, agent)
     -- They leave when the work has had its moment, and immediately if
     -- something they believe in comes close: nobody finishes nailing
     -- while the thing they were nailing against walks up.
+    if agent.state=="FURNITURE" then
+        local threat=SAO.Perception.nearestBelievedZombie(id,tickCount,body:getX(),body:getY())
+        if threat and threat.dist<=SAO.Disposition.fleeDistance(id) or tickCount>=(agent.taskDeadline or 0) then
+            setState(agent,id,"IDLE","leaves furniture work")
+        elseif not SAO.FurnitureWork.tick(id,body) then setState(agent,id,"IDLE","furniture work closed") end
+        return
+    end
     if agent.state == "WINDOWREPAIR" then
         local threat = SAO.Perception.nearestBelievedZombie(id, tickCount, body:getX(), body:getY())
         SAO.WindowRepair.flush(id)

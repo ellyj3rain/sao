@@ -184,7 +184,7 @@ currency with `python tools/development_graph.py --check`.
 
 ## Status
 
-`2.7.0.0-pre-alpha` - the coordinate is computed by the version machine
+`2.7.1.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -721,3 +721,5 @@ The [feature-scope reconciliation](Batches/Transitions/VERSION-20261010-feature-
 Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is reopened before merge for actual normal startup, native completion order and shared range correction. Its preceding source/package/CI claims retain their stated historical candidate boundaries; actual delivery remains pending in the same child and full D3 remains OPEN.
 
 Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md) is reclosed after actual normal Main, native perform-before-complete handoff and shared geometry qualification. The same assessed kohai coordinate remains; current package/publication have their distinct receipts. Full D3, wider goals and FIFO remain active.
+
+[D3.18](Batches/D3.18-20261012-0703Z-0003PDT-furniture-relocation-recovery.md) supplies original shared human/NPC furniture relocation through exact private observation, alteration/passage Standing, ordinary individual choice, actual effort/retreat and conserved native contents. Fresh ordinary bed use and native fatigue relief produce separate authenticated feedback. Current callbacks and interrupted/reconstructed saved work retain once-only custody. Full D3 remains OPEN at `2.7.1.0-pre-alpha`; D3.19 and the remaining native/source/service/authority contracts continue before D4.

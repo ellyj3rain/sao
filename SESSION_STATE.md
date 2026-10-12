@@ -1,13 +1,17 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.0.0-pre-alpha` |
+| Version | `2.7.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
-**As of** `[D3.17]`, 182 delivered source outcomes: 29 A, 52 B, 82 C products and nineteen D records. D3 is the active OPEN parent; D3.17 is reclosed on actual-path qualification with protected publication pending.
+**As of** `[D3.18]`, 183 delivered source outcomes: 29 A, 52 B, 82 C products and twenty D records. D3 is the active OPEN parent; D3.18 qualified closure awaits its actual stamped package and protected publication receipts.
+
+Current child: [D3.19 — Purpose-bound stock production and upkeep](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md), OPEN for actual private demand/acquisition, native transformations/maintenance and resumed useful consumers. D3.18 is qualified CLOSED; full D3 continues to the D4 transition.
+
+D3.19 implementation uses disjoint resource/material owners; the coupled person/observation join follows D3.18 package and publication. Its opening creates no credit or completed-parent claim.
 
 ## Delivered product
 
@@ -136,7 +140,7 @@ original purpose. Adoption and IDLE recovery reconcile lost native admissions
 without inventing effects or completion. Focused native and Controller proofs
 retain their exact inputs and boundaries. Final regression and review results
 live in the D3 record. The whole construction, crafting, repair and utilities
-parent remains OPEN. Its CLOSED D3.1 through D3.17 children deliver native material work and usable consumers, source-bound architectural learning, and owned pane supply/repair with saved continuity; the current replay derives `2.7.0.0-pre-alpha` through a kohai-cap carry.
+parent remains OPEN. Its CLOSED D3.1 through D3.17 children deliver native material work and usable consumers, source-bound architectural learning, and owned pane supply/repair with saved continuity; the current replay derives `2.7.1.0-pre-alpha` through a kohai-cap carry.
 
 [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is the
 CLOSED child for native plank crafting. Exact private log and saw
@@ -261,7 +265,7 @@ confirmation and root release. Full D3 and wider scope/FIFO remain retained.
 one owned human/private repair producer. The availability guard correction,
 authentic old-owner save replay and both bounded confirmations are complete.
 Exact qualified native phases and source-scoped acquisition/material evidence
-are reused. The owning machine records one kohai at `2.7.0.0-pre-alpha`; this
+are reused. The owning machine records one kohai at `2.7.1.0-pre-alpha`; this
 is a mechanical cap carry, with full D3 still OPEN. One supported stamped build
 and actual required CI/protected publication retain their separate receipts.
 Furniture, other admitted native repertoire, server authority and broader
@@ -277,7 +281,7 @@ custody and direct shared-action cell/range gaps. Source owners confirm them;
 their bounded corrections and actual-path proofs proceed inside the same
 child. Prior injected/manual-order proof and package/CI packets remain retained
 at their real boundaries. Version stays at the one assessed candidate
-`2.7.0.0-pre-alpha`; actual delivery is pending and no new credit or rollback
+`2.7.1.0-pre-alpha`; actual delivery is pending and no new credit or rollback
 is applied. Publication and recenter have not occurred. Full D3 and wider
 scope/FIFO remain active.
 
@@ -287,7 +291,17 @@ D3.17 is reclosed after actual normal Main23, native human/NPC dispatch/handoff2
 with six controls, current helper/radius18 with one control and37 applicable
 prior bounds checks. The focused reviewer confirms all three contracts.
 Historical injected/manual-order packets remain narrower evidence. The one
-assessed kohai coordinate stays `2.7.0.0-pre-alpha`; current Java inputs
+assessed kohai coordinate stays `2.7.1.0-pre-alpha`; current Java inputs
 justify the second supported build and the same protected PR160 snapshot
 amendment. Current CI, addressed conversations, merge and recenter retain their
 own actual receipts. Full D3 and broader scope/FIFO remain OPEN.
+
+## D3 through the D4 transition - 2026-10-12 06:54 UTC / 23:54 PDT
+
+The operator directs continuing D3 with the Granular, Emmetropic and Beacon framework until the D4 transition, determining useful delivery seams from actual work as development proceeds. Neo owns the complete remaining construction, crafting, repair and utilities outcome, its source incorporation, private producer-consumer joins, persistence and required integration. D3.17 is merged through PR160; the source is recentered on the published commit with held files and peer indexes preserved. The actual working Scion and Mousecat readback retain all goals, ownership and pending shared contracts.
+
+Beacon now reconciles the finite remaining native/source domain and parent closure obligations against delivered evidence. Granular resolves the next connected furniture/recovery candidate's source, purpose, Standing, physical work and persistence dependencies; Emmetropic selects and records useful shipments from those relationships. Scope discovery retains an explicit inspection end condition and attributed additions. Existing publication, once-only feature credit and sufficient affected-contract evidence apply. Full D3 closes when its accepted domain and integration obligations are satisfied; D4 whole food and preservation follows in FIFO. Wider civilian/doctrinal/lifespan/strategic and Speakeasy ML goals retain their existing owners and contract obligations through that transition.
+
+## D3.18 qualified closure and continued D3 — 2026-10-12 10:19 UTC / 03:19 PDT
+
+[D3.18](Batches/D3.18-20261012-0703Z-0003PDT-furniture-relocation-recovery.md) is CLOSED for original shared relocation through actual private native recovery and separate authenticated benefit. Current passage, retired human callbacks and reconstructed-source/recovery-admission continuity are qualified. One kohai records progress; supported stamped package and protected merge retain their own evidence. D3.19 and complete remaining D3 proceed under the same framework until D4. The shared full private-experience export seam remains source-linked in Scion and Mousecat; no peer assent or trained model is inferred.

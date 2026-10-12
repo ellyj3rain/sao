@@ -4712,4 +4712,35 @@ function P.boundarySites(id,body)
     for _,key in ipairs(b.boundarySiteOrder or {})do local row=boundarySiteCopy(id,b.boundarySites[key]);if row and row.observedAtHours<=at then out[#out+1]=row end end;return out
 end
 
+function P.observeFurniture(id,body)
+ if not collectorObserver(id,body) or not SAOJavaBridge.furnitureObservation then return false end
+ local ok,v=pcall(function()return SAOJavaBridge:furnitureObservation(body,8)end)
+ if not ok or type(v)~="table" or v.actorId~=id or v.status~="available" or v.schema~="sao.person-furniture-observation/1"
+  or not collectorObserver(id,body) then return false end
+ local out={actorId=id,source="native-personal-visibility",atHours=SAO.History.countyHours(),squares={}}
+ local parts={}
+ for i,s in ipairs(v.squares or {})do
+  if i>256 then break end
+  if not finiteSoundNumber(s.x) or not finiteSoundNumber(s.y) or not finiteSoundNumber(s.z) then return false end
+  local row={x=s.x,y=s.y,z=s.z,floor=s.floor==true,free=s.free==true,occupied=s.occupied==true,stairs=s.stairs==true,objects={}}
+  for j,o in ipairs(s.objects or {})do
+   if j>64 then return false end
+   if not finiteSoundNumber(o.index) or type(o.identity)~="string" or #o.identity>16 or type(o.sprite)~="string" or #o.sprite>160 then return false end
+   row.objects[#row.objects+1]={index=o.index,identity=o.identity,sprite=o.sprite,bed=o.bed==true,movable=o.movable==true,
+    solid=o.solid==true,recoverySource=o.recoverySource,facing=o.facing,bedType=o.bedType,gridWidth=o.gridWidth,gridHeight=o.gridHeight,gridX=o.gridX,gridY=o.gridY}
+   parts[#parts+1]=o.identity..":"..o.sprite
+  end
+  out.squares[#out.squares+1]=row
+ end
+ out.revision=tostring(out.atHours)..":"..table.concat(parts,"|")
+ store(id).furnitureObservation=out;return true
+end
+function P.furnitureFacts(id,body)
+ if not collectorObserver(id,body) then return nil end
+ local v=store(id).furnitureObservation
+ if not v or v.actorId~=id or v.source~="native-personal-visibility" or v.atHours>SAO.History.countyHours() then return nil end
+ local function clone(x)if type(x)~="table" then return x end;local o={};for k,n in pairs(x)do o[k]=clone(n)end;return o end
+ return clone(v)
+end
+
 return P

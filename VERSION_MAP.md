@@ -25,8 +25,8 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.7.0.0-pre-alpha` |
-| Classified delivered scope | `A1-D3.17` |
+| Current version | `2.7.1.0-pre-alpha` |
+| Classified delivered scope | `A1-D3.18` |
 | Current C generation | `20261005-product-consolidation` |
 | Feature-scope reconciliation | [20261010](Batches/VERSION_SCOPE_RECONCILIATION.json); prior replay retained |
 | Unconsumed scope | `D3` |
@@ -228,6 +228,7 @@ the machine. Names, dates, and threads below come from
 | `D3.15` | 2026-10-11 | kohai | `2.6.15.0-pre-alpha` | Native metal enclosure and access through physical use | The complete recorded remaining native metal enclosure/access family joins privately intended permitted construction, exact acquired native means and actual distinct physical consumers with durable feedback and queue/save custody as connected building progress within OPEN D3; the full metal-building feature and D3 module are not claimed complete. |
 | `D3.16` | 2026-10-12 | kohai | `2.6.16.0-pre-alpha` | Architectural literature and person-private learning | Three original native literature carriers join actual private acquisition/exposure, independent bounded responses, maintained assessed and unassessed received memory, current claim selection and ordinary source-specific inquiry with source/save/replay controls as coherent building progress within OPEN D3 and broader learning scope; full doctrine, curriculum, learned ML and strategic modules remain unfinished. |
 | `D3.17` | 2026-10-12 | kohai | `2.7.0.0-pre-alpha` | Owned window pane supply and repair | Original compatible pane/mold supply joins actual normal Main installation, independent shared geometry and native perform-before-complete human/NPC repair to exact private acquisition/preparation/return, payment/restoration and saved-result continuity. One requalified useful outcome within OPEN D3; earlier candidate/reopening earns no duplicate credit and general crafting/repertoire/server/learning scope remains unfinished. |
+| `D3.18` | 2026-10-12 | kohai | `2.7.1.0-pre-alpha` | Furniture relocation through usable recovery | Original shared human/NPC furniture relocation conserves native members and contents through private observation, alteration and passage Standing, individual interpretation, actual effort/retreat and measured effects; fresh ordinary native recovery, independent benefit and interrupted/reconstructed/once-only saved work form useful progress within OPEN D3. Full construction/crafting/repair/utilities and shared learning remain unfinished. |
 
 Dotted labels record child scope. Each capability row above receives credit once;
 child delivery leaves its explicitly active parent open. Closed parent aggregation
@@ -351,6 +352,6 @@ another batch. Subsequent delivered work determines its own tier:
 
 | If newly delivered scope is | Result |
 |---|---|
-| patch or hotfix | `2.7.0.1-pre-alpha` |
-| kohai | `2.7.1.0-pre-alpha` |
+| patch or hotfix | `2.7.1.1-pre-alpha` |
+| kohai | `2.7.2.0-pre-alpha` |
 | minor | `2.8.0.0-pre-alpha` |

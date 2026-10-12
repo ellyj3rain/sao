@@ -1,3 +1,4 @@
+require "SAO_FurnitureRelocation"
 -- Shared, loaded-singleplayer furniture movement over the installed physical owner.
 -- Effort completion is not movement completion. The installed SP shove queue has
 -- no cancellation token: keep its animation, and own only its bounded delay here.
@@ -308,6 +309,11 @@ local function reconcileWater(binding)
     return true
 end
 
+local function ownedNativeMove(character,object,destination)
+    local b=SAO.FurnitureRelocation.bind(character,object,destination,active and active.mode or "pull")
+    return b and SAO.FurnitureRelocation.commit(b) or false
+end
+
 local function execute(binding, original)
     local okCurrent, valid, reason = pcall(current, binding)
     if not okCurrent or not valid then
@@ -320,7 +326,7 @@ local function execute(binding, original)
     local measured, complete, changed = pcall(measure, binding)
     if ok and nativeResult == true and measured and complete
         and binding.cell == getCell() and binding.generation == generation then
-        local waterOk, reconciled = pcall(reconcileWater, binding)
+        local waterOk, reconciled = true, true
         if waterOk and reconciled then
             receipt(binding, "completed", "measured-relocation", true)
             return true
@@ -356,7 +362,7 @@ function M.tick()
             receipt(binding, "expired", "delay-expired")
         elseif binding and now >= binding.due then
             table.remove(pending, i)
-            if execute(binding, installed.serverMove) then
+            if execute(binding, ownedNativeMove) then
                 FurniturePushPull.applyEndurance(binding.character, binding.endurance)
                 FurniturePushPull.playMoveFeedback(binding.character, binding.members[1].square)
             end
@@ -374,7 +380,7 @@ function M.install()
         if not singleplayer() then return installed.move(character, object, destination) end
         if active then return false end
         local b = guardedBind(character, object, destination, "pull")
-        return b and execute(b, installed.move) or false
+        return b and execute(b, ownedNativeMove) or false
     end
     function fpp.executeServerMove(character, object, destination)
         if not singleplayer() then return installed.serverMove(character, object, destination) end

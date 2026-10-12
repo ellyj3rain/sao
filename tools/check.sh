@@ -2774,6 +2774,29 @@ if ! "$PY" tools/d3_window_pane_native_handoff_test.py --out "$sao_d3_proof/owne
     note "BORDER FINDING - normal pane startup or native perform/complete custody differs"
     fail=1
 fi
+# D3.18 keeps physical relocation, private recovery and saved lifecycle in one
+# public driver. The five phases reach their declared detecting controls;
+# optional installed-input absence is an explicit boundary, not native proof.
+if ! "$PY" tools/d3_furniture_recovery_test.py --phase native --controls --out "$sao_d3_proof/furniture-native"; then
+    note "BORDER FINDING - native furniture relocation or exact member custody differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_furniture_recovery_test.py --phase private --controls --out "$sao_d3_proof/furniture-private"; then
+    note "BORDER FINDING - private furniture effort, retreat or recovery differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_furniture_recovery_test.py --phase human --controls --out "$sao_d3_proof/furniture-human"; then
+    note "BORDER FINDING - ordinary human furniture entry or native queue custody differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_furniture_recovery_test.py --phase lifecycle --controls --out "$sao_d3_proof/furniture-lifecycle"; then
+    note "BORDER FINDING - saved furniture work, independent feedback or alteration Standing differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_furniture_recovery_test.py --phase admitted --controls --out "$sao_d3_proof/furniture-admitted"; then
+    note "BORDER FINDING - admitted recovery interruption, source reconciliation or independent benefit differs"
+    fail=1
+fi
 if ! "$PY" tools/d3_native_boarding_test.py --out "$sao_d3_proof/boarding"; then
     note "BORDER FINDING - native boarding admission or measured effects differ"
     fail=1

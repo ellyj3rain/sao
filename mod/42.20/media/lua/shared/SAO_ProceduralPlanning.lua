@@ -3862,6 +3862,7 @@ function P.recordResult(id, purposeId, result, authority)
             or step.owner ~= "SAO.SourceUse" and step.owner ~= "SAO.Study" and step.owner ~= "SAO.Generator" then return false end
     end
     if purpose and purpose.leisureAcquisition and not purpose.leisure and authority ~= RESOURCE_RESULT then return false end
+    if purpose and purpose.furnitureRelocation and authority ~= BED_RESULT then return false end
     if purpose and purpose.conflict then return false end
     if purpose and purpose.resourceCategory and authority ~= RESOURCE_RESULT then return false end
     if purpose and purpose.windowRepair and (not step or step.owner ~= "SAO.SourceUse") then
@@ -3969,7 +3970,7 @@ function P.recordResult(id, purposeId, result, authority)
         purpose.resultReceipts[#purpose.resultReceipts + 1] = receiptKey
         if #purpose.resultReceipts > MAX_EVENTS then table.remove(purpose.resultReceipts, 1) end
     end
-    if purpose.readingAssessment or purpose.resourceCategory or purpose.materialWork or purpose.windowRepair or purpose.leisure or purpose.leisureAcquisition or purpose.generatorPower or purpose.gateAccess then
+    if purpose.furnitureRelocation or purpose.readingAssessment or purpose.resourceCategory or purpose.materialWork or purpose.windowRepair or purpose.leisure or purpose.leisureAcquisition or purpose.generatorPower or purpose.gateAccess then
         purpose.lastAdmission = dataCopy(purpose.admission)
         purpose.admission = nil
     end
@@ -5234,6 +5235,113 @@ function P.consumeWindowGlazingResult(id,supplied)
     local accepted=P.recordResult(id,p.id,{owner="SAO.ResourceProduction",token=row.token,status=row.status,correlationId=row.id,atHours=row.atHours,reason=row.detail},WINDOW_GLAZING_RESULT)
     if accepted and row.status=="completed" then local own=p.shelterConstruction;own.glazingResults=own.glazingResults or {};own.glazingResults[#own.glazingResults+1]=row.id;own.glazedWindowKey=row.siteKey;p.status="maintained";p.blockers={"awaiting native window use and ordinary shelter recovery"} end
     return accepted
+end
+
+function P.furniturePurpose(id)
+ local s=state(id)
+ for _,key in ipairs(s and s.order or {})do local p=s.purposes[key]
+  if p and p.furnitureRelocation and p.status~="completed" and p.status~="abandoned" then return p,p.steps[p.cursor] end
+ end
+end
+function P.planFurnitureRecovery(id,context)
+ local old,step=P.furniturePurpose(id)
+ if old and (old.admission or old.furnitureRelocation.resultId and not old.furnitureRelocation.recoveryBindingUnavailable) then return old,step end
+ if type(context)~="table" or context.kind~="sleep" or not finite(context.fatigue) then return nil end
+ local candidates,offered={},{}
+ for _,place in ipairs(context.recoveryPlaces or {})do
+  if #candidates>=64 then break end
+  candidates[#candidates+1]={id="use:"..place.key,evidence=1,continuity=.8,novelty=0,informationGain=0,
+   utility=place.kind=="bed" and .9+context.fatigue or .3+context.fatigue,blockers=0}
+ end
+ candidates[#candidates+1]={id="inquire",evidence=.5,continuity=.3,novelty=.2,informationGain=.7,utility=.3,blockers=0}
+ if context.constructionAvailable then candidates[#candidates+1]={id="construct",evidence=1,continuity=.4,novelty=.2,informationGain=.2,utility=.75,blockers=0}end
+ for _,o in ipairs(context.options or {})do if #candidates<96 and o.actorId==id and o.basis=="personally-visible-obstructed-bed-approach"
+  and finite(o.observedAtHours) and o.observedAtHours<=nowHours() then
+  local k="relocate:"..o.key;offered[k]=o
+  candidates[#candidates+1]={id=k,evidence=.8,continuity=.7,novelty=.2,informationGain=.4,utility=.7+context.fatigue,
+   blockers=0,consequences={{kind="relocate",value=.2,category="body",sourceId=o.key},{kind="relocation-access",value=.3,category="body",sourceId=o.key},{kind="relocation-benefit",value=.5,category="body",sourceId=o.key}}}
+ end end
+ local view=interpretations(id,candidates,{domain="furniture",pressure=context.fatigue,atHours=nowHours()})
+ local o=view and offered[view.selected];if not o then return nil,nil,view end
+ local p=old or P.maintain(id,{key="recovery-through-relocation",domain="body",objective="make a personally observed recovery approach usable",
+  origin="recovery-concern",atHours=nowHours()})
+ if not p then return nil end
+ p.furnitureRelocation={option=dataCopy(o,0,8,512),kind=context.kind,uncertainBenefit=true}
+ setPlan(p,{{id="relocate:"..o.key,verb="relocate",owner="SAO.FurnitureWork",token="furniture:moved",target=o.key,status="available"},
+  {id="use-recovery-after-relocation",verb="recover",owner="SAONeeds",token="recovery:measured",target=o.key,status="dependent"}}, {},dataCopy(view),nowHours())
+ return p,p.steps[p.cursor],view
+end
+function P.consumeFurnitureResult(id,sequence)
+ local c=SAO.FurnitureWork and SAO.FurnitureWork.outcome(id,sequence);local p,step=P.furniturePurpose(id);local a=p and p.admission
+ if not c or not p or not a or c.actorId~=id or c.purposeId~=p.id or c.workId~=a.correlationId
+  or c.nativeOwner~="SAO.FurnitureRelocation.commit" or step.owner~="SAO.FurnitureWork" or c.sourceId~=step.target
+  or c.atHours<a.at or c.atHours>nowHours() then return false end
+ local accepted=P.recordResult(id,p.id,{owner="SAO.FurnitureWork",token="furniture:moved",status=c.status,
+  correlationId=c.workId,atHours=c.atHours,reason=c.reason},BED_RESULT)
+ if accepted and c.status=="completed" and c.nativeCompleted then
+  p.furnitureRelocation.meansSequenceBefore=record(id).recoveryMeansSequence or 0;p.furnitureRelocation.resultId=c.id;p.furnitureRelocation.expectedBed=dataCopy(c.expectedBed);p.furnitureRelocation.uncertainBenefit=true
+  local nextStep=p.steps[p.cursor];if nextStep and nextStep.owner=="SAONeeds" then nextStep.status="available" end
+ end
+ return accepted
+end
+function P.furnitureRecoveryPlace(id,place)
+ local p,step=P.furniturePurpose(id);local f=p and p.furnitureRelocation
+ if not f or not f.resultId or f.recoveryBindingUnavailable then return true end
+ return step and step.owner=="SAONeeds" and place.kind=="bed" and place.available==true
+  and place.key==f.expectedBed.key
+end
+function P.reconcileFurnitureRecovery(id,body)
+ local p,step=P.furniturePurpose(id);local a=p and p.admission;local r=record(id)
+ if not a or a.owner~="SAONeeds" then return true end
+ local f=p.furnitureRelocation
+ if not f or not f.resultId or not step or step.owner~="SAONeeds" or step.token~="recovery:measured"
+  or a.stepId~=step.id or a.correlationId~="furniture-recovery:"..p.id or a.target~=step.target
+  or not finite(a.at) or a.at>nowHours() or not r or not body or SAO.Body.get(id)~=body
+  or not SAO.Needs.ownsRecoveryBody(id,body) then return false end
+ local physical
+ for _,sequence in ipairs(r.furnitureRelocation and r.furnitureRelocation.order or {})do
+  local c=SAO.FurnitureWork.outcome(id,sequence);if c and c.id==f.resultId then physical=c;break end
+ end
+ if not physical or physical.purposeId~=p.id or physical.status~="completed" or not physical.nativeCompleted then return false end
+ local ok,quiet=pcall(function()
+  return not SAO.Needs.recoveryActive(id,body) and not SAOJavaBridge:hasPendingActions(body)
+   and body:getCurrentStateName()=="IdleState" and not body:isAsleep() and not body:isOnBed() and not body:isResting()
+   and not (SAO.RecoveryPose and SAO.RecoveryPose.pendingExits and SAO.RecoveryPose.pendingExits[body])
+ end)
+ if not ok or not quiet then return false end
+ local intent=r.recoveryIntent
+ if intent then
+  if intent.status~="preparing" or intent.actorId~=id or intent.kind~=f.kind or not intent.place
+   or intent.place.key~=f.recoverySource or not f.recoveryPlace then return false end
+  for _,key in ipairs({"kind","key","x","y","z","objectX","objectY","objectZ","objectIndex"})do
+   if intent.place[key]~=f.recoveryPlace[key] then return false end
+  end
+  if not SAO.Needs.cancelPreparingRecovery(id,r,intent,"saved-furniture-recovery-is-unobserved") then return false end
+ end
+ p.lastAdmission=dataCopy(a);p.admission=nil;step.status="available";p.status="maintained"
+ f.recoverySequenceBefore=nil;f.uncertainBenefit=true;p.blockers={"furniture-recovery-interrupted-awaiting-retry"}
+ addEvent(p,"furniture-recovery-interrupted","native pose and queue retired without qualified completed recovery",nowHours())
+ return true
+end
+function P.admitFurnitureRecovery(id,kind,place)
+ local p,step=P.furniturePurpose(id);local r=record(id);local f=p and p.furnitureRelocation
+ if not f or f.recoveryBindingUnavailable or not f.resultId or p.admission or kind~=f.kind or not P.furnitureRecoveryPlace(id,place)
+  or not r.recoveryIntent or r.recoveryIntent.place.key~=place.key then return false end
+ f.recoverySource=place.key;f.recoveryPlace=dataCopy(place);f.recoverySequenceBefore=r.recoveryExperienceSequence or 0
+ return P.noteAdmission(id,p.id,"SAONeeds","furniture-recovery:"..p.id,step.id)
+end
+function P.consumeFurnitureRecovery(id,sequence)
+ local p,step=P.furniturePurpose(id);local f=p and p.furnitureRelocation;local a=p and p.admission
+ local c=SAO.Needs.behaviorOutcome(id,sequence)
+ if f and a and SAO.FurnitureWork then SAO.FurnitureWork.consumeUse(id,"recovery",sequence) end
+ if not f or not a or a.owner~="SAONeeds" or not c or c.actorId~=id or c.kind~="recovery-outcome"
+  or c.actionKind~=f.kind or c.sourceId~=f.recoverySource or sequence<=f.recoverySequenceBefore
+  or c.atHours<a.at or c.atHours>nowHours() or not c.succeeded or not finite(c.durationHours) or c.durationHours<=0
+  or not finite(c.beforeValue) or not finite(c.afterValue) or c.afterValue>=c.beforeValue then return false end
+ local accepted=P.recordResult(id,p.id,{owner="SAONeeds",token="recovery:measured",status="completed",correlationId=a.correlationId,
+  atHours=c.atHours,reason="independent-fatigue-reduction-after-relocation"},BED_RESULT)
+ if accepted then f.uncertainBenefit=false;f.recoveryReceipt=sequence end
+ return accepted
 end
 
 return P

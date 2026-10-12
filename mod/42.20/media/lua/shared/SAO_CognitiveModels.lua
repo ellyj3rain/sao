@@ -66,7 +66,7 @@ local SHELTER_ENTITIES={["Base.WoodenWallFrame"]=true,["Base.WoodenWallLvl1"]=tr
                 ["Base.MetalWallFrame"]=true,["Base.MetalWallLvl1"]=true,["Base.MetalWallLvl2"]=true,["Base.MetalDoorFrameLvl1"]=true,["Base.MetalDoorFrameLvl2"]=true,["Base.MetalDoorLvl1"]=true,["Base.MetalDoorLvl2"]=true,["Base.MetalFloorLvl1"]=true,["Base.MetalWindowFrameLvl1"]=true,["Base.MetalWindowFrameLvl2"]=true,["Base.MetalFenceLvl1"]=true,["Base.MetalFenceLvl2"]=true,["Base.MetalBigMetalFence"]=true,["Base.MetalBigWireFence"]=true,["Base.MetalSmallPoleFence"]=true,["Base.MetalSmallWireFence"]=true,["Base.MetalPoleFenceGate"]=true,["Base.MetalPoleFenceGateSmall"]=true,["Base.MetalWireFenceGate"]=true,["Base.MetalWireFenceGateSmall"]=true}
 local COLLECTOR_ENTITIES = { ["Base.RainCollector"]=true, ["Base.RainCollectorRound"]=true,
     ["Base.RainCollector_Tarp"]=true, ["Base.RainCollectorRound_Tarp"]=true }
-local EXTENDED = { ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true,["collector-construction"]=true,
+local EXTENDED = { ["furniture-use"]=true,["furniture-relocation"]=true, ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true,["collector-construction"]=true,
     ["animal-care"]=true, ["window-repair"]=true,["window-installation"]=true, ["material-crafting"]=true, ["tool-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["reading-assessment"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -119,6 +119,8 @@ local function occurrencePosition(e)
         or e.kind=="preparation" and ("cooking/"..e.actorId.."/")
         or e.kind=="generator-operation" and ("generator/"..e.actorId.."/")
         or e.kind=="animal-care" and ("animal-care/"..e.actorId.."/")
+        or e.kind=="furniture-use" and (e.actorId.."/furniture-use/")
+        or e.kind=="furniture-relocation" and (e.actorId.."/furniture-result/")
         or e.kind=="window-repair" and (e.actorId.."/window-result/")
         or e.kind=="material-crafting" and ("resource-production/"..e.actorId.."/")
         or (e.kind=="window-installation" or e.kind=="tool-repair" or e.kind=="plumbing" or e.kind=="collector-construction" or e.kind=="bed-construction" or e.kind=="shelter-construction" or e.kind=="shelter-use") and ("resource-production/"..e.actorId.."/")
@@ -186,6 +188,24 @@ local function validEvent(e)
         or (e.status~="completed" and e.status~="no-effect"
             and e.status~="interrupted" and e.status~="unavailable")
         or (e.perspective~="performed" and e.perspective~="observed") then return false end
+    if e.kind=="furniture-use" then
+        return plainKeys(e,{id=true,actorId=true,observerId=true,worldHours=true,occurredAtHours=true,kind=true,category=true,
+            perspective=true,status=true,sourceId=true,consumerId=true,actionKind=true,succeeded=true,capabilities=true})
+            and e.actorId==e.observerId and e.status=="completed" and e.category=="body" and occurrencePosition(e)~=nil
+            and text(e.sourceId,160) and e.sourceId:sub(1,10)=="furniture:" and text(e.consumerId,160)
+            and finite(e.occurredAtHours) and e.occurredAtHours>=0 and e.occurredAtHours<=e.worldHours
+            and type(e.succeeded)=="boolean" and (e.actionKind=="sleep" or e.actionKind=="rest" or e.actionKind=="geometry" or e.actionKind=="approach" or e.actionKind=="admission")
+            and (e.capabilities==nil or capabilities(e.capabilities))
+    end
+    if e.kind=="furniture-relocation" then
+        return plainKeys(e,{id=true,actorId=true,observerId=true,worldHours=true,occurredAtHours=true,kind=true,category=true,
+            perspective=true,status=true,sourceId=true,actionKind=true,succeeded=true,capabilities=true})
+            and e.actorId==e.observerId and e.perspective=="performed" and e.status=="completed" and e.category=="body"
+            and occurrencePosition(e)~=nil and text(e.sourceId,160) and e.sourceId:sub(1,10)=="furniture:"
+            and finite(e.occurredAtHours) and e.occurredAtHours>=0 and e.occurredAtHours<=e.worldHours
+            and (e.actionKind=="push" or e.actionKind=="pull") and type(e.succeeded)=="boolean"
+            and (e.capabilities==nil or capabilities(e.capabilities))
+    end
     if e.kind=="reading-assessment" then
         return plainKeys(e,{id=true,actorId=true,observerId=true,worldHours=true,occurredAtHours=true,kind=true,category=true,
             perspective=true,status=true,sourceId=true,itemId=true,itemType=true,actionKind=true,succeeded=true,detail=true,capabilities=true})
@@ -842,7 +862,9 @@ local function rememberPlanEvidence(state, e, yes)
             "Personally acquired "..kind.." evidence for "..category, result, e)
         b.planKind, b.category, b.sourceId, b.itemType, b.condition = kind, category, e.sourceId, item, condition
     end
-    if e.kind == "acquire" then retain("acquire", e.category, yes)
+    if e.kind=="furniture-use" then retain((e.actionKind=="sleep" or e.actionKind=="rest") and "relocation-benefit" or "relocation-access","body",e.succeeded)
+    elseif e.kind=="furniture-relocation" then retain("relocate","body",e.succeeded)
+    elseif e.kind == "acquire" then retain("acquire", e.category, yes)
     elseif e.kind == "preparation" then retain("prepare", "food", true)
     elseif e.kind == "plumbing" then retain("plumb", "construction", true)
     elseif e.kind == "generator-operation" and e.actionKind=="verify-power" then retain("power", "utilities", true)
@@ -986,6 +1008,10 @@ local function extendedEvidence(modelId,state,e)
     elseif e.kind=="shelter-use" then
         if modelId=="ordinary" then remember(state,"direct:shelter-use:"..e.sourceId,"Actual doorway passage and native enclosure were observed",true,e)
         else remember(state,"association:shelter-use:"..e.sourceId,"A constructed doorway can support ordinary shelter use",true,e) end
+    elseif e.kind=="furniture-relocation" then
+        remember(state,"direct:furniture-relocation:"..e.sourceId,"Personally observed the native relocation attempt",e.succeeded,e)
+    elseif e.kind=="furniture-use" then
+        remember(state,"direct:furniture-use:"..e.sourceId..":"..e.actionKind,"Personally observed the separate access or recovery outcome",e.succeeded,e)
     elseif e.kind=="bed-construction" then
         if modelId=="ordinary" then remember(state,"direct:bed-construction:"..e.siteKey,"Native construction placed a complete bed",true,e)
         else relation(state,"construct","materials:"..e.recipeId,"bed:"..e.siteKey,true,e,"manufacturing") end
@@ -1224,7 +1250,9 @@ local function validConsequences(candidate)
             or c.kind=="reading-relief" and (c.condition=="BOREDOM" or c.condition=="UNHAPPINESS" or c.condition=="STRESS")
             or c.kind=="hobby" and text(c.condition,160)
             or c.kind=="tool-repair" and c.condition=="damage") then return false end
-        if c.kind == "entry" then
+        if c.kind=="relocate" or c.kind=="relocation-benefit" or c.kind=="relocation-access" then
+            if c.category~="body" or not text(c.sourceId,160) or c.sourceId:sub(1,10)~="furniture:" or c.itemType~=nil then return false end
+        elseif c.kind == "entry" then
             if c.category ~= "body" or not text(c.sourceId, 160) or not CONDITIONS[c.condition] or c.itemType ~= nil then return false end
         elseif c.kind == "sleep" or c.kind == "rest" then
             if c.category ~= "body" or c.sourceId ~= nil or c.itemType ~= nil then return false end
