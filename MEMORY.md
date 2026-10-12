@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `2.6.14.0-pre-alpha` |
+| Version | `2.6.15.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -135,3 +135,7 @@ The CLOSED [D3.2](Batches/D3.2-20261010-0430Z-2130PST-native-saw-maintenance.md)
 ## D3.14 native metal floor source
 
 [D3.14](Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md) is CLOSED for installed native metal flooring through privately intended permitted supported placement, exact acquired means, actual walking surface/cover and ordinary reached shelter/recovery. Full D3 remains OPEN; one kohai records this coherent building increment.
+
+## D3.15 connected metal enclosure/access source
+
+[D3.15](Batches/D3.15-20261011-2245Z-1545PST-metal-enclosure-access.md) is CLOSED for the remaining recorded native family through actual distinct physical consumers, exact private means and saved custody. Parent D3 remains OPEN; one kohai credits this Emmetropic building increment.

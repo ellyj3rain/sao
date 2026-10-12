@@ -9,9 +9,9 @@
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C12, C18, C20, C21, C24, C30, C31, C32, C33 |
-| Implementation | CLOSED D3.1-D3.14 deliver linked native crafting, maintenance, utilities, firearm reuse, usable beds, wooden shelter, floors/roof cover, stairs, double gates, metal walls/frames/doors and metal floors through ordinary shelter. Full remaining scope keeps D3 OPEN. |
+| Implementation | CLOSED D3.1-D3.15 deliver linked crafting, maintenance, utilities and native construction through actual ordinary consumers. Complete remaining D3 scope remains OPEN. |
 | Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.6.14.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
+| Version | 2.6.15.0-pre-alpha; one kohai child increment while full D3 remains OPEN. |
 | Publication | D3.1-D3.13 self-merged through PR142-PR154; D3.14 follows the same protected workflow with actual merge retained in its completion receipt. |
 
 ## Product and current implementation
@@ -260,3 +260,11 @@ The operator accepts capability pace as the current D3 default, with granular an
 ## Interlocking organization continuation — 2026-10-11 21:52 UTC / 14:52 PDT
 
 The operator selects Granular, Emmetropic and Beacon after preserving delivery boundaries and correcting task-prescriptive uses. DR-064 and GOVERNANCE ground these general methods in full-parent/coherent-child batching, feature-scope credit and existing mechanical verification/review controls. Development-control and batch-organization axes are independently selected and related through actual units, contracts and shipment boundaries. D3 retains its middle boundary as Emmetropic batch organization; any task can use any development resolution. Fine native proof can remain inside a connected shipment. All parent obligations, earlier published identities and credit, the native inventory/remaining building continuation and D4–D6 FIFO remain. No SAO product child or credit is allocated for this in-place governance correction.
+
+## D3.15 connected enclosure and access continuation - 2026-10-11 22:45 UTC / 15:45 PST
+
+[D3.15](D3.15-20261011-2245Z-1545PST-metal-enclosure-access.md) is OPEN for the remaining native metal window-frame, fence and single-gate family through actual physical use, with native movable-window installation, boundary effects and opening/passage/closure kept distinct. Reason, complete scope, owner, contracts, dependencies, two-axis controls and required evidence are recorded before implementation. One Emmetropic delivery retains fine native proof and applicable earlier evidence. Full D3 stays OPEN; D4-D6 retain FIFO. One kohai is assessed for this building increment at closure; no completed whole-feature credit is claimed.
+
+## D3.15 coherent closure - 2026-10-11 23:50 UTC / 16:50 PST
+
+[D3.15](D3.15-20261011-2245Z-1545PST-metal-enclosure-access.md) is CLOSED for the recorded remaining metal enclosure and access family through actual native physical use. One kohai records this connected building progress. Full D3 remains OPEN for its remaining construction/crafting/repair/utilities and integration obligations; D4-D6 retain FIFO. Detailed native controls, integrated review and one protected publication follow the selected Emmetropic boundary.

@@ -18,13 +18,13 @@ import zombie.scripting.objects.*;
 
 /** Installed metal construction over the existing native shelter/entry/recovery specimen. */
 public final class MetalShelterNativeProbe {
-    private static boolean floorMode;private static Path game;private static ScriptModule module;private static int skill=8;private static boolean learned=true;
+    private static boolean enclosureMode;private static boolean floorMode;private static Path game;private static ScriptModule module;private static int skill=8;private static boolean learned=true;
     private static com.sao.engine.SAOIsoPlayerShell body;
     private static IsoObject waterTap;private static InventoryItem waterBottle;private static int waterTransfers;
     private static IsoThumpable prior;private static int removedIndex=-1;private static int reads;
     private static zombie.inventory.types.Literature magazine;
     private static final Map<Integer,zombie.inventory.types.Literature> readingItems=new HashMap<>();private static int nextBook=901;
-    private static ItemContainer materialSource;private static InventoryItem poolBar;
+    private static String boundaryLeafId;private static ItemContainer materialSource;private static InventoryItem poolBar;
     private static final String[][] FAMILIES={{"MetalWallFrame","entity_metal_wallframe"},{"MetalWallLvl1","entity_metal_walllvl1"},{"MetalWallLvl2","entity_metal_walllvl2"},{"MetalDoorFrameLvl1","entity_metal_doorframelvl1"},{"MetalDoorFrameLvl2","entity_metal_doorframelvl2"},{"MetalDoorLvl1","entity_metal_doorlvl1"},{"MetalDoorLvl2","entity_metal_doorlvl2"}};
     public static class Receiver extends ShelterConstructionNativeProbe.Receiver {
         @Override public int getPerkLevel(zombie.characters.skills.PerkFactory.Perk perk){return skill;}
@@ -38,14 +38,18 @@ public final class MetalShelterNativeProbe {
     private static zombie.scripting.entity.components.crafting.CraftRecipe recipe(String id)throws Exception{return (zombie.scripting.entity.components.crafting.CraftRecipe)call("recipe",new Class<?>[]{String.class},id);}
     private static void initialise()throws Exception{
         ShelterConstructionNativeProbe.initialise(game);module=(ScriptModule)get("module");boolean old=zombie.network.GameServer.server;zombie.network.GameServer.server=true;
-        for(String name:List.of("MetalBar","SmallSheetMetal","BlowTorch","WeldingRods","MetalworkMag1","MetalworkMag3")){
-            String domain=name.startsWith("MetalworkMag")?"literature":List.of("BlowTorch","WeldingRods").contains(name)?"drainable":name.equals("MetalBar")?"weapon":"normal";
+        for(String name:enclosureMode?List.of("MetalBar","SmallSheetMetal","BlowTorch","WeldingRods","MetalworkMag1","MetalworkMag3","MetalPipe","ScrapMetal","Wire"):List.of("MetalBar","SmallSheetMetal","BlowTorch","WeldingRods","MetalworkMag1","MetalworkMag3")){
+            String domain=name.startsWith("MetalworkMag")?"literature":List.of("BlowTorch","WeldingRods","Wire").contains(name)?"drainable":List.of("MetalBar","MetalPipe").contains(name)?"weapon":"normal";
             String definition=block(game.resolve("media/scripts/generated/items/"+domain+".txt"),"item",name).replaceAll("(?im)^\\s*Researchablerecipes\\s*=.*$","");
             var item=new Item();item.setModule(module);item.setModID("pz-vanilla");item.InitLoadPP(name);item.Load(name,definition);item.setDisplayName(name);module.items.getScriptMap().put(name,item);
         }
         var timed=new TimedActionScript();timed.setModule(module);timed.InitLoadPP("BuildWallMetal");timed.Load("BuildWallMetal",block(game.resolve("media/scripts/generated/timedactions.txt"),"timedAction","BuildWallMetal"));module.timedActionScripts.getScriptMap().put("BuildWallMetal",timed);
+        if(enclosureMode)for(String name:List.of("BuildMetalStructureScrap","BuildPoleFence","BuildWireFence","BuildPoleFenceSmall")){
+            var extra=new TimedActionScript();extra.setModule(module);extra.InitLoadPP(name);extra.Load(name,block(game.resolve("media/scripts/generated/timedactions.txt"),"timedAction",name));module.timedActionScripts.getScriptMap().put(name,extra);
+        }
         if(floorMode){call("initialiseFloors",new Class<?>[]{Path.class},game);var low=new TimedActionScript();low.setModule(module);low.InitLoadPP("BuildLowMetal");low.Load("BuildLowMetal",block(game.resolve("media/scripts/generated/timedactions.txt"),"timedAction","BuildLowMetal"));module.timedActionScripts.getScriptMap().put("BuildLowMetal",low);}
         var families=new ArrayList<String[]>();Collections.addAll(families,FAMILIES);if(floorMode)families.add(new String[]{"MetalFloorLvl1","entity_metal_floorlvl1"});
+        if(enclosureMode){families.add(new String[]{"MetalWindowFrameLvl1","entity_metal_windowframelvl1"});families.add(new String[]{"MetalWindowFrameLvl2","entity_metal_windowframelvl2"});families.add(new String[]{"MetalFenceLvl1","entity_metal_fencelvl1"});families.add(new String[]{"MetalFenceLvl2","entity_metal_fencelvl2"});families.add(new String[]{"MetalBigMetalFence","entity_metal_bigmetalfence"});families.add(new String[]{"MetalBigWireFence","entity_metal_bigwirefence"});families.add(new String[]{"MetalSmallPoleFence","entity_metal_smallpolelfence"});families.add(new String[]{"MetalSmallWireFence","entity_metal_smallwirefence"});families.add(new String[]{"MetalPoleFenceGate","entity_metal_polefencegate"});families.add(new String[]{"MetalPoleFenceGateSmall","entity_metal_polefencegatesmall"});families.add(new String[]{"MetalWireFenceGate","entity_metal_wirefencegate"});families.add(new String[]{"MetalWireFenceGateSmall","entity_metal_wirefencegatesmall"});}
         var entities=(Map<String,GameEntityScript>)get("entities");var added=new ArrayList<GameEntityScript>();
         for(var entry:families){var script=new GameEntityScript();script.setModule(module);script.setModID("pz-vanilla");script.InitLoadPP(entry[0]);script.Load(entry[0],block(game.resolve("media/scripts/generated/entities/walls/"+entry[1]+".txt"),"entity",entry[0]).replaceAll("(?s)component UiConfig\\s*\\{.*?\\}",""));module.entities.getScriptMap().put(entry[0],script);entities.put("Base."+entry[0],script);added.add(script);}
         call("indexBuckets",new Class<?>[]{});for(var entity:added)entity.OnScriptsLoaded(ScriptLoadMode.Init);call("indexBuckets",new Class<?>[]{});ItemTags.Init(ScriptManager.instance.getAllItems());for(var entity:added)entity.OnPostWorldDictionaryInit();
@@ -53,19 +57,20 @@ public final class MetalShelterNativeProbe {
         zombie.entity.components.spriteconfig.SpriteConfigManager.InitScriptsPostTileDef();call("nativeTiles",new Class<?>[]{Path.class},game);zombie.network.GameServer.server=old;
         var engine=zombie.entity.GameEntityManager.class.getDeclaredField("engine");engine.setAccessible(true);engine.set(null,new zombie.entity.Engine());
     }
-    private static String[] materialTypes(String id){return id.contains("DoorLvl")?new String[]{"BlowTorch","SmallSheetMetal","WeldingRods","Hinge","Doorknob"}:(id.contains("WallLvl")||id.contains("FloorLvl"))?new String[]{"BlowTorch","SmallSheetMetal","WeldingRods"}:new String[]{"BlowTorch","MetalBar","WeldingRods"};}
+    private static String[] materialTypes(String id)throws Exception{if(enclosureMode){var inputs=recipe(id).getInputs();var out=new String[inputs.size()];for(int n=0;n<inputs.size();n++)out[n]=inputs.get(n).getPossibleInputItems().get(0).getName();return out;}return id.contains("DoorLvl")?new String[]{"BlowTorch","SmallSheetMetal","WeldingRods","Hinge","Doorknob"}:(id.contains("WallLvl")||id.contains("FloorLvl"))?new String[]{"BlowTorch","SmallSheetMetal","WeldingRods"}:new String[]{"BlowTorch","MetalBar","WeldingRods"};}
     private static void reset(String id)throws Exception{
         if(!id.startsWith("Base.Metal")){call("reset",new Class<?>[]{String.class},id);return;}
         if(id.contains("WallLvl")&&get("created") instanceof IsoThumpable old&&old.getObjectIndex()>=0){prior=old;removedIndex=-1;}
         set("selectedEntity",id);set("selected",recipe(id));set("created",null);((List<?>)get("createdParts")).clear();var items=(Map<Integer,InventoryItem>)get("items");items.clear();
         var actor=(Receiver)ShelterConstructionNativeProbe.unsafe().allocateInstance(Receiver.class);actor.inventory=new ItemContainer();actor.inventory.setType("inventory");actor.history=new PlayerCraftHistory(actor);actor.xp=new ShelterConstructionNativeProbe.XpReceiver(actor);set("actor",actor);
         boolean old=zombie.network.GameServer.server;zombie.network.GameServer.server=true;int next=100;var recipe=recipe(id);var types=materialTypes(id);
-        for(int slot=0;slot<recipe.getInputs().size();slot++){boolean uses=slot==0||slot==2;int count=uses?1:recipe.getInputs().get(slot).getIntAmount();for(int n=0;n<count;n++){var item=module.getItem(types[slot]).InstanceItem(null);item.setID(next++);if(uses)item.setCurrentUses(((zombie.inventory.types.DrainableComboItem)item).getMaxUses());actor.inventory.AddItem(item);items.put(item.getID(),item);}}
+        for(int slot=0;slot<recipe.getInputs().size();slot++){boolean uses=enclosureMode?module.getItem(types[slot]).isItemType(zombie.scripting.objects.ItemType.DRAINABLE):slot==0||slot==2;int count=uses?1:recipe.getInputs().get(slot).getIntAmount();for(int n=0;n<count;n++){var item=module.getItem(types[slot]).InstanceItem(null);item.setID(next++);if(uses)item.setCurrentUses(((zombie.inventory.types.DrainableComboItem)item).getMaxUses());actor.inventory.AddItem(item);items.put(item.getID(),item);}}
         zombie.network.GameServer.server=old;var logic=new BuildLogic(actor,null,null);var containers=new ArrayList<ItemContainer>();containers.add(actor.inventory);logic.setContainers(containers);logic.setRecipe(recipe);logic.setManualSelectInputs(true);set("logic",logic);
     }
     private static Object op(String name,Object a,Object b)throws Exception{
         switch(name){
             case "reset":reset((String)a);return true;
+            case "inputCount":return recipe((String)a).getInputs().size();
             case "surfaceSceneSetup":case "surfaceRoofSceneSetup":{Object value=call("op",new Class<?>[]{String.class,Object.class,Object.class},name,a,b);body=(com.sao.engine.SAOIsoPlayerShell)get("sceneBody");reads=0;nextBook=901;readingItems.clear();return value;}
             case "skill":skill=((Number)a).intValue();return true;
             case "skillValue":return skill;
@@ -108,6 +113,37 @@ public final class MetalShelterNativeProbe {
             case "removeSurface":{var object=(IsoThumpable)get("created");if(object==null||object.getObjectIndex()<0)return false;var sq=object.getSquare();sq.transmitRemoveItemFromSquare(object);sq.RecalcAllWithNeighbours(true);return true;}
             case "recordInput":return recipe((String)a).getInputs().get(((Number)b).intValue()).isRecordInput();
             case "previousList":{var info=call("info",new Class<?>[]{String.class},a);var script=info.getClass().getMethod("getScript").invoke(info);var names=(List<String>)script.getClass().getMethod("getPreviousStages").invoke(script);var table=zombie.Lua.LuaManager.platform.newTable();for(int n=0;n<names.size();n++)table.rawset((double)n+1,names.get(n));return table;}
+            case "boundaryScene":{
+                op("scene",a,b);String face=(String)b;var cell=body.getCell();
+                for(int x=5;x<18;x++)for(int y=14;y<26;y++)for(int z=0;z<=1;z++){
+                    var sq=cell.getGridSquare(x,y,z);if(sq==null)continue;
+                    for(int n=sq.getObjects().size()-1;n>=0;n--){var o=sq.getObjects().get(n);if(o instanceof IsoThumpable||z>0){sq.getObjects().remove(n);sq.getSpecialObjects().remove(o);}}
+                    sq.setRoom(null);sq.setRoomID(-1);sq.haveRoof=false;sq.RecalcAllWithNeighbours(true);
+                }
+                var original=get("selectedEntity");set("selectedEntity","Base.WoodenWallLvl1");
+                for(int offset:List.of(-1,1)){var sq=cell.getGridSquare(10+(face.equals("N")?offset:0),20+(face.equals("W")?offset:0),0);String sprite=(String)call("spriteInfo",new Class<?>[]{String.class,int.class},face,0);
+                    var o=(IsoThumpable)call("createShelterPart",new Class<?>[]{String.class,IsoGridSquare.class},sprite,sq);sq.getObjects().add(o);sq.getSpecialObjects().add(o);sq.RecalcAllWithNeighbours(true);
+                }
+                set("selectedEntity",original);((List<?>)get("createdParts")).clear();boundaryLeafId=null;call("sceneRegions",new Class<?>[]{});return true;
+            }
+            case "boundaryExtraGap":{
+                var original=get("selectedEntity");set("selectedEntity","Base.WoodenWallLvl1");var cell=body.getCell();
+                for(int x:List.of(9,11)){var sq=cell.getGridSquare(x,22,0);String sprite=(String)call("spriteInfo",new Class<?>[]{String.class,int.class},"N",0);var o=(IsoThumpable)call("createShelterPart",new Class<?>[]{String.class,IsoGridSquare.class},sprite,sq);sq.getObjects().add(o);sq.getSpecialObjects().add(o);sq.RecalcAllWithNeighbours(true);}
+                set("selectedEntity",original);((List<?>)get("createdParts")).clear();body.setForwardDirection(0,1);body.getAnimationPlayer().setAngle((float)Math.PI/2);return true;
+            }
+            case "boundaryRefreshEnd":{var sq=body.getCell().getGridSquare(9,20,0);for(int n=sq.getObjects().size()-1;n>=0;n--)if(sq.getObjects().get(n) instanceof IsoThumpable o)sq.transmitRemoveItemFromSquare(o);
+                var original=get("selectedEntity");set("selectedEntity","Base.WoodenWallLvl1");String sprite=(String)call("spriteInfo",new Class<?>[]{String.class,int.class},"N",0);var o=(IsoThumpable)call("createShelterPart",new Class<?>[]{String.class,IsoGridSquare.class},sprite,sq);sq.getObjects().add(o);sq.getSpecialObjects().add(o);sq.RecalcAllWithNeighbours(true);set("selectedEntity",original);return true;}
+            case "boundaryLook":{boolean south=body.getCurrentSquare().getY()<20;body.setForwardDirection(0,south?1:-1);body.getAnimationPlayer().setAngle(south?(float)Math.PI/2:-(float)Math.PI/2);return true;}
+            case "boundaryDebug":{var sq=body.getCell().getGridSquare(10,20,0);return "objects="+sq.getObjects().size()+",hoppable="+sq.getProperties().has(zombie.iso.SpriteDetails.IsoFlagType.HoppableN)+",collide="+sq.getProperties().has(zombie.iso.SpriteDetails.IsoFlagType.collideN)+",floor="+sq.isSolidFloor()+",free="+sq.isFree(false)+",body="+body.getX()+","+body.getY();}
+            case "boundarySites":return com.sao.engine.SAOEnclosureEdge.observe(body);
+            case "boundaryPlacement":return com.sao.engine.SAOEnclosureEdge.placement(body,(String)a,(String)b)!=null;
+            case "boundaryCreated":boundaryLeafId=com.sao.engine.SAOEnclosureEdge.created(body,(IsoThumpable)get("created"),(String)get("selectedEntity"),10,20,0,(String)get("sceneFace"));return boundaryLeafId;
+            case "boundaryState":return com.sao.engine.SAOEnclosureEdge.state(body,(String)a,(String)get("selectedEntity"),10,20,0,(String)get("sceneFace"));
+            case "boundaryLeaf":return com.sao.engine.SAOEnclosureEdge.leaf(body,(String)a,(String)get("selectedEntity"),10,20,0,(String)get("sceneFace"))==get("created");
+            case "boundaryBeginPassage":{String[] xy=((String)b).split(",");return com.sao.engine.SAOEnclosureEdge.beginPassage(body,(String)a,(String)get("selectedEntity"),10,20,0,(String)get("sceneFace"),Integer.parseInt(xy[0]),Integer.parseInt(xy[1]));}
+            case "boundaryPassage":return com.sao.engine.SAOEnclosureEdge.passage(body,(String)a);
+            case "boundaryCollision":{var o=(IsoThumpable)get("created");var sq=o.getSquare();var to=body.getCell().getGridSquare(10-(o.getNorth()?0:1),20-(o.getNorth()?1:0),0);System.out.println("BOUNDARY_COLLISION flags pass="+o.isCanPassThrough()+" corner="+o.isCorner()+" open="+o.IsOpen()+" north="+o.getNorth()+" noclip="+body.isNoClip()+" target="+to.getX()+","+to.getY());return o.TestCollide(body,sq,to);}
+            case "boundaryUnroofed":return body.getCurrentSquare().getRoom()==null&&!body.getCurrentSquare().haveRoof;
             case "scene":{var update=zombie.MapCollisionData.class.getDeclaredField("squareUpdateBuffer");update.setAccessible(true);if(zombie.MapCollisionData.instance!=null)((ByteBuffer)update.get(zombie.MapCollisionData.instance)).clear();call("sceneSetup",new Class<?>[]{String.class,String.class},(String)b,(String)a);body=(com.sao.engine.SAOIsoPlayerShell)get("sceneBody");prior=null;removedIndex=-1;reads=0;nextBook=901;readingItems.clear();return true;}
             case "seed":{String original=(String)get("selectedEntity");set("selectedEntity",a);String face=(String)get("sceneFace");String sprite=(String)call("spriteInfo",new Class<?>[]{String.class,int.class},face,0);var object=(IsoThumpable)call("sceneCreate",new Class<?>[]{String.class},sprite);var square=object.getSquare();call("nativeConstructionFlags",new Class<?>[]{IsoThumpable.class},object);prior=object;set("selectedEntity",original);((List<?>)get("createdParts")).clear();call("sceneRegions",new Class<?>[]{});return true;}
             case "removePrior":{if(prior==null||!prior.getEntityScript().getFullName().equals(a)||prior.getObjectIndex()<0)return -1;removedIndex=prior.getObjectIndex();return prior.getSquare().transmitRemoveItemFromSquare(prior);}
@@ -117,7 +153,7 @@ public final class MetalShelterNativeProbe {
             case "captureDoor":{String[] keys=((String)a).split("\\|");set("sceneCaptureKey",keys[0]);set("sceneCaptureRevision",keys[1]);return com.sao.engine.SAOShelterConstruction.beginPassage(body,(IsoThumpable)get("sceneDoor"),keys[0],keys[1],Boolean.TRUE.equals(b));}
             case "doorPass":{var door=(IsoThumpable)get("sceneDoor");boolean inside=Boolean.TRUE.equals(a);var sq=door.getSquare();int x=sq.getX()-(inside||door.getNorth()?0:1),y=sq.getY()-(inside||!door.getNorth()?0:1);var from=body.getCurrentSquare();boolean arrived=(Boolean)call("sceneMove",new Class<?>[]{double.class,double.class,double.class},x+.5,y+.5,0.0);if(arrived&&from!=body.getCurrentSquare()&&from.getX()==sq.getX()-(inside&&!door.getNorth()?1:0)&&from.getY()==sq.getY()-(inside&&door.getNorth()?1:0))set("passageCount",((Integer)get("passageCount"))+1);return arrived;}
             case "wallScene":{String original=(String)get("selectedEntity");String oldFace=(String)get("face");set("face","N");call("removeNorthWall",new Class<?>[]{int.class,int.class},11,20);set("sceneBuildX",11);for(String entity:List.of("Base.WoodDoorFrameLvl1","Base.WoodenDoorLvl1")){set("selectedEntity",entity);String sprite=(String)call("spriteInfo",new Class<?>[]{String.class,int.class},"N",0);var object=call("sceneCreate",new Class<?>[]{String.class},sprite);call("nativeConstructionFlags",new Class<?>[]{IsoThumpable.class},object);}body.getAnimationPlayer().setAngle(-(float)Math.PI*3/4);body.setForwardDirection(-.707f,-.707f);set("sceneBuildX",10);set("face",oldFace);set("selectedEntity",original);((List<?>)get("createdParts")).clear();call("sceneRegions",new Class<?>[]{});return true;}
-            case "creationFlags":{if(floorMode)return call("op",new Class<?>[]{String.class,Object.class,Object.class},name,a,b);var builder=(KahluaTable)a;var created=(IsoThumpable)get("created");created.setCanPassThrough(Boolean.TRUE.equals(builder.rawget("canPassThrough")));created.setBlockAllTheSquare(Boolean.TRUE.equals(builder.rawget("blockAllTheSquare")));created.setIsThumpable(Boolean.TRUE.equals(builder.rawget("isThumpable")));return true;}
+            case "creationFlags":{if(floorMode)return call("op",new Class<?>[]{String.class,Object.class,Object.class},name,a,b);var builder=(KahluaTable)a;var created=(IsoThumpable)get("created");created.setCanPassThrough(Boolean.TRUE.equals(builder.rawget("canPassThrough")));created.setBlockAllTheSquare(Boolean.TRUE.equals(builder.rawget("blockAllTheSquare")));created.setIsThumpable(Boolean.TRUE.equals(builder.rawget("isThumpable")));created.setIsHoppable(Boolean.TRUE.equals(builder.rawget("hoppable")));return true;}
             case "addCreated":{var created=(IsoThumpable)get("created");created.getSquare().AddSpecialObject(created,((Number)a).intValue());created.getSquare().RecalcAllWithNeighbours(true);call("sceneRegions",new Class<?>[]{});return true;}
             default:return call("op",new Class<?>[]{String.class,Object.class,Object.class},name,a,b);
         }
@@ -137,7 +173,7 @@ public final class MetalShelterNativeProbe {
         }
     }
     public static void main(String[] args)throws Exception{
-        game=Path.of(args[0]);floorMode=args.length>1&&args[1].equals("--surface-runtime");var platform=new J2SEPlatform();var env=platform.newEnvironment();var thread=new KahluaThread(platform,env);thread.debugOwnerThread=Thread.currentThread();zombie.Lua.LuaManager.env=env;zombie.Lua.LuaManager.thread=thread;zombie.Lua.LuaManager.caller=new se.krka.kahlua.integration.LuaCaller(new se.krka.kahlua.converter.KahluaConverterManager());
+        game=Path.of(args[0]);enclosureMode=Boolean.getBoolean("sao.enclosure.probe");floorMode=args.length>1&&args[1].equals("--surface-runtime");var platform=new J2SEPlatform();var env=platform.newEnvironment();var thread=new KahluaThread(platform,env);thread.debugOwnerThread=Thread.currentThread();zombie.Lua.LuaManager.env=env;zombie.Lua.LuaManager.thread=thread;zombie.Lua.LuaManager.caller=new se.krka.kahlua.integration.LuaCaller(new se.krka.kahlua.converter.KahluaConverterManager());
         env.rawset("print",(JavaFunction)(f,n)->{for(int i=0;i<n;i++)System.out.print((i==0?"":"\t")+f.get(i));System.out.println();return 0;});thread.call(LuaCompiler.loadstring("ISTimedActionQueue={queues={},getTimedActionQueue=function()return {queue={}}end}","empty",env),null,null,null);initialise();
         zombie.ZomboidFileSystem.instance.init();
         Class.forName("zombie.SandboxOptions"); // Native default visibility initializes outside a sampled Lua callback stack.

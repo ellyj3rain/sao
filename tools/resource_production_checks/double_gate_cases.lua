@@ -279,7 +279,7 @@ local function savedGate(f)
 end
 local function pressureLedger(f,pending)
     local rows={};for sequence=1,32 do rows[#rows+1]={id='resource-production/'..f.id..'/'..sequence,sequence=sequence,actorId=f.id,
-        kind='controlled-ledger-pressure',purposeId=sequence==1 and 'controlled-pending-purpose' or nil,purposeDelivered=not pending or sequence~=1} end
+        kind='controlled-ledger-pressure',purposeId=sequence==1 and 'controlled-pending-purpose' or nil,purposeDelivered=not pending or sequence~=1,experienceDelivered=true} end
     f.rec.resourceProductionSequence=32;f.rec.resourceProductionOutcomes=rows;return rows
 end
 function __runDoubleGateLifecycle()

@@ -194,7 +194,7 @@ public final class ShelterConstructionNativeProbe {
         throw new IllegalArgumentException("native ObjectInfo absent "+id);
     }
     public static IsoThumpable createShelterPart(String sprite,IsoGridSquare square)throws Exception{
-        String open=selectedEntity.startsWith("Base.WoodenDoorLvl")||selectedEntity.startsWith("Base.MetalDoorLvl")?info(selectedEntity).getFace(face+"_OPEN").getTileInfo(0,0,0).getSpriteName():null;
+        var openFace=info(selectedEntity).getFace(face+"_OPEN");String open=openFace==null?null:openFace.getTileInfo(0,0,0).getSpriteName();
         IsoThumpable object=open==null?new IsoThumpable(square==null?null:square.getCell(),square,sprite,(selectedEntity.equals("Base.Wood_Stairs")?face.equals("S"):face.equals("N")),null)
             :new IsoThumpable(square==null?null:square.getCell(),square,sprite,open,(selectedEntity.equals("Base.Wood_Stairs")?face.equals("S"):face.equals("N")),null);
         object.setName(selectedEntity.substring(5));object.setMaxHealth(500);object.setHealth(500);

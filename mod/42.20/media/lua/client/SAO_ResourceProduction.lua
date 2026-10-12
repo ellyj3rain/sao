@@ -8,7 +8,7 @@ local craftLedgerRoom
 local plumbBegin, plumbInterrupt, plumbTick, plumbOutcome, plumbRecover, plumbOptions
 local collector
 local bed,shelter,gate
-local function nativeEntityKind(kind) return kind=="build-rain-collector" or kind=="build-wood-bed" or kind=="build-shelter-edge" or kind=="build-double-gate" or kind=="operate-double-gate" or kind=="build-shelter-stairs" or kind=="build-shelter-surface" or kind=="use-shelter" end
+local function nativeEntityKind(kind) return kind=="build-rain-collector" or kind=="build-wood-bed" or kind=="build-shelter-edge" or kind=="build-double-gate" or (kind=="operate-double-gate" or kind=="operate-single-gate") or kind=="build-shelter-stairs" or kind=="build-shelter-surface" or kind=="use-shelter" or kind=="glaze-shelter-window" end
 local fixing
 local function nativeCraftKind(kind) return kind=="saw-logs" or kind=="repair-held-item" or kind=="fix-held-item" end
 local KNOWN_FIXTURE_SEARCH_RADIUS = 32
@@ -221,8 +221,8 @@ end
 local function reconcile(id)
     local rec, planning = SAO.Identity.get(id), SAO.ProceduralPlanning
     for _, receipt in ipairs(rec and rec.resourceProductionOutcomes or {}) do
-        local consumer = planning and (receipt.kind=="operate-double-gate" and planning.consumeDoubleGateResult
-            or receipt.kind=="build-double-gate" and planning.consumeDoubleGateResult or receipt.kind=="use-shelter" and planning.consumeShelterUseResult
+        local consumer = planning and ((receipt.kind=="operate-double-gate" or receipt.kind=="operate-single-gate") and planning.consumeDoubleGateResult
+            or (receipt.kind=="build-double-gate" or receipt.kind=="build-shelter-edge" and receipt.site and receipt.site.boundaryObserved) and planning.consumeDoubleGateResult or receipt.kind=="glaze-shelter-window" and planning.consumeWindowGlazingResult or receipt.kind=="use-shelter" and planning.consumeShelterUseResult
             or (receipt.kind=="build-shelter-edge" or receipt.kind=="build-shelter-surface" or receipt.kind=="build-shelter-stairs" or receipt.kind=="build-double-gate") and planning.consumeShelterConstructionResult
             or receipt.kind=="build-wood-bed" and planning.consumeBedConstructionResult
             or (receipt.kind == "repair-held-item" or receipt.kind == "fix-held-item") and planning.consumeRepairProductionResult
@@ -1870,6 +1870,7 @@ local function plumbGuard(rt,a,kind,item)
         return plumbCapsule(a)==c and a.character==rt.body and a.actorId==rt.id and a.workId==rt.workId and a.bodyToken==rt.token
             and (kind=="collector" and collector.exact(rt,a)
                 or kind=="gate-door" and gate.doorExact(rt,a)
+                or kind=="window-place" and shelter.glazeExact(rt,a)
                 or kind=="shelter-door" and shelter.doorExact(rt,a)
                 or kind=="plumb" and a.itemToPipe==rt.fixture and a.wrench==rt.tool
                 or kind=="equip" and a.item==item and a.primary==true
@@ -1915,6 +1916,7 @@ local function plumbGuard(rt,a,kind,item)
         c.done,c.ack=true,true
         if kind=="plumb" then rt.nativeAttempted=true end
         local ok,result=pcall(complete,self)
+        if kind=="window-place" then return shelter.glazeFinished(rt,self,ok and result==true) end
         if kind=="gate-door" then return gate.doorFinished(rt,self,ok and result==true) end
         if kind=="shelter-door" then return shelter.doorFinished(rt,self,ok and result==true) end
         if kind=="equip" then
@@ -2230,7 +2232,8 @@ function collector.options(id,body,vessels,options)
     end
 end
 function collector.identity(id,w)
-    if w and w.kind=="operate-double-gate" then return gate.identity(id,w) end
+    if w and (w.kind=="operate-double-gate" or w.kind=="operate-single-gate") then return gate.identity(id,w) end
+    if w and w.kind=="glaze-shelter-window" then return shelter.glazeIdentity(id,w) end
     if w and w.kind=="use-shelter" then return shelter.useIdentity(id,w) end
     if w and (w.kind=="build-shelter-edge" or w.kind=="build-shelter-surface" or w.kind=="build-shelter-stairs" or w.kind=="build-double-gate") then return shelter.identity(id,w) end
     if w and w.kind=="build-wood-bed" then return bed.identity(id,w) end
@@ -2262,7 +2265,8 @@ function collector.identity(id,w)
     return counts[0]==1 and w.inputs[1].itemId==w.toolItemId and w.inputs[1].itemType==w.toolItemType
 end
 function collector.purpose(rec,w)
-    if w and w.kind=="operate-double-gate" then return gate.purpose(rec,w) end
+    if w and (w.kind=="operate-double-gate" or w.kind=="operate-single-gate") then return gate.purpose(rec,w) end
+    if w and w.kind=="glaze-shelter-window" then return shelter.glazePurpose(rec,w) end
     if w and w.kind=="use-shelter" then return shelter.usePurpose(rec,w) end
     if w and (w.kind=="build-shelter-edge" or w.kind=="build-shelter-surface" or w.kind=="build-shelter-stairs" or w.kind=="build-double-gate") then return shelter.purpose(rec,w) end
     if w and w.kind=="build-wood-bed" then return bed.purpose(rec,w) end
@@ -2280,7 +2284,8 @@ function collector.purpose(rec,w)
     return p,s
 end
 function collector.anchors(rt,w)
-    if rt and rt.kind=="operate-double-gate" then return gate.anchors(rt,w) end
+    if rt and (rt.kind=="operate-double-gate" or rt.kind=="operate-single-gate") then return gate.anchors(rt,w) end
+    if rt and rt.kind=="glaze-shelter-window" then return shelter.glazeAnchors(rt,w) end
     if rt and rt.kind=="use-shelter" then return shelter.useAnchors(rt,w) end
     if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface" or rt.kind=="build-shelter-stairs" or rt.kind=="build-double-gate") then return shelter.anchors(rt,w) end
     if rt.kind=="build-wood-bed" then return bed.anchors(rt,w) end
@@ -2290,7 +2295,8 @@ function collector.anchors(rt,w)
         and collector.rowsEqual(w.inputs,rt.inputs) and collector.rowsEqual(w.requirements,rt.policy.requirements)
 end
 function collector.bound(rt,pre)
-    if rt and rt.kind=="operate-double-gate" then return gate.bound(rt) end
+    if rt and (rt.kind=="operate-double-gate" or rt.kind=="operate-single-gate") then return gate.bound(rt) end
+    if rt and rt.kind=="glaze-shelter-window" then return shelter.glazeBound(rt,pre) end
     if rt and rt.kind=="use-shelter" then return shelter.useBound(rt) end
     if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface" or rt.kind=="build-shelter-stairs" or rt.kind=="build-double-gate") then return shelter.bound(rt,pre) end
     if rt.kind=="build-wood-bed" then return bed.bound(rt,pre) end
@@ -2373,7 +2379,8 @@ function collector.cleanup(rt,a)
     rt.logic:stopCraftAction()
 end
 function collector.outcome(id,row)
-    if row and row.kind=="operate-double-gate" then return gate.outcome(id,row) end
+    if row and (row.kind=="operate-double-gate" or row.kind=="operate-single-gate") then return gate.outcome(id,row) end
+    if row and row.kind=="glaze-shelter-window" then return shelter.glazeOutcome(id,row) end
     if row and row.kind=="use-shelter" then return shelter.useOutcome(id,row) end
     if row and (row.kind=="build-shelter-edge" or row.kind=="build-shelter-surface" or row.kind=="build-shelter-stairs" or row.kind=="build-double-gate") then return shelter.outcome(id,row) end
     if row and row.kind=="build-wood-bed" then return bed.outcome(id,row) end
@@ -2415,7 +2422,8 @@ function collector.refresh(rt,row)
     if not ok then row.sourceObservation.detail="created-source-observation-unavailable" end
 end
 function collector.close(rt,status,detail)
-    if rt and rt.kind=="operate-double-gate" then return gate.close(rt,status,detail) end
+    if rt and (rt.kind=="operate-double-gate" or rt.kind=="operate-single-gate") then return gate.close(rt,status,detail) end
+    if rt and rt.kind=="glaze-shelter-window" then return shelter.glazeClose(rt,status,detail) end
     if rt and rt.kind=="use-shelter" then return shelter.useClose(rt,status,detail) end
     if rt and (rt.kind=="build-shelter-edge" or rt.kind=="build-shelter-surface" or rt.kind=="build-shelter-stairs" or rt.kind=="build-double-gate") then return shelter.close(rt,status,detail) end
     if rt.kind=="build-wood-bed" then return bed.close(rt,status,detail) end
@@ -2539,6 +2547,13 @@ function collector.queue(rt)
     return true
 end
 function collector.recover(id,body)
+    local glazeRecord=SAO.Identity.get(id)
+    if glazeRecord and glazeRecord.resourceProductionWork and glazeRecord.resourceProductionWork.kind=="glaze-shelter-window" then
+        local owned=runtime[id]
+        if not owned then return shelter.glazeRecover(id,body) and "interrupted" or "cancelling" end
+        if not shelter.glazeBound(owned,not owned.nativeAttempted) then return plumbInterrupt(id,owned.body,"window-installation-owner-changed") and "interrupted" or "cancelling" end
+        return "using"
+    end
     local saved=SAO.Identity.get(id);if saved and saved.resourceProductionWork and saved.resourceProductionWork.kind=="use-shelter" then return shelter.useRecover(id,body) end
     reconcile(id);local rec=SAO.Identity.get(id);local w=rec and rec.resourceProductionWork
     if not w then return true end
@@ -2571,7 +2586,7 @@ function collector.recover(id,body)
     rec.resourceProductionWork=nil;reconcile(id);return true
 end
 function collector.tick(id,body)
-    local saved=SAO.Identity.get(id);if saved and saved.resourceProductionWork and saved.resourceProductionWork.kind=="operate-double-gate" then return gate.tick(id,body) end
+    local saved=SAO.Identity.get(id);if saved and saved.resourceProductionWork and (saved.resourceProductionWork.kind=="operate-double-gate" or saved.resourceProductionWork.kind=="operate-single-gate") then return gate.tick(id,body) end
     local saved=SAO.Identity.get(id);if saved and saved.resourceProductionWork and saved.resourceProductionWork.kind=="use-shelter" then return shelter.useTick(id,body) end
     local rt=runtime[id]
     if not rt then return collector.recover(id,body) and "interrupted" or "cancelling" end
@@ -3102,6 +3117,18 @@ end
 -- Observed wall and door stages share this exact native construction claim.
 shelter={}
 shelter.metal={
+    ["Base.MetalWindowFrameLvl1"]={kind="window-frame",counts={1,3},materials={"welding-torch","small-sheet-metal"},types={"Base.BlowTorch","Base.SmallSheetMetal"},uses={[1]=4}},
+    ["Base.MetalWindowFrameLvl2"]={kind="window-frame",counts={1,4},materials={"welding-torch","small-sheet-metal"},types={"Base.BlowTorch","Base.SmallSheetMetal"},uses={[1]=4}},
+    ["Base.MetalFenceLvl1"]={kind="fence",counts={1,2,1},materials={"welding-torch","metal-bar","welding-rods"},types={"Base.BlowTorch","Base.MetalBar","Base.WeldingRods"},uses={[1]=2,[3]=2}},
+    ["Base.MetalFenceLvl2"]={kind="fence",counts={1,2,1},materials={"welding-torch","metal-bar","welding-rods"},types={"Base.BlowTorch","Base.MetalBar","Base.WeldingRods"},uses={[1]=2,[3]=2}},
+    ["Base.MetalBigMetalFence"]={kind="fence",counts={1,5,2,1},materials={"welding-torch","metal-pipe","scrap-metal","welding-rods"},types={"Base.BlowTorch","Base.MetalPipe","Base.ScrapMetal","Base.WeldingRods"},uses={[1]=5,[4]=5}},
+    ["Base.MetalBigWireFence"]={kind="fence",counts={1,3,4,1,1},materials={"welding-torch","metal-pipe","scrap-metal","wire","welding-rods"},types={"Base.BlowTorch","Base.MetalPipe","Base.ScrapMetal","Base.Wire","Base.WeldingRods"},recordInput={[4]=true},uses={[4]=3,[1]=4,[5]=5}},
+    ["Base.MetalSmallPoleFence"]={kind="fence",counts={1,3,1},materials={"welding-torch","metal-pipe","welding-rods"},types={"Base.BlowTorch","Base.MetalPipe","Base.WeldingRods"},uses={[1]=2,[3]=2}},
+    ["Base.MetalSmallWireFence"]={kind="fence",counts={1,2,1,1,1},materials={"welding-torch","metal-pipe","scrap-metal","wire","welding-rods"},types={"Base.BlowTorch","Base.MetalPipe","Base.ScrapMetal","Base.Wire","Base.WeldingRods"},recordInput={[4]=true},uses={[4]=1,[1]=2,[5]=2}},
+    ["Base.MetalPoleFenceGate"]={kind="single-gate",counts={1,5,2,4,1},materials={"welding-torch","metal-pipe","hinge","scrap-metal","welding-rods"},types={"Base.BlowTorch","Base.MetalPipe","Base.Hinge","Base.ScrapMetal","Base.WeldingRods"},uses={[1]=4,[5]=4}},
+    ["Base.MetalPoleFenceGateSmall"]={kind="single-gate",counts={1,3,2,2,1},materials={"welding-torch","metal-pipe","hinge","scrap-metal","welding-rods"},types={"Base.BlowTorch","Base.MetalPipe","Base.Hinge","Base.ScrapMetal","Base.WeldingRods"},uses={[1]=4,[5]=4}},
+    ["Base.MetalWireFenceGate"]={kind="single-gate",counts={1,3,2,4,1},materials={"welding-torch","metal-pipe","hinge","scrap-metal","welding-rods"},types={"Base.BlowTorch","Base.MetalPipe","Base.Hinge","Base.ScrapMetal","Base.WeldingRods"},uses={[1]=4,[5]=4}},
+    ["Base.MetalWireFenceGateSmall"]={kind="single-gate",counts={1,2,1,1,1},materials={"welding-torch","metal-pipe","scrap-metal","wire","welding-rods"},types={"Base.BlowTorch","Base.MetalPipe","Base.ScrapMetal","Base.Wire","Base.WeldingRods"},recordInput={[4]=true},uses={[4]=1,[1]=2,[5]=2}},
     ["Base.MetalFloorLvl1"]={kind="floor",counts={1,1,1},materials={"welding-torch","small-sheet-metal","welding-rods"},types={"Base.BlowTorch","Base.SmallSheetMetal","Base.WeldingRods"},uses={[1]=1,[3]=1}},
     ["Base.MetalWallFrame"]={kind="wall-frame",counts={1,3,1},materials={"welding-torch","metal-bar","welding-rods"},types={"Base.BlowTorch","Base.MetalBar","Base.WeldingRods"},uses={[1]=1,[3]=2}},
     ["Base.MetalWallLvl1"]={kind="wall",counts={1,3,1},materials={"welding-torch","small-sheet-metal","welding-rods"},types={"Base.BlowTorch","Base.SmallSheetMetal","Base.WeldingRods"},uses={[1]=4,[3]=4}},
@@ -3115,7 +3142,7 @@ shelter.entities={"Base.WoodenWallFrame","Base.WoodenWallLvl1","Base.WoodenWallL
     "Base.WoodDoorFrameLvl1","Base.WoodDoorFrameLvl2","Base.WoodDoorFrameLvl3",
     "Base.WoodenDoorLvl1","Base.WoodenDoorLvl2","Base.WoodenDoorLvl3",
     "Base.WoodFloorLvl1","Base.WoodFloorLvl2","Base.WoodFloorLvl3","Base.Wood_Stairs","Base.DoubleDoor","Base.DoubleFenceGate","Base.DoubleWireGate"}
-for _,entity in ipairs({"Base.MetalWallFrame","Base.MetalWallLvl1","Base.MetalWallLvl2","Base.MetalDoorFrameLvl1","Base.MetalDoorFrameLvl2","Base.MetalDoorLvl1","Base.MetalDoorLvl2","Base.MetalFloorLvl1"}) do shelter.entities[#shelter.entities+1]=entity end
+for _,entity in ipairs({"Base.MetalWallFrame","Base.MetalWallLvl1","Base.MetalWallLvl2","Base.MetalDoorFrameLvl1","Base.MetalDoorFrameLvl2","Base.MetalDoorLvl1","Base.MetalDoorLvl2","Base.MetalFloorLvl1","Base.MetalWindowFrameLvl1","Base.MetalWindowFrameLvl2","Base.MetalFenceLvl1","Base.MetalFenceLvl2","Base.MetalBigMetalFence","Base.MetalBigWireFence","Base.MetalSmallPoleFence","Base.MetalSmallWireFence","Base.MetalPoleFenceGate","Base.MetalPoleFenceGateSmall","Base.MetalWireFenceGate","Base.MetalWireFenceGateSmall"}) do shelter.entities[#shelter.entities+1]=entity end
 function shelter.spec(entityId)
     local metal=shelter.metal[entityId];if metal then return metal.kind,metal.counts end
     for i,name in ipairs(shelter.entities) do if name==entityId then
@@ -3135,7 +3162,7 @@ function shelter.priorMatches(policy,site)
     return false
 end
 function shelter.gradeChoice(body,policy)
-    if not shelter.metal[policy.entityId] or policy.entityId=="Base.MetalWallFrame" or policy.entityId=="Base.MetalFloorLvl1" then return true end
+    if not shelter.metal[policy.entityId] or policy.entityId=="Base.MetalWallFrame" or policy.entityId=="Base.MetalFloorLvl1" or policy.kind=="single-gate" or policy.kind=="fence" and not policy.entityId:find("FenceLvl",1,true) then return true end
     local ok,result=pcall(function()
         require "CraftRecipeCode/CraftRecipe_BuildMenu"
         local grade2=policy.entityId:sub(-4)=="Lvl2"
@@ -3190,6 +3217,13 @@ function shelter.sameSite(a,b)
     return true
 end
 function shelter.site(id,body,site)
+    if type(site)=="table" and (site.mode=="fence" or site.mode=="single-gate") then
+        if site.actorId~=id or site.boundaryObserved~=true or site.observed~=true or not finite(site.observedAtHours) or site.observedAtHours>now() then return false end
+        for _,known in ipairs(SAO.Perception.boundarySites(id,body))do
+            local copy=collector.copy(known);copy.mode=site.mode;copy.observedAtHours=site.observedAtHours
+            if known.observedAtHours>=site.observedAtHours and shelter.sameSite(site,copy) then return true end
+        end;return false
+    end
     if type(site)=="table" and site.mode=="double-gate" then return gate.site(id,body,site) end
     if type(site)=="table" and site.mode=="stairs" then
         if site.actorId~=id or site.observed~=true or site.supported~=true or site.landingObserved~=false
@@ -3235,7 +3269,7 @@ function shelter.intendedUpgrade(id,body,own,site)
     local purpose=SAO.ProceduralPlanning.shelterPurpose(id);local world=getWorld()
     if type(intention)~="table" or getmetatable(intention) or not purpose or purpose.shelterConstruction~=own
         or intention.actorId~=id or intention.purposeId~=purpose.id or not world or intention.world~=world:getWorld()
-        or intention.entityId~="Base.MetalWallLvl2" or intention.siteKey~=site.key or not textId(intention.priorRevision)
+        or (intention.entityId~="Base.MetalWallLvl2" and intention.entityId~="Base.MetalWindowFrameLvl2") or intention.siteKey~=site.key or not textId(intention.priorRevision)
         or intention.priorEntity~="Base.WoodenWallFrame" and intention.priorEntity~="Base.MetalWallFrame"
         or not finite(intention.observedAtHours) or intention.observedAtHours<0 or not finite(intention.selectedAt) or intention.selectedAt<0 or intention.observedAtHours>intention.selectedAt
         or intention.selectedAt>now() then return false end
@@ -3296,7 +3330,7 @@ function R.shelterOptions(id,body,retained)
                 and SAO.Standing.mayAttemptBelieved(id,site.x,site.y,"standing")==true
                 and SAO.Standing.mayAttemptBelieved(id,site.approachX,site.approachY,"standing")==true
                 and shelter.permission(id,site,false) then
-                for _,policy in ipairs(policies) do if policy.kind==site.mode and shelter.priorMatches(policy,site) then
+                for _,policy in ipairs(policies) do if (policy.kind==site.mode or policy.kind=="window-frame" and site.mode=="wall") and shelter.priorMatches(policy,site) then
                     out[#out+1]={kind=policy.kind=="stairs" and "build-shelter-stairs" or policy.kind=="floor" and "build-shelter-surface" or "build-shelter-edge",known=true,entityId=policy.entityId,recipeId=policy.recipeId,
                         requirements=collector.copy(policy.requirements),inputs=collector.copy(policy.inputs),site=collector.copy(site),recipeName=policy.recipeName,recipeKnown=policy.recipeKnown,
                         distance=math.sqrt((body:getX()-site.approachX-.5)^2+(body:getY()-site.approachY-.5)^2)}
@@ -3310,7 +3344,7 @@ function R.shelterOptions(id,body,retained)
     return ok and out or {}
 end
 function shelter.permission(id,site,current)
-    if site.mode=="double-gate" then return gate.permission(id,site,current) end
+    if site.mode=="double-gate" or site.mode=="fence" or site.mode=="single-gate" then return gate.permission(id,site,current) end
     local query=current and SAO.Standing.mayTakeCurrent or SAO.Standing.mayAttemptBelieved
     for x=0,(site.width or 1)-1 do for y=0,(site.height or 1)-1 do
         if query(id,site.x+x,site.y+y,"standing")~=true then return false end
@@ -3371,7 +3405,7 @@ function shelter.identity(id,w)
                 or {"hammer","plank","nails","hinge","doorknob"})[i]
             or req.mode~=(weld and weld.uses[i] and "use" or not weld and kind=="double-gate" and w.entityId~="Base.DoubleDoor" and (i==1 or i==#counts or w.entityId=="Base.DoubleWireGate" and i==3) and "use" or not weld and i==1 and "keep" or "consume") then return false end
         if req.mode=="use" and (req.quantity~=(weld and weld.uses[i] or w.entityId=="Base.DoubleWireGate" and i==3 and 4 or 10)
-            or req.nativeCount~=req.quantity or req.recordInput~=(not weld and w.entityId=="Base.DoubleWireGate" and i==3)) then return false end
+            or req.nativeCount~=req.quantity or req.recordInput~=(weld and weld.recordInput and weld.recordInput[i]==true or not weld and w.entityId=="Base.DoubleWireGate" and i==3)) then return false end
     end
     local tool=w.inputs[1]
     if weld then for _,row in ipairs(w.inputs) do if row.itemType=="Base.BlowTorch" then tool=row;break end end end
@@ -3411,13 +3445,13 @@ function shelter.bound(rt,pre)
     if not pre then return true end
     if not shelter.learned(rt.policy.recipe,body) then return false end
     if rt.site.upgradeOpportunity and not shelter.intendedUpgrade(rt.id,body,p.shelterConstruction,rt.site) then return false end
-    if w.kind=="build-shelter-edge" and w.stage~="approaching" and SAOJavaBridge:worldShelterPreviousStage(body,w.siteKey,w.siteRevision)~=rt.observedStage then return false end
+    if w.kind=="build-shelter-edge" and not rt.site.boundaryObserved and w.stage~="approaching" and SAOJavaBridge:worldShelterPreviousStage(body,w.siteKey,w.siteRevision)~=rt.observedStage then return false end
     if rt.nativeAttempted or body:isBuildCheat() or isClient() or isServer() then return false end
     if w.stage~="approaching" then
         local square=w.kind=="build-double-gate" and SAOJavaBridge:worldDoubleGatePlacement(body,w.siteKey,w.siteRevision)
             or w.kind=="build-shelter-stairs" and SAOJavaBridge:worldShelterStairPlacementSquare(body,w.siteKey,w.siteRevision)
             or w.kind=="build-shelter-surface" and SAOJavaBridge:worldShelterSurfacePlacementSquare(body,w.siteKey,w.siteRevision)
-            or w.kind=="build-shelter-edge" and SAOJavaBridge:worldShelterPlacementSquare(body,w.siteKey,w.siteRevision)
+            or w.kind=="build-shelter-edge" and (rt.site.boundaryObserved and SAOJavaBridge:worldBoundaryPlacement(body,w.siteKey,w.siteRevision) or not rt.site.boundaryObserved and SAOJavaBridge:worldShelterPlacementSquare(body,w.siteKey,w.siteRevision))
         if square~=rt.siteSquare then return false end
     end
     for i,row in ipairs(rt.inputs) do local item=rt.materials[i]
@@ -3443,7 +3477,10 @@ function shelter.measure(rt)
     if #parts~=count then return false end
     local seen={} for _,part in ipairs(parts) do if rt.beforeObjects[part] or seen[part] then return false end;seen[part]=true end
     local created
-    if rt.kind=="build-double-gate" then
+    if rt.site.boundaryObserved and rt.kind=="build-shelter-edge" then
+        local measured=rt.groupId or SAOJavaBridge:worldBoundaryCreated(rt.body,parts[1],rt.policy.entityId,rt.site.x,rt.site.y,rt.site.z,rt.site.face)
+        rt.groupId=rt.policy.kind=="single-gate" and measured or nil;created=measured~=nil
+    elseif rt.kind=="build-double-gate" then
         rt.groupId=rt.groupId or SAOJavaBridge:worldDoubleGateCreated(rt.body,parts,rt.policy.entityId,rt.site.x,rt.site.y,rt.site.z,rt.site.face)
         created=rt.groupId~=nil
     else created=rt.kind=="build-shelter-stairs" and SAOJavaBridge:worldShelterStairsCreated(rt.body,parts,rt.site.x,rt.site.y,rt.site.z,rt.site.face)
@@ -3477,7 +3514,7 @@ function shelter.outcome(id,row)
                 or not textId(part.sprite) or not integer(part.objectIndex) then return nil end
         end
     elseif row.nativeCredit~=nil then return nil end
-    if row.status=="completed" and row.kind=="build-double-gate" and not textId(row.groupId) then return nil end
+    if row.status=="completed" and (row.kind=="build-double-gate" or row.site.mode=="single-gate") and not textId(row.groupId) then return nil end
     if row.status=="completed" and (shelter.metal[row.entityId] or row.kind=="build-double-gate" and row.entityId~="Base.DoubleDoor") then
             if type(row.usesBefore)~="table" or type(row.usesAfter)~="table" then return nil end
             for _,input in ipairs(row.inputs) do if input.mode=="use" then
@@ -3529,11 +3566,11 @@ function shelter.queue(rt)
     local sq=w.kind=="build-double-gate" and SAOJavaBridge:worldDoubleGatePlacement(body,w.siteKey,w.siteRevision)
         or w.kind=="build-shelter-stairs" and SAOJavaBridge:worldShelterStairPlacementSquare(body,w.siteKey,w.siteRevision)
             or w.kind=="build-shelter-surface" and SAOJavaBridge:worldShelterSurfacePlacementSquare(body,w.siteKey,w.siteRevision)
-        or w.kind=="build-shelter-edge" and SAOJavaBridge:worldShelterPlacementSquare(body,w.siteKey,w.siteRevision)
+        or w.kind=="build-shelter-edge" and (rt.site.boundaryObserved and SAOJavaBridge:worldBoundaryPlacement(body,w.siteKey,w.siteRevision) or not rt.site.boundaryObserved and SAOJavaBridge:worldShelterPlacementSquare(body,w.siteKey,w.siteRevision))
     if not sq then return false end
     rt.siteSquare,rt.square,rt.x,rt.y=sq,body:getCurrentSquare(),body:getX(),body:getY();w.stage="preparing"
-    local observed=w.kind=="build-shelter-edge" and SAOJavaBridge:worldShelterPreviousStage(body,w.siteKey,w.siteRevision) or nil
-    rt.observedStage=observed;rt.previous=policy.kind=="wall" and observed or nil;rt.frame=policy.kind=="door-leaf" and observed or nil
+    local observed=w.kind=="build-shelter-edge" and not rt.site.boundaryObserved and SAOJavaBridge:worldShelterPreviousStage(body,w.siteKey,w.siteRevision) or nil
+    rt.observedStage=observed;rt.previous=(policy.kind=="wall" or policy.kind=="window-frame") and observed or nil;rt.frame=policy.kind=="door-leaf" and observed or nil
     rt.builder=collector.newEntity(rt,rt.containers);rt.sprite=rt.builder:getSprite()
     if rt.builder:isValid(sq)~=true or rt.builder.previousStageObject~=rt.previous then return false end
     local face=rt.builder:getFace()
@@ -3597,7 +3634,7 @@ function shelter.begin(id,body,step,context)
     rt.work,rt.workId=w,w.id
     if not shelter.identity(id,w) then return false end
     rec.resourceProductionSequence,rec.resourceProductionWork,runtime[id]=seq,w,rt
-    if not (rt.kind=="build-double-gate" and SAO.ProceduralPlanning.admitDoubleGate(id,w) or rt.kind~="build-double-gate" and SAO.ProceduralPlanning.admitShelterConstruction(id,w)) then rec.resourceProductionWork=nil;plumbDispose(rt);return false end
+    if not ((rt.kind=="build-double-gate" or p.gateAccess) and SAO.ProceduralPlanning.admitDoubleGate(id,w) or rt.kind~="build-double-gate" and not p.gateAccess and SAO.ProceduralPlanning.admitShelterConstruction(id,w)) then rec.resourceProductionWork=nil;plumbDispose(rt);return false end
     rt.purpose,rt.step=shelter.purpose(rec,w)
     if shelter.queue(rt) then return true end
     local destination=shelter.destination(rt)
@@ -3615,7 +3652,7 @@ function shelter.useIdentity(id,w)
         or w.id~="resource-production/"..id.."/"..w.sequence or not textId(w.purposeId) or not textId(w.purposeStepId)
         or not textId(w.world) or w.bodyToken~=nil and not textId(w.bodyToken) or not finite(w.startedAt) or w.startedAt<0
         or not textId(w.siteKey) or not textId(w.siteRevision) or type(w.site)~="table"
-        or w.site.key~=w.siteKey or w.site.revision~=w.siteRevision or w.site.mode~="door"
+        or w.site.key~=w.siteKey or w.site.revision~=w.siteRevision or w.site.mode~="door" and w.site.mode~="window"
         or w.site.actorId~=id or w.site.roof~=true or w.site.face~="N" and w.site.face~="W" then return false end
     local allowed={id=true,sequence=true,actorId=true,kind=true,category=true,token=true,purposeId=true,purposeStepId=true,
         site=true,siteKey=true,siteRevision=true,world=true,bodyToken=true,startedAt=true,status=true,stage=true,
@@ -3646,8 +3683,8 @@ function shelter.useBound(rt)
         or not world or world:getWorld()~=rt.world or world:getCell()~=rt.cell or body:getCell()~=rt.cell
         or body:getModData().SAOExternalToken~=rt.token or ISTimedActionQueue.getTimedActionQueue(body)~=rt.queue
         or p~=rt.purpose or step~=rt.step or not now() or now()<rt.startedAt
-        or not rt.door or rt.door:getObjectIndex()<0 or rt.door:isDestroyed()
-        or not (instanceof(rt.door,"IsoDoor") or instanceof(rt.door,"IsoThumpable") and rt.door:isDoor())
+        or not rt.door or rt.door:getObjectIndex()<0 or (instanceof(rt.door,"IsoWindow") and rt.door:isSmashed() or not instanceof(rt.door,"IsoWindow") and rt.door:isDestroyed())
+        or not (instanceof(rt.door,"IsoWindow") or instanceof(rt.door,"IsoDoor") or instanceof(rt.door,"IsoThumpable") and rt.door:isDoor())
         or rt.door:getSquare()~=rt.siteSquare or rt.door:getNorth()~=(rt.site.face=="N") then return false end
     for _,point in ipairs({{rt.site.x,rt.site.y},{rt.site.approachX,rt.site.approachY},{rt.site.insideX,rt.site.insideY},
         {rt.outX,rt.outY}}) do
@@ -3656,7 +3693,7 @@ function shelter.useBound(rt)
     return true
 end
 function shelter.doorExact(rt,a)
-    return a.item==rt.door and a.character==rt.body and rt.door:IsOpen()==a.saoBeforeOpen
+    return a.item==rt.door and a.character==rt.body and rt.door:IsOpen()==a.saoBeforeOpen and (not instanceof(rt.door,"IsoWindow") or a.object==rt.door)
         and (rt.work.stage=="opening" or rt.work.stage=="closing" or rt.work.stage=="closing-initial")
         and math.min((rt.body:getX()-rt.site.x-.5)^2+(rt.body:getY()-rt.site.y-.5)^2,
             (rt.body:getX()-rt.otherX-.5)^2+(rt.body:getY()-rt.otherY-.5)^2)<=.13
@@ -3674,14 +3711,22 @@ function shelter.useRoute(rt,x,y,stage)
 end
 function shelter.useDoor(rt,want,stage)
     if not shelter.useBound(rt) or rt.queue.current or #rt.queue.queue>0 or rt.door:IsOpen()==want then return false end
-    local action=ISOpenCloseDoor:new(rt.body,rt.door)
+    local action
+    if instanceof(rt.door,"IsoWindow") then require "TimedActions/ISOpenCloseWindow";action=ISOpenCloseWindow:new(rt.body,rt.door);action.item=rt.door
+    else action=ISOpenCloseDoor:new(rt.body,rt.door) end
     action.saoBeforeOpen,action.saoWantOpen=rt.door:IsOpen(),want
     rt.work.stage=stage;plumbGuard(rt,action,"shelter-door",rt.door)
     rt.current,rt.action=rt.actions[#rt.actions],action
     return SAO.Needs.queueVerified(action)==true
 end
+function shelter.windowToggleFinished(rt,a,success)
+    rt.nativeAttempted=true
+    if not success or not shelter.useBound(rt) then return plumbInterrupt(rt.id,rt.body,"native-window-action-refused") end
+    rt.windowActionStage=rt.work.stage;rt.windowWantOpen=a.saoWantOpen;rt.work.stage="awaiting-native-window-toggle";return true
+end
 function shelter.doorFinished(rt,a,success)
     rt.nativeAttempted=true
+    if instanceof(rt.door,"IsoWindow") then return shelter.windowToggleFinished(rt,a,success) end
     if not success or not shelter.useBound(rt) or rt.door:IsOpen()~=a.saoWantOpen then
         return plumbInterrupt(rt.id,rt.body,"native-door-toggle-not-observed")
     end
@@ -3695,7 +3740,7 @@ end
 function shelter.useOutcome(id,row)
     local rec,t=SAO.Identity.get(id),now()
     if not craftLedger(rec) or not shelter.useIdentity(id,row) or row.sequence>rec.resourceProductionSequence
-        or row.workId~=row.id or row.nativeOwner~="ISOpenCloseDoor+SAO.Locomotion" or not finite(row.atHours)
+        or row.workId~=row.id or row.nativeOwner~=(row.site.mode=="window" and "ISOpenCloseWindow+SAO.Locomotion" or "ISOpenCloseDoor+SAO.Locomotion") or not finite(row.atHours)
         or row.atHours<row.startedAt or not t or row.atHours>t or row.endedAt~=row.atHours
         or row.status~="completed" and row.status~="failed" and row.status~="interrupted" then return nil end
     for _,key in ipairs({"nativeAttempted","nativeCompleted","opened","crossedOut","crossedIn","closedDoor","enclosureConfirmed"}) do
@@ -3720,7 +3765,7 @@ function shelter.useClose(rt,status,detail)
     local rows=rec.resourceProductionOutcomes or {}
     if not craftLedgerRoom(rec) then return false end
     local row=collector.copy(w);row.stage,row.admittedNeeds,row.admittedHealth=nil,nil,nil
-    row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISOpenCloseDoor+SAO.Locomotion",status,detail,t,t
+    row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,w.site.mode=="window" and "ISOpenCloseWindow+SAO.Locomotion" or "ISOpenCloseDoor+SAO.Locomotion",status,detail,t,t
     row.nativeAttempted,row.nativeCompleted=rt.nativeAttempted==true,rt.nativeCompleted==true
     row.opened,row.crossedOut,row.crossedIn,row.closedDoor=rt.opened==true,rt.crossedOut==true,rt.crossedIn==true,rt.closedDoor==true
     row.enclosureConfirmed=rt.enclosureConfirmed==true;row.afterCover=collector.copy(rt.afterCover or {})
@@ -3755,7 +3800,7 @@ function shelter.useRecover(id,body)
     local rows=rec.resourceProductionOutcomes or {}
     if not craftLedgerRoom(rec) then return false end
     local row=collector.copy(w);row.stage,row.admittedNeeds,row.admittedHealth=nil,nil,nil
-    row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISOpenCloseDoor+SAO.Locomotion","interrupted","shelter-use-runtime-unavailable",t,t
+    row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,w.site.mode=="window" and "ISOpenCloseWindow+SAO.Locomotion" or "ISOpenCloseDoor+SAO.Locomotion","interrupted","shelter-use-runtime-unavailable",t,t
     row.nativeObservability="runtime-unavailable"
     for _,key in ipairs({"nativeAttempted","nativeCompleted","opened","crossedOut","crossedIn","closedDoor","enclosureConfirmed"}) do row[key]=false end
     if not shelter.useOutcome(id,row) then return false end
@@ -3769,6 +3814,15 @@ function shelter.useTick(id,body)
         return plumbInterrupt(id,rt.body,rt.cancelReason or "shelter-use-owner-changed") and "interrupted" or "cancelling"
     end
     local stage=rt.work.stage
+    if stage=="awaiting-native-window-toggle" then
+        local nativeState=tostring(body:getCurrentStateName());local completion=body:getVariableString("StopAfterAnimLooped")
+        if rt.windowWantOpen and nativeState=="OpenWindowState" and completion=="success" and not rt.door:IsOpen() then rt.door:ToggleWindow(body) end
+        if rt.door:IsOpen()~=rt.windowWantOpen or nativeState~="IdleState" then return "using" end
+        local original=rt.windowActionStage;rt.windowActionStage=nil
+        if original=="closing-initial" then return shelter.useDoor(rt,true,"opening") and "using" or "cancelling" end
+        if original=="opening" then rt.opened=true;return shelter.useRoute(rt,rt.outX,rt.outY,"crossing-out") and "moving" or "cancelling" end
+        rt.closedDoor=true;rt.work.stage="awaiting-native-enclosure";return "using"
+    end
     if stage=="approaching" or stage=="crossing-out" or stage=="crossing-in" then
         if not rt.route or SAO.Locomotion.jobs[id]~=rt.route or rt.route.shelterWorkId~=rt.workId then
             return plumbInterrupt(id,body,"shelter-route-owner-lost") and "interrupted" or "cancelling"
@@ -3798,7 +3852,7 @@ function shelter.useTick(id,body)
         if rt.afterCover and cover.reached==true and cover.roof==true and cover.regionKnown==true
             and cover.enclosed==true and cover.fullyRoofed==true then
             rt.enclosureConfirmed,rt.nativeCompleted=true,true
-            return shelter.useClose(rt,"completed","native-doorway-used-and-enclosure-observed") and "completed" or "cancelling"
+            return shelter.useClose(rt,"completed","native-opening-used-and-enclosure-observed") and "completed" or "cancelling"
         end
         return "awaiting-native-enclosure"
     end
@@ -3811,10 +3865,10 @@ function shelter.useBegin(id,body,step,context)
         or SAO.Needs.busy(body) or SAOJavaBridge:hasPendingActions(body) or not shelter.site(id,body,step.site)
         or step.owner~="SAO.ResourceProduction" or step.token~="resource:shelter-used" or step.productionKind~="use-shelter"
         or isClient() or isServer() or not collector.install() then return false end
-    local loaded=pcall(require,"TimedActions/ISOpenCloseDoor");if not loaded or not ISOpenCloseDoor then return false end
+    local loaded=pcall(require,step.site.mode=="window" and "TimedActions/ISOpenCloseWindow" or "TimedActions/ISOpenCloseDoor");if not loaded or step.site.mode=="window" and not ISOpenCloseWindow or step.site.mode=="door" and not ISOpenCloseDoor then return false end
     local p=rec.proceduralPlanning and rec.proceduralPlanning.purposes[context.purposeId]
     if not p or not p.shelterConstruction or p.admission or p.steps[p.cursor]~=step or step.id~=context.purposeStepId then return false end
-    local door=SAOJavaBridge:worldShelterDoor(body,step.site.key,step.site.revision);if not door then return false end
+    local door=step.site.mode=="window" and SAOJavaBridge:worldShelterWindow(body,step.site.key,step.site.revision) or step.site.mode=="door" and SAOJavaBridge:worldShelterDoor(body,step.site.key,step.site.revision);if not door then return false end
     local world=getWorld();if not world then return false end
     local site=step.site;local otherX,otherY=site.x-(site.face=="W" and 1 or 0),site.y-(site.face=="N" and 1 or 0)
     local outX,outY=site.insideX==site.x and site.insideY==site.y and otherX or site.x,
@@ -3852,6 +3906,9 @@ function gate.site(id,body,site)
 end
 function gate.permission(id,site,current)
     local query=current and SAO.Standing.mayTakeCurrent or SAO.Standing.mayAttemptBelieved;local north=site.face=="N"
+    if site.mode=="single-gate" or site.mode=="fence" then
+        return query(id,site.x,site.y,"standing")==true and query(id,site.approachX,site.approachY,"standing")==true and query(id,site.destinationX,site.destinationY,"standing")==true
+    end
     for x=north and 0 or -1,north and 3 or 1 do for y=north and -1 or 0,north and 1 or 3 do
         if query(id,site.x+x,site.y+y,"standing")~=true then return false end
     end end;return true
@@ -3888,17 +3945,17 @@ local GATE_FIELDS={id=true,workId=true,sequence=true,actorId=true,kind=true,cate
     nativeOwner=true,nativeAttempted=true,nativeCompleted=true,detail=true,atHours=true,endedAt=true,beforeGroup=true,afterGroup=true,
     purposeDelivered=true,experienceDelivered=true,nativeCredit=true}
 function gate.identity(id,w)
-    if type(w)~="table" or getmetatable(w) or w.actorId~=id or w.kind~="operate-double-gate" or w.category~="construction"
+    if type(w)~="table" or getmetatable(w) or w.actorId~=id or (w.kind~="operate-double-gate" and w.kind~="operate-single-gate") or w.category~="construction"
         or w.token~="resource:gate-operated" or not integer(w.sequence) or w.sequence<1 or w.id~="resource-production/"..id.."/"..w.sequence
         or not textId(w.purposeId) or not textId(w.purposeStepId) or not textId(w.groupId) or not shelter.spec(w.entityId)
         or not finite(w.startedAt) or not textId(w.world) or w.bodyToken~=nil and not textId(w.bodyToken)
-        or not ({open=true,pass=true,close=true})[w.operation] or type(w.site)~="table" or w.site.mode~="double-gate" then return false end
+        or not ({open=true,pass=true,close=true})[w.operation] or type(w.site)~="table" or (w.site.mode~="double-gate" and w.site.mode~="single-gate") or w.kind~=(w.site.mode=="single-gate" and "operate-single-gate" or "operate-double-gate") then return false end
     for key in pairs(w) do if not GATE_FIELDS[key] then return false end end;return collector.copy(w)~=nil
 end
 function gate.purpose(rec,w)
     local p=rec and rec.proceduralPlanning and rec.proceduralPlanning.purposes[w.purposeId];local step=p and p.steps[p.cursor];local ad=p and p.admission
     if not p or not p.gateAccess or not step or not ad or step.owner~="SAO.ResourceProduction" or step.id~=w.purposeStepId
-        or step.productionKind~="operate-double-gate" or step.operation~=w.operation or p.gateAccess.groupId~=w.groupId
+        or step.productionKind~=w.kind or step.operation~=w.operation or p.gateAccess.groupId~=w.groupId
         or p.gateAccess.entityId~=w.entityId or not shelter.sameSite(step.site,w.site) or ad.owner~=step.owner
         or ad.stepId~=step.id or ad.target~=step.target or ad.correlationId~=w.id then return nil end
     return p,step
@@ -3907,9 +3964,28 @@ function gate.anchors(rt,w)
     return w.id==rt.workId and w.startedAt==rt.startedAt and w.bodyToken==rt.token and w.world==rt.world
         and w.groupId==rt.groupId and w.operation==rt.operation and w.entityId==rt.entityId and shelter.sameSite(rt.site,w.site)
 end
-function gate.group(rt)
-    local s=rt.site;return SAOJavaBridge:worldDoubleGateGroup(rt.body,rt.groupId,rt.entityId,s.x,s.y,s.z,s.face)
+function gate.state(body,gid,entity,s)
+    if s.mode=="single-gate" then return SAOJavaBridge:worldBoundaryState(body,gid,entity,s.x,s.y,s.z,s.face) end
+    return SAOJavaBridge:worldDoubleGateGroup(body,gid,entity,s.x,s.y,s.z,s.face)
 end
+function gate.leaf(body,gid,entity,s)
+    if s.mode=="single-gate" then return SAOJavaBridge:worldBoundaryLeaf(body,gid,entity,s.x,s.y,s.z,s.face) end
+    return SAOJavaBridge:worldDoubleGateLeaf(body,gid,entity,s.x,s.y,s.z,s.face)
+end
+function gate.beginPassage(rt)
+    local s=rt.site
+    if s.mode=="single-gate" then return SAOJavaBridge:worldBoundaryBeginPassage(rt.body,rt.groupId,rt.entityId,s.x,s.y,s.z,s.face,s.destinationX,s.destinationY) end
+    return SAOJavaBridge:worldDoubleGateBeginPassage(rt.body,rt.groupId,rt.entityId,s.x,s.y,s.z,s.face,s.destinationX,s.destinationY)
+end
+function gate.passage(rt)
+    if rt.site.mode=="single-gate" then return SAOJavaBridge:worldBoundaryPassage(rt.body,rt.passageToken) end
+    return SAOJavaBridge:worldDoubleGatePassage(rt.body,rt.passageToken)
+end
+function gate.forgetPassage(rt)
+    if rt.site.mode=="single-gate" then return SAOJavaBridge:worldBoundaryForgetPassage(rt.body,rt.passageToken) end
+    return SAOJavaBridge:worldDoubleGateForgetPassage(rt.body,rt.passageToken)
+end
+function gate.group(rt)return gate.state(rt.body,rt.groupId,rt.entityId,rt.site)end
 function gate.bound(rt)
     local w=rt.work;local rec=owner(rt.id,rt.body);local p,step=gate.purpose(rec,w);local world=getWorld()
     return not rt.closed and not rt.cancelling and runtime[rt.id]==rt and rec==rt.record and rec.resourceProductionWork==w
@@ -3921,7 +3997,7 @@ end
 function gate.doorExact(rt,a)
     local s=rt.site
     return gate.bound(rt) and a.item==rt.leaf and a.character==rt.body
-        and SAOJavaBridge:worldDoubleGateLeaf(rt.body,rt.groupId,rt.entityId,s.x,s.y,s.z,s.face)==rt.leaf
+        and gate.leaf(rt.body,rt.groupId,rt.entityId,s)==rt.leaf
         and math.floor(rt.body:getZ())==s.z and math.abs(rt.body:getCurrentSquare():getX()-s.x)<=1 and math.abs(rt.body:getCurrentSquare():getY()-s.y)<=1
         and rt.body:getCurrentSquare()==rt.square and math.abs(rt.body:getX()-rt.x)<.01 and math.abs(rt.body:getY()-rt.y)<.01
 end
@@ -3930,14 +4006,14 @@ function gate.queueDoor(rt)
     if not gate.bound(rt) or math.floor(rt.body:getZ())~=s.z or math.floor(rt.body:getX())~=x or math.floor(rt.body:getY())~=y
         or (rt.body:getX()-x-.5)^2+(rt.body:getY()-y-.5)^2>.35^2 then return false end
     rt.square,rt.x,rt.y=rt.body:getCurrentSquare(),rt.body:getX(),rt.body:getY()
-    rt.leaf=SAOJavaBridge:worldDoubleGateLeaf(rt.body,rt.groupId,rt.entityId,s.x,s.y,s.z,s.face)
+    rt.leaf=gate.leaf(rt.body,rt.groupId,rt.entityId,s)
     if not rt.leaf then return false end
     rt.work.stage=rt.operation;plumbGuard(rt,ISOpenCloseDoor:new(rt.body,rt.leaf),"gate-door",rt.leaf)
     return plumbEnqueue(rt,#rt.actions)
 end
 function gate.queuePass(rt)
     local s=rt.site
-    rt.passageToken=SAOJavaBridge:worldDoubleGateBeginPassage(rt.body,rt.groupId,rt.entityId,s.x,s.y,s.z,s.face,s.destinationX,s.destinationY)
+    rt.passageToken=gate.beginPassage(rt)
     if not rt.passageToken or not SAO.Locomotion.order(rt.id,rt.body,s.destinationX+.5,s.destinationY+.5,s.z) then return false end
     rt.route=SAO.Locomotion.jobs[rt.id];rt.route.doubleGateWorkId=rt.workId;rt.work.stage="pass";rt.nativeAttempted=true;return true
 end
@@ -3953,7 +4029,7 @@ function gate.outcome(id,row)
         or row.entityId~=(saved and saved.entityId or own.entityId) or not shelter.sameSite(row.site,expected.site) then return nil end
     if row.status=="completed" then
         if not row.nativeAttempted or not row.nativeCompleted or row.nativeCredit~=row.id or type(row.afterGroup)~="table"
-            or row.afterGroup.id~=row.groupId or #row.afterGroup.parts~=4 or row.operation=="open" and row.afterGroup.open~=true
+            or row.afterGroup.id~=row.groupId or #row.afterGroup.parts~=(row.kind=="operate-single-gate" and 1 or 4) or row.operation=="open" and row.afterGroup.open~=true
             or row.operation=="close" and (row.afterGroup.open~=false or row.afterGroup.relocated~=false) then return nil end
     elseif row.nativeCredit~=nil then return nil end
     return collector.copy(row)
@@ -3969,7 +4045,7 @@ function gate.close(rt,status,detail)
     if not gate.outcome(rt.id,row) then return false end
     rows[#rows+1]=row;rec.resourceProductionOutcomes=rows;if #rows>CRAFT_LIMIT then table.remove(rows,1) end
     rec.resourceProductionWork=nil;rt.closed=true
-    if rt.passageToken then SAOJavaBridge:worldDoubleGateForgetPassage(rt.body,rt.passageToken) end
+    if rt.passageToken then gate.forgetPassage(rt) end
     plumbDispose(rt);reconcile(rt.id);return true
 end
 function gate.doorFinished(rt,a,success)
@@ -3989,9 +4065,9 @@ function gate.begin(id,body,step,context)
         or rec.resourceProductionWork or rec.worldSourceReservation or not t or not collector.install() or SAO.Needs.busy(body)
         or SAOJavaBridge:hasPendingActions(body) or not gate.permission(id,step.site,true) then return false end
     local s=step.site;local gid=p.gateAccess.groupId
-    local group=SAOJavaBridge:worldDoubleGateGroup(body,gid,p.gateAccess.entityId,s.x,s.y,s.z,s.face)
+    local group=gate.state(body,gid,p.gateAccess.entityId,s)
     if not group or step.operation=="open" and group.open or step.operation=="pass" and not group.open then return false end
-    local world=getWorld();local rt={id=id,kind="operate-double-gate",record=rec,body=body,inventory=body:getInventory(),cell=body:getCell(),world=world:getWorld(),
+    local world=getWorld();local rt={id=id,kind=step.productionKind,record=rec,body=body,inventory=body:getInventory(),cell=body:getCell(),world=world:getWorld(),
         site=collector.copy(s),groupId=gid,entityId=p.gateAccess.entityId,operation=step.operation,queue=ISTimedActionQueue.getTimedActionQueue(body),
         token=body:getModData().SAOExternalToken,startedAt=t,actions={},square=body:getCurrentSquare(),x=body:getX(),y=body:getY()}
     local seq=(rec.resourceProductionSequence or 0)+1
@@ -4027,7 +4103,7 @@ function gate.tick(id,body)
     if rt.operation=="pass" then
         if SAO.Locomotion.jobs[id]~=rt.route or rt.route.doubleGateWorkId~=rt.workId then return plumbInterrupt(id,body,"double-gate-route-owner-lost") and "interrupted" or "cancelling" end
         if not rt.route.done then SAO.Locomotion.tick(id);return "moving" end
-        rt.nativeCompleted=rt.route.result=="arrived" and SAOJavaBridge:worldDoubleGatePassage(body,rt.passageToken)==true
+        rt.nativeCompleted=rt.route.result=="arrived" and gate.passage(rt)==true
         return gate.close(rt,rt.nativeCompleted and "completed" or "failed","native-double-gate-passage") and "completed" or "cancelling"
     end;return "using"
 end
@@ -4055,7 +4131,7 @@ function gate.recover(id,body)
     if not craftLedgerRoom(rec) then return false end
     local row=collector.copy(w);row.stage=nil;row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISOpenCloseDoor+SAO.Locomotion","interrupted","saved-gate-requires-fresh-group",now(),now()
     row.nativeAttempted,row.nativeCompleted=false,false
-    local site=w.site;row.afterGroup=collector.copy(SAOJavaBridge:worldDoubleGateGroup(body,w.groupId,w.entityId,site.x,site.y,site.z,site.face))
+    local site=w.site;row.afterGroup=collector.copy(gate.state(body,w.groupId,w.entityId,site))
     if not gate.outcome(id,row) then return false end;rows[#rows+1]=row;rec.resourceProductionOutcomes=rows;if #rows>CRAFT_LIMIT then table.remove(rows,1) end
     rec.resourceProductionWork=nil;reconcile(id);return true
 end
@@ -4067,7 +4143,8 @@ function R.reconcileSaved(id,body)
         return SAO.Generator and SAO.Generator.reconcileSaved(id,body) or false
     end
     if SAO.Generator then SAO.Generator.reconcileSaved(id,body) end
-    if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="operate-double-gate" then return gate.recover(id,body) end
+    if rec and rec.resourceProductionWork and (rec.resourceProductionWork.kind=="operate-double-gate" or rec.resourceProductionWork.kind=="operate-single-gate") then return gate.recover(id,body) end
+    if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="glaze-shelter-window" then return shelter.glazeRecover(id,body) end
     if rec and rec.resourceProductionWork and nativeEntityKind(rec.resourceProductionWork.kind) then return collector.recover(id,body) end
     if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="plumb-fixture" then return plumbRecover(id,body) end
     if rec and rec.resourceProductionWork and nativeCraftKind(rec.resourceProductionWork.kind) then return craftRecover(id,body) end
@@ -4088,8 +4165,9 @@ if Events and Events.OnTick then Events.OnTick.Add(R.retryCraftCancellations) en
 function R.begin(id, body, step, context)
     context = context or {}
     if step and step.owner=="SAO.Generator" then return SAO.Generator and SAO.Generator.begin(id,body,step,context) or false end
-    if step and step.productionKind=="operate-double-gate" then return gate.begin(id,body,step,context) end
+    if step and (step.productionKind=="operate-double-gate" or step.productionKind=="operate-single-gate") then return gate.begin(id,body,step,context) end
     if step and step.productionKind=="build-double-gate" then return shelter.begin(id,body,step,context) end
+    if step and step.productionKind=="glaze-shelter-window" then return shelter.glazeBegin(id,body,step,context) end
     if step and step.productionKind == "use-shelter" then return shelter.useBegin(id,body,step,context) end
     if step and (step.productionKind == "build-shelter-edge" or step.productionKind == "build-shelter-surface" or step.productionKind == "build-shelter-stairs") then return shelter.begin(id,body,step,context) end
     if step and step.productionKind == "build-wood-bed" then return bed.begin(id,body,step,context) end
@@ -4312,4 +4390,167 @@ function R.reset()
     for id in pairs(sourceRefresh) do retireRefresh(id, "handled-source-observation-retired") end
 end
 if Events and Events.OnGameStart then Events.OnGameStart.Add(R.reset) end
+
+function R.boundaryOptions(id,body,retained)
+    if not owner(id,body) or not SAO.Perception.boundarySites then return {} end;local out={}
+    for _,acquired in ipairs(SAO.Perception.boundarySites(id,body))do if not retained or retained.site and retained.site.key==acquired.key then
+        for _,entity in ipairs(shelter.entities)do local spec=shelter.metal[entity]
+            if spec and (spec.kind=="fence" or spec.kind=="single-gate") then
+                local site=collector.copy(acquired);site.mode=spec.kind;local policy=shelter.recipe(body,entity,true)
+                if policy and shelter.gradeChoice(body,policy) and shelter.permission(id,site,false) then
+                    out[#out+1]={kind="build-shelter-edge",known=true,entityId=entity,recipeId=policy.recipeId,recipeName=policy.recipeName,
+                        recipeKnown=policy.recipeKnown,site=site,requirements=collector.copy(policy.requirements),inputs=collector.inputs(policy,body),
+                        distance=math.sqrt((body:getX()-site.approachX-.5)^2+(body:getY()-site.approachY-.5)^2)}
+                    if #out>=32 then return out end
+                end
+            end
+        end
+    end end;return out
+end
+function R.boundaryState(body,id,entity,site)return gate.state(body,id,entity,site)end
+
+
+-- Native movable glazing owns its own payment/result before ordinary aperture use.
+function R.windowGlazingOptions(id,body)
+    if not owner(id,body) then return {} end
+    require "Moveables/ISMoveableSpriteProps";require "Moveables/ISMoveablesAction"
+    local out={};local items=SAOJavaBridge:privateCarriedItems(body)
+    for _,site in ipairs(SAO.Perception.shelterSites(id,body))do if site.mode=="window-frame" and shelter.permission(id,site,false) then
+        local selected
+        for n=0,items:size()-1 do local item=items:get(n)
+            if instanceof(item,"Moveable") and item:getContainer()==body:getInventory() and item:getWorldSprite()
+                and not item:getIsCraftingConsumed() and body:getPrimaryHandItem()~=item and body:getSecondaryHandItem()~=item then
+                local original=ISMoveableSpriteProps.new(item:getWorldSprite());local faces=original:getFaces();local sprite=faces[site.face] or original.spriteName
+                local props=ISMoveableSpriteProps.new(sprite)
+                if props.isMoveable and props.type=="Window" and not props.isMultiSprite and props:findInInventory(body,item:getWorldSprite())==item then
+                    local toolDefinition=props.placeTool and ISMoveableDefinitions:getInstance().getToolDefinition(props.placeTool)
+                    local toolTypes={} for _,fullType in ipairs(toolDefinition and toolDefinition.items or {})do toolTypes[#toolTypes+1]=fullType end
+                    selected={itemId=tostring(item:getID()),itemType=item:getFullType(),worldSprite=item:getWorldSprite(),placedSprite=sprite,
+                        placingSkillAvailable=props:hasRequiredSkill(body,"place")==true,placeToolAvailable=not props.placeTool or props:hasTool(body,"place")~=nil,
+                        placeToolCategory=props.placeTool=="Hammer" and "hammer" or "tools",placeToolTypes=toolTypes};break
+                end
+            end
+        end
+        out[#out+1]={site=collector.copy(site),item=selected};if #out>=16 then break end
+    end end;return out
+end
+function shelter.glazeIdentity(id,w)
+    if type(w)~="table" or getmetatable(w) or w.actorId~=id or w.kind~="glaze-shelter-window" or w.category~="construction"
+        or w.token~="resource:window-installed" or not integer(w.sequence) or w.sequence<1 or w.id~="resource-production/"..id.."/"..w.sequence
+        or not textId(w.purposeId) or not textId(w.purposeStepId) or not textId(w.world) or w.bodyToken~=nil and not textId(w.bodyToken)
+        or not finite(w.startedAt) or w.startedAt<0 or not textId(w.itemId) or not textId(w.itemType) or not textId(w.worldSprite) or not textId(w.placedSprite)
+        or not textId(w.siteKey) or not textId(w.siteRevision) or type(w.site)~="table" or w.site.key~=w.siteKey or w.site.revision~=w.siteRevision
+        or w.site.mode~="window-frame" or w.site.actorId~=id or w.site.roof~=true then return false end
+    local fields={id=true,sequence=true,actorId=true,kind=true,category=true,token=true,purposeId=true,purposeStepId=true,world=true,bodyToken=true,startedAt=true,
+        site=true,siteKey=true,siteRevision=true,itemId=true,itemType=true,worldSprite=true,placedSprite=true,stage=true,status=true,
+        workId=true,nativeOwner=true,nativeAttempted=true,nativeCompleted=true,itemConsumed=true,frameRetained=true,windowCreated=true,nativeCredit=true,
+        atHours=true,endedAt=true,detail=true,purposeDelivered=true,experienceDelivered=true}
+    for k in pairs(w)do if not fields[k] then return false end end;return collector.copy(w)~=nil
+end
+function shelter.glazePurpose(rec,w)
+    local p=rec and rec.proceduralPlanning and rec.proceduralPlanning.purposes[w.purposeId];local step,ad=p and p.steps[p.cursor],p and p.admission
+    if not p or not p.shelterConstruction or p.status=="completed" or p.status=="abandoned" or not step or not ad
+        or step.owner~="SAO.ResourceProduction" or step.productionKind~=w.kind or step.id~=w.purposeStepId or step.target~=w.siteKey
+        or step.itemId~=w.itemId or step.itemType~=w.itemType or step.worldSprite~=w.worldSprite or step.placedSprite~=w.placedSprite
+        or not shelter.sameSite(step.site,w.site) or ad.owner~=step.owner or ad.stepId~=step.id or ad.target~=step.target or ad.correlationId~=w.id then return nil end
+    return p,step
+end
+function shelter.glazeAnchors(rt,w)
+    return w.id==rt.workId and w.startedAt==rt.startedAt and w.world==rt.world and w.bodyToken==rt.token
+        and w.itemId==rt.itemId and w.itemType==rt.itemType and w.worldSprite==rt.worldSprite and w.placedSprite==rt.placedSprite and shelter.sameSite(rt.site,w.site)
+end
+function shelter.glazeBound(rt,pre)
+    local body,w=rt.body,rt.work;local rec=owner(rt.id,body);local p,step=shelter.glazePurpose(rec,w);local world=getWorld()
+    if rt.closed or rt.cancelling or runtime[rt.id]~=rt or rec~=rt.record or rec.resourceProductionWork~=w or not shelter.glazeIdentity(rt.id,w)
+        or not craftLedger(rec) or not shelter.glazeAnchors(rt,w) or p~=rt.purpose or step~=rt.step or not now() or now()<rt.startedAt
+        or not world or world:getWorld()~=rt.world or world:getCell()~=rt.cell or body:getCell()~=rt.cell or body:getInventory()~=rt.inventory
+        or body:getModData().SAOExternalToken~=rt.token or ISTimedActionQueue.getTimedActionQueue(body)~=rt.queue
+        or body:getCurrentSquare()~=rt.square or math.abs(body:getX()-rt.x)>.01 or math.abs(body:getY()-rt.y)>.01
+        or not shelter.permission(rt.id,rt.site,true) or rt.frame:getSquare()~=rt.siteSquare or rt.frame:getObjectIndex()<0 or rt.frame:isDestroyed() then return false end
+    if not pre then return true end
+    return shelter.site(rt.id,body,rt.site) and craftCarried(body,rt.itemId,rt.itemType)==rt.item and rt.item:getContainer()==rt.inventory
+        and rt.item:getWorldSprite()==rt.worldSprite and not rt.item:getIsCraftingConsumed() and not body:isMovablesCheat() and not ISMoveableDefinitions.cheat and not isClient() and not isServer()
+        and SAOJavaBridge:worldShelterWindowFrame(body,rt.site.key,rt.site.revision)==rt.frame
+end
+function shelter.glazeExact(rt,a)
+    return shelter.glazeBound(rt,true) and a.character==rt.body and a.square==rt.siteSquare and a.item==rt.item and a.mode=="place"
+        and a.origSpriteName==rt.worldSprite and a.moveProps.spriteName==rt.placedSprite and a.moveProps.type=="Window" and not a.moveProps.isMultiSprite
+        and a.moveProps:findInInventory(rt.body,rt.worldSprite)==rt.item and a.moveProps:canPlaceMoveable(rt.body,rt.siteSquare,rt.item)==true
+end
+function shelter.glazeOutcome(id,row)
+    local rec=SAO.Identity.get(id)
+    if not craftLedger(rec) or not shelter.glazeIdentity(id,row) or row.sequence>(rec.resourceProductionSequence or 0)
+        or row.workId~=row.id or row.nativeOwner~="ISMoveablesAction" or not finite(row.atHours) or row.atHours<row.startedAt or row.atHours>now()
+        or row.endedAt~=row.atHours or not ({completed=true,failed=true,interrupted=true})[row.status] then return nil end
+    for _,key in ipairs({"nativeAttempted","nativeCompleted","itemConsumed","frameRetained","windowCreated"})do if type(row[key])~="boolean" then return nil end end
+    if row.status=="completed" then
+        if row.nativeCredit~=row.id or not row.nativeAttempted or not row.nativeCompleted or not row.itemConsumed or not row.frameRetained or not row.windowCreated then return nil end
+    elseif row.nativeCredit~=nil then return nil end
+    return collector.copy(row)
+end
+function shelter.glazeClose(rt,status,detail)
+    local rec,w,t=SAO.Identity.get(rt.id),rt.work,now()
+    if rt.closed then return true end
+    if not plumbRetired(rt) or rec~=rt.record or rec.resourceProductionWork~=w or not shelter.glazeIdentity(rt.id,w) or not shelter.glazePurpose(rec,w)
+        or not shelter.glazeAnchors(rt,w) or not craftLedgerRoom(rec) or not t or t<w.startedAt then return false end
+    local row=collector.copy(w);row.stage=nil;row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISMoveablesAction",status,detail,t,t
+    row.nativeAttempted,row.nativeCompleted=rt.nativeAttempted==true,rt.nativeCompleted==true
+    row.itemConsumed,row.frameRetained,row.windowCreated=rt.itemConsumed==true,rt.frameRetained==true,rt.windowCreated==true
+    row.nativeCredit=status=="completed" and w.id or nil;if not shelter.glazeOutcome(rt.id,row) then return false end
+    rec.resourceProductionOutcomes=rec.resourceProductionOutcomes or {};table.insert(rec.resourceProductionOutcomes,row);if #rec.resourceProductionOutcomes>CRAFT_LIMIT then table.remove(rec.resourceProductionOutcomes,1) end
+    rec.resourceProductionWork=nil;rt.closed=true;plumbDispose(rt)
+    if status=="completed" then SAO.Perception.observeShelterSites(rt.id,rt.body,rt.site) end
+    reconcile(rt.id);return true
+end
+function shelter.glazeFinished(rt,a,success)
+    rt.nativeAttempted=true
+    local object=rt.siteSquare:getWindow(rt.site.face=="N" and GridSquareEdgeFacingDirection.NORTH_SOUTH or GridSquareEdgeFacingDirection.EAST_WEST)
+    rt.itemConsumed=not rt.inventory:contains(rt.item) and not craftCarried(rt.body,rt.itemId,rt.itemType)
+    rt.frameRetained=rt.frame:getObjectIndex()>=0 and rt.frame:getSquare()==rt.siteSquare and rt.siteSquare:getObjects():contains(rt.frame)
+    rt.windowCreated=SAOJavaBridge:worldShelterGlazed(rt.body,rt.frame,object,rt.placedSprite,rt.site.face=="N")==true
+    rt.nativeCompleted=success and rt.itemConsumed and rt.frameRetained and rt.windowCreated and shelter.glazeBound(rt,false)
+    return shelter.glazeClose(rt,rt.nativeCompleted and "completed" or "failed","native-movable-window-installation-ended")
+end
+function shelter.glazeBegin(id,body,step,context)
+    local rec,t=owner(id,body),now();local p=rec and rec.proceduralPlanning and rec.proceduralPlanning.purposes[context.purposeId]
+    if not rec or not p or not p.shelterConstruction or p.admission or p.steps[p.cursor]~=step or step.id~=context.purposeStepId
+        or rec.resourceProductionWork or rec.worldSourceReservation or not t or not craftLedger(rec) or not craftLedgerRoom(rec) or SAO.Needs.busy(body)
+        or SAOJavaBridge:hasPendingActions(body) or not shelter.site(id,body,step.site) or not shelter.permission(id,step.site,true) then return false end
+    require "Moveables/ISMoveablesAction";require "Moveables/ISMoveableSpriteProps"
+    local frame=SAOJavaBridge:worldShelterWindowFrame(body,step.site.key,step.site.revision);local square=SAOJavaBridge:worldShelterPlacementSquare(body,step.site.key,step.site.revision)
+    local item=craftCarried(body,step.itemId,step.itemType);local world=getWorld()
+    if not frame or not square or not item or not instanceof(item,"Moveable") or item:getContainer()~=body:getInventory() or item:getWorldSprite()~=step.worldSprite or not world then return false end
+    local seq=(rec.resourceProductionSequence or 0)+1
+    local rt={id=id,kind="glaze-shelter-window",body=body,record=rec,purpose=p,step=step,frame=frame,siteSquare=square,site=collector.copy(step.site),item=item,itemId=step.itemId,itemType=step.itemType,
+        worldSprite=step.worldSprite,placedSprite=step.placedSprite,cell=body:getCell(),world=world:getWorld(),inventory=body:getInventory(),queue=ISTimedActionQueue.getTimedActionQueue(body),
+        square=body:getCurrentSquare(),x=body:getX(),y=body:getY(),token=body:getModData().SAOExternalToken,startedAt=t,actions={}}
+    local w={id="resource-production/"..id.."/"..seq,sequence=seq,actorId=id,kind=rt.kind,category="construction",token="resource:window-installed",
+        purposeId=p.id,purposeStepId=step.id,world=rt.world,bodyToken=rt.token,startedAt=t,site=collector.copy(step.site),siteKey=step.site.key,siteRevision=step.site.revision,
+        itemId=step.itemId,itemType=step.itemType,worldSprite=step.worldSprite,placedSprite=step.placedSprite,status="installing",stage="preparing"}
+    if not shelter.glazeIdentity(id,w) then return false end;rt.work,rt.workId=w,w.id
+    rec.resourceProductionSequence,rec.resourceProductionWork,runtime[id]=seq,w,rt
+    if not SAO.ProceduralPlanning.admitWindowGlazing(id,w) then rec.resourceProductionWork=nil;plumbDispose(rt);return false end
+    local action=ISMoveablesAction:new(body,square,"place",rt.worldSprite,nil,step.site.face,item,nil)
+    if not shelter.glazeExact(rt,action) then shelter.glazeClose(rt,"failed","native-window-placement-admission-refused");return false end
+    plumbGuard(rt,action,"window-place",item);return plumbEnqueue(rt,1)
+end
+function shelter.glazeRecover(id,body)
+    local rec=owner(id,body);local w=rec and rec.resourceProductionWork;local t,world=now(),getWorld()
+    if not w then return true end
+    if not craftLedger(rec) or not shelter.glazeIdentity(id,w) or not shelter.glazePurpose(rec,w) or not world or w.world~=world:getWorld()
+        or w.bodyToken~=body:getModData().SAOExternalToken or not t or t<w.startedAt then return false end
+    for _,queue in pairs(ISTimedActionQueue.queues)do local pending={} for _,a in ipairs(queue.queue)do pending[#pending+1]=a end
+        if queue.current and queue:indexOf(queue.current)==-1 then pending[#pending+1]=queue.current end
+        for _,a in ipairs(pending)do if a.actorId==id and a.workId==w.id and a.bodyToken==w.bodyToken then
+            if type(a._SAOPlumbRetireSaved)~="function" then return false end;local ok,retired=pcall(a._SAOPlumbRetireSaved,rec,w);if not ok or not retired then return false end
+        end end
+    end
+    local q=ISTimedActionQueue.getTimedActionQueue(body);if q.current or #q.queue>0 or SAOJavaBridge:hasPendingActions(body) then return false end
+    if not craftLedgerRoom(rec) then return false end
+    local row=collector.copy(w);row.stage=nil;row.workId,row.nativeOwner,row.status,row.detail,row.atHours,row.endedAt=w.id,"ISMoveablesAction","interrupted","saved-window-installation-awaits-fresh-native-observation",t,t
+    row.nativeAttempted,row.nativeCompleted,row.itemConsumed,row.frameRetained,row.windowCreated=false,false,false,false,false
+    if not shelter.glazeOutcome(id,row) then return false end;rec.resourceProductionOutcomes=rec.resourceProductionOutcomes or {};table.insert(rec.resourceProductionOutcomes,row)
+    rec.resourceProductionWork=nil;reconcile(id);return true
+end
+
 return R

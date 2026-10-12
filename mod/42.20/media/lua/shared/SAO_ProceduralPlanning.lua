@@ -572,7 +572,7 @@ local function setPlan(purpose, steps, blockers, interpretations, at)
     -- from its retained intention; a later replacement site cannot rewrite it.
     if purpose.shelterConstruction then
         local own=purpose.shelterConstruction;own.selectionAnchors=own.selectionAnchors or {}
-        for _,step in ipairs(steps) do if step.productionKind=="build-shelter-edge" and step.entityId=="Base.MetalWallLvl2"
+        for _,step in ipairs(steps) do if step.productionKind=="build-shelter-edge" and (step.entityId=="Base.MetalWallLvl2" or step.entityId=="Base.MetalWindowFrameLvl2")
             and step.site and not step.site.upgradeOpportunity then
             local site=step.site;local anchor=own.selectionAnchors[site.key]
             if not anchor or anchor.priorRevision~=site.revision or anchor.stepId~=step.id then
@@ -1950,7 +1950,7 @@ function P.consumeBedRecovery(id,sequence)
 end
 
 local SHELTER_RESULT,SHELTER_USE_RESULT,SHELTER_RECOVERY_RESULT={},{},{}
-local GATE_RESULT,RECIPE_READING_RESULT={},{}
+local GATE_RESULT,RECIPE_READING_RESULT,WINDOW_GLAZING_RESULT={},{},{}
 function P.doubleGatePurpose(id)
     local s=state(id)
     for _,key in ipairs(s and s.order or {}) do local p=s.purposes[key]
@@ -1966,25 +1966,34 @@ function P.planDoubleGate(id,context)
     end end
     if p and p.gateAccess.groupId then
         local own=p.gateAccess
-        local current=SAO.Perception and SAO.Perception.currentDoubleGateGroup(id,SAO.Body.get(id),own.groupId,own.entityId,own.site)
+        local current=own.site.mode=="single-gate" and SAO.ResourceProduction.boundaryState(SAO.Body.get(id),own.groupId,own.entityId,own.site) or own.site.mode=="double-gate" and SAO.Perception and SAO.Perception.currentDoubleGateGroup(id,SAO.Body.get(id),own.groupId,own.entityId,own.site)
         local operation=own.crossed and "close" or current and (current.open and "pass" or "open")
             or not (own.opened or own.observedOpen) and "open" or "pass"
         local phaseId="double-gate-"..operation..":"..tostring(own.opened or own.builtWorkId)
-        setPlan(p,{{id=phaseId,verb="produce",owner="SAO.ResourceProduction",productionKind="operate-double-gate",
+        setPlan(p,{{id=phaseId,verb="produce",owner="SAO.ResourceProduction",productionKind=own.site.mode=="single-gate" and "operate-single-gate" or "operate-double-gate",
             operation=operation,token="resource:gate-operated",target=own.groupId,site=dataCopy(own.site),status="available"}},{},nil,at)
         p.selectedStrategy=p.steps[1].id;return p,p.steps[p.cursor]
     end
     local candidates={{id="continue",evidence=1,continuity=.5,novelty=0,informationGain=0,utility=.1,blockers=0}};local offered={}
+    local eligible={}
     for index,option in ipairs(context.options or {}) do
-        if index>15 then break end
+        if index>128 then break end
         local site=option.site;local ready,missing=P.collectorReady(option)
-        if option.kind=="build-double-gate" and option.known==true and site and site.actorId==id and site.boundaryObserved==true
+        if (option.kind=="build-double-gate" or option.kind=="build-shelter-edge" and site and (site.mode=="fence" or site.mode=="single-gate")) and option.known==true and site and site.actorId==id and site.boundaryObserved==true
             and site.observed==true and site.observedAtHours<=at and (not p or p.gateAccess.site.key==site.key) and missing then
-            local key="gate-option:"..index
-            candidates[#candidates+1]={id=key,evidence=1,continuity=p and 1 or .5,novelty=.1,informationGain=.2,utility=ready and 1.5 or 1,
-                blockers=0,consequences={{kind="construct",category="construction",sourceId=site.key,itemType=option.entityId,value=.5}}}
-            offered[key]=option
+            eligible[#eligible+1]={option=option,ready=ready,index=index,distance=tonumber(option.distance) or 100}
         end
+    end
+    table.sort(eligible,function(a,b)if a.ready~=b.ready then return a.ready end;if a.distance~=b.distance then return a.distance<b.distance end;return a.index<b.index end)
+    -- Admit each available native entity's nearest eligible variant before repeated variants.
+    local ranked,represented,admitted={},{},{}
+    for index,row in ipairs(eligible)do if not represented[row.option.entityId] then represented[row.option.entityId]=true;ranked[#ranked+1]=row;admitted[index]=true end end
+    for index,row in ipairs(eligible)do if not admitted[index] then ranked[#ranked+1]=row end end
+    for index,row in ipairs(ranked)do if index>15 then break end
+        local option,ready=row.option,row.ready;local site=option.site;local key="gate-option:"..index
+        candidates[#candidates+1]={id=key,evidence=1,continuity=p and 1 or .5,novelty=.1,informationGain=.2,utility=ready and 1.5 or 1,
+            blockers=0,consequences={{kind="construct",category="construction",sourceId=site.key,itemType=option.entityId,value=.5}}}
+        offered[key]=option
     end
     local view=interpretations(id,candidates,{domain="construction",pressure=tonumber(context.pressure) or .5,atHours=at})
     local option=view and offered[view.selected]
@@ -2016,7 +2025,7 @@ function P.planDoubleGate(id,context)
                 itemId=source.itemId,itemType=source.itemType,place=dataCopy(source.place),quantity=1,quantityUnit="item",status="available"}
             else blockers[1]="exact-private-gate-material-unavailable" end
         end
-        steps[#steps+1]={id="double-gate-build",verb="produce",owner="SAO.ResourceProduction",productionKind="build-double-gate",token="resource:gate-built",
+        steps[#steps+1]={id="double-gate-build",verb="produce",owner="SAO.ResourceProduction",productionKind=option.kind,token=option.kind=="build-double-gate" and "resource:gate-built" or "resource:shelter-built",
             target=option.entityId,entityId=option.entityId,recipeId=option.recipeId,category="construction",site=dataCopy(option.site),
             inputs=dataCopy(option.inputs,0,nil,38),requirements=dataCopy(option.requirements),status=#blockers>0 and "blocked" or #steps>0 and "dependent" or "available"}
     end
@@ -2031,34 +2040,39 @@ function P.admitDoubleGate(id,w)
 end
 function P.consumeDoubleGateResult(id,supplied)
     local row=type(supplied)=="table" and SAO.ResourceProduction.outcome(id,supplied.id)
-    if not row or row.actorId~=id or row.kind~="build-double-gate" and row.kind~="operate-double-gate" then return false end
+    if not row or row.actorId~=id or row.kind~="build-double-gate" and row.kind~="operate-double-gate" and row.kind~="operate-single-gate" and not (row.kind=="build-shelter-edge" and row.site and row.site.boundaryObserved) then return false end
     local s=state(id);local p=s and s.purposes[row.purposeId];if not p or not p.gateAccess then return false end
     for _,seen in ipairs(p.resultReceipts or {}) do if seen=="SAO.ResourceProduction:"..row.id then return true end end
     local step,ad=p.steps[p.cursor],p.admission
     if not step or not ad or ad.stepId~=row.purposeStepId or ad.correlationId~=row.id or step.token~=row.token
         or step.productionKind~=row.kind or row.entityId~=p.gateAccess.entityId then return false end
-    if row.kind=="operate-double-gate" and (row.operation~=step.operation or row.groupId~=p.gateAccess.groupId or step.target~=row.groupId) then return false end
-    if row.kind=="build-double-gate" and (row.entityId~=step.entityId or row.recipeId~=step.recipeId) then return false end
+    if (row.kind=="operate-double-gate" or row.kind=="operate-single-gate") and (row.operation~=step.operation or row.groupId~=p.gateAccess.groupId or step.target~=row.groupId) then return false end
+    if (row.kind=="build-double-gate" or row.kind=="build-shelter-edge") and (row.entityId~=step.entityId or row.recipeId~=step.recipeId) then return false end
     for _,key in ipairs({"key","revision","x","y","z","face","width","height","approachX","approachY","approachZ","destinationX","destinationY","destinationZ","actorId","observedAtHours"}) do
         if not row.site or not step.site or row.site[key]~=step.site[key] then return false end
     end
     local accepted=P.recordResult(id,p.id,{owner="SAO.ResourceProduction",token=row.token,status=row.status,correlationId=row.id,atHours=row.atHours,reason=row.detail},GATE_RESULT)
-    if accepted and row.kind=="operate-double-gate" then
+    if accepted and (row.kind=="operate-double-gate" or row.kind=="operate-single-gate") then
         local own=p.gateAccess;own.operationReceipts=own.operationReceipts or {};own.operationReceiptOrder=own.operationReceiptOrder or {}
         own.operationReceipts[row.id]={operation=row.operation,groupId=row.groupId,entityId=row.entityId,site=dataCopy(row.site)}
         own.operationReceiptOrder[#own.operationReceiptOrder+1]=row.id
         if #own.operationReceiptOrder>32 then own.operationReceipts[table.remove(own.operationReceiptOrder,1)]=nil end
     end
-    if accepted and row.status=="interrupted" and row.kind=="operate-double-gate" and row.afterGroup and row.afterGroup.id==p.gateAccess.groupId
+    if accepted and row.status=="interrupted" and (row.kind=="operate-double-gate" or row.kind=="operate-single-gate") and row.afterGroup and row.afterGroup.id==p.gateAccess.groupId
         and row.afterGroup.open==true and row.afterGroup.observed==true then p.gateAccess.observedOpen=true end
     if accepted and row.status=="completed" then
-        if row.kind=="build-double-gate" then
+        if row.kind=="build-shelter-edge" and row.site.mode=="fence" then
+            p.gateAccess.builtWorkId=row.id;p.gateAccess.boundaryConfirmed=row.id;p.status="completed"
+            if SAO.Perception and SAO.Perception.consumeBoundarySite then SAO.Perception.consumeBoundarySite(id,row) end
+        elseif row.kind=="build-double-gate" or row.kind=="build-shelter-edge" then
             p.gateAccess.groupId=row.groupId;p.gateAccess.builtWorkId=row.id
-            if SAO.Perception and SAO.Perception.consumeDoubleGateSite then SAO.Perception.consumeDoubleGateSite(id,row) end
+            if row.kind=="build-shelter-edge" then
+                if SAO.Perception and SAO.Perception.consumeBoundarySite then SAO.Perception.consumeBoundarySite(id,row) end
+            elseif SAO.Perception and SAO.Perception.consumeDoubleGateSite then SAO.Perception.consumeDoubleGateSite(id,row) end
         elseif row.operation=="open" then p.gateAccess.opened=row.id
         elseif row.operation=="pass" then p.gateAccess.crossed=row.id
         else p.gateAccess.closed=row.id;p.status="completed" end
-        if not p.gateAccess.closed then p.status="maintained" end
+        if not p.gateAccess.closed and not p.gateAccess.boundaryConfirmed then p.status="maintained" end
     end;return accepted
 end
 function P.recipeReadingPurpose(id)
@@ -2215,7 +2229,44 @@ function P.planShelterConstruction(id,context)
             origin={originX=math.floor(context.position.x),originY=math.floor(context.position.y),z=math.floor(context.position.z)},
             stageHistory={},completedEdges={},completedSurfaces={},constructionResults={},coverNeeds=dataCopy(context.coverNeeds)} end
     end
+    if not retained then for _,offer in ipairs(context.windowGlazing or {})do local site=offer.site
+        if site and site.actorId==id and site.observed==true and site.roof==true and site.mode=="window-frame" and finite(site.observedAtHours) and site.observedAtHours<=at then
+            retained=P.maintain(id,{key="recover-in-repaired-shelter",domain="body",objective="use personally known repaired shelter for bodily recovery",origin="recovery-concern",atHours=at})
+            if retained then retained.shelterConstruction={recoveryKind=context.recoveryKind,origin=dataCopy(site),stageHistory={},completedEdges={},completedSurfaces={},constructionResults={},coverNeeds=dataCopy(context.coverNeeds or {})} end
+            break
+        end
+    end end
     local own=retained and retained.shelterConstruction
+    if own then for _,offer in ipairs(context.windowGlazing or {})do local site=offer.site
+        if site and site.actorId==id and site.observed==true and site.mode=="window-frame" and site.originX==own.origin.originX and site.originY==own.origin.originY and site.z==own.origin.z then
+            local steps,blockers={},{};local item=offer.item
+            if item and item.placingSkillAvailable==false then blockers[1]="native movable-window placing skill unavailable"
+            elseif item and item.placeToolAvailable==false then
+                local acceptable={} for _,fullType in ipairs(item.placeToolTypes or {})do acceptable[fullType]=true end
+                local toolSources={} for _,candidate in ipairs(context.materialSources or {})do if acceptable[candidate.itemType] then toolSources[#toolSources+1]=candidate end end
+                local source,delayed=materialSource(retained,toolSources,item.placeToolCategory,at)
+                if source and not delayed then steps[1]={id=materialAcquisitionId(source),verb="acquire",owner="SAO.SourceUse",token="resource:acquired",
+                    target=source.sourceId..":"..source.itemId,category=item.placeToolCategory,sourceId=source.sourceId,sourceRevision=source.revision,itemId=source.itemId,itemType=source.itemType,
+                    place=dataCopy(source.place),quantity=1,quantityUnit="item",status="available"}
+                else blockers[1]="personally known native movable-window placing tool unavailable" end
+            elseif item then
+                local position=context.position
+                if position and (math.abs(position.z-site.z)>.1 or (position.x-site.approachX-.5)^2+(position.y-site.approachY-.5)^2>.35^2) then
+                    return shelterMovementPlan(retained,"inspect","glaze-approach:"..site.key,site.approachX+.5,site.approachY+.5,site.approachZ,at)
+                end
+                steps[1]={id="shelter-glaze:"..site.key..":"..item.itemId,verb="produce",owner="SAO.ResourceProduction",productionKind="glaze-shelter-window",
+                    token="resource:window-installed",target=site.key,site=dataCopy(site),itemId=item.itemId,itemType=item.itemType,worldSprite=item.worldSprite,placedSprite=item.placedSprite,category="construction",status="available"}
+            else
+                local source,delayed=materialSource(retained,context.materialSources,"movable-window",at)
+                if source and not delayed then steps[1]={id=materialAcquisitionId(source),verb="acquire",owner="SAO.SourceUse",token="resource:acquired",
+                    target=source.sourceId..":"..source.itemId,category="movable-window",sourceId=source.sourceId,sourceRevision=source.revision,itemId=source.itemId,itemType=source.itemType,
+                    place=dataCopy(source.place),quantity=1,quantityUnit="item",status="available"}
+                else blockers[1]="personally acquired movable window and native placing means unavailable" end
+            end
+            if #steps>0 then setPlan(retained,steps,blockers,nil,at);return retained,retained.steps[retained.cursor] end
+            retained.blockers=blockers
+        end
+    end end
     P.refreshShelterCover(id,SAO.Body.get(id))
     local candidates={{id="continue",evidence=1,continuity=.7,novelty=0,informationGain=0,utility=.25,blockers=0}}
     local offered,ranked={},{}
@@ -2286,13 +2337,13 @@ function P.planShelterConstruction(id,context)
         for _,site in ipairs(context.sites or {}) do
             local history=own and own.stageHistory[site.key]
             if own and site.originX==own.origin.originX and site.originY==own.origin.originY and site.z==own.origin.z
-                and site.mode~="door" and site.mode~="covered-interior" and not site.upgradeOpportunity and (not history or history.revision~=site.revision) then missingObserved=true end
+                and site.mode~="door" and site.mode~="window" and site.mode~="covered-interior" and not site.upgradeOpportunity and (not history or history.revision~=site.revision) then missingObserved=true end
         end
         if retained and not missingObserved then
             local own=retained.shelterConstruction
             for _,site in ipairs(context.sites or {}) do
-                if site.mode=="door" and site.originX==own.origin.originX and site.originY==own.origin.originY and site.z==own.origin.z
-                    and not own.usedWorkId then
+                if (site.mode=="door" or site.mode=="window") and site.originX==own.origin.originX and site.originY==own.origin.originY and site.z==own.origin.z
+                    and (not own.glazedWindowKey or site.mode=="window" and site.key==own.glazedWindowKey) and not own.usedWorkId then
                     local step={id="shelter-use:"..tostring(#own.constructionResults+1),verb="produce",owner="SAO.ResourceProduction",
                         productionKind="use-shelter",token="resource:shelter-used",target=site.key,site=dataCopy(site),
                         category="construction",status="available"}
@@ -2352,7 +2403,7 @@ function P.planShelterConstruction(id,context)
     -- Replanning observes the next native stage; no hypothetical completed room is inserted here.
     p.materialWork={operation="repair-shelter",entryKey=step.site.key}
     setPlan(p,steps,blockers,dataCopy(view),at);p.selectedStrategy=steps[1].id;p.omittedAlternatives=omitted
-    if option.entityId=="Base.MetalWallLvl2" and not option.site.upgradeOpportunity then
+    if (option.entityId=="Base.MetalWallLvl2" or option.entityId=="Base.MetalWindowFrameLvl2") and not option.site.upgradeOpportunity then
         local anchor=p.shelterConstruction.selectionAnchors[option.site.key]
         if anchor then p.shelterConstruction.intendedEdges=p.shelterConstruction.intendedEdges or {}
             p.shelterConstruction.intendedEdges[option.site.key]=dataCopy(anchor)
@@ -3817,7 +3868,8 @@ function P.recordResult(id, purposeId, result, authority)
     if purpose and purpose.shelterConstruction then
         if not step or step.owner=="SAO.ResourceProduction" and
             (step.token=="resource:shelter-built" and authority~=SHELTER_RESULT
-                or step.token=="resource:shelter-used" and authority~=SHELTER_USE_RESULT)
+                or step.token=="resource:shelter-used" and authority~=SHELTER_USE_RESULT
+                or step.token=="resource:window-installed" and authority~=WINDOW_GLAZING_RESULT)
             or step.owner=="SAONeeds" and authority~=SHELTER_RECOVERY_RESULT
             or step.owner=="SAO.Study" and authority~=RECIPE_READING_RESULT
             or step.owner~="SAO.ResourceProduction" and step.owner~="SAONeeds" and step.owner~="SAO.SourceUse" and step.owner~="SAO.Study" then return false end
@@ -3839,7 +3891,8 @@ function P.recordResult(id, purposeId, result, authority)
             or step.token == "resource:bed-built" and authority ~= BED_RESULT
             or step.token == "resource:shelter-built" and authority ~= SHELTER_RESULT
             or step.token == "resource:shelter-used" and authority ~= SHELTER_USE_RESULT
-            or step.token ~= "resource:crafted" and step.token ~= "resource:repaired" and step.token ~= "resource:bed-built" and step.token ~= "resource:shelter-built" and step.token ~= "resource:shelter-used") then return false end
+            or step.token == "resource:window-installed" and authority ~= WINDOW_GLAZING_RESULT
+            or step.token ~= "resource:crafted" and step.token ~= "resource:repaired" and step.token ~= "resource:bed-built" and step.token ~= "resource:shelter-built" and step.token ~= "resource:shelter-used" and step.token ~= "resource:window-installed") then return false end
     end
     if purpose and purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
     if purpose and purpose.noteReading and authority ~= NOTE_RESULT then return false end
@@ -4089,6 +4142,9 @@ function P.consumeSourceResult(receipt)
         routeFailure = authoritative.status == "conflict",
         atHours = authoritative.at,
     }, RESOURCE_RESULT)
+    if accepted and completed and (purpose.shelterConstruction or purpose.gateAccess) and purpose.status=="completed" then
+        purpose.status="maintained";purpose.blockers={"awaiting native construction, use and ordinary recovery"}
+    end
     if accepted and acquisition then
         if completed then acquisition.resultId=authoritative.reservationId else acquisition.failedAt=nowHours() end
     end
@@ -5093,6 +5149,28 @@ function P.consumeParticipation(id, processId)
         end
     end
     return true
+end
+
+
+function P.admitWindowGlazing(id,w)
+    local s=state(id);local p=s and s.purposes[w.purposeId];local step=p and p.steps[p.cursor]
+    if not p or not p.shelterConstruction or p.admission or not step or step.status~="available" or step.owner~="SAO.ResourceProduction"
+        or step.productionKind~=w.kind or step.id~=w.purposeStepId or w.actorId~=id or step.target~=w.siteKey
+        or step.itemId~=w.itemId or step.itemType~=w.itemType or step.worldSprite~=w.worldSprite or step.placedSprite~=w.placedSprite then return false end
+    return P.noteAdmission(id,p.id,step.owner,w.id,step.id)
+end
+function P.consumeWindowGlazingResult(id,supplied)
+    local row=type(supplied)=="table" and SAO.ResourceProduction.outcome(id,supplied.id)
+    if not row or row.actorId~=id or row.kind~="glaze-shelter-window" or row.token~="resource:window-installed" then return false end
+    local s=state(id);local p=s and s.purposes[row.purposeId];if not p or not p.shelterConstruction then return false end
+    for _,seen in ipairs(p.resultReceipts or {})do if seen=="SAO.ResourceProduction:"..row.id then return true end end
+    local step,ad=p.steps[p.cursor],p.admission
+    if not step or not ad or ad.owner~=step.owner or ad.stepId~=row.purposeStepId or ad.correlationId~=row.id or ad.target~=row.siteKey
+        or step.productionKind~=row.kind or step.itemId~=row.itemId or step.itemType~=row.itemType or step.worldSprite~=row.worldSprite or step.placedSprite~=row.placedSprite
+        or step.site.key~=row.siteKey or step.site.revision~=row.siteRevision or row.atHours<ad.at then return false end
+    local accepted=P.recordResult(id,p.id,{owner="SAO.ResourceProduction",token=row.token,status=row.status,correlationId=row.id,atHours=row.atHours,reason=row.detail},WINDOW_GLAZING_RESULT)
+    if accepted and row.status=="completed" then local own=p.shelterConstruction;own.glazingResults=own.glazingResults or {};own.glazingResults[#own.glazingResults+1]=row.id;own.glazedWindowKey=row.siteKey;p.status="maintained";p.blockers={"awaiting native window use and ordinary shelter recovery"} end
+    return accepted
 end
 
 return P

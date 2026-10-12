@@ -107,6 +107,7 @@ def main():
     java_sources.append(ROOT/'java/src/com/sao/engine/SAOIsoPlayerShell.java')
     java_sources.append(ROOT/'java/src/com/sao/engine/SAOShelterStairs.java')
     java_sources.append(ROOT/'java/src/com/sao/engine/SAODoubleGate.java')
+    java_sources.append(ROOT/'java/src/com/sao/engine/SAOEnclosureEdge.java')
     movement=ROOT/'tools/luacheck/MovementCrossingProbe.java'
     owned=[Path(__file__),PROBE,CASES,CTL_CASES,CONTROLLER,BASE,BOARD,PLUMB,*LEAVES.values(),ROOT/'tools/luacheck/LuaSyntax.java',*java_sources,movement]
     missing=[str(p) for p in owned if not p.is_file()]

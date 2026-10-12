@@ -1,13 +1,13 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.6.14.0-pre-alpha` |
+| Version | `2.6.15.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
-**As of** `[D3.14]`, 179 delivered batches: 29 A, 52 B, 82 C products and sixteen delivered D records. D3 is the active OPEN parent.
+**As of** `[D3.15]`, 180 delivered batches: 29 A, 52 B, 82 C products and seventeen delivered D records. D3 is the active OPEN parent.
 
 ## Delivered product
 
@@ -136,7 +136,7 @@ original purpose. Adoption and IDLE recovery reconcile lost native admissions
 without inventing effects or completion. Focused native and Controller proofs
 retain their exact inputs and boundaries. Final regression and review results
 live in the D3 record. The whole construction, crafting, repair and utilities
-parent remains OPEN. Its CLOSED D3.1 through D3.14 children deliver native crafting, held-tool maintenance, plumbing/rain-collector construction through actual usable water, and generator operation through usable consumer power; the current replay derives `2.6.14.0-pre-alpha`.
+parent remains OPEN. Its CLOSED D3.1 through D3.14 children deliver native crafting, held-tool maintenance, plumbing/rain-collector construction through actual usable water, and generator operation through usable consumer power; the current replay derives `2.6.15.0-pre-alpha`.
 
 [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is the
 CLOSED child for native plank crafting. Exact private log and saw
@@ -147,7 +147,7 @@ and delivered version credit follow the canonical module rule independently.
 
 | Outcome | Standing and responsibility |
 |---|---|
-| D3 construction/crafting/repair/utilities | Active OPEN parent; D3.1-D3.14 deliver their linked coherent children. Other structures, remaining recipes/pane integration and native server execution remain with D3. |
+| D3 construction/crafting/repair/utilities | Active OPEN parent; D3.1-D3.15 deliver their linked coherent children. Other structures, remaining recipes/pane integration and native server execution remain with D3. |
 | D3.2 native saw maintenance | CLOSED child under D3; exact native FixSaw, private file acquisition, interpreted maintenance alternatives, measured condition/wear and canonical feedback continue the original construction purpose. Self-merged through [PR143](https://github.com/ellyj3rain/sao/pull/143). |
 | D3.3 portable tool maintenance | CLOSED child: native saw repair and blade sharpening, private file/whetstone acquisition, ordinary kit tending and measured benefits/damage. Self-merged through [PR144](https://github.com/ellyj3rain/sao/pull/144). |
 | D3.4 plumbing to usable water | CLOSED child: exact private wrench acquisition and fixture return, installed plumbing, handled-source refresh and actual clean held water under the same hydration purpose. Self-merged through [PR145](https://github.com/ellyj3rain/sao/pull/145), actual main commit `3120fae3e9d71f3f5664bad48cfa0e409a3e41d7`. |
@@ -208,3 +208,13 @@ Logical liaison04 retains sole outgoing/state/log custody with successor322;
 the latest sealed council cursor is 1791572229.933029 and SAO cursor
 1791287821.234449. Root owns SAO chief implementation, publication and records.
 All intentionally dirty source and peer-owned work is preserved.
+
+## D3.15 delivered connected outcome - 2026-10-11 22:45 UTC / 15:45 PST
+
+Neo continues the operator-authorized D3 main line under the settled Granular/Emmetropic/Beacon approach. [D3.15](Batches/D3.15-20261011-2245Z-1545PST-metal-enclosure-access.md) is CLOSED: remaining native metal window frames, fences and single gates through native window installation/use, measured boundary effects and actual gate access. Emmetropic batch organization carries detailed native controls and one integrated review/publication. Existing children, full D3 and D4-D6 FIFO remain; its source-bound native qualification and integrated review are retained in the child record; actual stamped package/publication have separate receipts.
+
+## Architectural, civilian and military literature - continuing direction
+
+Owner Neo. The operator directs inspection of installed architectural/engineering and military-doctrinal literature, followed by authored literature and knowledge conveyance where native content is absent or shallow. The complete scope includes varied civilian architecture, patrols, supply lines, choke points, defensive/offensive architecture, historical and world-date-contemporary strategies, broad engineering concerns and organic battleplan/grand-strategy synthesis shaped by the individual, their purposes and will to power. Civilian buildings and infrastructure retain their varied uses, material/engineering/environmental constraints and cultural/institutional context.
+
+SAO owns person-private acquisition, comprehension, retained memory and learning, uncertainty, appraisal and actual planning/action/experience. Literature content carries source, revision and world-date relevance; knowledge does not grant local observation or Standing. Speakeasy explanatory/knowledge and later ZAO consumers retain their owning bridge contracts. This continuing line links the existing D3 building and broader knowledge/learning scope; it does not expand D3.15, erase D4-D6 FIFO or prescribe actor plans/outcomes. Read-only installed/source intake proceeds alongside D3.15 bounded corrections. A coherent authored-conveyance increment is recorded before implementation once its native gap and owning contracts are established.

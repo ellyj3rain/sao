@@ -14,6 +14,7 @@ import zombie.inventory.InventoryItem;
 import zombie.inventory.types.HandWeapon;
 import zombie.iso.objects.IsoDoor;
 import zombie.iso.objects.IsoWindow;
+import zombie.iso.objects.IsoThumpable;
 import zombie.pathfind.Path;
 import zombie.pathfind.PathFindBehavior2;
 import zombie.ai.states.ClimbOverFenceState;
@@ -112,7 +113,7 @@ public final class SAOMovement {
                 || (int) Math.floor(shell.getZ()) != here.getZ()
                 || edge.aperture.getSquare() == null
                 || !edge.aperture.getSquare().getObjects().contains(edge.aperture)
-                || ("door".equals(edge.kind) ? edge.from.getDoorTo(edge.to) : edge.from.getWindowTo(edge.to)) != edge.aperture) {
+                || ("door".equals(edge.kind) ? edge.from.getDoorTo(edge.to) : edge.aperture instanceof IsoThumpable ? edge.from.getWindowThumpableTo(edge.to) : edge.from.getWindowTo(edge.to)) != edge.aperture) {
             state.apertureCrossing = null;
             return;
         }
@@ -124,7 +125,8 @@ public final class SAOMovement {
         // A window state may have moved the body before its crossing completes.
         if (nativeCrossing(shell)) return;
         if (!edge.admitted || (edge.aperture instanceof IsoDoor door && !door.IsOpen())
-                || (edge.aperture instanceof IsoWindow window && !window.canClimbThrough(shell))) {
+                || (edge.aperture instanceof IsoWindow window && !window.canClimbThrough(shell))
+                || (edge.aperture instanceof IsoThumpable frame && !frame.canClimbThrough(shell))) {
             state.apertureCrossing = null;
             return;
         }
@@ -486,8 +488,24 @@ public final class SAOMovement {
         // the whole verdict). The square knows its edges exactly - ask
         // it the way the neighbour framework taught us to ask, face
         // the crossing, and climb through the engine's own state.
-        IsoObject hoppable = current.getHoppableTo(next);
-        if (hoppable == null) {
+        // Native constructed window frames have their own climb state and may also be hoppable.
+        // A real installed window owns the edge once glazing exists.
+        IsoThumpable frame = current.getWindowTo(next) == null ? current.getWindowThumpableTo(next) : null;
+        if (frame != null) {
+            encounterAperture(shell, state, current, next, frame, "window", "clear");
+            if (frame.isBarricaded()) return "FAILED_BARRICADED_WINDOW";
+            if (!frame.canClimbThrough(shell)) return "FAILED_BLOCKED_WINDOW";
+            shell.faceThisObject(frame);
+            if (shell.shouldBeTurning()) return "TURNING_TO_WINDOW";
+            shell.climbThroughWindow(frame);
+            String admitted = admittedCrossing(shell, state, "EventClimbWindow",
+                "STARTED_WINDOW_CLIMB", "FAILED_WINDOW_CLIMB_REFUSED");
+            if ("STARTED_WINDOW_CLIMB".equals(admitted) && state.apertureCrossing != null)
+                state.apertureCrossing.admitted = true;
+            return admitted;
+        }
+        IsoObject hoppable = current.getWindowTo(next) == null ? current.getHoppableTo(next) : null;
+        if (hoppable == null && current.getWindowTo(next) == null) {
             hoppable = current.getWallHoppableTo(next);
         }
         if (hoppable != null) {

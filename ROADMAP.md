@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.6.14.0-pre-alpha` |
+| Version | `2.6.15.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -460,3 +460,7 @@ The other R9 action/result producers retain their existing owners in
 SUBSTRATE.md. Dormant exchange and the other medical verbs remain open.
 These concrete outputs define the next dependency work; batch numbers are
 assigned at closure.
+
+## Architectural and doctrinal learning source
+
+The operator adds varied civilian architecture and architectural/engineering/military literature as a continuing knowledge-conveyance line. Inspect actual native content and carriers, then fill missing or shallow content through person-private reading/instruction/experience, retained comprehension and transfer. Individual purpose, ambition, relationships and circumstances shape architectural choices and organic tactical/strategic synthesis. Historical and contemporary material respects the world date. SAO owns acquisition/learning/action; Speakeasy and later ZAO retain their bridge ownership. D3.15 and D4-D6 order remain as recorded in SESSION_STATE.

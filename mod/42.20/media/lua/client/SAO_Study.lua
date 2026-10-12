@@ -16,7 +16,7 @@ local readingDefinitions = {
         outcomes="recipeReadingOutcomes", admit="admitRecipeReading", consume="consumeRecipeReading",
         retire="_SAORecipeReadingRetireSaved" },
 }
-local recipeReadings={DoubleFenceGate=true,DoubleWireGate=true,MetalWallFrame=true,MetalWallLvl1=true,MetalWallLvl2=true,MetalDoorFrameLvl1=true,MetalDoorFrameLvl2=true,MetalFloorLvl1=true}
+local recipeReadings={DoubleFenceGate=true,DoubleWireGate=true,MetalWallFrame=true,MetalWallLvl1=true,MetalWallLvl2=true,MetalDoorFrameLvl1=true,MetalDoorFrameLvl2=true,MetalFloorLvl1=true,MetalWindowFrameLvl1=true,MetalWindowFrameLvl2=true,MetalFenceLvl1=true,MetalBigMetalFence=true,MetalBigWireFence=true,MetalSmallPoleFence=true,MetalSmallWireFence=true,MetalPoleFenceGate=true,MetalPoleFenceGateSmall=true,MetalWireFenceGate=true,MetalWireFenceGateSmall=true}
 local function readingDefinition(kind, recipeName)
     local definition = readingDefinitions[kind]
     if kind == "recipe-reading" and not recipeReadings[recipeName] then return nil end
