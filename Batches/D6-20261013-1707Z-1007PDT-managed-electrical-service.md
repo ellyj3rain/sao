@@ -75,3 +75,7 @@ Supported package JAR SHA a03e65048a5753ab3536e18533e7cf0f90d761ccda5cf3b84bf477
 | Complete integrated first review | `8702bd9ae7064610cfc4ee285eb27096baf47929dd47f6ab3cd48cce03fdc1a0` |
 | Bounded correction review | `1a08c030fb79c1a33346e74954033b600b84c3449ffea6bb7904472b192330af` |
 | Supported 77-source build | `17e37bfb09e6520a49fb2af0fd78ae2dde9619cfacd44380bbad2b470240775a` |
+
+## Dormant simulation dependency join
+
+The first required CI run exposed the new ElectricalService dependency as absent in the bodyless county host. Original CognitiveModels requires its shared operation and receipt validators at load time. The host now loads ElectricalService before CognitiveModels, preserving the canonical validator rather than weakening event admission. Native generator execution remains with the absent loaded-body Generator owner; service mutation still requires actual body/cell/action admission. Existing ordered-loader checks include this producer/consumer pair and detect reversal. The initial CI failure and incorrectly excluded dependency check remain recorded; the native meal and supported Java inputs remain unchanged.
