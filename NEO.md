@@ -37,8 +37,9 @@ and remain inside the human behavioral envelope regardless of skill.
   retains shared ownership and D dependencies. D1 acceptance is CLOSED with
   controlled person-specific reasoning and bounded native recovery; actual
   protected publication has its own receipt. D2 Leisure is closed as the
-  integrated recreation product. D3 construction/crafting/repair/utilities is
-  next in FIFO; the established separately owned Mousecat sequence retains
+  integrated recreation product. D3's published contribution collection is
+  closed as a zero-credit aggregation. D4 household water and power restoration
+  is active; ROADMAP.md owns the forward numbered outcomes; the established separately owned Mousecat sequence retains
   its own product history.
   `BATCH_LOG.md` indexes delivered scope and names the active batch separately.
 - **Batch shape.** A batch is a coherent development unit, closed when the
@@ -59,7 +60,7 @@ and remain inside the human behavioral envelope regardless of skill.
   requirements. Neo reconstructs accumulated verification and keeps the current
   description accurate using `neo-verification-assessment`. The operator plays
   the aggregate build and supplies ordinary feedback.
-- **Work organization and delivery.** Follow `GOVERNANCE.md`'s interlocking development-control and batch-organization rule. Granular, Emmetropic and Beacon apply to any task. Record actual mechanical units/controls and relationships, shipment boundary and throughput constraint while preserving scope, sufficient proof and feature credit. D3 keeps Emmetropic batch organization with contextual development controls.
+- **Work organization and delivery.** Granular, Emmetropic and Beacon shape actual development and creation of batches. The claimed posture must agree with the work pattern and batch map. D is the broad development grouping; a numbered batch is a finite substantial outcome and children are useful subdivisions. Emmetropic development takes connected producer/consumer/integration work together. Shared contracts connect batches. Follow GOVERNANCE and the current ROADMAP, preserving sufficient proof, historical identities and once-only credit.
 - **Scope refinement.** Product outcomes cover their whole relevant installed
   native/modded domain and adjacent mechanics. Examples guide discovery;
   substantive scope becomes clearer through implementation. Shared-contract
@@ -111,8 +112,8 @@ and remain inside the human behavioral envelope regardless of skill.
   assets with source provenance and attribution. Existing API-only paths retain
   their measured evidence while incorporation is completed. Runtime and package
   ownership, source conflicts, player/NPC effects and save continuity are part
-  of the integration outcome. D2 through D6 keep their established FIFO and
-  substantive domains; peer communication proceeds alongside the active batch.
+  of the integration outcome. The current numbered roadmap retains every accepted domain and its
+  practical dependencies; peer communication proceeds alongside the active batch.
 - **Verified APIs only.** Ground truth is the installed game
   (`projectzomboid.jar`, the shipped `media/lua` and `media/scripts` trees).
   Never assert engine behavior from memory; an unsupported statement is a

@@ -9,7 +9,7 @@
 
 Development extends the delivered mechanics, Speakeasy training and runtime
 integration while play exercises the aggregate build. D1 is CLOSED and merged;
-D2 Leisure is CLOSED, and D3 construction/crafting/repair/utilities is active and OPEN.
+D2 Leisure and D3's historical delivered aggregation are CLOSED. D4 household water and power restoration is active and OPEN.
 Concrete missing or defective producers retain their owning work.
 SESSION_STATE.md states the current product and FIFO.
 
@@ -47,7 +47,7 @@ bed, retained nine intent/key acknowledgements and measured fatigue falling from
 0.7783 to 0.3888 over 1.75 sampled county hours, with normal save return and no
 runtime errors. Its record retains the exact native observations.
 Literal corpus assessment, retained comprehension and wider transfer keep their
-applicable obligations, including the acquired-learning outcome at D6.
+applicable obligations, including maintained learning at D15 and subsequent curriculum outcomes.
 D's integrated-county capability boundary remains proposed; broader gameplay
 evaluation, calibration, scale and training refinement retain their own evidence.
 
@@ -84,55 +84,39 @@ Mousecat, and can be regenerated after catalogue changes.
 
 ## Entry, recovery and personal experience
 
-### Authorized seven-outcome run
+## Numbered D outcomes
 
-The operator directs a bounded successive run on 2026-10-04: define coherent
-success batches, maximize substantive completion through the run, and inform Pico
-through Slack when logging off. The endpoint is the acquired-learning outcome
-below. Supporting repairs remain inside their product outcome. Future rows are
-planned scope; a row becomes the active batch when its predecessor closes.
-D1 and D2 are CLOSED. D3 is active and OPEN; protected publication follows its existing
-branch/PR procedure, and later improvements link back to delivered products.
+The operator's current direction replaces the expanding D3 umbrella with finite substantial outcomes. D3 is a zero-credit historical aggregation of its twenty-two published children. D4 is active. Following rows are the current source-grounded sequence; source discovery may revise an unpublished boundary with its reason and retained obligations. The sequence does not cap the extent of D.
 
-These labels name coherent product outcomes. Scope is refined against the whole
-installed native/modded domain and its adjacent mechanics as implementation
-exposes the actual work. Each outcome has an appropriate substantive size; a
-named example, individual adapter, elapsed session or agent assignment does not
-define its boundary. Supporting repairs, persistence, integration and evidence
-remain inside the outcome they serve. Existing shared-contract catalogue counts
-organize ownership and preserve provenance; they do not erase prior era work or
-turn every contract into a future batch.
-
-The successive groups are reasoning and working memory (D1 and Mousecat A28),
-ordinary activities and their physical continuity (D2 through D5), and acquired
-learning (D6 with Speakeasy). D6 is the stated endpoint for this run. The operator
-returned awake and directed continued work on 2026-10-04; no logoff is scheduled.
-Pico receives a logoff notice when work actually stops, with current standing.
-
-| Order | Project and batch | Success boundary |
+| Batch | Useful outcome and practical finishing condition | Dependencies and current standing |
 |---|---|---|
-| 1 | SAO D1: shared person-specific reasoning | Ordinary purposes consume personal knowledge and authentic physical feedback; exact failed means permit alternative inquiry, retreat uses retained private threats, relevant priors differ by person, and interruption/reload preserve purposes. Scoped producer/consumer controls and rendered native observation establish the changed behavior. |
-| 2 | Mousecat A28: project/repository bulletin | Hosts capture source-linked propositions during work. Revisioned records persist across restart, retain project ownership and correction history, and support disposition and pruning. A spatial graphical workspace meets the continuity graph's visual standard and works in the installed app. |
-Under DR-058, each mentioned source is repurposed into project mechanics and art. Every outcome includes the relevant packaged runtime, definitions, support and assets, source attribution, conflict handling and actual player/NPC effects. Existing externally activated trials remain evidence for their stated scopes.
+| D3 — retained historical material work | Exact published D3.1-D3.22: acquired materials, crafting/upkeep, usable shelter/access, source-bound learning, pane repair, furniture/workspaces and garment protection. | CLOSED aggregation; original title/children and credit preserved. Remaining repertoire is assigned below. |
+| D4 — household water and power restoration | A person's original water need drives observed existing-network inquiry, means/knowledge acquisition, generator service, conserved fuel/power, clean-water use and authentic saved feedback. The selected physical producer is supplied through owned normal startup. | ACTIVE. Existing D3.23 source/native proof retained; producer incorporation, current tool checks and delivery pending. |
+| D5 — water-network construction and alteration | Personally selected source/site and exact paid materials establish or change an actual pipe/pump/valve connection, then serve a fixture with one effective provider, conserved mixtures/volumes and saved relocation/removal state. | Planned. Reuses D4 service inquiry/use; original Waterpipes/Basement and LGEP source mechanisms are reconciled by physical responsibility and copying terms. |
+| D6 — managed electrical service | Observed supply and actual appliance demand produce usable power with one effective load/fuel/burn owner, current breaker/coverage behavior, multi-part billing and durable service feedback. | Planned. Reuses D4 generator and conserved fuel contracts. Cable construction enters only through an established actual producer. |
+| D7 — vehicle service and purposeful travel | Native part installation/removal, repair, fuel/pressure/battery service and necessary salvage restore a privately known vehicle for an actual retained trip or vehicle-power use. | Planned. Existing Driver, service/observer proposals and item/native save proof are prerequisites; ordinary transport remains unproved. |
+| D8 — building stages and finishing | Exact source-derived materials, native stages and required site preparation/finishes complete a personally intended usable structure or workspace and its actual consumer. | Planned. Reuses D3 shelter/workspace owners. Native entity/recipe census bounds discovery; source variants and individual paint/plaster/wallpaper actions stay inside the connected outcome. |
+| D9 — property salvage and security | A person clears, repairs, dismantles or secures an acquired property, preserving native members/contents and recovered materials, then actually uses its changed access or stock. | Planned. Complete-member salvage/repair, demolition, unbarricading and locking share existing property and material contracts; fresh construction stays with D8. |
+| D10 — personal equipment readiness | Exact held/worn equipment, native attachments, service and meaningful cleaning prepare a person's intended equipment/protection use, with current item/body lineage and saved independent effects. | Planned. Published item/garment upkeep remains delivered; only remaining native equipment routes enter this outcome. Vehicle work stays with D7. |
+| D11 — authoritative physical work | Server-owned person/body loading and authenticated remote initiation reach existing native work, exact current inputs/Standing, authoritative payment/effects, cancellation and durable rejoin. | Planned shared deployment outcome. CAO supplies the lifecycle/admission model; current local SP proof does not establish server residency or remote authority. Each earlier batch retains its required local custody. |
+| D12 — food preparation and preservation | Personally acquired ingredients and actual equipment/utilities produce prepared or preserved stores through native cooking, temperature/spoilage/storage and authentic consumption/nutrition. | Planned successor to the former food row. D4/D6 service and existing material/equipment owners are shared dependencies. |
+| D13 — cultivation and harvest | Personally known land, seeds, tools and water support native cultivation, tending, growth and harvest into actual food/feed use, with loaded/dormant clocks and saved consequences. | Planned. Carries the cultivation portion of the former food scope; harvested output joins D12 or D14 without merging their closure. |
+| D14 — animal care and husbandry | Actual admitted species receive feasible food/water, shelter, handling and supported health/reproductive/product work, with measured animal consequences and authentic milk/wool/egg or other supported use. | Planned successor to the former animal row. Installed-species census and real capabilities bound admission; the accepted dog goal retains its source-availability obligation. |
+| D15 — maintained learning and application | Source-qualified exposure, independent comprehension assessment, retained/retrieved knowledge and later feasible application remain sensitive to attributes, health, aging, use and contrary evidence. | Planned mechanism outcome with Speakeasy source/model/ML owners and later ZAO consumers. Local literal tests do not establish learned mastery. |
 
-| 3 | SAO D2: leisure | Assess the installed native and modded repertoire of recreation, hobbies, music, games, art, exploration and social participation. Personally understood opportunities, interests, accessible objects, places, companions and current pressures produce planned or impromptu choices and authentic native participation. Physical and social consequences feed private experience and persistence; interruption, failure and resumption retain exact custody and source provenance. An instrument is one example within this outcome. |
-| 4 | SAO D3: construction and repair | Assess the installed building, crafting, maintenance, repair and utility mechanics as a coherent material-work outcome. Person-known needs, damaged objects and useful improvements produce permitted work through the existing procedure owners, with actual tools, materials, skill, access, labor and current structural conditions. Native effects, material conservation, interruption, failure, unfinished work and reload feed individual or coordinated replanning and persistence. Window and furniture joins are examples within the larger installed repertoire. |
-| 5 | SAO D4: food | Comprehensively assess the installed native and modded food repertoire: finding and acquiring food and water, cultivation and harvest where available, preparation and cooking, preservation including dry aging, storage and refrigeration/coolers, spoilage, nutrition and consumption. Person-private knowledge, preferences, health, skill, permission, actual equipment/materials and available utilities govern feasible work and choices. Loaded and dormant item clocks, temperature/power conditions, inventory authority, quantity and nutritional conservation, interruption, partial failure and reload retain authentic consequences. Cooler mechanics are one existing integration within the food outcome. |
-| 6 | SAO D5: animal care | First assess every available native and modded animal and its actual supported needs, affordances and actions. Care covers feasible feeding and watering, shelter and handling, health and treatment, companionship, training or breeding where supported, and livestock work such as milk, wool and eggs. Species-specific conditions, relationships, permission, actual animal/item identity, authentic materials and native completion govern effects; distress, interruption, failure, ownership and loaded/dormant continuity persist. The operator intends to add dogs; admit their actual installed source and capabilities when available rather than assuming they are already present. |
-| 7 | SAO D6 with Speakeasy: education and learning | Build the coherent acquisition, understanding and continuing-learning outcome around the literal kindergarten-through-college educational and cultural corpus, with edition, rights, chronology and exposure provenance. Individual background, interests, aptitude, accessible sources, reading, study, practice and teaching produce assessed comprehension, retained knowledge and skills, correction, forgetting and later transfer into feasible decisions and action. Source ingestion, a score and mastery remain distinct; authentic producer/consumer effects and persistence establish usable learning. Corpus coverage, unobserved comprehension and model limitations remain explicit. |
+Every outcome includes the native producer, person-private consumer, necessary integration, persistence and sufficient evidence for its own stated behavior. Emmetropic development takes those connected parts on together. Individual agents, files, variants, checks and supporting repairs do not allocate children. Useful sub-batches may be defined when they genuinely subdivide an accepted finite outcome.
 
-The source-integration lineage and `tools/source_integration_contracts.json`
-ground D2-D5. D6 carries the handoff's corpus/assessment obligation. Relevant
-existing evidence is reused; failed or skipped checks retain their verdict.
-Pico manages Post-Latent and Sesame's physical representation; SAO owns reasoning
-and execution and consumes the returned physical constraints. The shared private
-intake supports their current scope and does not assign SAO's backlog to them.
+The full literal kindergarten-through-college educational/cultural corpus, teaching and practice, varied civilian architecture, military/engineering literature and organic tactical/grand-strategy synthesis continue through further finite outcomes after their source and counterpart-model selections. They are accepted goals, not an implicit enlargement of D15 or a fixed end to D. Historical and contemporary content respects the world date; individuality, purpose, relationships and will to power govern application. Source exposure, assessed understanding, memory, current accessibility and native success remain distinct.
 
-Clinical integration, chronological growth and native proportions, weapon
-normalization, broader institutions and whole-collection completion remain
-recorded beyond this run. They are not credited by the seven rows. The bulletin
-captures those continuations; FIFO guides assistant execution and does not force
-the operator's navigation or automatically assign an idea.
+### Shared contracts and retained direction
+
+SAO owns acquired person facts, interpretation, Standing, actual action and saved experience. Speakeasy owns its selected understander/retriever/speaker, shared foundation, learning/adaptation and person-state model work. ZAO owns its body/infection and later strategic consumers; Post Latent retains its source/body integration. Each affected numbered outcome carries the source revision, export vocabulary, actual counterpart contact, adoption and remaining model/training standing through Scion and Mousecat. A changed batch label supplies no peer acceptance.
+
+The selected utility source producers are not in the current seven-family SAO package. D4 therefore includes original owned incorporation and normal startup of its necessary service producer; existing external-source native proof remains bounded. D5/D6 own their additional network/load mechanisms. Source identity is provenance, and the standing proprietary-integration rule governs adaptation and copying terms.
+
+The original 2026-10-04 run's food, animal and learning goals are retained here under their revised boundaries. The historical D4/D5/D6 plan supplied no published identities to renumber. D1/D2 and Mousecat's independent published work retain their actual history. Clinical integration, chronological growth/proportions, weapon normalization, broader institutions and the inhabited county remain accepted continuing goals with their existing owners. Normal save, character, scenario and play flow remain operator-owned.
+
+The [transition](Batches/Transitions/D-20261013-emmetropic-numbered-outcomes.md) records the scope/credit mapping. The source census and source-integration lineage supply discovery evidence; no declaration alone establishes ordinary eligibility, performed integration or package availability.
 
 The operator authorized C118-C120 as coherent behavior outcomes under DR-055.
 Supporting implementation, checks and records belong within the behavior they
@@ -163,7 +147,7 @@ CLOSED with controlled person-specific reasoning and bounded native recovery.
 Source-bound educational, cultural and dated life-history priors retain exposure,
 comprehension and mastery as distinct claims. Literal educational/cultural corpus
 assessment and retained transfer continue through the existing Speakeasy/SAO
-learning responsibility and D6. Wider cross-domain competence and person-model
+learning responsibility, D15 and subsequent curriculum outcomes. Wider cross-domain competence and person-model
 calibration receive their actual implementation and evidence; supporting repairs
 remain inside the product outcome they serve.
 
@@ -463,9 +447,9 @@ assigned at closure.
 
 ## Architectural and doctrinal learning source
 
-The operator adds varied civilian architecture and architectural/engineering/military literature as a continuing knowledge-conveyance line. Inspect actual native content and carriers, then fill missing or shallow content through person-private reading/instruction/experience, retained comprehension and transfer. Individual purpose, ambition, relationships and circumstances shape architectural choices and organic tactical/strategic synthesis. Historical and contemporary material respects the world date. SAO owns acquisition/learning/action; Speakeasy and later ZAO retain their bridge ownership. D3.15 and D4-D6 order remain as recorded in SESSION_STATE.
+The operator adds varied civilian architecture and architectural/engineering/military literature as a continuing knowledge-conveyance line. Inspect actual native content and carriers, then fill missing or shallow content through person-private reading/instruction/experience, retained comprehension and transfer. Individual purpose, ambition, relationships and circumstances shape architectural choices and organic tactical/strategic synthesis. Historical and contemporary material respects the world date. SAO owns acquisition/learning/action; Speakeasy and later ZAO retain their bridge ownership. The current numbered map and SESSION_STATE govern development order.
 
-Knowledge must be maintained. Attributes, health and aging affect retention and retrieval alongside use, rehearsal, interest and contrary experience, under the operator's Speakeasy knowledge direction. D3.16 supplies the first source-bound SAO application; upcoming learning and cognitive batch groups, including D6, carry the broader requirement. Reading exposure, assessed understanding, retained memory and current accessibility remain distinct. Current Speakeasy model and bridge integration require its owning source and two-way liaison contact; this dependency does not change FIFO or allocate future group numbers.
+Knowledge must be maintained. Attributes, health and aging affect retention and retrieval alongside use, rehearsal, interest and contrary experience, under the operator's Speakeasy knowledge direction. D3.16 supplies the first source-bound SAO application; upcoming learning and cognitive batch groups, including D15 and subsequent curriculum outcomes, carry the broader requirement. Reading exposure, assessed understanding, retained memory and current accessibility remain distinct. Current Speakeasy model and bridge integration require its owning source and two-way liaison contact; this dependency does not change FIFO or allocate future group numbers.
 
 SAO's source acquisition, person-private maintenance, response, appraisal and physical experience remain coupled to Speakeasy's understander, retriever, speaker, shared foundation and adaptation goals. Each upcoming learning increment identifies its actual model inputs, output authority, source and model revisions, assessment isolation and feedback consumers. Bounded native learning mechanisms retain their measured behavior while learned ML competence and runtime integration continue through the shared owning contracts.
 

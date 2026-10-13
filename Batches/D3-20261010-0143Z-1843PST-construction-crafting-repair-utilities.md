@@ -4,17 +4,23 @@
 | Name | Construction, crafting, repair and utilities |
 | Opened | Following D2 closure on 2026-10-09 |
 | Record timestamp | 2026-10-10 01:43 UTC / 18:43 PST |
-| Status | OPEN - first material-work join implemented; whole product continues |
+| Status | CLOSED - historical aggregation of published D3.1-D3.22; unfinished programme reassigned by the operator-directed transition |
 | Branch | neo/d3-construction-crafting-repair-utilities |
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C3, C6, C12, C13, C16, C18, C19, C20, C21, C24, C26, C28, C30, C31, C32, C33 |
-| Implementation | CLOSED D3.1-D3.22 retain qualified useful outcomes. Complete native construction/material/site/service/authority integration remains under this OPEN parent before D4. |
-| Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.7.5.0-pre-alpha; one kohai child progress increment while full D3 remains OPEN. |
-| Publication | D3.1-D3.18 retain protected publication through PR142-PR161 with exact completion receipts. D3.18 merged at `47c701823d5d520a6214c6fad693eaabf51bbb2e`; D3.19 qualified closure and selected stamped package await their actual protected merge. Full D3 continues through the operator-directed D4 transition. |
+| Implementation | The exact twenty-two published material-work, shelter/access, learning, furnishing/workspace and upkeep contributions are delivered. Remaining capabilities follow numbered D outcomes. |
+| Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence retained; closure aggregates those established scopes. |
+| Version | 2.7.5.0-pre-alpha; zero-credit aggregation of D3.1-D3.22, without a new feature-completion claim. |
+| Publication | All twenty-two children reached protected main through PR142-PR165. The latest merge is 7724d118cc4ed92722fd14d57cee28a213e58945. This dated organization transition has its own pending publication. |
 
-## Product and current implementation
+## Current closure and forward ownership
+
+Closed on 2026-10-13 as the exact historical collection delivered by D3.1 through D3.22. The original title and child identities remain preserved. The [operator-directed transition](Transitions/D-20261013-emmetropic-numbered-outcomes.md) moves unfinished work into finite numbered outcomes and adds no version credit. [D4](D4-20261013-0433Z-2133PDT-household-water-power-restoration.md) owns the unpublished D3.23 contribution and its remaining service-incorporation/delivery obligations.
+
+The former umbrella's broad construction, utility, automotive, equipment, authority and knowledge programme continues at D-series scope in the [current roadmap](../ROADMAP.md#numbered-d-outcomes). The following dated development history retains its original scope statements and evidence; those statements do not reopen this aggregate or override the forward map.
+
+## Historical product and implementation
 
 D3 retains its complete accepted module scope and integration obligations.
 [D3.1](D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is its CLOSED
@@ -413,3 +419,15 @@ The next connected service seam reuses the existing SAO Generator owner and pers
 ## D3.22 final protection/source-contract reclosure - 2026-10-13 00:31 UTC / 17:31 PDT
 
 [D3.22](D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) requalifies the same useful garment progress with actual class/current wearer/lineage/value and stale-retry evidence. Native56/four controls, layer45 and eighteen verification routes add no credit or build. Existing utility G/source-observer/feedback/intake and vehicle owner proposals remain private dependencies; the next public outcome is ordinary connected utility service. Complete retained D3 scope and all wider interrepo/ML/FIFO obligations continue through D4.
+
+## D3.23 connected utility service opened - 2026-10-13 00:48 UTC / 17:48 PDT
+
+[D3.23](D3.23-20261013-0048Z-1748PDT-generator-supply-powered-water.md) opens actual original-purpose generator supply/collector pump/effective water use under this parent. D3.22 publication is independently verified at `7724d118cc4ed92722fd14d57cee28a213e58945`. Existing native/private units are source dependencies, not shipments. Complete remaining accepted repertoire/five utilities/native authority and wider goals remain active through D4.
+
+
+## D3 closure and D4 transition - 2026-10-13 04:33 UTC / 21:33 PDT
+
+The operator explicitly directs the actual batch-map repair and resumed Emmetropic development. This parent closes as a zero-credit aggregation of D3.1-D3.22. All unfinished scope is retained by the [numbered map](../ROADMAP.md#numbered-d-outcomes) and [transition](Transitions/D-20261013-emmetropic-numbered-outcomes.md). D3.23 remains an unpublished historical contribution to D4, with no fabricated child closure or duplicate credit.
+
+
+Current dated closure: [D3 delivered material-work aggregation](D3-20261013-0433Z-2133PDT-delivered-material-work.md). This opening/development record retains its original filename and history.

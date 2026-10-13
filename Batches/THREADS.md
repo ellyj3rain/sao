@@ -1,5 +1,7 @@
 # Thread index
 
+Current D-series allocation is in [ROADMAP.md](../ROADMAP.md#numbered-d-outcomes). The [2026-10-13 transition](Transitions/D-20261013-emmetropic-numbered-outcomes.md) closes D3's published collection without new credit and assigns its remaining scope to finite numbered outcomes. Earlier D3/D4-D6 responsibility statements below retain historical source meaning; source/contract ownership and evidence remain preserved.
+
 T and TF identifiers retain their series-neutral classification. Current C members refer to shared contracts under `Catalogue/`; nonadjacent source contributions live in `C_SHARED_BOUNDARIES.json`. Raw event chronology and the prior thread index are preserved in `history/c-20261003-source/`. These retained C memberships use the 20261003-shared-boundaries contract generation. Current development products and their source/thread contributions live in `C_PRODUCT_CATALOGUE.json` and `C_PRODUCT_CROSSWALK.json`; version replay credits product scope once, without contract credit.
 
 ## TF-01 - Governance and evidence

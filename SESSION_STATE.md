@@ -7,11 +7,17 @@
 
 # Session state
 
-**As of** `[D3.22]`, 187 delivered source outcomes: 29 A, 52 B, 82 C products and twenty-four D records. D3 remains the active OPEN parent. D3.22 is qualified CLOSED; supported package and protected publication retain separate actual receipts.
+**As of** `[D3]`, 188 closed catalogue records retain 187 credited source outcomes: 29 A, 52 B, 82 C products and twenty-four credited D contributions, plus D3's zero-credit parent aggregation. Current shipping version remains `2.7.5.0-pre-alpha`.
 
-Current qualified child: [D3.22 - Worn garment upkeep and retained protection](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md), CLOSED inside OPEN D3; complete source/service/authority work continues before D4.
+Active: [D4 — Household water and power restoration](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md). The operator explicitly authorizes the [numbered scope transition](Batches/Transitions/D-20261013-emmetropic-numbered-outcomes.md) and resumed Emmetropic development. [The roadmap](ROADMAP.md#numbered-d-outcomes) owns finite D4-D15 planned outcomes and the retained further learning/strategy goals. D is the broader grouping; D3 no longer contains the rest of the series.
 
-D3.22 qualifies ordinary private garment service, native cold item/current wearer and separate target protection use. One kohai records progress at `2.7.5.0-pre-alpha`; supported package and protected publication retain separate actual receipts.
+D3.1-D3.22 retain their exact published identities and credit. The latest published source is PR165 at `7724d118cc4ed92722fd14d57cee28a213e58945`. D3.23 is an unpublished source/evidence contribution to D4. Current native normal59 demonstrates its connected external-source consumer; selected owned producer availability/startup, latest permanent-tool checks, package and protected publication remain open.
+
+Neo's root owns the map and record reconciliation. The existing utility chief owns the connected D4 implementation and integration, with disjoint helper assignments and whole-outcome rejoin. The scope-reassessment hold is released for this authorized work. Existing held assets, peer sources/indexes and normal user-owned game/save flow retain their custody.
+
+Granular, Emmetropic and Beacon describe actual development and batch organization. D4 takes its source, inquiry, acquisition, knowledge, service, fuel/power, water use, persistence and delivery together as one substantive outcome. Focused checks and source variants remain internal work. The shared corrected skills and Mousecat record are installed; this project application now follows them.
+
+The dated entries below preserve earlier development evidence and decisions. Their former full-D3-before-D4 and food-D4/animal-D5/learning-D6 assignments are superseded by the current map. They confer no current scope, numbering or delivery-posture override.
 
 ## Delivered product
 
@@ -111,67 +117,11 @@ GZDS B2.24/DR-168 reached main through [PR32](https://github.com/ellyj3rain/gzds
 
 ## Continuing outcomes and FIFO
 
-The operator directs native metal floors through usable shelter. [D3.14](Batches/D3.14-20261011-1914Z-1214PDT-metal-floors-usable-shelter.md) is CLOSED through native floor construction, actual walking surface/cover and ordinary reached shelter/recovery. Protected publication retains its independent completion receipt; full D3 remains OPEN and D4-D6 retain FIFO.
+[D3's closed record](Batches/D3-20261013-0433Z-2133PDT-delivered-material-work.md) aggregates the exact twenty-two published contributions. [D4](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md) carries the current connected service restoration; [the numbered roadmap](ROADMAP.md#numbered-d-outcomes) carries water networks, electrical service, vehicles, building completion, property salvage/security, equipment, authoritative execution, food, cultivation, animals and maintained learning.
 
+Literal curriculum, civilian/military/engineering literature, maintained knowledge affected by attributes/health/aging, individual tactical/strategic synthesis and the Speakeasy/ZAO/Post Latent dependencies remain accepted beyond those finite outcomes. Peer source/model selection, contact, adoption and training are explicit unfinished contracts. D4's local full/bounded export evidence preserves those obligations.
 
-The operator directs native metal walls, frames and doors through usable shelter. [D3.13](Batches/D3.13-20261011-0845Z-0145PDT-metal-walls-doors-usable-shelter.md) is CLOSED through native construction, doorway use and ordinary reached shelter/recovery. Neo owns sufficient verification, records and protected publication. Full D3 remains OPEN; D4-D6 remain downstream.
-
-The operator's instruction to build, verify and publish has delivered
-[D3.12 native double gates through opening, passage and closure](Batches/D3.12-20261011-0526Z-2226PDT-native-double-gates.md).
-The complete installed wooden, metal-pole and wire family joins private
-freestanding boundary/access intent, exact native resources and construction to
-actual opening, same-body passage and closure. Full D3 remains OPEN. Neo owns
-implementation, sufficient verification, records and protected publication;
-independent retained work and established peer custody continue.
-
-The operator's instruction to build, verify and publish has delivered
-[D3.11 native stairs through usable shelter](Batches/D3.11-20261011-0439Z-2139PDT-native-stairs-usable-shelter.md).
-This CLOSED child supplies native stair construction and genuine upper access, then continues
-through floor/cover work, return and ordinary shelter use under the retained
-purpose. The complete D3 parent stays OPEN. Neo owns implementation, sufficient
-verification, records and protected publication; established peer custody and
-the independently retained Agentic/Mousecat obligations continue.
-
-[D3's current record](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md)
-tracks the first material-work join. Observed permitted window and boarding
-needs survive missing supplies; exact private acquisition, native preparation,
-return to the retained destination and measured native completion share their
-original purpose. Adoption and IDLE recovery reconcile lost native admissions
-without inventing effects or completion. Focused native and Controller proofs
-retain their exact inputs and boundaries. Final regression and review results
-live in the D3 record. The whole construction, crafting, repair and utilities
-parent remains OPEN. Its CLOSED D3.1 through D3.22 children retain native material work and usable consumers, source-bound architectural learning, pane supply/repair, furniture/recovery and purpose-bound stock/upkeep with saved continuity. Current replay derives `2.7.5.0-pre-alpha`; D3.22 receives one kohai inside the unfinished parent.
-
-[D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is the
-CLOSED child for native plank crafting. Exact private log and saw
-acquisition, installed handcraft, measured plank output and return to the
-original boarding destination form its delivered behavior. The parent retains
-the complete construction, crafting, repair and utility scope. Child identities
-and delivered version credit follow the canonical module rule independently.
-
-| Outcome | Standing and responsibility |
-|---|---|
-| D3 construction/crafting/repair/utilities | Active OPEN parent; D3.1-D3.15 deliver their linked coherent children. Other structures, remaining recipes/pane integration and native server execution remain with D3. |
-| D3.2 native saw maintenance | CLOSED child under D3; exact native FixSaw, private file acquisition, interpreted maintenance alternatives, measured condition/wear and canonical feedback continue the original construction purpose. Self-merged through [PR143](https://github.com/ellyj3rain/sao/pull/143). |
-| D3.3 portable tool maintenance | CLOSED child: native saw repair and blade sharpening, private file/whetstone acquisition, ordinary kit tending and measured benefits/damage. Self-merged through [PR144](https://github.com/ellyj3rain/sao/pull/144). |
-| D3.4 plumbing to usable water | CLOSED child: exact private wrench acquisition and fixture return, installed plumbing, handled-source refresh and actual clean held water under the same hydration purpose. Self-merged through [PR145](https://github.com/ellyj3rain/sao/pull/145), actual main commit `3120fae3e9d71f3f5664bad48cfa0e409a3e41d7`. |
-| D3.5 rain-collector construction | CLOSED child: exact recipe-derived material acquisition, privately observed placement, native entity construction and rain supply continue the same plumbing/refill/drinking purpose. Self-merged through [PR146](https://github.com/ellyj3rain/sao/pull/146), actual main `5b3eb409f654e82f46d82940b968366ecaa1f74d`. |
-| D3.6 generator to usable power | CLOSED child: exact private generator/consumer intent, material and recipe knowledge acquisition, native repair/fuel/connection/activation and reached usable power resume the exact original meal. Native, Controller, private-source, two-model and save/lifecycle proof are linked in its record; self-merged through PR147 at a16854e3df16381d2dde42803dcc918d8cce189e. |
-| D3.7 native item fixing | CLOSED child: personally intended firearm upkeep acquires an exact known donor, performs native fixing/payment, preserves returned contents, reuses the same target and retains independent feedback/save/queue custody. Self-merged through [PR148](https://github.com/ellyj3rain/sao/pull/148) at6551b75c7b72a007608f96d0ba891bc0f9364694. |
-| D3.8 usable-bed construction | CLOSED child: exact native wooden-bed recipe, both full orientations, privately observed permitted footprint, material acquisition and native construction continue through newly observed ordinary bed recovery. Self-merged through [PR149](https://github.com/ellyj3rain/sao/pull/149) at b31f1b17e3f9c486b8c20ac0e6c738c5a3ab0904. |
-| D3.9 walls and doors | CLOSED child: native single-edge frames/wall/door grades, exact private materials and observed permitted placement continue through actual doorway use and ordinary reached shelter. Native enclosure and existing cover retain independent facts. Self-merged through [PR150](https://github.com/ellyj3rain/sao/pull/150) at5602d522ba39bbf9d9d9cb3a7efec8b55734c7f2. |
-| D3.10 roofs and floors | CLOSED child: three native wooden floor grades, supported work-level access, actual construction/cover and return to the retained ordinary shelter/recovery destination. Self-merged through [PR151](https://github.com/ellyj3rain/sao/pull/151) at c63ce31199c6134c608633ff81603ea7332dbe3f. |
-| D3.11 native stairs | CLOSED child: both complete native orientations, exact private materials and permitted footprint, genuine upper access, floor/cover, return and ordinary shelter/recovery with saved independent feedback. Self-merged through [PR152](https://github.com/ellyj3rain/sao/pull/152) at ac9edeeaf4a95ca22565b1428c452424dc3106d1. |
-| D3.12 native double gates | CLOSED child: all six native wooden, metal-pole and wire orientations, exact knowledge/resources and private permitted boundary/access intent through complete construction, actual opening, same-body passage and closure with durable separate outcomes. Self-merged through [PR153](https://github.com/ellyj3rain/sao/pull/153) at f03cabc35c1a29c6231da66478c499f793f0354c. |
-| D3.13 native metal shelter | CLOSED child: the complete native metal wall/frame/door family in both orientations, exact knowledge/materials and permitted private concern through native doorway use and ordinary reached shelter/recovery. Self-merged through [PR154](https://github.com/ellyj3rain/sao/pull/154) at 19341cfe0080f8f07371e3402592ddce079a8d60. |
-| D3.14 native metal floors | CLOSED child: installed native metal floor, exact acquired means and observed permitted supported placement through actual surface/cover and ordinary reached shelter/recovery. Actual publication retains its separate protected completion receipt. |
-| D4 whole food/preservation | Follows D3; retains the complete installed domain and adjacent food mechanics. |
-| D5 comprehensive animal care | Follows D4; species and supported actions retain actual source admission. |
-| D6 assessed K-through-college learning | Follows D5; literal sources, comprehension, retention and transfer remain the outcome. |
-| Native creator, human/agent bodies and controllers, speech, objectives, return/review/learning, inhabited world | Retained continuing product goals; no enlargement of D2's closure scope. |
-| Appearance and authored motion | Pico owns appearance/source selection; Sesame owns navigation and inspectable evidence. Existing assets and custody remain preserved. |
-| Mousecat custom Zomboid engine fork and controlled new-model tests | Retained under the universal permission mandate, with models used when ready. |
-| SAO/ZAO/Speakeasy/Post Latent integration | Each repository retains its actual implementation and consumer ownership. |
+Appearance and authored motion retain Pico's source selection and the established sole-writer liaison. Agentic/Mousecat, native creator, bodies/controllers, speech/objectives and the inhabited world retain their separate existing ownership.
 
 The full inherited 35-goal and shared-contract scope survives in the original
 full-goal transfer21/22 and Scion transfer26 records and their source manifests.
@@ -341,3 +291,12 @@ Current [D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-pro
 ## D3.22 final source-contract reclosure - 2026-10-13 00:31 UTC / 17:31 PDT
 
 Current [D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) is CLOSED after native56/five-actor/four detecting controls, current layers45, stale-use54, source-scoped old proof and bounded final review. Actual admitted native class, current wearer versus historical paid token, unconfirmed physical-only result and zero-value refusal keep their separate native/source limits. The package remains2.7.5.0/9df with29 current engine-class byte matches and one kohai. Protected PR165 current amendment/checks/review/merge/recenter are pending actual completion; full D3 and pending shared archive/source/model/adoption obligations continue before D4.
+
+## Current connected utility implementation (D3.23) - 2026-10-13 00:48 UTC / 17:48 PDT
+
+D3.22 was actually self-merged through [PR165](https://github.com/ellyj3rain/sao/pull/165) at `7724d118cc4ed92722fd14d57cee28a213e58945`; current2.7.5 package9df and own-index/held/peer custody are verified. [D3.23](Batches/D3.23-20261013-0048Z-1748PDT-generator-supply-powered-water.md) is OPEN for ordinary private source/tool/knowledge inquiry, original generator installation/fuel/native power, effective water acquisition/use and persistence. Full D3 remains OPEN before D4; no opening credit or counterpart adoption is claimed.
+
+
+## Current operator direction: numbered outcomes and resumed development - 2026-10-13
+
+The operator directs: "Fix SAO's actual batch map and records using the framework, determine the practical seams between numbered batches, and resume development emmetropically." This supersedes the earlier full-D3-before-D4 mandate and releases the scope-reassessment hold for that work. D is the broad development grouping; numbered batches have finite substantial outcomes and children are meaningful subdivisions. Root owns the canonical forward map and scope transition; the existing implementation chief retains its source custody and resumes the selected connected outcome after its revised owning record is established. Published labels, earned credit, existing implementation and all accepted remaining goals are preserved. Shared Speakeasy/ZAO/ML contracts continue across numbered batches with their actual ownership and acceptance. The corrected shared framework and Mousecat result are already loaded; actual project reorganization and delivery now proceed.

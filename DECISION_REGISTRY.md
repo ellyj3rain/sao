@@ -2251,3 +2251,16 @@ and one producer owns the effect. Earlier source/package tests retain their
 exact limited meaning. One assessed kohai is earned once; actual Java changes
 require the second supported build without a numerical build quota or new
 scope. Full D3 and FIFO remain active.
+
+
+## DR-066 — Finite numbered outcomes and Emmetropic development
+
+Timestamp: 2026-10-13 04:33 UTC / 21:33 PDT. Authority: direct operator correction and instruction to fix the actual SAO batch map, determine practical seams and resume development.
+
+D carries the broad development grouping. D3 closes as a zero-credit historical aggregation of its twenty-two published child contributions, whose labels, bytes and credit remain preserved. Unpublished D3.23 becomes a source contribution to D4 Household water and power restoration, without a child closure or duplicated credit. ROADMAP.md records the practical finite numbered outcomes and all retained wider goals.
+
+Granular, Emmetropic and Beacon shape both batch organization and actual development. Emmetropic work develops connected producer, consumer and required integration together. A broad container does not change a succession of granular deliveries into that posture. Shared source, authority, persistence and learning dependencies connect the numbered outcomes; they do not make every later feature a child of D3.
+
+The current utility proof loads external LGEE/LGEP producers that SAO's package does not supply. D4 includes the selected owned producer, normal startup and sufficient integration evidence. Prior external-source proof retains its scope. The broader accepted source-incorporation programme remains split by actual mechanisms and outcomes, with provenance and copying terms preserved.
+
+[The transition](Batches/Transitions/D-20261013-emmetropic-numbered-outcomes.md), current state/index, unchanged history and existing odometer aggregation carry this decision mechanically. Reorganization earns no version credit. Ordinary protected publication and sufficient affected-contract verification remain in force.

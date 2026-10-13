@@ -26,10 +26,10 @@ the machine. Names, dates, and threads below come from
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
 | Current version | `2.7.5.0-pre-alpha` |
-| Classified delivered scope | `A1-D3.22` |
+| Classified delivered scope | `A1-D3` |
 | Current C generation | `20261005-product-consolidation` |
 | Feature-scope reconciliation | [20261010](Batches/VERSION_SCOPE_RECONCILIATION.json); prior replay retained |
-| Unconsumed scope | `D3` |
+| Unconsumed scope | `D4` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -238,6 +238,14 @@ Dotted labels record child scope. Each capability row above receives credit once
 child delivery leaves its explicitly active parent open. Closed parent aggregation
 records name existing credit owners separately. Completed-feature scope can receive minor after kohai progress; repeated aggregation grants no tier.
 
+## Closed parent aggregations
+
+These chronological closure records aggregate already credited descendants and grant no additional tier.
+
+| Parent | Date | Credited descendants | Name |
+|---|---|---|---|
+| `D3` | 2026-10-13 | `D3.1`, `D3.2`, `D3.3`, `D3.4`, `D3.5`, `D3.6`, `D3.7`, `D3.8`, `D3.9`, `D3.10`, `D3.11`, `D3.12`, `D3.13`, `D3.14`, `D3.15`, `D3.16`, `D3.17`, `D3.18`, `D3.19`, `D3.20`, `D3.21`, `D3.22` | Construction, crafting, repair and utilities |
+
 ## Current C products and retained source history
 
 Each C product tier credits its coherent capability once. Each retained
@@ -350,7 +358,7 @@ and operator feedback.
 
 ## Next movement
 
-`D3` remains the declared unconsumed scope; subsequent delivered children or new capability units
+`D4` remains the declared unconsumed scope; subsequent delivered children or new capability units
 remain with their owners; this projection does not close them or start
 another batch. Subsequent delivered work determines its own tier:
 

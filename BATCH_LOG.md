@@ -17,27 +17,9 @@ The 2026-10-03 map grouped the retained source history into 35 shared ownership 
 
 ## Development catalogue
 
-Active: [D3 — Construction, crafting, repair and utilities](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md)
+Active: [D4 — Household water and power restoration](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md)
 
-Current qualified child: [D3.22 - Worn garment upkeep and retained protection](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md), CLOSED inside OPEN D3.
-
-Current qualified child: [D3.22 - Worn garment upkeep and retained protection](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md), CLOSED inside OPEN D3.
-
-Current qualified child: [D3.22 - Worn garment upkeep and retained protection](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md), CLOSED inside OPEN D3.
-
-D3.18 qualified closure is indexed below; its actual package and protected publication retain separate completion receipts. D3.19 receives no delivered row or version credit at opening.
-
-D1 is delivered and protected-merged through PR138. D2 Leisure delivers the
-integrated recreation, music, games, art and social-participation product, with
-private choice, native outcomes, interruption and durable experience. It closes
-at `3.8.1.0-pre-alpha`; protected publication has its own recorded result.
-D3 construction/crafting/repair/utilities is active and OPEN in the established
-FIFO. Its first material-work join is a local continuation within the whole
-product and receives no additional delivered-batch or version credit. Its
-[open record](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md)
-retains implementation, scoped evidence and continuing work outside the delivered
-catalogue below.
-Later Leisure improvements link back to the completed D2 product.
+D3 closes as a zero-credit historical aggregation of D3.1-D3.22. Their original labels, scope, evidence and earned credit remain unchanged. The [transition](Batches/Transitions/D-20261013-emmetropic-numbered-outcomes.md) assigns remaining work to finite numbered outcomes and retains unpublished D3.23 as a contribution to active D4. [ROADMAP.md](ROADMAP.md#numbered-d-outcomes) owns the forward sequence.
 
 | Batch | Date | Name | Threads |
 |---|---|---|---|
@@ -700,3 +682,13 @@ D3.19 protected publication actually completed through PR162 at `c356234069b5034
 | Batch | Date | Name | Threads |
 |---|---|---|---|
 | [D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) | 2026-10-12 | Worn garment upkeep and retained protection | Ordinary signed input acquisition, original garment effect/cold lineage, preparatory upgrade and separate target protection |
+| [D3](Batches/D3-20261013-0433Z-2133PDT-delivered-material-work.md) | 2026-10-13 | Construction, crafting, repair and utilities | T-003, T-008, T-030; historical aggregation of D3.1-D3.22; no new credit |
+
+## Current utility service child opened - 2026-10-13 00:48 UTC / 17:48 PDT
+
+Current open child: [D3.23 - Generator supply and powered water use](Batches/D3.23-20261013-0048Z-1748PDT-generator-supply-powered-water.md), OPEN within retained full D3; version remains2.7.5.0-pre-alpha with no opening credit.
+
+
+## D-series scope correction - 2026-10-13 04:33 UTC / 21:33 PDT
+
+The operator directs finite numbered outcomes and actual Emmetropic development. D3's exact published collection closes by existing zero-credit aggregation; no historical child is relabelled. D4 receives the unfinished D3.23 contribution, with selected producer incorporation and actual startup added to its acceptance. The [transition](Batches/Transitions/D-20261013-emmetropic-numbered-outcomes.md) and [current map](ROADMAP.md#numbered-d-outcomes) retain all remaining scope, shared contracts and existing evidence.
