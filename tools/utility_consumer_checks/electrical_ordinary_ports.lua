@@ -44,3 +44,9 @@ SAO.Needs.queueVerified=function(action)
  end
  return originalQueueAdmission(action)
 end
+
+if __case=="review-corrections"and CONTROL~="omit-receiver"then
+ SAO.Disposition={eatAt=function()return .3 end,drinkAt=function()return .3 end}
+ __load(__unit..'/controller-functions.lua')
+ __load(__unit..'/mod/42.20/media/lua/client/SAO_ElectricalMenu.lua')
+end

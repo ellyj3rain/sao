@@ -1653,7 +1653,9 @@ function P.planGenerator(id, context)
     if not assessment then return purpose, current end
     local at = finite(context.atHours) and context.atHours or nowHours()
     purpose = purpose or P.maintain(id, { key = "utility:power:" .. consumer.sourceId,
-        objective = "restore usable power for " .. tostring(intent.requestingActivity or "the intended consumer"),
+        objective = intent.requestingActivity=="electrical-safety"and"stop the observed unsafe indoor generator"
+            or intent.requestingActivity=="electrical-conservation"and"stop observed idle appliance draw"
+            or "restore usable power for " .. tostring(intent.requestingActivity or "the intended consumer"),
         domain = "utilities", origin = "private-consumer-intent", atHours = at })
     if not purpose then return nil, "person-unavailable" end
     purpose.generatorPower = purpose.generatorPower or { consumer = consumer,
@@ -1877,7 +1879,11 @@ function GeneratorPlanning.result(id, row, reading)
         request.generator = nil
         purpose.status, purpose.awaitingReassessment = "maintained", true
     end
-    if accepted and completed and step.operation ~= "verify-power"and step.operation~="verify-service" then
+    local controlCompleted=accepted and completed and(
+        purpose.generatorPower.requestingActivity=="electrical-conservation"and step.operation=="shed-load"
+        or purpose.generatorPower.requestingActivity=="electrical-safety"and step.operation=="breaker-open")
+    if controlCompleted then purpose.status,purpose.awaitingReassessment="completed",nil end
+    if accepted and completed and not controlCompleted and step.operation ~= "verify-power"and step.operation~="verify-service" then
         purpose.status, purpose.awaitingReassessment = "maintained", true
         if row.generatorAfter then purpose.generatorPower.generator = GeneratorPlanning.anchor(row.generatorAfter, "J:") end
         if row.consumerAfter then purpose.generatorPower.consumer = GeneratorPlanning.anchor(row.consumerAfter, "E:") end

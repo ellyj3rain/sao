@@ -158,7 +158,7 @@ function G.options(id,body,intent)
         local retained=not intent.generator or source==intent.generator.sourceId and row.fingerprint==intent.generator.fingerprint
             and row.x==intent.generator.x and row.y==intent.generator.y and row.z==intent.generator.z
         if text(source) and source:sub(1,2)=="J:" and retained and rejected[source]~=row.fingerprint
-            and (row.inspected~=true or row.outside==true) then
+            and(row.inspected~=true or row.outside==true or intent.requestingActivity=="electrical-safety"and intent.electricalOperation=="breaker-open")then
             local f=copy(row);if f then f.sourceId=source;candidates[#candidates+1]=f end
         end
     end end
@@ -176,7 +176,9 @@ function G.options(id,body,intent)
                 or known.fuel<=0 and "fuel" or not known.connected and "connect" or "activate"
             if intent.managedElectrical==true and known.inspected then
                 local sample=sampled(id,known,intent.consumer)
-                if not sample then operation="inspect-load"
+                if intent.requestingActivity=="electrical-safety"and intent.electricalOperation=="breaker-open"
+                    and known.active and known.outside==false then operation="breaker-open"
+                elseif not sample then operation="inspect-load"
                 elseif sample.loadOwner=="external-writer-unresolved"then operation=known.active and "verify-power"or operation
                 elseif sample.breakerOpen and known.connected and known.fuel>0 then operation="breaker-reset"
                 elseif known.active then operation=E.operations[intent.electricalOperation]and intent.electricalOperation or "verify-service"end
@@ -271,6 +273,8 @@ local function bound(rt,pre)
         local pair=SAO.WorldSources.electricalServiceObjects(rt.body,rt.generatorFact,rt.consumerFact,rt.operation,pre)
         if not pair or pair.generator~=rt.object or pair.consumer~=rt.consumerObject then return false end
         if not permitted(rt.id,rt.consumerFact)then return false end
+        if pre and rt.operation=="shed-load"and p.generatorPower.requestingActivity=="electrical-conservation"
+            and E.idleConsumer(rt.body,rt.consumerObject,rt.id)~=true then return false end
         if pre and rt.electricalBefore then
             local observed=E.measure(rt.body,rt.object,rt.consumerObject,rt.consumerFact,rt.operation,rt.generatorFact)
             if not E.sameMeasurement(rt.electricalBefore,observed)then return false end

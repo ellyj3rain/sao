@@ -97,3 +97,21 @@ Current shipping JAR SHA `ecf73e72a379b7fe8961467bbcfb39f73242a8ae59049ece77e698
 | Current package/protocol/sandbox/arity join | `0d722c34f5e56392cf52c0007df62d673127ce396bac5630d1cbc6763aba2a6f` |
 
 Final owning correction/review seal SHA `7a727d36e1d49146050fef47bad5a6ee51299a62fc0f6a7ab592eb13de063f84`. The protected merge receipt establishes publication.
+
+## Final private control planning join
+
+Production now creates electrical control requests from the person's own current observations and purposes. An observed active indoor generator can create a deliberate safety purpose and original breaker-open action. An acquired, reached, fully explored empty active multipart stove with no current food, water or cooking demand can create a conservation purpose; the original inspection precedes shedding, and both purposes remain current through planning, Standing and native execution. Unseen, occupied, unexplored, late-filled or presently demanded appliances refuse conservation work. No completed-meal cleanup is duplicated: Cooking retains its own shutdown behavior.
+
+Shedding requires the selected native supply to cover the appliance and remain active, connected, fueled and conditioned at admission/current-effect boundaries. The actual native appliance group rate must fall; the selected generator's cached total rate is not required to change immediately because native billing refresh owns that timing. The final source packet passes production36, supply16, explored-header2 and both causal controls. The current independent reader strengthens the same before/after coverage, active, connected and positive-fuel grammar against the preserved original full/bounded data, without a physical or native serialization replay.
+
+The existing managed-electrical review-corrections recipe now invokes the actual production Controller/Perception/WorldSources/Planning/Generator path. The original whole-consumer, historical receiver control, D4/D5 default and data-only snapshot routes remain. Four existing tool paths were promoted; no new proof path or route family was added.
+
+| Final planning evidence | SHA256 |
+|---|---|
+| Native production/supply/header/control receipt | `0c53eeb2eeb09b05746e5b85f2bada37c9e9e5573f2ee3bdea1e8373056b1b94` |
+| Bounded final review | `f12776a7e968b80891d3be9dc6cfbc6103b81faa8c9ab703a835169bb53356c2` |
+| Source applicability | `c5c92a502a261e4bb101dc9ab7e6a6172dc24cc9b4c01a279e7a100f4c0f2a7c` |
+| Four-tool promotion | `8c9757830ca9d12e80bc54ffffecf22a1bb393796cb61fcaf3f337e5e6d8d87f` |
+| Independent stricter full/bounded intake | `c95950127f99782697411884e5e4364d66e20872bb5b1c71975edc912c6bfacd` |
+
+The protected merge receipt remains the publication boundary. D7 remains next; automatic load-triggered trips, overlap billing, wider devices, physical wiring and other retained goals remain future finite work.

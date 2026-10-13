@@ -336,3 +336,7 @@ The operator directs: "Fix SAO's actual batch map and records using the framewor
 ## D6 current PR qualification
 
 Paired endpoint routing, silent native queue-refusal retirement and safe indoor source pickup are qualified by the fresh bounded native48/control packet and final correction review. Generic resolvers, original private purpose and source/receiver custody retain their contracts. Current supported build/package uses JAR `ecf73e72a379b7fe8961467bbcfb39f73242a8ae59049ece77e698ba9f1ed551` at the same `2.7.8.0-pre-alpha`; historical first/native/meal/save/intake evidence keeps its precise applicability. D7 remains next; all wider household/learning/peer obligations remain.
+
+## D6 final production-control qualification
+
+Actual private idle-load and indoor-safety requests now flow through Controller/Perception/WorldSources/Planning/Generator. Native production36, supply16, explored-header2, causal controls, bounded review and current four-tool mapping pass. The stricter reader retains original full8/bounded0 raw data and both models without replay. The supported JAR remains `ecf73e72a379b7fe8961467bbcfb39f73242a8ae59049ece77e698ba9f1ed551`; D7 remains next.

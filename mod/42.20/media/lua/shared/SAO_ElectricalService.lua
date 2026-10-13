@@ -68,7 +68,8 @@ function E.effect(operation,before,after)
   or before.burnOwner~=after.burnOwner or before.loadOwner~=after.loadOwner then return false end
  if operation=="inspect-load"then return true end
  if before.loadOwner~="native-IsoGenerator"or after.loadOwner~="native-IsoGenerator"then return false end
- if operation=="shed-load"then return before.switchable and before.consumerActive and not after.consumerActive
+ if operation=="shed-load"then return before.covered and after.covered and before.active and before.connected
+  and after.active and after.connected and before.fuel>0 and after.fuel>0 and before.switchable and before.consumerActive and not after.consumerActive
   and after.groupRate<before.groupRate end
  if operation=="breaker-open"then return before.active and not after.active and after.breakerOpen end
  if operation=="breaker-reset"then return before.breakerOpen and not after.breakerOpen and after.active end
@@ -81,6 +82,30 @@ function E.receipt(row)
   and work.consumerCompleted==false and E.effect(row.operation,work.before,work.after)
 end
 -- Original constructors use different native receiver fields.
+-- Reached physical inspection of all parts; no amount or occupancy is inferred from an empty logical row.
+function E.idleConsumer(body,object,id)
+ if not live(body,object)or not instanceof(object,"IsoStove")then return nil end
+ local ok,idle=pcall(function()
+  local parts=object:getSpriteGridObjectsIncludingSelf(ArrayList.new());if parts:isEmpty()then parts:add(object)end
+  local containers=0;local seen={}
+  for i=0,parts:size()-1 do local part=parts:get(i)
+   if not seen[part]then
+    seen[part]=true;local q=part:getSquare()
+    if not live(body,part)or q:getZ()~=body:getCurrentSquare():getZ()or not body:getCurrentSquare():canReachTo(q)
+     or (body:getX()-q:getX()-.5)^2+(body:getY()-q:getY()-.5)^2>=4
+     or id and SAO.Standing.mayAttemptBelieved(id,q:getX(),q:getY(),"standing")~=true then return false end
+    local container=part:getContainer()
+    if container then
+     if not container:isExplored()then return nil end
+     containers=containers+1;if not container:getItems():isEmpty()then return false end
+    end
+   end
+  end
+  return containers>0
+ end)
+ if ok then return idle end
+ return nil
+end
 function E.actionCurrent(action,body,generator,consumer,operation)
  if not action or action.character~=body then return false end
  if operation=="shed-load"then return action.object==consumer end
@@ -95,6 +120,7 @@ function E.action(body,generator,consumer,operation)
  require "TimedActions/ISToggleStoveAction"
  require "TimedActions/ISToggleLightAction"
  if not E.operations[operation]or not live(body,generator)or not live(body,consumer)then return nil end
+ if operation=="shed-load"and(not generator:isActivated()or not generator:isConnected()or generator:getFuel()<=0 or generator:getCondition()<=0)then return nil end
  if operation=="breaker-reset"or operation=="verify-service"then
   if not generator:getSquare():isOutside()or not generator:isConnected()or generator:getFuel()<=0 or generator:getCondition()<=0 then return nil end
  end
@@ -139,7 +165,8 @@ function E.beginHuman(body,generator,consumer,operation)
  if rec.resourceProductionWork or queue.current or #queue.queue>0 or SAOJavaBridge:hasPendingActions(body)then return false end
  local fact={sourceId="human-direct",fingerprint="human-direct"}
  local before=E.measure(body,generator,consumer,fact)
- if not before or operation~="inspect-load"and before.loadOwner~="native-IsoGenerator"then return false end
+ if not before or operation~="inspect-load"and before.loadOwner~="native-IsoGenerator"
+  or operation=="shed-load"and(not before.covered or not before.active or not before.connected or before.fuel<=0 or generator:getCondition()<=0)then return false end
  local action=E.action(body,generator,consumer,operation);if not action then return false end
  local sequence=SAO.HouseholdService.reservePlayerWorkSequence(body);if not sequence then return false end
  local work={id="electrical/native-player/"..body:getPlayerNum().."/"..sequence,kind="electrical-service",operation=operation,
@@ -151,6 +178,7 @@ function E.beginHuman(body,generator,consumer,operation)
   return self==action and E.actionCurrent(action,body,generator,consumer,operation)and humanRuntime[body]==rt and rec.resourceProductionWork==work
    and human(body)and body:getModData()==rec and getWorld():getWorld()==work.world
    and live(body,generator)and live(body,consumer)and ISTimedActionQueue.queues[body]==queue
+   and(operation~="shed-load"or generator:isActivated()and generator:isConnected()and generator:getFuel()>0 and generator:getCondition()>0)
    and (operation~="breaker-reset"and operation~="verify-service"or generator:getSquare():isOutside()
     and generator:isConnected()and generator:getFuel()>0 and generator:getCondition()>0)
  end

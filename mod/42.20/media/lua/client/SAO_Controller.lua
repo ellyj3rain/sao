@@ -2855,6 +2855,37 @@ function Ctl.waterGeneratorIntent(id, body)
         requestingPurposeRevision=water.revision,requestingPurposeCursor=water.cursor,requestingEmptyPlan=step==nil,
         requestingActivity="hydration",fuelService=true} or nil
 end
+-- Private acquired hazards and idle appliance draw supply deliberate service requests.
+function Ctl.electricalControlIntent(id,body)
+ local perception,planning=SAO.Perception,SAO.ProceduralPlanning
+ if not perception or not planning then return nil end
+ local generators,consumers={},{};local now=SAO.History.countyHours()
+ for _,place in pairs(perception.knownPlaces(id,true)or{})do for _,fact in pairs(place.sourceFacts or{})do
+  local key=fact.sourceId or fact.id
+  if type(key)=="string"and fact.inspected==true then
+   if key:sub(1,2)=="J:"and #generators<32 then generators[#generators+1]=fact
+   elseif key:sub(1,2)=="E:"and fact.generatorPump~=true and #consumers<128 then consumers[#consumers+1]=fact end
+  end
+ end end
+ local food=planning.resourceDemand(id,"food");local water=planning.resourceDemand(id,"water")
+ local rec=SAO.Identity.get(id)
+ for _,generator in ipairs(generators)do for _,consumer in ipairs(consumers)do
+  if generator.active==true and generator.connected==true and type(generator.fuel)=="number"and generator.fuel>0
+   and IsoGenerator.isPoweringSquare(generator.x,generator.y,generator.z,consumer.x,consumer.y,consumer.z)
+   and SAO.Standing.mayAttemptBelieved(id,generator.x,generator.y,"standing")==true
+   and SAO.Standing.mayAttemptBelieved(id,consumer.x,consumer.y,"standing")==true then
+   if generator.outside==false then
+    return {generator=generator,consumer=consumer,managedElectrical=true,electricalOperation="breaker-open",
+        requestingActivity="electrical-safety",controlReason="observed-active-indoor-generator"}
+   elseif not food and not water and rec and not rec.cookingWork and consumer.electricalIdle==true
+    and consumer.electricalActive==true and type(consumer.electricalObservedAt)=="number"
+    and consumer.electricalObservedAt<=now and now-consumer.electricalObservedAt<=.05 then
+    return {generator=generator,consumer=consumer,managedElectrical=true,electricalOperation="shed-load",
+        requestingActivity="electrical-conservation",controlReason="observed-empty-active-appliance"}
+   end
+  end
+ end end
+end
 function Ctl.generatorContext(id, agent, body, tick, needs, intent)
     local context = { intent = intent, atHours = SAO.History.countyHours(), tick = tick,
         position = { x=body:getX(),y=body:getY(),z=body:getZ() }, needs = needs,
@@ -2914,14 +2945,17 @@ function Ctl.advanceGeneratorPurpose(id, agent, body, tick, needs)
         or body:isAsleep() or tick < (agent.nextGeneratorAt or 0) then return false end
     local retained, current = planning.generatorPurpose(id)
     if retained and retained.admission then return true end
+    if SAO.Perception.observeGenerators then SAO.Perception.observeGenerators(id,body,SAO.History.ticks())end
+    if SAO.Perception.refreshElectricalConsumers then SAO.Perception.refreshElectricalConsumers(id,body)end
+    local control=Ctl.electricalControlIntent(id,body)
     local food, foodStep = planning.resourceDemand(id,"food")
     local context = food and {purposeId=food.id,acquiredItemId=foodStep and foodStep.acquiredItemId,privateFood=true}
     local intent = context and SAO.Cooking and SAO.Cooking.powerDemand and SAO.Cooking.powerDemand(id,body,context)
-    intent = intent or Ctl.waterGeneratorIntent(id,body) or agent.rec.cookingPowerDemand or retained and retained.generatorPower
+    intent = control or intent or Ctl.waterGeneratorIntent(id,body) or agent.rec.cookingPowerDemand or retained and retained.generatorPower
     if not intent then return false end
     -- Household pump power retains its distinct D4/D5 native producer; D6 manages appliances.
     intent.managedElectrical=intent.consumer and intent.consumer.generatorPump~=true or false
-    if retained and intent.consumer and retained.generatorPower.consumer.sourceId == intent.consumer.sourceId then
+    if not control and retained and intent.consumer and retained.generatorPower.consumer.sourceId == intent.consumer.sourceId then
         intent.generator = retained.generatorPower.generator
         intent.rejectedGenerators = retained.generatorPower.rejectedGenerators
         if intent.generator and intent.rejectedGenerators

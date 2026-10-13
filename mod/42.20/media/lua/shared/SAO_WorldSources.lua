@@ -2051,7 +2051,14 @@ end
 function WS.observeGeneratorConsumer(actorId,body,object)
     actorId=tostring(actorId or "")
     if not utilityObserver(actorId,body) then return nil end
-    return registerUtility(actorId,body,WS.generatorConsumer(body,object))
+    local fact=WS.generatorConsumer(body,object)
+    if fact and SAO.ElectricalService and SAO.ElectricalService.idleConsumer then
+        local idle=SAO.ElectricalService.idleConsumer(body,object,actorId)
+        if type(idle)=="boolean"then
+            fact.electricalIdle=idle;fact.electricalActive=object:Activated()==true;fact.electricalObservedAt=nowHours()
+        end
+    end
+    return registerUtility(actorId,body,fact)
 end
 
 function WS.observeVisibleGround(actorId, body)

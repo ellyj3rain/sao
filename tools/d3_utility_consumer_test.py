@@ -21,7 +21,7 @@ def electrical_run(a):
  out=a.out.resolve();out.mkdir(parents=True,exist_ok=False)
  supports=[H/n for n in ['ElectricalServiceNativeProbe.java','ElectricalOrdinaryProbe.java','electrical_ports.lua','electrical_cases.lua','electrical_ordinary_ports.lua','electrical_ordinary_cases.lua','electrical_consumer_use.lua']]
  runtime=[S/'mod/42.20/media/lua'/q for q in ['shared/SAO_Ordering.lua','shared/SAO_HouseholdService.lua','shared/SAO_ElectricalService.lua','client/SAO_ElectricalMenu.lua','shared/SAO_WorldSources.lua','shared/SAO_Perception.lua','shared/SAO_SituationAppraisal.lua','shared/SAO_Labor.lua','shared/SAO_CognitiveModels.lua','shared/SAO_Cognition.lua','shared/SAO_ProceduralPlanning.lua','client/SAO_Generator.lua','client/SAO_Cooking.lua','client/SAO_SourceUse.lua','client/SAO_Needs.lua','client/SAO_CapabilityExperience.lua','client/SAO_Controller.lua','client/SAO_ResourceProduction.lua','shared/SAO_Census.lua']]
- helpers=[S/q for q in ['tools/resource_production_checks/GeneratorNativeProbe.java','tools/luacheck/MovementCrossingProbe.java','tools/luacheck/ResourceApproachProbe.java','tools/d2_leisure_materials/metadata.java.inc','tools/utility_consumer_checks/SnapshotDataExport.java','tools/utility_consumer_checks/snapshot_export.py','tools/utility_consumer_checks/archive_projection.py']]
+ helpers=[S/q for q in ['tools/resource_production_checks/GeneratorNativeProbe.java','tools/luacheck/MovementCrossingProbe.java','tools/luacheck/ResourceApproachProbe.java','tools/d2_leisure_materials/metadata.java.inc','tools/utility_consumer_checks/SnapshotDataExport.java','tools/utility_consumer_checks/snapshot_export.py','tools/utility_consumer_checks/archive_projection.py','tools/lua_read.py']]
  owned=[Path(__file__),*supports,*runtime,*helpers,S/'java/dist/SAOAgent.jar',S/'java/src/com/sao/engine/SAOWorldSources.java',S/'java/src/com/sao/bridge/SAOBridge.java']
  if a.snapshot_source:owned.append(a.snapshot_source.resolve())
  native=[G/q for q in ['projectzomboid.jar','ZombieBuddy.jar','stdlib.lua','media/newtiledefinitions.tiles','media/scripts/generated/items/normal.txt','media/scripts/generated/items/food.txt','media/scripts/generated/items/literature.txt','media/scripts/generated/fluids.txt','media/scripts/generated/fluids_Beverages.txt','media/scripts/generated/fluids_Alcoholic.txt']]+[J/'java.exe',J/'javac.exe']
@@ -36,6 +36,13 @@ def electrical_run(a):
  for src in runtime:
   rel=src.relative_to(S);target=package/rel;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(src.read_bytes());bindings[str(rel)]={'source':str(src),'sha256':sha(target)}
  for src in supports:shutil.copy2(src,package/src.name)
+ if case=='review-corrections'and mode!='omit-receiver':
+  from lua_read import function_body
+  controller=(package/'mod/42.20/media/lua/client/SAO_Controller.lua').read_text()
+  framed='local Ctl=SAO.Controller\nlocal setState=function(a,id,state,reason,kind)assert(a==SAO.Controller.agents[id]and a.rec==SAO.Identity.get(id));a.state=state;a.reason=reason;return true end\n'
+  for name in ['Ctl.waterGeneratorIntent','Ctl.electricalControlIntent','Ctl.generatorContext','Ctl.advanceGeneratorPurpose']:framed+='function '+name+'('+function_body(controller,name)+'end\n'
+  (package/'controller-functions.lua').write_text(framed)
+
  pins={str(x):sha(x)for x in [*owned,*native]};classes=out/'classes';classes.mkdir();shutil.copy2(G/'stdlib.lua',out/'stdlib.lua')
  metadata=(S/'tools/d2_leisure_materials/metadata.java.inc').read_text();anchor='definition.Load(name,text.substring(match.start(),end));';assert metadata.count(anchor)==1
  metadata=metadata.replace(anchor,'var modField=ScriptManager.class.getDeclaredField("currentLoadFileMod");modField.setAccessible(true);Object oldMod=modField.get(null);modField.set(null,"fixture-installed-source");try{definition.setModID("fixture-installed-source");definition.InitLoadPP(name);'+anchor+'}finally{modField.set(null,oldMod);}')

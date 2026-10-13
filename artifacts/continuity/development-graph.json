@@ -4,7 +4,7 @@
   "sourceVector": [
     {
       "sourceRef": "ARCHITECTURE.md",
-      "revision": "sha256:a5b62a3ddeffd9b2c13259d1feccb575ca6a6c2e466cabc58b71076f5b8be73b"
+      "revision": "sha256:07a694ed1a15339c3876476d74545b68d495d1e068096c6effadcdd87dbd4988"
     },
     {
       "sourceRef": "BATCH_LOG.md",
@@ -620,7 +620,7 @@
     },
     {
       "sourceRef": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-      "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
+      "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
     },
     {
       "sourceRef": "Batches/D6.1-20261013-1713Z-1013PDT-acquired-supply-and-native-billing.md",
@@ -1504,7 +1504,7 @@
     },
     {
       "sourceRef": "SESSION_STATE.md",
-      "revision": "sha256:2e04f7c978206a0b04f802358ced527e97dbe1ea1cd8486b5037785570175a71"
+      "revision": "sha256:bb70b1c36b866989b4e960cc6b64aec20f277d2ebd3c024467a2037b8f35de93"
     },
     {
       "sourceRef": "SUBSTRATE.md",
@@ -1572,7 +1572,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Controller.lua",
-      "revision": "sha256:0ac12a697ec63b7da1c16fdc73cf4d98205fec43f6be14a8aec5701cb1ca506f"
+      "revision": "sha256:088a41dff7692b4ec3d82c86da4bb7e0597b55551e4ac31ae8f4a7c068b5fe6d"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Cooking.lua",
@@ -1796,7 +1796,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Perception.lua",
-      "revision": "sha256:3b17c0314322045516a43653569e4880a55bca7bd121218142087f65d4e2638e"
+      "revision": "sha256:eb68ddd7a755804f04e0cc5b4855c5ce40a68dd17e05f4abce3d0274ccba7afc"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Pharmacology.lua",
@@ -1816,7 +1816,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-      "revision": "sha256:70370f1b58bd743b1646b9575feae60ee389e55e6c30c6923d6b9bc4338ee180"
+      "revision": "sha256:a447d37256b15014bcfaa59fc5be84a8e9c09eabbd669820633953f72ced8a6e"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Provisioning.lua",
@@ -1848,7 +1848,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
-      "revision": "sha256:800cabf8911e51e9dc7fae492699ac0eef83f5c1fd33b0e6a754a15c56f57075"
+      "revision": "sha256:0f4ef98e829be743f32164db5afa02eb5348fc85146be3a6a6b190bb21054d6a"
     },
     {
       "sourceRef": "tools/catalogue.py",
@@ -4704,7 +4704,7 @@
         },
         {
           "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
         }
       ],
       "tags": [
@@ -15610,7 +15610,7 @@
         },
         {
           "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
         }
       ],
       "tags": [
@@ -15723,12 +15723,12 @@
         },
         {
           "path": "SESSION_STATE.md",
-          "revision": "sha256:2e04f7c978206a0b04f802358ced527e97dbe1ea1cd8486b5037785570175a71",
+          "revision": "sha256:bb70b1c36b866989b4e960cc6b64aec20f277d2ebd3c024467a2037b8f35de93",
           "locator": "shared reasoning continuation"
         },
         {
           "path": "ARCHITECTURE.md",
-          "revision": "sha256:a5b62a3ddeffd9b2c13259d1feccb575ca6a6c2e466cabc58b71076f5b8be73b",
+          "revision": "sha256:07a694ed1a15339c3876476d74545b68d495d1e068096c6effadcdd87dbd4988",
           "locator": "shared reasoning continuation"
         },
         {
@@ -15745,7 +15745,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-          "revision": "sha256:70370f1b58bd743b1646b9575feae60ee389e55e6c30c6923d6b9bc4338ee180"
+          "revision": "sha256:a447d37256b15014bcfaa59fc5be84a8e9c09eabbd669820633953f72ced8a6e"
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Needs.lua",
@@ -15753,7 +15753,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Controller.lua",
-          "revision": "sha256:0ac12a697ec63b7da1c16fdc73cf4d98205fec43f6be14a8aec5701cb1ca506f"
+          "revision": "sha256:088a41dff7692b4ec3d82c86da4bb7e0597b55551e4ac31ae8f4a7c068b5fe6d"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -18289,7 +18289,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Controller.lua",
-          "revision": "sha256:0ac12a697ec63b7da1c16fdc73cf4d98205fec43f6be14a8aec5701cb1ca506f"
+          "revision": "sha256:088a41dff7692b4ec3d82c86da4bb7e0597b55551e4ac31ae8f4a7c068b5fe6d"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -19880,7 +19880,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Perception.lua",
-          "revision": "sha256:3b17c0314322045516a43653569e4880a55bca7bd121218142087f65d4e2638e"
+          "revision": "sha256:eb68ddd7a755804f04e0cc5b4855c5ce40a68dd17e05f4abce3d0274ccba7afc"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -20025,7 +20025,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-          "revision": "sha256:70370f1b58bd743b1646b9575feae60ee389e55e6c30c6923d6b9bc4338ee180"
+          "revision": "sha256:a447d37256b15014bcfaa59fc5be84a8e9c09eabbd669820633953f72ced8a6e"
         }
       ],
       "tags": [
@@ -20248,7 +20248,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
-          "revision": "sha256:800cabf8911e51e9dc7fae492699ac0eef83f5c1fd33b0e6a754a15c56f57075"
+          "revision": "sha256:0f4ef98e829be743f32164db5afa02eb5348fc85146be3a6a6b190bb21054d6a"
         }
       ],
       "tags": [
@@ -31337,6 +31337,20 @@
       "rationale": "This contract explicitly declares this owner path; shared ownership alone is not a dependency."
     },
     {
+      "id": "edge:04fa49a650df258cb8206431",
+      "from": "batch:D6",
+      "to": "contract:20261003:C11",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:0506e08c599ea72ecce4256e",
       "from": "source:c-20261003:C84",
       "to": "concept:T-030",
@@ -31693,20 +31707,6 @@
       "rationale": "Output interface: Bounded async evaluation; refuse stale/foreign/changed-owner output; cancel on detach/death; current shadow output cannot select response/create work."
     },
     {
-      "id": "edge:0650ac8d299d5977e149db3d",
-      "from": "batch:D6",
-      "to": "contract:20261003:C28",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:06553ec77f2ede479aecbc28",
       "from": "branch:archive/c-era-raw-20260919",
       "to": "source:c-raw-20260919:C23",
@@ -31925,20 +31925,6 @@
         }
       ],
       "rationale": "Exact retained source belongs to this adjacent product/version unit once."
-    },
-    {
-      "id": "edge:077656b28d83a70319286d1f",
-      "from": "batch:D6",
-      "to": "contract:20261003:C25",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:0778aba7d0da28f1df120d90",
@@ -32298,6 +32284,20 @@
         }
       ],
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
+    },
+    {
+      "id": "edge:09508dffe7555fd1bde24f55",
+      "from": "batch:D6",
+      "to": "contract:20261003:C30",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:095ce3aa99e7e8db48bb2d7f",
@@ -33236,6 +33236,20 @@
       "rationale": "Preserved source record is an input to this catalogue transformation."
     },
     {
+      "id": "edge:0e7ff86e7346414fe73f9104",
+      "from": "batch:D6",
+      "to": "contract:20261003:C25",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:0eac985d410f44ca7d545a26",
       "from": "batch:A14",
       "to": "era:A",
@@ -34157,6 +34171,20 @@
         }
       ],
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
+    },
+    {
+      "id": "edge:12d2b4bc4eb3a8133708e860",
+      "from": "batch:D6",
+      "to": "contract:20261003:C18",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:12def8f4fb85a56a5a310c9e",
@@ -35090,20 +35118,6 @@
         {
           "path": "Batches/D1-20261004-0124Z-1824PST-shared-reasoning.md",
           "revision": "sha256:dbd48feb7f4388504b32b28b4b268c558c83cc84e5cf4f2a9722cca06d171e5c"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
-      "id": "edge:170aeec21d689b5a0f724900",
-      "from": "batch:D6",
-      "to": "contract:20261003:C21",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
         }
       ],
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
@@ -36245,20 +36259,6 @@
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
-      "id": "edge:1bf3061bbc27f20a650b73e3",
-      "from": "batch:D6",
-      "to": "contract:20261003:C19",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:1c09bbd853368a01caf3f419",
       "from": "contract:20261003:C9",
       "to": "era:C",
@@ -37093,20 +37093,6 @@
         }
       ],
       "rationale": "The manifest records this blob at the archived Git reference; archivePath is not a working-tree hyperlink."
-    },
-    {
-      "id": "edge:1fb5212ba8421dbc8bc9fb8c",
-      "from": "batch:D6",
-      "to": "contract:20261003:C32",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:1fbcfaae8d047ea94f90d5ad",
@@ -38146,6 +38132,20 @@
       "rationale": "Indexed in era C."
     },
     {
+      "id": "edge:250afa301a495d70bc0937b6",
+      "from": "batch:D6",
+      "to": "contract:20261003:C31",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:25131a84e9cc43906b38987a",
       "from": "branch:archive/c-era-raw-20260919",
       "to": "source:c-raw-20260919:C93",
@@ -38285,20 +38285,6 @@
         }
       ],
       "rationale": "Exact retained source belongs to this adjacent product/version unit once."
-    },
-    {
-      "id": "edge:258efc3c9fc05cb42a042596",
-      "from": "batch:D6",
-      "to": "contract:20261003:C6",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:25a6eb496d99d51f519d5c31",
@@ -38464,20 +38450,6 @@
         }
       ],
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
-    },
-    {
-      "id": "edge:2677f39f084fd1942120313e",
-      "from": "batch:D6",
-      "to": "contract:20261003:C22",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:267e701cf2ddc7328e584eae",
@@ -42598,20 +42570,6 @@
       "rationale": "Adjacent entries in the preserved development index; dates may differ from index order."
     },
     {
-      "id": "edge:37d725007ee834f3b6bab363",
-      "from": "batch:D6",
-      "to": "contract:20261003:C30",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:37ddfff5e3bc36ac3dfcb9fa",
       "from": "source:c-raw-20260919:C65",
       "to": "source:c-20261003:C28",
@@ -43007,6 +42965,20 @@
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
     },
     {
+      "id": "edge:39e33ad2c6ced604ca6bc098",
+      "from": "batch:D6",
+      "to": "contract:20261003:C19",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:3a1739a2b9fdad1faa466555",
       "from": "contract:20261003:C29",
       "to": "interface:9fd93150bc644200b0119db8",
@@ -43294,6 +43266,20 @@
         }
       ],
       "rationale": "This shared contract is an output of the recorded compression mapping."
+    },
+    {
+      "id": "edge:3b643b7d9629bdc6ed8bee71",
+      "from": "batch:D6",
+      "to": "contract:20261003:C20",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:3b69755515c69f6a027d436c",
@@ -44291,20 +44277,6 @@
         }
       ],
       "rationale": "Current product chronology partitions the retained C source order after B; contract membership remains separate."
-    },
-    {
-      "id": "edge:3febb1cf3b93e4cdcab216b0",
-      "from": "batch:D6",
-      "to": "contract:20261003:C33",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:3ff073fde15430e2c0bea397",
@@ -46868,6 +46840,20 @@
       "rationale": "Adjacent entries in the preserved development index; dates may differ from index order."
     },
     {
+      "id": "edge:4b9e2808e8158236d69626f7",
+      "from": "batch:D6",
+      "to": "contract:20261003:C33",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:4bc0b3e353ea23dd4e3fee9e",
       "from": "product:20261005-product-consolidation:C59",
       "to": "product:20261005-product-consolidation:C60",
@@ -46894,6 +46880,20 @@
         }
       ],
       "rationale": "Preserved source record is an input to this catalogue transformation."
+    },
+    {
+      "id": "edge:4bc6cf5f0455dde14190d30c",
+      "from": "batch:D6",
+      "to": "contract:20261003:C32",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:4bccec82bf54cf3e46acd5c5",
@@ -47669,20 +47669,6 @@
         }
       ],
       "rationale": "Brain scalar partition dependence, wrong pathogen owner, stale native health and cumulative poison."
-    },
-    {
-      "id": "edge:4ed8297a13325203863e37be",
-      "from": "batch:D6",
-      "to": "contract:20261003:C18",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:4ed8bef59801a09cd405c623",
@@ -50371,20 +50357,6 @@
         }
       ],
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
-    },
-    {
-      "id": "edge:5c48aa68cedba5979a9ebc9f",
-      "from": "batch:D6",
-      "to": "era:D",
-      "relation": "concept-membership",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "The authoritative index records this numbered batch in its letter era."
     },
     {
       "id": "edge:5c67f1193905ba3a50c97f11",
@@ -53663,6 +53635,20 @@
         }
       ],
       "rationale": "Body owns lifecycle; Afflicted return retains source-removal transaction."
+    },
+    {
+      "id": "edge:6b3c2aa86015e7a082b53c3d",
+      "from": "batch:D6",
+      "to": "era:D",
+      "relation": "concept-membership",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "The authoritative index records this numbered batch in its letter era."
     },
     {
       "id": "edge:6b40cfef2c09b2e8a89c5240",
@@ -64348,6 +64334,20 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
+      "id": "edge:9e21bc877fecd6438b5bf875",
+      "from": "batch:D6",
+      "to": "contract:20261003:C6",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:9e60c46652db4b2f78a56d79",
       "from": "contract:20261003:C26",
       "to": "interface:9ec50be6afbaf54fb2c8540c",
@@ -66606,15 +66606,15 @@
       "rationale": "Original raw-C identifier sequence, before the 2026-09-19 consolidation."
     },
     {
-      "id": "edge:a89b95e4a650d778e2c7ce19",
+      "id": "edge:a8b5e4dddd42834c38075fea",
       "from": "batch:D6",
-      "to": "contract:20261003:C24",
+      "to": "contract:20261003:C29",
       "relation": "depends-on",
       "evidenceClass": "source-fact",
       "provenance": [
         {
           "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
         }
       ],
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
@@ -67380,6 +67380,20 @@
         }
       ],
       "rationale": "The applied correction records this current product classification without additional version or runtime credit."
+    },
+    {
+      "id": "edge:ac6eda59b2685f7d3b9c5b42",
+      "from": "batch:D6",
+      "to": "contract:20261003:C3",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:ac85c6f0ea6ad75b2eee0383",
@@ -70058,6 +70072,20 @@
       "rationale": "Adjacent entries in the preserved development index; dates may differ from index order."
     },
     {
+      "id": "edge:b876ac29a3ff2f2f9c78eaf0",
+      "from": "batch:D6",
+      "to": "contract:20261003:C13",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:b887b3af32929eda9787baad",
       "from": "batch:B6",
       "to": "era:B",
@@ -70196,20 +70224,6 @@
         }
       ],
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
-    },
-    {
-      "id": "edge:b9246ba95dd1baddaa6b5644",
-      "from": "batch:D6",
-      "to": "contract:20261003:C20",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:b928aaec9effb07027ddd264",
@@ -70474,6 +70488,20 @@
         }
       ],
       "rationale": "The applied correction records this current product classification without additional version or runtime credit."
+    },
+    {
+      "id": "edge:ba4297bf781afefea4b6bfd5",
+      "from": "batch:D6",
+      "to": "contract:20261003:C28",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:ba6563887e4c1cdc0c82b2f9",
@@ -72529,6 +72557,20 @@
       "rationale": "Adjacent entries in the preserved development index; dates may differ from index order."
     },
     {
+      "id": "edge:c34c6425ee062a7a60d7e4fe",
+      "from": "batch:D6",
+      "to": "contract:20261003:C21",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:c3741bb740c2987fbdd83c77",
       "from": "batch:D3.9",
       "to": "contract:20261003:C32",
@@ -74149,20 +74191,6 @@
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
     },
     {
-      "id": "edge:c9e77feff42a8864701a8bda",
-      "from": "batch:D5",
-      "to": "batch:D6",
-      "relation": "chronology",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "The batch explicitly follows this preserved event or record."
-    },
-    {
       "id": "edge:c9e806f7a044e36f1c1f6ed7",
       "from": "source:c-20261003:C102",
       "to": "concept:T-006",
@@ -75098,20 +75126,6 @@
         }
       ],
       "rationale": "Explicit former-source membership in the 2026-09-19 consolidation."
-    },
-    {
-      "id": "edge:ce54c1277374ef46c8726a90",
-      "from": "batch:D6",
-      "to": "contract:20261003:C11",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:ce657410395f8c041b2702b9",
@@ -78485,6 +78499,20 @@
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
+      "id": "edge:dc0b98bc083979248bc07be0",
+      "from": "batch:D6",
+      "to": "contract:20261003:C24",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:dc1b653a9fa2adcd7f892e4f",
       "from": "source:c-20261003:C55",
       "to": "product:20261005-product-consolidation:C49",
@@ -79593,20 +79621,6 @@
         }
       ],
       "rationale": "The manifest records this blob at the archived Git reference; archivePath is not a working-tree hyperlink."
-    },
-    {
-      "id": "edge:e19498d2dc62a9fb9bc05eb6",
-      "from": "batch:D6",
-      "to": "contract:20261003:C31",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:e1952cd689158da9170c3289",
@@ -80844,20 +80858,6 @@
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
     },
     {
-      "id": "edge:e80d13233d872f7392a53189",
-      "from": "batch:D6",
-      "to": "contract:20261003:C29",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:e823353e56028a81cabc7cf5",
       "from": "source:c-raw-20260919:C100",
       "to": "source:c-raw-20260919:C101",
@@ -82074,6 +82074,20 @@
       "rationale": "Adjacent entries in the preserved development index; dates may differ from index order."
     },
     {
+      "id": "edge:ed322094e89f53ebe8df6cb7",
+      "from": "batch:D6",
+      "to": "contract:20261003:C22",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:ed60df8577bbd6a6e7aa7e36",
       "from": "batch:B5",
       "to": "concept:T-030",
@@ -82592,20 +82606,6 @@
         }
       ],
       "rationale": "Indexed in era C."
-    },
-    {
-      "id": "edge:f001c5a823aef192a2244e02",
-      "from": "batch:D6",
-      "to": "contract:20261003:C12",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:f01f6df355cda4dbc34b3356",
@@ -84154,6 +84154,20 @@
       "rationale": "Adjacent entries in the preserved development index; dates may differ from index order."
     },
     {
+      "id": "edge:f6a4d190519fe1e5a6bd6b33",
+      "from": "batch:D6",
+      "to": "contract:20261003:C12",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:f6abba529ab111446f969c70",
       "from": "source:c-20261003:C22",
       "to": "concept:T-004",
@@ -84848,20 +84862,6 @@
       "rationale": "Adjacent entries in the preserved development index; dates may differ from index order."
     },
     {
-      "id": "edge:f95ea368805f7e05c7d86d17",
-      "from": "batch:D6",
-      "to": "contract:20261003:C3",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:f965c1e268b9b90f7773f272",
       "from": "batch:D3.8",
       "to": "contract:20261003:C12",
@@ -85112,6 +85112,20 @@
       "rationale": "Indexed in era C."
     },
     {
+      "id": "edge:fa3b83ecc510060c15fd0589",
+      "from": "batch:D5",
+      "to": "batch:D6",
+      "relation": "chronology",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
+          "revision": "sha256:4ef93287c94a2b5bc6503eac1396290b71212facc54af471b83f96451becef7e"
+        }
+      ],
+      "rationale": "The batch explicitly follows this preserved event or record."
+    },
+    {
       "id": "edge:fa4c637b027c28a41ef8eb72",
       "from": "batch:D3.4",
       "to": "batch:D3",
@@ -85309,20 +85323,6 @@
         }
       ],
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
-    },
-    {
-      "id": "edge:fb128242ae2a8d49cac8d7c6",
-      "from": "batch:D6",
-      "to": "contract:20261003:C13",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md",
-          "revision": "sha256:e19f16a6b3483130c16560af68fe927bb84d1518a431de72f9d352fdaaeeeb0d"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:fb150dc8a8a40c151737733e",
@@ -86449,5 +86449,5 @@
       ]
     }
   ],
-  "revision": "sha256:62bfc0281cfd99062c516a922f57488055a76332805082ac4e23ac449ab8663e"
+  "revision": "sha256:cf437f297be3992c11df92f0ed3b4234e9bf228ddf7ed972340df53d52fcecba"
 }

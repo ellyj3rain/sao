@@ -19,7 +19,8 @@ function M.fill(player,context,objects,test)
    local sample=E.measure(body,selected[body],object,{sourceId="human-direct",fingerprint="human-direct"})
    if sample then
     context:addOption("Inspect electrical service",body,choose,selected[body],object,"inspect-load")
-    if sample.switchable and sample.consumerActive then context:addOption("Switch off appliance load",body,choose,selected[body],object,"shed-load")end
+    if sample.covered and sample.active and sample.connected and sample.fuel>0 and selected[body]:getCondition()>0
+     and sample.switchable and sample.consumerActive then context:addOption("Switch off appliance load",body,choose,selected[body],object,"shed-load")end
    end
   end
  end
