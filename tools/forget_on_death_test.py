@@ -76,6 +76,12 @@ MARK_DEAD = "markDead"
 #   "calls"  - the clearing function calls Identity.markDead itself,
 #              so the clear and the death are the same event
 CACHES = {
+    ("SAO_NetworkWork.lua", "runtime"): (
+        "finish", "network-retirement",
+        "exact network action/body/item handles retire through Identity death "
+        "and ResourceProduction.detach/interrupt, retaining the private body "
+        "for nil death calls; native acknowledgement reaches stop/finish and "
+        "clears only that runtime while canonical physical results remain"),
     ("SAO_FurnitureWork.lua", "runtime"): (
         "F.forget", "named",
         "exact loaded furniture action/return handles belong to a living person; "
@@ -723,6 +729,24 @@ def check_files(files, preserved=None):
                 faults.append("completed return no longer clears its staged body handle")
             if not re.search(r"SAO\.AfflictedReturn\.resume\s*\(\s*rec\s*\)", recover):
                 faults.append("body recovery no longer reaches the durable return owner")
+        elif how == "network-retirement":
+            production = files.get("SAO_ResourceProduction.lua", "")
+            detach = function_body(production, "R.detach") or ""
+            dispatch = function_body(production, "R.interrupt") or ""
+            interrupt = re.sub(r"\s+", "", function_body(src, "N.interrupt") or "")
+            stop = re.sub(r"\s+", "", function_body(src, "stop") or "")
+            if ("SAO.ResourceProduction.detach" not in dead_body or "R.interrupt" not in detach
+                    or 'rec.resourceProductionWork.kind=="network-operation"' not in dispatch
+                    or "SAO.NetworkWork.interrupt(id,body,reason)" not in dispatch):
+                faults.append("network death no longer reaches ResourceProduction's exact runtime owner")
+            if "ifnotrtorbody~=nilandrt.body~=bodythenreturnfalseend" not in interrupt:
+                faults.append("network nil death retirement or nonnil foreign-body refusal is absent")
+            if ("nativeExact(rt)andcurrent(rt)thenrt.native:forceStop()" not in interrupt
+                    or "returnrt.action:forceCancel()" not in interrupt
+                    or "ifrt.closedorrt.ackthenreturnfalseend" not in stop
+                    or "ifrt.nativeandnotnativeExact(rt)thenreturnfalseend" not in stop
+                    or 'finish(rt,"interrupted","network-action-interrupted")' not in stop):
+                faults.append("network retirement no longer awaits exact native/action acknowledgement")
         elif how == "production-detach":
             detach = function_body(src, "R.detach") or ""
             if "SAO.ResourceProduction.detach" not in dead_body:
@@ -923,6 +947,14 @@ def main():
     if status:
         return status
     controls = [
+        ('SAO_NetworkWork.lua',
+         'local rt=runtime[id];if not rt or body~=nil and rt.body~=body then return false end',
+         'local rt=runtime[id];if not rt or rt.body~=body then return false end',
+         'network nil death retirement or nonnil foreign-body refusal is absent'),
+        ('SAO_NetworkWork.lua',
+         'local rt=runtime[id];if not rt or body~=nil and rt.body~=body then return false end',
+         'local rt=runtime[id];if not rt then return false end',
+         'network nil death retirement or nonnil foreign-body refusal is absent'),
         ('SAO_FurnitureWork.lua', 'function F.forget(id)F.interrupt(id,nil,"owner-retired");runtime[id]=nil end',
          'function F.forget(id)F.interrupt(id,nil,"owner-retired");runtime[id]=runtime[id] end',
          'nothing in it sets an entry to nil'),

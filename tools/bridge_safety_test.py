@@ -53,7 +53,7 @@ CATCH = re.compile(r"\bcatch\s*\(\s*(?:Throwable|Exception)\b")
 PUBLIC = re.compile(
     r"^    public\s+(?!static\s+final)([\w.<>\[\]]+)\s+(\w+)\s*\(", re.M)
 ANY_METHOD = re.compile(
-    r"^    (?:public|private|protected|static)[^;=]*?\b(\w+)\s*\(", re.M)
+    r"^(?:    )?(?:public|private|protected|static)[^;=]*?\b(\w+)\s*\(", re.M)
 # A call into one of our own classes: `SAOFoo.bar(` or `com.sao.x.SAOFoo.bar(`
 OURS = re.compile(r"(?:com\.sao\.\w+\.)?(SAO\w+)\.(\w+)\s*\(")
 # Anything that could reach the engine: a method call on a reference.
@@ -65,6 +65,13 @@ MAP_RETIREMENT = re.compile(
     r"\{\s*\w+\s+(?P<entry>\w+)\s*=\s*(?P<map>[A-Z][A-Z0-9_]{2,})\.get\((?P<key>\w+)\);"
     r"\s*if\(\s*(?P=entry)==null\|\|!(?P=entry)\.\w+\.equals\(\w+\)\)return false;"
     r"\s*(?P=map)\.remove\((?P=key)\);return true;\s*", re.S)
+
+
+# Exact nonnull instanceof-bound Object.getClass/Class.getName introspection.
+# These final JDK methods do not dispatch into the native object's implementation.
+CLASS_NAME = re.compile(
+    r"\{\s*return\s+\w+\s+instanceof\s+zombie\.iso\.objects\.IsoWorldInventoryObject\s+(?P<bound>\w+)"
+    r"\s*\?\s*(?P=bound)\.getClass\(\)\.getName\(\)\s*:\s*null\s*;\s*", re.S)
 
 
 def body_after(src, offset):
@@ -112,7 +119,7 @@ def cannot_throw(body):
     `WEAPON_SOURCES` and `AMMO_SOURCES`. Guessing at identifiers is how
     an instrument invents findings; the shape is what to match on.
     """
-    if MAP_RETIREMENT.fullmatch(body):
+    if MAP_RETIREMENT.fullmatch(body) or CLASS_NAME.fullmatch(body):
         return True
     stripped = OURS.sub("", body)
     stripped = re.sub(r"\b(?:Double|Float)\.isFinite\s*\(", "", stripped)

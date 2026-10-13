@@ -423,7 +423,7 @@ function N.outcome(id,workId)
  end
 end
 function N.interrupt(id,body)
- local rt=runtime[id];if not rt or rt.body~=body then return false end
+ local rt=runtime[id];if not rt or body~=nil and rt.body~=body then return false end
  if rt.native and nativeExact(rt)and current(rt)then rt.native:forceStop();return true end
  return rt.action:forceCancel()
 end
