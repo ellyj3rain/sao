@@ -79,3 +79,21 @@ Supported package JAR SHA a03e65048a5753ab3536e18533e7cf0f90d761ccda5cf3b84bf477
 ## Dormant simulation dependency join
 
 The first required CI run exposed the new ElectricalService dependency as absent in the bodyless county host. Original CognitiveModels requires its shared operation and receipt validators at load time. The host now loads ElectricalService before CognitiveModels, preserving the canonical validator rather than weakening event admission. Native generator execution remains with the absent loaded-body Generator owner; service mutation still requires actual body/cell/action admission. Existing ordered-loader checks include this producer/consumer pair and detect reversal. The initial CI failure and incorrectly excluded dependency check remain recorded; the native meal and supported Java inputs remain unchanged.
+
+## Current PR candidate integration
+
+The retained acquired generator/appliance pair uses the native coverage and exact current object/revision contract. Inspect, shed and service verification route to the appliance; breaker mutations route to the generator. Only the actual action endpoint requires reach; generic native generator and load resolvers retain their earlier contracts. Revised purpose, foreign/replaced source and wrong receiver refuse execution. A silently refused human insertion removes only its own Lua action, finalizes failed/uncredited work and leaves a successor usable.
+
+The fresh bounded native packet passes48 assertions and detecting dual-reach/queue-tail controls. Unsafe indoor activation/reset remains refused. Original disconnect and pickup return the actual Base.Generator with condition55/fuel4 and remove the old source; outside relocation/placement was not run or credited. Earlier billing/original meal/full-bounded/native saved data retain source-specific unchanged-clause applicability. The JAR-read overlap failure is retained as a compile failure; the Lua control reuses successful compiled classes and a validated immutable dependency. Current supported77-source rebuild and package/protocol/bridge checks pass at the same once-owned D6 coordinate.
+
+Current shipping JAR SHA `ecf73e72a379b7fe8961467bbcfb39f73242a8ae59049ece77e698ba9f1ed551`; earlier build/pins remain historical.
+
+| Current evidence | SHA256 |
+|---|---|
+| Current paired-endpoint, queue and safe recovery native proof | `d2c1201c4a67ce79ef85a0a1fde45e7c9858e2f09ab177b1b12776bbb62666af` |
+| Current changed-clause applicability | `09e962495829a466e92de5250e8a9376c60f515f08499b2481e7953f23847bba` |
+| Current supported build | `66d9257b32c5949b67db0b3179d83c26db95a8211f15b0a1a6c85c752e2eb20e` |
+| Current supported package | `869ae32285ecb8b2b508a0a94077c049a237878d2c83bd8540d540d42ae32d8f` |
+| Current package/protocol/sandbox/arity join | `0d722c34f5e56392cf52c0007df62d673127ce396bac5630d1cbc6763aba2a6f` |
+
+Final owning correction/review seal SHA `7a727d36e1d49146050fef47bad5a6ee51299a62fc0f6a7ab592eb13de063f84`. The protected merge receipt establishes publication.

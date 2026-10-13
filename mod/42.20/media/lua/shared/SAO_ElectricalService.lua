@@ -15,9 +15,18 @@ end
 function E.breakerOpen(generator)
  return generator and generator:getModData().SAOElectricalBreaker==true or false
 end
-function E.measure(body,generator,consumer,fact)
+function E.atConsumer(operation)
+ return operation=="inspect-load"or operation=="shed-load"or operation=="verify-service"
+end
+function E.measure(body,generator,consumer,fact,operation,generatorFact)
  if not live(body,generator)or not live(body,consumer)or type(fact)~="table"then return nil end
- local ok,load=pcall(function()return SAOJavaBridge:worldElectricalLoad(body,fact.sourceId,fact.fingerprint,consumer)end)
+ local ok,load=pcall(function()
+  if generatorFact then
+   local pair=SAO.WorldSources.electricalServiceObjects(body,generatorFact,fact,operation,false)
+   return pair and pair.generator==generator and pair.consumer==consumer and pair.load or nil
+  end
+  return SAOJavaBridge:worldElectricalLoad(body,fact.sourceId,fact.fingerprint,consumer)
+ end)
  if not ok or type(load)~="table"or not finite(load.partRate)or not finite(load.groupRate)
   or not finite(load.partCount)or load.partCount<1 or load.partCount%1~=0 then return nil end
  local q,c=generator:getSquare(),consumer:getSquare()
@@ -101,8 +110,8 @@ function E.action(body,generator,consumer,operation)
  if not E.inspectionAction then
   local A=ISBaseTimedAction:derive("SAOElectricalInspection")
   function A:isValid()return live(self.character,self.generator)and live(self.character,self.consumer)end
-  function A:waitToStart()self.character:faceThisObject(self.generator);return self.character:shouldBeTurning()end
-  function A:update()self.character:faceThisObject(self.generator)end
+  function A:waitToStart()self.character:faceThisObject(self.consumer);return self.character:shouldBeTurning()end
+  function A:update()self.character:faceThisObject(self.consumer)end
   function A:start()self:setActionAnim("Loot");self.character:SetVariable("LootPosition","Low");self.character:reportEvent("EventLootItem")end
   function A:perform()ISBaseTimedAction.perform(self)end
   function A:complete()return live(self.character,self.generator)and live(self.character,self.consumer)end
@@ -218,7 +227,16 @@ function E.beginHuman(body,generator,consumer,operation)
   return action:forceCancel()
  end
  action.canMergeAction=function()return false end
- return SAO.Needs.queueVerified(action)==true
+ local queued=SAO.Needs.queueVerified(action)==true
+ if queued then return true end
+ if not rt.done and humanRuntime[body]==rt and rec.resourceProductionWork==work then
+  local ok,present=pcall(function()return rt.native and body:getCharacterActions():contains(rt.native)end)
+  if ok and not present then
+   queue:removeFromQueue(action);if queue.current==action then queue.current=nil end
+   finish("failed")
+  else action:forceCancel()end
+ end
+ return false
 end
 function E.reconcileHuman(body)
  if not human(body)then return false end

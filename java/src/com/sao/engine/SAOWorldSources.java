@@ -1401,15 +1401,44 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
         source.finish(); return source;
     }
 
+    /** Current acquired pair; reach belongs to the operation's physical endpoint. */
+    public static synchronized Object electricalServiceObjects(SAOIsoPlayerShell shell,
+            String generatorId, String generatorFingerprint, String generatorRevision, int gx, int gy, int gz,
+            String consumerId, String consumerFingerprint, String consumerRevision, int cx, int cy, int cz,
+            String operation, boolean pre) {
+        try {
+            boolean consumerEndpoint = "inspect-load".equals(operation) || "shed-load".equals(operation)
+                || "verify-service".equals(operation);
+            if (!consumerEndpoint && !"breaker-open".equals(operation) && !"breaker-reset".equals(operation)) return null;
+            var generator = generatorIdentityFixture(shell, generatorId, generatorFingerprint, generatorRevision, gx, gy, gz);
+            var consumer = generatorConsumerFixture(shell, consumerId, consumerFingerprint, consumerRevision, cx, cy, cz);
+            if (!IsoGenerator.isPoweringSquare(gx, gy, gz, cx, cy, cz)
+                    || !utilityReached(shell, consumerEndpoint ? consumer.getSquare() : generator.getSquare())) return null;
+            // Stage readiness samples current native state; the acquired identity revision remains binding.
+            if (pre && generatorFixture(shell, generatorId, generatorFingerprint, null, gx, gy, gz, operation) != generator) return null;
+            var load = electricalLoad(shell, consumerId, consumerFingerprint, consumer, false);
+            if (load == null) return null;
+            var row = recipeTable(); row.rawset("generator", generator); row.rawset("consumer", consumer); row.rawset("load", load);
+            return row;
+        } catch (Throwable unavailable) {
+            SAOAgent.log("electrical service pair unavailable: " + unavailable); return null;
+        }
+    }
+
     /** An acquired appliance's native rates; this never replaces the engine bill. */
     public static synchronized Object electricalLoad(IsoPlayer body, String id, String fingerprint,
             IsoObject expected) {
+        return electricalLoad(body, id, fingerprint, expected, true);
+    }
+
+    private static Object electricalLoad(IsoPlayer body, String id, String fingerprint,
+            IsoObject expected, boolean reached) {
         try {
             var object = expected; var square = object == null ? null : object.getSquare();
             if (!networkActor(body) || square == null || !utilityObjectLive(object, square)) return null;
             if (body instanceof SAOIsoPlayerShell shell) {
                 var binding = utilityBinding(shell, id, fingerprint, "E:");
-                if (binding.object.get() != object || binding.square.get() != square || !utilityReached(shell, square)) return null;
+                if (binding.object.get() != object || binding.square.get() != square || reached && !utilityReached(shell, square)) return null;
             } else if (!body.isLocalPlayer() || body.getCurrentSquare().getZ()!=square.getZ()
                     || Math.pow(body.getX()-square.getX()-.5,2)+Math.pow(body.getY()-square.getY()-.5,2)>=4) return null;
             var parts = object.getSpriteGridObjectsIncludingSelf(new ArrayList<>());

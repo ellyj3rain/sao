@@ -1959,6 +1959,13 @@ function WS.generatorValid(body,object,fact,operation)
         fact.fingerprint,fact.x,fact.y,fact.z,operation)end)
     return ok and value==true
 end
+function WS.electricalServiceObjects(body,generator,consumer,operation,pre)
+    if not SAOJavaBridge or not utilityCoordinates(generator,"J:")or not utilityCoordinates(consumer,"E:")then return nil end
+    local ok,value=pcall(function()return SAOJavaBridge:worldElectricalServiceObjects(body,
+        generator.sourceId or generator.id,generator.fingerprint,generator.revision,generator.x,generator.y,generator.z,
+        consumer.sourceId or consumer.id,consumer.fingerprint,consumer.revision,consumer.x,consumer.y,consumer.z,operation,pre==true)end)
+    return ok and type(value)=="table"and value or nil
+end
 function WS.generatorConsumerPowered(body,generator,consumer)
     if not SAOJavaBridge or not utilityCoordinates(consumer,"E:") then return false end
     if consumer.generatorPump==true then

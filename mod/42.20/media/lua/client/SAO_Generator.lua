@@ -246,7 +246,7 @@ local function bound(rt,pre)
         or not SAO.ProceduralPlanning.generatorRequestCurrent
         or SAO.ProceduralPlanning.generatorRequestCurrent(rt.id,rt.work)~=true) then return false end
     if rt.square and (rt.body:getCurrentSquare()~=rt.square or math.abs(rt.body:getX()-rt.x)>.01 or math.abs(rt.body:getY()-rt.y)>.01) then return false end
-    if rt.object and not SAO.WorldSources.generatorValid(rt.body,rt.object,rt.generatorFact,
+    if rt.object and not E.operations[rt.operation]and not SAO.WorldSources.generatorValid(rt.body,rt.object,rt.generatorFact,
         rt.operation=="verify-power" and "verify-power" or rt.operation=="plumb" and "inspect" or pre and rt.operation or "inspect") then return false end
     if pre and (rt.operation=="repair" or rt.operation=="connect") and not knowledge(rt.body) then return false end
     if rt.object and (rt.operation=="activate"or rt.operation=="verify-power"or rt.operation=="breaker-reset"or rt.operation=="verify-service") and not rt.object:getSquare():isOutside() then return false end
@@ -268,10 +268,11 @@ local function bound(rt,pre)
         end
     end
     if E.operations[rt.operation]and rt.object then
-        if not rt.consumerObject or rt.consumerObject~=SAO.WorldSources.generatorConsumerObject(rt.body,rt.consumerFact)and pre then return false end
+        local pair=SAO.WorldSources.electricalServiceObjects(rt.body,rt.generatorFact,rt.consumerFact,rt.operation,pre)
+        if not pair or pair.generator~=rt.object or pair.consumer~=rt.consumerObject then return false end
         if not permitted(rt.id,rt.consumerFact)then return false end
         if pre and rt.electricalBefore then
-            local observed=E.measure(rt.body,rt.object,rt.consumerObject,rt.consumerFact)
+            local observed=E.measure(rt.body,rt.object,rt.consumerObject,rt.consumerFact,rt.operation,rt.generatorFact)
             if not E.sameMeasurement(rt.electricalBefore,observed)then return false end
         end
     end
@@ -385,7 +386,7 @@ local function finish(rt,status,reason)
     row.sourceCovered,row.consumerPowered=rt.sourceCovered==true,rt.consumerPowered==true
     if E.operations[rt.operation]then
         row.electricalService={schema="sao-electrical-service/1",sourceId=row.sourceId,consumerId=row.consumerId,consumerCompleted=false,
-            before=copy(rt.electricalBefore),after=E.measure(rt.body,rt.object,rt.consumerObject,rt.consumerFact)}
+            before=copy(rt.electricalBefore),after=E.measure(rt.body,rt.object,rt.consumerObject,rt.consumerFact,rt.operation,rt.generatorFact)}
     end
     local op=rt.operation
     local effect=rt.nativeCompleted and (E.operations[op]and E.receipt(row)or op=="inspect" and row.generatorAfter and row.generatorAfter.inspected
@@ -473,7 +474,7 @@ local function guard(rt,a,kind,item)
         if kind=="native" and rt.operation=="repair" and rt.inventory:getFirstTypeRecurse("ElectronicsScrap")~=rt.input then return refuse(rt,"generator-native-payment-changed") end
         c.done,c.ack=true,true
         if kind=="native"and E.operations[rt.operation]then
-            rt.electricalBefore=E.measure(rt.body,rt.object,rt.consumerObject,rt.consumerFact)
+            rt.electricalBefore=E.measure(rt.body,rt.object,rt.consumerObject,rt.consumerFact,rt.operation,rt.generatorFact)
             if not rt.electricalBefore then return refuse(rt,"electrical-pre-mutation-unavailable")end
         end
         if kind=="native" then rt.nativeAttempted=true end
@@ -559,7 +560,9 @@ enqueue=function(rt,index)
 end
 local function queue(rt)
     local verification=rt.operation=="verify-power" and rt.approachKind~="generator"
-    local object=SAO.WorldSources.generatorObject(rt.body,rt.generatorFact,verification and "verify-power" or "inspect")
+    local pair=E.operations[rt.operation]and SAO.WorldSources.electricalServiceObjects(rt.body,rt.generatorFact,rt.consumerFact,rt.operation,true)
+    local object=E.operations[rt.operation]and pair and pair.generator
+        or not E.operations[rt.operation]and SAO.WorldSources.generatorObject(rt.body,rt.generatorFact,verification and "verify-power" or "inspect")
     if not object and verification and #rt.actions==0 then
         local target=SAO.WorldSources.generatorTarget(rt.body,rt.generatorFact,"inspect")
         local x,y,z=tostring(target):match("^READY:(%-?%d+):(%-?%d+):(%-?%d+)$")
@@ -580,7 +583,7 @@ local function queue(rt)
         w.beforePlumbed=before.plumbed;rt.beforeInputCondition=rt.input:getCondition();rt.beforeInputUses=rt.input:getCurrentUses()
         w.beforeInputCondition,w.beforeInputUses=rt.beforeInputCondition,rt.beforeInputUses
     end
-    if not verification then
+    if not verification and not E.atConsumer(rt.operation)then
         local observed=refresh(rt)
         if not observed or rt.operation~="inspect" and (not sameFact(observed,rt.generatorFact,true)
             or rt.operation=="verify-power" or SAO.WorldSources.generatorObject(rt.body,rt.generatorFact,rt.operation=="plumb" and "inspect" or rt.operation)~=object) then
@@ -588,9 +591,9 @@ local function queue(rt)
         end
     end
     if E.operations[rt.operation]then
-        rt.consumerObject=SAO.WorldSources.generatorConsumerObject(rt.body,rt.consumerFact)
+        rt.consumerObject=pair and pair.consumer
         if not rt.consumerObject then return false end
-        rt.electricalBefore=E.measure(rt.body,object,rt.consumerObject,rt.consumerFact)
+        rt.electricalBefore=E.measure(rt.body,object,rt.consumerObject,rt.consumerFact,rt.operation,rt.generatorFact)
         if not rt.electricalBefore or rt.operation~="inspect-load"and rt.electricalBefore.loadOwner~="native-IsoGenerator"then return false end
     end
     if not bound(rt,true) then return false end
@@ -628,7 +631,8 @@ function G.begin(id,body,step,context)
     if (step.operation=="repair" or step.operation=="fuel" or step.operation=="plumb") and not inputEligible(input,step.operation) then return false end
     if step.operation=="plumb" and not plumbInstall() then return false end
     local verification=step.operation=="verify-power" and SAO.WorldSources.generatorObject(body,step.generator,"verify-power")~=nil
-    local target=verification and SAO.WorldSources.generatorConsumerTarget(body,step.consumer)
+    local consumerEndpoint=E.atConsumer(step.operation)or verification
+    local target=consumerEndpoint and SAO.WorldSources.generatorConsumerTarget(body,step.consumer)
         or SAO.WorldSources.generatorTarget(body,step.generator,"inspect")
     local x,y,z=tostring(target):match("^READY:(%-?%d+):(%-?%d+):(%-?%d+)$");if not x then return false end
     local route=SAO.Locomotion.jobs[id];if route and not route.done then return false end
@@ -645,12 +649,13 @@ function G.begin(id,body,step,context)
     local rt={id=id,body=body,record=r,work=w,workId=w.id,startedAt=t,world=w.world,token=w.bodyToken,cell=body:getCell(),inventory=body:getInventory(),
         queue=ISTimedActionQueue.getTimedActionQueue(body),operation=w.operation,generatorFact=copy(w.generator),consumerFact=copy(w.consumer),
         input=input,inputId=w.inputItemId,inputType=w.inputItemType,fluid=input and input:getFluidContainer(),actions={},
-        approachKind=verification and "consumer" or "generator"}
+        approachKind=consumerEndpoint and "consumer" or "generator"}
     r.generatorSequence,r.resourceProductionWork,runtime[id]=seq,w,rt
     if SAO.ProceduralPlanning.admitGenerator(id,w)~=true then r.resourceProductionWork=nil;dispose(rt);return false end
     rt.purpose,rt.step=purpose(r,w)
-    if SAO.WorldSources.generatorObject(body,w.generator,verification and w.operation or "inspect") and
-        (not verification or SAO.WorldSources.generatorConsumerObject(body,w.consumer)) then
+    if E.operations[rt.operation]and SAO.WorldSources.electricalServiceObjects(body,w.generator,w.consumer,rt.operation,true)
+        or not E.operations[rt.operation]and SAO.WorldSources.generatorObject(body,w.generator,verification and w.operation or "inspect")
+        and(not verification or SAO.WorldSources.generatorConsumerObject(body,w.consumer))then
         if queue(rt) then return true end
     elseif SAO.Standing.mayAttemptBelieved(id,tonumber(x),tonumber(y),"standing")==true and SAO.Locomotion.order(id,body,tonumber(x),tonumber(y),tonumber(z)) then
         rt.route=SAO.Locomotion.jobs[id];if rt.route and rt.route.body==body then return true end
