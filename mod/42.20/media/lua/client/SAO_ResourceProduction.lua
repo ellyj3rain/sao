@@ -12,8 +12,9 @@ local function nativeEntityKind(kind) return kind=="build-place" or kind=="build
 local fixing
 local recipeWork
 local extraction
+local garment
 local function recipeWorkKind(kind) return kind=="recipe-stock" or kind=="recipe-upkeep" end
-local function nativeCraftKind(kind) return kind=="saw-logs" or kind=="repair-held-item" or kind=="fix-held-item" or recipeWorkKind(kind) or kind=="extract-material" end
+local function nativeCraftKind(kind) return kind=="saw-logs" or kind=="repair-held-item" or kind=="fix-held-item" or recipeWorkKind(kind) or kind=="extract-material" or kind=="maintain-garment" end
 local KNOWN_FIXTURE_SEARCH_RADIUS = 32
 local MAX_CARRIED_RELIEF_ITEMS = 240
 local runtime = {}
@@ -213,7 +214,7 @@ function R.outcome(id, workId)
     if type(workId)=="string" and workId:sub(1,10)=="generator/" and SAO.Generator then return SAO.Generator.outcome(id,workId) end
     local rec = SAO.Identity.get(id)
     for _, receipt in ipairs(rec and rec.resourceProductionOutcomes or {}) do
-        if receipt.id == workId then
+        if receipt.id == workId or receipt.kind=="maintain-garment" and receipt.sequence==workId then
             if nativeEntityKind(receipt.kind) then return collector.outcome(id, receipt) end
             if receipt.kind == "plumb-fixture" then return plumbOutcome(id, receipt) end
             if nativeCraftKind(receipt.kind) then return craftOutcome(id, receipt) end
@@ -229,6 +230,7 @@ local function reconcile(id)
             or (receipt.kind=="build-shelter-edge" or receipt.kind=="build-shelter-surface" or receipt.kind=="build-shelter-stairs" or receipt.kind=="build-double-gate") and planning.consumeShelterConstructionResult
             or receipt.kind=="build-place" and planning.consumeWorkspaceConstructionResult
             or receipt.kind=="build-wood-bed" and planning.consumeBedConstructionResult
+            or receipt.kind=="maintain-garment" and planning.consumeGarmentOutcome
             or receipt.kind=="extract-material" and planning.consumeExtractionProductionResult
             or recipeWorkKind(receipt.kind) and planning.consumeRecipeProductionResult
             or (receipt.kind == "repair-held-item" or receipt.kind == "fix-held-item") and planning.consumeRepairProductionResult
@@ -444,6 +446,7 @@ craftLedgerRoom=function(rec)
 end
 
 local function craftIdentity(id, row)
+    if row and row.kind=="maintain-garment" then return garment.identity(id,row) end
     if row and row.kind=="extract-material" then return extraction and extraction.identity(id,row) or false end
     if row and recipeWorkKind(row.kind) then return recipeWork and recipeWork.identity(id,row) or false end
     if row and row.kind=="fix-held-item" then return fixing and fixing.identity(id,row) or false end
@@ -522,6 +525,7 @@ local function repairOutcome(id,row)
     return out
 end
 craftOutcome=function(id,row)
+    if row and row.kind=="maintain-garment" then return garment.outcome(id,row) end
     if row and row.kind=="extract-material" then return extraction and extraction.outcome(id,row) end
     if row and recipeWorkKind(row.kind) then return recipeWork and recipeWork.outcome(id,row) end
     if row and row.kind=="fix-held-item" then return fixing and fixing.outcome(id,row) end
@@ -687,6 +691,7 @@ local function craftPurposeTarget(p,work)
         and material.targetItemId==work.targetItemId and material.targetItemType==work.targetItemType
 end
 local function craftPurpose(rec,work)
+    if work.kind=="maintain-garment" then return garment.purpose(rec,work) end
     if work.kind=="extract-material" then return extraction.purpose(rec,work) end
     local state=rec.proceduralPlanning
     local p=state and state.purposes and state.purposes[work.purposeId]
@@ -712,6 +717,7 @@ local function craftPurpose(rec,work)
     return p,step,a
 end
 local function craftAnchors(rt,work)
+    if rt.kind=="maintain-garment" then return garment.anchors(rt,work) end
     if rt.kind=="extract-material" then return extraction.anchors(rt,work) end
     if work.kind~=rt.kind or work.recipeId~=rt.recipeId then return false end
     if recipeWorkKind(rt.kind) then return recipeWork.anchors(rt,work) end
@@ -729,6 +735,7 @@ local function craftAnchors(rt,work)
         and work.beforeLogUses==rt.beforeLogUses and work.sawConditionBefore==rt.sawConditionBefore
 end
 local function craftBound(rt,materials)
+    if rt.kind=="maintain-garment" then return garment.bound(rt,materials) end
     if rt.kind=="extract-material" then return extraction.bound(rt) end
     local rec,body,work=owner(rt.id,rt.body),rt.body,rt.work
     local p,step
@@ -835,6 +842,7 @@ local function craftRetired(rt)
     return true
 end
 local function craftMeasurement(rt)
+    if rt.kind=="maintain-garment" then return garment.measure(rt) end
     if rt.kind=="extract-material" then return extraction.measure(rt) end
     if recipeWorkKind(rt.kind) then return recipeWork.copy(rt.effectMeasurement) or recipeWork.measure(rt) end
     if rt.kind=="fix-held-item" then return fixing.measure(rt) end
@@ -884,6 +892,7 @@ local function craftDispose(rt)
     end
 end
 local function craftClose(rt,status,detail)
+    if rt.kind=="maintain-garment" then return garment.close(rt,status,detail) end
     local rec,work,t=rt.record,rt.work,now()
     if not craftRetired(rt) or SAO.Identity.get(rt.id)~=rec or rec.resourceProductionWork~=work
         or not craftIdentity(rt.id,work) or not craftLedger(rec) or not t or t<rt.startedAt then return false end
@@ -930,6 +939,7 @@ local function craftRefuse(rt,reason)
     return false
 end
 local function craftRecoveryAnchor(rt,rec,work)
+    if rt.kind=="maintain-garment" then return garment.recoveryAnchor(rt,rec,work) end
     return SAO.Identity.get(rt.id)==rec and rec.id==rt.id and craftIdentity(rt.id,work) and work.id==rt.workId
         and work.purposeId==rt.work.purposeId and work.purposeStepId==rt.work.purposeStepId
         and craftAnchors(rt,work)
@@ -940,7 +950,7 @@ local function craftSavedRetirement(rt,c)
     c.action.actorId,c.action.workId,c.action.bodyToken=rt.id,rt.workId,rt.token
     c.action._SAOCraftRetireSaved=function(rec,work)
         if craftCapsule(c.action)~=c or not craftRecoveryAnchor(rt,rec,work) then return false end
-        if rt.kind=="extract-material" then rt.record,rt.work=rec,work end
+        if rt.kind=="extract-material" or rt.kind=="maintain-garment" then rt.record,rt.work=rec,work end
         local closed=craftInterrupt(rt.id,rt.body,"craft-runtime-unavailable")
         if not closed and craftRetired(rt) and rec.resourceProductionWork~=rt.work then craftDispose(rt);return true end
         return closed
@@ -962,6 +972,8 @@ local function craftGuardStop(rt,c,transfer)
                 pcall(function() if self.action then self.action:setLoopedAction(false) end end)
                 pcall(function() removeItemTransaction(self.transactionId,true) end)
                 self.started=false
+            elseif rt.kind=="maintain-garment" then
+                pcall(garment.stopCleanup,rt,self)
             elseif rt.kind=="fix-held-item" then
                 pcall(function() self.item:setJobDelta(0) end)
                 if c.kind=="equip" then
@@ -2525,6 +2537,8 @@ function extraction.recover(id,body)
 end
 
 craftRecover=function(id,body)
+    local garmentRec=SAO.Identity.get(id)
+    if garmentRec and garmentRec.resourceProductionWork and garmentRec.resourceProductionWork.kind=="maintain-garment" then return garment.recover(id,body) end
     local saved=SAO.Identity.get(id)
     if saved and saved.resourceProductionWork and saved.resourceProductionWork.kind=="extract-material" then return extraction.recover(id,body) end
     reconcile(id)
@@ -5574,6 +5588,7 @@ if Events and Events.OnTick then Events.OnTick.Add(R.retryCraftCancellations) en
 
 function R.begin(id, body, step, context)
     context = context or {}
+    if step and step.productionKind=="maintain-garment" then return garment.begin(id,body,step,context) end
     if step and step.productionKind=="build-place" then return workspace.begin(id,body,step,context) end
     if step and step.productionKind=="extract-material" then return extraction.begin(id,body,step,context) end
     if step and recipeWorkKind(step.productionKind) then return recipeWork.begin(id,body,step,context) end
@@ -5964,6 +5979,408 @@ function shelter.glazeRecover(id,body)
     row.nativeAttempted,row.nativeCompleted,row.itemConsumed,row.frameRetained,row.windowCreated=false,false,false,false,false
     if not shelter.glazeOutcome(id,row) then return false end;rec.resourceProductionOutcomes=rec.resourceProductionOutcomes or {};table.insert(rec.resourceProductionOutcomes,row)
     rec.resourceProductionWork=nil;reconcile(id);return true
+end
+
+-- Original garment service shares the existing craft capsule, claim and ledger.
+garment={materials={Cotton="Base.RippedSheets",Denim="Base.DenimStrips",Leather="Base.LeatherStrips"}}
+function garment.copy(v)return recipeWork.copy(v)end
+function garment.equal(a,b)return recipeWork.equal(a,b)end
+function garment.install()
+ if isClient()or isServer()then return false end
+ local ok=pcall(function()require "TimedActions/ISRepairClothing";require "TimedActions/ISRemovePatch";require "Definitions/ClothingRecipesDefinitions" end)
+ return ok and ISRepairClothing and ISRemovePatch and BloodBodyPartType and ClothingRecipesDefinitions
+  and ClothingRecipesDefinitions.FabricType and ItemTag and ScriptManager and ScriptManager.instance
+  and SAOJavaBridge.garmentObservations and SAOJavaBridge.exactGarment and SAOJavaBridge.garmentCurrent
+end
+function garment.part(name)
+ if not textId(name)then return nil end
+ local p=BloodBodyPartType.FromString(name)
+ return p and p~=BloodBodyPartType.MAX and p:toString()==name and p or nil
+end
+function garment.nativeFact(body,itemId,part)
+ local rows=SAOJavaBridge:garmentObservations(body);local found
+ for _,row in ipairs(rows or{})do if row.itemId==itemId and row.part==part then if found then return nil end;found=row end end
+ return found
+end
+function garment.target(id,body,observation)
+ if not owner(id,body)or not garment.install()or type(observation)~="table"or not SAO.Perception.garmentCurrent then return nil end
+ local known=SAO.Perception.garmentCurrent(id,body,observation)
+ if not known or not garment.equal(known,observation)or known.actorId~=id or known.bodyToken~=body:getModData().SAOExternalToken then return nil end
+ local item=craftCarried(body,known.itemId,known.itemType)
+ local part=garment.part(known.part)
+ if not item or not part or not instanceof(item,"Clothing")or not item:getScriptItem()
+  or ScriptManager.instance:getItem(known.itemType)~=item:getScriptItem()
+  or SAOJavaBridge:exactGarment(body,item,known.itemId,known.part,known.sourceRevision,known.observationRevision)~=item then return nil end
+ return item,part,known
+end
+function garment.available(id,body,item)
+ return item and item:getContainer()==body:getInventory()and body:getInventory():contains(item)and not item:getIsCraftingConsumed()
+  and ScriptManager.instance:getItem(item:getFullType())==item:getScriptItem()
+  and (not SAO.WorldSources.recipeInputAvailable or SAO.WorldSources.recipeInputAvailable(id,tostring(item:getID()))==true)
+end
+function garment.thread(item)
+ if not item or not instanceof(item,"DrainableComboItem")or not(item:getFullType()=="Base.Thread"or item:hasTag(ItemTag.THREAD))then return false end
+ local delta=item:getUseDelta();local uses=item:getCurrentUses()
+ return finite(delta)and delta>0 and delta<=1 and integer(uses)and uses>0
+end
+function garment.select(id,body,fabricType,remove)
+ local found={};local items=SAOJavaBridge:privateCarriedItems(body)
+ if items:size()>512 then return nil end
+ for i=0,items:size()-1 do local item=items:get(i)
+  if garment.available(id,body,item)then
+   if not found.needle and(item:getFullType()=="Base.Needle"or item:hasTag(ItemTag.SEWING_NEEDLE))then found.needle=item
+   elseif not remove and not found.thread and garment.thread(item)then found.thread=item
+   elseif not remove and not found.fabric and item:getFullType()==garment.materials[fabricType]and item:getFabricType()==fabricType then found.fabric=item end
+  end
+ end
+ return found
+end
+function garment.materialRows(selected,remove,fabricType)
+ local out={}
+ for _,role in ipairs(remove and{"needle"}or{"needle","thread","fabric"})do local item=selected[role]
+  if item then out[#out+1]={role=role,itemId=tostring(item:getID()),itemType=item:getFullType(),uses=item:getCurrentUses(),condition=item:getCondition()}
+  else out[#out+1]={role=role,itemType=role=="needle"and"Base.Needle"or role=="thread"and"Base.Thread"or garment.materials[fabricType],
+   requiredUses=1,quantityUnit=role=="thread"and"use"or"item"}end
+ end
+ return out
+end
+function garment.fabricPrediction(body,clothing,part,fabricType,held)
+ local item=held;local itemType=garment.materials[fabricType]
+ local definition=ClothingRecipesDefinitions.FabricType[fabricType]
+ local script=itemType and ScriptManager.instance:getItem(itemType)
+ if not script or not definition or definition.material~=itemType then return nil end
+ if not item then item=script:InstanceItem(nil)end
+ -- Detached native metadata receiver only; never selected, inserted or stock.
+ if not item or item:getScriptItem()~=script or item:getFullType()~=itemType or item:getFabricType()~=fabricType then return nil end
+ local restore=clothing:canFullyRestore(body,part,item)
+ local benefit
+ if restore then
+  local scratch,bite=clothing:getScratchDefense(),clothing:getBiteDefense()
+  if not finite(scratch)or scratch<0 or not finite(bite)or bite<0 then return nil end
+  benefit=scratch+bite
+ else benefit=Clothing.getScratchDefenseFromItem(body,item)+Clothing.getBiteDefenseFromItem(body,item)end
+ if not finite(benefit)or benefit<0 then return nil end
+ return {restore=restore,benefit=benefit}
+end
+function R.garmentOptions(id,body,observation)
+ local ok,options=pcall(function()
+  local clothing,part,known=garment.target(id,body,observation);if not clothing then return{}end
+  local out={};local patch=clothing:getPatchType(part)
+  local function option(selected,operation,effect,fabricType,benefit)
+   local ready=selected.needle~=nil and(operation=="remove-patch"or selected.thread~=nil and selected.fabric~=nil)
+   local key="garment:"..known.itemId..":"..known.part..":"..operation..":"..(fabricType or"native")
+   out[#out+1]={id=key,actorId=id,bodyToken=known.bodyToken,itemId=known.itemId,itemType=known.itemType,part=known.part,
+    sourceRevision=known.sourceRevision,observationRevision=known.observationRevision,operation=operation,requestedEffect=effect,
+    fabricType=fabricType,benefit=benefit,ready=ready,materials=garment.materialRows(selected,operation=="remove-patch",fabricType),
+    stockAcquired=false,consumerCompleted=false}
+  end
+  if patch then
+   local selected=garment.select(id,body,nil,true)
+   -- Removal is a preparatory service; its prospective gain is separately
+   -- valued by the person and never credited as retained worn protection.
+   local best=0
+   for _,fabricType in ipairs({"Cotton","Denim","Leather"})do local inputs=garment.select(id,body,fabricType,false)
+    local prediction=garment.fabricPrediction(body,clothing,part,fabricType,inputs.fabric)
+    if prediction then best=math.max(best,prediction.benefit-patch:getScratchDefense()-patch:getBiteDefense())end
+   end
+   option(selected,"remove-patch","remove-native-padding",nil,math.max(0,best))
+  else
+   for _,fabricType in ipairs({"Cotton","Denim","Leather"})do
+    local definition=ClothingRecipesDefinitions.FabricType[fabricType]
+    if definition and definition.material==garment.materials[fabricType]then
+     local selected=garment.select(id,body,fabricType,false)
+     local prediction=garment.fabricPrediction(body,clothing,part,fabricType,selected.fabric)
+     if prediction then option(selected,"repair-clothing",prediction.restore and"restore-hole"or"add-padding",fabricType,prediction.benefit)end
+    end
+   end
+  end
+  return out
+ end)
+ return ok and options or{}
+end
+function R.garmentOptionCurrent(id,body,observation,option)
+ if type(option)~="table"then return false end
+ for _,current in ipairs(R.garmentOptions(id,body,observation))do if garment.equal(current,option)then return true end end
+ return false
+end
+function garment.identity(id,w)
+ return type(w)=="table"and not getmetatable(w)and w.actorId==id and w.kind=="maintain-garment"
+  and w.category=="body"and w.token=="resource:garment-maintained"and integer(w.sequence)and w.sequence>0
+  and w.id=="resource-production/"..id.."/"..w.sequence and textId(w.purposeId)and textId(w.purposeStepId)
+  and(w.bodyToken==nil or textId(w.bodyToken))and textId(w.world)and finite(w.startedAt)and w.startedAt>=0
+  and textId(w.itemId)and textId(w.itemType)and textId(w.part)and textId(w.sourceRevision)and textId(w.observationRevision)
+  and(w.operation=="repair-clothing"and(w.requestedEffect=="restore-hole"or w.requestedEffect=="add-padding")
+   or w.operation=="remove-patch"and w.requestedEffect=="remove-native-padding")
+  and type(w.materials)=="table"and type(w.observation)=="table"and garment.copy(w)~=nil
+end
+function garment.purpose(rec,w)
+ local state=rec and rec.proceduralPlanning;local p=state and state.purposes and state.purposes[w.purposeId]
+ local s=p and p.steps and p.steps[p.cursor];local a=p and p.admission
+ if not p or p.status=="completed"or p.status=="abandoned"or not p.garmentMaintenance or not s or not a
+  or s.id~=w.purposeStepId or s.owner~="SAO.ResourceProduction"or s.productionKind~=w.kind or s.token~=w.token
+  or a.owner~=s.owner or a.correlationId~=w.id or a.stepId~=s.id or a.target~=s.target
+  or not finite(a.at)or a.at<w.startedAt or not garment.equal(s.garment,p.garmentMaintenance)
+  or not garment.equal(s.materials,w.materials)then return nil end
+ for _,key in ipairs({"bodyToken","itemId","itemType","part","sourceRevision","observationRevision","operation","requestedEffect"})do
+  if w[key]~=s.garment[key]then return nil end
+ end
+ return p,s,a
+end
+function garment.anchors(rt,w)
+ for _,key in ipairs({"id","sequence","startedAt","actorId","kind","token","bodyToken","world","purposeId","purposeStepId","itemId","itemType","part","sourceRevision","observationRevision","operation","requestedEffect","materials","observation"})do
+  if not garment.equal(w[key],rt.frozen[key])then return false end
+ end
+ return true
+end
+function garment.current(rt,pre)
+ local w,body,item=rt.work,rt.body,rt.clothing
+ if not item or item:getScriptItem()~=rt.script or ScriptManager.instance:getItem(w.itemType)~=rt.script
+  or craftCarried(body,w.itemId,w.itemType)~=item or item:getIsCraftingConsumed()
+  or SAOJavaBridge:garmentCurrent(body,item,w.part,w.observation)~=true then return false end
+ if not pre then return true end
+ if SAOJavaBridge:exactGarment(body,item,w.itemId,w.part,w.sourceRevision,w.observationRevision)~=item then return false end
+ for role,material in pairs(rt.selected)do local b=rt.baselines[role]
+  if not garment.available(rt.id,body,material)or material:getScriptItem()~=b.script
+   or tostring(material:getID())~=b.itemId or material:getFullType()~=b.itemType
+   or material:getCurrentUses()~=b.uses or material:getCondition()~=b.condition then return false end
+ end
+ if w.operation=="remove-patch"then return item:getPatchType(rt.part)~=nil end
+ return garment.thread(rt.selected.thread)and item:getPatchType(rt.part)==nil
+  and garment.materials[rt.selected.fabric:getFabricType()]==rt.selected.fabric:getFullType()
+  and(w.requestedEffect=="restore-hole")==item:canFullyRestore(body,rt.part,rt.selected.fabric)
+end
+function garment.bound(rt,pre)
+ local rec=owner(rt.id,rt.body);local p,s=garment.purpose(rec,rt.work);local world=getWorld()
+ return rec==rt.record and runtime[rt.id]==rt and rec.resourceProductionWork==rt.work and not rt.cancelling and not rt.closed
+  and garment.identity(rt.id,rt.work)and garment.anchors(rt,rt.work)and craftLedger(rec)
+  and p==rt.purpose and s==rt.step and now()and now()>=rt.startedAt and world and world:getWorld()==rt.world
+  and world:getCell()==rt.cell and rt.body:getCell()==rt.cell and rt.body:getInventory()==rt.inventory
+  and rt.body:getCurrentSquare()==rt.square and math.abs(rt.body:getX()-rt.x)<.01 and math.abs(rt.body:getY()-rt.y)<.01
+  and craftPosition(rt.id,rt.body)and ISTimedActionQueue.getTimedActionQueue(rt.body)==rt.queue
+  and SAO.ProceduralPlanning.garmentRequestCurrent(rt.id,rt.body,rt.work)==true and garment.current(rt,pre)
+end
+function garment.recoveryAnchor(rt,rec,w)
+ return SAO.Identity.get(rt.id)==rec and rec.id==rt.id and garment.identity(rt.id,w)and w.id==rt.workId
+  and w.startedAt==rt.startedAt and garment.anchors(rt,w)
+end
+function garment.snapshot(rt)
+ local raw=garment.nativeFact(rt.body,rt.work.itemId,rt.work.part)
+ local m={observation=garment.copy(raw),materials={},inventory={}}
+ for role,item in pairs(rt.selected)do m.materials[role]={itemId=tostring(item:getID()),itemType=item:getFullType(),uses=item:getCurrentUses(),condition=item:getCondition(),held=ownItem(rt,item)}end
+ local items=SAOJavaBridge:privateCarriedItems(rt.body)
+ for i=0,items:size()-1 do local item=items:get(i);m.inventory[#m.inventory+1]={itemId=tostring(item:getID()),itemType=item:getFullType()}end
+ return m
+end
+function garment.measure(rt)
+ local before,after=rt.beforeMeasurement,rt.afterMeasurement or garment.snapshot(rt)
+ local out={nativeAttempted=rt.nativeAttempted==true,nativeCompleted=rt.nativeCompleted==true,
+  beforeObservation=garment.copy(before and before.observation),afterObservation=garment.copy(after.observation),
+  materialEffects={},returnedItems={},paymentMeasured=false,requestedEffectMeasured=false,stockAcquired=false,consumerCompleted=false}
+ if not before or not before.observation or not after.observation then return out end
+ local heldNeedle=after.materials.needle and after.materials.needle.held
+ for role,b in pairs(before.materials)do local a=after.materials[role]
+  out.materialEffects[#out.materialEffects+1]={role=role,itemId=b.itemId,itemType=b.itemType,beforeUses=b.uses,afterUses=a and a.uses,heldBefore=b.held,heldAfter=a and a.held==true}
+ end
+ if rt.work.operation=="repair-clothing"then
+  out.paymentMeasured=heldNeedle==true and before.materials.fabric.held and not after.materials.fabric.held
+   and craftCarried(rt.body,before.materials.fabric.itemId,before.materials.fabric.itemType)==nil
+   and before.materials.thread.uses-after.materials.thread.uses==1
+   and(after.materials.thread.uses==0 or after.materials.thread.held)
+  out.requestedEffectMeasured=out.nativeAttempted and(rt.work.requestedEffect=="restore-hole"and before.observation.hole>0 and after.observation.hole==0
+   or rt.work.requestedEffect=="add-padding"and not before.observation.patchPresent and after.observation.patchPresent)
+ else
+  local beforeIds={};for _,item in ipairs(before.inventory)do beforeIds[item.itemId]=true end
+  local expected=ClothingPatchFabricType.fromIndex(before.observation.patchFabric):getType()
+  local valid=true
+  for _,item in ipairs(after.inventory)do if not beforeIds[item.itemId]then
+   if item.itemType~=garment.materials[expected]then valid=false end;out.returnedItems[#out.returnedItems+1]=garment.copy(item)
+  end end
+  out.paymentMeasured=heldNeedle==true and valid and #out.returnedItems<=1
+  out.requestedEffectMeasured=out.nativeAttempted and before.observation.patchPresent and not after.observation.patchPresent
+ end
+ return out
+end
+function garment.relation(row)
+ return {schema="sao.native-physical-service/1",workId=row.id,actorId=row.actorId,world=row.world,bodyToken=row.bodyToken,
+  kind=row.kind,itemId=row.itemId,itemType=row.itemType,part=row.part,sourceRevision=row.sourceRevision,
+  operation=row.operation,requestedEffect=row.requestedEffect,nativeClass=row.afterObservation.nativeClass}
+end
+function garment.outcome(id,row)
+ local rec,t=SAO.Identity.get(id),now()
+ if not craftLedger(rec)or not garment.identity(id,row)or row.sequence>rec.resourceProductionSequence or row.workId~=row.id
+  or row.nativeOwner~=(row.operation=="remove-patch"and"ISRemovePatch"or"ISRepairClothing")or not textId(row.detail)
+  or not t or not finite(row.atHours)or row.atHours<row.startedAt or row.atHours>t or row.endedAt~=row.atHours
+  or(row.status~="completed"and row.status~="failed"and row.status~="interrupted")then return nil end
+ for _,key in ipairs({"nativeAttempted","nativeCompleted","paymentMeasured","requestedEffectMeasured","stockAcquired","consumerCompleted"})do if type(row[key])~="boolean"then return nil end end
+ if row.stockAcquired or row.consumerCompleted or type(row.materialEffects)~="table"or type(row.returnedItems)~="table"then return nil end
+ if row.status=="completed"then
+  if not row.nativeAttempted or not row.nativeCompleted or not row.paymentMeasured or not row.requestedEffectMeasured
+   or row.nativeCredit~=row.id or type(row.afterObservation)~="table"or not textId(row.afterObservation.nativeClass)then return nil end
+  if row.serviceRelation~=nil and not garment.equal(row.serviceRelation,garment.relation(row))then return nil end
+ elseif row.nativeCredit~=nil or row.serviceRelation~=nil then return nil end
+ return garment.copy(row)
+end
+function garment.close(rt,status,detail)
+ if rt.closed then return true end
+ local rec,w,t=SAO.Identity.get(rt.id),rt.work,now()
+ if rec~=rt.record or rec.resourceProductionWork~=w or not garment.identity(rt.id,w)or not garment.anchors(rt,w)
+  or not craftRetired(rt)or not craftLedgerRoom(rec)or not t or t<rt.startedAt then return false end
+ local measured=garment.measure(rt)
+ if status=="completed"and(not rt.nativeCompleted or not measured.paymentMeasured or not measured.requestedEffectMeasured
+  or not garment.bound(rt,false))then status="failed"end
+ local row=garment.copy(w);row.stage=nil;row.workId=w.id;row.status=status;row.detail=detail;row.atHours=t;row.endedAt=t
+ row.nativeOwner=w.operation=="remove-patch"and"ISRemovePatch"or"ISRepairClothing"
+ for k,v in pairs(measured)do row[k]=v end
+ row.nativeCredit=status=="completed"and row.id or nil
+ if not garment.outcome(rt.id,row)then return false end
+ local rows=rec.resourceProductionOutcomes or{}
+ for _,previous in ipairs(rows)do if previous.id==row.id then return false end end
+ rows[#rows+1]=row;rec.resourceProductionOutcomes=rows
+ if #rows>CRAFT_LIMIT then table.remove(rows,1)end
+ if status=="completed"then
+  local linked=pcall(function()
+   if not garment.bound(rt,false)or not garment.equal(R.outcome(rt.id,row.id),row)then return end
+   local md=rt.clothing:getModData();local parts=md.SAOPhysicalService
+   if parts~=nil and(type(parts)~="table"or getmetatable(parts))then return end
+   local relation=garment.relation(row);if not relation.nativeClass then return end
+   parts=parts or{};parts[row.part]=garment.copy(relation);md.SAOPhysicalService=parts
+   row.serviceRelation=garment.copy(relation);row.serviceRelationStatus="confirmed"
+  end)
+  if not linked or row.serviceRelation==nil then row.serviceRelationStatus="unconfirmed"end
+ end
+ rec.resourceProductionWork=nil;rt.closed=true;craftDispose(rt);reconcile(rt.id);return true
+end
+function garment.action(rt)
+ local selected=rt.selected;local remove=rt.work.operation=="remove-patch"
+ local a=remove and ISRemovePatch:new(rt.body,rt.clothing,rt.part,selected.needle)
+  or ISRepairClothing:new(rt.body,rt.clothing,rt.part,selected.fabric,selected.thread,selected.needle)
+ local c={rt=rt,action=a,kind="garment"};a._SAOCraftBinding=function(seal)if seal==CRAFT_SEAL then return c end end
+ local valid,start,perform,complete=a.isValid,a.start,a.perform,a.complete
+ local function exact()
+  return craftCapsule(a)==c and a.actorId==rt.id and a.workId==rt.workId and a.bodyToken==rt.token
+   and a.character==rt.body and a.clothing==rt.clothing and a.part==rt.part
+   and a.needle==selected.needle and(remove or a.fabric==selected.fabric and a.thread==selected.thread)
+ end
+ function a:isValidStart()return not c.done and exact()and garment.bound(rt,true)and valid(self)==true end
+ function a:isValid()return self:isValidStart()end
+ function a:start()
+  if c.started or not craftCurrent(c)or not self:isValid()then return craftRefuse(rt,"garment-start-owner-changed")end
+  local ok=pcall(start,self);c.started=ok;return ok or craftRefuse(rt,"native-garment-start-failed")
+ end
+ function a:serverStart()return false end
+ function a:perform()
+  if c.performed or c.done or not c.started or not craftCurrent(c)or not craftNativeEnded(self)or not self:isValid()then return craftRefuse(rt,"garment-perform-owner-changed")end
+  c.performed=true;local ok=pcall(perform,self)
+  if not ok or rt.queue:indexOf(self)~=-1 or rt.queue.current==self then return craftRefuse(rt,"native-garment-retirement-unconfirmed")end
+  rt.work.stage="awaiting-native-complete";return true
+ end
+ function a:complete()
+  if c.done or c.effectInvoked or not c.started or not c.performed or not exact()or runtime[rt.id]~=rt or rt.current~=c
+   or rt.queue:indexOf(self)~=-1 or rt.queue.current~=nil or #rt.queue.queue~=0
+   or not craftNativeEnded(self)or not garment.bound(rt,true)or valid(self)~=true then return craftRefuse(rt,"garment-complete-owner-changed")end
+  c.effectInvoked=true;rt.nativeAttempted=true;rt.beforeMeasurement=garment.snapshot(rt)
+  local ok,result=pcall(complete,self)
+  rt.afterMeasurement=garment.snapshot(rt);rt.nativeCompleted=ok and result==true
+  c.done,c.ack=true,true
+  local m=garment.measure(rt)
+  return craftClose(rt,rt.nativeCompleted and m.paymentMeasured and m.requestedEffectMeasured and"completed"or"failed",
+   ok and"native-garment-payment-and-effect-measured"or("native-garment-exception:"..tostring(result)):sub(1,256))
+ end
+ craftGuardStop(rt,c,false);a.canMergeAction=function()return false end
+ c.position=#rt.actions+1;rt.actions[c.position]=c;craftSavedRetirement(rt,c)
+ return a
+end
+function garment.stopCleanup(rt,a)
+ if a.sound and rt.body:getEmitter():isPlaying(a.sound)then rt.body:stopOrTriggerSound(a.sound)end
+ a.started=false
+ if ISGarmentUI then ISGarmentUI.setBodyPartActionForPlayer(rt.body,rt.part,nil,nil,nil)end
+ -- Original base stop resets the whole queue. The existing capsule retires
+ -- only its exact owned action so an unrelated successor remains untouched.
+end
+function garment.begin(id,body,step,context)
+ local rec,t=owner(id,body),now();local g=step and step.garment
+ if not rec or not t or not garment.install()or runtime[id]or rec.resourceProductionWork or rec.worldSourceReservation or rec.cookingWork
+  or not craftLedgerRoom(rec)or SAO.Needs.busy(body)or SAOJavaBridge:hasPendingActions(body)or not craftPosition(id,body)
+  or step.owner~="SAO.ResourceProduction"or step.productionKind~="maintain-garment"or step.token~="resource:garment-maintained"or type(g)~="table"then return false end
+ local state=rec.proceduralPlanning;local p=state and state.purposes and state.purposes[context.purposeId]
+ if not p or p.admission or p.steps[p.cursor]~=step or step.id~=context.purposeStepId then return false end
+ local known
+ for _,fact in ipairs(SAO.Perception.garments(id,body)or{})do if fact.itemId==g.itemId and fact.part==g.part then known=fact end end
+ local clothing,part=garment.target(id,body,known);if not clothing then return false end
+ local option
+ for _,candidate in ipairs(R.garmentOptions(id,body,known))do if candidate.ready and candidate.operation==g.operation and candidate.requestedEffect==g.requestedEffect
+  and garment.equal(candidate.materials,step.materials)then option=candidate end end
+ if not option then return false end
+ local selected=garment.select(id,body,option.fabricType,g.operation=="remove-patch")
+ local world=getWorld();if not world then return false end
+ local seq=(rec.resourceProductionSequence or 0)+1;local w=garment.copy(g)
+ w.id="resource-production/"..id.."/"..seq;w.sequence=seq;w.actorId=id;w.kind="maintain-garment";w.category="body";w.token=step.token
+ w.purposeId=context.purposeId;w.purposeStepId=context.purposeStepId;w.world=world:getWorld();w.startedAt=t;w.status="crafting";w.stage="garment-service"
+ w.materials=garment.copy(step.materials);w.observation=garment.copy(known)
+ if not garment.identity(id,w)then return false end
+ local rt={id=id,kind=w.kind,record=rec,body=body,work=w,workId=w.id,startedAt=t,token=w.bodyToken,world=w.world,
+  clothing=clothing,script=clothing:getScriptItem(),part=part,selected=selected,baselines={},frozen=garment.copy(w),
+  inventory=body:getInventory(),cell=body:getCell(),square=body:getCurrentSquare(),x=body:getX(),y=body:getY(),
+  queue=ISTimedActionQueue.getTimedActionQueue(body),actions={}}
+ for role,item in pairs(selected)do rt.baselines[role]={script=item:getScriptItem(),itemId=tostring(item:getID()),itemType=item:getFullType(),uses=item:getCurrentUses(),condition=item:getCondition()}end
+ rt.beforeMeasurement=garment.snapshot(rt)
+ rec.resourceProductionSequence,rec.resourceProductionWork,runtime[id]=seq,w,rt
+ if not SAO.ProceduralPlanning.admitGarmentWork(id,w)then rec.resourceProductionWork=nil;craftDispose(rt);return false end
+ rt.purpose,rt.step=garment.purpose(rec,w);garment.action(rt)
+ if craftEnqueue(rt,1)then return true end
+ craftInterrupt(id,body,"garment-queue-refused");return false
+end
+function garment.recover(id,body)
+ reconcile(id);local rec=SAO.Identity.get(id);local w=rec and rec.resourceProductionWork;if not w then return true end
+ if runtime[id]then return craftInterrupt(id,body,"garment-owner-reconciled")end
+ if not garment.identity(id,w)or not craftLedgerRoom(rec)or not body or w.bodyToken~=body:getModData().SAOExternalToken then return false end
+ for _,q in pairs(ISTimedActionQueue.queues)do local pending={};for _,a in ipairs(q.queue)do pending[#pending+1]=a end
+  if q.current and q:indexOf(q.current)==-1 then pending[#pending+1]=q.current end
+  for _,a in ipairs(pending)do if a.actorId==id and a.workId==w.id and a.bodyToken==w.bodyToken then
+   if type(a._SAOCraftRetireSaved)~="function"or not a._SAOCraftRetireSaved(rec,w)then return false end
+  end end
+ end
+ if rec.resourceProductionWork==nil then return true end
+ local q=ISTimedActionQueue.getTimedActionQueue(body)
+ if q.current or #q.queue>0 or SAOJavaBridge:hasPendingActions(body)then return false end
+ local row=garment.copy(w);row.stage=nil;row.workId=w.id;row.status="interrupted";row.detail="garment-runtime-unavailable"
+ row.atHours,row.endedAt=now(),now();row.nativeOwner=w.operation=="remove-patch"and"ISRemovePatch"or"ISRepairClothing"
+ row.nativeAttempted,row.nativeCompleted,row.paymentMeasured,row.requestedEffectMeasured=false,false,false,false
+ row.materialEffects,row.returnedItems={},{};row.stockAcquired,row.consumerCompleted=false,false;row.nativeObservability="runtime-unavailable"
+ if not garment.outcome(id,row)then return false end
+ local rows=rec.resourceProductionOutcomes or{};rows[#rows+1]=row;rec.resourceProductionOutcomes=rows
+ if #rows>CRAFT_LIMIT then table.remove(rows,1)end;rec.resourceProductionWork=nil;reconcile(id);return true
+end
+function R.garmentUseObservation(id,body,workId,expected,acquired)
+ local row=R.outcome(id,workId)
+ if not owner(id,body)or not row or row.kind~="maintain-garment"or row.status~="completed"or row.nativeCredit~=row.id
+  or row.serviceRelationStatus~="confirmed"or not row.serviceRelation or not garment.install()
+  or not SAO.Perception.garmentForResult or SAO.Perception.garmentForResult(id,body,row.id)~=expected
+  or not SAO.Perception.garmentCurrent(id,body,acquired)then return nil end
+ if not expected or expected:getScriptItem()~=ScriptManager.instance:getItem(row.itemType)
+  or SAOJavaBridge:exactGarment(body,expected,row.itemId,row.part,row.sourceRevision,acquired.observationRevision)~=expected
+  or not garment.equal(expected:getModData().SAOPhysicalService and expected:getModData().SAOPhysicalService[row.part],row.serviceRelation)then return nil end
+ local current=garment.nativeFact(body,row.itemId,row.part)
+ if not current or current.nativeClass~=row.serviceRelation.nativeClass then return nil end
+ local paid=row.afterObservation;local before=row.beforeObservation
+ local matches=paid and current.hole==paid.hole and current.patchPresent==paid.patchPresent
+  and(not current.patchPresent or current.patchFabric==paid.patchFabric and current.scratchDefense==paid.scratchDefense and current.biteDefense==paid.biteDefense)
+ local effect=matches and(row.requestedEffect=="restore-hole"and before.hole>0 and current.hole==0
+  or row.requestedEffect=="add-padding"and current.patchPresent or row.requestedEffect=="remove-native-padding"and not current.patchPresent)
+ local targetMeasured=before and paid and finite(before.targetScratchDefense)and before.targetScratchDefense>=0
+  and finite(before.targetBiteDefense)and before.targetBiteDefense>=0
+  and finite(paid.targetScratchDefense)and paid.targetScratchDefense>=0 and finite(paid.targetBiteDefense)and paid.targetBiteDefense>=0
+  and finite(current.targetScratchDefense)and current.targetScratchDefense>=0 and finite(current.targetBiteDefense)and current.targetBiteDefense>=0
+ local beneficial=effect and targetMeasured and row.requestedEffect~="remove-native-padding"
+  and(current.targetScratchDefense>before.targetScratchDefense or current.targetBiteDefense>before.targetBiteDefense)
+ return {actorId=id,workId=row.id,physicalWorkId=row.id,itemId=row.itemId,itemType=row.itemType,part=row.part,sourceRevision=row.sourceRevision,
+  nativeClass=current.nativeClass,atHours=now(),wornScratchDefense=current.wornScratchDefense,wornBiteDefense=current.wornBiteDefense,
+  targetScratchDefense=current.targetScratchDefense,targetBiteDefense=current.targetBiteDefense,
+  hole=current.hole,patchPresent=current.patchPresent,patchFabric=current.patchFabric,effectMatchesCanonical=effect==true,
+  beneficial=beneficial==true,nativeUseMeasured=effect==true and row.requestedEffect~="remove-native-padding",
+  currentBodyToken=body:getModData().SAOExternalToken,serviceRelation=garment.copy(row.serviceRelation),currentObservation=garment.copy(current),
+  beforeObservation=garment.copy(row.beforeObservation),afterPaidObservation=garment.copy(row.afterObservation),observationOnly=true,
+  stockAcquired=false,consumerCompleted=false}
 end
 
 return R

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.7.4.0-pre-alpha` |
+| Version | `2.7.5.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -499,3 +499,7 @@ Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md
 ## Native furnishing factory/current-use progress (D3.21)
 
 [D3.21](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) closes useful native factory/partial-payment through ordinary current and cold surface/original work. Complete D3 retains other source/stage/resource adapters, material/site/finishing/salvage/security, equipment/vehicle/garment maintenance, five original utilities and authoritative execution. Private physical helper support, actual service, shared archive/model adoption and mastery remain separate; D4-D6 retain FIFO.
+
+## Worn garment service/protection progress (D3.22)
+
+[D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) closes useful ordinary native garment upkeep, preparatory upgrade, cold item lineage and separate protection use. Full D3 retains complete remaining construction/site/resource/finishing/security/salvage, vehicle/equipment/garment service, all five original utility lines and authoritative execution. The next connected unit uses the existing Generator/private power owner through original installation, current fuel/power and actual effective water-provider debit. Private helper support, personal service, counterpart archive/model adoption and trained mastery remain separate; D4-D6 preserve FIFO.

@@ -421,6 +421,32 @@ SCOPED['d3_workspace_consumer_test.py'] = (
     'Stool fixed-use payment, optional exact source script, cold surface/use and '
     'current native replacement refusal; prop-script detects one Java predicate omission.')
 
+SCOPED['d3_garment_consumer_test.py'] = (
+    'D3.22 ordinary personal worn-garment choice, signed exact three-role native '
+    'acquisition, original paid repair, canonical service marker, native item/save '
+    'and staged wearer restoration, independently measured original protection use '
+    'and full private feedback. Select affected producer/observer/transfer/use '
+    'contracts, normal queued cancellation and the three named inspection-phase, '
+    'garment-transfer and use-phase omissions. Upgrade retains preparatory removal '
+    'and same-purpose reassessment into replacement protection; layers separates '
+    'native target contribution from aggregate wearer defense and retains normal '
+    'high-skill full-pool appraisal. Case-bound removal-replan, aggregate-benefit '
+    'and utility-domain controls detect those joins. Zero-target restoration uses '
+    'an explicitly controlled current native offer/admission and carries no normal '
+    'Cotton-choice claim. Stale-use retains same-purpose damage/replacement '
+    'reassessment, missing worn-evidence deferral and canonical saved predecessor '
+    'validation. Stale-link and retry-authority controls detect the two omissions. '
+    'Final-contracts keeps actual admitted Clothing subclasses, historical paid '
+    'versus current wearer tokens, unconfirmed paid service without blind use, '
+    'and zero native restoration forecast without admission or seeded cognition. '
+    'Sourceclass, current-token, unconfirmed-link and restore-benefit controls '
+    'detect those four clauses; native cold factory class loss refuses the old '
+    'child relation and grants no child-class cold restoration. '
+    'Optional native absence is explicit '
+    'NATIVE_UNAVAILABLE; --required fails that absence and missing owned inputs '
+    'always fail. Normal death, external ownership transfer, queued request '
+    'revocation and full server/cold-world lifecycle retain their declared evidence bounds.')
+
 FAILS = re.compile(r"return 1\b|sys\.exit\(1\)|else 1\b")
 
 

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `2.7.4.0-pre-alpha` |
+| Version | `2.7.5.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -172,3 +172,7 @@ Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md
 ## D3.21 native furnishing factories and use
 
 [D3.21](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) is CLOSED for source-bounded native final factory/partial payment through actual ordinary acquired Stool, native cold canonical surface and original crafting/upkeep use. One kohai records progress within OPEN D3. Exact package/protected publication and pending archive/model contracts retain separate evidence; full D3 continues before D4.
+
+## D3.22 worn garment upkeep and retained protection
+
+[D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) is CLOSED for ordinary private source acquisition and original paid garment service through canonical native item/cold wearer, preparatory upgrade continuation and independent target protection. One kohai records progress within OPEN D3. Exact source/package/protected publication and pending archive/model contracts retain separate evidence; full D3 continues before D4.

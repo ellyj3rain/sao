@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.7.4.0-pre-alpha` |
+| Version | `2.7.5.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -19,11 +19,11 @@ The 2026-10-03 map grouped the retained source history into 35 shared ownership 
 
 Active: [D3 — Construction, crafting, repair and utilities](Batches/D3-20261010-0143Z-1843PST-construction-crafting-repair-utilities.md)
 
-Current qualified child: [D3.21 — Native furnishing factories and current functional use](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md), CLOSED inside OPEN D3.
+Current qualified child: [D3.22 - Worn garment upkeep and retained protection](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md), CLOSED inside OPEN D3.
 
-Current qualified child: [D3.20 — Native workspace materials, construction and requesting use](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md), CLOSED inside OPEN D3.
+Current qualified child: [D3.22 - Worn garment upkeep and retained protection](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md), CLOSED inside OPEN D3.
 
-Current qualified child: [D3.19 — Purpose-bound stock production and upkeep](Batches/D3.19-20261012-0913Z-0213PDT-purpose-bound-stock-upkeep.md), CLOSED inside OPEN D3.
+Current qualified child: [D3.22 - Worn garment upkeep and retained protection](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md), CLOSED inside OPEN D3.
 
 D3.18 qualified closure is indexed below; its actual package and protected publication retain separate completion receipts. D3.19 receives no delivered row or version credit at opening.
 
@@ -690,3 +690,13 @@ D3.19 protected publication actually completed through PR162 at `c356234069b5034
 | Batch | Date | Name | Threads |
 |---|---|---|---|
 | [D3.21](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) | 2026-10-12 | Native furnishing factories and current functional use | Original prop/callback final results, fixed native use payment, ordinary private Stool/cold surface and original upkeep |
+
+## Current connected upkeep work — 2026-10-12 21:06 UTC / 14:06 PDT
+
+[D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) is OPEN under OPEN D3. D3.21 publication is complete at PR164/895484. No opening credit or parent closure follows this allocation.
+
+## Worn garment upkeep and independent protection - 2026-10-12 22:48 UTC / 15:48 PDT
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) | 2026-10-12 | Worn garment upkeep and retained protection | Ordinary signed input acquisition, original garment effect/cold lineage, preparatory upgrade and separate target protection |

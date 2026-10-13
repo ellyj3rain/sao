@@ -879,8 +879,20 @@ end
 -- membership, proximity and receipt reconciliation never add witnesses.
 function P.receiveTransferResult(receipt)
     if type(receipt) ~= "table" then return false, "invalid-result" end
-    local ingredient=receipt.category=="recipe-input"
-    if ingredient then
+    local garment=receipt.category=="garment-input"
+    local ingredient=receipt.category=="recipe-input"or garment
+    if garment then
+        local canonical=SAO.WorldSources and SAO.WorldSources.actionOutcome
+            and SAO.WorldSources.actionOutcome(receipt.reservationId,receipt.actorId)
+        local requirement=canonical and SAO.WorldSources.garmentRequirementCopy(canonical.garmentRequirement)
+        if not canonical or canonical.category~="garment-input"or canonical.operation~="acquire"or not requirement
+            or canonical.actorId~=requirement.actorId or canonical.purposeId~=requirement.purposeId
+            or canonical.purposeStepId~=requirement.stepId
+            or requirement.role=="fabric"and canonical.itemType~=requirement.itemType
+            or canonical.status=="completed"and(canonical.quantityUnit~="item"or canonical.requestedQuantity~=1
+                or canonical.observedQuantity~=1)then return false,"garment-transfer-owner-unavailable"end
+        receipt=canonical
+    elseif ingredient then
         local canonical=SAO.WorldSources and SAO.WorldSources.actionOutcome
             and SAO.WorldSources.actionOutcome(receipt.reservationId,receipt.actorId)
         local requirement=canonical and canonical.recipeRequirement
@@ -5027,6 +5039,97 @@ function P.extractionSource(id,body,anchor)
         end
     end
     return nil
+end
+
+-- PRIVATE append proposal for existing SAO_Perception.lua.
+-- Root's native adapter must return plain observed rows and current native
+-- reacquisition facts; no action or purpose is created by observation.
+local function garmentFact(row,id,at)
+ if type(row)~="table" or getmetatable(row) or row.actorId~=id
+  or type(row.itemId)~="string" or row.itemId=="" or type(row.itemType)~="string"
+  or type(row.part)~="string" or row.bodyToken~=nil and type(row.bodyToken)~="string" or type(row.sourceRevision)~="string"
+  or type(row.observationRevision)~="string" or row.observationOnly~=true or row.privateAcquisitionRequired~=true
+  or not finiteSoundNumber(row.hole) or row.hole<0 or row.hole>1 or not finiteSoundNumber(row.condition)
+  or type(row.patchPresent)~="boolean" or not finiteSoundNumber(row.wornScratchDefense)
+  or not finiteSoundNumber(row.wornBiteDefense) or not finiteSoundNumber(row.tailoring)
+  or row.patchPresent and (not finiteSoundNumber(row.patchFabric)
+   or not finiteSoundNumber(row.scratchDefense) or not finiteSoundNumber(row.biteDefense)) then return nil end
+ local fact={actorId=id,bodyToken=row.bodyToken,itemId=row.itemId,itemType=row.itemType,part=row.part,nativeClass=row.nativeClass,
+  sourceRevision=row.sourceRevision,observationRevision=row.observationRevision,
+  worn=true,covered=true,hole=row.hole,condition=row.condition,fabricType=row.fabricType,patchPresent=row.patchPresent,
+  patchFabric=row.patchFabric,scratchDefense=row.scratchDefense,biteDefense=row.biteDefense,
+  wornScratchDefense=row.wornScratchDefense,wornBiteDefense=row.wornBiteDefense,
+  targetScratchDefense=row.targetScratchDefense,targetBiteDefense=row.targetBiteDefense,tailoring=row.tailoring,
+  source="native-personal-worn-observation",observedAtHours=at}
+ return workFactCopy(fact)
+end
+function P.observeGarments(id,body)
+ if not collectorObserver(id,body) or not SAOJavaBridge.garmentObservations then return false end
+ local at=SAO.History.countyHours()
+ if not finiteSoundNumber(at) or at<0 then return false end
+ local ok,rows=pcall(function()return SAOJavaBridge:garmentObservations(body)end)
+ if not ok or type(rows)~="table" or getmetatable(rows) or not collectorObserver(id,body) then return false end
+ local current={}
+ for _,row in ipairs(rows)do
+  local fact=garmentFact(row,id,at)
+  if not fact then return false end
+  local key=fact.itemId..":"..fact.part
+  if current[key] then return false end
+  current[key]=fact
+ end
+ store(id).garments=current;P.beliefVersion=P.beliefVersion+1
+ return true
+end
+function P.garments(id,body)
+ if not collectorObserver(id,body)then return{}end
+ local at=SAO.History.countyHours();local out={}
+ for _,fact in pairs(store(id).garments or{})do
+  if fact.actorId==id and fact.source=="native-personal-worn-observation"
+   and finiteSoundNumber(fact.observedAtHours) and fact.observedAtHours<=at then out[#out+1]=workFactCopy(fact)end
+ end
+ SAO.Ordering.sort(out,function(a,b)return a.itemId==b.itemId and a.part<b.part or a.itemId<b.itemId end)
+ return out
+end
+function P.garmentCurrent(id,body,expected)
+ if not collectorObserver(id,body) or type(expected)~="table" or getmetatable(expected)
+  or type(expected.itemId)~="string" or type(expected.part)~="string" or not SAOJavaBridge.garmentObservations then return nil end
+ local known=(store(id).garments or{})[expected.itemId..":"..expected.part]
+ if not known or known.actorId~=id or known.source~="native-personal-worn-observation"
+  or not finiteSoundNumber(known.observedAtHours) or known.observedAtHours>SAO.History.countyHours()then return nil end
+ for _,field in ipairs({"bodyToken","itemId","itemType","part","sourceRevision","observationRevision"})do
+  if expected[field]~=known[field]then return nil end
+ end
+ local ok,rows=pcall(function()return SAOJavaBridge:garmentObservations(body)end)
+ if not ok or type(rows)~="table" or not collectorObserver(id,body)then return nil end
+ local found
+ for _,row in ipairs(rows)do
+  if row.itemId==known.itemId and row.part==known.part then
+   if found then return nil end
+   found=garmentFact(row,id,known.observedAtHours)
+  end
+ end
+ if not found or not workFactEqual(found,known)then return nil end
+ -- R independently retains and reacquires the actual native item instance
+ -- for admission/mutation. This fresh plain observation grants no work/use.
+ return workFactCopy(known)
+end
+
+function P.garmentForResult(id,body,workId)
+ if not collectorObserver(id,body)or not SAO.ResourceProduction or not SAOJavaBridge.garmentForResult then return nil end
+ local canonical=SAO.ResourceProduction.outcome(id,workId)
+ if type(canonical)~="table"or canonical.actorId~=id or canonical.kind~="maintain-garment"
+  or canonical.status~="completed"or canonical.nativeCredit~=canonical.id
+  or type(canonical.serviceRelation)~="table"then return nil end
+ local known=(store(id).garments or{})[canonical.itemId..":"..canonical.part]
+ if not known or not P.garmentCurrent(id,body,known)then return nil end
+ if known.sourceRevision~=canonical.sourceRevision or known.itemType~=canonical.itemType
+  or known.nativeClass~=canonical.serviceRelation.nativeClass then
+  return nil,workFactCopy(known),"current-native-result-refused"
+ end
+ local ok,native=pcall(function()return SAOJavaBridge:garmentForResult(body,canonical.serviceRelation)end)
+ if not ok or not collectorObserver(id,body)then return nil end
+ if not native then return nil,workFactCopy(known),"current-native-result-refused"end
+ return native,workFactCopy(known)
 end
 
 return P

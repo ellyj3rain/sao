@@ -6433,6 +6433,7 @@ function Ctl.tryToolMaintenance(id, agent, body, tick, context)
     if not Ctl.reconcileConstruction(id, body) then return true end
     if agent.rec.resourceProductionWork or agent.rec.worldSourceReservation then return true end
     if not context and Ctl.tryRecipeWork and Ctl.tryRecipeWork(id,agent,body,tick) then return true end
+    if not context and Ctl.tryGarmentWork and Ctl.tryGarmentWork(id,agent,body,tick) then return true end
     local retained = planning.maintenancePurpose(id)
     if retained and retained.admission then return true end
     local purpose, step = planning.planToolMaintenance(id, context or Ctl.toolMaintenanceContext(id, agent, body))
@@ -6447,7 +6448,8 @@ function Ctl.beginConstructionProduction(id, agent, body, tick, purpose, step)
         or step.owner ~= "SAO.ResourceProduction" or (step.productionKind ~= "saw-logs"
             and step.productionKind ~= "repair-held-item" and step.productionKind ~= "fix-held-item"
             and step.productionKind ~= "recipe-stock" and step.productionKind ~= "recipe-upkeep"
-            and step.productionKind ~= "build-place" and step.productionKind ~= "extract-material") then return false end
+            and step.productionKind ~= "build-place" and step.productionKind ~= "extract-material"
+            and step.productionKind ~= "maintain-garment") then return false end
     local repairing = step.productionKind == "repair-held-item" or step.productionKind=="fix-held-item" or step.productionKind=="recipe-upkeep"
     if not setState(agent, id, "RESOURCE", repairing and "maintains an exact carried tool"
         or "produces stock for retained native work") then return false end
@@ -6466,7 +6468,7 @@ function Ctl.beginConstructionAcquisition(id, agent, body, tick, purpose, step)
     local started = SAO.SourceUse.beginAcquisition(id, body, step.place, step.category, {
         purposeId = purpose.id, purposeStepId = step.id, sourceId = step.sourceId,
         sourceRevision = step.sourceRevision, itemId = step.itemId, itemType = step.itemType,
-        recipeRequirement = step.recipeRequirement })
+        recipeRequirement = step.recipeRequirement,garmentRequirement=step.garmentRequirement })
     if not started then
         SAO.ProceduralPlanning.deferResourceRoute(id, purpose.id, step.id,
             "the privately remembered material could not be acquired")
@@ -12310,6 +12312,87 @@ function Ctl.tryExtractionForRecipe(id,agent,body,tick,parent,requesting)
  local p,step=SAO.ProceduralPlanning.planMaterialExtraction(id,Ctl.extractionInputContext(id,body,parent,requesting))
  if not p or p.admission or p.materialExtraction.lastWorkId or not step then return false end
  return Ctl.beginConstructionProduction(id,agent,body,tick,p,step)
+end
+
+function Ctl.advanceGarmentWork(id,agent,body,tick,purpose,step)
+ if not purpose or purpose.admission or not step or agent.state~="IDLE" then return false end
+ if step.verb=="inspect"and step.owner=="SAO.WorldSources"then
+  local context=SAO.WorldSources.inspectionCandidate(id,body,"standing",SAO.Needs.PERCEPTION_TILES,step.sourceId)
+  if context and SAO.WorldSources.beginPurposeInspection(id,body,context,purpose.id,step.id)then
+   return beginContainerInspection(id,agent,body,0,"garment-input",tick,context)
+  end
+  return false
+ end
+ if step.verb=="acquire"and step.garmentRequirement then
+  if not step.sourceId then
+   local offered=Ctl.garmentInputOffers(id,body,purpose,step)
+   if not SAO.ProceduralPlanning.selectGarmentInput(id,body,purpose.id,offered)then
+    local context=SAO.WorldSources.inspectionCandidate(id,body,"standing",SAO.Needs.PERCEPTION_TILES)
+    local inspect=context and SAO.ProceduralPlanning.prepareGarmentInspection(id,purpose.id,context)
+    if inspect and SAO.WorldSources.beginPurposeInspection(id,body,context,purpose.id,inspect.id)then
+     return beginContainerInspection(id,agent,body,0,"garment-input",tick,context)
+    end
+    return false
+   end
+  end
+  return Ctl.beginConstructionAcquisition(id,agent,body,tick,purpose,step)
+ end
+ if step.verb=="use" and step.productionKind=="use-maintained-garment" then
+  return SAO.ProceduralPlanning.consumeGarmentUse and SAO.ProceduralPlanning.consumeGarmentUse(id,body,purpose.id)==true or false
+ end
+ if step.verb=="produce" and step.status=="available" then
+  return Ctl.beginConstructionProduction(id,agent,body,tick,purpose,step)
+ end
+ return false
+end
+function Ctl.tryGarmentWork(id,agent,body,tick)
+ local planning,production,perception=SAO.ProceduralPlanning,SAO.ResourceProduction,SAO.Perception
+ if not planning or not planning.planGarmentWork or not production or not production.garmentOptions
+  or not perception or not perception.observeGarments or agent.state~="IDLE"or agent.passive
+  or SAO.Identity.get(id)~=agent.rec or SAO.Body.get(id)~=body or agent.rec.resourceProductionWork
+  or agent.rec.worldSourceReservation or not SAO.Needs.workAvailable(body)then return false end
+ local retained,step=planning.garmentPurpose(id)
+ if retained and retained.admission then return false end
+ if not perception.observeGarments(id,body)then return false end
+ if retained and retained.garmentMaintenance.physicalResultId then
+  if Ctl.advanceGarmentWork(id,agent,body,tick,retained,step)then return true end
+  retained,step=planning.garmentPurpose(id)
+  if not retained or retained.garmentMaintenance.physicalResultId then return false end
+ end
+ if retained and not retained.awaitingReassessment and step and (step.verb=="inspect"or step.verb=="acquire")then
+  return Ctl.advanceGarmentWork(id,agent,body,tick,retained,step)
+ end
+ for _,observed in ipairs(perception.garments(id,body))do
+  -- An observed garment hole supplies the upkeep concern. Intact clothing
+  -- does not become an automatic padding target merely because stock exists.
+  local target=retained and retained.awaitingReassessment and retained.garmentMaintenance
+  local concern=target and observed.itemId==target.itemId and observed.part==target.part
+   or not target and observed.hole>0
+  local options=concern and production.garmentOptions(id,body,observed)or{}
+  if type(options)=="table"and #options>0 then
+   local purpose,current=planning.planGarmentWork(id,body,{actorId=id,observation=observed,options=options})
+   if purpose and current then return Ctl.advanceGarmentWork(id,agent,body,tick,purpose,current)end
+  end
+ end
+ return false
+end
+
+function Ctl.garmentInputOffers(id,body,purpose,step)
+ local req=step and step.garmentRequirement
+ local offered={actorId=id,garmentRequirement=req,options={}}
+ if not req then return offered end
+ for _,place in pairs(SAO.Perception.knownPlaces(id,true)or{})do
+  local rows=SAO.WorldSources.garmentSlotOptions(place,id,body,req,"standing")
+  for _,option in ipairs(rows and rows.options or{})do
+   local a=option.parameters
+   option.place={id=place.id,sourceId=place.sourceId,cx=place.cx,cy=place.cy,z=place.z,
+    minX=place.minX,minY=place.minY,maxX=place.maxX,maxY=place.maxY}
+   option.distance=math.sqrt((body:getX()-a.sourceX)^2+(body:getY()-a.sourceY)^2)
+   offered.options[#offered.options+1]=option
+  end
+ end
+ SAO.Ordering.sort(offered.options,function(a,b)return a.id<b.id end)
+ return offered
 end
 
 return Ctl

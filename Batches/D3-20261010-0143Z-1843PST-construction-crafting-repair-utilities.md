@@ -9,9 +9,9 @@
 | Owner | Neo, SAO chief implementer and Objective Alignment Steward |
 | Follows | batch:D2 |
 | Shared contracts | C3, C6, C12, C13, C16, C18, C19, C20, C21, C24, C26, C28, C30, C31, C32, C33 |
-| Implementation | CLOSED D3.1-D3.21 retain qualified useful outcomes. Complete native construction/material/site/service/authority integration remains under this OPEN parent before D4. |
+| Implementation | CLOSED D3.1-D3.22 retain qualified useful outcomes. Complete native construction/material/site/service/authority integration remains under this OPEN parent before D4. |
 | Verification | Child-linked native, private planning, source, cognition, lifecycle/save and equipment evidence; dated first-join evidence retained below. |
-| Version | 2.7.4.0-pre-alpha; one kohai child progress increment while full D3 remains OPEN. |
+| Version | 2.7.5.0-pre-alpha; one kohai child progress increment while full D3 remains OPEN. |
 | Publication | D3.1-D3.18 retain protected publication through PR142-PR161 with exact completion receipts. D3.18 merged at `47c701823d5d520a6214c6fad693eaabf51bbb2e`; D3.19 qualified closure and selected stamped package await their actual protected merge. Full D3 continues through the operator-directed D4 transition. |
 
 ## Product and current implementation
@@ -393,3 +393,23 @@ D3.20 actually merged PR163 at `aa46d424f63027b7418372155879114fd1e9e54d`, with 
 ## D3.21 qualified progress and remaining parent — 2026-10-12 20:51 UTC / 13:51 PDT
 
 [D3.21](D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) closes source-bounded native factory/partial-payment through actual ordinary acquired Stool materials, paid prop, cold current surface and original Whetstone/Scissors use with independent feedback. One kohai records progress. Complete remaining construction/stage/resources, site/finishing/salvage/security, equipment/vehicle/garment, five original utility mechanisms and native authority stay active through D4; source/native helper packets do not close those consumers. Package/protected merge and shared archive/model adoption remain separate evidence.
+
+## Worn garment continuation — 2026-10-12 21:06 UTC / 14:06 PDT
+
+D3.21 actually merged PR164 at89548420ce9c7ab1f1b01aaeeb4646d90d40322f and its source/package/custody was independently released. [D3.22](D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) prerecords personal worn-garment upkeep through native bodily use before public implementation. Root garment/utility/authority and private vehicle work are dependency support; full D3 and D4-D6 FIFO remain active.
+
+## Connected utility owner preparation under the retained parent
+
+The next connected service seam reuses the existing SAO Generator owner and personal power purpose. Root owns only private `_scratch/d3-utility-generator-owner-01/` for a minimal existing-Generator method patch and exact integration interface: original generator plumbing installation with the source-defined retained tool cost, current finite original fuel group to native generator, current native power and effective water-provider measurement. Original installed APIs and actual provider identity/debit remain owning mechanisms; a mirror is not stock. Chief retains all public Generator/person/Java/source records, shared service admission and final consumer/package/publication. Existing native installation29/three controls, powered12/three controls, receiver27/three controls and topology20/three controls are reusable only at their performed source scope. The private owner proposal must keep original request, current body/source/tool/group, exact action phase, canonical result, cleanup and once/replay interfaces inside the existing owner. It adds no executor, registry, result store, source-copy permission, shipment or credit. D3.22 stays the active public garment delivery; the complete utility consumer, remaining five original lines and authoritative execution stay under D3 until an actual coherent public child is prerecorded.
+
+## D3.22 qualified progress and retained full scope - 2026-10-12 22:48 UTC / 15:48 PDT
+
+[D3.22](D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) closes ordinary private garment inquiry/acquisition, paid original native garment service, persisted exact native item relation, same-purpose preparatory upgrade and independent target protection use with private feedback. One kohai records progress. Full remaining construction/site/resources/finishing/security/salvage, equipment/garment/vehicle, five original utility lines and native authoritative execution remain active before D4; wider doctrine/strategy/lifespan/aging/maintained knowledge/interrepo/ML and D4-D6 FIFO retain their exact owners. The private existing Generator owner proposal is enabling work for the next connected service, not a completed consumer or separate shipment.
+
+## D3.22 current stale-use reclosure - 2026-10-12 23:47 UTC / 16:47 PDT
+
+[D3.22](D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) requalifies the same-version candidate after actual paid-result changes, fresh same-ID replacement, deferred unworn evidence and saved missing/foreign predecessor controls. Actual54/five-actor/private projections and bounded review pass; old physical truth remains and latest native protection alone resolves the original goal. No additional credit/build is earned. Current protected publication and complete retained D3 scope/next utility consumer remain active through D4.
+
+## D3.22 final protection/source-contract reclosure - 2026-10-13 00:31 UTC / 17:31 PDT
+
+[D3.22](D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) requalifies the same useful garment progress with actual class/current wearer/lineage/value and stale-retry evidence. Native56/four controls, layer45 and eighteen verification routes add no credit or build. Existing utility G/source-observer/feedback/intake and vehicle owner proposals remain private dependencies; the next public outcome is ordinary connected utility service. Complete retained D3 scope and all wider interrepo/ML/FIFO obligations continue through D4.

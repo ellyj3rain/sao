@@ -158,6 +158,10 @@ function SAOVerifiedWorldTransferAction:transferItem(item)
     if not self:isValid() then self.dontAdd = true; return end
     if self.saoSourceReservation then
         local reservation=SAO.WorldSources and SAO.WorldSources.reservation(self.saoSourceReservation)
+        if reservation and reservation.garmentRequirement
+            and (item==nil or SAO.SourceUse.garmentTransferCurrent(reservation,item,self.character)~=true)then
+            self.dontAdd=true;return false
+        end
         if reservation and reservation.recipeRequirement
             and (item==nil or SAO.SourceUse.recipeTransferCurrent(reservation,item,self.character)~=true) then
             self.dontAdd=true;return false

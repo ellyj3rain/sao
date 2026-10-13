@@ -2799,6 +2799,80 @@ if ! "$PY" tools/d3_workspace_consumer_test.py --case prop-negative --control pr
     note "BORDER FINDING - native prop script predicate omission was not detected"
     fail=1
 fi
+# D3.22 keeps private worn-garment choice, signed native material acquisition,
+# original paid repair, saved wearer protection and independent use feedback.
+if ! "$PY" tools/d3_garment_consumer_test.py --out "$sao_d3_proof/garment-normal"; then
+    note "BORDER FINDING - native garment acquisition, paid repair or original worn use differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --case cancel --out "$sao_d3_proof/garment-cancel"; then
+    note "BORDER FINDING - queued garment cancellation or retained unpaid state differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --control inspection-phase --out "$sao_d3_proof/garment-inspection-control"; then
+    note "BORDER FINDING - garment inspection reassessment omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --control garment-transfer --out "$sao_d3_proof/garment-transfer-control"; then
+    note "BORDER FINDING - garment transfer observation omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --control use-phase --out "$sao_d3_proof/garment-use-control"; then
+    note "BORDER FINDING - garment original use-step omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --case upgrade --out "$sao_d3_proof/garment-upgrade"; then
+    note "BORDER FINDING - preparatory garment removal or same-purpose replacement use differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --case layers --out "$sao_d3_proof/garment-layers"; then
+    note "BORDER FINDING - native target protection or private high-skill appraisal differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --case upgrade --control removal-replan --out "$sao_d3_proof/garment-removal-control"; then
+    note "BORDER FINDING - preparatory removal reassessment omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --case layers --control aggregate-benefit --out "$sao_d3_proof/garment-aggregate-control"; then
+    note "BORDER FINDING - aggregate wearer defense substitution was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --case layers --control utility-domain --out "$sao_d3_proof/garment-utility-control"; then
+    note "BORDER FINDING - high-skill model utility-domain omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --case stale-use --out "$sao_d3_proof/garment-stale-use"; then
+    note "BORDER FINDING - fresh garment reassessment or saved canonical retry admission differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --case stale-use --control stale-link --out "$sao_d3_proof/garment-stale-link-control"; then
+    note "BORDER FINDING - stale garment use-link omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --case stale-use --control retry-authority --out "$sao_d3_proof/garment-retry-authority-control"; then
+    note "BORDER FINDING - saved canonical retry-authority omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --case final-contracts --out "$sao_d3_proof/garment-final-contracts"; then
+    note "BORDER FINDING - native class, current wearer, unconfirmed service or zero forecast differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --case final-contracts --control sourceclass --out "$sao_d3_proof/garment-sourceclass-control"; then
+    note "BORDER FINDING - native clothing class grammar omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --case final-contracts --control current-token --out "$sao_d3_proof/garment-current-token-control"; then
+    note "BORDER FINDING - current wearer-token omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --case final-contracts --control unconfirmed-link --out "$sao_d3_proof/garment-unconfirmed-link-control"; then
+    note "BORDER FINDING - unconfirmed service-link omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_garment_consumer_test.py --case final-contracts --control restore-benefit --out "$sao_d3_proof/garment-restore-benefit-control"; then
+    note "BORDER FINDING - zero restoration forecast omission was not detected"
+    fail=1
+fi
 if ! "$PY" tools/d3_material_categories_test.py --out "$sao_d3_proof/materials"; then
     note "BORDER FINDING - exact native construction-material admission differs"
     fail=1

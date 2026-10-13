@@ -12,6 +12,30 @@ SAO = SAO or {}
 SAO.SourceUse = SAO.SourceUse or {}
 local SU = SAO.SourceUse
 
+function SU.garmentInputCurrent(reservation,item,body)
+ local r=reservation and SAO.WorldSources.garmentRequirementCopy(reservation.garmentRequirement)
+ if not r or not item or not body or reservation.status~="reserved"or reservation.category~="garment-input"
+  or SAO.Body.get(reservation.actorId)~=body or SAO.WorldSources.reservation(reservation.id)~=reservation
+  or reservation.actorId~=r.actorId or reservation.purposeId~=r.purposeId or reservation.purposeStepId~=r.stepId
+  or tostring(item:getID())~=tostring(reservation.itemId)or item:getFullType()~=reservation.itemType
+  or not SAO.WorldSources.garmentDemandCurrent(reservation.actorId,r)then return false end
+ if r.role=="fabric"then return item:getFullType()==r.itemType and item:getFabricType()~=nil and({["Base.RippedSheets"]="Cotton",["Base.DenimStrips"]="Denim",["Base.LeatherStrips"]="Leather"})[item:getFullType()]==item:getFabricType()end
+ if r.role=="needle"then return item:getFullType()=="Base.Needle"or item:hasTag(ItemTag.SEWING_NEEDLE)end
+ return r.role=="thread"and instanceof(item,"DrainableComboItem")and item:getCurrentUses()>0
+  and(item:getFullType()=="Base.Thread"or item:hasTag(ItemTag.THREAD))
+end
+function SU.garmentTransferCurrent(reservation,item,body)
+ if SU.garmentInputCurrent(reservation,item,body)~=true then return false end
+ local r=reservation.garmentRequirement
+ local ok,native=pcall(function()return SAOJavaBridge:garmentInputObservation(body,reservation.sourceId,reservation.fingerprint,reservation.revision,r)end)
+ if not ok or type(native)~="table"or native.actorId~=reservation.actorId or native.sourceId~=reservation.sourceId
+  or native.fingerprint~=reservation.fingerprint or native.revision~=reservation.revision or type(native.garmentRequirement)~="table"then return false end
+ for k,v in pairs(r)do if native.garmentRequirement[k]~=v then return false end end
+ for k in pairs(native.garmentRequirement)do if r[k]==nil then return false end end
+ for _,row in ipairs(native.items or {})do if tostring(row.itemId)==tostring(item:getID())and row.itemType==item:getFullType()and row.nativeEligible==true then return true end end
+ return false
+end
+
 function SU.recipeInputCurrent(reservation,item,body)
     if not reservation or not reservation.recipeRequirement or not item or not body
         or reservation.status~="reserved" or SAO.Body.get(reservation.actorId)~=body
@@ -390,6 +414,12 @@ local function queueTransfer(id, body, reservation)
         clearBinding(body)
         return false, "REVISION_CHANGED"
     end
+    local garmentItem
+    if reservation.garmentRequirement then
+        local ok,item=pcall(function()return SAOJavaBridge:worldSourceActionItem(body)end)
+        if not ok or not item or SU.garmentInputCurrent(reservation,item,body)~=true then clearBinding(body);return false,"native-garment-input-state-refused"end
+        garmentItem=item
+    end
     local recipeItem
     if reservation.recipeRequirement then
         local ok,item=pcall(function() return SAOJavaBridge:worldSourceActionItem(body) end)
@@ -441,6 +471,19 @@ local function queueTransfer(id, body, reservation)
     if action then
         action.saoSourceReservation = reservation.id
         action.saoSourceActor = tostring(id)
+        if reservation.garmentRequirement then
+            local nativeValid,nativePerform,nativeTransfer=action.isValid,action.perform,action.transferItem
+            local requirement=reservation.garmentRequirement
+            local function eligible()return reservation.garmentRequirement==requirement and SU.garmentInputCurrent(reservation,garmentItem,body)==true end
+            function action:isValid()return eligible()and nativeValid(self)==true end
+            function action:perform()if not eligible()then return false end;return nativePerform(self)end
+            if nativeTransfer then function action:transferItem(item)
+                local exact=item
+                if reservation.sourceKind=="ground"then local ok,held=pcall(function()return item:getItem()end);exact=ok and held or nil end
+                if exact~=garmentItem or not eligible()or SU.garmentTransferCurrent(reservation,garmentItem,body)~=true then self.dontAdd=true;return false end
+                return nativeTransfer(self,item)
+            end end
+        end
         if reservation.recipeRequirement then
             local nativeValid,nativePerform,nativeTransfer=action.isValid,action.perform,action.transferItem
             local requirement=reservation.recipeRequirement
@@ -559,7 +602,9 @@ function SU.begin(id, body, place, category, admission, decisionContext)
     local operation = context.operation or "consume"
     local quantity = category == "water" and 0.01 or 1
     local offered,why
-    if context.recipeRequirement and operation=="acquire" then
+    if context.garmentRequirement and operation=="acquire"then
+        offered,why=SAO.WorldSources.garmentSlotOptions(place,id,body,context.garmentRequirement,admission)
+    elseif context.recipeRequirement and operation=="acquire" then
         offered,why=SAO.WorldSources.recipeSlotOptions(place,category,id,body,context.recipeRequirement,admission)
     else offered,why=SAO.WorldSources.actionOptions(place, category,
         id, body, quantity, admission, operation, operation=="acquire" and context.itemType or nil) end
@@ -578,8 +623,13 @@ function SU.begin(id, body, place, category, admission, decisionContext)
     end
     local reservation
     reservation, why = SAO.WorldSources.beginAction(place, category,
-        id, body, quantity, admission, selected, operation,context.recipeRequirement)
+        id, body, quantity, admission, selected, operation,context.recipeRequirement,context.garmentRequirement)
     if not reservation then return false, why end
+    if context.garmentRequirement then
+        local copy=SAO.WorldSources.garmentRequirementCopy(context.garmentRequirement)
+        if not copy or copy.role=="fabric"and copy.itemType~=reservation.itemType or not SAO.WorldSources.garmentDemandCurrent(id,copy)then SAO.WorldSources.release(reservation.id,"garment-input-requirement-changed");return false,"garment-input-requirement-changed"end
+        reservation.garmentRequirement=copy
+    end
     if context.recipeRequirement then
         local policy=SAO.RecipePolicy
         local copy=policy and policy.project({requirements=context.recipeRequirement})

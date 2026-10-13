@@ -3131,4 +3131,146 @@ public final class SAOWorldSources {
         out.rawset("kind","construction-workspace");out.rawset("sourceRevision",revision);return out;
     }
 
+    // Appended inside existing SAOWorldSources. No binding registry: R retains
+    // exact transient body/item/material references; plain rows grant no custody.
+    private static String garmentSourceRevision(zombie.inventory.types.Clothing clothing) {
+        var d=clothing.getScriptItem();
+        if(d==null||zombie.scripting.ScriptManager.instance.getItem(clothing.getFullType())!=d)return null;
+        var b=new StringBuilder();b.append(d.getScriptObjectFullType()).append('|').append(d.getModID())
+            .append('|').append(d.getFileName()).append('|').append(d.getFabricType()).append('|').append(d.getBodyLocation())
+            .append('|').append(d.getConditionMax()).append('|').append(d.canHaveHoles)
+            .append('|').append(clothing.getScratchDefense()).append('|').append(clothing.getBiteDefense());
+        for(var part:clothing.getCoveredParts())b.append('|').append(part.index());
+        try{var bytes=java.security.MessageDigest.getInstance("SHA-256").digest(b.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));return java.util.HexFormat.of().formatHex(bytes);}
+        catch(java.security.NoSuchAlgorithmException e){throw new IllegalStateException(e);}
+    }
+    public static synchronized Object garmentObserve(SAOIsoPlayerShell body,zombie.inventory.types.Clothing clothing,zombie.characterTextures.BloodBodyPartType part) {
+        try {
+        String actor=recipeActor(body);if(actor==null||clothing==null||part==null||!body.isEquippedClothing(clothing)
+            ||!body.getInventory().contains(clothing)||clothing.getVisual()==null||!clothing.getCoveredParts().contains(part))return null;
+        String source=garmentSourceRevision(clothing);if(source==null)return null;
+        var row=recipeTable();row.rawset("actorId",actor);row.rawset("bodyToken",body.getModData().rawget("SAOExternalToken"));
+        row.rawset("itemId",Long.toString(clothing.getID()));row.rawset("itemType",clothing.getFullType());row.rawset("sourceRevision",source);
+        row.rawset("nativeClass",clothing.getClass().getName());
+        row.rawset("part",part.toString());row.rawset("fabricType",clothing.getFabricType());row.rawset("condition",(double)clothing.getCondition());
+        row.rawset("hole",(double)clothing.getVisual().getHole(part));var patch=clothing.getPatchType(part);
+        row.rawset("patchPresent",patch!=null);if(patch!=null){row.rawset("patchFabric",(double)patch.getFabricType());row.rawset("scratchDefense",(double)patch.getScratchDefense());row.rawset("biteDefense",(double)patch.getBiteDefense());}
+        row.rawset("wornScratchDefense",(double)body.getBodyPartClothingDefense(part.index(),false,false));
+        row.rawset("wornBiteDefense",(double)body.getBodyPartClothingDefense(part.index(),true,false));
+        // Native wearer aggregation counts only a covered visual with no hole
+        // and delegates that garment's contribution to this original API.
+        row.rawset("targetScratchDefense",clothing.getVisual().getHole(part)==0?(double)clothing.getDefForPart(part,false,false):0.0);
+        row.rawset("targetBiteDefense",clothing.getVisual().getHole(part)==0?(double)clothing.getDefForPart(part,true,false):0.0);
+        row.rawset("tailoring",(double)body.getPerkLevel(zombie.characters.skills.PerkFactory.Perks.Tailoring));
+        var signature=new StringBuilder();for(String k:new String[]{"actorId","bodyToken","itemId","itemType","sourceRevision","part","fabricType","condition","hole","patchPresent","patchFabric","scratchDefense","biteDefense","wornScratchDefense","wornBiteDefense","targetScratchDefense","targetBiteDefense","tailoring"})signature.append(k).append('=').append(row.rawget(k)).append('|');
+        try{row.rawset("observationRevision",java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(signature.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8))));}catch(java.security.NoSuchAlgorithmException e){throw new IllegalStateException(e);}
+        row.rawset("observedAtHours",zombie.GameTime.getInstance().getWorldAgeHours());row.rawset("observationOnly",true);
+        row.rawset("privateAcquisitionRequired",true);row.rawset("standingRequired",true);row.rawset("ownedPhysicalReceiptRequired",true);return row;
+
+        } catch(Throwable unavailable) { return null; }
+    }
+    public static synchronized boolean garmentCurrent(SAOIsoPlayerShell body,zombie.inventory.types.Clothing expected,
+        zombie.characterTextures.BloodBodyPartType part,se.krka.kahlua.vm.KahluaTable observation) {
+        try {
+        if(observation==null||observation.getMetatable()!=null)return false;var fresh=(se.krka.kahlua.vm.KahluaTable)garmentObserve(body,expected,part);
+        if(fresh==null)return false;for(String k:new String[]{"actorId","bodyToken","itemId","itemType","sourceRevision","part"})
+            if(!java.util.Objects.equals(fresh.rawget(k),observation.rawget(k)))return false;return true;
+
+        } catch(Throwable unavailable) { return false; }
+    }
+    public static synchronized Object garmentObservations(SAOIsoPlayerShell body) {
+        try {
+        var rows=recipeTable();if(recipeActor(body)==null)return rows;int count=0;
+        for(int i=0;i<body.getWornItems().size();i++)if(body.getWornItems().getItemByIndex(i)instanceof zombie.inventory.types.Clothing c)
+            for(var part:c.getCoveredParts()){var row=garmentObserve(body,c,part);if(row!=null)rows.rawset((double)++count,row);}
+        return rows;
+
+        } catch(Throwable unavailable) { return null; }
+    }
+    // Existing R retains exact expected instance. The scalar id/revisions alone
+    // never re-authorize a same-id replacement or transfer-back.
+    public static synchronized Object exactGarment(SAOIsoPlayerShell body,zombie.inventory.types.Clothing expected,
+        String itemId,zombie.characterTextures.BloodBodyPartType part,String sourceRevision,String observationRevision) {
+        try {
+        if(itemId==null||sourceRevision==null||observationRevision==null)return null;
+        var row=(se.krka.kahlua.vm.KahluaTable)garmentObserve(body,expected,part);
+        return row!=null&&itemId.equals(row.rawget("itemId"))&&sourceRevision.equals(row.rawget("sourceRevision"))
+            &&observationRevision.equals(row.rawget("observationRevision"))?expected:null;
+
+        } catch(Throwable unavailable) { return null; }
+    }
+
+    /** Resolve a currently worn native target against the canonical service
+     * relationship supplied by its owning result reader. Never authors one. */
+    public static synchronized Object garmentForResult(SAOIsoPlayerShell body,se.krka.kahlua.vm.KahluaTable expected) {
+        try {
+            String actor=recipeActor(body);
+            if(actor==null||expected==null||expected.getMetatable()!=null
+                    ||!"sao.native-physical-service/1".equals(expected.rawget("schema"))
+                    ||!"maintain-garment".equals(expected.rawget("kind"))||!actor.equals(expected.rawget("actorId")))return null;
+            String[] fields={"schema","workId","actorId","world","bodyToken","kind","itemId","itemType","part",
+                "sourceRevision","operation","requestedEffect","nativeClass"};
+            int expectedCount=0;var keys=expected.iterator();
+            while(keys.advance()) { boolean allowed=false;
+                for(String field:fields)if(field.equals(keys.getKey())){allowed=true;break;}
+                if(!allowed||!(keys.getValue()instanceof String value)||value.isBlank())return null;
+                expectedCount++;
+            }
+            int fieldCount=fields.length-(expected.rawget("bodyToken")==null?1:0);
+            if(expectedCount!=fieldCount)return null;
+            var part=zombie.characterTextures.BloodBodyPartType.valueOf((String)expected.rawget("part"));
+            if(part==zombie.characterTextures.BloodBodyPartType.MAX)return null;
+            zombie.inventory.types.Clothing found=null;
+            for(int i=0;i<body.getWornItems().size();i++) {
+                if(!(body.getWornItems().getItemByIndex(i)instanceof zombie.inventory.types.Clothing clothing)
+                        ||!Long.toString(clothing.getID()).equals(expected.rawget("itemId")))continue;
+                if(found!=null||!clothing.getFullType().equals(expected.rawget("itemType"))
+                        ||!clothing.getClass().getName().equals(expected.rawget("nativeClass"))
+                        ||!java.util.Objects.equals(garmentSourceRevision(clothing),expected.rawget("sourceRevision"))
+                        ||garmentObserve(body,clothing,part)==null)return null;
+                var map=table(clothing.getModData().rawget("SAOPhysicalService"));
+                var actual=map==null||map.getMetatable()!=null?null:table(map.rawget(expected.rawget("part")));
+                if(actual==null||actual.getMetatable()!=null)return null;
+                int actualCount=0;var actualKeys=actual.iterator();
+                while(actualKeys.advance()){actualCount++;
+                    if(!java.util.Objects.equals(expected.rawget(actualKeys.getKey()),actualKeys.getValue()))return null;
+                }
+                if(actualCount!=fieldCount)return null;
+                found=clothing;
+            }
+            return found;
+        } catch(Throwable unavailable) { return null; }
+    }
+
+    // Existing source resolver and actor/private perception admission; no recipe
+    // declaration or new native transfer owner is synthesized for garment stock.
+    public static synchronized Object garmentInputObservation(SAOIsoPlayerShell body,String sourceId,String fingerprint,String revision,
+        se.krka.kahlua.vm.KahluaTable requirement) {
+        try {
+            String actor=recipeActor(body);if(actor==null||requirement==null||requirement.getMetatable()!=null||transactionActive
+                ||!"sao.garment-input/1".equals(requirement.rawget("schema"))||!actor.equals(requirement.rawget("actorId"))
+                ||!Double.valueOf(1).equals(requirement.rawget("requiredUses")))return null;
+            var sao=table(zombie.Lua.LuaManager.env.rawget("SAO"));var planning=sao==null?null:table(sao.rawget("ProceduralPlanning"));Object admission=planning==null?null:planning.rawget("garmentInputAdmission");
+            if(admission==null||!Boolean.TRUE.equals(zombie.Lua.LuaManager.caller.pcallBoolean(zombie.Lua.LuaManager.thread,admission,new Object[]{actor,requirement})))return null;
+            String itemType=(String)requirement.rawget("itemType"),role=(String)requirement.rawget("role"),targetId=(String)requirement.rawget("targetItemId"),partName=(String)requirement.rawget("part");
+            zombie.inventory.types.Clothing target=null;
+            for(int i=0;i<body.getWornItems().size();i++)if(body.getWornItems().getItemByIndex(i)instanceof zombie.inventory.types.Clothing c&&targetId.equals(Integer.toString(c.getID()))){if(target!=null)return null;target=c;}
+            var part=zombie.characterTextures.BloodBodyPartType.valueOf(partName);if(target==null||part==zombie.characterTextures.BloodBodyPartType.MAX||!target.getFullType().equals(requirement.rawget("targetItemType")))return null;
+            var observed=(se.krka.kahlua.vm.KahluaTable)garmentObserve(body,target,part);if(observed==null||!java.util.Objects.equals(observed.rawget("sourceRevision"),requirement.rawget("sourceRevision"))
+                ||!java.util.Objects.equals(observed.rawget("observationRevision"),requirement.rawget("observationRevision"))||!java.util.Objects.equals(observed.rawget("bodyToken"),requirement.rawget("bodyToken")))return null;
+            var fact=privateRecipeSource(actor,sourceId,fingerprint,revision);if(fact==null||!(fact.rawget("x")instanceof Number x)||!(fact.rawget("y")instanceof Number y)||!(fact.rawget("z")instanceof Number z))return null;
+            var source=resolveRecipeSource(body,sourceId,fingerprint,revision,x.intValue(),y.intValue(),z.intValue());if(source==null)return null;
+            var rows=recipeTable();int count=0;
+            for(var item:source){var script=item.getScriptItem();if(script==null||zombie.scripting.ScriptManager.instance.getItem(item.getFullType())!=script
+                ||item.getIsCraftingConsumed()||item instanceof zombie.inventory.types.InventoryContainer)continue;
+                boolean eligible=switch(role){case "needle"->item.getFullType().equals("Base.Needle")||item.hasTag(zombie.scripting.objects.ItemTag.SEWING_NEEDLE);
+                    case "thread"->item instanceof zombie.inventory.types.DrainableComboItem&&item.getCurrentUses()>0&&(item.getFullType().equals("Base.Thread")||item.hasTag(zombie.scripting.objects.ItemTag.THREAD));
+                    case "fabric"->itemType.equals(item.getFullType())&&java.util.Map.of("Base.RippedSheets","Cotton","Base.DenimStrips","Denim","Base.LeatherStrips","Leather").getOrDefault(itemType,"").equals(item.getFabricType());default->false;};
+                if(eligible){var row=recipeItemState(item);row.rawset("nativeEligible",true);rows.rawset((double)++count,row);}
+            }
+            var out=recipeTable();out.rawset("actorId",actor);out.rawset("sourceId",sourceId);out.rawset("fingerprint",fingerprint);out.rawset("revision",revision);out.rawset("garmentRequirement",copyGarmentRequirement(requirement));out.rawset("items",rows);return out;
+        }catch(Throwable unavailable){return null;}
+    }
+    private static se.krka.kahlua.vm.KahluaTable copyGarmentRequirement(se.krka.kahlua.vm.KahluaTable r){var out=recipeTable();var it=r.iterator();while(it.advance())out.rawset(it.getKey(),it.getValue());return out;}
+
 }

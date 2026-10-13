@@ -184,7 +184,7 @@ currency with `python tools/development_graph.py --check`.
 
 ## Status
 
-`2.7.4.0-pre-alpha` - the coordinate is computed by the version machine
+`2.7.5.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -729,3 +729,5 @@ Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md
 [D3.20](Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md) carries an ordinary private missing-workspace demand through original logging, fresh native Log acquisition and SawLogs, whole paid Table construction, native saved result continuity and the original Whetstone/Scissors work. Current native effect, independent private feedback and refusal/replay evidence are qualified. Full D3 remains OPEN at `2.7.3.0-pre-alpha` and continues complete source, maintenance, utility and authority integration before D4.
 
 [D3.21](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) joins native prop/callback result capture and exact partial-use payment to ordinary private Stool acquisition/building, persisted current surface and original crafting/upkeep use. Independent native feedback and refusal/replay evidence are qualified; full D3 remains OPEN at `2.7.4.0-pre-alpha` before D4.
+
+[D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) joins privately observed worn garment damage, default upkeep choice, signed fabric/thread/needle acquisition and original native service to persisted current wearer and independently measured target protection. Preparatory upgrades resume the same goal; unrelated armor changes cannot supply its benefit. Full D3 remains OPEN at `2.7.5.0-pre-alpha` before D4.
