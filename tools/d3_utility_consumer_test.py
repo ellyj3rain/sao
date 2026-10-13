@@ -5,7 +5,107 @@ import argparse,hashlib,json,os,re,shutil,subprocess,sys
 S=Path(__file__).resolve().parent.parent;H=S/"tools/utility_consumer_checks";G=Path(os.environ.get("PZ_DIR",r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid"));J=Path(os.environ.get("JDK_BIN",r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin"))
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def write(out,r):(out/"receipt.json").write_text(json.dumps(r,indent=2,sort_keys=True)+"\n")
-p=argparse.ArgumentParser();p.add_argument("--scenario",choices=["household-restoration","water-network"],default="household-restoration");p.add_argument("--out",type=Path,required=True);p.add_argument("--reuse-classes",type=Path);p.add_argument("--diagnostic-scan-stack",action="store_true");p.add_argument("--source-freeze",type=Path);p.add_argument("--capture-release",type=Path);p.add_argument("--freeze-sha");p.add_argument("--release-sha");p.add_argument("--case",choices=["normal","parent-revoked","source-removed","cancel","native-swapped","parent-postallocation","installed-offer","review-corrections","recipe-mutation"]);p.add_argument("--control",choices=["hydration-current","native-instance","obsolete-stop","producer-callback","purification-capacity","network-parent","installed-admission","installed-transfer","review-pump","recipe-observation","recipe-transfer"]);p.add_argument("--required",action="store_true");p.add_argument("--preflight",action="store_true");p.add_argument("--snapshot-source",type=Path);a=p.parse_args();
+def electrical_run(a):
+ """The attained electrical/native consumer recipes in this existing driver."""
+ case=a.case or 'normal';control=a.control
+ controls={'native-toggle':('accounting','omit-native-toggle'),'native-fuel-revoke':('accounting','restore-fuel-revoke'),'electrical-receiver':('review-corrections','omit-receiver')}
+ if control and control not in controls:p.error('managed-electrical control unsupported')
+ if control:
+  requiredCase,mode=controls[control]
+  if a.case and case!=requiredCase:p.error('control requires its exact named electrical case')
+  case=requiredCase
+ else:mode='changed-source'if case=='source-removed'else'none'
+ if case not in ['normal','accounting','review-corrections','source-removed']:p.error('managed-electrical case unsupported')
+ if a.source_freeze or a.capture_release or a.reuse_classes or a.diagnostic_scan_stack:p.error('electrical lane uses its exact captured current inputs; release/reuse/diagnostic flags unsupported')
+ if a.snapshot_source and(control or a.case or a.preflight):p.error('electrical snapshot-source is data-only, accepts no physical case/control/preflight')
+ out=a.out.resolve();out.mkdir(parents=True,exist_ok=False)
+ supports=[H/n for n in ['ElectricalServiceNativeProbe.java','ElectricalOrdinaryProbe.java','electrical_ports.lua','electrical_cases.lua','electrical_ordinary_ports.lua','electrical_ordinary_cases.lua','electrical_consumer_use.lua']]
+ runtime=[S/'mod/42.20/media/lua'/q for q in ['shared/SAO_Ordering.lua','shared/SAO_HouseholdService.lua','shared/SAO_ElectricalService.lua','client/SAO_ElectricalMenu.lua','shared/SAO_WorldSources.lua','shared/SAO_Perception.lua','shared/SAO_SituationAppraisal.lua','shared/SAO_Labor.lua','shared/SAO_CognitiveModels.lua','shared/SAO_Cognition.lua','shared/SAO_ProceduralPlanning.lua','client/SAO_Generator.lua','client/SAO_Cooking.lua','client/SAO_SourceUse.lua','client/SAO_Needs.lua','client/SAO_CapabilityExperience.lua','client/SAO_Controller.lua','client/SAO_ResourceProduction.lua','shared/SAO_Census.lua']]
+ helpers=[S/q for q in ['tools/resource_production_checks/GeneratorNativeProbe.java','tools/luacheck/MovementCrossingProbe.java','tools/luacheck/ResourceApproachProbe.java','tools/d2_leisure_materials/metadata.java.inc','tools/utility_consumer_checks/SnapshotDataExport.java','tools/utility_consumer_checks/snapshot_export.py','tools/utility_consumer_checks/archive_projection.py','tools/lua_read.py']]
+ owned=[Path(__file__),*supports,*runtime,*helpers,S/'java/dist/SAOAgent.jar',S/'java/src/com/sao/engine/SAOWorldSources.java',S/'java/src/com/sao/bridge/SAOBridge.java']
+ if a.snapshot_source:owned.append(a.snapshot_source.resolve())
+ native=[G/q for q in ['projectzomboid.jar','ZombieBuddy.jar','stdlib.lua','media/newtiledefinitions.tiles','media/scripts/generated/items/normal.txt','media/scripts/generated/items/food.txt','media/scripts/generated/items/literature.txt','media/scripts/generated/fluids.txt','media/scripts/generated/fluids_Beverages.txt','media/scripts/generated/fluids_Alcoholic.txt']]+[J/'java.exe',J/'javac.exe']
+ native += [G/'media/lua'/q for q in ['shared/ISBaseObject.lua','shared/TimedActions/ISBaseTimedAction.lua','client/TimedActions/ISTimedActionQueue.lua','shared/TimedActions/ISActivateGenerator.lua','shared/TimedActions/ISToggleStoveAction.lua','shared/TimedActions/ISToggleLightAction.lua','shared/TimedActions/ISFixGenerator.lua','shared/TimedActions/ISAddFuel.lua','shared/TimedActions/ISPlugGenerator.lua','client/TimedActions/ISGeneratorInfoAction.lua','client/TimedActions/ISInventoryTransferAction.lua','shared/TimedActions/ISEquipWeaponAction.lua','shared/TimedActions/ISEatFoodAction.lua','shared/TimedActions/ISTransferAction.lua','shared/Logs/ISLogSystem.lua']]
+ missingOwned=[str(x)for x in owned if not x.is_file()];missingNative=[str(x)for x in native if not x.is_file()]
+ base={'schema':'sao-d6-native-managed-electrical/1','scenario':case,'utilityScenario':'managed-electrical','control':control,'required':a.required,'consumerQualified':False,'executedChecks':0,'missingOwned':missingOwned,'missingNative':missingNative,'ownedInputs':[str(x)for x in owned],'nativeInputs':[str(x)for x in native]}
+ if missingOwned or missingNative:
+  base['status']='FAIL'if missingOwned else'NATIVE_UNAVAILABLE';write(out,base);print(base['status']);return 1 if missingOwned or a.required else 0
+ if a.preflight:base['status']='READY';write(out,base);print('READY');return 0
+ if a.snapshot_source:return electrical_snapshot(a,out,base)
+ package=out/'selected-inputs';package.mkdir();bindings={}
+ for src in runtime:
+  rel=src.relative_to(S);target=package/rel;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(src.read_bytes());bindings[str(rel)]={'source':str(src),'sha256':sha(target)}
+ for src in supports:shutil.copy2(src,package/src.name)
+ if case=='review-corrections'and mode!='omit-receiver':
+  from lua_read import function_body
+  controller=(package/'mod/42.20/media/lua/client/SAO_Controller.lua').read_text()
+  framed='local Ctl=SAO.Controller\nlocal setState=function(a,id,state,reason,kind)assert(a==SAO.Controller.agents[id]and a.rec==SAO.Identity.get(id));a.state=state;a.reason=reason;return true end\n'
+  for name in ['Ctl.waterGeneratorIntent','Ctl.electricalControlIntent','Ctl.generatorContext','Ctl.advanceGeneratorPurpose']:framed+='function '+name+'('+function_body(controller,name)+'end\n'
+  (package/'controller-functions.lua').write_text(framed)
+
+ pins={str(x):sha(x)for x in [*owned,*native]};classes=out/'classes';classes.mkdir();shutil.copy2(G/'stdlib.lua',out/'stdlib.lua')
+ metadata=(S/'tools/d2_leisure_materials/metadata.java.inc').read_text();anchor='definition.Load(name,text.substring(match.start(),end));';assert metadata.count(anchor)==1
+ metadata=metadata.replace(anchor,'var modField=ScriptManager.class.getDeclaredField("currentLoadFileMod");modField.setAccessible(true);Object oldMod=modField.get(null);modField.set(null,"fixture-installed-source");try{definition.setModID("fixture-installed-source");definition.InitLoadPP(name);'+anchor+'}finally{modField.set(null,oldMod);}')
+ generated=(S/'tools/resource_production_checks/GeneratorNativeProbe.java').read_text().replace('    METADATA',metadata,1)
+ accounting=case=='accounting'
+ if not accounting:generated=generated.replace('"ElectronicsMag4"))','"ElectronicsMag4","MuttonChop"))').replace('String file=name.equals("ElectronicsMag4")?"literature.txt":"normal.txt";','String file=name.equals("MuttonChop")?"food.txt":name.equals("ElectronicsMag4")?"literature.txt":"normal.txt";')
+ generatedPath=out/'GeneratorNativeProbe.java';generatedPath.write_text(generated)
+ main='ElectricalServiceNativeProbe'if accounting else'ElectricalOrdinaryProbe'
+ cp=os.pathsep.join(map(str,[S/'java/dist/SAOAgent.jar',G/'projectzomboid.jar',G/'ZombieBuddy.jar',*sorted((G/'jars').glob('*.jar'))]))
+ java=[H/(main+'.java'),generatedPath,S/'tools/luacheck/MovementCrossingProbe.java',S/'tools/luacheck/ResourceApproachProbe.java',S/'java/src/com/sao/engine/SAOWorldSources.java',S/'java/src/com/sao/bridge/SAOBridge.java']
+ cc=[str(J/'javac.exe'),'-encoding','UTF-8','-cp',cp,'-d',str(classes),*map(str,java)];c=subprocess.run(cc,capture_output=True,text=True,timeout=90);(out/'compile.log').write_text(c.stdout+c.stderr)
+ base.update(pins=pins,sourceBindings=bindings,selectedPackage=str(package),compileCommand=cc,compileExitCode=c.returncode,generatedBootstrapSHA256=sha(generatedPath))
+ if c.returncode:base['status']='FAIL_COMPILE';write(out,base);print(c.stderr);return 1
+ cmd=[str(J/'java.exe'),'--enable-native-access=ALL-UNNAMED','-Djava.awt.headless=true','-Duser.home='+str(out),'-Djava.library.path='+str(G),'-Dsao.d6.control='+mode,'-Dsao.electrical.case='+case]
+ if case=='normal':cmd.append('-Dsao.d6.consumerScript='+str(package/'electrical_consumer_use.lua'))
+ cmd += ['-cp',str(classes)+os.pathsep+cp,main,str(G),str(package),str(out)]
+ r=subprocess.run(cmd,cwd=out,capture_output=True,text=True,timeout=120);(out/'native.log').write_text(r.stdout+r.stderr);checks=dict(re.findall(r'^(?:CHECK|CONSUMER_CHECK) ([A-Za-z0-9_-]+)=(true|false)$',r.stdout,re.M));stable=all(sha(Path(k))==v for k,v in pins.items())
+ status='PASS'if r.returncode==0 and checks and all(v=='true'for v in checks.values())and stable else'FAIL'
+ if control:
+  detector={'native-toggle':'omitted_native_toggle_detected','native-fuel-revoke':'restored_fuel_guard_detected','electrical-receiver':'npc_receiver_tamper_refused'}[control];status='DETECTED'if stable and ((checks.get(detector)=='true'and r.returncode==0)if control!='electrical-receiver'else checks.get(detector)=='false'and r.returncode!=0)else'UNDETECTED'
+ base.update(status=status,consumerQualified=case=='normal'and status=='PASS',inputStable=stable,checks=checks,executedChecks=len(checks),command=cmd,nativeExitCode=r.returncode,projections={x.name:sha(x)for x in out.glob('*.json')if x.name!='receipt.json'},binaries={x.name:sha(x)for x in out.glob('*.bin')},classPins={str(x.relative_to(classes)):sha(x)for x in classes.rglob('*.class')},boundary='Attained CPU native electrical/source/private P/G/C and original consumer recipes with declared environment/lifetime/Standing/routes/HUD/wait/clock ports. Normal consumer, accounting and bounded correction cases have distinct proof scope; no world/server/GPU/training claim.')
+ write(out,base);print(status,len(checks));print((r.stdout+r.stderr)[-4000:]);return 0 if status in ['PASS','DETECTED']else 1
+
+def electrical_snapshot(a,out,base):
+ """Original snapshots of the producer native binary, with no physical fixture."""
+ producerPath=a.snapshot_source.resolve()
+ try:
+  producer=json.loads(producerPath.read_text());assert producer['schema']=='sao-d6-native-managed-electrical/1'and producer['scenario']=='normal'and producer['control']is None
+  if producer['status']=='NATIVE_UNAVAILABLE':
+   assert producer['executedChecks']==0 and not producer['missingOwned']and producer['missingNative'];base.update(status='NATIVE_UNAVAILABLE',reason='original-normal-producer-native-unavailable',missingNative=producer['missingNative']);write(out,base);print(base['status']);return 1 if a.required else 0
+  assert producer['status']=='PASS'and producer['inputStable']and producer['consumerQualified']
+  sourceDir=Path(producer['selectedPackage']);original=producerPath.parent
+  raw=original/'whole-consumer.json';binary=original/'whole-person.bin';assert sha(raw)==producer['projections'][raw.name]and sha(binary)==producer['binaries'][binary.name]
+  expectedFull=original/'whole-full.json';expectedBounded=original/'whole-bounded.json';expectedRecord=original/'whole-saved-person.json'
+  for x in [expectedFull,expectedBounded,expectedRecord]:assert sha(x)==producer['projections'][x.name]
+  whole=json.loads(raw.read_text());settings=whole['full']['settings'];hours=whole['captureHours']
+  source=[sourceDir/'mod/42.20/media/lua'/x for x in ['shared/SAO_ElectricalService.lua','shared/SAO_CognitiveModels.lua','shared/SAO_Cognition.lua']]
+  for x in source:
+   rel=str(x.relative_to(sourceDir));assert x.is_file()and sha(x)==producer['sourceBindings'][rel]['sha256']
+ except (OSError,ValueError,KeyError,AssertionError,TypeError):base.update(status='FAIL',reason='invalid-normal-electrical-producer-or-frozen-input');write(out,base);print('FAIL');return 1
+ def literal(x):
+  if isinstance(x,bool):return'true'if x else'false'
+  if isinstance(x,(int,float)):return repr(x)
+  if isinstance(x,str):return json.dumps(x,ensure_ascii=False)
+  if isinstance(x,dict):return'{'+','.join('['+literal(k)+']='+literal(v)for k,v in x.items())+'}'
+  raise ValueError('not plain snapshot settings')
+ helper=(H/'SnapshotDataExport.java').read_text();anchor='  env.rawset("__savedNativeRoundTrip",';assert helper.count(anchor)==1
+ helper=helper.replace('public final class SnapshotDataExport','public final class ElectricalSavedReadback').replace(anchor,'  var saved=platform.newTable();saved.load(ByteBuffer.wrap(Files.readAllBytes(Path.of(System.getProperty("sao.savedRecord")))),zombie.iso.IsoWorld.WorldVersion);env.rawset("__loadedRecord",saved);\n'+anchor,1)
+ java=out/'ElectricalSavedReadback.java';java.write_text(helper);ports=out/'saved-ports.lua';ports.write_text('require=function()end\nlocal saved=__loadedRecord;local data={settings='+literal(settings)+'}\nSAO={Identity={get=function(id)return id==saved.id and saved or nil end},History={countyHours=function()return '+repr(hours)+' end}}\nModData={get=function(k)return k=="SurvivorAwareness_Cognition"and data or nil end}\n')
+ query=out/'saved-query.lua';query.write_text('__exportPlain("loaded-person",__loadedRecord)\n__exportPlain("readback-full",assert(SAO.Cognition.snapshot(__loadedRecord.id,true)))\n__exportPlain("readback-bounded",assert(SAO.Cognition.snapshot(__loadedRecord.id,false)))\n')
+ inputs=[producerPath,raw,binary,expectedFull,expectedBounded,expectedRecord,*source,H/'SnapshotDataExport.java',G/'projectzomboid.jar',G/'ZombieBuddy.jar',G/'stdlib.lua',java,ports,query];pins={str(x):sha(x)for x in inputs};classes=out/'classes';classes.mkdir();shutil.copy2(G/'stdlib.lua',out/'stdlib.lua');cp=os.pathsep.join(map(str,[G/'projectzomboid.jar',G/'ZombieBuddy.jar']))
+ c=subprocess.run([str(J/'javac.exe'),'-cp',cp,'-d',str(classes),str(java)],capture_output=True,text=True,timeout=30);(out/'compile.log').write_text(c.stdout+c.stderr)
+ if c.returncode:base.update(status='FAIL_COMPILE',compileExitCode=c.returncode);write(out,base);return 1
+ cmd=[str(J/'java.exe'),'-Duser.home='+str(out),'-Dsao.savedRecord='+str(binary),'-cp',str(classes)+os.pathsep+cp,'ElectricalSavedReadback',str(ports),*map(str,source),str(query)];r=subprocess.run(cmd,cwd=out,capture_output=True,text=True,timeout=30);(out/'native-data.log').write_text(r.stdout+r.stderr)
+ checks={}
+ if r.returncode==0:
+  for name,expected in [('loaded-person',expectedRecord),('readback-full',expectedFull),('readback-bounded',expectedBounded)]:checks[name]=json.loads((out/(name+'.json')).read_text())==json.loads(expected.read_text())
+ stable=all(sha(Path(k))==v for k,v in pins.items());status='PASS'if r.returncode==0 and len(checks)==3 and all(checks.values())and stable else'FAIL';base.update(status=status,qualificationMode='DATA_ONLY_ORIGINAL_NATIVE_BINARY_LOAD',consumerQualified=False,producer=str(producerPath),captureHours=hours,inputStable=stable,pins=pins,checks=checks,executedChecks=len(checks),physicalRuns=0,nativeExitCode=r.returncode,command=cmd,projections={x.name:sha(x)for x in out.glob('*.json')if x.name!='receipt.json'},boundary='Original native binary load -> exact frozen E/Models/C original snapshot true/false; immutable Identity/lifetime/clock/settings data ports, every-field comparison, no actor/cell/actions/food/service scene or cropping.')
+ write(out,base);print(status,checks);return 0 if status=='PASS'else 1
+
+p=argparse.ArgumentParser();p.add_argument("--scenario",choices=["household-restoration","water-network","managed-electrical"],default="household-restoration");p.add_argument("--out",type=Path,required=True);p.add_argument("--reuse-classes",type=Path);p.add_argument("--diagnostic-scan-stack",action="store_true");p.add_argument("--source-freeze",type=Path);p.add_argument("--capture-release",type=Path);p.add_argument("--freeze-sha");p.add_argument("--release-sha");p.add_argument("--case",choices=["normal","parent-revoked","source-removed","cancel","native-swapped","parent-postallocation","installed-offer","review-corrections","recipe-mutation","accounting"]);p.add_argument("--control",choices=["hydration-current","native-instance","obsolete-stop","producer-callback","purification-capacity","network-parent","installed-admission","installed-transfer","review-pump","recipe-observation","recipe-transfer","native-toggle","native-fuel-revoke","electrical-receiver"]);p.add_argument("--required",action="store_true");p.add_argument("--preflight",action="store_true");p.add_argument("--snapshot-source",type=Path);a=p.parse_args();
+if a.scenario=="managed-electrical":sys.exit(electrical_run(a))
+
 caseFor={"hydration-current":"parent-revoked","native-instance":"native-swapped","obsolete-stop":"normal","producer-callback":"normal","purification-capacity":"normal","review-pump":"review-corrections","recipe-observation":"review-corrections","recipe-transfer":"recipe-mutation","network-parent":"parent-postallocation","installed-admission":"installed-offer","installed-transfer":"installed-offer"}
 if a.control and a.case and a.case!=caseFor[a.control]:p.error("control requires its exact named case")
 a.case=a.case or(caseFor[a.control]if a.control else"normal");network=a.scenario=="water-network";sceneFile=H/("network_scene.lua"if network else"scene.lua");caseFile=H/("network_cases.lua"if network else"cases.lua");a.omit_hydration_current=a.control=="hydration-current";a.omit_native_instance=a.control=="native-instance";a.omit_obsolete_stop=a.control=="obsolete-stop"

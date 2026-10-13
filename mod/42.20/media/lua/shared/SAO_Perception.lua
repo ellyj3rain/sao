@@ -3728,6 +3728,20 @@ function P.observeGenerators(id, body, tick)
     end
     return #(rows or {}) > 0
 end
+function P.refreshElectricalConsumers(id,body)
+ local world=SAO.WorldSources;if not world or not world.generatorConsumerObject then return false end
+ local rows={}
+ for _,place in pairs(P.knownPlaces(id,true)or{})do for _,fact in pairs(place.sourceFacts or{})do
+  local key=fact.sourceId or fact.id
+  if type(key)=="string"and key:sub(1,2)=="E:"and #rows<128 then rows[#rows+1]=fact end
+ end end
+ local changed=false
+ for _,fact in ipairs(rows)do
+  local object=world.generatorConsumerObject(body,fact)
+  if object and P.rememberGeneratorConsumer(id,body,object)then changed=true end
+ end
+ return changed
+end
 function P.rememberGeneratorConsumer(id, body, object)
     local world = SAO.WorldSources
     if not world or not world.observeGeneratorConsumer then return false end

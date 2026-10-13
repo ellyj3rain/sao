@@ -1,17 +1,25 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.7.0-pre-alpha` |
+| Version | `2.7.8.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
+**As of** [D6], 191 classified closed catalogue records retain 190 credited source outcomes: 29 A, 52 B, 82 C products and twenty-seven credited D contributions, plus D3 zero-credit aggregation. Current shipping coordinate `2.7.8.0-pre-alpha`.
+
+[D6 — Managed electrical service](Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md) is CLOSED local native supply/accounting/control and original powered food use. Engine owns native multipart charges/hour burn; actual original meal cooks50.50074005 and hunger.8→.41. Canonical private feedback preserves full8/bounded0 events, both models15beliefs, associative32/12hypotheses and ordinary0. Native primitive person load and original snapshots reproduce all accepted fields.
+
+Beacon D contains Emmetropic D6 with useful Granular D6.1-D6.3, shared credit/publication. Complete first review and bounded corrections retain exact current source/evidence; earlier narrower and failed packets remain explicit. Required current package/check/protected publication have their own receipts. Broader household building/relay/automatic-trip/overlap/device/wiring source obligations remain future finite numbered seams. D7 vehicle service and purposeful travel is next. All inherited learning/aging/architecture/strategy/ML and three repository contracts continue. Held6/future9/peer41 and normal game/save flow retain custody.
+
+## D5 delivered checkpoint — 2026-10-13
+
 **As of** [D5], 190 classified closed catalogue records retain 189 credited source outcomes: 29 A, 52 B, 82 C products and twenty-six credited D contributions, plus D3's zero-credit aggregation. Current shipping coordinate is `2.7.7.0-pre-alpha`.
 
 [D5 — Water-network construction and alteration](Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md) is CLOSED at its qualified local native scope. Personally acquired sites/fluids/stairs/materials/tools and actual native fabrication feed paid pump/riser construction, endpoint enrollment, powered conserved water transfer and original fixture use. Donor4→0, header4→2.400000095 after drink1.6, thirst.8→0; both original purposes complete against one receipt. Both models and all original full/bounded/private saved fields persist.
 
-D contains the Beacon plan; D5's actual integration/development is Emmetropic with retained Granular children D5.1-D5.5. Their useful behavior/dependencies/evidence remain visible in the parent record and machine-readable map, with one D5 credit and common publication. Agents may select the parent or next nested scope, using or omitting sublevels according to work. [The roadmap](ROADMAP.md#numbered-d-outcomes) retains the wider numbered series and all accepted knowledge/aging/architecture/strategy/ML goals. D6 managed electrical service is next.
+D contains the Beacon plan; D5's actual integration/development is Emmetropic with retained Granular children D5.1-D5.5. Their useful behavior/dependencies/evidence remain visible in the parent record and machine-readable map, with one D5 credit and common publication. Agents may select the parent or next nested scope, using or omitting sublevels according to work. [The roadmap](ROADMAP.md#numbered-d-outcomes) retains the wider numbered series and all accepted knowledge/aging/architecture/strategy/ML goals. D6 managed electrical service is OPEN: [current outcome](Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md). Its chief develops the connected supply/load/fuel/breaker/private-use outcome with meaningful source-grounded children and applicable D4/D5 evidence.
 
 First integrated review and bounded H01/H02 corrections pass; current43 source/tool hashes match. The supported77-source package is built. The exact selected package checks and protected merge identify public delivery; raw31FAIL/exit1, omitted-fixture serialization failure and narrower positive scopes remain retained. Whole-world/server/GPU/game appearance, peer source/model adoption and training remain separate. Root owns package/records/publication; held6/future9/peer41 and normal game/save flow retain custody. Current Scion/Mousecat updates carry nested work and the shared framework correction without conflating loaded enforcement with observed delivery throughput.
 
@@ -324,3 +332,19 @@ D3.22 was actually self-merged through [PR165](https://github.com/ellyj3rain/sao
 ## Current operator direction: numbered outcomes and resumed development - 2026-10-13
 
 The operator directs: "Fix SAO's actual batch map and records using the framework, determine the practical seams between numbered batches, and resume development emmetropically." This supersedes the earlier full-D3-before-D4 mandate and releases the scope-reassessment hold for that work. D is the broad development grouping; numbered batches have finite substantial outcomes and children are meaningful subdivisions. Root owns the canonical forward map and scope transition; the existing implementation chief retains its source custody and resumes the selected connected outcome after its revised owning record is established. Published labels, earned credit, existing implementation and all accepted remaining goals are preserved. Shared Speakeasy/ZAO/ML contracts continue across numbered batches with their actual ownership and acceptance. The corrected shared framework and Mousecat result are already loaded; actual project reorganization and delivery now proceed.
+
+## D6 current PR qualification
+
+Paired endpoint routing, silent native queue-refusal retirement and safe indoor source pickup are qualified by the fresh bounded native48/control packet and final correction review. Generic resolvers, original private purpose and source/receiver custody retain their contracts. Current supported build/package uses JAR `ecf73e72a379b7fe8961467bbcfb39f73242a8ae59049ece77e698ba9f1ed551` at the same `2.7.8.0-pre-alpha`; historical first/native/meal/save/intake evidence keeps its precise applicability. D7 remains next; all wider household/learning/peer obligations remain.
+
+## D6 final production-control qualification
+
+Actual private idle-load and indoor-safety requests now flow through Controller/Perception/WorldSources/Planning/Generator. Native production36, supply16, explored-header2, causal controls, bounded review and current four-tool mapping pass. The stricter reader retains original full8/bounded0 raw data and both models without replay. The supported JAR remains `ecf73e72a379b7fe8961467bbcfb39f73242a8ae59049ece77e698ba9f1ed551`; D7 remains next.
+
+## D6 final native lifecycle qualification
+
+Original safe native activation/breaker reconciliation and saved distant-pair consumer work pass native40 plus two causal controls and bounded review. Unsafe activation retains the marker; generator mutation keeps current inspection. Current supported JAR `ef0e67eca6b6bc9bbc3d0a681b2a3d7b83f6a28b6ac2fc2df6d35a9b67ac856b`; D7 remains next.
+
+## D6 final private-control qualification
+
+Generator-only indoor safety, current-demand cancellation and same-revision recurrent conservation pass native48, two causal controls, strict full/bounded intake and bounded review. The recurrence concern is refuted without a counter/reset patch. Current supported JAR `8597dcaab4b4795033a16c049c590d6539c6a15bfd945d8babc573e453253b55`; D7 remains next.

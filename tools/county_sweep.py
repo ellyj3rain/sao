@@ -175,7 +175,7 @@ MODULES = [
     "shared/SAO_PersonState.lua", "shared/SAO_SituationAppraisal.lua",
     # Personal model state survives loaded/dormant transitions. Native action
     # proposals still require the loaded Controller and its real executors.
-    "shared/SAO_CognitiveModels.lua", "shared/SAO_Cognition.lua",
+    "shared/SAO_ElectricalService.lua", "shared/SAO_CognitiveModels.lua", "shared/SAO_Cognition.lua",
     "shared/SAO_Ordering.lua",
     "shared/SAO_ProceduralPlanning.lua",
     "shared/SAO_Disposition.lua", "shared/SAO_Conditions.lua",
@@ -482,7 +482,8 @@ def require_modules(lua, joint=False):
     # These owners bind once at module load, before a dormant callback runs.
     # Admitting all files in the wrong order still leaves a missing receiver.
     order = {relative: index for index, relative in enumerate(MODULES)}
-    for producer, consumer in (('SituationAppraisal', 'Cognition'),
+    for producer, consumer in (('ElectricalService', 'CognitiveModels'),
+                               ('SituationAppraisal', 'Cognition'),
                                ('SituationAppraisal', 'ProceduralPlanning'),
                                ('Perception', 'PersonalAwareness'),
                                ('Education', 'EducationRegistry')):

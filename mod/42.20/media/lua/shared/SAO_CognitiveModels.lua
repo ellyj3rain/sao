@@ -14,7 +14,8 @@ local FRAME_KEYS = { id=true, actorId=true, worldHours=true, hunger=true,
     thirst=true, fatigue=true, eatAt=true, drinkAt=true, foodAllowed=true,
     waterAllowed=true, inspectionAllowed=true, knownFood=true, knownWater=true,
     knownPlaces=true, capabilities=true, priorIntent=true }
-local EVENT_KEYS = { networkWork=true, generatorPlumbing=true, garmentUse=true, garmentWork=true, physicalWork=true, id=true, actorId=true, observerId=true, worldHours=true, consumerId=true,
+require "SAO_ElectricalService"
+local EVENT_KEYS = { electricalService=true, networkWork=true, generatorPlumbing=true, garmentUse=true, garmentWork=true, physicalWork=true, id=true, actorId=true, observerId=true, worldHours=true, consumerId=true,
     entityId=true, recipeId=true, originalFixtureSourceId=true,
     siteKey=true, siteX=true, siteY=true, siteZ=true, feedsFixture=true,
     kind=true, category=true, sourceId=true, itemType=true, perspective=true,
@@ -174,12 +175,13 @@ local function validFrame(f)
     end
     return f.priorIntent==nil or action(f.priorIntent)
 end
-local GENERATOR_EVENT_KEYS = {generatorPlumbing=true,id=true, actorId=true, observerId=true, worldHours=true,
+local GENERATOR_EVENT_KEYS = {electricalService=true,generatorPlumbing=true,id=true, actorId=true, observerId=true, worldHours=true,
     occurredAtHours=true, kind=true, category=true, sourceId=true, consumerId=true,
     perspective=true, status=true, actionKind=true, succeeded=true,
     itemId=true, itemType=true, beforeValue=true, afterValue=true, capabilities=true}
 local GENERATOR_OPERATIONS = {inspect=true, repair=true, fuel=true, connect=true,plumb=true,
     activate=true, ["verify-power"]=true}
+for operation in pairs(SAO.ElectricalService.operations)do GENERATOR_OPERATIONS[operation]=true end
 local function physicalData(v,depth,budget,seen)
     depth,budget,seen=depth or 0,budget or {left=4096},seen or {}
     if type(v)=="nil" or type(v)=="boolean" then return true end
@@ -486,7 +488,7 @@ if e.kind=="network-operation" then
             and p.enabled==w.afterEnabled
     end
     if e.networkWork~=nil then return false end
-    if e.generatorPlumbing~=nil and e.kind~="generator-operation"then return false end
+    if (e.generatorPlumbing~=nil or e.electricalService~=nil)and e.kind~="generator-operation"then return false end
     if e.kind=="garment-use"then return garmentUseEvent(e)end
     if e.garmentUse~=nil then return false end
     if e.kind=="garment-maintenance"then return garmentMaintenanceEvent(e)end
@@ -527,9 +529,21 @@ if e.kind=="network-operation" then
             or e.status~="completed" or e.perspective~="performed" or e.actorId~=e.observerId
             or not finite(e.occurredAtHours) or e.occurredAtHours<0 or e.occurredAtHours>e.worldHours
             or not occurrencePosition(e) or not text(e.sourceId,160) or e.sourceId:sub(1,2)~="J:"
-            or not text(e.consumerId,160) or e.consumerId:sub(1,2)~="E:"
+            or not text(e.consumerId,160)or(e.consumerId:sub(1,2)~="E:"and not(e.actionKind=="breaker-open"
+                and e.consumerId==e.sourceId and e.electricalService and e.electricalService.before
+                and e.electricalService.before.nativeClass=="zombie.iso.objects.IsoGenerator"))
             or not GENERATOR_OPERATIONS[e.actionKind] or e.succeeded~=true
             or e.capabilities~=nil and not capabilities(e.capabilities) then return false end
+        if SAO.ElectricalService.operations[e.actionKind]then
+            local w=e.electricalService
+            return plainKeys(w,{schema=true,sourceId=true,consumerId=true,consumerCompleted=true,before=true,after=true})
+                and w.schema=="sao-electrical-service/1"and w.sourceId==e.sourceId and w.consumerId==e.consumerId
+                and w.consumerCompleted==false and e.generatorPlumbing==nil
+                and e.itemId==nil and e.itemType==nil and e.beforeValue==nil and e.afterValue==nil
+                and SAO.ElectricalService.effect(e.actionKind,w.before,w.after)
+                and w.after.atHours==e.occurredAtHours
+        end
+        if e.electricalService~=nil then return false end
         if e.actionKind=="plumb" then
             local w=e.generatorPlumbing
             return plainKeys(w,{beforePlumbed=true,afterPlumbed=true,inputRetained=true,

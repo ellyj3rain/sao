@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.7.0-pre-alpha` |
+| Version | `2.7.8.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2534,3 +2534,15 @@ SAO_HouseholdService owns exact loaded saved pipe membership, existing native he
 Physical installation and enrollment describe a built relationship. Effective hydraulic transport applies current valve, pump and native power conditions to native source/receiver quantities. Native fluid operations own actual debit, delivery and mixture; a constructed network creates no stock or bodily-use credit. Authoritative installed objects retain their infrastructure relationship through removal and marker retirement before becoming loose acquisition or recipe stock.
 
 Cognition and CognitiveModels preserve canonical performed network events and the independent original water-use result. The original full/bounded APIs retain their own array and model limits; native primitive record serialization and independent intake establish their measured saved-data scope. New native runtime, item/recipe/model definitions and authored meshes/icons belong to the normal package. [D5](Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md) owns development, source applicability, correction evidence and delivery. D6 retains managed electrical distribution/load; whole-world/server/rendered acceptance and counterpart model adoption/training keep their separate standing.
+
+### Managed electrical service
+
+ElectricalService supplies source-owned native measurement/action construction; Generator retains the private claim/capsule/native queue/outcome owner. Native IsoGenerator bills and burns fuel; HouseholdService only replenishes. Signed native appliance-group observation, Perception, Labor/Planner/Controller retain the original acquired purpose and current Standing. Actual local-player entry uses native body/current object/queue and saved modData without NPC identity/learning. Cognition/Models retain source-specific performed generator events with electrical before/after and consumerCompletedfalse. Original Cooking/Needs own actual prepared/retrieved/eaten food and relief; service verification cannot mint that credit. Native primitive person load and independent full/bounded intake preserve every field and both models. Building/relay/automatic-trip/overlap/extended shedding/wiring remain future source-domain obligations.
+
+Managed electrical routing binds the retained acquired native generator/appliance pair and coverage, with reach at the operated endpoint. Existing generic resolvers remain unchanged. Failed human queue admission releases only its exact work; unsafe indoor activation remains refused and native pickup retires old source authority.
+
+Private electrical control planning uses acquired current observations: fully explored empty active appliances with no retained demand can produce inspection then conservation, while observed indoor active supply can produce deliberate isolation. Native source coverage/readiness and current purpose are rechecked before mutation.
+
+Native electrical lifecycle reconciliation: ordinary safe outside activation clears a stale SAO breaker marker only after original native completion and creates no work credit. Saved historically inspected remote pair identity can resume consumer-endpoint observation under current coverage/readiness; generator mutation retains current reached inspection.
+
+Generator-only electrical control: an acquired generator may be its own breaker-open subject without a fabricated appliance; other electrical operations retain their consumer source. Conservation rechecks current food/water/cooking demand before mutation. Completed control purposes naturally yield a fresh purpose on later reactivation.

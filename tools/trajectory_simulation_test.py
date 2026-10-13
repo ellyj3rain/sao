@@ -62,9 +62,17 @@ def observer_fixture(root):
     spec.loader.exec_module(fixture)
     fixture.LUA = root / 'mod/42.20/media/lua'
     fixture.MODULES = list(fixture.MODULES) + [
-        'shared/SAO_CognitiveModels.lua', 'shared/SAO_Cognition.lua',
+        'shared/SAO_ElectricalService.lua', 'shared/SAO_CognitiveModels.lua', 'shared/SAO_Cognition.lua',
         'shared/SAO_Organization.lua', 'shared/SAO_Recognition.lua',
         str(HERE / 'sweep/evidence.lua')]
+    fixture.PRELUDE += '''
+require = function(name)
+  if name == "SAO_ElectricalService" then
+    return assert(SAO.ElectricalService, "electrical validator not explicitly loaded")
+  end
+  error("undeclared observer require: " .. tostring(name))
+end
+'''
     if not fixture.build():
         return ['observer fixture runner did not build']
     # Execute the dormant host's actual ordered module list without genesis or
@@ -121,10 +129,12 @@ def observer_fixture(root):
       SAO.Identity.markDead(made[2], 0, 'observer-control')
       return evidence.finish()
     end)()'''
+    raw = ''
     try:
-        report = json.loads(fixture.probe(expression))
+        raw = fixture.probe(expression)
+        report = json.loads(raw)
     except (ValueError, OSError) as exc:
-        return ['observer VM fixture failed: ' + str(exc)]
+        return ['observer VM fixture failed: ' + str(exc) + '; native output: ' + raw[:1200]]
     house = report['companies'].get('observer-house', {})
     events = list(report['events'].values())
     faults = []
@@ -283,7 +293,8 @@ def main(root):
         if not rejects(lambda: Sweep.require_modules(lua)):
             faults.append('missing shared ordering utility accepted')
     order = {path: index for index, path in enumerate(Sweep.MODULES)}
-    for producer, consumer in (('SituationAppraisal', 'Cognition'),
+    for producer, consumer in (('ElectricalService', 'CognitiveModels'),
+                               ('SituationAppraisal', 'Cognition'),
                                ('SituationAppraisal', 'ProceduralPlanning'),
                                ('Perception', 'PersonalAwareness'),
                                ('Education', 'EducationRegistry')):
@@ -432,6 +443,7 @@ def main(root):
     actual_load_faults = observer_fixture(root)
     faults.extend(actual_load_faults)
     for producer, consumer in (
+        ('ElectricalService', 'CognitiveModels'),
         ('SituationAppraisal', 'Cognition'),
         ('SituationAppraisal', 'ProceduralPlanning'),
         ('Perception', 'PersonalAwareness'),
@@ -448,7 +460,7 @@ def main(root):
             except Sweep.EvidenceError as exc:
                 if 'invalid simulation binding order:' not in str(exc):
                     faults.append('wrong-order control failed outside binding boundary: ' + str(exc))
-    print('  four wrong-order personal registration controls rejected at loader boundary')
+    print('  five wrong-order personal registration controls rejected at loader boundary')
     for fault in faults:
         print('159) FAULT:', fault)
     if faults:

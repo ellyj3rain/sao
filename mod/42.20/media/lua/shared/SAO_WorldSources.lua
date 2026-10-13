@@ -1959,6 +1959,14 @@ function WS.generatorValid(body,object,fact,operation)
         fact.fingerprint,fact.x,fact.y,fact.z,operation)end)
     return ok and value==true
 end
+function WS.electricalServiceObjects(body,generator,consumer,operation,pre)
+    local selfSafety=operation=="breaker-open"and generator and consumer and generator.sourceId==consumer.sourceId
+    if not SAOJavaBridge or not utilityCoordinates(generator,"J:")or not utilityCoordinates(consumer,selfSafety and "J:"or"E:")then return nil end
+    local ok,value=pcall(function()return SAOJavaBridge:worldElectricalServiceObjects(body,
+        generator.sourceId or generator.id,generator.fingerprint,generator.revision,generator.x,generator.y,generator.z,
+        consumer.sourceId or consumer.id,consumer.fingerprint,consumer.revision,consumer.x,consumer.y,consumer.z,operation,pre==true)end)
+    return ok and type(value)=="table"and value or nil
+end
 function WS.generatorConsumerPowered(body,generator,consumer)
     if not SAOJavaBridge or not utilityCoordinates(consumer,"E:") then return false end
     if consumer.generatorPump==true then
@@ -2044,7 +2052,14 @@ end
 function WS.observeGeneratorConsumer(actorId,body,object)
     actorId=tostring(actorId or "")
     if not utilityObserver(actorId,body) then return nil end
-    return registerUtility(actorId,body,WS.generatorConsumer(body,object))
+    local fact=WS.generatorConsumer(body,object)
+    if fact and SAO.ElectricalService and SAO.ElectricalService.idleConsumer then
+        local idle=SAO.ElectricalService.idleConsumer(body,object,actorId)
+        if type(idle)=="boolean"then
+            fact.electricalIdle=idle;fact.electricalActive=object:Activated()==true;fact.electricalObservedAt=nowHours()
+        end
+    end
+    return registerUtility(actorId,body,fact)
 end
 
 function WS.observeVisibleGround(actorId, body)

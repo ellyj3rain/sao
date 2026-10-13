@@ -448,6 +448,7 @@ SCOPED['d3_garment_consumer_test.py'] = (
     'revocation and full server/cold-world lifecycle retain their declared evidence bounds.')
 
 SCOPED['d3_utility_consumer_test.py'] = (
+    'D6 adds managed-electrical native multipart billing/hourly burn, original control and powered food use; bounded receiver/purpose/human retirement corrections and detecting omissions remain scoped. Same-scenario snapshot-source reads the original native binary and original full/bounded model APIs without physical replay. '
     'D4 actual private inquiry/manual/wrench acquisition, normally loaded owned '
     'household producer, native generator connection/plumbing, finite fuel/power and effective '
     'native water use through authenticated retained-purpose closure and separate '
@@ -877,14 +878,18 @@ def ci_plan(changes, root=ROOT):
                             "reasons": ["changed executable CI routing contract"]})
     # The data-only utility snapshot consumes the preceding normal route output.
     for lane_rows in (required, advisory):
-        normal = next((index for index,row in enumerate(lane_rows)
-                       if pathlib.PurePosixPath(row["path"]).name == "d3_utility_consumer_test.py"
-                       and "--case" in row["args"] and row["args"][row["args"].index("--case")+1] == "normal"
-                       and "--control" not in row["args"] and "--snapshot-source" not in row["args"]), None)
+        def scenario(row):
+            args = row["args"]
+            return args[args.index("--scenario")+1] if "--scenario" in args else "household-restoration"
         for index,row in enumerate(lane_rows):
             if pathlib.PurePosixPath(row["path"]).name == "d3_utility_consumer_test.py" and "--snapshot-source" in row["args"]:
-                if normal is None or normal >= index:
-                    raise ValueError("utility snapshot route has no preceding selected normal producer")
+                normal = next((i for i,p in enumerate(lane_rows[:index])
+                               if pathlib.PurePosixPath(p["path"]).name == "d3_utility_consumer_test.py"
+                               and scenario(p) == scenario(row)
+                               and "--case" in p["args"] and p["args"][p["args"].index("--case")+1] == "normal"
+                               and "--control" not in p["args"] and "--snapshot-source" not in p["args"]), None)
+                if normal is None:
+                    raise ValueError("utility snapshot route has no preceding selected normal producer in its scenario")
                 row["producerRouteIndex"] = normal
     return {"schema": 1, "comparison": "full base...HEAD", "changedInputs": changes,
             "pythonParse": python, "changedLua": lua, "required": required,

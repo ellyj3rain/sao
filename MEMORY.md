@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `2.7.7.0-pre-alpha` |
+| Version | `2.7.8.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -185,3 +185,7 @@ Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md
 ## D5 integrated network and nested delivery — 2026-10-13 15:40 UTC / 08:40 PDT
 
 [D5](Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md) is CLOSED local native construction/transport/private means/recovery/use/saved learning, with Granular D5.1-D5.5 retained under actual Emmetropic integration. One parent-owned kohai, exact original proof and bounded review/correction survive into the supported package/protected publication; D6 and wider inter-repository/knowledge/aging/architecture goals retain owners. No child count, verifier or regrouping adds credit.
+
+## D6 managed service and retained source scope — 2026-10-13 19:19 UTC / 12:19 PDT
+
+[D6](Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md) integrates native billing/shared control/original meal use/saved private feedback across useful D6.1-D6.3. One kohai, current source-specific proof/review/readback/package and protected publication remain explicit. Advanced household source-domain seams and all original goals/contracts remain; D7 is next.

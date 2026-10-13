@@ -1187,19 +1187,30 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
         boolean knowledge = shell.getPerkLevel(zombie.characters.skills.PerkFactory.Perks.Electricity) >= 3
             || shell.isRecipeActuallyKnown("Generator");
         if ((operation.equals("repair") || operation.equals("connect")) && !knowledge) throw new ActionRefusal("GENERATOR_KNOWLEDGE_REQUIRED");
-        boolean ready = switch (operation) {
+        boolean ready = generatorStageReady(generator, square, operation);
+        if (!ready) throw new ActionRefusal("GENERATOR_STAGE_UNAVAILABLE");
+        return generator;
+    }
+
+    private static boolean generatorStageReady(IsoGenerator generator, IsoGridSquare square, String operation) {
+        return switch (operation) {
             case "inspect" -> true;
             case "repair" -> !generator.isActivated() && generator.getCondition() < 100;
             case "fuel" -> !generator.isActivated() && generator.getFuel() < generator.getMaxFuel();
             case "connect" -> !generator.isActivated() && !generator.isConnected();
             case "activate" -> !generator.isActivated() && generator.isConnected() && generator.getFuel() > 0
                 && generator.getCondition() > 0 && square.isOutside();
-            case "verify-power" -> generator.isActivated() && generator.isConnected() && generator.getFuel() > 0
+            case "verify-power", "verify-service" -> generator.isActivated() && generator.isConnected() && generator.getFuel() > 0
                 && generator.getCondition() > 0 && square.isOutside();
+            case "inspect-load" -> true;
+            case "shed-load" -> generator.isActivated() && generator.isConnected()
+                && generator.getFuel() > 0 && generator.getCondition() > 0;
+            case "breaker-open" -> generator.isActivated() && generator.getFuel() > 0 && generator.getCondition() > 0;
+            case "breaker-reset" -> !generator.isActivated() && generator.isConnected() && generator.getFuel() > 0
+                && generator.getCondition() > 0 && square.isOutside()
+                && Boolean.TRUE.equals(generator.getModData().rawget("SAOElectricalBreaker"));
             default -> false;
         };
-        if (!ready) throw new ActionRefusal("GENERATOR_STAGE_UNAVAILABLE");
-        return generator;
     }
 
     /** Remembered identity admits travel and reached reinspection, never physical stage effects. */
@@ -1219,7 +1230,9 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
 
     private static boolean generatorOperation(String operation) {
         return "inspect".equals(operation) || "repair".equals(operation) || "fuel".equals(operation)
-            || "connect".equals(operation) || "activate".equals(operation) || "verify-power".equals(operation);
+            || "connect".equals(operation) || "activate".equals(operation) || "verify-power".equals(operation)
+            || "inspect-load".equals(operation) || "shed-load".equals(operation) || "breaker-open".equals(operation)
+            || "breaker-reset".equals(operation) || "verify-service".equals(operation);
     }
 
     private static boolean utilityReached(SAOIsoPlayerShell shell, IsoGridSquare square) {
@@ -1336,6 +1349,7 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
                 }
                 // Saved inspection is historical person knowledge; reacquire current inspection before any operation.
                 binding.revisions.put(revision,Boolean.FALSE);
+                if (Boolean.TRUE.equals(fact.rawget("inspected"))) binding.historicalInspections.add(revision);
                 var bindings=UTILITY_BINDINGS.computeIfAbsent(shell,ignored->new LinkedHashMap<>());bindings.put(id,binding);
                 while(bindings.size()>MAX_INSPECTION_OPTIONS)bindings.remove(bindings.keySet().iterator().next());
                 return binding;
@@ -1361,6 +1375,7 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
         final java.lang.ref.WeakReference<IsoObject> object;
         final java.lang.ref.WeakReference<IsoGridSquare> square;
         final LinkedHashMap<String, Boolean> revisions = new LinkedHashMap<>();
+        final java.util.Set<String> historicalInspections = new java.util.LinkedHashSet<>();
         final zombie.scripting.objects.Item generatorScript;
         final zombie.scripting.entity.GameEntityScript entityScript;
         boolean pumpFacet;
@@ -1391,6 +1406,84 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
             source.connected = generator.isConnected(); source.active = generator.isActivated(); source.outside = generator.getSquare().isOutside();
         }
         source.finish(); return source;
+    }
+
+    /** Current acquired pair; reach belongs to the operation's physical endpoint. */
+    public static synchronized Object electricalServiceObjects(SAOIsoPlayerShell shell,
+            String generatorId, String generatorFingerprint, String generatorRevision, int gx, int gy, int gz,
+            String consumerId, String consumerFingerprint, String consumerRevision, int cx, int cy, int cz,
+            String operation, boolean pre) {
+        try {
+            boolean consumerEndpoint = "inspect-load".equals(operation) || "shed-load".equals(operation)
+                || "verify-service".equals(operation);
+            if (!consumerEndpoint && !"breaker-open".equals(operation) && !"breaker-reset".equals(operation)) return null;
+            var generator = generatorIdentityFixture(shell, generatorId, generatorFingerprint, generatorRevision, gx, gy, gz);
+            boolean selfSafety = "breaker-open".equals(operation) && generatorId.equals(consumerId)
+                && generatorFingerprint.equals(consumerFingerprint) && generatorRevision.equals(consumerRevision)
+                && gx==cx && gy==cy && gz==cz;
+            var consumer = selfSafety ? generator : generatorConsumerFixture(shell, consumerId, consumerFingerprint, consumerRevision, cx, cy, cz);
+            if (!IsoGenerator.isPoweringSquare(gx, gy, gz, cx, cy, cz)
+                    || !utilityReached(shell, consumerEndpoint ? consumer.getSquare() : generator.getSquare())) return null;
+            // Stage readiness samples current native state; the acquired identity revision remains binding.
+            if (pre) {
+                if (consumerEndpoint) {
+                    var binding = utilityBinding(shell, generatorId, generatorFingerprint, "J:");
+                    if (!Boolean.TRUE.equals(binding.revisions.get(generatorRevision))
+                            && !binding.historicalInspections.contains(generatorRevision)) return null;
+                    if (!generatorStageReady(generator, generator.getSquare(), operation)) return null;
+                } else if (generatorFixture(shell, generatorId, generatorFingerprint, null, gx, gy, gz, operation) != generator) return null;
+            }
+            var load = electricalLoad(shell, consumerId, consumerFingerprint, consumer, false, selfSafety ? "J:" : "E:");
+            if (load == null) return null;
+            var row = recipeTable(); row.rawset("generator", generator); row.rawset("consumer", consumer); row.rawset("load", load);
+            return row;
+        } catch (Throwable unavailable) {
+            SAOAgent.log("electrical service pair unavailable: " + unavailable); return null;
+        }
+    }
+
+    /** An acquired appliance's native rates; this never replaces the engine bill. */
+    public static synchronized Object electricalLoad(IsoPlayer body, String id, String fingerprint,
+            IsoObject expected) {
+        return electricalLoad(body, id, fingerprint, expected, true, "E:");
+    }
+
+    private static Object electricalLoad(IsoPlayer body, String id, String fingerprint,
+            IsoObject expected, boolean reached, String prefix) {
+        try {
+            var object = expected; var square = object == null ? null : object.getSquare();
+            if (!networkActor(body) || square == null || !utilityObjectLive(object, square)) return null;
+            if (body instanceof SAOIsoPlayerShell shell) {
+                var binding = utilityBinding(shell, id, fingerprint, prefix);
+                if (binding.object.get() != object || binding.square.get() != square || reached && !utilityReached(shell, square)) return null;
+            } else if (!body.isLocalPlayer() || body.getCurrentSquare().getZ()!=square.getZ()
+                    || Math.pow(body.getX()-square.getX()-.5,2)+Math.pow(body.getY()-square.getY()-.5,2)>=4) return null;
+            var parts = object.getSpriteGridObjectsIncludingSelf(new ArrayList<>());
+            var seen = Collections.newSetFromMap(new java.util.IdentityHashMap<IsoObject, Boolean>());
+            double rate = 0; int count = 0;
+            if (parts.isEmpty()) parts.add(object);
+            for (var part : parts) {
+                var location = part.getSquare();
+                if (!seen.add(part)) continue;
+                if (!utilityObjectLive(part, location) || part.getCell() != body.getCell()) return null;
+                float value = part.getGeneratorPowerConsumption();
+                if (!Float.isFinite(value) || value < 0) return null;
+                rate += value; count++;
+            }
+            var row = recipeTable();
+            row.rawset("nativeClass", object.getClass().getName());
+            row.rawset("partRate", (double)object.getGeneratorPowerConsumption());
+            row.rawset("groupRate", rate); row.rawset("partCount", (double)count);
+            row.rawset("powered", ItemContainer.isObjectPowered(object, true));
+            if (object instanceof zombie.iso.objects.IsoStove stove) row.rawset("consumerActive", stove.Activated());
+            else if (object instanceof zombie.iso.objects.IsoLightSwitch light) row.rawset("consumerActive", light.isActivated());
+            else row.rawset("consumerActive", object.getGeneratorPowerConsumption() > 0);
+            row.rawset("switchable", object instanceof zombie.iso.objects.IsoStove
+                || object instanceof zombie.iso.objects.IsoLightSwitch);
+            return row;
+        } catch (Throwable unavailable) {
+            SAOAgent.log("electrical load observation unavailable: " + unavailable); return null;
+        }
     }
 
     private static Source powerConsumerSource(Snapshot snapshot, IsoObject object) {

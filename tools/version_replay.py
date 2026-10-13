@@ -188,11 +188,12 @@ POST_C_UNITS = [
     ('D3.22', 'kohai', 'Ordinary privately observed worn-garment upkeep joins default choice, signed source material acquisition, original repair/removal payment and canonical native item lineage, cold current wearer, same-purpose preparatory upgrade continuation, independent exact target protection use, private feedback and once-only replay. Useful progress within unfinished complete D3; remaining services, authority and shared model adoption retain owners.'),
     ('D4', 'kohai', 'Original owned existing-household service joins private inquiry and exact means/knowledge acquisition, guarded native connection, conserved fuel/power/purified-water use, same-purpose closure and independent saved models. This completes the finite D4 delivery as coherent progress within unfinished household utilities across D4-D6; paid networks and managed load remain, so one kohai applies irrespective of numbered-batch organization.'),
     ('D5', 'kohai', 'D5 delivers a finite connected new/altered native water-network outcome with paid construction, conserved original use and saved private feedback. It is progress within unfinished household utilities across D4-D6; managed electrical distribution/load remains D6. One kohai belongs to D5, independent of numbering/agent/review organization; no repeated credit for earlier proof or regrouping.'),
+    ('D6', 'kohai', 'Coherentprogress; actual remaining building/relay reach, load-triggered trips, overlapping-source bill sharing, washer/dryer/TV/radio shedding and physical wiring producer remain accepted source-domain obligations. Native multipart charges are measured, not rewritten/deduplicated; this finite delivery does not complete wholeutilities orfive-source incorporation. BroaderD11/server/GPU/peertraining remain separate and are not used to invent a credit barrier.'),
 ]
 # A closed parent that only aggregates previously credited descendants maps to
 # their exact credit-owner IDs. It is a chronological record, never a new tier.
 POST_C_AGGREGATIONS = {"D3": ['D3.1', 'D3.2', 'D3.3', 'D3.4', 'D3.5', 'D3.6', 'D3.7', 'D3.8', 'D3.9', 'D3.10', 'D3.11', 'D3.12', 'D3.13', 'D3.14', 'D3.15', 'D3.16', 'D3.17', 'D3.18', 'D3.19', 'D3.20', 'D3.21', 'D3.22']}
-NEXT_BATCH = "D6"
+NEXT_BATCH = "D7"
 
 
 def parse_version(text):

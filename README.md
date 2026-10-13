@@ -2,7 +2,7 @@
 
 A Project Zomboid Build 42 NPC framework.
 
-[D5, water-network construction and alteration](Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md), joins privately acquired means and native fabrication to actual paid pipe/pump/valve hardware, conserved powered water use and saved private feedback. The Emmetropic parent retains useful Granular subdivisions D5.1-D5.5 and integrates them in one package. [D4](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md) supplies delivered existing-service restoration; D6 managed electrical service is the next distinct utility outcome. The [numbered roadmap](ROADMAP.md#numbered-d-outcomes) retains broader development and the original D3 history.
+[D6, managed electrical service](Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md), joins private supply/demand observations and original native billing/control to an actual powered meal and saved independent feedback. Native generators remain the burn owner; D6.1-D6.3 retain useful subdivisions under one Emmetropic delivery. [D4](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md) supplies existing-service restoration and [D5](Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md) supplies paid water networks. D7 vehicle service and purposeful travel is next; broader electrical/household, learning and inter-repository work remain in the [numbered roadmap](ROADMAP.md#numbered-d-outcomes).
 
 This repository is the living-survivor source module of **Project More Life**,
 the named compiled mod or mod set. Its source ownership and relationship to
@@ -186,7 +186,7 @@ currency with `python tools/development_graph.py --check`.
 
 ## Status
 
-`2.7.7.0-pre-alpha` - the coordinate is computed by the version machine
+`2.7.8.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 

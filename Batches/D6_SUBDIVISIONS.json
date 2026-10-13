@@ -1,0 +1,106 @@
+{
+  "schema": "sao.work-organization-subdivisions/1",
+  "source": "operator:Keep developing; native/source-map chief",
+  "parent": "D6",
+  "actualDevelopment": "Emmetropic connected outcome with three useful Granular children",
+  "creditOwner": "D6",
+  "hierarchy": {
+    "activeScopeId": "D6",
+    "levels": [
+      {
+        "id": "D",
+        "parentId": null,
+        "position": "Beacon",
+        "outcome": "Accepted complete D-series grouping",
+        "childIds": [
+          "D6"
+        ],
+        "sourceRefs": [
+          "ROADMAP.md#numbered-d-outcomes"
+        ],
+        "status": "active",
+        "integrationObligations": [
+          "Shared earlier/later service/learning/strategy and repository contracts"
+        ]
+      },
+      {
+        "id": "D6",
+        "parentId": "D",
+        "position": "Emmetropic",
+        "outcome": "Managed electrical service",
+        "childIds": [
+          "D6.1",
+          "D6.2",
+          "D6.3"
+        ],
+        "sourceRefs": [
+          "Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md"
+        ],
+        "status": "completed-local-native",
+        "integrationObligations": [
+          "Three useful children rejoin one actual native service/private consumer and delivery"
+        ]
+      },
+      {
+        "id": "D6.1",
+        "parentId": "D6",
+        "position": "Granular",
+        "outcome": "Acquired supply and native billing",
+        "childIds": [],
+        "sourceRefs": [
+          "Batches/D6.1-20261013-1713Z-1013PDT-acquired-supply-and-native-billing.md"
+        ],
+        "status": "integrated",
+        "integrationObligations": [
+          "private source acquisition",
+          "native demand/coverage and multipart accounting",
+          "one effective native fuel/burn owner"
+        ],
+        "owner": "/root/d3_delivery_chief",
+        "dependencies": []
+      },
+      {
+        "id": "D6.2",
+        "parentId": "D6",
+        "position": "Granular",
+        "outcome": "Load control and breaker service",
+        "childIds": [],
+        "sourceRefs": [
+          "Batches/D6.2-20261013-1713Z-1013PDT-load-control-and-breaker-service.md"
+        ],
+        "status": "integrated",
+        "integrationObligations": [
+          "current native body/object/queue admission",
+          "original appliance/generator action effects",
+          "one service/burn owner"
+        ],
+        "owner": "/root/d3_delivery_chief",
+        "dependencies": [
+          "D6.1"
+        ]
+      },
+      {
+        "id": "D6.3",
+        "parentId": "D6",
+        "position": "Granular",
+        "outcome": "Powered use and saved feedback",
+        "childIds": [],
+        "sourceRefs": [
+          "Batches/D6.3-20261013-1713Z-1013PDT-powered-use-and-saved-feedback.md"
+        ],
+        "status": "integrated",
+        "integrationObligations": [
+          "original private consumer purpose/use",
+          "saved service/current native relationship",
+          "Cognition/models raw full/bounded independent intake"
+        ],
+        "owner": "/root/d3_delivery_chief",
+        "dependencies": [
+          "D6.1",
+          "D6.2"
+        ]
+      }
+    ],
+    "nextChildIds": []
+  }
+}
