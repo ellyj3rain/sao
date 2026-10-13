@@ -344,3 +344,7 @@ Actual private idle-load and indoor-safety requests now flow through Controller/
 ## D6 final native lifecycle qualification
 
 Original safe native activation/breaker reconciliation and saved distant-pair consumer work pass native40 plus two causal controls and bounded review. Unsafe activation retains the marker; generator mutation keeps current inspection. Current supported JAR `ef0e67eca6b6bc9bbc3d0a681b2a3d7b83f6a28b6ac2fc2df6d35a9b67ac856b`; D7 remains next.
+
+## D6 final private-control qualification
+
+Generator-only indoor safety, current-demand cancellation and same-revision recurrent conservation pass native48, two causal controls, strict full/bounded intake and bounded review. The recurrence concern is refuted without a counter/reset patch. Current supported JAR `8597dcaab4b4795033a16c049c590d6539c6a15bfd945d8babc573e453253b55`; D7 remains next.

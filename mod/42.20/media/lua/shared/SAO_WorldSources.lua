@@ -1960,7 +1960,8 @@ function WS.generatorValid(body,object,fact,operation)
     return ok and value==true
 end
 function WS.electricalServiceObjects(body,generator,consumer,operation,pre)
-    if not SAOJavaBridge or not utilityCoordinates(generator,"J:")or not utilityCoordinates(consumer,"E:")then return nil end
+    local selfSafety=operation=="breaker-open"and generator and consumer and generator.sourceId==consumer.sourceId
+    if not SAOJavaBridge or not utilityCoordinates(generator,"J:")or not utilityCoordinates(consumer,selfSafety and "J:"or"E:")then return nil end
     local ok,value=pcall(function()return SAOJavaBridge:worldElectricalServiceObjects(body,
         generator.sourceId or generator.id,generator.fingerprint,generator.revision,generator.x,generator.y,generator.z,
         consumer.sourceId or consumer.id,consumer.fingerprint,consumer.revision,consumer.x,consumer.y,consumer.z,operation,pre==true)end)

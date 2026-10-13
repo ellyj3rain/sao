@@ -673,7 +673,9 @@ function Labor.assessUtility(id, context)
     local person = SAO.Identity and SAO.Identity.get(id)
     if not person or person.dead then return nil, "person-unavailable" end
     local intent = type(context.intent) == "table" and context.intent or {}
-    local consumer = utilityFact(id, intent.consumer, "E:")
+    local selfSafety=intent.requestingActivity=="electrical-safety"and intent.electricalOperation=="breaker-open"
+        and intent.generator and intent.consumer and intent.generator.sourceId==intent.consumer.sourceId
+    local consumer = utilityFact(id, intent.consumer, selfSafety and "J:"or"E:")
     if not consumer then return nil, "private-consumer-unavailable" end
     local out = { pressure = unit(context.pressure) or 0, options = {}, sources = {}, consumer = consumer }
     local categories = { ["electronics-scrap"] = true, petrol = true, ["generator-manual"] = true, ["pipe-wrench"] = true }
@@ -689,7 +691,7 @@ function Labor.assessUtility(id, context)
     for index, option in ipairs(type(context.options) == "table" and context.options or {}) do
         if index > 16 then break end
         local generator = type(option) == "table" and utilityFact(id, option.generator, "J:")
-        local target = type(option) == "table" and utilityFact(id, option.consumer, "E:")
+        local target = type(option) == "table" and utilityFact(id, option.consumer, selfSafety and "J:"or"E:")
         if generator and target and target.sourceId == consumer.sourceId and target.fingerprint == consumer.fingerprint
             and operations[option.operation] and (option.materialCategory == nil or categories[option.materialCategory])
             and (option.inputItemId == nil or (finite(option.inputItemId) or short(option.inputItemId)) and short(option.inputItemType)) then

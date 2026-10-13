@@ -47,6 +47,9 @@ local function sameFact(a,b,revision)
     return type(a)=="table" and type(b)=="table" and a.sourceId==b.sourceId and a.fingerprint==b.fingerprint and a.x==b.x and a.y==b.y and a.z==b.z
         and (not revision or a.revision==b.revision)
 end
+local function serviceSubject(consumer,generator,operation)
+ return fact(consumer,"E:")or operation=="breaker-open"and fact(consumer,"J:")and sameFact(consumer,generator,true)
+end
 local function private(id,f)
     for _,place in pairs(SAO.Perception.knownPlaces(id,true) or {}) do
         for key,row in pairs(place.sourceFacts or {}) do
@@ -131,7 +134,7 @@ end
 local function identity(id,w)
     return type(w)=="table" and not getmetatable(w) and w.kind=="generator-operation" and w.owner=="SAO.Generator"
         and w.actorId==id and finite(w.sequence) and w.sequence%1==0 and w.sequence>0 and w.id=="generator/"..id.."/"..w.sequence
-        and tokens[w.operation]~=nil and tokens[w.operation]==w.token and fact(w.generator,"J:") and fact(w.consumer,"E:")
+        and tokens[w.operation]~=nil and tokens[w.operation]==w.token and fact(w.generator,"J:") and serviceSubject(w.consumer,w.generator,w.operation)
         and w.sourceId==w.generator.sourceId and w.consumerId==w.consumer.sourceId and text(w.purposeId) and text(w.purposeStepId)
         and finite(w.startedAt) and w.startedAt>=0 and text(w.world) and (w.bodyToken==nil or text(w.bodyToken))
 end
@@ -148,7 +151,7 @@ local function purpose(r,w)
 end
 function G.options(id,body,intent)
     local out={}
-    if not owner(id,body) or not install() or type(intent)~="table" or not fact(intent.consumer,"E:") or not private(id,intent.consumer)
+    if not owner(id,body) or not install() or type(intent)~="table" or not serviceSubject(intent.consumer,intent.generator,intent.electricalOperation) or not private(id,intent.consumer)
         or intent.generator and not fact(intent.generator,"J:") then return out end
     SAO.Perception.observeGenerators(id,body,SAO.History.ticks and SAO.History.ticks() or math.floor((clock() or 0)*9000))
     local candidates={}
@@ -243,8 +246,7 @@ local function bound(rt,pre)
         or not world or world:getWorld()~=rt.world or world:getCell()~=rt.cell or rt.body:getCell()~=rt.cell
         or rt.body:getInventory()~=rt.inventory or ISTimedActionQueue.getTimedActionQueue(rt.body)~=rt.queue
         or rt.body:getModData().SAOExternalToken~=rt.token or not permitted(rt.id,rt.generatorFact) or not permitted(rt.id,rt.consumerFact) then return false end
-    if (p.generatorPower.requestingActivity=="hydration"or p.generatorPower.managedElectrical==true
-        and p.generatorPower.requestingPurposeId~=nil)and(not SAO.ProceduralPlanning
+    if (p.generatorPower.requestingActivity=="hydration"or p.generatorPower.managedElectrical==true)and(not SAO.ProceduralPlanning
         or not SAO.ProceduralPlanning.generatorRequestCurrent
         or SAO.ProceduralPlanning.generatorRequestCurrent(rt.id,rt.work)~=true) then return false end
     if rt.square and (rt.body:getCurrentSquare()~=rt.square or math.abs(rt.body:getX()-rt.x)>.01 or math.abs(rt.body:getY()-rt.y)>.01) then return false end
@@ -628,7 +630,7 @@ end
 function G.begin(id,body,step,context)
     context=context or {};local r,t=owner(id,body),clock()
     if type(step)~="table" or not r or not t or not install() or not ledger(r) or not tokens[step.operation] or step.owner~="SAO.Generator"
-        or step.token~=tokens[step.operation] or not fact(step.generator,"J:") or not fact(step.consumer,"E:")
+        or step.token~=tokens[step.operation] or not fact(step.generator,"J:") or not serviceSubject(step.consumer,step.generator,step.operation)
         or not private(id,step.generator) or not private(id,step.consumer) or r.resourceProductionWork or r.worldSourceReservation or r.cookingWork
         or r.studyWork and r.studyWork.status=="reading" or SAO.Needs.busy(body) or SAOJavaBridge:hasPendingActions(body) then return false end
     local input=step.inputItemId and carried(body,step.inputItemId,step.inputItemType)

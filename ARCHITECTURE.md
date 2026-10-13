@@ -2544,3 +2544,5 @@ Managed electrical routing binds the retained acquired native generator/applianc
 Private electrical control planning uses acquired current observations: fully explored empty active appliances with no retained demand can produce inspection then conservation, while observed indoor active supply can produce deliberate isolation. Native source coverage/readiness and current purpose are rechecked before mutation.
 
 Native electrical lifecycle reconciliation: ordinary safe outside activation clears a stale SAO breaker marker only after original native completion and creates no work credit. Saved historically inspected remote pair identity can resume consumer-endpoint observation under current coverage/readiness; generator mutation retains current reached inspection.
+
+Generator-only electrical control: an acquired generator may be its own breaker-open subject without a fabricated appliance; other electrical operations retain their consumer source. Conservation rechecks current food/water/cooking demand before mutation. Completed control purposes naturally yield a fresh purpose on later reactivation.

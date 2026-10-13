@@ -529,7 +529,9 @@ if e.kind=="network-operation" then
             or e.status~="completed" or e.perspective~="performed" or e.actorId~=e.observerId
             or not finite(e.occurredAtHours) or e.occurredAtHours<0 or e.occurredAtHours>e.worldHours
             or not occurrencePosition(e) or not text(e.sourceId,160) or e.sourceId:sub(1,2)~="J:"
-            or not text(e.consumerId,160) or e.consumerId:sub(1,2)~="E:"
+            or not text(e.consumerId,160)or(e.consumerId:sub(1,2)~="E:"and not(e.actionKind=="breaker-open"
+                and e.consumerId==e.sourceId and e.electricalService and e.electricalService.before
+                and e.electricalService.before.nativeClass=="zombie.iso.objects.IsoGenerator"))
             or not GENERATOR_OPERATIONS[e.actionKind] or e.succeeded~=true
             or e.capabilities~=nil and not capabilities(e.capabilities) then return false end
         if SAO.ElectricalService.operations[e.actionKind]then

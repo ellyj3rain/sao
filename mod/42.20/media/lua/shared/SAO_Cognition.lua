@@ -1578,7 +1578,7 @@ function C.generatorOutcome(id, receipt)
     if not tokens[operation] or receipt.token~=tokens[operation] or receipt.nativeCredit~=receipt.id
         or (receipt.nativeOwner~=nativeOwners[operation]and not(operation=="plumb"and receipt.nativeOwner=="LGEEPlumbGeneratorAction"))
         or receipt.nativeCompleted~=true or not text(receipt.sourceId,160) or receipt.sourceId:sub(1,2)~="J:"
-        or not text(receipt.consumerId,160) or receipt.consumerId:sub(1,2)~="E:" then return false end
+        or not text(receipt.consumerId,160) or(receipt.consumerId:sub(1,2)~="E:"and not(operation=="breaker-open"and receipt.consumerId==receipt.sourceId))then return false end
     local x=privateFact(id,"generator-operation","utilities",receipt.id,now,receipt.atHours)
     x.sourceId,x.consumerId,x.actionKind,x.succeeded=receipt.sourceId,receipt.consumerId,operation,true
     if SAO.ElectricalService and SAO.ElectricalService.operations[operation]then

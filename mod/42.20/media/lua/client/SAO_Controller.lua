@@ -2869,15 +2869,20 @@ function Ctl.electricalControlIntent(id,body)
  end end
  local food=planning.resourceDemand(id,"food");local water=planning.resourceDemand(id,"water")
  local rec=SAO.Identity.get(id)
+ -- Isolation belongs to the acquired hazardous supplier itself, without an invented appliance.
+ for _,generator in ipairs(generators)do
+  if generator.active==true and generator.outside==false
+   and SAO.Standing.mayAttemptBelieved(id,generator.x,generator.y,"standing")==true then
+   return {generator=generator,consumer=generator,managedElectrical=true,electricalOperation="breaker-open",
+       requestingActivity="electrical-safety",controlReason="observed-active-indoor-generator"}
+  end
+ end
  for _,generator in ipairs(generators)do for _,consumer in ipairs(consumers)do
   if generator.active==true and generator.connected==true and type(generator.fuel)=="number"and generator.fuel>0
    and IsoGenerator.isPoweringSquare(generator.x,generator.y,generator.z,consumer.x,consumer.y,consumer.z)
    and SAO.Standing.mayAttemptBelieved(id,generator.x,generator.y,"standing")==true
    and SAO.Standing.mayAttemptBelieved(id,consumer.x,consumer.y,"standing")==true then
-   if generator.outside==false then
-    return {generator=generator,consumer=consumer,managedElectrical=true,electricalOperation="breaker-open",
-        requestingActivity="electrical-safety",controlReason="observed-active-indoor-generator"}
-   elseif not food and not water and rec and not rec.cookingWork and consumer.electricalIdle==true
+   if generator.outside==true and not food and not water and rec and not rec.cookingWork and consumer.electricalIdle==true
     and consumer.electricalActive==true and type(consumer.electricalObservedAt)=="number"
     and consumer.electricalObservedAt<=now and now-consumer.electricalObservedAt<=.05 then
     return {generator=generator,consumer=consumer,managedElectrical=true,electricalOperation="shed-load",

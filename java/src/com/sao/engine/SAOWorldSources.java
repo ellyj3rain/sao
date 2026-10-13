@@ -1203,8 +1203,9 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
             case "verify-power", "verify-service" -> generator.isActivated() && generator.isConnected() && generator.getFuel() > 0
                 && generator.getCondition() > 0 && square.isOutside();
             case "inspect-load" -> true;
-            case "shed-load", "breaker-open" -> generator.isActivated() && generator.isConnected()
+            case "shed-load" -> generator.isActivated() && generator.isConnected()
                 && generator.getFuel() > 0 && generator.getCondition() > 0;
+            case "breaker-open" -> generator.isActivated() && generator.getFuel() > 0 && generator.getCondition() > 0;
             case "breaker-reset" -> !generator.isActivated() && generator.isConnected() && generator.getFuel() > 0
                 && generator.getCondition() > 0 && square.isOutside()
                 && Boolean.TRUE.equals(generator.getModData().rawget("SAOElectricalBreaker"));
@@ -1417,7 +1418,10 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
                 || "verify-service".equals(operation);
             if (!consumerEndpoint && !"breaker-open".equals(operation) && !"breaker-reset".equals(operation)) return null;
             var generator = generatorIdentityFixture(shell, generatorId, generatorFingerprint, generatorRevision, gx, gy, gz);
-            var consumer = generatorConsumerFixture(shell, consumerId, consumerFingerprint, consumerRevision, cx, cy, cz);
+            boolean selfSafety = "breaker-open".equals(operation) && generatorId.equals(consumerId)
+                && generatorFingerprint.equals(consumerFingerprint) && generatorRevision.equals(consumerRevision)
+                && gx==cx && gy==cy && gz==cz;
+            var consumer = selfSafety ? generator : generatorConsumerFixture(shell, consumerId, consumerFingerprint, consumerRevision, cx, cy, cz);
             if (!IsoGenerator.isPoweringSquare(gx, gy, gz, cx, cy, cz)
                     || !utilityReached(shell, consumerEndpoint ? consumer.getSquare() : generator.getSquare())) return null;
             // Stage readiness samples current native state; the acquired identity revision remains binding.
@@ -1429,7 +1433,7 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
                     if (!generatorStageReady(generator, generator.getSquare(), operation)) return null;
                 } else if (generatorFixture(shell, generatorId, generatorFingerprint, null, gx, gy, gz, operation) != generator) return null;
             }
-            var load = electricalLoad(shell, consumerId, consumerFingerprint, consumer, false);
+            var load = electricalLoad(shell, consumerId, consumerFingerprint, consumer, false, selfSafety ? "J:" : "E:");
             if (load == null) return null;
             var row = recipeTable(); row.rawset("generator", generator); row.rawset("consumer", consumer); row.rawset("load", load);
             return row;
@@ -1441,16 +1445,16 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
     /** An acquired appliance's native rates; this never replaces the engine bill. */
     public static synchronized Object electricalLoad(IsoPlayer body, String id, String fingerprint,
             IsoObject expected) {
-        return electricalLoad(body, id, fingerprint, expected, true);
+        return electricalLoad(body, id, fingerprint, expected, true, "E:");
     }
 
     private static Object electricalLoad(IsoPlayer body, String id, String fingerprint,
-            IsoObject expected, boolean reached) {
+            IsoObject expected, boolean reached, String prefix) {
         try {
             var object = expected; var square = object == null ? null : object.getSquare();
             if (!networkActor(body) || square == null || !utilityObjectLive(object, square)) return null;
             if (body instanceof SAOIsoPlayerShell shell) {
-                var binding = utilityBinding(shell, id, fingerprint, "E:");
+                var binding = utilityBinding(shell, id, fingerprint, prefix);
                 if (binding.object.get() != object || binding.square.get() != square || reached && !utilityReached(shell, square)) return null;
             } else if (!body.isLocalPlayer() || body.getCurrentSquare().getZ()!=square.getZ()
                     || Math.pow(body.getX()-square.getX()-.5,2)+Math.pow(body.getY()-square.getY()-.5,2)>=4) return null;

@@ -1640,7 +1640,9 @@ function P.planGenerator(id, context)
     local s = state(id, true)
     if not s then return nil, "person-unavailable" end
     local intent = type(context.intent) == "table" and context.intent or {}
-    local consumer = GeneratorPlanning.anchor(intent.consumer, "E:")
+    local selfSafety=intent.requestingActivity=="electrical-safety"and intent.electricalOperation=="breaker-open"
+        and GeneratorPlanning.same(intent.consumer,intent.generator,true)
+    local consumer = GeneratorPlanning.anchor(intent.consumer, selfSafety and "J:"or"E:")
     if not consumer then return nil, "private-consumer-unavailable" end
     local purpose = purposeByKey(s, "utility:power:" .. consumer.sourceId)
     local current = purpose and purpose.steps[purpose.cursor]
@@ -1781,6 +1783,11 @@ function P.generatorRequestCurrent(id, work)
     local utility=s and s.purposes[work.requestedPurposeId or work.purposeId]
     local request=utility and utility.generatorPower
     if not request then return false end
+    if request.managedElectrical==true and request.requestingActivity=="electrical-conservation"then
+        local rec=record(id)
+        return utility.status~="completed"and utility.status~="abandoned"and rec and not rec.cookingWork
+            and P.resourceDemand(id,"food")==nil and P.resourceDemand(id,"water")==nil
+    end
     if request.managedElectrical==true and request.requestingActivity=="cooking"then
         local parent=s.purposes[request.requestingPurposeId];local step=parent and parent.steps[parent.cursor]
         return parent and parent.resourceCategory=="food"and parent.status~="completed"and parent.status~="abandoned"

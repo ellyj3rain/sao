@@ -132,3 +132,21 @@ The lifecycle packet passes 40 positive assertions and both causal controls. A l
 | Supported build03 | `e8bd1a7f6104ec1befec4c8b1a9efd91feeb77400934176e558a1fb4adb508cf` |
 
 Current shipping JAR SHA `ef0e67eca6b6bc9bbc3d0a681b2a3d7b83f6a28b6ac2fc2df6d35a9b67ac856b`. The protected merge remains the publication boundary.
+
+## Final generator-only control and demand continuity
+
+An acquired active indoor generator can now create and complete a safety-isolation purpose without requiring or fabricating an appliance fact: the actual generator is its own control subject only for `breaker-open`, through the existing private capsule and original native action. Cognition accepts that same `J:` subject only for this operation, requires the native IsoGenerator measurement and confers no consumer completion.
+
+Conservation rechecks current private food, water and cooking demand immediately before native mutation even when the conservation purpose has no parent request ID. A newly formed real food purpose cancels admitted shedding, retires it interrupted and uncredited, and leaves the appliance active. Same-revision reactivation was tested against existing code: the completed purpose is excluded, a distinct new purpose/work forms, and a second conservation completes. The reported completed-step reuse does not reproduce; no reset counter or special recurrence state was introduced.
+
+The packet passes 48 positive checks and both causal controls. Independent strict intake of the same record retains four full experiences, zero bounded experiences and zero rejected experiences. Current supported build04 and package checks own the same D6 coordinate.
+
+| Final control evidence | SHA256 |
+|---|---|
+| Native generator-only/demand/recurrence receipt | `b4bbacdd126b0f9618b1b1b5f2b2c0e47783e5740aeb4f625400aef2d48616d0` |
+| Bounded control review | `76716fc26003f288d6176b8ad26ddced29154a90905188ea416a9aea48cd7d56` |
+| Owning ready packet | `cc45881d5923505ae40ab8603eeee86e92922a031e87b99b83ee0d55f868a0d3` |
+| Independent control snapshot intake | `f9d8e6dc6b996172805de9639cee8139d8039f8f34c87e2692264785f59dee11` |
+| Supported build04 | `903b3b643211b95cccb725373c8e7f0a7f20776d774e15f1546f7ad06ce66142` |
+
+Current shipping JAR SHA `8597dcaab4b4795033a16c049c590d6539c6a15bfd945d8babc573e453253b55`. The protected merge remains the publication boundary.
