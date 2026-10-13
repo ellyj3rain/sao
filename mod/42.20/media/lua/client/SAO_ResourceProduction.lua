@@ -1,5 +1,6 @@
 -- Native resource transformations over this person's remembered world and held tools.
 require "TimedActions/ISTakeWaterAction"
+require "SAO_NetworkWork"
 SAO = SAO or {}
 SAO.ResourceProduction = SAO.ResourceProduction or {}
 local R = SAO.ResourceProduction
@@ -215,6 +216,7 @@ function R.outcome(id, workId)
     local rec = SAO.Identity.get(id)
     for _, receipt in ipairs(rec and rec.resourceProductionOutcomes or {}) do
         if receipt.id == workId or receipt.kind=="maintain-garment" and receipt.sequence==workId then
+            if receipt.kind=="network-operation"then return SAO.NetworkWork.outcome(id,workId)end
             if nativeEntityKind(receipt.kind) then return collector.outcome(id, receipt) end
             if receipt.kind == "plumb-fixture" then return plumbOutcome(id, receipt) end
             if nativeCraftKind(receipt.kind) then return craftOutcome(id, receipt) end
@@ -231,6 +233,7 @@ local function reconcile(id)
             or receipt.kind=="build-place" and planning.consumeWorkspaceConstructionResult
             or receipt.kind=="build-wood-bed" and planning.consumeBedConstructionResult
             or receipt.kind=="maintain-garment" and planning.consumeGarmentOutcome
+            or receipt.kind=="network-operation"and planning.consumeNetworkResult
             or receipt.kind=="extract-material" and planning.consumeExtractionProductionResult
             or recipeWorkKind(receipt.kind) and planning.consumeRecipeProductionResult
             or (receipt.kind == "repair-held-item" or receipt.kind == "fix-held-item") and planning.consumeRepairProductionResult
@@ -1692,6 +1695,13 @@ end
 function recipeWork.consumerAccepts(rt,item)
     local demand=rt.work and rt.work.recipeDemand or rt.step.recipeDemand
     if demand.consumerOwner=="SAO.Generator" then return item:getFullType()=="Base.ElectronicsScrap" end
+    if demand.consumerOwner=="SAO.NetworkWork"and demand.consumerOperation=="place"then
+        local planning=SAO.ProceduralPlanning
+        return (demand.desiredType=="SAO.WaterPump"or demand.desiredType=="SAO.WaterValve")
+            and item:getFullType()==demand.desiredType and item:getCondition()>0 and not item:getIsCraftingConsumed()
+            and item:getScriptItem()==getScriptManager():getItem(item:getFullType())
+            and planning and planning.networkMaterialDemandCurrent and planning.networkMaterialDemandCurrent(rt.work.actorId,demand)==true or false
+    end
     local consumer=registeredRecipe(demand.consumerRecipeId)
     if not consumer then return false end
     local inputs=consumer:getInputs()
@@ -1737,7 +1747,7 @@ function recipeWork.releaseWorkplace(rt)
     rt.workplaceClaimed=nil
     return true
 end
-function recipeWork.demandAllowed(recipe,demand)
+function recipeWork.demandAllowed(recipe,demand,id)
     if type(demand)~="table" or not textId(demand.id) or not textId(demand.consumerId)
         or not textId(demand.kind) or not textId(demand.sourceRevision) or not recipeWork.stateSupported(demand.desiredState)
         or demand.quantityUnit~=nil and demand.quantityUnit~="items" and demand.quantityUnit~="uses" then return false end
@@ -1754,6 +1764,11 @@ function recipeWork.demandAllowed(recipe,demand)
         -- The existing native generator repair owner consumes this exact
         -- stock type (ISFixGenerator/SAO_Generator.inputEligible).
         needed=demand.desiredType=="Base.ElectronicsScrap" and SAO.Generator~=nil
+    elseif demand.consumerOwner=="SAO.NetworkWork"and demand.consumerOperation=="place"then
+        local planning=SAO.ProceduralPlanning
+        needed=(demand.desiredType=="SAO.WaterPump"or demand.desiredType=="SAO.WaterValve")
+            and planning and planning.networkMaterialDemandCurrent
+            and planning.networkMaterialDemandCurrent(id,demand)==true
     elseif textId(demand.consumerRecipeId) then
         local consumer=registeredRecipe(demand.consumerRecipeId)
         if not consumer or not (consumer:isBuildableRecipe() or consumer:getCategory()=="Repair"
@@ -1774,7 +1789,7 @@ end
 function recipeWork.policy(id,body,recipeId,demand,anchor)
     if not SAO.RecipePolicy then pcall(require,"SAO_RecipePolicy") end
     local recipe=registeredRecipe(recipeId)
-    if not SAO.RecipePolicy or not recipe or not recipeWork.demandAllowed(recipe,demand) then return nil,"recipe-demand-outside-material-work" end
+    if not SAO.RecipePolicy or not recipe or not recipeWork.demandAllowed(recipe,demand,id) then return nil,"recipe-demand-outside-material-work" end
     local workplace,why=recipeWork.workplace(id,body,anchor)
     if anchor and not workplace then return nil,why end
     return SAO.RecipePolicy.describe(recipe,body,demand,workplace)
@@ -5562,6 +5577,9 @@ end
 function R.reconcileSaved(id,body)
     if SAO.ProceduralPlanning and SAO.ProceduralPlanning.reconcileShelterFeedback then SAO.ProceduralPlanning.reconcileShelterFeedback(id) end
     local rec=SAO.Identity.get(id)
+    if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="network-operation"then
+        return SAO.NetworkWork.reconcileSaved(id,body)
+    end
     if SAO.Study and SAO.Study.reconcileGeneratorReading and not SAO.Study.reconcileGeneratorReading(id,body) then return false end
     if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="generator-operation" then
         return SAO.Generator and SAO.Generator.reconcileSaved(id,body) or false
@@ -5588,6 +5606,7 @@ if Events and Events.OnTick then Events.OnTick.Add(R.retryCraftCancellations) en
 
 function R.begin(id, body, step, context)
     context = context or {}
+    if step and step.productionKind=="network-operation"then return SAO.NetworkWork.begin(id,body,step,context)end
     if step and step.productionKind=="maintain-garment" then return garment.begin(id,body,step,context) end
     if step and step.productionKind=="build-place" then return workspace.begin(id,body,step,context) end
     if step and step.productionKind=="extract-material" then return extraction.begin(id,body,step,context) end
@@ -5661,6 +5680,9 @@ function R.begin(id, body, step, context)
 end
 function R.interrupt(id, body, reason)
     local rec, rt = SAO.Identity.get(id), runtime[id]
+    if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="network-operation"then
+        return SAO.NetworkWork.interrupt(id,body,reason)
+    end
     if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="generator-operation" then
         return SAO.Generator and SAO.Generator.interrupt(id,body,reason) or false
     end
@@ -5712,6 +5734,14 @@ end
 -- The exact water-producing owner can answer its initiating thirst. Already
 -- usable carried water instead permits the ordinary immediate drink owner.
 function R.servesNeed(id, body, category)
+    local current=owner(id,body);local work=current and current.resourceProductionWork
+    if category=="water"and work and work.kind=="network-operation"then
+        return SAO.ProceduralPlanning.networkRequestCurrent(id,work)==true
+    end
+    if category=="water"and work and work.kind=="recipe-stock"and work.recipeDemand
+        and work.recipeDemand.consumerOwner=="SAO.NetworkWork"then
+        return SAO.ProceduralPlanning.networkMaterialDemandCurrent(id,work.recipeDemand)==true
+    end
     local rec, rt = owner(id, body), runtime[id]
     local work = rec and rec.resourceProductionWork
     if category ~= "water" or not work or (work.kind ~= "refill-water" and work.kind ~= "plumb-fixture" and work.kind ~= "build-rain-collector")
@@ -5801,6 +5831,10 @@ local function tick(id, body)
         rt.action and rt.action.saoReason or "native-refill-queue-lost")
 end
 function R.tick(id, body)
+    local rec=SAO.Identity.get(id)
+    if rec and rec.resourceProductionWork and rec.resourceProductionWork.kind=="network-operation"then
+        return SAO.NetworkWork.tick(id,body)
+    end
     local ok, result = pcall(tick, id, body)
     if ok then return result end
     if R.interrupt(id, body, "native-resource-owner-error") then return "unavailable" end
@@ -5813,6 +5847,7 @@ function R.snapshot(id)
         sourceId = work.sourceId, startedAt = work.startedAt, purposeId = work.purposeId }
 end
 function R.reset()
+    if SAO.NetworkWork then SAO.NetworkWork.reset()end
     if SAO.Generator then SAO.Generator.reset() end
     for id, rt in pairs(runtime) do R.interrupt(id, rt.body, "world-reset") end
     for id in pairs(sourceRefresh) do retireRefresh(id, "handled-source-observation-retired") end

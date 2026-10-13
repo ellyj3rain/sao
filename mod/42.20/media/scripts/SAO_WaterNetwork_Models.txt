@@ -1,0 +1,25 @@
+module SAO
+{
+ model WaterValve
+ {
+  mesh = SAO/WaterValve,
+  texture = SAO/WaterHardware,
+  scale = 1.0,
+  attachment world
+  {
+   offset = 0 0 0,
+   rotate = 0 0 0,
+  }
+ }
+ model WaterPump
+ {
+  mesh = SAO/WaterPump,
+  texture = SAO/WaterHardware,
+  scale = 1.0,
+  attachment world
+  {
+   offset = 0 0 0,
+   rotate = 0 0 0,
+  }
+ }
+}

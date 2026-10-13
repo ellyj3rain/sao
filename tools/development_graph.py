@@ -576,6 +576,31 @@ def _active_batch(b):
             b.edge(node, parent, "child-of", [source],
                    "The record explicitly names this parent scope; child delivery does not close or credit the parent.")
 
+    # Integrated subdivisions share their parent's classified delivery and credit.
+    for mapping in sorted((b.root / "Batches").glob("*_SUBDIVISIONS.json")):
+        relative = mapping.relative_to(b.root).as_posix()
+        data = b.json(relative)
+        if data.get("schema") != "sao.work-organization-subdivisions/1":
+            raise GraphError("Unknown subdivision map schema")
+        parent = "batch:" + data["parent"]
+        if parent not in b.nodes:
+            raise GraphError("Subdivision map has absent parent")
+        for child in data["hierarchy"]["levels"]:
+            if child.get("parentId") != data["parent"]:
+                continue
+            if batch_parent(child["id"]) != data["parent"]:
+                raise GraphError("Subdivision identity disagrees with parent")
+            path = child["sourceRefs"][0]
+            record = b.read(path)
+            if metadata(record, "Batch") != child["id"] or metadata(record, "Parent") != parent:
+                raise GraphError("Subdivision record disagrees with hierarchy")
+            source = b.source(relative, child["id"])
+            node = b.node("batch:" + child["id"], "batch", child["id"] + " · " + metadata(record, "Name"),
+                          child["outcome"], [source, b.source(path)], ["D", "integrated-subdivision"],
+                          status("integrated in parent", "qualified at linked parent scope", "shares parent publication"),
+                          creditOwner=parent, developmentalPosition=child["position"])
+            b.edge(node, parent, "child-of", [source], "Useful subdivision retained within the parent's integrated delivery and once-only credit.")
+
 
 def _indexed_batch(b, index, label, name, path, is_active):
     record = b.read(path)

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.6.0-pre-alpha` |
+| Version | `2.7.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2526,3 +2526,11 @@ Private Perception acquires actual worn Clothing/covered-part/source and mutable
 ### Existing household service restoration (D4)
 
 SAO_HouseholdService owns exact loaded saved pipe membership, existing native header relationships and single-provider finite fuel/water transfer. WorldSources Java/Lua and Perception acquire actor-private service facts; ProceduralPlanning and Controller retain the original hydration purpose through inquiry, exact means, native knowledge and Generator service. Generator owns the connection action and current source/Standing/native queue guards. Needs performs bounded native purifier transfers and measured drinking; Cognition and CognitiveModels preserve independent interpretation and both private models. The normal startup owns one callback and requires no external utility producer. Actual external ownership and legacy saved geometry remain compatibility surfaces; unknown geometry or an unavailable native header refuses physical work. D5/D6 retain network construction and managed distribution contracts. [D4](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md) supplies the current evidence and limits.
+
+### Physical water-network construction and alteration
+
+`SAO_NetworkWork` carries paid floor/riser/valve/pump placement, control, removal and source enrollment through ResourceProduction's existing claim, native queue and canonical outcome. HouseholdService owns the current native item/object/backlink/pose/marker relationship and its physical topology. `SAO_NetworkMenu` supplies the actual human entry to that same producer; its native body and world operation counter provide current execution custody. The person-private route remains with Perception, ProceduralPlanning and Controller: observed site/fluid/stair facts, exact signed material and tool acquisition, registered native fabrication, retained hydration purpose and actual fixture use.
+
+Physical installation and enrollment describe a built relationship. Effective hydraulic transport applies current valve, pump and native power conditions to native source/receiver quantities. Native fluid operations own actual debit, delivery and mixture; a constructed network creates no stock or bodily-use credit. Authoritative installed objects retain their infrastructure relationship through removal and marker retirement before becoming loose acquisition or recipe stock.
+
+Cognition and CognitiveModels preserve canonical performed network events and the independent original water-use result. The original full/bounded APIs retain their own array and model limits; native primitive record serialization and independent intake establish their measured saved-data scope. New native runtime, item/recipe/model definitions and authored meshes/icons belong to the normal package. [D5](Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md) owns development, source applicability, correction evidence and delivery. D6 retains managed electrical distribution/load; whole-world/server/rendered acceptance and counterpart model adoption/training keep their separate standing.

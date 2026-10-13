@@ -4,11 +4,11 @@
   "sourceVector": [
     {
       "sourceRef": "ARCHITECTURE.md",
-      "revision": "sha256:5d3a3a4745acddf01b998262512a036610a8b20b86249858a3cdb6beb4c46563"
+      "revision": "sha256:52ed73afb87190161c64e7d4920292ad1f6187a5f50dfefd5f8fc6127f7878f5"
     },
     {
       "sourceRef": "BATCH_LOG.md",
-      "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c"
+      "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc"
     },
     {
       "sourceRef": "Batches/A1-2026-08-26-repository-and-governance-surface.md",
@@ -589,6 +589,34 @@
     {
       "sourceRef": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
       "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+    },
+    {
+      "sourceRef": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+      "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+    },
+    {
+      "sourceRef": "Batches/D5.1-20261013-1540Z-0840PDT-native-network-parts.md",
+      "revision": "sha256:e4614ea6eab4a3deeb8827a82426c20ff9099191c36057744b1beb4355e103ce"
+    },
+    {
+      "sourceRef": "Batches/D5.2-20261013-1540Z-0840PDT-hydraulic-enrollment-transport.md",
+      "revision": "sha256:0eb79a291c7dfb849aca13d2dab6acf51714611130c2cfb7f72da781702290de"
+    },
+    {
+      "sourceRef": "Batches/D5.3-20261013-1540Z-0840PDT-private-means-fabrication.md",
+      "revision": "sha256:b35042b28fb07cee83a4c529685e9ed4ead913dc8336e0abe3271d39daed3541"
+    },
+    {
+      "sourceRef": "Batches/D5.4-20261013-1540Z-0840PDT-authorized-recovery-stock.md",
+      "revision": "sha256:c37dfc4eb3ff0624b40af7f1252e7a5c1d518376c4fc79d3ad4d683b16cc9594"
+    },
+    {
+      "sourceRef": "Batches/D5.5-20261013-1540Z-0840PDT-water-use-saved-learning.md",
+      "revision": "sha256:b3ed0041e655ade11f1da5c62d6ec5f9a0e2d940f2d5b9b73e9e68fbb569b673"
+    },
+    {
+      "sourceRef": "Batches/D5_SUBDIVISIONS.json",
+      "revision": "sha256:ad2c1739ea9b87f9a031ac0f774066a0db0d211d3ea6911db194c969633393ac"
     },
     {
       "sourceRef": "Batches/Products/C1-2026-08-28-catalog-and-version-governance.md",
@@ -1436,31 +1464,31 @@
     },
     {
       "sourceRef": "DECISION_REGISTRY.md",
-      "revision": "sha256:eb9afc8bbc3482b14bef6b981c4f58c6fa50357bef38686397faadab15d4e0fa"
+      "revision": "sha256:a7fe68218ad7127608aa2d350073ab1bb3d530323f67ed81eae87f161929a236"
     },
     {
       "sourceRef": "FINDINGS.md",
-      "revision": "sha256:854f84963aa484e782563568d124a03cc1dc5a5f7f526c80cb349614f25d5dbf"
+      "revision": "sha256:94f666fc1dda0723b6b804508f0cbb3bcfae0b4a17a8902589b1e720e5508872"
     },
     {
       "sourceRef": "GOVERNANCE.md",
-      "revision": "sha256:78e7f09465b214a001e1da3feb661e3f2a8c32c7d8af808e4a4bbc8b8f6452e7"
+      "revision": "sha256:942ebd13e1e0031410e5314227046936f87a0db6768671947852f71ac1c2a499"
     },
     {
       "sourceRef": "NEO.md",
-      "revision": "sha256:8c83ef4d77d8062edd08b2f79e995f2c494cbb778e9439d6d0004ae987ced2b1"
+      "revision": "sha256:4a709a00b64ef64f58a1938e9c18b35cfd8e97a56ad8749137ecf8c62cde89c6"
     },
     {
       "sourceRef": "PROJECTS.md",
-      "revision": "sha256:b14637492e5c57d9f2cfa5946cbd0d96a2584320addc9f3a792f963f2198df4c"
+      "revision": "sha256:09a625875cd6776a2f22a80e46e26d6f9308ec9fa7bcaad84ae4979e8a7b56c0"
     },
     {
       "sourceRef": "SESSION_STATE.md",
-      "revision": "sha256:7b6d82e71eace668bf661743444eceb7b48446b54f808e570dbf73b55dc89e7f"
+      "revision": "sha256:b51f1d7c8a3ab48211ef07025b92bc06b9f1fe39e2ed8ad09adf708995ec12f6"
     },
     {
       "sourceRef": "SUBSTRATE.md",
-      "revision": "sha256:efc4a48a4bc417fd87071f698fecbf9d71269932806050746426f5764e9eea65"
+      "revision": "sha256:e9aafcf0eedb528f53027aa3e4b6c42be98da38d774afc0c913fe616a2d901d6"
     },
     {
       "sourceRef": "artifacts/audits/20261003-2310Z-1610PST-shared-boundaries/shared-reasoning-verification.json",
@@ -1496,7 +1524,7 @@
     },
     {
       "sourceRef": "java/src/com/sao/engine/SAOWorldSources.java",
-      "revision": "sha256:a6d99dacc693ab2e3ce6912306f3ba40b6edc57a0705e7284d73db481cbbcf4a"
+      "revision": "sha256:17b2c69a81514e123531ad1db7f8e0fa4b8a8559ff51847f2286b2125b641880"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_AfflictedReturn.lua",
@@ -1520,11 +1548,11 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_CapabilityExperience.lua",
-      "revision": "sha256:7184a4efe050b59d9c95c1fdf366f7fceac6c5795da037528537e52698eab09b"
+      "revision": "sha256:ea2e582d04c1f0cb901fc5e4b4d53ce6fd00a78b665c9a4c732d6c1606ea773c"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Controller.lua",
-      "revision": "sha256:77f7a2030afcaf6f76cab78630ca59899f7056967e4619c29a0282c21cf9223d"
+      "revision": "sha256:c5997a09e75e037b4492c81d1cdc24cf737ee6af05519680d66a7f4ca8b5939f"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Cooking.lua",
@@ -1580,7 +1608,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Needs.lua",
-      "revision": "sha256:70cd240c3d30476ae02efd9fcb37137ce5e119f5025b210a91bb6f7bbb1b44f3"
+      "revision": "sha256:92f8a6c9acfb2816667f1448c6ad9b940591fd4a21f067b11cff324b335e5d2c"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Observation.lua",
@@ -1608,7 +1636,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_ResourceProduction.lua",
-      "revision": "sha256:c9149f3cc811590e2158626cad3ce54519166e5717a49e2f2518f7b7be3c8d79"
+      "revision": "sha256:7b6f353517695ed6b9f18495cf47905a5ae3d463dc3b52193469a184611c7506"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Sandbox.lua",
@@ -1616,7 +1644,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_SourceUse.lua",
-      "revision": "sha256:6af7ed56fa3a962d33767da0817b01bcfe52c823b30b73684b34570d9e270945"
+      "revision": "sha256:6f67a0ecd13c0b34ce8414d33c903ca79790774fd247cfe78a433d0a53e0d58c"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Study.lua",
@@ -1656,11 +1684,11 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Cognition.lua",
-      "revision": "sha256:87a6c64982136a54bf6b6fb7156c5107f20fe10a1c8f0c00116d9eb7fd0e919d"
+      "revision": "sha256:b748ec679b52c756c0ac99955e53c1cc807819526023704c911040a9b6492534"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
-      "revision": "sha256:094d5ac678af8facbd8af35f375be275f30d417e1f492cb5d30dd413a78bd9f7"
+      "revision": "sha256:b37e7f3fa95ee3ea28cf755babefbc785a40b25c69a8df85a6b9e74594c538ac"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Command.lua",
@@ -1748,7 +1776,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Perception.lua",
-      "revision": "sha256:fab95fe29a8dbff37fa225722f64792c16fcf06f4741aa5e7316685f5499810f"
+      "revision": "sha256:3b17c0314322045516a43653569e4880a55bca7bd121218142087f65d4e2638e"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Pharmacology.lua",
@@ -1768,7 +1796,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-      "revision": "sha256:eb9b4208012f60e9bf95a790c0c82dafe4561f79202db496d12585775b45b243"
+      "revision": "sha256:b397a507b5c1da43e6c35bbbd935a2e5c2202ae03bbf4f3d22fcc00d1971d1df"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Provisioning.lua",
@@ -1800,7 +1828,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
-      "revision": "sha256:60d2b55eed312a00f75a14d5de3cd0c7236e5712e21a64faf233899b925aa5f4"
+      "revision": "sha256:a75bc5f8ccd0c4fad770b355eb6a2d133d91156d4b1c95b6e62fc41d7f9dc6d3"
     },
     {
       "sourceRef": "tools/catalogue.py",
@@ -1820,7 +1848,7 @@
     },
     {
       "sourceRef": "tools/development_graph.py",
-      "revision": "sha256:60e1e61bbaff1a1d79034326ba3c3fbb2394037baf06234003917dc66dea9d22"
+      "revision": "sha256:a52b7e595288fc92039074fe55110400f5f3b23a337fa0058a5986f402a7f805"
     },
     {
       "sourceRef": "tools/sweep/conversation_capture.lua",
@@ -1832,7 +1860,7 @@
     },
     {
       "sourceRef": "tools/version_replay.py",
-      "revision": "sha256:83d692adf17185c7b9b574ed11689770ac83b1f70fd7cd1774c17df512f56d21"
+      "revision": "sha256:48852ed37379f34e8b308a0ffd5fe8d24f274459f84fec01d12314aff60e36b6"
     },
     {
       "sourceRef": "tools/world_lab.py",
@@ -3728,7 +3756,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D1"
         },
         {
@@ -3757,7 +3785,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D2"
         },
         {
@@ -3786,7 +3814,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3"
         },
         {
@@ -3815,7 +3843,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.1"
         },
         {
@@ -3844,7 +3872,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.10"
         },
         {
@@ -3873,7 +3901,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.11"
         },
         {
@@ -3902,7 +3930,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.12"
         },
         {
@@ -3931,7 +3959,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.13"
         },
         {
@@ -3960,7 +3988,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.14"
         },
         {
@@ -3989,7 +4017,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.15"
         },
         {
@@ -4018,7 +4046,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.16"
         },
         {
@@ -4047,7 +4075,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.17"
         },
         {
@@ -4076,7 +4104,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.18"
         },
         {
@@ -4105,7 +4133,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.19"
         },
         {
@@ -4134,7 +4162,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.2"
         },
         {
@@ -4163,7 +4191,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.20"
         },
         {
@@ -4192,7 +4220,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.21"
         },
         {
@@ -4221,7 +4249,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.22"
         },
         {
@@ -4250,7 +4278,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.3"
         },
         {
@@ -4279,7 +4307,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.4"
         },
         {
@@ -4308,7 +4336,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.5"
         },
         {
@@ -4337,7 +4365,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.6"
         },
         {
@@ -4366,7 +4394,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.7"
         },
         {
@@ -4395,7 +4423,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.8"
         },
         {
@@ -4424,7 +4452,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D3.9"
         },
         {
@@ -4453,7 +4481,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
           "locator": "D4"
         },
         {
@@ -4468,6 +4496,195 @@
       "recordedStatus": "CLOSED - connected local native restoration; protected publication tracked below",
       "recordedAt": "2026-10-13",
       "closedAt": ""
+    },
+    {
+      "id": "batch:D5",
+      "kind": "batch",
+      "label": "D5 · Water-network construction and alteration",
+      "summary": "and practical seam",
+      "status": {
+        "implementation": "Completed connected native producer, private means, authorized recovery, original use and saved learning; source13 with five integrated subdivisions",
+        "verification": "Scoped native/data/primitive/current-authority proof and first plus bounded correction review qualified; final source/tool mapping and package checks pass",
+        "publication": "Prepared selected protected branch/PR; merge receipt establishes public delivery"
+      },
+      "sources": [
+        {
+          "path": "BATCH_LOG.md",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc",
+          "locator": "D5"
+        },
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "tags": [
+        "D",
+        "delivered"
+      ],
+      "recordedStatus": "CLOSED - qualified connected local native outcome; protected publication tracked separately",
+      "recordedAt": "2026-10-13",
+      "closedAt": "2026-10-13"
+    },
+    {
+      "id": "batch:D5.1",
+      "kind": "batch",
+      "label": "D5.1 · Physical network parts",
+      "summary": "Current paid floor/riser/valve/pump factories, placement/configuration and native item/object/backlink/pose/marker ownership.",
+      "status": {
+        "implementation": "integrated in parent",
+        "verification": "qualified at linked parent scope",
+        "publication": "shares parent publication"
+      },
+      "sources": [
+        {
+          "path": "Batches/D5_SUBDIVISIONS.json",
+          "revision": "sha256:ad2c1739ea9b87f9a031ac0f774066a0db0d211d3ea6911db194c969633393ac",
+          "locator": "D5.1"
+        },
+        {
+          "path": "Batches/D5.1-20261013-1540Z-0840PDT-native-network-parts.md",
+          "revision": "sha256:e4614ea6eab4a3deeb8827a82426c20ff9099191c36057744b1beb4355e103ce"
+        }
+      ],
+      "tags": [
+        "D",
+        "integrated-subdivision"
+      ],
+      "creditOwner": "batch:D5",
+      "developmentalPosition": "Granular"
+    },
+    {
+      "id": "batch:D5.2",
+      "kind": "batch",
+      "label": "D5.2 · Hydraulic enrollment and transport",
+      "summary": "Exact physical endpoint enrollment and enabled/native-powered single-provider transfer with conserved finite mixture and quantity.",
+      "status": {
+        "implementation": "integrated in parent",
+        "verification": "qualified at linked parent scope",
+        "publication": "shares parent publication"
+      },
+      "sources": [
+        {
+          "path": "Batches/D5_SUBDIVISIONS.json",
+          "revision": "sha256:ad2c1739ea9b87f9a031ac0f774066a0db0d211d3ea6911db194c969633393ac",
+          "locator": "D5.2"
+        },
+        {
+          "path": "Batches/D5.2-20261013-1540Z-0840PDT-hydraulic-enrollment-transport.md",
+          "revision": "sha256:0eb79a291c7dfb849aca13d2dab6acf51714611130c2cfb7f72da781702290de"
+        }
+      ],
+      "tags": [
+        "D",
+        "integrated-subdivision"
+      ],
+      "creditOwner": "batch:D5",
+      "developmentalPosition": "Granular"
+    },
+    {
+      "id": "batch:D5.3",
+      "kind": "batch",
+      "label": "D5.3 · Private means and fabrication",
+      "summary": "Same-person site/fluid/stair inquiry, signed tools/materials/native recipe knowledge, original paid handcraft and retained construction purpose.",
+      "status": {
+        "implementation": "integrated in parent",
+        "verification": "qualified at linked parent scope",
+        "publication": "shares parent publication"
+      },
+      "sources": [
+        {
+          "path": "Batches/D5_SUBDIVISIONS.json",
+          "revision": "sha256:ad2c1739ea9b87f9a031ac0f774066a0db0d211d3ea6911db194c969633393ac",
+          "locator": "D5.3"
+        },
+        {
+          "path": "Batches/D5.3-20261013-1540Z-0840PDT-private-means-fabrication.md",
+          "revision": "sha256:b35042b28fb07cee83a4c529685e9ed4ead913dc8336e0abe3271d39daed3541"
+        }
+      ],
+      "tags": [
+        "D",
+        "integrated-subdivision"
+      ],
+      "creditOwner": "batch:D5",
+      "developmentalPosition": "Granular"
+    },
+    {
+      "id": "batch:D5.4",
+      "kind": "batch",
+      "label": "D5.4 · Authorized recovery and stock",
+      "summary": "Canonical removal/marker retirement recovers the same item; installed/unresolved claims refuse ordinary offered/signed stock and transfer.",
+      "status": {
+        "implementation": "integrated in parent",
+        "verification": "qualified at linked parent scope",
+        "publication": "shares parent publication"
+      },
+      "sources": [
+        {
+          "path": "Batches/D5_SUBDIVISIONS.json",
+          "revision": "sha256:ad2c1739ea9b87f9a031ac0f774066a0db0d211d3ea6911db194c969633393ac",
+          "locator": "D5.4"
+        },
+        {
+          "path": "Batches/D5.4-20261013-1540Z-0840PDT-authorized-recovery-stock.md",
+          "revision": "sha256:c37dfc4eb3ff0624b40af7f1252e7a5c1d518376c4fc79d3ad4d683b16cc9594"
+        }
+      ],
+      "tags": [
+        "D",
+        "integrated-subdivision"
+      ],
+      "creditOwner": "batch:D5",
+      "developmentalPosition": "Granular"
+    },
+    {
+      "id": "batch:D5.5",
+      "kind": "batch",
+      "label": "D5.5 · Water use and saved learning",
+      "summary": "Original fixture use completes hydration and network purposes against the same receipt; both private models and saved person/full/bounded data persist.",
+      "status": {
+        "implementation": "integrated in parent",
+        "verification": "qualified at linked parent scope",
+        "publication": "shares parent publication"
+      },
+      "sources": [
+        {
+          "path": "Batches/D5_SUBDIVISIONS.json",
+          "revision": "sha256:ad2c1739ea9b87f9a031ac0f774066a0db0d211d3ea6911db194c969633393ac",
+          "locator": "D5.5"
+        },
+        {
+          "path": "Batches/D5.5-20261013-1540Z-0840PDT-water-use-saved-learning.md",
+          "revision": "sha256:b3ed0041e655ade11f1da5c62d6ec5f9a0e2d940f2d5b9b73e9e68fbb569b673"
+        }
+      ],
+      "tags": [
+        "D",
+        "integrated-subdivision"
+      ],
+      "creditOwner": "batch:D5",
+      "developmentalPosition": "Granular"
+    },
+    {
+      "id": "branch:Existing source custody; publication follows neo/d5-water-network-construction-alteration",
+      "kind": "branch",
+      "label": "Existing source custody; publication follows neo/d5-water-network-construction-alteration",
+      "summary": "Working branch recorded for the active batch; no publication is inferred.",
+      "status": {
+        "implementation": "unknown",
+        "verification": "unknown",
+        "publication": "unknown"
+      },
+      "sources": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "tags": [
+        "branch"
+      ]
     },
     {
       "id": "branch:archive/c-era-raw-20260919",
@@ -15253,6 +15470,10 @@
         {
           "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
           "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        },
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
         }
       ],
       "tags": [
@@ -15365,21 +15586,21 @@
         },
         {
           "path": "SESSION_STATE.md",
-          "revision": "sha256:7b6d82e71eace668bf661743444eceb7b48446b54f808e570dbf73b55dc89e7f",
+          "revision": "sha256:b51f1d7c8a3ab48211ef07025b92bc06b9f1fe39e2ed8ad09adf708995ec12f6",
           "locator": "shared reasoning continuation"
         },
         {
           "path": "ARCHITECTURE.md",
-          "revision": "sha256:5d3a3a4745acddf01b998262512a036610a8b20b86249858a3cdb6beb4c46563",
+          "revision": "sha256:52ed73afb87190161c64e7d4920292ad1f6187a5f50dfefd5f8fc6127f7878f5",
           "locator": "shared reasoning continuation"
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
-          "revision": "sha256:094d5ac678af8facbd8af35f375be275f30d417e1f492cb5d30dd413a78bd9f7"
+          "revision": "sha256:b37e7f3fa95ee3ea28cf755babefbc785a40b25c69a8df85a6b9e74594c538ac"
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Cognition.lua",
-          "revision": "sha256:87a6c64982136a54bf6b6fb7156c5107f20fe10a1c8f0c00116d9eb7fd0e919d"
+          "revision": "sha256:b748ec679b52c756c0ac99955e53c1cc807819526023704c911040a9b6492534"
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Labor.lua",
@@ -15387,15 +15608,15 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-          "revision": "sha256:eb9b4208012f60e9bf95a790c0c82dafe4561f79202db496d12585775b45b243"
+          "revision": "sha256:b397a507b5c1da43e6c35bbbd935a2e5c2202ae03bbf4f3d22fcc00d1971d1df"
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Needs.lua",
-          "revision": "sha256:70cd240c3d30476ae02efd9fcb37137ce5e119f5025b210a91bb6f7bbb1b44f3"
+          "revision": "sha256:92f8a6c9acfb2816667f1448c6ad9b940591fd4a21f067b11cff324b335e5d2c"
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Controller.lua",
-          "revision": "sha256:77f7a2030afcaf6f76cab78630ca59899f7056967e4619c29a0282c21cf9223d"
+          "revision": "sha256:c5997a09e75e037b4492c81d1cdc24cf737ee6af05519680d66a7f4ca8b5939f"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -17453,7 +17674,7 @@
         },
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c"
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc"
         }
       ],
       "tags": [
@@ -17479,7 +17700,7 @@
         },
         {
           "path": "DECISION_REGISTRY.md",
-          "revision": "sha256:eb9afc8bbc3482b14bef6b981c4f58c6fa50357bef38686397faadab15d4e0fa"
+          "revision": "sha256:a7fe68218ad7127608aa2d350073ab1bb3d530323f67ed81eae87f161929a236"
         }
       ],
       "tags": [
@@ -17505,7 +17726,7 @@
         },
         {
           "path": "FINDINGS.md",
-          "revision": "sha256:854f84963aa484e782563568d124a03cc1dc5a5f7f526c80cb349614f25d5dbf"
+          "revision": "sha256:94f666fc1dda0723b6b804508f0cbb3bcfae0b4a17a8902589b1e720e5508872"
         }
       ],
       "tags": [
@@ -17531,7 +17752,7 @@
         },
         {
           "path": "GOVERNANCE.md",
-          "revision": "sha256:78e7f09465b214a001e1da3feb661e3f2a8c32c7d8af808e4a4bbc8b8f6452e7"
+          "revision": "sha256:942ebd13e1e0031410e5314227046936f87a0db6768671947852f71ac1c2a499"
         }
       ],
       "tags": [
@@ -17557,7 +17778,7 @@
         },
         {
           "path": "NEO.md",
-          "revision": "sha256:8c83ef4d77d8062edd08b2f79e995f2c494cbb778e9439d6d0004ae987ced2b1"
+          "revision": "sha256:4a709a00b64ef64f58a1938e9c18b35cfd8e97a56ad8749137ecf8c62cde89c6"
         }
       ],
       "tags": [
@@ -17583,7 +17804,7 @@
         },
         {
           "path": "PROJECTS.md",
-          "revision": "sha256:b14637492e5c57d9f2cfa5946cbd0d96a2584320addc9f3a792f963f2198df4c"
+          "revision": "sha256:09a625875cd6776a2f22a80e46e26d6f9308ec9fa7bcaad84ae4979e8a7b56c0"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -17614,7 +17835,7 @@
         },
         {
           "path": "SUBSTRATE.md",
-          "revision": "sha256:efc4a48a4bc417fd87071f698fecbf9d71269932806050746426f5764e9eea65"
+          "revision": "sha256:e9aafcf0eedb528f53027aa3e4b6c42be98da38d774afc0c913fe616a2d901d6"
         }
       ],
       "tags": [
@@ -17744,7 +17965,7 @@
         },
         {
           "path": "java/src/com/sao/engine/SAOWorldSources.java",
-          "revision": "sha256:a6d99dacc693ab2e3ce6912306f3ba40b6edc57a0705e7284d73db481cbbcf4a"
+          "revision": "sha256:17b2c69a81514e123531ad1db7f8e0fa4b8a8559ff51847f2286b2125b641880"
         }
       ],
       "tags": [
@@ -17905,7 +18126,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_CapabilityExperience.lua",
-          "revision": "sha256:7184a4efe050b59d9c95c1fdf366f7fceac6c5795da037528537e52698eab09b"
+          "revision": "sha256:ea2e582d04c1f0cb901fc5e4b4d53ce6fd00a78b665c9a4c732d6c1606ea773c"
         }
       ],
       "tags": [
@@ -17931,7 +18152,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Controller.lua",
-          "revision": "sha256:77f7a2030afcaf6f76cab78630ca59899f7056967e4619c29a0282c21cf9223d"
+          "revision": "sha256:c5997a09e75e037b4492c81d1cdc24cf737ee6af05519680d66a7f4ca8b5939f"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -18335,7 +18556,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Needs.lua",
-          "revision": "sha256:70cd240c3d30476ae02efd9fcb37137ce5e119f5025b210a91bb6f7bbb1b44f3"
+          "revision": "sha256:92f8a6c9acfb2816667f1448c6ad9b940591fd4a21f067b11cff324b335e5d2c"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -18552,7 +18773,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_ResourceProduction.lua",
-          "revision": "sha256:c9149f3cc811590e2158626cad3ce54519166e5717a49e2f2518f7b7be3c8d79"
+          "revision": "sha256:7b6f353517695ed6b9f18495cf47905a5ae3d463dc3b52193469a184611c7506"
         }
       ],
       "tags": [
@@ -18604,7 +18825,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_SourceUse.lua",
-          "revision": "sha256:6af7ed56fa3a962d33767da0817b01bcfe52c823b30b73684b34570d9e270945"
+          "revision": "sha256:6f67a0ecd13c0b34ce8414d33c903ca79790774fd247cfe78a433d0a53e0d58c"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -18889,7 +19110,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Cognition.lua",
-          "revision": "sha256:87a6c64982136a54bf6b6fb7156c5107f20fe10a1c8f0c00116d9eb7fd0e919d"
+          "revision": "sha256:b748ec679b52c756c0ac99955e53c1cc807819526023704c911040a9b6492534"
         }
       ],
       "tags": [
@@ -18915,7 +19136,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
-          "revision": "sha256:094d5ac678af8facbd8af35f375be275f30d417e1f492cb5d30dd413a78bd9f7"
+          "revision": "sha256:b37e7f3fa95ee3ea28cf755babefbc785a40b25c69a8df85a6b9e74594c538ac"
         }
       ],
       "tags": [
@@ -19522,7 +19743,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Perception.lua",
-          "revision": "sha256:fab95fe29a8dbff37fa225722f64792c16fcf06f4741aa5e7316685f5499810f"
+          "revision": "sha256:3b17c0314322045516a43653569e4880a55bca7bd121218142087f65d4e2638e"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -19667,7 +19888,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-          "revision": "sha256:eb9b4208012f60e9bf95a790c0c82dafe4561f79202db496d12585775b45b243"
+          "revision": "sha256:b397a507b5c1da43e6c35bbbd935a2e5c2202ae03bbf4f3d22fcc00d1971d1df"
         }
       ],
       "tags": [
@@ -19890,7 +20111,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
-          "revision": "sha256:60d2b55eed312a00f75a14d5de3cd0c7236e5712e21a64faf233899b925aa5f4"
+          "revision": "sha256:a75bc5f8ccd0c4fad770b355eb6a2d133d91156d4b1c95b6e62fc41d7f9dc6d3"
         }
       ],
       "tags": [
@@ -20046,7 +20267,7 @@
         },
         {
           "path": "tools/version_replay.py",
-          "revision": "sha256:83d692adf17185c7b9b574ed11689770ac83b1f70fd7cd1774c17df512f56d21"
+          "revision": "sha256:48852ed37379f34e8b308a0ffd5fe8d24f274459f84fec01d12314aff60e36b6"
         }
       ],
       "tags": [
@@ -31811,6 +32032,20 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
+      "id": "edge:08ecd4b9da35bae8d34b4f80",
+      "from": "batch:D5",
+      "to": "contract:20261003:C12",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:08efb0ab9bc2242fbb138072",
       "from": "contract:20261003:C14",
       "to": "contract:20261003:C21",
@@ -31850,6 +32085,20 @@
         {
           "path": "Batches/D3.10-20261011-0126Z-1826PDT-roofs-floors-usable-shelter.md",
           "revision": "sha256:b56571309b56e53e70315e4afa06204a10abd3d45b4907cde80e4f25d6407f37"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
+      "id": "edge:09016a7615c36a8505ca7d13",
+      "from": "batch:D5",
+      "to": "contract:20261003:C3",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
         }
       ],
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
@@ -34496,6 +34745,21 @@
       "rationale": "Explicit preserved thread-index membership."
     },
     {
+      "id": "edge:167518616639c1640531d17c",
+      "from": "batch:D5.4",
+      "to": "batch:D5",
+      "relation": "child-of",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5_SUBDIVISIONS.json",
+          "revision": "sha256:ad2c1739ea9b87f9a031ac0f774066a0db0d211d3ea6911db194c969633393ac",
+          "locator": "D5.4"
+        }
+      ],
+      "rationale": "Useful subdivision retained within the parent's integrated delivery and once-only credit."
+    },
+    {
       "id": "edge:167bc92859105f09beccb80c",
       "from": "product:20261005-product-consolidation:C36",
       "to": "product:20261005-product-consolidation:C37",
@@ -36022,6 +36286,20 @@
         }
       ],
       "rationale": "Exact retained source belongs to this adjacent product/version unit once."
+    },
+    {
+      "id": "edge:1d24bb6e9d612e12dbc663cb",
+      "from": "batch:D4",
+      "to": "batch:D5",
+      "relation": "chronology",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "The batch explicitly follows this preserved event or record."
     },
     {
       "id": "edge:1d3639faa42560597108b58a",
@@ -40643,6 +40921,20 @@
       "rationale": "Original raw-C identifier sequence, before the 2026-09-19 consolidation."
     },
     {
+      "id": "edge:32764a8c2cf8bb426c224644",
+      "from": "batch:D5",
+      "to": "contract:20261003:C24",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:327c5dabed0e67bd63c778f6",
       "from": "batch:B9",
       "to": "commit:da4e4ae",
@@ -41043,6 +41335,20 @@
         }
       ],
       "rationale": "Start date and years-passed inputs."
+    },
+    {
+      "id": "edge:341418646b0cf8d83fecc908",
+      "from": "batch:D5",
+      "to": "contract:20261003:C18",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:34208b8908d35dce742d708e",
@@ -42239,6 +42545,20 @@
         }
       ],
       "rationale": "This shared contract is an output of the recorded compression mapping."
+    },
+    {
+      "id": "edge:390c965e73123c8797ff8abf",
+      "from": "batch:D5",
+      "to": "contract:20261003:C21",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:391e266fc929d907b5336980",
@@ -45076,6 +45396,24 @@
         }
       ],
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
+    },
+    {
+      "id": "edge:45b6f5519a7a746e06bae31d",
+      "from": "product:20261005-product-consolidation:C82",
+      "to": "batch:D1",
+      "relation": "chronology",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/C_PRODUCT_CATALOGUE.json",
+          "revision": "sha256:e87d70a2b1a260594428034ad08b69f050df856d9a6d1d391dd37782d4d0e941"
+        },
+        {
+          "path": "BATCH_LOG.md",
+          "revision": "sha256:60fae9e2c0ebcd1168df0b00fe60d7ff294468f8012380cc345f30e4874f91bc"
+        }
+      ],
+      "rationale": "Delivered D follows the current C product chronology; its recorded contract predecessor remains preserved."
     },
     {
       "id": "edge:45d07a9da09fbe4113383d79",
@@ -49116,6 +49454,20 @@
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
+      "id": "edge:5a0009e00ef747c247c270a1",
+      "from": "batch:D5",
+      "to": "contract:20261003:C20",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:5a0be256b0e2d54dd42d8baa",
       "from": "batch:D3.15",
       "to": "contract:20261003:C33",
@@ -50612,6 +50964,20 @@
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
     },
     {
+      "id": "edge:60313be797c21249c0bcf98a",
+      "from": "batch:D5",
+      "to": "contract:20261003:C13",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:604e2f0303a0a33787d6e389",
       "from": "contract:20261003:C31",
       "to": "era:C",
@@ -50989,6 +51355,20 @@
         }
       ],
       "rationale": "Preserved source record is an input to this catalogue transformation."
+    },
+    {
+      "id": "edge:6272f400bd954d36624d4beb",
+      "from": "batch:D5",
+      "to": "contract:20261003:C22",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:62780a62df1e681ee43fc9c9",
@@ -51476,6 +51856,21 @@
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
     },
     {
+      "id": "edge:644d397c295a315c44c58911",
+      "from": "batch:D5.3",
+      "to": "batch:D5",
+      "relation": "child-of",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5_SUBDIVISIONS.json",
+          "revision": "sha256:ad2c1739ea9b87f9a031ac0f774066a0db0d211d3ea6911db194c969633393ac",
+          "locator": "D5.3"
+        }
+      ],
+      "rationale": "Useful subdivision retained within the parent's integrated delivery and once-only credit."
+    },
+    {
       "id": "edge:645797a7cb5cb94bcf03711b",
       "from": "source:c-20261003:C96",
       "to": "contract:20261003:C26",
@@ -51620,6 +52015,20 @@
         }
       ],
       "rationale": "Explicit preserved thread-index membership."
+    },
+    {
+      "id": "edge:6575c04f3dc645316b4d90de",
+      "from": "batch:D5",
+      "to": "contract:20261003:C19",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:6579f4f5dc82ac18691b4ad4",
@@ -52552,6 +52961,20 @@
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
+      "id": "edge:697487961ef24c081a3f3687",
+      "from": "batch:D5",
+      "to": "contract:20261003:C11",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:6979902578463eb836f42a82",
       "from": "source:c-20261003:C37",
       "to": "source:c-20261003:C38",
@@ -53380,6 +53803,20 @@
         }
       ],
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
+    },
+    {
+      "id": "edge:6dd06e0414a35fb477c4d278",
+      "from": "batch:D5",
+      "to": "contract:20261003:C31",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:6de77b900cb8481b36b35009",
@@ -57325,6 +57762,20 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
+      "id": "edge:7ff5384cb4c833ab55539fc1",
+      "from": "batch:D5",
+      "to": "era:D",
+      "relation": "concept-membership",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "The authoritative index records this numbered batch in its letter era."
+    },
+    {
       "id": "edge:800786c313209512eadbc1bf",
       "from": "source:c-20261003:C81",
       "to": "contract:20261003:C19",
@@ -60157,6 +60608,21 @@
         }
       ],
       "rationale": "Explicit former-source membership in the 2026-09-19 consolidation."
+    },
+    {
+      "id": "edge:8d381d0653150dd0385615af",
+      "from": "batch:D5.5",
+      "to": "batch:D5",
+      "relation": "child-of",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5_SUBDIVISIONS.json",
+          "revision": "sha256:ad2c1739ea9b87f9a031ac0f774066a0db0d211d3ea6911db194c969633393ac",
+          "locator": "D5.5"
+        }
+      ],
+      "rationale": "Useful subdivision retained within the parent's integrated delivery and once-only credit."
     },
     {
       "id": "edge:8d3bd7b173aac04239c399ab",
@@ -63138,6 +63604,20 @@
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
+      "id": "edge:9b8596b9f42d5c852afb2505",
+      "from": "batch:D5",
+      "to": "contract:20261003:C29",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:9b8ebf2f285120b350f7dc10",
       "from": "source:c-20261003:C46",
       "to": "source:c-20261003:C47",
@@ -65187,24 +65667,6 @@
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
-      "id": "edge:a599c5d181d6b3948b4e4c20",
-      "from": "product:20261005-product-consolidation:C82",
-      "to": "batch:D1",
-      "relation": "chronology",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/C_PRODUCT_CATALOGUE.json",
-          "revision": "sha256:e87d70a2b1a260594428034ad08b69f050df856d9a6d1d391dd37782d4d0e941"
-        },
-        {
-          "path": "BATCH_LOG.md",
-          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c"
-        }
-      ],
-      "rationale": "Delivered D follows the current C product chronology; its recorded contract predecessor remains preserved."
-    },
-    {
       "id": "edge:a5bc9ab3982fdc89633e8add",
       "from": "branch:refs/heads/archive/c-era-before-shared-boundaries-20261003",
       "to": "commit:1b01e546f782656e76c9faffc4535a942adfa40c",
@@ -65423,6 +65885,21 @@
         }
       ],
       "rationale": "Indexed in era B."
+    },
+    {
+      "id": "edge:a6daf7387f5d75ab8dee043c",
+      "from": "batch:D5.1",
+      "to": "batch:D5",
+      "relation": "child-of",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5_SUBDIVISIONS.json",
+          "revision": "sha256:ad2c1739ea9b87f9a031ac0f774066a0db0d211d3ea6911db194c969633393ac",
+          "locator": "D5.1"
+        }
+      ],
+      "rationale": "Useful subdivision retained within the parent's integrated delivery and once-only credit."
     },
     {
       "id": "edge:a6e92c48202394ebd735ecef",
@@ -69594,6 +70071,21 @@
       "rationale": "The applied correction records this current product classification without additional version or runtime credit."
     },
     {
+      "id": "edge:ba6563887e4c1cdc0c82b2f9",
+      "from": "batch:D5.2",
+      "to": "batch:D5",
+      "relation": "child-of",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5_SUBDIVISIONS.json",
+          "revision": "sha256:ad2c1739ea9b87f9a031ac0f774066a0db0d211d3ea6911db194c969633393ac",
+          "locator": "D5.2"
+        }
+      ],
+      "rationale": "Useful subdivision retained within the parent's integrated delivery and once-only credit."
+    },
+    {
       "id": "edge:ba77bf00240a0a267704002f",
       "from": "source:c-raw-20260919:C10",
       "to": "source:c-raw-20260919:C11",
@@ -72543,6 +73035,20 @@
       "rationale": "Explicit preserved thread-index membership."
     },
     {
+      "id": "edge:c6de8bd987810e600fec2e6e",
+      "from": "batch:D5",
+      "to": "contract:20261003:C33",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:c6fe6244e56f8204fdff962b",
       "from": "batch:D3.5",
       "to": "contract:20261003:C12",
@@ -73178,6 +73684,20 @@
       "rationale": "Explicit preserved thread-index membership."
     },
     {
+      "id": "edge:c9033990a1a61d693a421854",
+      "from": "batch:D5",
+      "to": "contract:20261003:C25",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:c91dc69c7a77e132f7e152c5",
       "from": "contract:20261003:C22",
       "to": "interface:cb9e8aadc53ea08dfc14643e",
@@ -73280,6 +73800,20 @@
         }
       ],
       "rationale": "Indexed in era B."
+    },
+    {
+      "id": "edge:ca0ead84e771e5ad6bab4330",
+      "from": "batch:D5",
+      "to": "branch:Existing source custody; publication follows neo/d5-water-network-construction-alteration",
+      "relation": "records",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "Working branch recorded for the active batch; no publication is inferred."
     },
     {
       "id": "edge:ca340f9f5f57f4259cdaf4a3",
@@ -76147,6 +76681,20 @@
       "rationale": "This contract explicitly declares this owner path; shared ownership alone is not a dependency."
     },
     {
+      "id": "edge:d5783f135d95e7af6d798b0b",
+      "from": "batch:D5",
+      "to": "contract:20261003:C30",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:d58b24d9134325762be91d5d",
       "from": "source:c-20261003:C118",
       "to": "product:20261005-product-consolidation:C82",
@@ -78172,6 +78720,20 @@
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
+      "id": "edge:ded8f4c16274ef1e64fbc873",
+      "from": "batch:D5",
+      "to": "contract:20261003:C28",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:def03b20065523f69c8f0bdc",
       "from": "event:product-consolidation:C:20261005",
       "to": "product:20261005-product-consolidation:C22",
@@ -79399,6 +79961,20 @@
         }
       ],
       "rationale": "Indexed in era B."
+    },
+    {
+      "id": "edge:e51fa49842f61026ba661171",
+      "from": "batch:D5",
+      "to": "contract:20261003:C6",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:e53364c4cfbab7eb05b8c700",
@@ -84089,6 +84665,20 @@
       "rationale": "Indexed in era C."
     },
     {
+      "id": "edge:fa3b7ec0fa059048b5beebe8",
+      "from": "batch:D5",
+      "to": "contract:20261003:C32",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md",
+          "revision": "sha256:256d7dee64fa7ee4993c4f2b4f79091e09e305523316e2f69cb677358030a085"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:fa4c637b027c28a41ef8eb72",
       "from": "batch:D3.4",
       "to": "batch:D3",
@@ -85397,5 +85987,5 @@
       ]
     }
   ],
-  "revision": "sha256:265a71731a7348eda72032c9333c27cf8dea7b6684f71f4aafa5abe3a19f83ba"
+  "revision": "sha256:edbaa4aa6276fa7514ce2bb92d2b54dc64a268020b711a94c13dcb6fdaf44fb4"
 }

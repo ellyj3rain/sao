@@ -1173,7 +1173,7 @@ function WS.beliefFact(sourceId, observationKind, actorId)
         end
         return fact
     end
-    return source and beliefFact(source, observationKind == "inspected-container") or nil
+    return source and beliefFact(source, observationKind=="inspected-container"or observationKind=="inspected-fluid")or nil
 end
 
 local function rememberedPlace(placeId, belief)
@@ -1851,7 +1851,7 @@ local function inspectionRows(text)
                 row[key], count = decode(encoded), count + 1
             end
             if count ~= 9 or not row.id or #row.id > 512
-                or string.sub(row.id, 1, 2) ~= "C:" or ids[row.id]
+                or (string.sub(row.id,1,2)~="C:"and string.sub(row.id,1,2)~="F:")or ids[row.id]
                 or string.find(row.id, "[%z\1-\31]")
                 or not row.fp or #row.fp ~= 64 or string.find(row.fp, "[^%x]")
                 or (row.reachable ~= "0" and row.reachable ~= "1") then return nil end
@@ -1922,7 +1922,8 @@ function WS.generatorCandidates(body)
 end
 function WS.generatorConsumer(body,object)
     if not SAOJavaBridge then return nil end
-    local pump=SAO.HouseholdService and SAO.HouseholdService.isIncluded and object and object.getFluidContainer and object:getFluidContainer() and SAO.HouseholdService.isIncluded(object)==true
+    local pump=SAO.HouseholdService and object and(object.getFluidContainer and object:getFluidContainer()
+        and SAO.HouseholdService.isIncluded(object)==true or SAO.HouseholdService.pumpCurrent(object)==true)
     if pump and not SAOJavaBridge.worldGeneratorPumpConsumer then return nil end
     local ok,encoded=pcall(function()
         if pump then return SAOJavaBridge:worldGeneratorPumpConsumer(body,object)end
@@ -1970,7 +1971,8 @@ function WS.generatorConsumerPowered(body,generator,consumer)
         if not known or not object or not WS.generatorValid(body,generator,known,"verify-power")then return false end
         local square=generator:getSquare()
         return square and IsoGenerator.isPoweringSquare(square:getX(),square:getY(),square:getZ(),consumer.x,consumer.y,consumer.z)
-            and object:getSquare():haveElectricity()and SAO.HouseholdService.isPumped(object)==true or false
+            and object:getSquare():haveElectricity()and(SAO.HouseholdService.isPumped(object)==true
+                or SAO.HouseholdService.pumpCurrent(object)==true)or false
     end
     local ok,value=pcall(function()return SAOJavaBridge:worldGeneratorConsumerPowered(body,generator,consumer.sourceId or consumer.id,
         consumer.fingerprint,consumer.x,consumer.y,consumer.z)end)
@@ -2180,7 +2182,8 @@ function WS.inspectContainer(actorId, body, context)
     local source = snapshot and snapshot.sources[context.sourceId]
     if not encodedId or decode(encodedId) ~= context.sourceId
         or not snapshot or snapshot.header.status ~= "OBSERVED"
-        or not source or source.kind ~= "container" or not source.explored
+        or not source or not(source.kind=="container"and string.sub(context.sourceId,1,2)=="C:"
+            or source.kind=="fluid"and string.sub(context.sourceId,1,2)=="F:")or not source.explored
         or source.fingerprint ~= context.fingerprint
         or source.x ~= context.sourceX or source.y ~= context.sourceY or source.z ~= context.sourceZ
         or math.floor(source.x / CHUNK_SIZE) ~= snapshot.header.cx
@@ -2190,24 +2193,25 @@ function WS.inspectContainer(actorId, body, context)
     end
     if not WS.applySnapshot(snapshot, nil, context.sourceId)
         or value.conflictBySource[context.sourceId] then return refused("native-source-conflict") end
+    local detail=source.kind=="fluid"and"native-fluid-inspection"or"native-container-inspection"
     local learned = false
     local learnedOk = pcall(function()
         local tick = SAO.History and SAO.History.ticksFromHours
             and SAO.History.ticksFromHours(nowHours()) or nil
         learned = SAO.Perception.learnInspectedSource(actorId,
-            transferPlace(actorId, source), context.sourceId, tick, "native-container-inspection")
+            transferPlace(actorId, source), context.sourceId, tick, detail)
     end)
     if not learnedOk or not learned then return refused("private-inspection-unavailable") end
     if SAO.Cognition and context.cognitionToken then
         pcall(SAO.Cognition.attempted, actorId, context.cognitionToken)
         pcall(SAO.Cognition.publish, actorId, context.cognitionToken, {
-            kind = "inspection", category = "container", status = "completed",
-            sourceId = source.id, detail = "native-container-inspection",
+            kind = "inspection", category = source.kind=="fluid"and"water"or"container", status = "completed",
+            sourceId = source.id, detail = detail,
             foodPresent = (tonumber(source.quantities.food) or 0) > 0,
             waterPresent = (tonumber(source.quantities.water) or 0) > 0 })
     end
     memory.failures[context.sourceId .. "|" .. context.fingerprint] = nil
-    finishPurposeInspection(actorId, context, "completed", "native-container-inspection", true)
+    finishPurposeInspection(actorId, context, "completed", detail, true)
     return true, "inspected"
 end
 
@@ -3288,6 +3292,93 @@ function WS.generatorPlumbingCurrent(actorId,body,object,generatorFact,consumerF
  local ok,native=pcall(function()return SAOJavaBridge:worldGeneratorServiceScope(body,object,generatorFact,consumerFact,group,structure,false)end)
  return ok and native and native.actorId==actorId and native.serviceRevision==generatorFact.serviceRevision
   and native.nativeScopeCurrent==true and native.nativeMembersFinite==true and serviceSnapshotPermitted(actorId,native)or false
+end
+
+-- A reached physical network site is a bounded observation, not a route or
+-- permission grant. The upper end of a riser requires separate route knowledge.
+local function networkCopy(v,depth)
+ if type(v)~="table"then return v end
+ if getmetatable(v)or(depth or 0)>6 then return nil end
+ local out={};for k,x in pairs(v)do out[k]=networkCopy(x,(depth or 0)+1)end;return out
+end
+function WS.observeNetworkSites(actorId,body)
+ local out={};if not utilityObserver(actorId,body)then return out end
+ local bx,by,bz=math.floor(body:getX()),math.floor(body:getY()),math.floor(body:getZ())
+ for dx=-1,1 do for dy=-1,1 do for _,kind in ipairs({"floor","riser","valve","pump"})do
+  for _,axis in ipairs({"x","y"})do
+   local site=SAOJavaBridge:networkSite(body,kind,axis,bx+dx,by+dy,bz)
+   if type(site)=="table"and not getmetatable(site)then
+    local key=kind..":"..axis..":"..site.x..":"..site.y..":"..site.z
+    local parts={}
+    for _,part in ipairs(SAO.HouseholdService.partsAt(site.x,site.y,site.z))do
+     if(part.axis==axis or kind=="riser")and(part.kind=="riser")== (kind=="riser")then parts[#parts+1]=networkCopy(part)end
+    end
+    out[#out+1]={key=key,site=networkCopy(site),parts=parts}
+   end
+  end
+ end end end
+ return out
+end
+function WS.networkSiteCurrent(actorId,body,site)
+ if not utilityObserver(actorId,body)or type(site)~="table"or getmetatable(site)then return false end
+ local acquired=false
+ for _,row in ipairs(SAO.Perception.networkSites(actorId)or{})do
+  if row.site.kind==site.kind and row.site.axis==site.axis and row.site.x==site.x and row.site.y==site.y
+   and row.site.z==site.z and row.site.revision==site.revision then acquired=true end
+ end
+ if not acquired then return false end
+ local native=SAOJavaBridge:networkSite(body,site.kind,site.axis,site.x,site.y,site.z)
+ if type(native)~="table"then return false end
+ for k,v in pairs(site)do if native[k]~=v then return false end end
+ for k,v in pairs(native)do if site[k]~=v then return false end end
+ return true
+end
+function WS.observeNetworkFluids(actorId,body)
+ local out={};if not utilityObserver(actorId,body)then return out end
+ local x,y,z=math.floor(body:getX()),math.floor(body:getY()),math.floor(body:getZ())
+ for dx=-1,1 do for dy=-1,1 do
+  local q=body:getCell():getGridSquare(x+dx,y+dy,z);local objects=q and q:getObjects()
+  if objects then for i=0,objects:size()-1 do
+   local row=SAOJavaBridge:networkFluidObservation(body,objects:get(i))
+   if row then
+    local known=false
+    for _,place in pairs(SAO.Perception.knownPlaces(actorId,true)or{})do
+     local fact=place.sourceFacts and place.sourceFacts[row.sourceId]
+     if fact and fact.kind=="fluid"and fact.explored==true and fact.fingerprint==row.fingerprint
+      and fact.revision==row.revision and fact.x==row.x and fact.y==row.y and fact.z==row.z then known=true end
+    end
+    if known then out[#out+1]=networkCopy(row)end
+   end
+  end end
+ end end
+ return out
+end
+function WS.networkFluidCurrent(actorId,body,source)
+ if not utilityObserver(actorId,body)or type(source)~="table"then return nil end
+ local acquired=false
+ for _,row in ipairs(SAO.Perception.networkFluids(actorId)or{})do
+  local same=true
+  for k,v in pairs(source)do if row[k]~=v then same=false end end
+  if same then acquired=true end
+ end
+ return acquired and SAOJavaBridge:networkFluidObject(body,source)or nil
+end
+function WS.networkHeaderKnown(actorId,body,source)
+ local object=SAOJavaBridge:networkFluidObject(body,source)
+ if not utilityObserver(actorId,body)or not object then return false end
+ local square=object:getSquare();local lower=body:getCell():getGridSquare(square:getX(),square:getY(),square:getZ()-1)
+ if not lower then return false end
+ for _,place in pairs(SAO.Perception.knownPlaces(actorId,true)or{})do for id,fact in pairs(place.sourceFacts or{})do
+  if fact.kind=="fluid"and fact.explored==true and fact.plumbing=="connected"and fact.x==lower:getX()
+   and fact.y==lower:getY()and fact.z==lower:getZ()then
+   local objects=lower:getObjects()
+   for i=0,objects:size()-1 do
+    local fixture=objects:get(i);local token=fixture:getModData().SAOWorldSourceId
+    if token and id=="F:"..token and fixture:getUsesExternalWaterSource()and fixture:FindExternalWaterSource()==object then return true end
+   end
+  end
+ end end
+ return false
 end
 
 return WS

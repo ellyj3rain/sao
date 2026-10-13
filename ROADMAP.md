@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.7.6.0-pre-alpha` |
+| Version | `2.7.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -9,7 +9,7 @@
 
 Development extends the delivered mechanics, Speakeasy training and runtime
 integration while play exercises the aggregate build. D1 is CLOSED and merged;
-D2 Leisure and D3's historical delivered aggregation are CLOSED. D4 household water and power restoration is active and OPEN.
+D2 Leisure, D3's historical delivered aggregation and D4 household water and power restoration are CLOSED. D5 water-network construction and alteration is CLOSED; D6 managed electrical service is next.
 Concrete missing or defective producers retain their owning work.
 SESSION_STATE.md states the current product and FIFO.
 
@@ -86,13 +86,13 @@ Mousecat, and can be regenerated after catalogue changes.
 
 ## Numbered D outcomes
 
-The operator's current direction replaces the expanding D3 umbrella with finite substantial outcomes. D3 is a zero-credit historical aggregation of its twenty-two published children. D4 is delivered; D5 is the next finite outcome. Following rows are the current source-grounded sequence; source discovery may revise an unpublished boundary with its reason and retained obligations. The sequence does not cap the extent of D.
+The operator's current direction replaces the expanding D3 umbrella with finite substantial outcomes. D3 is a zero-credit historical aggregation of its twenty-two published children. D4 and D5 are delivered; D6 is next. Following rows are the current source-grounded sequence; source discovery may revise an unpublished boundary with its reason and retained obligations. The sequence does not cap the extent of D.
 
 | Batch | Useful outcome and practical finishing condition | Dependencies and current standing |
 |---|---|---|
 | D3 — retained historical material work | Exact published D3.1-D3.22: acquired materials, crafting/upkeep, usable shelter/access, source-bound learning, pane repair, furniture/workspaces and garment protection. | CLOSED aggregation; original title/children and credit preserved. Remaining repertoire is assigned below. |
 | D4 — household water and power restoration | A person's original water need drives observed existing-network inquiry, means/knowledge acquisition, generator service, conserved fuel/power, clean-water use and authentic saved feedback. The selected physical producer is supplied through owned normal startup. | CLOSED. Owned default service, normal native29, affected controls and genuine saved feedback qualified; selected package/protected delivery is recorded in D4. |
-| D5 — water-network construction and alteration | Personally selected source/site and exact paid materials establish or change an actual pipe/pump/valve connection, then serve a fixture with one effective provider, conserved mixtures/volumes and saved relocation/removal state. | Planned. Reuses D4 service inquiry/use; original Waterpipes/Basement and LGEP source mechanisms are reconciled by physical responsibility and copying terms. |
+| D5 — water-network construction and alteration | Personally selected source/site and exact paid materials establish or change an actual pipe/pump/valve connection, then serve a fixture with one effective provider, conserved mixtures/volumes and saved relocation/removal state. | CLOSED local native outcome. Emmetropic D5 integrates Granular D5.1-D5.5: paid hardware, hydraulic transport, private means/fabrication, authorized recovery/stock and original use/saved learning; package/protected publication retained in D5. |
 | D6 — managed electrical service | Observed supply and actual appliance demand produce usable power with one effective load/fuel/burn owner, current breaker/coverage behavior, multi-part billing and durable service feedback. | Planned. Reuses D4 generator and conserved fuel contracts. Cable construction enters only through an established actual producer. |
 | D7 — vehicle service and purposeful travel | Native part installation/removal, repair, fuel/pressure/battery service and necessary salvage restore a privately known vehicle for an actual retained trip or vehicle-power use. | Planned. Existing Driver, service/observer proposals and item/native save proof are prerequisites; ordinary transport remains unproved. |
 | D8 — building stages and finishing | Exact source-derived materials, native stages and required site preparation/finishes complete a personally intended usable structure or workspace and its actual consumer. | Planned. Reuses D3 shelter/workspace owners. Native entity/recipe census bounds discovery; retain native Dirt/Gravel/Sand/Clay bag/terrain effects, callback replacements, previous-stage resources and fluid/energy workstations. Paint/plaster/wallpaper and source variants stay inside the connected outcome. |

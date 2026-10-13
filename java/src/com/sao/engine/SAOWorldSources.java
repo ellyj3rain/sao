@@ -93,6 +93,143 @@ public final class SAOWorldSources {
             && actor.equals(record.rawget("id")) && !Boolean.TRUE.equals(record.rawget("dead")) ? actor : null;
     }
 
+// Native physical operations. The retained Lua NetworkWork capsule owns
+    // private knowledge, permission, exact payment and once-only execution.
+    private static boolean networkActor(IsoPlayer body) {
+        return !GameClient.client && !GameServer.server && body != null
+            && !body.isDead() && !body.isAsleep() && body.getCell() == IsoWorld.instance.currentCell
+            && body.getCurrentSquare() != null && body.isExistInTheWorld()
+            && (body instanceof SAOIsoPlayerShell shell ? recipeActor(shell) != null : body.isLocalPlayer());
+    }
+    private static String networkType(String kind) {
+        return switch (kind == null ? "" : kind) {
+            case "floor", "riser" -> "Base.MetalPipe";
+            case "valve" -> "SAO.WaterValve";
+            case "pump" -> "SAO.WaterPump";
+            default -> null;
+        };
+    }
+    private static boolean networkLoaded(IsoPlayer body, IsoGridSquare q) {
+        return q != null && q.getCell() == body.getCell()
+            && body.getCell().getGridSquare(q.getX(), q.getY(), q.getZ()) == q;
+    }
+    public static synchronized Object networkSite(IsoPlayer body, String kind, String axis, int x, int y, int z) {
+        try {
+            if (!networkActor(body) || networkType(kind) == null || !("x".equals(axis) || "y".equals(axis))
+                || Math.floor(body.getZ()) != z || Math.hypot(body.getX()-x-.5, body.getY()-y-.5)>1.8) return null;
+            IsoGridSquare q=body.getCell().getGridSquare(x,y,z);
+            boolean vertical="riser".equals(kind);
+            IsoGridSquare end=body.getCell().getGridSquare(x+(vertical?0:"x".equals(axis)?1:0),
+                y+(vertical?0:"y".equals(axis)?1:0),z+(vertical?1:0));
+            if (!networkLoaded(body,q) || !networkLoaded(body,end) || !q.TreatAsSolidFloor()
+                || vertical && q.getWall("y".equals(axis))==null
+                || !vertical && (q.isBlockedTo(end) || q.isWallTo(end) || q.isDoorTo(end) || q.isWindowTo(end))) return null;
+            // A wall-mounted riser is worked from its visible base. The loaded
+            // upper endpoint is a physical fit condition, not acquired sight
+            // of another floor. Private route planning retains that separately.
+            if(body instanceof SAOIsoPlayerShell shell && (!SAOPerceptionScanner.canSeeWorldSquareNow(shell,q,3)
+                || !vertical && !SAOPerceptionScanner.canSeeWorldSquareNow(shell,end,3)))return null;
+            var signature=new StringBuilder();
+            for (IsoGridSquare square:new IsoGridSquare[]{q,end}) {
+                appendLengthPrefixed(signature,Integer.toString(square.getX()));
+                appendLengthPrefixed(signature,Integer.toString(square.getY()));
+                appendLengthPrefixed(signature,Integer.toString(square.getZ()));
+                for (int index=0;index<square.getObjects().size();index++) {
+                    IsoObject o=square.getObjects().get(index);
+                    appendLengthPrefixed(signature,o.getClass().getName());
+                    appendLengthPrefixed(signature,o.getSprite()==null?"":o.getSprite().getName());
+                }
+                for (IsoWorldInventoryObject o:square.getWorldObjects()) {
+                    InventoryItem i=o.getItem();
+                    if (i!=null && i.hasModData() && i.getModData().rawget("SAOWaterNetworkPart")!=null) {
+                        appendLengthPrefixed(signature,Integer.toString(i.getID()));
+                        appendLengthPrefixed(signature,i.getFullType());
+                    }
+                }
+            }
+            var row=recipeTable();row.rawset("kind",kind);row.rawset("axis",axis);
+            row.rawset("x",(double)x);row.rawset("y",(double)y);row.rawset("z",(double)z);
+            row.rawset("revision",digest(signature.toString()));row.rawset("itemType",networkType(kind));
+            return row;
+        } catch (Throwable unavailable) { return null; }
+    }
+    public static synchronized boolean networkPartCurrent(IsoPlayer body,IsoWorldInventoryObject object,InventoryItem item) {
+        try {
+            if(!networkActor(body)||object==null||item==null)return false;
+            IsoGridSquare q=object.getSquare();
+            return networkLoaded(body,q) && q.getWorldObjects().contains(object) && object.getItem()==item
+                && item.getWorldItem()==object && item.getCondition()>0
+                && zombie.scripting.ScriptManager.instance.getItem(item.getFullType())==item.getScriptItem();
+        } catch(Throwable unavailable) { return false; }
+    }
+    public static synchronized Object placeNetworkPart(IsoPlayer body,InventoryItem item,
+            se.krka.kahlua.vm.KahluaTable site) {
+        if(site==null||site.getMetatable()!=null)return null;
+        try {
+            if(!(site.rawget("x") instanceof Double x)||!(site.rawget("y") instanceof Double y)
+                ||!(site.rawget("z") instanceof Double z)||x!=Math.rint(x)||y!=Math.rint(y)||z!=Math.rint(z)
+                ||!(site.rawget("kind") instanceof String kind)||!(site.rawget("axis") instanceof String axis))return null;
+            var actual=networkSite(body,kind,axis,x.intValue(),y.intValue(),z.intValue());
+            if(!constructionPlainSame(actual,site)||item==null||!networkType(kind).equals(item.getFullType())
+                ||item.getContainer()!=body.getInventory()||!body.getInventory().contains(item)||item.getWorldItem()!=null
+                ||item.getCondition()<=0||item.getIsCraftingConsumed()
+                ||zombie.scripting.ScriptManager.instance.getItem(item.getFullType())!=item.getScriptItem()
+                ||item.hasModData()&&item.getModData().rawget("SAOWaterNetworkPart")!=null||item.getTex()==null)return null;
+            IsoGridSquare q=body.getCell().getGridSquare(x.intValue(),y.intValue(),z.intValue());
+            InventoryItem returned=q.AddWorldInventoryItem(item,.5f,.5f,0f,false);
+            IsoWorldInventoryObject object=item.getWorldItem();
+            if(returned!=item||!networkPartCurrent(body,object,item))return null;
+            // Factory initialization resets pose. Set the installed pose afterwards.
+            item.setWorldXRotation("riser".equals(kind)?90f:0f);
+            item.setWorldYRotation(0f);
+            // Owned valve ports run along mesh X; the pump inlet runs along
+            // mesh Z. Inventory world-Z is the renderer's Y-axis yaw.
+            item.setWorldZRotation("riser".equals(kind)?0f:"valve".equals(kind)
+                ?"x".equals(axis)?0f:90f:"x".equals(axis)?90f:0f);
+            object.setIgnoreRemoveSandbox(true);
+            body.getInventory().Remove(item);
+            return !body.getInventory().contains(item)&&networkPartCurrent(body,object,item)?object:null;
+        } catch(Throwable unavailable) { return null; }
+    }
+
+public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObject object) {
+        try {
+            if(!networkActor(body)||object==null||object instanceof IsoWorldInventoryObject)return null;
+            IsoGridSquare q=object.getSquare();var fc=object.getFluidContainer();
+            if(!networkLoaded(body,q)||!q.getObjects().contains(object)||fc==null
+                ||Math.floor(body.getZ())!=q.getZ()||Math.hypot(body.getX()-q.getX()-.5,body.getY()-q.getY()-.5)>1.8
+                ||body instanceof SAOIsoPlayerShell shell&&!SAOPerceptionScanner.canSeeWorldSquareNow(shell,q,3)
+                ||!Float.isFinite(fc.getAmount())||!Float.isFinite(fc.getCapacity())||fc.getAmount()<0||fc.getCapacity()<=0)return null;
+            Source source=objectFluidSource(new Snapshot(Math.floorDiv(q.getX(),CHUNK_SIZE),Math.floorDiv(q.getY(),CHUNK_SIZE)),q,object);
+            var row=recipeTable();row.rawset("sourceId",source.id);row.rawset("fingerprint",source.fingerprint);
+            row.rawset("revision",source.revision);row.rawset("nativeClass",object.getClass().getName());
+            row.rawset("x",(double)q.getX());row.rawset("y",(double)q.getY());row.rawset("z",(double)q.getZ());
+            row.rawset("amount",(double)fc.getAmount());row.rawset("capacity",(double)fc.getCapacity());
+            row.rawset("water",fc.contains(Fluid.Water)||fc.contains(Fluid.TaintedWater));
+            row.rawset("tainted",fc.isTainted());row.rawset("externalReceiver",object.getUsesExternalWaterSource());
+            row.rawset("included",Boolean.TRUE.equals(object.getModData().rawget("SAOHouseholdSource"))
+                ||object.getModData().rawget("SAOHouseholdSource")==null&&Boolean.TRUE.equals(object.getModData().rawget("LGEPInclude")));
+            return row;
+        }catch(Throwable unavailable){return null;}
+    }
+    public static synchronized Object networkFluidObject(IsoPlayer body,se.krka.kahlua.vm.KahluaTable expected) {
+        try {
+            if(expected==null||expected.getMetatable()!=null||!networkActor(body)
+                ||!(expected.rawget("x")instanceof Double x)||!(expected.rawget("y")instanceof Double y)
+                ||!(expected.rawget("z")instanceof Double z)||x!=Math.rint(x)||y!=Math.rint(y)||z!=Math.rint(z))return null;
+            IsoGridSquare q=body.getCell().getGridSquare(x.intValue(),y.intValue(),z.intValue());
+            if(!networkLoaded(body,q))return null;
+            IsoObject found=null;
+            for(int index=0;index<q.getObjects().size();index++){
+                IsoObject object=q.getObjects().get(index);
+                if(!("F:"+object.getModData().rawget(SOURCE_TOKEN)).equals(expected.rawget("sourceId")))continue;
+                if(found!=null||!constructionPlainSame(expected,networkFluidObservation(body,object)))return null;
+                found=object;
+            }
+            return found;
+        }catch(Throwable unavailable){return null;}
+    }
+
     private static String recipeRevision(zombie.scripting.entity.components.crafting.CraftRecipe recipe) {
         StringBuilder signature = new StringBuilder();
         appendLengthPrefixed(signature, recipe.getScriptObjectFullType());
@@ -203,6 +340,7 @@ public final class SAOWorldSources {
             for (var world : square.getWorldObjects()) {
                 var item = world.getItem();
                 if (item == null || !parts[1].equals(item.getModData().rawget(ITEM_TOKEN))) continue;
+                if(!networkStockAvailable(item))return null;
                 var source = groundSourceKnown(square, world, parts[1]);
                 if (!fingerprint.equals(source.fingerprint) || !revision.equals(source.revision)) return null;
                 return List.of(item);
@@ -240,7 +378,7 @@ public final class SAOWorldSources {
                                 || !zombie.entity.components.crafting.recipe.CraftRecipeManager.isItemValidForInputScript(input, item, body)) continue;
                         float amount = input.getAmount(item.getFullType());
                         if (!(amount > 0)) continue;
-                        double contribution = input.isUsesPartialItem(item.getScriptItem()) ? item.getCurrentUsesFloat() : 1;
+                        double contribution = input.isItemCount() ? 1 : item.getCurrentUses();
                         if (!(contribution > 0)) continue;
                         used.add(item.getID()); fraction += contribution / amount;
                         held.rawset((double) ++itemCount, recipeItemState(item));
@@ -326,6 +464,13 @@ public final class SAOWorldSources {
                 if (desired == null || !(demand.rawget("desiredAmount") instanceof Number amount) || !(amount.doubleValue() > 0)) return out;
                 boolean needed = "SAO.Generator".equals(demand.rawget("consumerOwner")) && "repair".equals(demand.rawget("consumerOperation"))
                     && "Base.ElectronicsScrap".equals(desired);
+                if("SAO.NetworkWork".equals(demand.rawget("consumerOwner"))&&"place".equals(demand.rawget("consumerOperation"))
+                    &&("SAO.WaterValve".equals(desired)||"SAO.WaterPump".equals(desired))) {
+                    var sao=table(zombie.Lua.LuaManager.env.rawget("SAO"));var planning=sao==null?null:table(sao.rawget("ProceduralPlanning"));
+                    Object current=planning==null?null:planning.rawget("networkMaterialDemandCurrent");
+                    needed=current!=null&&Boolean.TRUE.equals(zombie.Lua.LuaManager.caller.pcallBoolean(
+                        zombie.Lua.LuaManager.thread,current,new Object[]{actor,demand}));
+                }
                 var consumer = demand.rawget("consumerRecipeId") instanceof String id ? zombie.scripting.ScriptManager.instance.getCraftRecipe(id) : null;
                 if (consumer != null && (consumer.isBuildableRecipe() || "Repair".equals(consumer.getCategory())
                         || "Base.RefillBlowTorch".equals(consumer.getScriptObjectFullType())))
@@ -508,7 +653,7 @@ public final class SAOWorldSources {
         return out;
     }
 
-    /** Visible holder geometry only: listing never reads or generates contents. */
+    /** Visible source geometry only: listing never reads or generates contents. */
     public static synchronized String inspectionCandidates(IsoPlayer shell, int radius) {
         if (transactionActive || !inspectionActor(shell) || radius < 1
                 || radius > INSPECTION_RANGE) return "";
@@ -529,6 +674,23 @@ public final class SAOWorldSources {
                         if (object == null || object.getSquare() != square
                                 || (object instanceof IsoThumpable locked
                                     && locked.isLockedToCharacter(shell))) continue;
+                        // A fluid fixture is visible infrastructure; its quantities
+                        // remain unknown until this actor performs the current read.
+                        var fluid = object.getFluidContainer();
+                        if (fluid != null && Float.isFinite(fluid.getCapacity()) && fluid.getCapacity() > 0
+                                || object.getUsesExternalWaterSource()) {
+                            var snapshot = new Snapshot(Math.floorDiv(square.getX(), CHUNK_SIZE), Math.floorDiv(square.getY(), CHUNK_SIZE));
+                            String token = sourceToken(snapshot, object);
+                            var candidate = new InspectionBinding("F:" + token, fluidFingerprint(square, object, token),
+                                object, null, -1, square, approach, shell);
+                            int at = Collections.binarySearch(candidates, candidate,
+                                Comparator.comparingDouble((InspectionBinding item) -> item.distance).thenComparing(item -> item.id));
+                            if (at < 0) at = -at - 1;
+                            if (at < MAX_INSPECTION_OPTIONS) {
+                                candidates.add(at, candidate);
+                                if (candidates.size() > MAX_INSPECTION_OPTIONS) candidates.remove(MAX_INSPECTION_OPTIONS);
+                            }
+                        }
                         for (int index = 0; index < object.getContainerCount(); index++) {
                             ItemContainer container = object.getContainerByIndex(index);
                             if (container == null || container.getParent() != object
@@ -568,8 +730,9 @@ public final class SAOWorldSources {
                     .append("|x=").append(candidate.x)
                     .append("|y=").append(candidate.y)
                     .append("|z=").append(candidate.z)
-                    .append("|reachable=").append(SAONeeds.containerAccessibleNow(shell,
-                        candidate.container.get()) ? 1 : 0).append('\n');
+                    .append("|reachable=").append(candidate.index < 0
+                        ? fluidInspectionReachable(shell, candidate.square.get()) ? 1 : 0
+                        : SAONeeds.containerAccessibleNow(shell, candidate.container.get()) ? 1 : 0).append('\n');
             }
             INSPECTIONS.put(shell, bindings);
             return out.append("E\n").toString();
@@ -594,6 +757,22 @@ public final class SAOWorldSources {
             IsoGridSquare square = shell.getCell().getGridSquare(x, y, z);
             IsoObject object = binding.object.get();
             ItemContainer container = binding.container.get();
+            if (binding.index < 0) {
+                if (object == null || square == null || square != binding.square.get()
+                        || object.getSquare() != square || !square.getObjects().contains(object)
+                        || object.getFluidContainer() != binding.fluid.get()
+                        || !sourceId.equals("F:" + object.getModData().rawget(SOURCE_TOKEN))
+                        || !fingerprint.equals(fluidFingerprint(square, object, sourceId.substring(2)))) return "SOURCE_CHANGED";
+                if ((object instanceof IsoThumpable locked && locked.isLockedToCharacter(shell))
+                        || !fluidInspectionReachable(shell, square)) return "ACCESS_REFUSED";
+                var chunk = square.getChunk();
+                if (chunk == null || shell.getCell().getChunk(chunk.wx, chunk.wy) != chunk) return "NOT_LOADED";
+                Snapshot snapshot = scan(chunk, false);
+                Source source = snapshot.byId.get(sourceId);
+                if (source == null || !"fluid".equals(source.kind) || !fingerprint.equals(source.fingerprint)) return "SOURCE_CHANGED";
+                binding.observedRevision = source.revision;
+                return "I|source=" + field(sourceId) + "\n" + encode(snapshot);
+            }
             if (object == null || container == null || square == null
                     || square != binding.square.get() || object.getSquare() != square
                     || !square.getObjects().contains(object)
@@ -904,6 +1083,38 @@ public final class SAOWorldSources {
         return owned != null ? Boolean.TRUE.equals(owned)
             : Boolean.TRUE.equals(object.getModData().rawget("LGEPInclude"));
     }
+    private static boolean networkStockAvailable(InventoryItem item) {
+        if(item==null||item.hasModData()&&item.getModData().rawget("SAOWaterNetworkPart")!=null)return false;
+        var sao=table(zombie.Lua.LuaManager.env.rawget("SAO"));var owner=sao==null?null:table(sao.rawget("HouseholdService"));
+        Object method=owner==null?null:owner.rawget("networkStockAvailable");
+        return method==null||Boolean.TRUE.equals(zombie.Lua.LuaManager.caller.pcallBoolean(zombie.Lua.LuaManager.thread,method,new Object[]{item}));
+    }
+    private static boolean householdPumpCurrent(IsoObject object) {
+        if(!(object instanceof IsoWorldInventoryObject world)||world.getItem()==null
+            ||!"SAO.WaterPump".equals(world.getItem().getFullType())||world.getItem().getWorldItem()!=world
+            ||world.getItem().getScriptItem()!=zombie.scripting.ScriptManager.instance.getItem("SAO.WaterPump"))return false;
+        var sao=table(zombie.Lua.LuaManager.env.rawget("SAO"));var owner=sao==null?null:table(sao.rawget("HouseholdService"));
+        Object method=owner==null?null:owner.rawget("pumpCurrent");
+        return method!=null&&Boolean.TRUE.equals(zombie.Lua.LuaManager.caller.pcallBoolean(zombie.Lua.LuaManager.thread,method,new Object[]{object}));
+    }
+    private static boolean utilityObjectLive(IsoObject object,IsoGridSquare square) {
+        return object!=null&&square!=null&&object.getSquare()==square&&(square.getObjects().contains(object)
+            ||object instanceof IsoWorldInventoryObject world&&square.getWorldObjects().contains(world)
+                &&world.getItem()!=null&&world.getItem().getWorldItem()==world);
+    }
+    private static List<IsoObject> utilityObjects(IsoGridSquare square) {
+        var out=new ArrayList<IsoObject>();
+        for(int i=0;i<square.getObjects().size();i++)out.add(square.getObjects().get(i));
+        for(var world:square.getWorldObjects())if(!out.contains(world))out.add(world);
+        return out;
+    }
+    private static boolean pumpFacetCurrent(UtilityBinding binding,IsoObject object) {
+        if(binding.pumpItem!=null){var item=binding.pumpItem.get();
+            return item!=null&&object instanceof IsoWorldInventoryObject world&&world.getItem()==item
+                &&item.getScriptItem()==binding.pumpScript&&householdPumpCurrent(object);
+        }
+        return binding.pumpFluid!=null&&binding.pumpFluid.get()==object.getFluidContainer()&&householdIncluded(object);
+    }
 
     public static synchronized String generatorCandidates(SAOIsoPlayerShell shell) {
         if (SAOConceptObservation.actor(shell) == null || transactionActive) return "";
@@ -1034,7 +1245,7 @@ public final class SAOWorldSources {
             var consumerBinding = utilityBinding(shell, id, fingerprint, "E:");
             var consumer = consumerBinding.object.get(); var square = shell.getCell().getGridSquare(x, y, z);
             if (consumer == null || square == null || consumerBinding.square.get() != square || consumer.getSquare() != square
-                || !square.getObjects().contains(consumer) || !utilityReached(shell, square)
+                || !utilityObjectLive(consumer,square) || !utilityReached(shell, square)
                 || !id.substring(2).equals(consumer.getModData().rawget(SOURCE_TOKEN))) return false;
             Source current = powerConsumerSource(new Snapshot(Math.floorDiv(x, CHUNK_SIZE), Math.floorDiv(y, CHUNK_SIZE)), consumer);
             if (!fingerprint.equals(current.fingerprint) || generator == null || generator.getSquare() == null) return false;
@@ -1077,11 +1288,11 @@ public final class SAOWorldSources {
         if (revision == null || !binding.revisions.containsKey(revision)) throw new ActionRefusal("NOT_PRIVATELY_OBSERVED");
         var square = shell.getCell().getGridSquare(x,y,z); var object = binding.object.get();
         if (square == null || object == null || binding.square.get() != square || object.getSquare() != square
-                || !square.getObjects().contains(object) || !id.substring(2).equals(object.getModData().rawget(SOURCE_TOKEN))) throw new ActionRefusal("SOURCE_CHANGED");
+                || !utilityObjectLive(object,square) || !id.substring(2).equals(object.getModData().rawget(SOURCE_TOKEN))) throw new ActionRefusal("SOURCE_CHANGED");
         var source = powerConsumerSource(new Snapshot(Math.floorDiv(x,CHUNK_SIZE),Math.floorDiv(y,CHUNK_SIZE)),object);
         if (!fingerprint.equals(source.fingerprint)) throw new ActionRefusal("FINGERPRINT_CHANGED");
         // Power may change during the owned generator sequence. Identity and the exact acquired revision remain binding.
-        if (!(binding.pumpFacet?object.getFluidContainer()!=null && householdIncluded(object):object.couldBePoweredByGenerator()) || GameClient.client && !zombie.iso.areas.SafeHouse.isSafehouseAllowInteract(square,shell)) throw new ActionRefusal("ACCESS_REFUSED");
+        if (!(binding.pumpFacet?pumpFacetCurrent(binding,object):object.couldBePoweredByGenerator()) || GameClient.client && !zombie.iso.areas.SafeHouse.isSafehouseAllowInteract(square,shell)) throw new ActionRefusal("ACCESS_REFUSED");
         return object;
     }
 
@@ -1113,13 +1324,16 @@ public final class SAOWorldSources {
             if(!Double.isFinite(x)||!Double.isFinite(y)||!Double.isFinite(z)||x!=Math.rint(x)||y!=Math.rint(y)||z!=Math.rint(z)
                     ||Math.abs(x)>Integer.MAX_VALUE||Math.abs(y)>Integer.MAX_VALUE||Math.abs(z)>Integer.MAX_VALUE)continue;
             var square=shell.getCell().getGridSquare((int)x,(int)y,(int)z);if(square==null || square.getCell()!=shell.getCell())continue;
-            for(int index=0;index<square.getObjects().size();index++) {
-                var object=square.getObjects().get(index);
+            for(var object:utilityObjects(square)) {
                 if(object==null||object.getSquare()!=square||!id.substring(2).equals(object.getModData().rawget(SOURCE_TOKEN))
-                        || (prefix.equals("J:")?!(object instanceof IsoGenerator):!object.couldBePoweredByGenerator()))continue;
+                        || (prefix.equals("J:")?!(object instanceof IsoGenerator):!object.couldBePoweredByGenerator()&&!householdPumpCurrent(object)))continue;
                 var identity=utilitySource(new Snapshot(Math.floorDiv((int)x,CHUNK_SIZE),Math.floorDiv((int)y,CHUNK_SIZE)),object,prefix,prefix.equals("J:")?"generator":"power-consumer");
                 if(!fingerprint.equals(identity.fingerprint))continue;
                 var binding=new UtilityBinding(actor,object,fingerprint);
+                if(householdPumpCurrent(object)) {
+                    binding.pumpFacet=true;binding.pumpItem=new java.lang.ref.WeakReference<>(((IsoWorldInventoryObject)object).getItem());
+                    binding.pumpScript=((IsoWorldInventoryObject)object).getItem().getScriptItem();
+                }
                 // Saved inspection is historical person knowledge; reacquire current inspection before any operation.
                 binding.revisions.put(revision,Boolean.FALSE);
                 var bindings=UTILITY_BINDINGS.computeIfAbsent(shell,ignored->new LinkedHashMap<>());bindings.put(id,binding);
@@ -1151,6 +1365,8 @@ public final class SAOWorldSources {
         final zombie.scripting.entity.GameEntityScript entityScript;
         boolean pumpFacet;
         java.lang.ref.WeakReference<FluidContainer> pumpFluid;
+        java.lang.ref.WeakReference<InventoryItem> pumpItem;
+        zombie.scripting.objects.Item pumpScript;
         String serviceRevision,serviceStructure,serviceConsumerId;
         List<ServiceMember> serviceMembers;
         UtilityBinding(String actor, IsoObject object, String fingerprint) {
@@ -1180,7 +1396,8 @@ public final class SAOWorldSources {
     private static Source powerConsumerSource(Snapshot snapshot, IsoObject object) {
         Source source = utilitySource(snapshot, object, "E:", "power-consumer"); source.inspected = true;
         // The native static query is fresh; checkObjectPowered caches for one IngameState tick.
-        source.powered = ItemContainer.isObjectPowered(object, true); source.finish(); return source;
+        source.powered = householdPumpCurrent(object) || object.getFluidContainer()!=null&&householdIncluded(object)
+            ? object.getSquare().haveElectricity() : ItemContainer.isObjectPowered(object, true); source.finish(); return source;
     }
 
     /** Visible current-floor sites. Recipe-specific clearance remains native build authority. */
@@ -1646,7 +1863,7 @@ public final class SAOWorldSources {
                 || worldContainer.getOutermostContainer() != worldContainer
                 || worldContainer.isInCharacterInventory(shell)
                 || !SAONeeds.containerAccessibleNow(shell, worldContainer)
-                || item instanceof InventoryContainer || item.getIsCraftingConsumed()
+                || item instanceof InventoryContainer || item.getIsCraftingConsumed() || !networkStockAvailable(item)
                 || "CandleLit".equals(item.getType())
                 || "Lantern_HurricaneLit".equals(item.getType())) return false;
         ItemRow row = ItemRow.of(item);
@@ -1928,15 +2145,27 @@ public final class SAOWorldSources {
         return source;
     }
 
+    private static boolean fluidInspectionReachable(IsoPlayer person, IsoGridSquare square) {
+        return inspectionActor(person) && networkLoaded(person, square)
+            && Math.floor(person.getZ()) == square.getZ()
+            && Math.hypot(person.getX() - square.getX() - .5, person.getY() - square.getY() - .5) <= 1.8
+            && SAOPerceptionScanner.canSeeWorldSquareNow((SAOIsoPlayerShell)person, square, INSPECTION_RANGE)
+            && interactionSquare(person, square) != null;
+    }
+
+    private static String fluidFingerprint(IsoGridSquare square, IsoObject object, String token) {
+        String physical = object.getClass().getName() + "|" + value(object.getSpriteName())
+            + "|fluid|" + buildingId(square) + "|" + square.getX() + "|" + square.getY()
+            + "|" + square.getZ() + "|" + token;
+        return digest(physical);
+    }
+
     private static Source objectFluidSource(Snapshot snapshot, IsoGridSquare square,
             IsoObject object) {
         long building = buildingId(square);
         String token = sourceToken(snapshot, object);
         String id = "F:" + token;
-        String physical = object.getClass().getName() + "|" + value(object.getSpriteName())
-            + "|fluid|" + building + "|" + square.getX() + "|" + square.getY()
-            + "|" + square.getZ() + "|" + token;
-        Source source = new Source(id, digest(physical), "fluid", square.getX(),
+        Source source = new Source(id, fluidFingerprint(square, object, token), "fluid", square.getX(),
             square.getY(), square.getZ(), building, true);
         source.plumbing = plumbingState(object);
         float amount = object.getFluidAmount();
@@ -1959,7 +2188,7 @@ public final class SAOWorldSources {
             + "|" + token;
         Source source = new Source(id, digest(physical), "ground", square.getX(),
             square.getY(), square.getZ(), buildingId(square), true);
-        source.items.add(ItemRow.of(item));
+        if(networkStockAvailable(item))source.items.add(ItemRow.of(item));
         source.finish();
         return source;
     }
@@ -2296,6 +2525,7 @@ public final class SAOWorldSources {
                 if (worldItem == null || matchedItem == null) {
                     throw new ActionRefusal("SOURCE_MISSING");
                 }
+                if(!networkStockAvailable(matchedItem))throw new ActionRefusal("ACCESS_REFUSED");
                 source = groundSourceKnown(square, worldItem, parts[1]);
                 item = matchedItem;
             } else if (parts.length == 3 && "V".equals(parts[0])) {
@@ -2394,7 +2624,7 @@ public final class SAOWorldSources {
             + "|" + token;
         Source source = new Source(id, digest(physical), "ground", square.getX(),
             square.getY(), square.getZ(), buildingId(square), true);
-        source.items.add(ItemRow.of(item));
+        if(networkStockAvailable(item))source.items.add(ItemRow.of(item));
         source.finish();
         return source;
     }
@@ -2503,6 +2733,7 @@ public final class SAOWorldSources {
         final String id, fingerprint;
         final java.lang.ref.WeakReference<IsoObject> object;
         final java.lang.ref.WeakReference<ItemContainer> container;
+        final java.lang.ref.WeakReference<zombie.entity.components.fluids.FluidContainer> fluid;
         final java.lang.ref.WeakReference<IsoGridSquare> square;
         final int index;
         final int sourceX, sourceY, sourceZ, x, y, z;
@@ -2514,6 +2745,7 @@ public final class SAOWorldSources {
             this.id = id; this.fingerprint = fingerprint;
             this.object = new java.lang.ref.WeakReference<>(object);
             this.container = new java.lang.ref.WeakReference<>(container);
+            this.fluid = new java.lang.ref.WeakReference<>(index < 0 ? object.getFluidContainer() : null);
             this.square = new java.lang.ref.WeakReference<>(square);
             this.index = index;
             this.sourceX = square.getX(); this.sourceY = square.getY(); this.sourceZ = square.getZ();
@@ -3292,15 +3524,18 @@ public final class SAOWorldSources {
     public static synchronized String generatorPumpConsumer(SAOIsoPlayerShell shell, IsoObject object) {
         try {
         if (SAOConceptObservation.actor(shell) == null || object == null || object.getSquare() == null
-                || object.getCell() != shell.getCell() || !object.getSquare().getObjects().contains(object)
-                || !utilityReached(shell, object.getSquare()) || object.getFluidContainer() == null
-                || !householdIncluded(object)) return "";
+                || object.getCell() != shell.getCell() || !utilityObjectLive(object,object.getSquare())
+                || !utilityReached(shell, object.getSquare())
+                || !(householdPumpCurrent(object)||object.getFluidContainer()!=null&&householdIncluded(object))) return "";
         var square = object.getSquare();
         Snapshot snapshot = new Snapshot(Math.floorDiv(square.getX(), CHUNK_SIZE), Math.floorDiv(square.getY(), CHUNK_SIZE));
         snapshot.mode = "reached-power-consumer";
         Source source = utilitySource(snapshot, object, "E:", "power-consumer");
         source.inspected = true; source.powered = square.haveElectricity(); source.finish();
-        rememberUtility(shell, object, source);var binding=UTILITY_BINDINGS.get(shell).get(source.id);binding.pumpFacet=true;binding.pumpFluid=new java.lang.ref.WeakReference<>(object.getFluidContainer());
+        rememberUtility(shell, object, source);var binding=UTILITY_BINDINGS.get(shell).get(source.id);binding.pumpFacet=true;
+        if(object instanceof IsoWorldInventoryObject world&&householdPumpCurrent(object)) {
+            binding.pumpItem=new java.lang.ref.WeakReference<>(world.getItem());binding.pumpScript=world.getItem().getScriptItem();
+        }else binding.pumpFluid=new java.lang.ref.WeakReference<>(object.getFluidContainer());
         snapshot.add(source); snapshot.finish(); return encode(snapshot);
         } catch(Throwable unavailable) { return ""; }
     }
@@ -3318,13 +3553,13 @@ public final class SAOWorldSources {
             var gb = utilityBinding(shell, gid, gfp, "J:"); var cb = utilityBinding(shell, cid, cfp, "E:");
             var consumer = cb.object.get(); var cs = cb.square.get();
             if (generator != boundGenerator || !utilityReached(shell,generator.getSquare()) || consumer == null || cs == null || consumer.getCell()!=shell.getCell()
-                    || !cb.revisions.containsKey(crev) || consumer.getSquare() != cs || !cs.getObjects().contains(consumer)
+                    || !cb.revisions.containsKey(crev) || consumer.getSquare() != cs || !utilityObjectLive(consumer,cs)
                     || shell.getCell().getGridSquare(cs.getX(),cs.getY(),cs.getZ()) != cs
                     || gb.generatorScript == null || gb.generatorScript != zombie.scripting.ScriptManager.instance.getItem(generator.getGeneratorItemType())
                     || !cid.substring(2).equals(consumer.getModData().rawget(SOURCE_TOKEN))
                     || !cfp.equals(utilitySource(new Snapshot(Math.floorDiv(cs.getX(),CHUNK_SIZE),Math.floorDiv(cs.getY(),CHUNK_SIZE)),consumer,"E:","power-consumer").fingerprint)
                     || cb.entityScript != consumer.getEntityScript()
-                    || (cb.pumpFacet?cb.pumpFluid==null||cb.pumpFluid.get()!=consumer.getFluidContainer()||!householdIncluded(consumer):!consumer.couldBePoweredByGenerator())
+                    || (cb.pumpFacet?!pumpFacetCurrent(cb,consumer):!consumer.couldBePoweredByGenerator())
                     || nativeGroup == null || structure == null || structure.isBlank()) return null;
             var members = new ArrayList<ServiceMember>();
             for(int i=1;;i++) {

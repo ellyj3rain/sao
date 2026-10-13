@@ -240,6 +240,7 @@ NOT_DORMANT = {
     "ResourceProduction": "owns exact native fixture and carried-vessel transfers on materialised bodies; dormant counties have no native fixture or vessel executor",
     "Generator": "owns native generator actions and exact consumer power on a loaded body; the bodyless county has no native generator or action queue",
     "HouseholdService": "services exact loaded native generators, saved pipe members and real fluid headers; the bodyless county has no loaded cell, generator or FluidContainer producer, so its durable private knowledge remains with Perception and the planner",
+    "NetworkWork": "executes native carried-item construction/placement, current physical network/source actions and exact body/action queue custody; the bodyless county has no loaded native item/site/queue or fluid producer, while its acquired knowledge and purpose stay in shared personal owners",
     "ModMechanics": "advances installed carried-inventory physics and native body capture checkpoints; the bodyless county sweep has no loaded inventory processor",
     "WindowRepair": "executes native window and carried-pane actions on loaded bodies; the bodyless county sweep has no native window executor",
     "Build": "prepares carried materials and equipment and executes native boarding on a loaded body; the bodyless county has no native aperture or action queue",

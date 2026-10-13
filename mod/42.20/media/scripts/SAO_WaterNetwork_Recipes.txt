@@ -1,0 +1,52 @@
+module SAO
+{
+    craftRecipe MakeWaterValve
+    {
+        timedAction = Welding,
+        time = 250,
+        NeedToBeLearn = true,
+        AutoLearnAny = MetalWelding:2,
+        SkillRequired = MetalWelding:1,
+        Tags = InHandCraft;Welding,
+        category = Metalworking,
+        inputs
+        {
+            item 1 [Base.MetalPipe],
+            item 4 [Base.ScrapMetal],
+            item 4 [Base.Screws],
+            item 2 [Base.BlowTorch],
+            item 1 tags[base:weldingmask] mode:keep,
+            item 1 tags[base:pipewrench] mode:keep,
+        }
+        outputs
+        {
+            item 1 SAO.WaterValve,
+        }
+    }
+    craftRecipe MakeWaterPump
+    {
+        timedAction = Welding,
+        time = 500,
+        NeedToBeLearn = true,
+        AutoLearnAny = MetalWelding:4,
+        SkillRequired = MetalWelding:3,
+        Tags = InHandCraft;Welding,
+        category = Metalworking,
+        inputs
+        {
+            item 2 [Base.MetalPipe],
+            item 2 [Base.SmallSheetMetal],
+            item 4 [Base.Screws],
+            item 2 [Base.ElectronicsScrap],
+            item 2 [Base.EngineParts],
+            item 2 [Base.BlowTorch],
+            item 1 tags[base:weldingmask] mode:keep,
+            item 1 tags[base:pipewrench] mode:keep,
+            item 1 tags[base:screwdriver] mode:keep,
+        }
+        outputs
+        {
+            item 1 SAO.WaterPump,
+        }
+    }
+}

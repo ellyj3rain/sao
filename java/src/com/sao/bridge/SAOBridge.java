@@ -5240,6 +5240,33 @@ public final class SAOBridge {
         } catch(Throwable unavailable) { return null; }
     }
 
+    public Object networkSite(Object object,String kind,String axis,double x,double y,double z) {
+        return object instanceof IsoPlayer body && integralUtilityCoordinates(x,y,z)
+            ? com.sao.engine.SAOWorldSources.networkSite(body,kind,axis,(int)x,(int)y,(int)z) : null;
+    }
+    public Object placeNetworkPart(Object object,Object item,Object site) {
+        return object instanceof IsoPlayer body && item instanceof zombie.inventory.InventoryItem input
+            && site instanceof se.krka.kahlua.vm.KahluaTable plain
+            ? com.sao.engine.SAOWorldSources.placeNetworkPart(body,input,plain) : null;
+    }
+    public boolean networkPartCurrent(Object object,Object placed,Object item) {
+        return object instanceof IsoPlayer body && placed instanceof zombie.iso.objects.IsoWorldInventoryObject nativeObject
+            && item instanceof zombie.inventory.InventoryItem input
+            && com.sao.engine.SAOWorldSources.networkPartCurrent(body,nativeObject,input);
+    }
+    public String networkPartClass(Object placed) {
+        return placed instanceof zombie.iso.objects.IsoWorldInventoryObject object ? object.getClass().getName():null;
+    }
+
+    public Object networkFluidObservation(Object object,Object source) {
+        return object instanceof IsoPlayer body && source instanceof zombie.iso.IsoObject nativeSource
+            ? com.sao.engine.SAOWorldSources.networkFluidObservation(body,nativeSource):null;
+    }
+    public Object networkFluidObject(Object object,Object observation) {
+        return object instanceof IsoPlayer body && observation instanceof se.krka.kahlua.vm.KahluaTable plain
+            ? com.sao.engine.SAOWorldSources.networkFluidObject(body,plain):null;
+    }
+
     private static zombie.characterTextures.BloodBodyPartType garmentPart(String name) {
         if(name==null)return null;
         try { var part=zombie.characterTextures.BloodBodyPartType.valueOf(name);

@@ -1,0 +1,124 @@
+{
+  "schema": "sao.work-organization-subdivisions/1",
+  "source": "operator:20261013-nested-sub-batches-and-future-delivery-correction",
+  "parent": "D5",
+  "actualDevelopment": "Emmetropic parent integration with retained Granular useful subdivisions",
+  "creditOwner": "D5",
+  "hierarchy": {
+    "activeScopeId": "D5",
+    "levels": [
+      {
+        "id": "D",
+        "parentId": null,
+        "position": "Beacon",
+        "outcome": "Accepted D-series development grouping",
+        "childIds": [
+          "D5"
+        ],
+        "sourceRefs": [
+          "ROADMAP.md#numbered-d-outcomes"
+        ],
+        "status": "active",
+        "integrationObligations": [
+          "Preserve finite numbered outcomes, FIFO and shared learning contracts."
+        ]
+      },
+      {
+        "id": "D5",
+        "parentId": "D",
+        "position": "Emmetropic",
+        "outcome": "Connected new/altered physical water-network producer, person-private means, original use and saved feedback",
+        "childIds": [
+          "D5.1",
+          "D5.2",
+          "D5.3",
+          "D5.4",
+          "D5.5"
+        ],
+        "sourceRefs": [
+          "Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md"
+        ],
+        "status": "completed-local-native",
+        "integrationObligations": [
+          "One supported package and protected publication; shared contracts and once-only D5 credit."
+        ]
+      },
+      {
+        "id": "D5.1",
+        "parentId": "D5",
+        "position": "Granular",
+        "outcome": "Current paid floor/riser/valve/pump factories, placement/configuration and native item/object/backlink/pose/marker ownership.",
+        "childIds": [],
+        "sourceRefs": [
+          "Batches/D5.1-20261013-1540Z-0840PDT-native-network-parts.md"
+        ],
+        "status": "integrated",
+        "integrationObligations": [
+          "Rejoin through D5 with sibling dependencies and shared publication."
+        ],
+        "owner": "Neo"
+      },
+      {
+        "id": "D5.2",
+        "parentId": "D5",
+        "position": "Granular",
+        "outcome": "Exact physical endpoint enrollment and enabled/native-powered single-provider transfer with conserved finite mixture and quantity.",
+        "childIds": [],
+        "sourceRefs": [
+          "Batches/D5.2-20261013-1540Z-0840PDT-hydraulic-enrollment-transport.md"
+        ],
+        "status": "integrated",
+        "integrationObligations": [
+          "Rejoin through D5 with sibling dependencies and shared publication."
+        ],
+        "owner": "Neo"
+      },
+      {
+        "id": "D5.3",
+        "parentId": "D5",
+        "position": "Granular",
+        "outcome": "Same-person site/fluid/stair inquiry, signed tools/materials/native recipe knowledge, original paid handcraft and retained construction purpose.",
+        "childIds": [],
+        "sourceRefs": [
+          "Batches/D5.3-20261013-1540Z-0840PDT-private-means-fabrication.md"
+        ],
+        "status": "integrated",
+        "integrationObligations": [
+          "Rejoin through D5 with sibling dependencies and shared publication."
+        ],
+        "owner": "Neo"
+      },
+      {
+        "id": "D5.4",
+        "parentId": "D5",
+        "position": "Granular",
+        "outcome": "Canonical removal/marker retirement recovers the same item; installed/unresolved claims refuse ordinary offered/signed stock and transfer.",
+        "childIds": [],
+        "sourceRefs": [
+          "Batches/D5.4-20261013-1540Z-0840PDT-authorized-recovery-stock.md"
+        ],
+        "status": "integrated",
+        "integrationObligations": [
+          "Rejoin through D5 with sibling dependencies and shared publication."
+        ],
+        "owner": "Neo"
+      },
+      {
+        "id": "D5.5",
+        "parentId": "D5",
+        "position": "Granular",
+        "outcome": "Original fixture use completes hydration and network purposes against the same receipt; both private models and saved person/full/bounded data persist.",
+        "childIds": [],
+        "sourceRefs": [
+          "Batches/D5.5-20261013-1540Z-0840PDT-water-use-saved-learning.md"
+        ],
+        "status": "integrated",
+        "integrationObligations": [
+          "Rejoin through D5 with sibling dependencies and shared publication."
+        ],
+        "owner": "Neo"
+      }
+    ],
+    "nextChildIds": []
+  }
+}

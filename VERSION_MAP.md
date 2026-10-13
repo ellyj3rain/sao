@@ -25,11 +25,11 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.7.6.0-pre-alpha` |
-| Classified delivered scope | `A1-D4` |
+| Current version | `2.7.7.0-pre-alpha` |
+| Classified delivered scope | `A1-D5` |
 | Current C generation | `20261005-product-consolidation` |
 | Feature-scope reconciliation | [20261010](Batches/VERSION_SCOPE_RECONCILIATION.json); prior replay retained |
-| Unconsumed scope | `D5` |
+| Unconsumed scope | `D6` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -234,6 +234,7 @@ the machine. Names, dates, and threads below come from
 | `D3.21` | 2026-10-12 | kohai | `2.7.4.0-pre-alpha` | Native furnishing factories and current functional use | Original native furnishing factory final results and exact partial-use payment join ordinary private source inquiry/material acquisition/default choice, paid Stool construction, current and cold canonical native surface, original Whetstone/Scissors use, source-aware independent feedback and saved once-only continuity. Useful progress within unfinished full D3; source/service/authority and shared model adoption remain. |
 | `D3.22` | 2026-10-12 | kohai | `2.7.5.0-pre-alpha` | Worn garment upkeep and retained protection | Ordinary privately observed worn-garment upkeep joins default choice, signed source material acquisition, original repair/removal payment and canonical native item lineage, cold current wearer, same-purpose preparatory upgrade continuation, independent exact target protection use, private feedback and once-only replay. Useful progress within unfinished complete D3; remaining services, authority and shared model adoption retain owners. |
 | `D4` | 2026-10-13 | kohai | `2.7.6.0-pre-alpha` | Household water and power restoration | Original owned existing-household service joins private inquiry and exact means/knowledge acquisition, guarded native connection, conserved fuel/power/purified-water use, same-purpose closure and independent saved models. This completes the finite D4 delivery as coherent progress within unfinished household utilities across D4-D6; paid networks and managed load remain, so one kohai applies irrespective of numbered-batch organization. |
+| `D5` | 2026-10-13 | kohai | `2.7.7.0-pre-alpha` | Water-network construction and alteration | D5 delivers a finite connected new/altered native water-network outcome with paid construction, conserved original use and saved private feedback. It is progress within unfinished household utilities across D4-D6; managed electrical distribution/load remains D6. One kohai belongs to D5, independent of numbering/agent/review organization; no repeated credit for earlier proof or regrouping. |
 
 Dotted labels record child scope. Each capability row above receives credit once;
 child delivery leaves its explicitly active parent open. Closed parent aggregation
@@ -359,12 +360,12 @@ and operator feedback.
 
 ## Next movement
 
-`D5` remains the declared unconsumed scope; subsequent delivered children or new capability units
+`D6` remains the declared unconsumed scope; subsequent delivered children or new capability units
 remain with their owners; this projection does not close them or start
 another batch. Subsequent delivered work determines its own tier:
 
 | If newly delivered scope is | Result |
 |---|---|
-| patch or hotfix | `2.7.6.1-pre-alpha` |
-| kohai | `2.7.7.0-pre-alpha` |
+| patch or hotfix | `2.7.7.1-pre-alpha` |
+| kohai | `2.7.8.0-pre-alpha` |
 | minor | `2.8.0.0-pre-alpha` |

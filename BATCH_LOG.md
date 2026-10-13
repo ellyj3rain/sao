@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.7.6.0-pre-alpha` |
+| Version | `2.7.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -17,7 +17,7 @@ The 2026-10-03 map grouped the retained source history into 35 shared ownership 
 
 ## Development catalogue
 
-Next: D5 — Water-network construction and alteration; finite source/consumer selection continues from the current roadmap.
+Next: D6 — Managed electrical service.
 
 D3 closes as a zero-credit historical aggregation of D3.1-D3.22. Their original labels, scope, evidence and earned credit remain unchanged. The [transition](Batches/Transitions/D-20261013-emmetropic-numbered-outcomes.md) assigns remaining work to finite numbered outcomes and retains unpublished D3.23 as a contribution to D4. [ROADMAP.md](ROADMAP.md#numbered-d-outcomes) owns the forward sequence.
 
@@ -700,3 +700,11 @@ The operator directs finite numbered outcomes and actual Emmetropic development.
 | [D4](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md) | 2026-10-13 | Household water and power restoration | T-003, T-008, T-030; owned native service, same-purpose clean-water use and independent saved feedback |
 
 D-series Beacon planning contains the Emmetropic numbered batch order and optional Granular subdivisions. D4 developed and integrated its connected outcome together. Current native29, lifecycle cases, five causal controls, genuine private persistence/intake and the complete integrated review establish its declared local scope. D5/D6 retain wider household utilities. D4 earns one kohai; regrouping, transferred D3.23 evidence and D3 aggregation earn none.
+
+## D5 connected water network closed — 2026-10-13 15:40 UTC / 08:40 PDT
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D5](Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md) | 2026-10-13 | Water-network construction and alteration | T-003, T-008, T-030; private means, physical network, original use and saved learning |
+
+D5 integrates its useful Granular subdivisions D5.1-D5.5 at the Emmetropic parent level. Their linked records and machine-readable child map are retained in D5; the parent owns one kohai and this classified integrated delivery. Children are not independently shipped or separately credited.

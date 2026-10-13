@@ -24,75 +24,222 @@ function H.available()
     -- Availability of private source readers is separate from a physical writer.
     return localAuthority()and getCell()~=nil
 end
+-- New network parts are actual placed native items, not coordinate-only records.
+local partBindings={}
+local partTypes={floor="Base.MetalPipe",riser="Base.MetalPipe",valve="SAO.WaterValve",pump="SAO.WaterPump"}
+local relationKeys={"schema","id","workId","actorId","world","kind","itemId","itemType","nativeClass","x","y","z","axis","xRotation","yRotation","zRotation","open","enabled"}
+local function worldName()
+    local ok,value=pcall(function()return getWorld():getWorld()end)
+    return ok and type(value)=="string"and #value>0 and value or nil
+end
+local function partEqual(a,b)
+    if type(a)~="table"or getmetatable(a)or type(b)~="table"or getmetatable(b)then return false end
+    for _,k in ipairs(relationKeys)do if a[k]~=b[k]then return false end end
+    return true
+end
+function H.partSpec(kind)
+    if kind=="source"then return{kind=kind}end
+    return partTypes[kind]and {kind=kind,itemType=partTypes[kind]}or nil
+end
+function H.reservePlayerWorkSequence(body)
+    if not H.available()or not body or SAOJavaBridge:isShell(body)or getSpecificPlayer(body:getPlayerNum())~=body then return nil end
+    local s=store();local sequence=s and(s.playerWorkSequence or 0)
+    if not coordinate(sequence)or sequence<0 then return nil end
+    s.playerWorkSequence=sequence+1;return s.playerWorkSequence
+end
+function H.currentPart(row)
+    if type(row)~="table"or getmetatable(row)or row.schema~="sao-water-network-part/1"
+        or not partTypes[row.kind]or row.itemType~=partTypes[row.kind]or row.world~=worldName()
+        or type(row.id)~="string"or type(row.itemId)~="string"or not coordinate(row.x)or not coordinate(row.y)or not coordinate(row.z)
+        or row.axis~="x"and row.axis~="y"then return nil end
+    local square=getCell()and getCell():getGridSquare(row.x,row.y,row.z)
+    if not square then return nil end
+    local objects=square:getWorldObjects();local found
+    for i=0,objects:size()-1 do
+        local object=objects:get(i);local item=object:getItem()
+        if item and tostring(item:getID())==row.itemId and item:getFullType()==row.itemType then
+            local native=item:getModData().SAOWaterNetworkPart
+            if found or object:getSquare()~=square or item:getWorldItem()~=object or not partEqual(row,native)
+                or item:getWorldXRotation()~=row.xRotation or item:getWorldYRotation()~=row.yRotation
+                or item:getWorldZRotation()~=row.zRotation or item:getCondition()<=0
+                or item:getScriptItem()~=getScriptManager():getItem(item:getFullType())
+                or SAOJavaBridge:networkPartClass(object)~=row.nativeClass then return nil end
+            found=object
+        end
+    end
+    local prior=partBindings[row.id]
+    if prior and prior~=found then return nil end
+    if found then partBindings[row.id]=found end
+    return found
+end
+function H.partsAt(x,y,z)
+    local out={};local s=store();if not s then return out end
+    for _,row in pairs(s.pieces)do
+        if row.x==x and row.y==y and row.z==z and H.currentPart(row)then out[#out+1]=row end
+    end
+    return out
+end
+function H.currentInstalledItem(worldItem)
+    local q=worldItem and worldItem:getSquare();local item=worldItem and worldItem:getItem()
+    if not q or not item or item:getWorldItem()~=worldItem then return false end
+    for _,part in ipairs(H.partsAt(q:getX(),q:getY(),q:getZ()))do
+        if part.itemId==tostring(item:getID())and H.currentPart(part)==worldItem then return true end
+    end
+    return false
+end
+function H.networkStockAvailable(item)
+    -- An unresolved retained claim is unavailable stock, never proof of an installation.
+    if not item or item:getModData().SAOWaterNetworkPart~=nil then return false end
+    local worldItem=item:getWorldItem()
+    return not worldItem or H.currentInstalledItem(worldItem)~=true
+end
+function H.commitPart(actorId,work,object,definition)
+    local owner=SAO.NetworkWork
+    if not H.available()or not owner or not owner.mutationCurrent
+        or owner.mutationCurrent(actorId,work,object,definition)~=true then return false end
+    local item=object and object:getItem();local q=object and object:getSquare();local s=store()
+    if not s or not item or not q or item:getWorldItem()~=object or not q:getWorldObjects():contains(object)
+        or not H.partSpec(definition.kind)or item:getFullType()~=partTypes[definition.kind]
+        or s.pieces[work.id]then return false end
+    for _,prior in pairs(s.pieces)do
+        if prior.x==q:getX()and prior.y==q:getY()and prior.z==q:getZ()and(prior.axis==definition.axis or definition.kind=="riser")
+            and (prior.kind=="riser")== (definition.kind=="riser")and H.currentPart(prior)then return false end
+    end
+    local row={schema="sao-water-network-part/1",id=work.id,workId=work.id,actorId=actorId,world=work.world,
+        kind=definition.kind,itemId=tostring(item:getID()),itemType=item:getFullType(),x=q:getX(),y=q:getY(),z=q:getZ(),
+        nativeClass=SAOJavaBridge:networkPartClass(object),axis=definition.axis,xRotation=item:getWorldXRotation(),yRotation=item:getWorldYRotation(),zRotation=item:getWorldZRotation(),
+        open=true,enabled=true}
+    if item:getModData().SAOWaterNetworkPart~=nil then return false end
+    local marker={};for k,v in pairs(row)do marker[k]=v end
+    item:getModData().SAOWaterNetworkPart=marker;s.pieces[row.id]=row;partBindings[row.id]=object
+    return H.currentPart(row)==object
+end
+function H.changePart(actorId,work,row,object,operation)
+    local owner=SAO.NetworkWork
+    if not owner or not owner.mutationCurrent or owner.mutationCurrent(actorId,work,object,row)~=true
+        or H.currentPart(row)~=object then return false end
+    if operation=="close"and row.kind=="valve"and row.open==true then row.open=false
+    elseif operation=="open"and row.kind=="valve"and row.open==false then row.open=true
+    elseif operation=="activate"and row.kind=="pump"and row.enabled==false then row.enabled=true
+    elseif operation=="deactivate"and row.kind=="pump"and row.enabled==true then row.enabled=false
+    else return false end
+    local marker=object:getItem():getModData().SAOWaterNetworkPart
+    marker.open,marker.enabled=row.open,row.enabled
+    return true
+end
+function H.currentBuiltEndpoint(x,y,z)
+    local s=store()
+    if not H.available()or not s or not coordinate(x)or not coordinate(y)or not coordinate(z)
+        or not getCell():getGridSquare(x,y,z)then return false end
+    for _,part in pairs(s.pieces)do
+        if H.currentPart(part)then
+            local bx,by,bz=part.x,part.y,part.z
+            if part.kind=="riser"then bz=bz+1
+            elseif part.axis=="x"then bx=bx+1 else by=by+1 end
+            if part.x==x and part.y==y and part.z==z or bx==x and by==y and bz==z then return true end
+        end
+    end
+    return false
+end
+function H.changeSource(actorId,work,object,definition,include)
+    local owner=SAO.NetworkWork
+    if not owner or owner.mutationCurrent(actorId,work,object,definition)~=true then return false end
+    local q=object and object:getSquare();local fc=object and object:getFluidContainer()
+    if not q or not fc or not q:getObjects():contains(object)or q:getCell()~=getCell()
+        or not finite(fc:getCapacity())or fc:getCapacity()<=0 or not finite(fc:getAmount())or fc:getAmount()<0 then return false end
+    if H.currentBuiltEndpoint(q:getX(),q:getY(),q:getZ())~=true or H.isIncluded(object)==include then return false end
+    object:getModData().SAOHouseholdSource=include
+    return H.isIncluded(object)==include
+end
+function H.retirePart(actorId,work,row,object)
+    local owner=SAO.NetworkWork;local s=store()
+    if not s or not owner or not owner.removalCurrent or owner.removalCurrent(actorId,work,row,object)~=true then return false end
+    if s.pieces[row.id]~=row then return false end
+    s.pieces[row.id]=nil;partBindings[row.id]=nil
+    local item=object and object:getItem()
+    if item and partEqual(row,item:getModData().SAOWaterNetworkPart)then item:getModData().SAOWaterNetworkPart=nil end
+    return true
+end
 local function footprints(p)
     if p.kind=="floor"then return{{p.x,p.y,p.z}}end
     local dx,dy=p.north and 0 or -1,p.north and -1 or 0
     return{{p.x,p.y,p.z},{p.x+dx,p.y+dy,p.z},{p.x,p.y,p.z+1},{p.x+dx,p.y+dy,p.z+1}}
 end
-local function piece(row,kind)
+local function legacyPiece(row,kind)
     if type(row)~="table"or getmetatable(row)or not coordinate(row.x)or not coordinate(row.y)or not coordinate(row.z)
         or kind=="wall"and type(row.north)~="boolean"then return nil end
     return{x=row.x,y=row.y,z=row.z,kind=kind,north=kind=="wall"and row.north or nil}
 end
 function H.refreshTopology()
     local s=store();if not s then return false end
-    -- Read existing pipe geometry only. Unknown formats confer no connection.
     local legacy=ModData.get and ModData.get("LGExtendedPlumbing")
-    if legacy~=nil and (type(legacy)~="table"or getmetatable(legacy)
-        or type(legacy.floors)~="table"or type(legacy.walls)~="table")then graph,positions=nil,nil;return false end
-    local rows,seen={},{}
-    local function append(raw,kind,origin)
-        for _,v in pairs(raw or{})do
-            local p=piece(v,kind)
-            if not p then return false end
+    if legacy~=nil and(type(legacy)~="table"or getmetatable(legacy)or type(legacy.floors)~="table"or type(legacy.walls)~="table")then graph,positions=nil,nil;return false end
+    local nodes,edges,parts,legacyTiles={},{},{},{}
+    local function node(x,y,z)
+        local id=key(x,y,z);nodes[id]=nodes[id]or{x=x,y=y,z=z};edges[id]=edges[id]or{};return id
+    end
+    local function edge(a,b)edges[a][b]=true;edges[b][a]=true end
+    local seen={}
+    local function old(rows,kind)
+        for _,raw in pairs(rows or{})do
+            local p=legacyPiece(raw,kind);if not p then return false end
             local id=key(p.x,p.y,p.z)..":"..kind..(kind=="wall"and(p.north and":N"or":W")or"")
-            if seen[id]then return false end
-            seen[id]=true;p.id=id;p.origin=origin;rows[#rows+1]=p
+            if seen[id]then return false end;seen[id]=true
+            p.id=id;p.origin="legacy-lgep-data";p.tiles=footprints(p);parts[#parts+1]=p
+            local first
+            for _,v in ipairs(p.tiles)do local n=node(v[1],v[2],v[3]);legacyTiles[n]=true;if first then edge(first,n)else first=n end end
         end
         return true
     end
-    if not append(s.pieces,"floor","sao-existing-network")
-        or legacy and(not append(legacy.floors,"floor","legacy-lgep-data")or not append(legacy.walls,"wall","legacy-lgep-data"))then
-        graph,positions=nil,nil;return false
+    if legacy and(not old(legacy.floors,"floor")or not old(legacy.walls,"wall"))then graph,positions=nil,nil;return false end
+    for id in pairs(legacyTiles)do local p=nodes[id]
+        for dx=-1,1 do for dy=-1,1 do local n=key(p.x+dx,p.y+dy,p.z);if legacyTiles[n]then edge(id,n)end end end
     end
-    ordering(rows,function(a,b)return a.id<b.id end)
-    local index={}
-    for i,p in ipairs(rows)do
-        p.tiles=footprints(p)
-        for _,v in ipairs(p.tiles)do local k=key(v[1],v[2],v[3]);index[k]=index[k]or{};index[k][#index[k]+1]=i end
+    for _,row in pairs(s.pieces)do
+        local object=H.currentPart(row)
+        if object then
+            local a=node(row.x,row.y,row.z);local b
+            if row.kind=="riser"then b=node(row.x,row.y,row.z+1)
+            elseif row.axis=="x"then b=node(row.x+1,row.y,row.z)else b=node(row.x,row.y+1,row.z)end
+            local powered=row.kind~="pump"or row.enabled==true and object:getSquare():haveElectricity()==true
+            if row.kind~="valve"or row.open==true then if powered then edge(a,b)end end
+            parts[#parts+1]={id=row.id..":"..row.kind..":"..tostring(row.open)..":"..tostring(powered),owned=true,object=object,powered=powered,
+                row=row,tiles={{nodes[a].x,nodes[a].y,nodes[a].z},{nodes[b].x,nodes[b].y,nodes[b].z}}}
+        end
     end
-    graph,positions=rows,index
-    return true
+    graph={nodes=nodes,edges=edges,parts=parts};positions=nodes;return true
 end
 function H.connection(x,y,z)
     if not H.available()or not coordinate(x)or not coordinate(y)or not coordinate(z)or not H.refreshTopology()then return nil end
-    local initial=positions[key(x,y,z)]
-    if not initial then return nil end
-    local queue,seen={},{}
-    for _,i in ipairs(initial)do queue[#queue+1]=i;seen[i]=true end
-    local cursor=1
-    while queue[cursor]do
-        local p=graph[queue[cursor]]
-        for _,v in ipairs(p.tiles)do
-            for dx=-1,1 do for dy=-1,1 do
-                for _,i in ipairs(positions[key(v[1]+dx,v[2]+dy,v[3])]or{})do
-                    if not seen[i]then seen[i]=true;queue[#queue+1]=i end
-                end
-            end end
-        end
-        cursor=cursor+1
+    local start=key(x,y,z);if not positions[start]then return nil end
+    local queue,seen={start},{[start]=true};local cursor=1
+    while queue[cursor]do local n=queue[cursor];for next in pairs(graph.edges[n])do if not seen[next]then seen[next]=true;queue[#queue+1]=next end end;cursor=cursor+1 end
+    local tiles,rows,owned,pumps={},{},false,{}
+    for _,n in ipairs(queue)do local p=positions[n];local q=getCell():getGridSquare(p.x,p.y,p.z);if not q then return nil end
+        tiles[n]={x=p.x,y=p.y,z=p.z,square=q}
     end
-    local tiles,rows={},{}
-    for _,i in ipairs(queue)do
-        local p=graph[i];rows[#rows+1]=p.id
-        for _,v in ipairs(p.tiles)do
-            local square=getCell():getGridSquare(v[1],v[2],v[3])
-            if not square then return nil end
-            tiles[key(v[1],v[2],v[3])]={x=v[1],y=v[2],z=v[3],square=square}
+    for _,p in ipairs(graph.parts)do
+        local a,b=p.tiles[1],p.tiles[#p.tiles]
+        if seen[key(a[1],a[2],a[3])]and seen[key(b[1],b[2],b[3])]then
+            rows[#rows+1]=p.id;if p.owned then owned=true;if p.row.kind=="pump"and p.powered==true then pumps[#pumps+1]=p.object end end
         end
     end
     ordering(rows,function(a,b)return a<b end)
-    return{structure="sao-pipe:"..table.concat(rows,";"),tiles=tiles}
+    return{structure="sao-pipe:"..table.concat(rows,";"),tiles=tiles,owned=owned,pumps=pumps}
+end
+function H.edgeOccupied(site)
+    for _,part in ipairs(H.partsAt(site.x,site.y,site.z))do
+        if(part.axis==site.axis or site.kind=="riser")and(part.kind=="riser")== (site.kind=="riser")then return true end
+    end
+    return false
+end
+function H.pumpCurrent(object)
+    local q=object and object:getSquare()
+    if not q or not q:getWorldObjects():contains(object)then return false end
+    for _,part in ipairs(H.partsAt(q:getX(),q:getY(),q:getZ()))do
+        if part.kind=="pump"and part.enabled==true and H.currentPart(part)==object then return true end
+    end
+    return false
 end
 function H.isIncluded(object)
     local d=object and object:getModData()
@@ -220,7 +367,9 @@ local function transferFuel(generator)
     end
 end
 local function waterOnly(fc)
-    return fc and(fc:isPureFluid(Fluid.Water)or fc:isPureFluid(Fluid.TaintedWater))
+    -- This channel carries native water-bearing mixtures. Mechanical transfer
+    -- preserves all components; native drinking owns safety and purification.
+    return fc and(fc:contains(Fluid.Water)or fc:contains(Fluid.TaintedWater))
 end
 function H.waterProducer(source)
     local q=source and source:getSquare()
@@ -254,6 +403,35 @@ local function nativeHeader(object,connection)
         end
     end
     return false
+end
+-- Newly built networks use their real powered pump or gravity. The item is
+-- hardware; all water remains in native source and receiving containers.
+local function transferNetworkWater(connection)
+    if not connection or not connection.owned then return end
+    local group=members(connection);if not group then return end
+    local powered=#connection.pumps>0
+    for _,source in ipairs(group)do
+        if H.waterProducer(source.object)=="sao"and waterOnly(source.fluid)and source.fluid:getAmount()>0 then
+            for _,receiver in ipairs(group)do
+                if receiver.object~=source.object and nativeHeader(receiver.object,connection)
+                    and(source.z>receiver.z or powered and receiver.z>=source.z)
+                    and live(source.object,source.object:getSquare())and source.object:getFluidContainer()==source.fluid
+                    and live(receiver.object,receiver.object:getSquare())and receiver.object:getFluidContainer()==receiver.fluid
+                    and(receiver.fluid:getAmount()==0 or waterOnly(receiver.fluid))
+                    and FluidContainer.CanTransfer(source.fluid,receiver.fluid)then
+                    local before,gainBefore=source.fluid:getAmount(),receiver.fluid:getAmount()
+                    local wanted=math.min(before,receiver.fluid:getFreeCapacity())
+                    if finite(wanted)and wanted>0 then
+                        source.fluid:transferTo(receiver.fluid,wanted)
+                        local debit,gain=before-source.fluid:getAmount(),receiver.fluid:getAmount()-gainBefore
+                        if finite(debit)and finite(gain)and math.abs(debit-gain)<=.0001 then
+                            receiver.object:getModData().SAOHouseholdLastLift={debit=debit,gain=gain}
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 local function liftWater(generator)
     local q=generator:getSquare()
@@ -296,6 +474,15 @@ function H.purificationSampleCapacity()
 end
 function H.tick()
     if not H.available()then return end
+    local visited={};local s=store()
+    for _,part in pairs(s and s.pieces or{})do
+        if H.currentPart(part)then
+            local connection=H.connection(part.x,part.y,part.z)
+            if connection and not visited[connection.structure]then
+                visited[connection.structure]=true;transferNetworkWater(connection)
+            end
+        end
+    end
     for object,square in pairs(loaded)do
         if not live(object,square)then loaded[object]=nil
         else transferFuel(object);liftWater(object)end
@@ -320,7 +507,7 @@ if Events then
     end
     if Events.OnInitGlobalModData then
         if H.onInit then Events.OnInitGlobalModData.Remove(H.onInit)end
-        H.onInit=function()loaded={};graph,positions=nil,nil;H.refreshTopology()end
+        H.onInit=function()loaded={};partBindings={};graph,positions=nil,nil;H.refreshTopology()end
         Events.OnInitGlobalModData.Add(H.onInit)
     end
 end

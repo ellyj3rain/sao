@@ -882,6 +882,11 @@ function P.receiveTransferResult(receipt)
     local garment=receipt.category=="garment-input"
     local utility=receipt.category=="generator-manual"or receipt.category=="pipe-wrench"
         or receipt.category=="electronics-scrap"or receipt.category=="petrol"
+    if receipt.category=="metal-pipe"then
+        local rec=SAO.Identity.get(receipt.actorId);local state=rec and rec.proceduralPlanning
+        local p=state and state.purposes[receipt.purposeId]
+        utility=p and p.waterNetwork~=nil or false
+    end
     local ingredient=receipt.category=="recipe-input"or garment or utility
     local utilityRetiredReplay=false
     local utilityProvenance
@@ -894,7 +899,7 @@ function P.receiveTransferResult(receipt)
         if not canonical or canonical.actorId~=receipt.actorId or canonical.reservationId~=receipt.reservationId
             or canonical.category~=receipt.category or canonical.operation~="acquire"
             or not purpose or purpose.id~=canonical.purposeId
-            or not purpose.generatorPower or type(purpose.steps)~="table"or getmetatable(purpose.steps)
+            or not(purpose.generatorPower or purpose.waterNetwork)or type(purpose.steps)~="table"or getmetatable(purpose.steps)
             or type(canonical.sourceId)~="string"or type(canonical.itemType)~="string"or not transferNumber(canonical.itemId)
             or not transferNumber(canonical.at)or canonical.at<0
             or type(canonical.transferObservation)~="table"or canonical.transferObservation.nativeTransferProven~=true
@@ -3654,6 +3659,7 @@ function P.learnInspectedSource(id, place, sourceId, tick, source)
     if not place or place.id == nil or not sourceId then return false end
     local fact = SAO.WorldSources and SAO.WorldSources.beliefFact(sourceId,
         source == "native-visible-ground" and "visible-ground"
+            or source=="native-fluid-inspection"and"inspected-fluid"
             or (source == "native-container-inspection" or source == "native-transfer-inspection") and "inspected-container" or nil, id)
     if not fact then return false end
     local belongs = tostring(fact.buildingId) == tostring(place.id)
@@ -5238,6 +5244,59 @@ function P.rememberGeneratorService(id,body,generatorFact,consumerFact,tick)
  local anchor,reason,reassessment=SAO.WorldSources.observeGeneratorService(id,body,generatorFact,consumerFact)
  if reassessment then P.learnInspectedSource(id,reassessment,reassessment.sourceId,now,"native-generator-service-reassessment")end
  return anchor and P.learnInspectedSource(id,anchor,anchor.sourceId,now,"native-generator-service-inquiry")or false
+end
+
+function P.observeNetworkSites(id,body,tick)
+ local current=SAO.History.ticks()
+ if tick~=nil and tick~=current or SAO.Body.get(id)~=body or SAO.Body.active[id]~=body then return false end
+ local rows=SAO.WorldSources.observeNetworkSites(id,body);local b=store(tostring(id))
+ b.networkFluids=b.networkFluids or{}
+ for _,row in ipairs(SAO.WorldSources.observeNetworkFluids(id,body))do
+  b.networkFluids[row.sourceId]={fact=row,headerKnown=SAO.WorldSources.networkHeaderKnown(id,body,row)==true,
+   observedAtHours=SAO.History.countyHours(),source="observed"}
+ end
+ local fluidCount=0;for _ in pairs(b.networkFluids)do fluidCount=fluidCount+1 end
+ while fluidCount>64 do
+  local oldest,at
+  for key,row in pairs(b.networkFluids)do if not at or row.observedAtHours<at then oldest,at=key,row.observedAtHours end end
+  if not oldest then break end;b.networkFluids[oldest]=nil;fluidCount=fluidCount-1
+ end
+ b.networkSites=b.networkSites or{};local count=0
+ for _,row in ipairs(rows)do
+  row.observedAtHours=SAO.History.countyHours();row.source="observed"
+  b.networkSites[row.key]=row;count=count+1
+ end
+ local total=0;for _ in pairs(b.networkSites)do total=total+1 end
+ while total>128 do
+  local oldest,at
+  for key,row in pairs(b.networkSites)do if not at or row.observedAtHours<at then oldest,at=key,row.observedAtHours end end
+  if not oldest then break end;b.networkSites[oldest]=nil;total=total-1
+ end
+ if count>0 then P.beliefVersion=P.beliefVersion+1 end
+ return count>0
+end
+function P.networkSites(id)
+ local b=P.beliefs[tostring(id)];local out={};local now=SAO.History.countyHours()
+ for _,row in pairs(b and b.networkSites or{})do
+  if type(row)=="table"and row.source=="observed"and type(row.site)=="table"
+   and type(row.observedAtHours)=="number"and row.observedAtHours<=now and now-row.observedAtHours<=24 then
+   out[#out+1]=workFactCopy(row)
+  end
+ end
+ return out
+end
+function P.networkFluids(id)
+ local b=P.beliefs[tostring(id)];local out={};local now=SAO.History.countyHours()
+ for _,row in pairs(b and b.networkFluids or{})do
+  if type(row)=="table"and row.source=="observed"and type(row.fact)=="table"and type(row.observedAtHours)=="number"
+   and row.observedAtHours<=now and now-row.observedAtHours<=24 then out[#out+1]=workFactCopy(row.fact)end
+ end
+ return out
+end
+function P.networkHeaderKnown(id,sourceId)
+ local b=P.beliefs[tostring(id)];local row=b and b.networkFluids and b.networkFluids[sourceId]
+ return row and row.headerKnown==true and row.observedAtHours<=SAO.History.countyHours()
+  and SAO.History.countyHours()-row.observedAtHours<=24 or false
 end
 
 return P
