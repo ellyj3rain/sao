@@ -1,5 +1,7 @@
 # Shared C boundaries and D dependencies
 
+Current D-series allocation is in [ROADMAP.md](../ROADMAP.md#numbered-d-outcomes). The [2026-10-13 transition](Transitions/D-20261013-emmetropic-numbered-outcomes.md) closes D3's published collection without new credit and assigns its remaining scope to finite numbered outcomes. Earlier D3/D4-D6 responsibility statements below retain historical source meaning; source/contract ownership and evidence remain preserved.
+
 The current catalogue contains **35 shared contracts**, reconstructed from all **120 source records**. Contract boundaries follow authoritative state and input/output ownership. Nonadjacent contributions and mixed records are explicit in [the manifest](C_SHARED_BOUNDARIES.json).
 
 D work should extend these contracts through their named interfaces and dependencies. A shared catalogue boundary describes the existing owner and its gaps; it does not assert that duplicate runtime paths have already been consolidated or that remaining mechanisms are implemented.

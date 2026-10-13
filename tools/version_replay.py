@@ -189,8 +189,8 @@ POST_C_UNITS = [
 ]
 # A closed parent that only aggregates previously credited descendants maps to
 # their exact credit-owner IDs. It is a chronological record, never a new tier.
-POST_C_AGGREGATIONS = {}
-NEXT_BATCH = "D3"
+POST_C_AGGREGATIONS = {"D3": ['D3.1', 'D3.2', 'D3.3', 'D3.4', 'D3.5', 'D3.6', 'D3.7', 'D3.8', 'D3.9', 'D3.10', 'D3.11', 'D3.12', 'D3.13', 'D3.14', 'D3.15', 'D3.16', 'D3.17', 'D3.18', 'D3.19', 'D3.20', 'D3.21', 'D3.22']}
+NEXT_BATCH = "D4"
 
 
 def parse_version(text):

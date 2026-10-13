@@ -176,3 +176,8 @@ Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md
 ## D3.22 worn garment upkeep and retained protection
 
 [D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) is CLOSED for ordinary private source acquisition and original paid garment service through canonical native item/cold wearer, preparatory upgrade continuation and independent target protection. One kohai records progress within OPEN D3. Exact source/package/protected publication and pending archive/model contracts retain separate evidence; full D3 continues before D4.
+
+
+### Current D-series allocation — 2026-10-13
+
+[ROADMAP.md](ROADMAP.md#numbered-d-outcomes) is the canonical numbered map; [the D transition](Batches/Transitions/D-20261013-emmetropic-numbered-outcomes.md) preserves historical identities and scope transfer. D3 is a zero-credit aggregation of D3.1-D3.22. D4 household water and power restoration owns the unfinished D3.23 contribution. Planned outcomes and unallocated wider goals retain their full scope and cross-project contracts.

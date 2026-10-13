@@ -17,7 +17,7 @@ game looks and plays. Code-level verification never settles that question.
 ## Objective alignment stewardship
 
 The chief implementer holds the standing Objective Alignment Steward role for
-SAO through D2-D6 and every handoff. A bounded reviewer may inspect alignment,
+SAO across the D-series outcomes and every handoff. A bounded reviewer may inspect alignment,
 but the chief owns the resulting implementation and record. At each material
 integration, batch closure or transition, reconcile the live Mousecat bulletin,
 linked cross-project propositions, current canonical SAO records and the latest
@@ -176,13 +176,15 @@ regulatory, append-only, or historical.
 
 ## Adaptive work organization and delivery
 
-The operator's 2026-10-11 correction names Granular, Emmetropic and Beacon as general methods available for any task. They are reference positions along a dynamic gradient on two independently selected, interlocking axes: development controls over actual units and code/dependency/environment relationships; and batch organization of units into useful integrated increments, coherent connected outcomes or the full accepted parent/module delivery. The delivery boundaries remain accepted. Task type and phase do not assign a method; names alone do not determine a full operating setting.
+Granular, Emmetropic and Beacon are developmental postures applicable to any task. They shape actual grouping, execution, integration, batch creation and delivery along a contextual gradient. Granular advances smaller useful increments; Emmetropic develops substantive connected outcomes together at an intermediate scope; Beacon holds the broad feature set and its relationships together, as one broad finite delivery or a coherent series.
 
-The existing work record carries goal and parent scope, development-control position and actual units/variables/reason, batch-organization position and shipment boundary/nested mapping, their relationship, owner and dependency/environment contracts, reusable evidence and remaining acceptance, credit owner and the throughput constraint addressed. A Granular native probe can remain inside an Emmetropic shipment; Beacon parent integration can retain Granular affected checks. Finer work/proof does not automatically split a shipment. Record implementation, verification, integration and publication separately.
+Development controls and batch organization describe related aspects of that choice. The actual work pattern and unit of progress substantiate the posture. A succession of granular deliveries inside an expanding parent remains granular; an Emmetropic label supplies no contrary evidence. Focused tracing, implementation steps and checks serve any posture, and existing orchestration supplies agent/parallel execution.
 
-Changing one axis can preserve the other. Record changed controls, previous/new organization, reason/source, working-unit and unpublished-boundary mapping, retained scope/dependencies/proof, remaining acceptance and credit ownership. Preserve FIFO, historical identities and forward allocation. Material scope, priority, architecture and version-policy changes retain operator authority. The same delivered outcome receives the same feature-scope version assessment at every setting; changes and repeated aggregation earn no credit.
+The D series carries broader development. Each numbered batch has a finite substantial outcome, and sub-batches are useful subdivisions of that specific outcome. Shared source, planning, authority, persistence and learning contracts connect batches. The current ROADMAP and the operator-directed D transition own the forward map; historical D3 children and the former planned D4-D6 labels retain source provenance.
 
-Quickness concerns useful verified output relative to compute, repeated procedure, rework and required gate latency. Shipment frequency is assessed separately: larger grouping can reduce publication cycles while increasing useful work per cycle, and fine controls can localize faults; neither direction is inherently faster. Record the actual mechanism and distinguish observations from expectations. Existing affected-contract checks, valid-proof reuse, one integrated first review and bounded corrections remain the execution mechanisms. Required evidence and checks retain their requirements. D3 keeps Emmetropic batch organization with development controls chosen contextually; full D3 scope and D4–D6 FIFO remain active.
+Before implementation, the owning record carries purpose, selected posture and scope, concrete units/dependencies, batch/sub-batch map, development/integration pattern, owners, reusable proof, remaining acceptance and credit. Reassess that organization when scope or actual work changes, retaining attributed deltas and unfinished goals. This refines the existing work contract without adding a planning gate.
+
+Useful verified output, compute/context/rework costs and delivery frequency remain distinct observations. Use the existing affected-contract checks, valid-proof reuse, integrated first review and bounded corrections. Record expected gains separately from measured effects. Sufficient evidence remains required at every posture; regrouping and repeated aggregation earn no credit.
 
 ## Evidence standard
 
