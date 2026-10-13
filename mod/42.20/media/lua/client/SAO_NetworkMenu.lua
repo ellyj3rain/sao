@@ -8,7 +8,9 @@ local function choose(body,step,item,tool,part,object)
 end
 function M.fill(player,context,worldobjects,test)
  if test or isClient()or isServer()then return end
- local body=getSpecificPlayer(player);local tool=body and body:getPrimaryHandItem()
+ local body=getSpecificPlayer(player)
+ if body and N.reconcilePlayer(body)~=true then return end
+ local tool=body and body:getPrimaryHandItem()
  if not body or not tool or tool:isBroken()or not(tool:getType()=="PipeWrench"or tool:hasTag(ItemTag.PIPE_WRENCH))then return end
  local sites={};local seen={}
  for _,object in ipairs(worldobjects or{})do
@@ -20,8 +22,7 @@ function M.fill(player,context,worldobjects,test)
  end
  for _,q in ipairs(sites)do
   local square=body:getCell():getGridSquare(q.x,q.y,q.z)
-  local connection=H.connection(q.x,q.y,q.z)
-  if square and connection and connection.owned then
+  if square and H.currentBuiltEndpoint(q.x,q.y,q.z)==true then
    local objects=square:getObjects()
    for i=0,objects:size()-1 do
     local object=objects:get(i);local source=SAOJavaBridge:networkFluidObservation(body,object)
@@ -67,5 +68,14 @@ end
 if Events and Events.OnFillWorldObjectContextMenu then
  if M.onFill then Events.OnFillWorldObjectContextMenu.Remove(M.onFill)end
  M.onFill=M.fill;Events.OnFillWorldObjectContextMenu.Add(M.onFill)
+end
+if Events and Events.OnGameStart then
+ if M.onStart then Events.OnGameStart.Remove(M.onStart)end
+ M.onStart=function()
+  for player=0,3 do local body=getSpecificPlayer(player)
+   if body then N.reconcilePlayer(body)end
+  end
+ end
+ Events.OnGameStart.Add(M.onStart)
 end
 return M

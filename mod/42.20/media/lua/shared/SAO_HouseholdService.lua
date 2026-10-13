@@ -68,7 +68,9 @@ function H.currentPart(row)
         end
     end
     local prior=partBindings[row.id]
-    if prior and prior~=found then return nil end
+    if prior and prior~=found and prior:getSquare()==square
+        and square:getWorldObjects():contains(prior)and prior:getItem()
+        and prior:getItem():getWorldItem()==prior then return nil end
     if found then partBindings[row.id]=found end
     return found
 end

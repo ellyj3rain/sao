@@ -190,6 +190,8 @@ end
 function N.begin(id,body,step,context)
  context=context or{};local localPlayer=context.localPlayer==true
  local rec=owner(id,body,localPlayer);local site=step and step.site;local op=step and step.operation
+ if localPlayer and rec and rec.resourceProductionWork and not runtime[id]
+  and N.reconcileSaved(id,body,true)~=true then return false end
  if not rec or runtime[id]or rec.resourceProductionWork or not H.available()or not operations[op]
   or step.owner~="SAO.ResourceProduction"or step.productionKind~="network-operation"
   or type(site)~="table"or getmetatable(site)or not H.partSpec(site.kind)then return false end
@@ -435,8 +437,10 @@ end
 function N.reset()
  for id,rt in pairs(runtime)do N.interrupt(id,rt.body)end
 end
-function N.reconcileSaved(id,body)
- local rec=SAO.Identity.get(id);local work=rec and rec.resourceProductionWork
+function N.reconcileSaved(id,body,localPlayer)
+ local rec
+ if localPlayer then rec=owner(id,body,true)else rec=SAO.Identity.get(id)end;local work=rec and rec.resourceProductionWork
+ if localPlayer and not rec then return false end
  if not work or work.kind~="network-operation"then return true end
  if runtime[id]then N.interrupt(id,runtime[id].body);return rec.resourceProductionWork==nil end
  for _,q in pairs(ISTimedActionQueue.queues)do
@@ -447,12 +451,51 @@ function N.reconcileSaved(id,body)
   end end
  end
  if rec.resourceProductionWork==nil then return true end
- if not owner(id,body,false)or SAOJavaBridge:hasPendingActions(body)then return false end
+ if not owner(id,body,localPlayer==true)or SAOJavaBridge:hasPendingActions(body)then return false end
+ if work.actorId~=id or not finite(work.sequence)or work.sequence%1~=0 or work.sequence<=0
+  or work.id~="resource-production/"..id.."/"..work.sequence or work.world~=getWorld():getWorld()then return false end
  local row=copy(work);row.workId=row.id;row.status="interrupted";row.detail="network-runtime-unavailable"
  row.atHours=now();row.endedAt=row.atHours;row.nativeAttempted=false;row.nativeCompleted=false;row.paymentMeasured=false
  row.topologyConfirmed=false;row.physicalPlaced=false;row.consumerCompleted=false;row.stockCreated=false
  local rows=rec.resourceProductionOutcomes or{};if #rows>=32 then return false end
+ if localPlayer then row.purposeDelivered=true;row.experienceDelivered=true end
  rows[#rows+1]=row;rec.resourceProductionOutcomes=rows;rec.resourceProductionWork=nil
  return true
+end
+function N.reconcilePlayer(body)
+ if not body or not human(body)then return false end
+ local id="native-player/"..body:getPlayerNum()
+ if runtime[id]then return true end
+ return N.reconcileSaved(id,body,true)
+end
+function N.grabActionCurrent(action,object,mutation)
+ for id,rt in pairs(runtime)do
+  if rt.operation=="remove"and not rt.closed and rt.action==action and rt.object==object
+   and rt.record.resourceProductionWork==rt.work and equal(rt.work,rt.frozen)
+   and actionExact(rt)and bound(rt,true)then
+   return not mutation or rt.mutating==true and rt.performed~=true and rt.started==true
+    and nativeExact(rt)and current(rt)or false
+  end
+ end
+ return false
+end
+-- Keep the original/current other-mod methods and their lifecycle. Only an
+-- exact privately retained removal action may recover claimed network stock.
+if not N.grabHooksInstalled then
+ local originalValid,originalTransfer=ISGrabItemAction.isValid,ISGrabItemAction.transferItem
+ local function permitted(action,object,mutation)
+  local item=object and object:getItem()
+  return not item or H.networkStockAvailable(item)==true
+   or N.grabActionCurrent(action,object,mutation)==true
+ end
+ function ISGrabItemAction:isValid()
+  if not permitted(self,self.item,false)then return false end
+  return originalValid(self)
+ end
+ function ISGrabItemAction:transferItem(object)
+  if not permitted(self,object,true)then self.dontAdd=true;return false end
+  return originalTransfer(self,object)
+ end
+ N.grabHooksInstalled=true
 end
 return N
