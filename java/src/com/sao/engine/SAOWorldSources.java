@@ -1187,7 +1187,13 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
         boolean knowledge = shell.getPerkLevel(zombie.characters.skills.PerkFactory.Perks.Electricity) >= 3
             || shell.isRecipeActuallyKnown("Generator");
         if ((operation.equals("repair") || operation.equals("connect")) && !knowledge) throw new ActionRefusal("GENERATOR_KNOWLEDGE_REQUIRED");
-        boolean ready = switch (operation) {
+        boolean ready = generatorStageReady(generator, square, operation);
+        if (!ready) throw new ActionRefusal("GENERATOR_STAGE_UNAVAILABLE");
+        return generator;
+    }
+
+    private static boolean generatorStageReady(IsoGenerator generator, IsoGridSquare square, String operation) {
+        return switch (operation) {
             case "inspect" -> true;
             case "repair" -> !generator.isActivated() && generator.getCondition() < 100;
             case "fuel" -> !generator.isActivated() && generator.getFuel() < generator.getMaxFuel();
@@ -1204,8 +1210,6 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
                 && Boolean.TRUE.equals(generator.getModData().rawget("SAOElectricalBreaker"));
             default -> false;
         };
-        if (!ready) throw new ActionRefusal("GENERATOR_STAGE_UNAVAILABLE");
-        return generator;
     }
 
     /** Remembered identity admits travel and reached reinspection, never physical stage effects. */
@@ -1344,6 +1348,7 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
                 }
                 // Saved inspection is historical person knowledge; reacquire current inspection before any operation.
                 binding.revisions.put(revision,Boolean.FALSE);
+                if (Boolean.TRUE.equals(fact.rawget("inspected"))) binding.historicalInspections.add(revision);
                 var bindings=UTILITY_BINDINGS.computeIfAbsent(shell,ignored->new LinkedHashMap<>());bindings.put(id,binding);
                 while(bindings.size()>MAX_INSPECTION_OPTIONS)bindings.remove(bindings.keySet().iterator().next());
                 return binding;
@@ -1369,6 +1374,7 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
         final java.lang.ref.WeakReference<IsoObject> object;
         final java.lang.ref.WeakReference<IsoGridSquare> square;
         final LinkedHashMap<String, Boolean> revisions = new LinkedHashMap<>();
+        final java.util.Set<String> historicalInspections = new java.util.LinkedHashSet<>();
         final zombie.scripting.objects.Item generatorScript;
         final zombie.scripting.entity.GameEntityScript entityScript;
         boolean pumpFacet;
@@ -1415,7 +1421,14 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
             if (!IsoGenerator.isPoweringSquare(gx, gy, gz, cx, cy, cz)
                     || !utilityReached(shell, consumerEndpoint ? consumer.getSquare() : generator.getSquare())) return null;
             // Stage readiness samples current native state; the acquired identity revision remains binding.
-            if (pre && generatorFixture(shell, generatorId, generatorFingerprint, null, gx, gy, gz, operation) != generator) return null;
+            if (pre) {
+                if (consumerEndpoint) {
+                    var binding = utilityBinding(shell, generatorId, generatorFingerprint, "J:");
+                    if (!Boolean.TRUE.equals(binding.revisions.get(generatorRevision))
+                            && !binding.historicalInspections.contains(generatorRevision)) return null;
+                    if (!generatorStageReady(generator, generator.getSquare(), operation)) return null;
+                } else if (generatorFixture(shell, generatorId, generatorFingerprint, null, gx, gy, gz, operation) != generator) return null;
+            }
             var load = electricalLoad(shell, consumerId, consumerFingerprint, consumer, false);
             if (load == null) return null;
             var row = recipeTable(); row.rawset("generator", generator); row.rawset("consumer", consumer); row.rawset("load", load);

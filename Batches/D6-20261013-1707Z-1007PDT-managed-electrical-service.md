@@ -115,3 +115,20 @@ The existing managed-electrical review-corrections recipe now invokes the actual
 | Independent stricter full/bounded intake | `c95950127f99782697411884e5e4364d66e20872bb5b1c71975edc912c6bfacd` |
 
 The protected merge receipt remains the publication boundary. D7 remains next; automatic load-triggered trips, overlap billing, wider devices, physical wiring and other retained goals remain future finite work.
+
+## Final native lifecycle reconciliation
+
+Original safe outside generator activation now reconciles a stale SAO breaker marker only after the native inactive-to-active action completes. It creates no second executor, work outcome or reset credit. Unsafe indoor activation retains the marker. The observer installs idempotently and saved active safe markers reconcile from current native state.
+
+After native person/private-belief save and load, the exact historically inspected generator revision can authorize consumer-endpoint inspection and service verification when its acquired identity, native coverage and current readiness remain valid. A saved uninspected source, foreign consumer or replaced native object refuses. Generator-side mutations still require current reached reinspection.
+
+The lifecycle packet passes 40 positive assertions and both causal controls. A low-condition randomized failed start and a separate real world reload/GameStart event were not sampled; original OnGameStart registration is source-pinned and direct installer idempotence is exercised. The supported 77-source rebuild passes at the same D6 coordinate.
+
+| Final lifecycle evidence | SHA256 |
+|---|---|
+| Native activation/save-load lifecycle | `12371fd6db5170c85b346c423beff0a22ee479f1db1c7fdc00b4738bcfe070a7` |
+| Bounded lifecycle review | `f40ef5b15c5c5243b9de753e4b7be8a91fbd69de57e378d184cefae0f18c3a53` |
+| Owning ready packet | `736c996b5f9e9c3fa80c3f9a4e945b76b4d9572ab8f545cc85c2402509fb96ab` |
+| Supported build03 | `e8bd1a7f6104ec1befec4c8b1a9efd91feeb77400934176e558a1fb4adb508cf` |
+
+Current shipping JAR SHA `ef0e67eca6b6bc9bbc3d0a681b2a3d7b83f6a28b6ac2fc2df6d35a9b67ac856b`. The protected merge remains the publication boundary.

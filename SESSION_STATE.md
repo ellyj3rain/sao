@@ -340,3 +340,7 @@ Paired endpoint routing, silent native queue-refusal retirement and safe indoor 
 ## D6 final production-control qualification
 
 Actual private idle-load and indoor-safety requests now flow through Controller/Perception/WorldSources/Planning/Generator. Native production36, supply16, explored-header2, causal controls, bounded review and current four-tool mapping pass. The stricter reader retains original full8/bounded0 raw data and both models without replay. The supported JAR remains `ecf73e72a379b7fe8961467bbcfb39f73242a8ae59049ece77e698ba9f1ed551`; D7 remains next.
+
+## D6 final native lifecycle qualification
+
+Original safe native activation/breaker reconciliation and saved distant-pair consumer work pass native40 plus two causal controls and bounded review. Unsafe activation retains the marker; generator mutation keeps current inspection. Current supported JAR `ef0e67eca6b6bc9bbc3d0a681b2a3d7b83f6a28b6ac2fc2df6d35a9b67ac856b`; D7 remains next.

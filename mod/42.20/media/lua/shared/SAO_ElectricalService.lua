@@ -12,8 +12,33 @@ local function live(body,object)
  return body and q and q:getCell()==body:getCell()and body:getCell()==getCell()
   and getCell():getGridSquare(q:getX(),q:getY(),q:getZ())==q and q:getObjects():contains(object)
 end
+function E.reconcileBreaker(generator)
+ local q=generator and generator:getSquare()
+ if q and q:getObjects():contains(generator)and generator:getModData().SAOElectricalBreaker==true
+  and q:isOutside()and generator:isActivated()and generator:isConnected()
+  and generator:getFuel()>0 and generator:getCondition()>0 then
+  generator:getModData().SAOElectricalBreaker=nil;return true
+ end
+ return false
+end
 function E.breakerOpen(generator)
+ E.reconcileBreaker(generator)
  return generator and generator:getModData().SAOElectricalBreaker==true or false
+end
+-- Bookkeeping follows the original native activation; no work receipt is created.
+function E.installActivationObserver()
+ if not ISActivateGenerator or not ISActivateGenerator.complete then return false end
+ if ISActivateGenerator.complete==E.activationObserver then return true end
+ local original=ISActivateGenerator.complete
+ local observer=function(action,...)
+  local generator,body=action.generator,action.character
+  local before=generator and not generator:isActivated()and E.breakerOpen(generator)
+  local result=original(action,...)
+  if result==true and before and action.activate==true and action.generator==generator and action.character==body
+   and live(body,generator)then E.reconcileBreaker(generator)end
+  return result
+ end
+ E.activationObserver=observer;ISActivateGenerator.complete=observer;return true
 end
 function E.atConsumer(operation)
  return operation=="inspect-load"or operation=="shed-load"or operation=="verify-service"
@@ -285,6 +310,12 @@ function E.interruptHuman(body)
 end
 function E.reset()
  for body in pairs(humanRuntime)do E.interruptHuman(body)end
+end
+require "TimedActions/ISActivateGenerator"
+E.installActivationObserver()
+if Events and Events.OnGameStart then
+ if E.onStart then Events.OnGameStart.Remove(E.onStart)end
+ E.onStart=function()E.installActivationObserver()end;Events.OnGameStart.Add(E.onStart)
 end
 if Events and Events.OnPlayerDeath then
  if E.onDeath then Events.OnPlayerDeath.Remove(E.onDeath)end

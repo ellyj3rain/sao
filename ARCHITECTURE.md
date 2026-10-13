@@ -2542,3 +2542,5 @@ ElectricalService supplies source-owned native measurement/action construction; 
 Managed electrical routing binds the retained acquired native generator/appliance pair and coverage, with reach at the operated endpoint. Existing generic resolvers remain unchanged. Failed human queue admission releases only its exact work; unsafe indoor activation remains refused and native pickup retires old source authority.
 
 Private electrical control planning uses acquired current observations: fully explored empty active appliances with no retained demand can produce inspection then conservation, while observed indoor active supply can produce deliberate isolation. Native source coverage/readiness and current purpose are rechecked before mutation.
+
+Native electrical lifecycle reconciliation: ordinary safe outside activation clears a stale SAO breaker marker only after original native completion and creates no work credit. Saved historically inspected remote pair identity can resume consumer-endpoint observation under current coverage/readiness; generator mutation retains current reached inspection.
