@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Governance |
 |---|---|
-| Version | `2.7.5.0-pre-alpha` |
+| Version | `2.7.6.0-pre-alpha` |
 | Design authority | ellyj3rain |
 | Repository | `GOVERNANCE.md` |
 | Status | ACTIVE - operating discipline for this repository. |
@@ -178,7 +178,7 @@ regulatory, append-only, or historical.
 
 Granular, Emmetropic and Beacon are developmental postures applicable to any task. They shape actual grouping, execution, integration, batch creation and delivery along a contextual gradient. Granular advances smaller useful increments; Emmetropic develops substantive connected outcomes together at an intermediate scope; Beacon holds the broad feature set and its relationships together, as one broad finite delivery or a coherent series.
 
-Development controls and batch organization describe related aspects of that choice. The actual work pattern and unit of progress substantiate the posture. A succession of granular deliveries inside an expanding parent remains granular; an Emmetropic label supplies no contrary evidence. Focused tracing, implementation steps and checks serve any posture, and existing orchestration supplies agent/parallel execution.
+Development controls and batch organization describe related aspects of that choice. The actual work pattern and unit of progress substantiate the posture. A Beacon plan can contain an Emmetropic batch order and optional Granular sub-batch orders. Agents choose actual development at any level, with or without using sublevels. The record distinguishes the containing plan, active work scope and required integration; the plan retains its posture when a selected child is developed at another level. A plan label alone does not establish performed broader integration. Focused tracing, implementation steps and checks serve any posture, and existing orchestration supplies agent/parallel execution.
 
 The D series carries broader development. Each numbered batch has a finite substantial outcome, and sub-batches are useful subdivisions of that specific outcome. Shared source, planning, authority, persistence and learning contracts connect batches. The current ROADMAP and the operator-directed D transition own the forward map; historical D3 children and the former planned D4-D6 labels retain source provenance.
 

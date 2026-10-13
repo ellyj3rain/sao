@@ -4,11 +4,11 @@
   "sourceVector": [
     {
       "sourceRef": "ARCHITECTURE.md",
-      "revision": "sha256:bc09a3aeeea26b8b2b07f74670ad5a8661108a4bea6ccbb4b3e8e9011c47dc91"
+      "revision": "sha256:5d3a3a4745acddf01b998262512a036610a8b20b86249858a3cdb6beb4c46563"
     },
     {
       "sourceRef": "BATCH_LOG.md",
-      "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658"
+      "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c"
     },
     {
       "sourceRef": "Batches/A1-2026-08-26-repository-and-governance-surface.md",
@@ -588,7 +588,7 @@
     },
     {
       "sourceRef": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-      "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
+      "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
     },
     {
       "sourceRef": "Batches/Products/C1-2026-08-28-catalog-and-version-governance.md",
@@ -1436,31 +1436,31 @@
     },
     {
       "sourceRef": "DECISION_REGISTRY.md",
-      "revision": "sha256:21c124b7155c52b596629699051837b06eadd17f2f4f5d101248cab9263b3d8f"
+      "revision": "sha256:eb9afc8bbc3482b14bef6b981c4f58c6fa50357bef38686397faadab15d4e0fa"
     },
     {
       "sourceRef": "FINDINGS.md",
-      "revision": "sha256:cac0c79ba31531b89e29a6069d761c634004e388be97fea1ab8d1f383887b684"
+      "revision": "sha256:854f84963aa484e782563568d124a03cc1dc5a5f7f526c80cb349614f25d5dbf"
     },
     {
       "sourceRef": "GOVERNANCE.md",
-      "revision": "sha256:c44226bd618fbdbf9024afd384df72776ce0d2c71f69630f0eaf5e229003ef33"
+      "revision": "sha256:78e7f09465b214a001e1da3feb661e3f2a8c32c7d8af808e4a4bbc8b8f6452e7"
     },
     {
       "sourceRef": "NEO.md",
-      "revision": "sha256:a2f3e4a9ae008972b0a76c52fca860175363a13c216368efcf2a347654f3fc91"
+      "revision": "sha256:8c83ef4d77d8062edd08b2f79e995f2c494cbb778e9439d6d0004ae987ced2b1"
     },
     {
       "sourceRef": "PROJECTS.md",
-      "revision": "sha256:aa5288e913abee86f1a1fcfbbe622098dbb7c0b9ceb3fd0b2e73d3845ab57958"
+      "revision": "sha256:b14637492e5c57d9f2cfa5946cbd0d96a2584320addc9f3a792f963f2198df4c"
     },
     {
       "sourceRef": "SESSION_STATE.md",
-      "revision": "sha256:531f825910a9c1ae8d4a40549c0ca8efd492e574209e76c87a3abc3fd2e6fc7d"
+      "revision": "sha256:7b6d82e71eace668bf661743444eceb7b48446b54f808e570dbf73b55dc89e7f"
     },
     {
       "sourceRef": "SUBSTRATE.md",
-      "revision": "sha256:2cc56ae27250c9898d4712a64b1dd9722fcb309ce740d944990cda2057fb967b"
+      "revision": "sha256:efc4a48a4bc417fd87071f698fecbf9d71269932806050746426f5764e9eea65"
     },
     {
       "sourceRef": "artifacts/audits/20261003-2310Z-1610PST-shared-boundaries/shared-reasoning-verification.json",
@@ -1488,15 +1488,15 @@
     },
     {
       "sourceRef": "java/src/com/sao/engine/SAOMovement.java",
-      "revision": "sha256:1d3bd2727cd1f4df4dea54710f47167648a7c1f068fb8be1fc643fc1ac4e6e7d"
+      "revision": "sha256:a08216fcf7aa834dfdcda71b385621a61359418d6435c481f53b6a94a3dc2946"
     },
     {
       "sourceRef": "java/src/com/sao/engine/SAORecoveryPose.java",
-      "revision": "sha256:fd775a5d076b39d66412e8063af9330eeb3d052c5a66fb70cf5a1faf4a1f948c"
+      "revision": "sha256:0aece1cf75d1d3d76e9170db93aac6d091212604d63848e3fc57e5a00da1790f"
     },
     {
       "sourceRef": "java/src/com/sao/engine/SAOWorldSources.java",
-      "revision": "sha256:903cdb364ee9ff2c0a4c5c77fb1462ecde05b8e68bcf016df5dc6e04738a30fb"
+      "revision": "sha256:a6d99dacc693ab2e3ce6912306f3ba40b6edc57a0705e7284d73db481cbbcf4a"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_AfflictedReturn.lua",
@@ -1520,11 +1520,11 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_CapabilityExperience.lua",
-      "revision": "sha256:ac6c655ad91c34f2bb3b4fd9946ffe7548d07e25f1f130fbc9109936d1212a16"
+      "revision": "sha256:7184a4efe050b59d9c95c1fdf366f7fceac6c5795da037528537e52698eab09b"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Controller.lua",
-      "revision": "sha256:8c81ac21291599ba72b59d2b67fc5b9773801873e2d234735eed2581d4dfb97b"
+      "revision": "sha256:77f7a2030afcaf6f76cab78630ca59899f7056967e4619c29a0282c21cf9223d"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Cooking.lua",
@@ -1580,7 +1580,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Needs.lua",
-      "revision": "sha256:46964e544c447bd68e9f04df3290d52a7a24fa82cf488f9b0f2799d0dfce4142"
+      "revision": "sha256:70cd240c3d30476ae02efd9fcb37137ce5e119f5025b210a91bb6f7bbb1b44f3"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Observation.lua",
@@ -1608,7 +1608,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_ResourceProduction.lua",
-      "revision": "sha256:cf0694e6d946d3abd45eb6d1b3ddf84669ea310069087883619c5952fe711cde"
+      "revision": "sha256:c9149f3cc811590e2158626cad3ce54519166e5717a49e2f2518f7b7be3c8d79"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Sandbox.lua",
@@ -1616,11 +1616,11 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_SourceUse.lua",
-      "revision": "sha256:b8db2d04d1d2573a00e7f413f46d29f515338ffb0773a27ae775dd3089dc4692"
+      "revision": "sha256:6af7ed56fa3a962d33767da0817b01bcfe52c823b30b73684b34570d9e270945"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Study.lua",
-      "revision": "sha256:8318eda93c54f23de7ff240a059cfd44001c009b2d2202e6739dc55916b45456"
+      "revision": "sha256:6addb372095be5f2833d6113047a10c474b9eac529c8b12d556e113ae69de67a"
     },
     {
       "sourceRef": "mod/42.20/media/lua/client/SAO_Telemetry.lua",
@@ -1656,11 +1656,11 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Cognition.lua",
-      "revision": "sha256:9edfa01dfae67f97abad165bcdcd3bbf2f3a75a854bc97fadb89ab9edb7247ae"
+      "revision": "sha256:87a6c64982136a54bf6b6fb7156c5107f20fe10a1c8f0c00116d9eb7fd0e919d"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
-      "revision": "sha256:a7d4a8df400ccd64eb43a76161271f16d2b4be37d2632b5a6debe840314885a9"
+      "revision": "sha256:094d5ac678af8facbd8af35f375be275f30d417e1f492cb5d30dd413a78bd9f7"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Command.lua",
@@ -1728,7 +1728,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Labor.lua",
-      "revision": "sha256:d054ae99ff8f54cec475192ed5dff6d7e25d0b248c4f60283d756e736a061140"
+      "revision": "sha256:714cb9e21569fa58d83f3e7166554a38119739bf63a42ea27ee851d77b4c3db9"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Material.lua",
@@ -1748,7 +1748,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Perception.lua",
-      "revision": "sha256:24f2774c16f39d47970edb627f6b3674f090f0f134d1fe3d2cf8b4342b86b54e"
+      "revision": "sha256:fab95fe29a8dbff37fa225722f64792c16fcf06f4741aa5e7316685f5499810f"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Pharmacology.lua",
@@ -1768,7 +1768,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-      "revision": "sha256:06ca69fca6f0c28ea3b2b499f695902ea417808df5b9f09745fc44c44fcd9d0f"
+      "revision": "sha256:eb9b4208012f60e9bf95a790c0c82dafe4561f79202db496d12585775b45b243"
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_Provisioning.lua",
@@ -1800,7 +1800,7 @@
     },
     {
       "sourceRef": "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
-      "revision": "sha256:c652b8d27d60129093a4dede73a0f25aeb708fb7553cc21e693587636381f8dd"
+      "revision": "sha256:60d2b55eed312a00f75a14d5de3cd0c7236e5712e21a64faf233899b925aa5f4"
     },
     {
       "sourceRef": "tools/catalogue.py",
@@ -1808,7 +1808,7 @@
     },
     {
       "sourceRef": "tools/check.sh",
-      "revision": "sha256:f38b4bbb26dd4b453f20f8b4d1fac65fc8eca19139b25f4de8bb8f3b28800b32"
+      "revision": "sha256:c779f048e322f85f8bb8349dda043b10963ce3c429d714d91cefe2d5362659c3"
     },
     {
       "sourceRef": "tools/county_episode.py",
@@ -1832,7 +1832,7 @@
     },
     {
       "sourceRef": "tools/version_replay.py",
-      "revision": "sha256:3e40486bd5d7a2db97c177fdf102ae67d4847e87944b228b72105c71b789c79f"
+      "revision": "sha256:83d692adf17185c7b9b574ed11689770ac83b1f70fd7cd1774c17df512f56d21"
     },
     {
       "sourceRef": "tools/world_lab.py",
@@ -3728,7 +3728,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D1"
         },
         {
@@ -3757,7 +3757,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D2"
         },
         {
@@ -3786,7 +3786,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3"
         },
         {
@@ -3815,7 +3815,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.1"
         },
         {
@@ -3844,7 +3844,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.10"
         },
         {
@@ -3873,7 +3873,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.11"
         },
         {
@@ -3902,7 +3902,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.12"
         },
         {
@@ -3931,7 +3931,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.13"
         },
         {
@@ -3960,7 +3960,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.14"
         },
         {
@@ -3989,7 +3989,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.15"
         },
         {
@@ -4018,7 +4018,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.16"
         },
         {
@@ -4047,7 +4047,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.17"
         },
         {
@@ -4076,7 +4076,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.18"
         },
         {
@@ -4105,7 +4105,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.19"
         },
         {
@@ -4134,7 +4134,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.2"
         },
         {
@@ -4163,7 +4163,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.20"
         },
         {
@@ -4192,7 +4192,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.21"
         },
         {
@@ -4221,7 +4221,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.22"
         },
         {
@@ -4250,7 +4250,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.3"
         },
         {
@@ -4279,7 +4279,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.4"
         },
         {
@@ -4308,7 +4308,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.5"
         },
         {
@@ -4337,7 +4337,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.6"
         },
         {
@@ -4366,7 +4366,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.7"
         },
         {
@@ -4395,7 +4395,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.8"
         },
         {
@@ -4424,7 +4424,7 @@
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
           "locator": "D3.9"
         },
         {
@@ -4442,30 +4442,30 @@
     },
     {
       "id": "batch:D4",
-      "kind": "active-batch",
+      "kind": "batch",
       "label": "D4 · Household water and power restoration",
       "summary": "A survivor restores an existing household service to satisfy their retained need for usable water. Private observation and inquiry establish the actual generator, supply connection and receiver. Individual choice leads to exact acquisition of missing tools and knowledge, native reading and preparation, permitted generator connection/service and activation, conserved fuel supply, effective powered purification and actual water use. The same original purpose reaches its measured consumer result; installation, supply, consumption and knowledge retain separate authenticated effects and saved history.",
       "status": {
-        "implementation": "Same-person source inquiry, means/knowledge acquisition, generator service, finite fuel, power, clean-water use and private purpose feedback are implemented. Selected external producer availability is not yet supplied by the SAO package.",
-        "verification": "Prior D3.23 normal59 proves 27 conditions against current source09 with actual external producers loaded by its instrument; phase/custody/refusal and full/bounded archive proof retain exact applicability. Owned normal startup, final tools, package and publication remain pending.",
-        "publication": "Unpublished; D3.23 was an unpublished contribution and earned no credit."
+        "implementation": "Original owned household-service producer joins ordinary same-person inquiry, exact missing means/knowledge acquisition, native service, finite fuel/power/purified-water use, independent feedback and saved purpose closure.",
+        "verification": "Owned normal chain 29 checks; parent/source/native-swapped cases 17 each and cancellation 18; five detecting causal controls; genuine full/bounded native snapshot and independent intake. Final review/package/gates retain their own standing below.",
+        "publication": "Protected neo/d4-household-water-power-restoration branch/PR delivery; the merge and continuity receipts identify the published snapshot. No D4 child allocated."
       },
       "sources": [
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658",
-          "locator": "Active batch"
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c",
+          "locator": "D4"
         },
         {
           "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
         }
       ],
       "tags": [
         "D",
-        "active"
+        "delivered"
       ],
-      "recordedStatus": "OPEN - existing-network service restoration; selected producer incorporation and delivery continue",
+      "recordedStatus": "CLOSED - connected local native restoration; protected publication tracked below",
       "recordedAt": "2026-10-13",
       "closedAt": ""
     },
@@ -4551,9 +4551,9 @@
       ]
     },
     {
-      "id": "branch:neo/d3-construction-crafting-repair-utilities (retained source custody; publication uses the D4 branch)",
+      "id": "branch:neo/d3-construction-crafting-repair-utilities (source custody); neo/d4-household-water-power-restoration (publication)",
       "kind": "branch",
-      "label": "neo/d3-construction-crafting-repair-utilities (retained source custody; publication uses the D4 branch)",
+      "label": "neo/d3-construction-crafting-repair-utilities (source custody); neo/d4-household-water-power-restoration (publication)",
       "summary": "Working branch recorded for the active batch; no publication is inferred.",
       "status": {
         "implementation": "unknown",
@@ -4563,7 +4563,7 @@
       "sources": [
         {
           "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
         }
       ],
       "tags": [
@@ -15252,7 +15252,7 @@
         },
         {
           "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
         }
       ],
       "tags": [
@@ -15365,37 +15365,37 @@
         },
         {
           "path": "SESSION_STATE.md",
-          "revision": "sha256:531f825910a9c1ae8d4a40549c0ca8efd492e574209e76c87a3abc3fd2e6fc7d",
+          "revision": "sha256:7b6d82e71eace668bf661743444eceb7b48446b54f808e570dbf73b55dc89e7f",
           "locator": "shared reasoning continuation"
         },
         {
           "path": "ARCHITECTURE.md",
-          "revision": "sha256:bc09a3aeeea26b8b2b07f74670ad5a8661108a4bea6ccbb4b3e8e9011c47dc91",
+          "revision": "sha256:5d3a3a4745acddf01b998262512a036610a8b20b86249858a3cdb6beb4c46563",
           "locator": "shared reasoning continuation"
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
-          "revision": "sha256:a7d4a8df400ccd64eb43a76161271f16d2b4be37d2632b5a6debe840314885a9"
+          "revision": "sha256:094d5ac678af8facbd8af35f375be275f30d417e1f492cb5d30dd413a78bd9f7"
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Cognition.lua",
-          "revision": "sha256:9edfa01dfae67f97abad165bcdcd3bbf2f3a75a854bc97fadb89ab9edb7247ae"
+          "revision": "sha256:87a6c64982136a54bf6b6fb7156c5107f20fe10a1c8f0c00116d9eb7fd0e919d"
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Labor.lua",
-          "revision": "sha256:d054ae99ff8f54cec475192ed5dff6d7e25d0b248c4f60283d756e736a061140"
+          "revision": "sha256:714cb9e21569fa58d83f3e7166554a38119739bf63a42ea27ee851d77b4c3db9"
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-          "revision": "sha256:06ca69fca6f0c28ea3b2b499f695902ea417808df5b9f09745fc44c44fcd9d0f"
+          "revision": "sha256:eb9b4208012f60e9bf95a790c0c82dafe4561f79202db496d12585775b45b243"
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Needs.lua",
-          "revision": "sha256:46964e544c447bd68e9f04df3290d52a7a24fa82cf488f9b0f2799d0dfce4142"
+          "revision": "sha256:70cd240c3d30476ae02efd9fcb37137ce5e119f5025b210a91bb6f7bbb1b44f3"
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Controller.lua",
-          "revision": "sha256:8c81ac21291599ba72b59d2b67fc5b9773801873e2d234735eed2581d4dfb97b"
+          "revision": "sha256:77f7a2030afcaf6f76cab78630ca59899f7056967e4619c29a0282c21cf9223d"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -17453,7 +17453,7 @@
         },
         {
           "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658"
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c"
         }
       ],
       "tags": [
@@ -17479,7 +17479,7 @@
         },
         {
           "path": "DECISION_REGISTRY.md",
-          "revision": "sha256:21c124b7155c52b596629699051837b06eadd17f2f4f5d101248cab9263b3d8f"
+          "revision": "sha256:eb9afc8bbc3482b14bef6b981c4f58c6fa50357bef38686397faadab15d4e0fa"
         }
       ],
       "tags": [
@@ -17505,7 +17505,7 @@
         },
         {
           "path": "FINDINGS.md",
-          "revision": "sha256:cac0c79ba31531b89e29a6069d761c634004e388be97fea1ab8d1f383887b684"
+          "revision": "sha256:854f84963aa484e782563568d124a03cc1dc5a5f7f526c80cb349614f25d5dbf"
         }
       ],
       "tags": [
@@ -17531,7 +17531,7 @@
         },
         {
           "path": "GOVERNANCE.md",
-          "revision": "sha256:c44226bd618fbdbf9024afd384df72776ce0d2c71f69630f0eaf5e229003ef33"
+          "revision": "sha256:78e7f09465b214a001e1da3feb661e3f2a8c32c7d8af808e4a4bbc8b8f6452e7"
         }
       ],
       "tags": [
@@ -17557,7 +17557,7 @@
         },
         {
           "path": "NEO.md",
-          "revision": "sha256:a2f3e4a9ae008972b0a76c52fca860175363a13c216368efcf2a347654f3fc91"
+          "revision": "sha256:8c83ef4d77d8062edd08b2f79e995f2c494cbb778e9439d6d0004ae987ced2b1"
         }
       ],
       "tags": [
@@ -17583,7 +17583,7 @@
         },
         {
           "path": "PROJECTS.md",
-          "revision": "sha256:aa5288e913abee86f1a1fcfbbe622098dbb7c0b9ceb3fd0b2e73d3845ab57958"
+          "revision": "sha256:b14637492e5c57d9f2cfa5946cbd0d96a2584320addc9f3a792f963f2198df4c"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -17614,7 +17614,7 @@
         },
         {
           "path": "SUBSTRATE.md",
-          "revision": "sha256:2cc56ae27250c9898d4712a64b1dd9722fcb309ce740d944990cda2057fb967b"
+          "revision": "sha256:efc4a48a4bc417fd87071f698fecbf9d71269932806050746426f5764e9eea65"
         }
       ],
       "tags": [
@@ -17692,7 +17692,7 @@
         },
         {
           "path": "java/src/com/sao/engine/SAOMovement.java",
-          "revision": "sha256:1d3bd2727cd1f4df4dea54710f47167648a7c1f068fb8be1fc643fc1ac4e6e7d"
+          "revision": "sha256:a08216fcf7aa834dfdcda71b385621a61359418d6435c481f53b6a94a3dc2946"
         }
       ],
       "tags": [
@@ -17718,7 +17718,7 @@
         },
         {
           "path": "java/src/com/sao/engine/SAORecoveryPose.java",
-          "revision": "sha256:fd775a5d076b39d66412e8063af9330eeb3d052c5a66fb70cf5a1faf4a1f948c"
+          "revision": "sha256:0aece1cf75d1d3d76e9170db93aac6d091212604d63848e3fc57e5a00da1790f"
         }
       ],
       "tags": [
@@ -17744,7 +17744,7 @@
         },
         {
           "path": "java/src/com/sao/engine/SAOWorldSources.java",
-          "revision": "sha256:903cdb364ee9ff2c0a4c5c77fb1462ecde05b8e68bcf016df5dc6e04738a30fb"
+          "revision": "sha256:a6d99dacc693ab2e3ce6912306f3ba40b6edc57a0705e7284d73db481cbbcf4a"
         }
       ],
       "tags": [
@@ -17905,7 +17905,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_CapabilityExperience.lua",
-          "revision": "sha256:ac6c655ad91c34f2bb3b4fd9946ffe7548d07e25f1f130fbc9109936d1212a16"
+          "revision": "sha256:7184a4efe050b59d9c95c1fdf366f7fceac6c5795da037528537e52698eab09b"
         }
       ],
       "tags": [
@@ -17931,7 +17931,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Controller.lua",
-          "revision": "sha256:8c81ac21291599ba72b59d2b67fc5b9773801873e2d234735eed2581d4dfb97b"
+          "revision": "sha256:77f7a2030afcaf6f76cab78630ca59899f7056967e4619c29a0282c21cf9223d"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -18335,7 +18335,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Needs.lua",
-          "revision": "sha256:46964e544c447bd68e9f04df3290d52a7a24fa82cf488f9b0f2799d0dfce4142"
+          "revision": "sha256:70cd240c3d30476ae02efd9fcb37137ce5e119f5025b210a91bb6f7bbb1b44f3"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -18552,7 +18552,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_ResourceProduction.lua",
-          "revision": "sha256:cf0694e6d946d3abd45eb6d1b3ddf84669ea310069087883619c5952fe711cde"
+          "revision": "sha256:c9149f3cc811590e2158626cad3ce54519166e5717a49e2f2518f7b7be3c8d79"
         }
       ],
       "tags": [
@@ -18604,7 +18604,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_SourceUse.lua",
-          "revision": "sha256:b8db2d04d1d2573a00e7f413f46d29f515338ffb0773a27ae775dd3089dc4692"
+          "revision": "sha256:6af7ed56fa3a962d33767da0817b01bcfe52c823b30b73684b34570d9e270945"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -18640,7 +18640,7 @@
         },
         {
           "path": "mod/42.20/media/lua/client/SAO_Study.lua",
-          "revision": "sha256:8318eda93c54f23de7ff240a059cfd44001c009b2d2202e6739dc55916b45456"
+          "revision": "sha256:6addb372095be5f2833d6113047a10c474b9eac529c8b12d556e113ae69de67a"
         }
       ],
       "tags": [
@@ -18889,7 +18889,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Cognition.lua",
-          "revision": "sha256:9edfa01dfae67f97abad165bcdcd3bbf2f3a75a854bc97fadb89ab9edb7247ae"
+          "revision": "sha256:87a6c64982136a54bf6b6fb7156c5107f20fe10a1c8f0c00116d9eb7fd0e919d"
         }
       ],
       "tags": [
@@ -18915,7 +18915,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
-          "revision": "sha256:a7d4a8df400ccd64eb43a76161271f16d2b4be37d2632b5a6debe840314885a9"
+          "revision": "sha256:094d5ac678af8facbd8af35f375be275f30d417e1f492cb5d30dd413a78bd9f7"
         }
       ],
       "tags": [
@@ -19387,7 +19387,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Labor.lua",
-          "revision": "sha256:d054ae99ff8f54cec475192ed5dff6d7e25d0b248c4f60283d756e736a061140"
+          "revision": "sha256:714cb9e21569fa58d83f3e7166554a38119739bf63a42ea27ee851d77b4c3db9"
         }
       ],
       "tags": [
@@ -19522,7 +19522,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_Perception.lua",
-          "revision": "sha256:24f2774c16f39d47970edb627f6b3674f090f0f134d1fe3d2cf8b4342b86b54e"
+          "revision": "sha256:fab95fe29a8dbff37fa225722f64792c16fcf06f4741aa5e7316685f5499810f"
         },
         {
           "path": "Batches/C_SHARED_BOUNDARIES.json",
@@ -19667,7 +19667,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
-          "revision": "sha256:06ca69fca6f0c28ea3b2b499f695902ea417808df5b9f09745fc44c44fcd9d0f"
+          "revision": "sha256:eb9b4208012f60e9bf95a790c0c82dafe4561f79202db496d12585775b45b243"
         }
       ],
       "tags": [
@@ -19890,7 +19890,7 @@
         },
         {
           "path": "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
-          "revision": "sha256:c652b8d27d60129093a4dede73a0f25aeb708fb7553cc21e693587636381f8dd"
+          "revision": "sha256:60d2b55eed312a00f75a14d5de3cd0c7236e5712e21a64faf233899b925aa5f4"
         }
       ],
       "tags": [
@@ -19916,7 +19916,7 @@
         },
         {
           "path": "tools/check.sh",
-          "revision": "sha256:f38b4bbb26dd4b453f20f8b4d1fac65fc8eca19139b25f4de8bb8f3b28800b32"
+          "revision": "sha256:c779f048e322f85f8bb8349dda043b10963ce3c429d714d91cefe2d5362659c3"
         }
       ],
       "tags": [
@@ -20046,7 +20046,7 @@
         },
         {
           "path": "tools/version_replay.py",
-          "revision": "sha256:3e40486bd5d7a2db97c177fdf102ae67d4847e87944b228b72105c71b789c79f"
+          "revision": "sha256:83d692adf17185c7b9b574ed11689770ac83b1f70fd7cd1774c17df512f56d21"
         }
       ],
       "tags": [
@@ -31291,6 +31291,20 @@
       "rationale": "Explicit preserved thread-index membership."
     },
     {
+      "id": "edge:062f71221b34526f3714adfd",
+      "from": "batch:D4",
+      "to": "contract:20261003:C12",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:063c391ec9984e5c05d1d069",
       "from": "source:c-20261003:C52",
       "to": "concept:T-008",
@@ -32123,6 +32137,20 @@
       "rationale": "Explicit preserved thread-index membership."
     },
     {
+      "id": "edge:0b56b8a74399c8af3d83bf59",
+      "from": "batch:D4",
+      "to": "contract:20261003:C29",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:0b88d2ca5a5f3617b716fef0",
       "from": "product:20261005-product-consolidation:C48",
       "to": "product:20261005-product-consolidation:C49",
@@ -32560,20 +32588,6 @@
         }
       ],
       "rationale": "Explicit preserved thread-index membership."
-    },
-    {
-      "id": "edge:0dba33944b96d9d457193169",
-      "from": "batch:D4",
-      "to": "contract:20261003:C13",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:0dcdb2c28e9ab47e7a413970",
@@ -33640,20 +33654,6 @@
         }
       ],
       "rationale": "Original raw-C identifier sequence, before the 2026-09-19 consolidation."
-    },
-    {
-      "id": "edge:12312fa625855b56bdbba081",
-      "from": "batch:D4",
-      "to": "contract:20261003:C24",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:12550cd7e34a32233a92bf51",
@@ -36881,20 +36881,6 @@
       "rationale": "Preserved source record is an input to this catalogue transformation."
     },
     {
-      "id": "edge:21593aa331ed2cacfa2d7539",
-      "from": "batch:D4",
-      "to": "contract:20261003:C29",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:2167e66eb5dd3f82196ceabe",
       "from": "source:c-20261003:C73",
       "to": "source:c-20261003:C74",
@@ -38011,20 +37997,6 @@
         {
           "path": "Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md",
           "revision": "sha256:93cb09b89d246b0115efd1f2294f567b20976069ed40273d97386e0cec5e5ea7"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
-      "id": "edge:26d22028de5870657bc0aca9",
-      "from": "batch:D4",
-      "to": "contract:20261003:C12",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
         }
       ],
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
@@ -39644,6 +39616,20 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
+      "id": "edge:2e34c22490923a6b503f25f2",
+      "from": "batch:D4",
+      "to": "contract:20261003:C30",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:2e427145beaa825de3ed1385",
       "from": "product:20261005-product-consolidation:C31",
       "to": "product:20261005-product-consolidation:C32",
@@ -40932,6 +40918,20 @@
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
     },
     {
+      "id": "edge:33a9ed9998a2d405d56c4f68",
+      "from": "batch:D4",
+      "to": "contract:20261003:C6",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:33d02b82be03cb35c8ff3c1a",
       "from": "batch:B41",
       "to": "commit:3205fa8",
@@ -41390,20 +41390,6 @@
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
-      "id": "edge:354787711c015c8dc4940033",
-      "from": "batch:D4",
-      "to": "contract:20261003:C22",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:354c77a7d1b832f07a037b8e",
       "from": "batch:B37",
       "to": "commit:ac93a78",
@@ -41572,20 +41558,6 @@
         }
       ],
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
-    },
-    {
-      "id": "edge:35e0648939bd1e812d4f47f4",
-      "from": "batch:D4",
-      "to": "contract:20261003:C18",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:35e66046475995faf76c79c5",
@@ -41828,6 +41800,20 @@
         }
       ],
       "rationale": "Input interface: Actual relationship, claim/recognition, asker and requested matter"
+    },
+    {
+      "id": "edge:36dfc0a5f4b9b51695b86dd9",
+      "from": "batch:D4",
+      "to": "contract:20261003:C11",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:36f5f0cc35db0727cce8fc61",
@@ -43867,6 +43853,20 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
+      "id": "edge:405692e234073e3334fc5de9",
+      "from": "batch:D4",
+      "to": "branch:neo/d3-construction-crafting-repair-utilities (source custody); neo/d4-household-water-power-restoration (publication)",
+      "relation": "records",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "Working branch recorded for the active batch; no publication is inferred."
+    },
+    {
       "id": "edge:40809dd2bb7b5ef7ed601d98",
       "from": "batch:A4",
       "to": "concept:T-008",
@@ -44162,6 +44162,20 @@
         }
       ],
       "rationale": "This shared contract is an output of the recorded compression mapping."
+    },
+    {
+      "id": "edge:418c9ba11bb5876d18a78b8a",
+      "from": "batch:D4",
+      "to": "contract:20261003:C19",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:419aa514c4c5109c5c260d39",
@@ -44687,20 +44701,6 @@
         }
       ],
       "rationale": "Adjacent entries in the preserved development index; dates may differ from index order."
-    },
-    {
-      "id": "edge:43ba5c15c1c042b4c01218b6",
-      "from": "batch:D4",
-      "to": "contract:20261003:C33",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:43bf14c716090fd2b358ed47",
@@ -45299,6 +45299,20 @@
         }
       ],
       "rationale": "Corrects C63 to partial coverage and follows ambient source change without minting work."
+    },
+    {
+      "id": "edge:476107e6408eb16735aa5433",
+      "from": "batch:D4",
+      "to": "contract:20261003:C31",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:477e0cd05b61f0a1c2639656",
@@ -46306,6 +46320,20 @@
         }
       ],
       "rationale": "The applied correction records this current product classification without additional version or runtime credit."
+    },
+    {
+      "id": "edge:4c3f1594ad32c2fc4d3f03e7",
+      "from": "batch:D4",
+      "to": "contract:20261003:C18",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:4c439cde4d482d22d85d039e",
@@ -48095,6 +48123,20 @@
         {
           "path": "Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md",
           "revision": "sha256:be31688363addb12ccec76165eaa5c375c0dbab02878d9641b795458bcdbda3a"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
+      "id": "edge:553fa067759c6cd38fd7a8e5",
+      "from": "batch:D4",
+      "to": "contract:20261003:C32",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
         }
       ],
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
@@ -50683,6 +50725,20 @@
       "rationale": "This contract explicitly declares this owner path; shared ownership alone is not a dependency."
     },
     {
+      "id": "edge:610d2e6448ea35ca5101a150",
+      "from": "batch:D4",
+      "to": "contract:20261003:C22",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:6138738df270c85998060f62",
       "from": "source:c-20261003:C52",
       "to": "concept:T-002",
@@ -52408,6 +52464,20 @@
       "rationale": "Output interface: Project observed coverage, retain derivation phases across refusal/reload, follow ambient changes, retire released/reincarnated claims and acknowledge last."
     },
     {
+      "id": "edge:690d0595bbd07fb77495391b",
+      "from": "batch:D4",
+      "to": "contract:20261003:C13",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:6917f690e21b71876b9c8c45",
       "from": "source:c-20261003:C112",
       "to": "concept:T-006",
@@ -54045,20 +54115,6 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
-      "id": "edge:7061da834a8ff7e167859505",
-      "from": "batch:D4",
-      "to": "contract:20261003:C30",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:7065a3404b262925d4d382fc",
       "from": "source:c-20261003:C94",
       "to": "concept:T-004",
@@ -54931,20 +54987,6 @@
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
     },
     {
-      "id": "edge:7479b19fb5abb1e70c9b1c57",
-      "from": "batch:D4",
-      "to": "contract:20261003:C6",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:749225e0051855ac60f3459a",
       "from": "source:c-20261003:C37",
       "to": "contract:20261003:C33",
@@ -55529,24 +55571,6 @@
         }
       ],
       "rationale": "Original raw-C identifier sequence, before the 2026-09-19 consolidation."
-    },
-    {
-      "id": "edge:779c097d118a25ee21fd05da",
-      "from": "product:20261005-product-consolidation:C82",
-      "to": "batch:D1",
-      "relation": "chronology",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/C_PRODUCT_CATALOGUE.json",
-          "revision": "sha256:e87d70a2b1a260594428034ad08b69f050df856d9a6d1d391dd37782d4d0e941"
-        },
-        {
-          "path": "BATCH_LOG.md",
-          "revision": "sha256:1800e1a5d93fbe9e9d2782c31a7a27b43a336372b4a07830d892ee96317a0658"
-        }
-      ],
-      "rationale": "Delivered D follows the current C product chronology; its recorded contract predecessor remains preserved."
     },
     {
       "id": "edge:77af1478bcc963e350d2b06e",
@@ -56352,20 +56376,6 @@
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
-      "id": "edge:7bb7201ebff1a7830d30b2fa",
-      "from": "batch:D4",
-      "to": "contract:20261003:C19",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:7bcef1c81893cdd0669e2af4",
       "from": "source:c-20261003:C2",
       "to": "concept:T-005",
@@ -56895,6 +56905,20 @@
         }
       ],
       "rationale": "Existing dormant provisioning readers are connected; grounded acquisition remained missing at this source."
+    },
+    {
+      "id": "edge:7e208d27a899dd092db8402b",
+      "from": "batch:D3",
+      "to": "batch:D4",
+      "relation": "chronology",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "The batch explicitly follows this preserved event or record."
     },
     {
       "id": "edge:7e2c08c4651c10dbe44bed8d",
@@ -57616,20 +57640,6 @@
         }
       ],
       "rationale": "This contract explicitly declares this owner path; shared ownership alone is not a dependency."
-    },
-    {
-      "id": "edge:816afd9154bb5f43632f8e6f",
-      "from": "batch:D4",
-      "to": "contract:20261003:C21",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:8172ca6ac411c5f26288f529",
@@ -58716,6 +58726,20 @@
         }
       ],
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
+      "id": "edge:8777f0df474425088d5c6169",
+      "from": "batch:D4",
+      "to": "era:D",
+      "relation": "concept-membership",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "The authoritative index records this numbered batch in its letter era."
     },
     {
       "id": "edge:878b3e075fdadd39686ee2a7",
@@ -60502,20 +60526,6 @@
       "rationale": "Explicit preserved thread-index membership."
     },
     {
-      "id": "edge:8f1c69e2f53ac48bd1ac59f2",
-      "from": "batch:D4",
-      "to": "contract:20261003:C32",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
       "id": "edge:8f39c6147c5fdc5f82c9b1e8",
       "from": "source:c-20261003:C45",
       "to": "concept:T-004",
@@ -61250,6 +61260,20 @@
       "rationale": "Indexed in era C."
     },
     {
+      "id": "edge:92ac3f826652e8da53b63927",
+      "from": "batch:D4",
+      "to": "contract:20261003:C33",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:92c0f6748c3e613aa1090ccc",
       "from": "batch:A25",
       "to": "concept:T-004",
@@ -61626,20 +61650,6 @@
         }
       ],
       "rationale": "Input interface: Installed API/compiler behavior, dependency order and source revisions"
-    },
-    {
-      "id": "edge:952b7da909dac976d12b6c6c",
-      "from": "batch:D4",
-      "to": "contract:20261003:C11",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:952f97f264dca20a7796b5e3",
@@ -64037,20 +64047,6 @@
       "rationale": "The manifest records this blob at the archived Git reference; archivePath is not a working-tree hyperlink."
     },
     {
-      "id": "edge:a07a07e67cd7849ae993b335",
-      "from": "batch:D4",
-      "to": "era:D",
-      "relation": "concept-membership",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "The authoritative index records this numbered batch in its letter era."
-    },
-    {
       "id": "edge:a07c22296ec8a5d67d8f86dc",
       "from": "source:c-20261003:C91",
       "to": "event:catalogue-compression:C:20261003",
@@ -64314,20 +64310,6 @@
         }
       ],
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
-    },
-    {
-      "id": "edge:a1de7148bbd3432063b1843d",
-      "from": "batch:D4",
-      "to": "contract:20261003:C28",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:a1e5b233ac97f3bb44a5697d",
@@ -65205,6 +65187,24 @@
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
+      "id": "edge:a599c5d181d6b3948b4e4c20",
+      "from": "product:20261005-product-consolidation:C82",
+      "to": "batch:D1",
+      "relation": "chronology",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/C_PRODUCT_CATALOGUE.json",
+          "revision": "sha256:e87d70a2b1a260594428034ad08b69f050df856d9a6d1d391dd37782d4d0e941"
+        },
+        {
+          "path": "BATCH_LOG.md",
+          "revision": "sha256:35cf05d81d0bb334e4c20a656b3990986ba2fb7f90dc362bd2a95145f2449b1c"
+        }
+      ],
+      "rationale": "Delivered D follows the current C product chronology; its recorded contract predecessor remains preserved."
+    },
+    {
       "id": "edge:a5bc9ab3982fdc89633e8add",
       "from": "branch:refs/heads/archive/c-era-before-shared-boundaries-20261003",
       "to": "commit:1b01e546f782656e76c9faffc4535a942adfa40c",
@@ -65765,6 +65765,20 @@
         }
       ],
       "rationale": "Social graph persistence required."
+    },
+    {
+      "id": "edge:a891976b1f114fda200863ad",
+      "from": "batch:D4",
+      "to": "contract:20261003:C25",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:a892b49b36f50aa0e101a14e",
@@ -66392,20 +66406,6 @@
         }
       ],
       "rationale": "Adjacent entries in the preserved development index; dates may differ from index order."
-    },
-    {
-      "id": "edge:abc0939ce9ca96a4ac63f6be",
-      "from": "batch:D4",
-      "to": "contract:20261003:C25",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:abdfce6cfd5f76817ddcc685",
@@ -73415,20 +73415,6 @@
       "rationale": "The applied correction records this current product classification without additional version or runtime credit."
     },
     {
-      "id": "edge:cb1ddb9feda0db639a9703b9",
-      "from": "batch:D4",
-      "to": "branch:neo/d3-construction-crafting-repair-utilities (retained source custody; publication uses the D4 branch)",
-      "relation": "records",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "Working branch recorded for the active batch; no publication is inferred."
-    },
-    {
       "id": "edge:cb27f12b77bb76ce3f942ae2",
       "from": "source:c-20261003:C29",
       "to": "product:20261005-product-consolidation:C27",
@@ -75688,6 +75674,20 @@
       "rationale": "Explicit preserved thread-index membership."
     },
     {
+      "id": "edge:d4300d4ac9bcd29ef19ef0e6",
+      "from": "batch:D4",
+      "to": "contract:20261003:C28",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:d45d616c20a7354fcca6265c",
       "from": "batch:B1",
       "to": "commit:466e500",
@@ -76164,20 +76164,6 @@
         }
       ],
       "rationale": "Exact retained source belongs to this adjacent product/version unit once."
-    },
-    {
-      "id": "edge:d58d80d3eef3cf29a5f454d8",
-      "from": "batch:D4",
-      "to": "contract:20261003:C20",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:d598549f1eea812bba8692e7",
@@ -77652,6 +77638,20 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
+      "id": "edge:dc855eca8d20a56ccf7f2f4d",
+      "from": "batch:D4",
+      "to": "contract:20261003:C21",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:dc913e5b5d260df381e95bd7",
       "from": "source:c-20261003:C87",
       "to": "concept:T-008",
@@ -78458,6 +78458,20 @@
       "rationale": "In-process arithmetic ceiling measured."
     },
     {
+      "id": "edge:e04be56267cc5ebb7c1fa93d",
+      "from": "batch:D4",
+      "to": "contract:20261003:C3",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:e058af4430ff09a2dc01a4a1",
       "from": "source:c-20261003:C57",
       "to": "contract:20261003:C28",
@@ -78491,20 +78505,6 @@
         }
       ],
       "rationale": "This contract explicitly declares this owner path; shared ownership alone is not a dependency."
-    },
-    {
-      "id": "edge:e06a960c039a351619bbe85c",
-      "from": "batch:D4",
-      "to": "contract:20261003:C3",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:e07002e720b2a1e6b87ab20e",
@@ -78563,20 +78563,6 @@
         }
       ],
       "rationale": "Commit identifier recorded in this batch's Local Git commits field; no ancestry is inferred."
-    },
-    {
-      "id": "edge:e0ba934fdf5598fc52bca16d",
-      "from": "batch:D3",
-      "to": "batch:D4",
-      "relation": "chronology",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
-        }
-      ],
-      "rationale": "The batch explicitly follows this preserved event or record."
     },
     {
       "id": "edge:e104c6c49f5e6c66e5d66f56",
@@ -78773,6 +78759,20 @@
         }
       ],
       "rationale": "Output interface: Loadable scripts/classes and verified native calls or refusal"
+    },
+    {
+      "id": "edge:e294de01677190b323c51fd7",
+      "from": "batch:D4",
+      "to": "contract:20261003:C20",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
     },
     {
       "id": "edge:e2ada4353b7508de7e09b45e",
@@ -80335,20 +80335,6 @@
         {
           "path": "Batches/D3.20-20261012-1548Z-0848PDT-native-workspace-materials-and-use.md",
           "revision": "sha256:f2f2f545451f62ab63636190969868759fb8f80b98ea991e2c8f4fd176e3df1f"
-        }
-      ],
-      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
-    },
-    {
-      "id": "edge:ea8b7c6d96bc63cbdd00aef3",
-      "from": "batch:D4",
-      "to": "contract:20261003:C31",
-      "relation": "depends-on",
-      "evidenceClass": "source-fact",
-      "provenance": [
-        {
-          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
-          "revision": "sha256:32b3e3b4a9a9f55a8b027978db9ca5bdc060f4742d5bcbb2c47628c03b2d1637"
         }
       ],
       "rationale": "This batch declares the shared contract as an inherited implementation boundary."
@@ -83825,6 +83811,20 @@
       "rationale": "Thread identifier explicitly declared by this source record or its frozen index row."
     },
     {
+      "id": "edge:f909c400da530faee55b0622",
+      "from": "batch:D4",
+      "to": "contract:20261003:C24",
+      "relation": "depends-on",
+      "evidenceClass": "source-fact",
+      "provenance": [
+        {
+          "path": "Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md",
+          "revision": "sha256:ca6439a31ef2364a8555286662fc9e247084c4d46c0712be7a491998f8c73880"
+        }
+      ],
+      "rationale": "This batch declares the shared contract as an inherited implementation boundary."
+    },
+    {
       "id": "edge:f93dcba739fb4de2da0cff28",
       "from": "source:c-20261003:C115",
       "to": "source:c-20261003:C116",
@@ -85269,7 +85269,6 @@
         "contract",
         "extension",
         "batch",
-        "active-batch",
         "product-batch"
       ],
       "relations": [
@@ -85287,7 +85286,6 @@
         "interface",
         "extension",
         "batch",
-        "active-batch",
         "product-batch"
       ],
       "relations": [
@@ -85306,7 +85304,6 @@
         "extension",
         "catalogue-event",
         "batch",
-        "active-batch",
         "product-batch"
       ],
       "relations": [
@@ -85328,7 +85325,6 @@
         "era",
         "extension",
         "catalogue-event",
-        "active-batch",
         "product-batch"
       ],
       "relations": [
@@ -85345,7 +85341,6 @@
         "source-record",
         "concept",
         "era",
-        "active-batch",
         "product-batch"
       ],
       "relations": [
@@ -85363,7 +85358,6 @@
         "source-record",
         "extension",
         "era",
-        "active-batch",
         "product-batch",
         "catalogue-event"
       ],
@@ -85375,7 +85369,6 @@
       "id": "all",
       "label": "All recorded relations",
       "nodeKinds": [
-        "active-batch",
         "batch",
         "branch",
         "catalogue-event",
@@ -85404,5 +85397,5 @@
       ]
     }
   ],
-  "revision": "sha256:d46120cea31fb0d34bd243e96e7a0b213bd7c69493c7a06a1a95971f0cc365f2"
+  "revision": "sha256:265a71731a7348eda72032c9333c27cf8dea7b6684f71f4aafa5abe3a19f83ba"
 }

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.7.5.0-pre-alpha` |
+| Version | `2.7.6.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -17,9 +17,9 @@ The 2026-10-03 map grouped the retained source history into 35 shared ownership 
 
 ## Development catalogue
 
-Active: [D4 — Household water and power restoration](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md)
+Next: D5 — Water-network construction and alteration; finite source/consumer selection continues from the current roadmap.
 
-D3 closes as a zero-credit historical aggregation of D3.1-D3.22. Their original labels, scope, evidence and earned credit remain unchanged. The [transition](Batches/Transitions/D-20261013-emmetropic-numbered-outcomes.md) assigns remaining work to finite numbered outcomes and retains unpublished D3.23 as a contribution to active D4. [ROADMAP.md](ROADMAP.md#numbered-d-outcomes) owns the forward sequence.
+D3 closes as a zero-credit historical aggregation of D3.1-D3.22. Their original labels, scope, evidence and earned credit remain unchanged. The [transition](Batches/Transitions/D-20261013-emmetropic-numbered-outcomes.md) assigns remaining work to finite numbered outcomes and retains unpublished D3.23 as a contribution to D4. [ROADMAP.md](ROADMAP.md#numbered-d-outcomes) owns the forward sequence.
 
 | Batch | Date | Name | Threads |
 |---|---|---|---|
@@ -692,3 +692,11 @@ Current open child: [D3.23 - Generator supply and powered water use](Batches/D3.
 ## D-series scope correction - 2026-10-13 04:33 UTC / 21:33 PDT
 
 The operator directs finite numbered outcomes and actual Emmetropic development. D3's exact published collection closes by existing zero-credit aggregation; no historical child is relabelled. D4 receives the unfinished D3.23 contribution, with selected producer incorporation and actual startup added to its acceptance. The [transition](Batches/Transitions/D-20261013-emmetropic-numbered-outcomes.md) and [current map](ROADMAP.md#numbered-d-outcomes) retain all remaining scope, shared contracts and existing evidence.
+
+## D4 connected restoration closed - 2026-10-13
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D4](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md) | 2026-10-13 | Household water and power restoration | T-003, T-008, T-030; owned native service, same-purpose clean-water use and independent saved feedback |
+
+D-series Beacon planning contains the Emmetropic numbered batch order and optional Granular subdivisions. D4 developed and integrated its connected outcome together. Current native29, lifecycle cases, five causal controls, genuine private persistence/intake and the complete integrated review establish its declared local scope. D5/D6 retain wider household utilities. D4 earns one kohai; regrouping, transferred D3.23 evidence and D3 aggregation earn none.

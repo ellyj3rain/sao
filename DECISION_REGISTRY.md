@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.7.5.0-pre-alpha` |
+| Version | `2.7.6.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -2264,3 +2264,9 @@ Granular, Emmetropic and Beacon shape both batch organization and actual develop
 The current utility proof loads external LGEE/LGEP producers that SAO's package does not supply. D4 includes the selected owned producer, normal startup and sufficient integration evidence. Prior external-source proof retains its scope. The broader accepted source-incorporation programme remains split by actual mechanisms and outcomes, with provenance and copying terms preserved.
 
 [The transition](Batches/Transitions/D-20261013-emmetropic-numbered-outcomes.md), current state/index, unchanged history and existing odometer aggregation carry this decision mechanically. Reorganization earns no version credit. Ordinary protected publication and sufficient affected-contract verification remain in force.
+
+## DR-067 — Composable work levels and D4 finite household restoration — 2026-10-13
+
+**Source:** The operator clarifies that a Beacon plan may contain an Emmetropic batch order and Granular sub-batch orders, with agents choosing development at any level and using or omitting sublevels through the existing Neo skill framework extension. The containing plan and actual work scope retain their own posture and integration obligations. Seven affected local-library packages load the clarified sources; current existing native assessment and linked/direct invocation are qualified, without claiming automatic semantic enforcement.
+
+**Application:** D-series Beacon planning holds the corrected Emmetropic numbered outcomes. D4 takes private inquiry/means, original existing-network producer, native use, independent feedback and delivery together, with internal focused controls and no product child. Its local native result and whole integrated review close that finite outcome. D5/D6 retain remaining household utilities; D4 earns one kohai under the existing full-feature-scope rule. Shared Speakeasy/ZAO contracts retain actual source, adoption and training standing. [D4](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md) carries the result and limits; the original map decision and history remain preserved.

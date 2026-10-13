@@ -1,17 +1,31 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.5.0-pre-alpha` |
+| Version | `2.7.6.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
+**As of** [D4], 189 closed catalogue records retain 188 credited source outcomes: 29 A, 52 B, 82 C products and twenty-five credited D contributions, plus D3's zero-credit historical aggregation. Current shipping coordinate is `2.7.6.0-pre-alpha`.
+
+[D4 — Household water and power restoration](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md) is CLOSED at its declared local native scope. Original owned service joins ordinary same-person inquiry, unknown donor inspection, exact manual/wrench acquisition and native knowledge, connection/plumbing, finite fuel and powered clean-water use, independent private feedback and authentic purpose closure. The supported package and current source/record checks pass; D4 records exact JAR and evidence pins. Protected PR merge and the continuity receipt identify the published snapshot.
+
+Next: D5 — water-network construction and alteration. The [current roadmap](ROADMAP.md#numbered-d-outcomes) holds finite D4-D15 outcomes and further accepted learning/strategy goals. D is the containing Beacon plan; the numbered sequence is an Emmetropic batch order with optional Granular sub-batch orders. Agents can work at any selected level with or without sublevels. D4's actual connected development has no allocated product child.
+
+Current owned normal proof passes 29 conditions; parent/source/native-swapped cases pass 17 each and cancellation passes 18. Five causal omissions are detected; genuine full/bounded native snapshots and independent strict intake retain every exported field and both models. The complete integrated source/evidence review passes with no remaining Critical/High/Medium finding. Default owned and actual original opt-in service have positive native proof; the mixed external ghost/header handoff remains unsupported with safe refusal. Whole-world/server/rendered/model-training acceptance is not inferred.
+
+D4 receives one kohai as progress toward household utilities that continue through D5/D6. Exact D3.1-D3.22 published identities and credit remain preserved. The map transition merged through PR166 at cdde8b49717c8c8f3041a8a4223f12f6f3e6de41; unpublished D3.23 is retained as source/evidence contribution only.
+
+The root owns current records, selected package and publication; the existing implementation team's sixteen production and eleven permanent-tool inputs are frozen after integrated acceptance. Six held leaves, future tools, peer sources/indexes and normal game/save flow retain their owners. Seven current Neo local-library packages now load the operator's composable-level instructions, with unchanged native framework support and actual linked/direct invocation evidence. Mousecat has the exact reported result; full Scion remains locally registered with its recorded central History transport item pending.
+
+## D3 map transition — 2026-10-13
+
 **As of** `[D3]`, 188 closed catalogue records retain 187 credited source outcomes: 29 A, 52 B, 82 C products and twenty-four credited D contributions, plus D3's zero-credit parent aggregation. Current shipping version remains `2.7.5.0-pre-alpha`.
 
 Active: [D4 — Household water and power restoration](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md). The operator explicitly authorizes the [numbered scope transition](Batches/Transitions/D-20261013-emmetropic-numbered-outcomes.md) and resumed Emmetropic development. [The roadmap](ROADMAP.md#numbered-d-outcomes) owns finite D4-D15 planned outcomes and the retained further learning/strategy goals. D is the broader grouping; D3 no longer contains the rest of the series.
 
-D3.1-D3.22 retain their exact published identities and credit. The latest published source is PR165 at `7724d118cc4ed92722fd14d57cee28a213e58945`. D3.23 is an unpublished source/evidence contribution to D4. Current native normal59 demonstrates its connected external-source consumer; selected owned producer availability/startup, latest permanent-tool checks, package and protected publication remain open.
+D3.1-D3.22 retain their exact published identities and credit. The latest product contribution is PR165 at `7724d118cc4ed92722fd14d57cee28a213e58945`. The numbered-outcome transition is protected-merged through [PR166](https://github.com/ellyj3rain/sao/pull/166) at `cdde8b49717c8c8f3041a8a4223f12f6f3e6de41`, with version and runtime package unchanged. D3.23 is an unpublished source/evidence contribution to D4. Current native normal59 demonstrates its connected external-source consumer; selected owned producer availability/startup, latest permanent-tool checks, package and protected publication remain open.
 
 Neo's root owns the map and record reconciliation. The existing utility chief owns the connected D4 implementation and integration, with disjoint helper assignments and whole-outcome rejoin. The scope-reassessment hold is released for this authorized work. Existing held assets, peer sources/indexes and normal user-owned game/save flow retain their custody.
 

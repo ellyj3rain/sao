@@ -5275,4 +5275,13 @@ public final class SAOBridge {
         } catch(Throwable unavailable) { return null; }
     }
 
+    public String worldGeneratorPumpConsumer(com.sao.engine.SAOIsoPlayerShell body,zombie.iso.IsoObject object) {
+        return com.sao.engine.SAOWorldSources.generatorPumpConsumer(body,object);
+    }
+    public Object worldGeneratorServiceScope(com.sao.engine.SAOIsoPlayerShell body,zombie.iso.objects.IsoGenerator generator,
+            se.krka.kahlua.vm.KahluaTable generatorFact,se.krka.kahlua.vm.KahluaTable consumerFact,
+            se.krka.kahlua.vm.KahluaTable group,String structure,boolean acquire) {
+        return com.sao.engine.SAOWorldSources.generatorServiceScope(body,generator,generatorFact,consumerFact,group,structure,acquire);
+    }
+
 }

@@ -2,7 +2,7 @@
 
 A Project Zomboid Build 42 NPC framework.
 
-D3's twenty-two published contributions now form a closed historical aggregation. [D4, household water and power restoration](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md), is the active connected development outcome. The [numbered roadmap](ROADMAP.md#numbered-d-outcomes) separates the remaining service, transport, building, equipment, provisioning and learning work while preserving shared contracts. Current external-source utility proof does not yet establish that SAO's shipping package supplies its required producer; owned incorporation and normal startup are D4 acceptance work.
+[D4, household water and power restoration](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md), joins a survivor's ordinary private water purpose to inquiry, exact tools and knowledge, original owned generator/network service, conserved fuel and purified-water use, and independent saved feedback. Its default producer loads through SAO; optional original utility mods retain their actual compatibility limits. The [numbered roadmap](ROADMAP.md#numbered-d-outcomes) makes D5 network construction and D6 managed electricity the next distinct household outcomes. D3's exact twenty-two published contributions remain a closed zero-credit historical aggregation.
 
 This repository is the living-survivor source module of **Project More Life**,
 the named compiled mod or mod set. Its source ownership and relationship to
@@ -186,7 +186,7 @@ currency with `python tools/development_graph.py --check`.
 
 ## Status
 
-`2.7.5.0-pre-alpha` - the coordinate is computed by the version machine
+`2.7.6.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 

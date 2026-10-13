@@ -14,6 +14,7 @@ SAO = SAO or {}
 SAO.Needs = SAO.Needs or {}
 local N = SAO.Needs
 local cognitionBefore, cognitionAfter
+local bindHydrationUse
 
 -- The installed eat constructor asks the inventory UI for nearby heat even
 -- when a smokable already has carried ignition. Supply real reachable world
@@ -477,7 +478,9 @@ function N.queueDrinkFrom(id, body)
     end)
     if not okO or waterObject == nil then return false end
     local okQ, queued = pcall(function()
-        return N.queueVerified(ISTakeWaterAction:new(body, nil, waterObject, nil))
+        local action=ISTakeWaterAction:new(body,nil,waterObject,nil)
+        if bindHydrationUse and bindHydrationUse(id,body,action,waterObject)~=true then return false end
+        return N.queueVerified(action)
     end)
     if okQ and queued then log(id .. " drinks from a water source") end
     return okQ and queued == true
@@ -1931,6 +1934,166 @@ end
 wrapUseEvidence(ISEatFoodAction, "food", false)
 wrapUseEvidence(ISDrinkFluidAction, "water", false)
 wrapUseEvidence(ISTakeWaterAction, "water", true)
+
+
+-- The original direct-water action owns measured relief independently of Cognition.
+local hydrationUses=setmetatable({},{__mode="k"})
+local function hydrationNumber(n)return type(n)=="number"and n==n and n> -math.huge and n<math.huge end
+local function hydrationCopy(row)
+    local out={};for key,value in pairs(row)do
+        if type(value)=="table"then local copy={};for k,v in pairs(value)do copy[k]=v end;out[key]=copy
+        else out[key]=value end
+    end;return out
+end
+function N.hydrationUseOutcome(id,action)
+    local owned=hydrationUses[action]
+    if not owned or owned.id~=id or not owned.outcome then return nil end
+    return hydrationCopy(owned.outcome)
+end
+bindHydrationUse=function(id,body,action,waterObject)
+    local planning=SAO.ProceduralPlanning
+    if not planning or not planning.hydrationUseRequest then return true end
+    local request=planning.hydrationUseRequest(id,body)
+    if not request then return true end
+    if not action or action.character~=body or action.item~=nil or action.waterObject~=waterObject
+        or type(request)~="table"or getmetatable(request)or request.actorId~=id
+        or type(request.purposeId)~="string"or not hydrationNumber(request.purposeRevision)
+        or not hydrationNumber(request.purposeCursor)or not hydrationNumber(request.admittedAt)
+        or type(request.world)~="string"then return false end
+    local ok,square=pcall(function()return waterObject:getSquare()end)
+    if not ok or not square then return false end
+    local evidence={id=id,body=body,object=waterObject,square=square,cell=body:getCell(),request=hydrationCopy(request),
+        key="hydration-use/"..request.purposeId.."/"..request.purposeRevision.."/"..request.purposeCursor}
+    local function sourceCurrent()
+        return evidence.object:getSquare()==evidence.square and evidence.square:getCell()==evidence.cell
+            and evidence.cell:getGridSquare(evidence.square:getX(),evidence.square:getY(),evidence.square:getZ())==evidence.square
+            and evidence.square:getObjects():contains(evidence.object)
+            and SAO.Standing and SAO.Standing.mayTakeCurrent
+            and SAO.Standing.mayTakeCurrent(id,evidence.square:getX(),evidence.square:getY(),"standing")==true
+    end
+    local function nativeOwned()
+        local ok,owned=pcall(function()
+            return evidence.native~=nil and action.action==evidence.native and evidence.native:getTable()==action
+        end);return ok and owned==true
+    end
+    local function queueOwned()
+        local q=ISTimedActionQueue.queues and ISTimedActionQueue.queues[body]
+        return q~=nil and q==evidence.queue and q.current==action and q:indexOf(action)~=-1 and nativeOwned()
+    end
+    local function current()
+        local accepted,valid=pcall(function()
+            return hydrationUses[action]==evidence and not evidence.denied and not evidence.outcome and action.character==body
+                and action.waterObject==waterObject and action.item==nil and body:getCell()==evidence.cell
+                and planning.hydrationRequestCurrent and planning.hydrationRequestCurrent(id,body,evidence.request)==true
+                and sourceCurrent()
+        end)
+        return accepted and valid==true
+    end
+    local function settle(status)
+        if evidence.outcome then return end
+        local at=SAO.History and SAO.History.countyHours and SAO.History.countyHours()
+        local after=cognitionNeed(body,"water")
+        local row={id=evidence.key,actorId=id,request=hydrationCopy(evidence.request),kind="hydration-use",
+            nativeOwner="ISTakeWaterAction",status=status,startedAt=evidence.startedAt,atHours=at,
+            beforeThirst=evidence.before,afterThirst=after,world=evidence.request.world,bodyToken=evidence.request.bodyToken}
+        if hydrationNumber(evidence.before)and hydrationNumber(after)then row.thirstDelta=evidence.before-after end
+        if status=="completed"and(not hydrationNumber(at)or not hydrationNumber(evidence.startedAt)or at<evidence.startedAt
+            or not hydrationNumber(row.thirstDelta)or row.thirstDelta<=0.0001)then row.status="no-effect"end
+        if row.status=="completed"then row.nativeCredit=row.id end
+        row.sourceX,row.sourceY,row.sourceZ=evidence.square:getX(),evidence.square:getY(),evidence.square:getZ()
+        local named,name=pcall(function()return evidence.object:getClass():getName()end)
+        if named then row.sourceClass=name end
+        evidence.outcome=row
+        if planning.consumeHydrationUse then pcall(planning.consumeHydrationUse,id,action)end
+    end
+    local function deny()
+        evidence.denied=true;settle("interrupted")
+        if queueOwned()then pcall(function()evidence.native:forceStop()end)end
+        return false
+    end
+    local valid,start,perform,complete,stop,updateUse,transfer=action.isValid,action.start,action.perform,
+        action.complete,action.stop,action.updateUse,action.transferFluid
+    action.isValid=function(self,...)
+        if self~=action then return false end
+        return current()and valid(self,...)or false end
+    action.start=function(self,...)
+        if self~=action then return false end
+        if evidence.startedAt or not current()then return deny()end
+        local at=SAO.History.countyHours();local before=cognitionNeed(body,"water")
+        if not hydrationNumber(at)or at<evidence.request.admittedAt or not hydrationNumber(before)then return deny()end
+        evidence.native=self.action;evidence.queue=ISTimedActionQueue.queues and ISTimedActionQueue.queues[body]
+        if not queueOwned()then return deny()end
+        evidence.startedAt,evidence.before=at,before
+        local ok,result=pcall(start,self,...)
+        if not ok or result==false then
+            evidence.denied=true;settle("unavailable");if queueOwned()then pcall(function()evidence.native:forceStop()end)end
+            if not ok then error(result)end;return false
+        end
+        evidence.started=true
+        return result
+    end
+    action.updateUse=function(self,...)
+        if self~=action then return false end
+        if not evidence.started or not evidence.startedAt or not current()or not nativeOwned()
+            or not evidence.completing and not queueOwned()then return deny()end
+        return updateUse(self,...)
+    end
+    action.transferFluid=function(self,amount,...)
+        if self~=action then return false end
+        if not evidence.started or not evidence.startedAt or not current()or not nativeOwned()
+            or not evidence.completing and not queueOwned()then return deny()end
+        local household=SAO.HouseholdService
+        if not household or not household.ownsWaterReceiver or not household.ownsWaterReceiver(waterObject)then
+            return transfer(self,amount,...)
+        end
+        -- The native purified temporary container has a finite capacity. Keep
+        -- each original debit/DrinkFluid call within that observed capacity.
+        local capacity=household.purificationSampleCapacity()
+        if not hydrationNumber(amount)or amount<0 or not hydrationNumber(capacity)or capacity<=0 then return deny()end
+        local remaining=amount
+        while remaining>0 do
+            if not current()or not nativeOwned()or not evidence.completing and not queueOwned()
+                or not household.ownsWaterReceiver(waterObject)then return deny()end
+            local available=waterObject:getFluidAmount()
+            if not hydrationNumber(available)or available<=0 then return end
+            local chunk=math.min(remaining,capacity,available)
+            transfer(self,chunk,...)
+            local after=waterObject:getFluidAmount()
+            if not hydrationNumber(after)or after>=available then return end
+            remaining=remaining-chunk
+        end
+    end
+    action.perform=function(self,...)
+        if self~=action then return false end
+        if evidence.outcome or evidence.performed then return false end
+        local ok,ended=pcall(function()return evidence.native and evidence.native:isStarted()
+            and(evidence.native:finished()or evidence.native:isForceComplete())end)
+        if not ok or not ended or not current()or not queueOwned()or not evidence.started or not evidence.startedAt then return deny()end
+        evidence.performed=true
+        local accepted,result=pcall(perform,self,...)
+        if not accepted then return deny()end
+        evidence.handedOff=true;return result
+    end
+    action.complete=function(self,...)
+        if self~=action then return false end
+        if evidence.outcome then return false end
+        if not evidence.started or not evidence.performed or not evidence.handedOff or not current()or not nativeOwned()then return deny()end
+        evidence.completing=true
+        local ok,result=pcall(complete,self,...)
+        evidence.completing=nil
+        settle(ok and result==true and current()and nativeOwned()and"completed"or"unavailable")
+        if not ok then error(result)end;return result
+    end
+    action.stop=function(self,...)
+        if self~=action then return false end
+        if evidence.outcome or evidence.handedOff or not queueOwned()then return false end
+        local character=self.character;self.character=body
+        local ok,result=pcall(stop,self,...);self.character=character;evidence.denied=true;settle("interrupted")
+        if not ok then error(result)end;return result
+    end
+    hydrationUses[action]=evidence
+    return current()
+end
 
 log("needs module loaded")
 

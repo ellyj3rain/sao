@@ -768,7 +768,7 @@ local function transferState(fact, now, horizon)
         or type(fact.itemType) ~= "string" or fact.itemType == ""
         or type(fact.sourceId) ~= "string" or fact.sourceId == ""
         or (fact.operation ~= "store" and fact.operation ~= "acquire")
-        or (fact.category ~= "food" and fact.category ~= "water")
+        or (fact.category ~= "food" and fact.category ~= "water" and fact.category ~= "item")
         or not transferNumber(fact.x) or not transferNumber(fact.y)
         or not transferNumber(fact.z)
         or (fact.source ~= "performed" and fact.source ~= "observed"
@@ -880,8 +880,70 @@ end
 function P.receiveTransferResult(receipt)
     if type(receipt) ~= "table" then return false, "invalid-result" end
     local garment=receipt.category=="garment-input"
-    local ingredient=receipt.category=="recipe-input"or garment
-    if garment then
+    local utility=receipt.category=="generator-manual"or receipt.category=="pipe-wrench"
+        or receipt.category=="electronics-scrap"or receipt.category=="petrol"
+    local ingredient=receipt.category=="recipe-input"or garment or utility
+    local utilityRetiredReplay=false
+    local utilityProvenance
+    if utility then
+        local canonical=SAO.WorldSources and SAO.WorldSources.actionOutcome
+            and SAO.WorldSources.actionOutcome(receipt.reservationId,receipt.actorId)
+        local rec=SAO.Identity and SAO.Identity.get and SAO.Identity.get(receipt.actorId)
+        local planning=rec and rec.proceduralPlanning
+        local purpose=planning and planning.purposes and canonical and planning.purposes[canonical.purposeId]
+        if not canonical or canonical.actorId~=receipt.actorId or canonical.reservationId~=receipt.reservationId
+            or canonical.category~=receipt.category or canonical.operation~="acquire"
+            or not purpose or purpose.id~=canonical.purposeId
+            or not purpose.generatorPower or type(purpose.steps)~="table"or getmetatable(purpose.steps)
+            or type(canonical.sourceId)~="string"or type(canonical.itemType)~="string"or not transferNumber(canonical.itemId)
+            or not transferNumber(canonical.at)or canonical.at<0
+            or type(canonical.transferObservation)~="table"or canonical.transferObservation.nativeTransferProven~=true
+            or canonical.quantityUnit~="item"or canonical.requestedQuantity~=1
+            or canonical.status=="completed"and(canonical.measurement~="native-item-transfer"or canonical.observedQuantity~=1)
+            or canonical.status~="completed"and not((canonical.measurement=="not-recorded"and canonical.observedQuantity==nil)
+                or canonical.measurement=="native-item-transfer"and canonical.observedQuantity==1)then return false,"utility-transfer-owner-unavailable"end
+        utilityProvenance={actorId=canonical.actorId,reservationId=canonical.reservationId,
+            purposeId=canonical.purposeId,purposeStepId=canonical.purposeStepId,
+            sourceId=canonical.sourceId,preRevision=canonical.preRevision,sourceFingerprint=canonical.sourceFingerprint,
+            itemId=canonical.itemId,itemType=canonical.itemType,category=canonical.category,
+            operation=canonical.operation,measurement=canonical.measurement,quantityUnit=canonical.quantityUnit,
+            requestedQuantity=canonical.requestedQuantity,observedQuantity=canonical.observedQuantity,at=canonical.at}
+        local frame
+        for index,step in ipairs(purpose.steps)do
+            if step.id==canonical.purposeStepId then
+                if frame then return false,"utility-transfer-frame-ambiguous"end
+                frame={step=step,index=index}
+            end
+        end
+        local acknowledged=false
+        for _,key in ipairs(purpose.resultReceipts or{})do
+            if key=="SAO.SourceUse:"..canonical.reservationId then acknowledged=true end
+        end
+        local step=frame and frame.step
+        if not step then
+            if not acknowledged then return false,"utility-transfer-frame-unavailable"end
+            -- A later plan may replace its completed step after private delivery
+            -- while Material still retries. Only identical already-held facts replay.
+            utilityRetiredReplay=true
+        else
+            if step.owner~="SAO.SourceUse"or step.verb~="acquire"or step.token~="resource:acquired"
+                or step.sourceId~=canonical.sourceId or step.sourceRevision~=canonical.preRevision
+                or step.itemId~=canonical.itemId or step.itemType~=canonical.itemType or step.category~=canonical.category
+                or step.target~=canonical.sourceId..":"..tostring(canonical.itemId)then return false,"utility-transfer-frame-unavailable"end
+            local admission=purpose.admission
+            local current=frame.index==purpose.cursor and step.status=="available"and admission
+                and admission.owner==step.owner and admission.stepId==step.id and admission.target==step.target
+                and admission.correlationId==canonical.reservationId and transferNumber(admission.at)
+                and canonical.at>=admission.at
+            local retained=step.status=="completed"and transferNumber(step.completedAt)
+                and step.completedAt==canonical.at and acknowledged
+            if not current and not retained then
+                if not acknowledged or step.status=="completed" then return false,"utility-transfer-frame-retired"end
+                utilityRetiredReplay=true
+            end
+        end
+        receipt=canonical
+    elseif garment then
         local canonical=SAO.WorldSources and SAO.WorldSources.actionOutcome
             and SAO.WorldSources.actionOutcome(receipt.reservationId,receipt.actorId)
         local requirement=canonical and SAO.WorldSources.garmentRequirementCopy(canonical.garmentRequirement)
@@ -980,11 +1042,34 @@ function P.receiveTransferResult(receipt)
         if existing and (type(existing) ~= "table" or not sameTransfer(existing, fact)) then
             return false, "conflicting-event"
         end
+        if utility and id==receipt.actorId then
+            local private=existing and existing.utilityAcquisition
+            if private~=nil then
+                if type(private)~="table"or getmetatable(private)then return false,"utility-transfer-provenance-invalid"end
+                for _,key in ipairs({"actorId","reservationId","purposeId","purposeStepId","sourceId","preRevision",
+                    "sourceFingerprint","itemId","itemType","category","operation","measurement","quantityUnit",
+                    "requestedQuantity","observedQuantity","at"})do
+                    if private[key]~=utilityProvenance[key]then return false,"utility-transfer-provenance-changed"end
+                end
+            elseif utilityRetiredReplay then return false,"utility-transfer-provenance-unavailable"end
+        end
+        if utilityRetiredReplay and (not existing or existing.source~=recipients[id]
+            or existing.originSource~=recipients[id] or existing.originId~=id
+            or existing.acquiredAt~=observation.at or existing.originAcquiredAt~=observation.at)then
+            return false,"utility-transfer-replay-unavailable"
+        end
     end
+    if utilityRetiredReplay then return true,"already-recorded-utility-transfer"end
     for id, source in pairs(recipients) do
         fact.source, fact.originSource, fact.originId = source, source, id
         fact.appraisal = source == "observed" and appraisals and appraisals[id] or nil
         rememberTransfer(id, fact)
+        if utility and id==receipt.actorId then
+            local held=P.beliefs[id]and P.beliefs[id].transfers and P.beliefs[id].transfers[fact.eventId]
+            -- Actor-only provenance stays in the existing saved transfer fact.
+            -- transferCopy omits it from queries, witnesses and every telling.
+            if held and not held.utilityAcquisition then held.utilityAcquisition=utilityProvenance end
+        end
         if source == "observed" and SAO.Cognition and not ingredient then
             pcall(SAO.Cognition.experience, id, {
                 id = "world-transfer/" .. receipt.reservationId,
@@ -5130,6 +5215,29 @@ function P.garmentForResult(id,body,workId)
  if not ok or not collectorObserver(id,body)then return nil end
  if not native then return nil,workFactCopy(known),"current-native-result-refused"end
  return native,workFactCopy(known)
+end
+
+-- Existing canonical outcomes authorize a source inquiry or established line.
+function P.generatorServiceEvidence(id,generatorFact,consumerFact)
+ local rec=SAO.Identity.get(id);local owner=SAO.Generator
+ if not rec or not owner or not owner.outcome then return nil end
+ for i=#(rec.generatorOutcomes or{}),1,-1 do
+  local saved=rec.generatorOutcomes[i];local row=owner.outcome(id,saved.id)
+  if row and row.status=="completed"and row.nativeCredit==row.id and row.bodyToken==rec.bodyOwnerToken
+   and row.generator and row.generator.sourceId==generatorFact.sourceId and row.generator.fingerprint==generatorFact.fingerprint
+   and row.consumer and row.consumer.sourceId==consumerFact.sourceId and row.consumer.fingerprint==consumerFact.fingerprint then
+   if row.operation=="inspect"and row.nativeOwner=="ISGeneratorInfoAction/SAO.Generator"then return {id=row.id,kind="inquiry"}end
+   if row.operation=="plumb"and row.nativeOwner=="SAO.Generator/ConnectSupply"and row.afterPlumbed==true then return {id=row.id,kind="connection"}end
+  end
+ end
+ return nil
+end
+function P.rememberGeneratorService(id,body,generatorFact,consumerFact,tick)
+ local now=SAO.History and SAO.History.ticks and SAO.History.ticks()
+ if not finiteSoundNumber(now)or tick~=nil and tick~=now then return false end
+ local anchor,reason,reassessment=SAO.WorldSources.observeGeneratorService(id,body,generatorFact,consumerFact)
+ if reassessment then P.learnInspectedSource(id,reassessment,reassessment.sourceId,now,"native-generator-service-reassessment")end
+ return anchor and P.learnInspectedSource(id,anchor,anchor.sourceId,now,"native-generator-service-inquiry")or false
 end
 
 return P

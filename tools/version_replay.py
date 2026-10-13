@@ -186,11 +186,12 @@ POST_C_UNITS = [
     ('D3.20', 'kohai', 'Ordinary private missing-workspace demand joins actual logging, exact native dropped-input acquisition and SawLogs stock, original full paid native construction, canonical persisted result relationship and cold current workspace to the original crafting/upkeep use, independent feedback and interrupted/rebound/replay continuity. Useful progress within unfinished full D3; complete source/service/authority and shared learning obligations remain.'),
     ('D3.21', 'kohai', 'Original native furnishing factory final results and exact partial-use payment join ordinary private source inquiry/material acquisition/default choice, paid Stool construction, current and cold canonical native surface, original Whetstone/Scissors use, source-aware independent feedback and saved once-only continuity. Useful progress within unfinished full D3; source/service/authority and shared model adoption remain.'),
     ('D3.22', 'kohai', 'Ordinary privately observed worn-garment upkeep joins default choice, signed source material acquisition, original repair/removal payment and canonical native item lineage, cold current wearer, same-purpose preparatory upgrade continuation, independent exact target protection use, private feedback and once-only replay. Useful progress within unfinished complete D3; remaining services, authority and shared model adoption retain owners.'),
+    ('D4', 'kohai', 'Original owned existing-household service joins private inquiry and exact means/knowledge acquisition, guarded native connection, conserved fuel/power/purified-water use, same-purpose closure and independent saved models. This completes the finite D4 delivery as coherent progress within unfinished household utilities across D4-D6; paid networks and managed load remain, so one kohai applies irrespective of numbered-batch organization.'),
 ]
 # A closed parent that only aggregates previously credited descendants maps to
 # their exact credit-owner IDs. It is a chronological record, never a new tier.
 POST_C_AGGREGATIONS = {"D3": ['D3.1', 'D3.2', 'D3.3', 'D3.4', 'D3.5', 'D3.6', 'D3.7', 'D3.8', 'D3.9', 'D3.10', 'D3.11', 'D3.12', 'D3.13', 'D3.14', 'D3.15', 'D3.16', 'D3.17', 'D3.18', 'D3.19', 'D3.20', 'D3.21', 'D3.22']}
-NEXT_BATCH = "D4"
+NEXT_BATCH = "D5"
 
 
 def parse_version(text):

@@ -2811,16 +2811,46 @@ function Ctl.advanceResourcePurpose(id, agent, body, tick, needs)
     return false
 end
 
+-- A blocked water purpose can investigate a currently reached native pump.
+-- Direct acquisition/refill keeps priority, and observing the pump discloses no supplier stock.
+function Ctl.waterGeneratorIntent(id, body)
+    local planning, world, perception = SAO.ProceduralPlanning, SAO.WorldSources, SAO.Perception
+    local water, step = planning.resourceDemand(id, "water")
+    if not water or type(water.steps)~="table" or getmetatable(water.steps) or water.admission
+        or step and (step.status == "available" or step.acquiredItemId)
+        or not step and #water.steps~=0 or not world.generatorConsumer or not perception.rememberGeneratorConsumer then return nil end
+    local cell, current = body:getCell(), body:getCurrentSquare()
+    if not cell or not current then return nil end
+    local chosen, distance
+    for dx=-1,1 do for dy=-1,1 do
+        local square=cell:getGridSquare(current:getX()+dx,current:getY()+dy,current:getZ())
+        local objects=square and square:getObjects()
+        if objects then for index=0,objects:size()-1 do
+            local object=objects:get(index)
+            local fact=world.generatorConsumer(body,object)
+            if fact and fact.generatorPump==true and fact.powered==false
+                and SAO.Standing.mayAttemptBelieved(id,fact.x,fact.y,"standing")==true
+                and perception.rememberGeneratorConsumer(id,body,object) then
+                local d=(body:getX()-fact.x)^2+(body:getY()-fact.y)^2
+                if not chosen or d<distance then chosen,distance=fact,d end
+            end
+        end end
+    end end
+    return chosen and {consumer=chosen,requestingPurposeId=water.id,requestingPurposeStepId=step and step.id,
+        requestingPurposeRevision=water.revision,requestingPurposeCursor=water.cursor,requestingEmptyPlan=step==nil,
+        requestingActivity="hydration",fuelService=true} or nil
+end
 function Ctl.generatorContext(id, agent, body, tick, needs, intent)
     local context = { intent = intent, atHours = SAO.History.countyHours(), tick = tick,
         position = { x=body:getX(),y=body:getY(),z=body:getZ() }, needs = needs,
-        pressure = math.min(1, math.max(0, needs and needs.hunger or 0) / math.max(.1,SAO.Disposition.eatAt(id))*.5),
+        pressure = math.min(1, math.max(0, needs and (intent.requestingActivity=="hydration" and needs.thirst or needs.hunger) or 0)
+            / math.max(.1,intent.requestingActivity=="hydration" and SAO.Disposition.drinkAt(id) or SAO.Disposition.eatAt(id))*.5),
         options = SAO.Generator.options(id, body, intent), sources = {} }
     local categories = {}
     for _, option in ipairs(context.options or {}) do
         if option.materialCategory and not option.inputItemId then categories[option.materialCategory] = true end
     end
-    for _, category in ipairs({ "generator-manual", "electronics-scrap", "petrol" }) do
+    for _, category in ipairs({ "generator-manual", "electronics-scrap", "petrol", "pipe-wrench" }) do
         if categories[category] then
             for _, source in ipairs(Ctl.resourceContext(id,agent,body,needs or {},category,context.pressure).sources) do
                 if #context.sources < 128 then context.sources[#context.sources+1] = source end
@@ -2872,7 +2902,7 @@ function Ctl.advanceGeneratorPurpose(id, agent, body, tick, needs)
     local food, foodStep = planning.resourceDemand(id,"food")
     local context = food and {purposeId=food.id,acquiredItemId=foodStep and foodStep.acquiredItemId,privateFood=true}
     local intent = context and SAO.Cooking and SAO.Cooking.powerDemand and SAO.Cooking.powerDemand(id,body,context)
-    intent = intent or agent.rec.cookingPowerDemand or retained and retained.generatorPower
+    intent = intent or Ctl.waterGeneratorIntent(id,body) or agent.rec.cookingPowerDemand or retained and retained.generatorPower
     if not intent then return false end
     if retained and intent.consumer and retained.generatorPower.consumer.sourceId == intent.consumer.sourceId then
         intent.generator = retained.generatorPower.generator
@@ -2884,9 +2914,33 @@ function Ctl.advanceGeneratorPurpose(id, agent, body, tick, needs)
     end
     agent.nextGeneratorAt = tick+600
     if SAO.Perception.observeGenerators then SAO.Perception.observeGenerators(id,body,SAO.History.ticks()) end
+    if intent.fuelService==true and SAO.Perception.rememberGeneratorService then
+        -- Only the canonical completed inquiry or connection authorizes supplier acquisition.
+        for _,place in pairs(SAO.Perception.knownPlaces(id,true) or {}) do
+            for _,fact in pairs(place.sourceFacts or {}) do
+                if type(fact.sourceId)=="string" and fact.sourceId:sub(1,2)=="J:"
+                    and (not intent.generator or fact.sourceId==intent.generator.sourceId) then
+                    SAO.Perception.rememberGeneratorService(id,body,fact,intent.consumer,SAO.History.ticks())
+                end
+            end
+        end
+    end
     local purpose, step = planning.planGenerator(id,Ctl.generatorContext(id,agent,body,tick,needs,intent))
-    if not purpose or not step or step.status ~= "available" then return false end
-    if step.owner == "SAO.SourceUse" and step.verb == "acquire" then
+    if not purpose or not step then return false end
+    if step.status~="available" then
+        local candidate=SAO.WorldSources.inspectionCandidate(id,body,"standing",SAO.Needs.PERCEPTION_TILES)
+        step=candidate and planning.prepareGeneratorInspection(id,purpose.id,candidate)
+        if not step then return false end
+    end
+    if step.owner=="SAO.WorldSources" and step.verb=="inspect" then
+        local candidate=SAO.WorldSources.inspectionCandidate(id,body,"standing",SAO.Needs.PERCEPTION_TILES,step.sourceId)
+        if candidate and SAO.WorldSources.beginPurposeInspection(id,body,candidate,purpose.id,step.id) then
+            return beginContainerInspection(id,agent,body,0,step.category=="generator-manual" and "a generator manual"
+                or step.category=="pipe-wrench" and "a pipe wrench" or "generator supplies",tick,candidate)
+        end
+        planning.deferGenerator(id,purpose.id,step.id,"the retained generator dependency holder could not be inspected")
+        return false
+    elseif step.owner == "SAO.SourceUse" and step.verb == "acquire" then
         local started = SAO.SourceUse.beginAcquisition(id,body,step.place,step.category,{
             purposeId=purpose.id,purposeStepId=step.id,sourceId=step.sourceId,sourceRevision=step.sourceRevision,
             itemId=step.itemId,itemType=step.itemType})

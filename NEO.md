@@ -60,7 +60,7 @@ and remain inside the human behavioral envelope regardless of skill.
   requirements. Neo reconstructs accumulated verification and keeps the current
   description accurate using `neo-verification-assessment`. The operator plays
   the aggregate build and supplies ordinary feedback.
-- **Work organization and delivery.** Granular, Emmetropic and Beacon shape actual development and creation of batches. The claimed posture must agree with the work pattern and batch map. D is the broad development grouping; a numbered batch is a finite substantial outcome and children are useful subdivisions. Emmetropic development takes connected producer/consumer/integration work together. Shared contracts connect batches. Follow GOVERNANCE and the current ROADMAP, preserving sufficient proof, historical identities and once-only credit.
+- **Work organization and delivery.** Granular, Emmetropic and Beacon shape actual development and creation of batches. The claimed posture must agree with the work pattern and batch map. D is the broad development grouping; a numbered batch is a finite substantial outcome and children are useful subdivisions. Beacon planning can contain Emmetropic batches and optional Granular subdivision orders; agents select actual development at any level and retain its integration obligations. D4 takes connected producer/consumer/integration work together. Shared contracts connect batches. Follow GOVERNANCE and the current ROADMAP, preserving sufficient proof, historical identities and once-only credit.
 - **Scope refinement.** Product outcomes cover their whole relevant installed
   native/modded domain and adjacent mechanics. Examples guide discovery;
   substantive scope becomes clearer through implementation. Shared-contract

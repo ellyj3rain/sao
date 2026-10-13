@@ -447,6 +447,20 @@ SCOPED['d3_garment_consumer_test.py'] = (
     'always fail. Normal death, external ownership transfer, queued request '
     'revocation and full server/cold-world lifecycle retain their declared evidence bounds.')
 
+SCOPED['d3_utility_consumer_test.py'] = (
+    'D4 actual private inquiry/manual/wrench acquisition, normally loaded owned '
+    'household producer, native generator connection/plumbing, finite fuel/power and effective '
+    'native water use through authenticated retained-purpose closure and separate '
+    'C feedback. Normal/parent-revoked/source-removed/native-swapped/cancel and three '
+    'hydration-current/native-instance/obsolete-stop omissions retain exact queue, '
+    'native handle, source and original purpose authority. Producer-callback and '
+    'purification-capacity controls detect absent real service and native sample '
+    'loss; their selected source is the one actually loaded. Snapshot-source consumes '
+    'the normal produced receipt for data-only exact record/native save/full equality '
+    'and original bounded snapshot; it repeats no physical action. Primitive save '
+    'does not establish full-world/server/renderer acceptance. Missing owned inputs '
+    'always fail; optional installed absence is NATIVE_UNAVAILABLE and required fails.')
+
 FAILS = re.compile(r"return 1\b|sys\.exit\(1\)|else 1\b")
 
 
@@ -861,6 +875,17 @@ def ci_plan(changes, root=ROOT):
     if controls:
         required.insert(0, {"path": "tools/gate_reach_test.py", "args": ["--ci-controls"],
                             "reasons": ["changed executable CI routing contract"]})
+    # The data-only utility snapshot consumes the preceding normal route output.
+    for lane_rows in (required, advisory):
+        normal = next((index for index,row in enumerate(lane_rows)
+                       if pathlib.PurePosixPath(row["path"]).name == "d3_utility_consumer_test.py"
+                       and "--case" in row["args"] and row["args"][row["args"].index("--case")+1] == "normal"
+                       and "--control" not in row["args"] and "--snapshot-source" not in row["args"]), None)
+        for index,row in enumerate(lane_rows):
+            if pathlib.PurePosixPath(row["path"]).name == "d3_utility_consumer_test.py" and "--snapshot-source" in row["args"]:
+                if normal is None or normal >= index:
+                    raise ValueError("utility snapshot route has no preceding selected normal producer")
+                row["producerRouteIndex"] = normal
     return {"schema": 1, "comparison": "full base...HEAD", "changedInputs": changes,
             "pythonParse": python, "changedLua": lua, "required": required,
             "advisory": advisory, "unresolvedNativeDependencies": unknown,
@@ -898,6 +923,9 @@ def ci_argv(row, output):
     for index, arg in enumerate(args):
         if index and args[index - 1] in {"--output", "--out", "--output-dir"}:
             args[index] = str(output / ("proofs/" + str(row["id"])))
+        elif index and args[index-1] == "--snapshot-source" and "producerRouteIndex" in row:
+            lane = str(row["id"]).rsplit("-",1)[0]
+            args[index] = str(output / "proofs" / (lane + "-" + str(row["producerRouteIndex"])) / "receipt.json")
         elif "$" in arg:
             raise ValueError("unresolved standing command argument: " + arg)
     if row.get("unittestDiscovery"):
