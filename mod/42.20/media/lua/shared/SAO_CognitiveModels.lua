@@ -14,7 +14,7 @@ local FRAME_KEYS = { id=true, actorId=true, worldHours=true, hunger=true,
     thirst=true, fatigue=true, eatAt=true, drinkAt=true, foodAllowed=true,
     waterAllowed=true, inspectionAllowed=true, knownFood=true, knownWater=true,
     knownPlaces=true, capabilities=true, priorIntent=true }
-local EVENT_KEYS = { garmentUse=true, garmentWork=true, physicalWork=true, id=true, actorId=true, observerId=true, worldHours=true, consumerId=true,
+local EVENT_KEYS = { generatorPlumbing=true, garmentUse=true, garmentWork=true, physicalWork=true, id=true, actorId=true, observerId=true, worldHours=true, consumerId=true,
     entityId=true, recipeId=true, originalFixtureSourceId=true,
     siteKey=true, siteX=true, siteY=true, siteZ=true, feedsFixture=true,
     kind=true, category=true, sourceId=true, itemType=true, perspective=true,
@@ -174,11 +174,11 @@ local function validFrame(f)
     end
     return f.priorIntent==nil or action(f.priorIntent)
 end
-local GENERATOR_EVENT_KEYS = {id=true, actorId=true, observerId=true, worldHours=true,
+local GENERATOR_EVENT_KEYS = {generatorPlumbing=true,id=true, actorId=true, observerId=true, worldHours=true,
     occurredAtHours=true, kind=true, category=true, sourceId=true, consumerId=true,
     perspective=true, status=true, actionKind=true, succeeded=true,
     itemId=true, itemType=true, beforeValue=true, afterValue=true, capabilities=true}
-local GENERATOR_OPERATIONS = {inspect=true, repair=true, fuel=true, connect=true,
+local GENERATOR_OPERATIONS = {inspect=true, repair=true, fuel=true, connect=true,plumb=true,
     activate=true, ["verify-power"]=true}
 local function physicalData(v,depth,budget,seen)
     depth,budget,seen=depth or 0,budget or {left=4096},seen or {}
@@ -438,6 +438,7 @@ local function validEvent(e)
         or (e.status~="completed" and e.status~="no-effect"
             and e.status~="interrupted" and e.status~="unavailable")
         or (e.perspective~="performed" and e.perspective~="observed") then return false end
+    if e.generatorPlumbing~=nil and e.kind~="generator-operation"then return false end
     if e.kind=="garment-use"then return garmentUseEvent(e)end
     if e.garmentUse~=nil then return false end
     if e.kind=="garment-maintenance"then return garmentMaintenanceEvent(e)end
@@ -481,6 +482,20 @@ local function validEvent(e)
             or not text(e.consumerId,160) or e.consumerId:sub(1,2)~="E:"
             or not GENERATOR_OPERATIONS[e.actionKind] or e.succeeded~=true
             or e.capabilities~=nil and not capabilities(e.capabilities) then return false end
+        if e.actionKind=="plumb" then
+            local w=e.generatorPlumbing
+            return plainKeys(w,{beforePlumbed=true,afterPlumbed=true,inputRetained=true,
+                beforeInputCondition=true,afterInputCondition=true,beforeInputUses=true,afterInputUses=true})
+                and w.beforePlumbed==false and w.afterPlumbed==true and w.inputRetained==true
+                and finite(w.beforeInputCondition) and w.beforeInputCondition>=0 and w.beforeInputCondition<=1000000000
+                and w.afterInputCondition==w.beforeInputCondition
+                and finite(w.beforeInputUses) and w.beforeInputUses>=0 and w.beforeInputUses<=1000000000
+                and w.afterInputUses==w.beforeInputUses
+                and finite(e.itemId) and e.itemId==math.floor(e.itemId)
+                and e.itemId>=-2147483648 and e.itemId<=2147483647 and text(e.itemType,160)
+                and e.beforeValue==nil and e.afterValue==nil
+        end
+        if e.generatorPlumbing~=nil then return false end
         if e.actionKind=="repair" or e.actionKind=="fuel" then
             local maximum=e.actionKind=="repair" and 100 or 10
             return finite(e.itemId) and e.itemId==math.floor(e.itemId)

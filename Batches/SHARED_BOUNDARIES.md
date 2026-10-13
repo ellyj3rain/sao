@@ -60,3 +60,7 @@ D can work independently within a boundary after its required inputs and output 
 ## Historical generations
 
 [Original 127-to-50 mapping](C_RECATALOG.json), [pre-migration 120-record chronology](history/c-20261003-source/BATCH_LOG.md), [complete current mapping](C_SHARED_BOUNDARIES.json), and [former-label navigation](FORMER_LABELS.md) preserve the distinction between history, current contracts and future work.
+
+## D4 existing household service integration - 2026-10-13
+
+[D4](D4-20261013-0433Z-2133PDT-household-water-power-restoration.md) joins privately acquired source and means, retained purpose, original owned existing-network service, native fuel/power/purified-water use and independent saved feedback. D is the Beacon plan, its finite numbered outcomes form the Emmetropic batch order, and optional Granular subdivision remains available under the current work contract. D4's connected development has no new child. D5/D6 retain paid network and managed electricity; D11 retains broader authoritative deployment. Shared full/bounded experience and Speakeasy/ZAO model dependencies retain source, owner and adoption standing independently of local proof.

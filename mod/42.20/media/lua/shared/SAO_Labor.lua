@@ -657,6 +657,13 @@ local function utilityFact(id, anchor, prefix)
             for _, key in ipairs({ "inspected", "condition", "fuel", "maxFuel", "connected", "active", "outside", "powered" }) do
                 if type(fact[key]) == "boolean" or finite(fact[key]) then out[key] = fact[key] end
             end
+            for _, key in ipairs({ "plumbed", "fuelServiceEligible", "serviceKnowledgeRequired", "generatorPump" }) do
+                if type(fact[key]) == "boolean" then out[key] = fact[key] end
+            end
+            for _, key in ipairs({ "serviceRevision", "serviceConsumerId", "serviceEvidenceId", "serviceEvidenceKind" }) do
+                local value = fact[key]
+                if type(value) == "string" and #value > 0 and #value <= 256 then out[key] = value end
+            end
             return out
         end
     end
@@ -669,14 +676,14 @@ function Labor.assessUtility(id, context)
     local consumer = utilityFact(id, intent.consumer, "E:")
     if not consumer then return nil, "private-consumer-unavailable" end
     local out = { pressure = unit(context.pressure) or 0, options = {}, sources = {}, consumer = consumer }
-    local categories = { ["electronics-scrap"] = true, petrol = true, ["generator-manual"] = true }
+    local categories = { ["electronics-scrap"] = true, petrol = true, ["generator-manual"] = true, ["pipe-wrench"] = true }
     for index, source in ipairs(type(context.sources) == "table" and context.sources or {}) do
         if index > 128 then break end
         if type(source) == "table" and categories[source.category] and source.known == true
             and finite(source.itemId) and short(source.itemType) and short(source.sourceId) and short(source.revision)
             and inspectedPlace(id, source.place) and privateSource(id, source) then out.sources[#out.sources+1] = source end
     end
-    local operations = { inspect=true,repair=true,fuel=true,connect=true,activate=true,["verify-power"]=true }
+    local operations = { inspect=true,repair=true,fuel=true,connect=true,activate=true,["verify-power"]=true,plumb=true }
     local social = socialAppraisal(id, "utilities", context.atHours)
     for index, option in ipairs(type(context.options) == "table" and context.options or {}) do
         if index > 16 then break end

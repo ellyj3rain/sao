@@ -2873,6 +2873,51 @@ if ! "$PY" tools/d3_garment_consumer_test.py --case final-contracts --control re
     note "BORDER FINDING - zero restoration forecast omission was not detected"
     fail=1
 fi
+# D4 owned household service: normal producer owns the data-only export.
+if ! "$PY" tools/d3_utility_consumer_test.py --case normal --out "$sao_d3_proof/utility-normal"; then
+    note "BORDER FINDING - original utility normal outcome differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --case parent-revoked --out "$sao_d3_proof/utility-parent-revoked"; then
+    note "BORDER FINDING - original utility parent-revoked outcome differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --case source-removed --out "$sao_d3_proof/utility-source-removed"; then
+    note "BORDER FINDING - original utility source-removed outcome differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --case native-swapped --out "$sao_d3_proof/utility-native-swapped"; then
+    note "BORDER FINDING - original utility native-swapped outcome differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --case cancel --out "$sao_d3_proof/utility-cancel"; then
+    note "BORDER FINDING - original utility cancel outcome differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --control hydration-current --out "$sao_d3_proof/utility-hydration-current-control"; then
+    note "BORDER FINDING - utility hydration-current omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --control native-instance --out "$sao_d3_proof/utility-native-instance-control"; then
+    note "BORDER FINDING - utility native-instance omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --control obsolete-stop --out "$sao_d3_proof/utility-obsolete-stop-control"; then
+    note "BORDER FINDING - utility obsolete-stop omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --control producer-callback --out "$sao_d3_proof/utility-producer-control"; then
+    note "BORDER FINDING - owned household producer omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --control purification-capacity --out "$sao_d3_proof/utility-purification-control"; then
+    note "BORDER FINDING - native purification capacity omission was not detected"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --snapshot-source "$sao_d3_proof/utility-normal/receipt.json" --out "$sao_d3_proof/utility-snapshots"; then
+    note "BORDER FINDING - original utility full and bounded snapshot export differs"
+    fail=1
+fi
 if ! "$PY" tools/d3_material_categories_test.py --out "$sao_d3_proof/materials"; then
     note "BORDER FINDING - exact native construction-material admission differs"
     fail=1

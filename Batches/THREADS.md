@@ -112,3 +112,7 @@ The county's wire and every other channel that carries knowledge between people.
 **Batches**: `A26`, `B18`, `B27`, `B29`, `B46`, `C2`, `C16`
 
 **Owes**: Current per-contract obligations and dependencies are recorded in [the shared-boundary map](SHARED_BOUNDARIES.md). Earlier thread obligations remain in the [source snapshot](history/c-20261003-source/Batches/THREADS.md).
+
+## D4 existing household service integration - 2026-10-13
+
+[D4](D4-20261013-0433Z-2133PDT-household-water-power-restoration.md) joins privately acquired source and means, retained purpose, original owned existing-network service, native fuel/power/purified-water use and independent saved feedback. D is the Beacon plan, its finite numbered outcomes form the Emmetropic batch order, and optional Granular subdivision remains available under the current work contract. D4's connected development has no new child. D5/D6 retain paid network and managed electricity; D11 retains broader authoritative deployment. Shared full/bounded experience and Speakeasy/ZAO model dependencies retain source, owner and adoption standing independently of local proof.

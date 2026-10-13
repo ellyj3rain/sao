@@ -1548,14 +1548,14 @@ function C.generatorOutcome(id, receipt)
     if not canonical or not sameData(canonical,receipt) then return false,"generator-owner-unavailable" end
     if receipt.status~="completed" then return true,"unfinished-utility-retained-by-planner" end
     local tokens={inspect="utility:generator-inspected",repair="utility:generator-repaired",
-        fuel="utility:generator-fuelled",connect="utility:generator-connected",
+        fuel="utility:generator-fuelled",connect="utility:generator-connected",plumb="utility:generator-plumbed",
         activate="utility:generator-activated",["verify-power"]="utility:consumer-powered"}
     local operation=receipt.operation
     local nativeOwners={inspect="ISGeneratorInfoAction/SAO.Generator",repair="ISFixGenerator",
-        fuel="ISAddFuel",connect="ISPlugGenerator",activate="ISActivateGenerator",
+        fuel="ISAddFuel",connect="ISPlugGenerator",plumb="SAO.Generator/ConnectSupply",activate="ISActivateGenerator",
         ["verify-power"]="SAO.Generator/NativePower"}
     if not tokens[operation] or receipt.token~=tokens[operation] or receipt.nativeCredit~=receipt.id
-        or receipt.nativeOwner~=nativeOwners[operation]
+        or (receipt.nativeOwner~=nativeOwners[operation]and not(operation=="plumb"and receipt.nativeOwner=="LGEEPlumbGeneratorAction"))
         or receipt.nativeCompleted~=true or not text(receipt.sourceId,160) or receipt.sourceId:sub(1,2)~="J:"
         or not text(receipt.consumerId,160) or receipt.consumerId:sub(1,2)~="E:" then return false end
     local x=privateFact(id,"generator-operation","utilities",receipt.id,now,receipt.atHours)
@@ -1580,6 +1580,20 @@ function C.generatorOutcome(id, receipt)
                     -(receipt.beforeInputAmount-receipt.afterInputAmount))>0.0001 then return false end
             x.beforeValue,x.afterValue=receipt.beforeFuel,receipt.afterFuel
         end
+    elseif operation=="plumb" then
+        local itemId=tonumber(receipt.inputItemId)
+        if receipt.nativeAttempted~=true or receipt.beforePlumbed~=false or receipt.afterPlumbed~=true
+            or receipt.afterConnected~=true or receipt.inputRetained~=true
+            or not finite(itemId,-2147483648,2147483647) or itemId~=math.floor(itemId)
+            or not text(receipt.inputItemType,160)
+            or not finite(receipt.beforeInputCondition,0,1000000000)
+            or receipt.afterInputCondition~=receipt.beforeInputCondition
+            or not finite(receipt.beforeInputUses,0,1000000000)
+            or receipt.afterInputUses~=receipt.beforeInputUses then return false end
+        x.itemId,x.itemType=itemId,receipt.inputItemType
+        x.generatorPlumbing={beforePlumbed=false,afterPlumbed=true,inputRetained=true,
+            beforeInputCondition=receipt.beforeInputCondition,afterInputCondition=receipt.afterInputCondition,
+            beforeInputUses=receipt.beforeInputUses,afterInputUses=receipt.afterInputUses}
     elseif operation=="connect" then
         if receipt.nativeAttempted~=true or receipt.beforeConnected~=false or receipt.afterConnected~=true then return false end
     elseif operation=="activate" then

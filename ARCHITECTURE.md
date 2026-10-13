@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.5.0-pre-alpha` |
+| Version | `2.7.6.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2522,3 +2522,7 @@ Existing ResourceProduction captures the original native prop return or explicit
 ## Worn garment service and independent protection (D3.22)
 
 Private Perception acquires actual worn Clothing/covered-part/source and mutable native state. Planner and Controller retain the personal concern, default choice and exact nonrecipe material roles through existing signed SourceUse. The existing ResourceProduction capsule owns original RepairClothing/RemovePatch, measured payment/effect and native per-part persisted canonical work relation. Preparatory removal refreshes the same purpose instead of entering a benefit step. Current and cold exact native target matching guards separate use; original Clothing.getDefForPart plus the native visual-hole condition supplies target protection, while aggregate wearer defense remains an observation. Canonical physical and independent use feedback keep their full private projections and source-aware validation. [D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) is useful progress within OPEN D3; washing/filter/other equipment and complete utility/authority consumers remain.
+
+### Existing household service restoration (D4)
+
+SAO_HouseholdService owns exact loaded saved pipe membership, existing native header relationships and single-provider finite fuel/water transfer. WorldSources Java/Lua and Perception acquire actor-private service facts; ProceduralPlanning and Controller retain the original hydration purpose through inquiry, exact means, native knowledge and Generator service. Generator owns the connection action and current source/Standing/native queue guards. Needs performs bounded native purifier transfers and measured drinking; Cognition and CognitiveModels preserve independent interpretation and both private models. The normal startup owns one callback and requires no external utility producer. Actual external ownership and legacy saved geometry remain compatibility surfaces; unknown geometry or an unavailable native header refuses physical work. D5/D6 retain network construction and managed distribution contracts. [D4](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md) supplies the current evidence and limits.

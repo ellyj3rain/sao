@@ -625,6 +625,108 @@ function P.resourceDemand(id, category, ordinaryOnly)
     end
 end
 
+-- Direct relief belongs to the original ordinary purpose, separately from stock.
+local HydrationPlanning = {}
+function HydrationPlanning.body(id,body)
+    local rec=record(id)
+    if not rec or not SAO.Needs or not SAO.Needs.ownsRecoveryBody
+        or SAO.Needs.ownsRecoveryBody(id,body)~=true then return nil end
+    local ok,world=pcall(function() return getWorld():getWorld() end)
+    if not ok or type(world)~="string" or #world==0 or #world>256 then return nil end
+    return rec,world
+end
+function P.hydrationUseRequest(id,body)
+    local rec,world=HydrationPlanning.body(id,body)
+    local purpose,step=P.resourceDemand(id,"water",true)
+    if not rec or not purpose or purpose.resourceOutcome or purpose.admission
+        or type(purpose.steps)~="table" or getmetatable(purpose.steps)
+        or not finite(purpose.revision) or purpose.revision<1 or purpose.revision%1~=0
+        or not finite(purpose.cursor) or purpose.cursor<1 or purpose.cursor%1~=0
+        or step and (type(step)~="table" or type(step.id)~="string") then return nil end
+    return {schema="sao.hydration-request/1",actorId=id,purposeId=purpose.id,
+        purposeRevision=purpose.revision,purposeCursor=purpose.cursor,
+        purposeStepId=step and step.id or nil,bodyToken=rec.bodyOwnerToken,
+        world=world,admittedAt=nowHours()}
+end
+function P.hydrationRequestCurrent(id,body,request)
+    if type(request)~="table" or getmetatable(request) or request.schema~="sao.hydration-request/1"
+        or request.actorId~=id or type(request.purposeId)~="string"
+        or not finite(request.admittedAt) or request.admittedAt<0 or request.admittedAt>nowHours() then return false end
+    local rec,world=HydrationPlanning.body(id,body)
+    local s=state(id)
+    local purpose=s and s.purposes[request.purposeId]
+    local step=purpose and purpose.steps and purpose.steps[purpose.cursor]
+    return rec~=nil and world==request.world and rec.bodyOwnerToken==request.bodyToken
+        and purpose~=nil and purpose.resourceCategory=="water" and not purpose.resourceOutcome
+        and purpose.status~="completed" and purpose.status~="abandoned" and not purpose.admission
+        and type(purpose.steps)=="table" and not getmetatable(purpose.steps)
+        and finite(purpose.revision) and purpose.revision>=1 and purpose.revision%1==0
+        and finite(purpose.cursor) and purpose.cursor>=1 and purpose.cursor%1==0
+        and purpose.revision==request.purposeRevision and purpose.cursor==request.purposeCursor
+        and (step and step.id or nil)==request.purposeStepId
+end
+function P.consumeHydrationUse(id,action)
+    local needs=SAO.Needs
+    local row=needs and needs.hydrationUseOutcome and needs.hydrationUseOutcome(id,action)
+    if type(row)~="table" or getmetatable(row) or row.actorId~=id or row.kind~="hydration-use"
+        or row.nativeOwner~="ISTakeWaterAction" or row.status~="completed" or row.nativeCredit~=row.id
+        or type(row.request)~="table" or getmetatable(row.request) then return false end
+    local request=row.request
+    local s=state(id)
+    local purpose=s and s.purposes[request.purposeId]
+    if not purpose or request.actorId~=id or type(request.purposeId)~="string" or not finite(request.purposeRevision)
+        or not finite(request.purposeCursor)
+        or row.id~="hydration-use/"..request.purposeId.."/"..request.purposeRevision.."/"..request.purposeCursor
+        or row.world~=request.world or row.bodyToken~=request.bodyToken then return false end
+    -- A retained identical native receipt has already resolved this exact goal.
+    if purpose.status=="completed" and purpose.hydrationUseReceipt then
+        local prior=purpose.hydrationUseReceipt
+        for _,key in ipairs({"id","actorId","kind","nativeOwner","status","nativeCredit","world","bodyToken",
+            "startedAt","atHours","beforeThirst","afterThirst","thirstDelta"}) do
+            if prior[key]~=row[key] then return false end
+        end
+        for _,key in ipairs({"schema","actorId","purposeId","purposeRevision","purposeCursor",
+            "purposeStepId","bodyToken","world","admittedAt"}) do
+            if not prior.request or prior.request[key]~=request[key] then return false end
+        end
+        return true
+    end
+    local body=SAO.Body and SAO.Body.get and SAO.Body.get(id)
+    if not P.hydrationRequestCurrent(id,body,request)
+        or not finite(row.startedAt) or row.startedAt<request.admittedAt
+        or not finite(row.atHours) or row.atHours<row.startedAt or row.atHours>nowHours()
+        or not finite(row.beforeThirst) or row.beforeThirst<0 or row.beforeThirst>1
+        or not finite(row.afterThirst) or row.afterThirst<0 or row.afterThirst>1
+        or not finite(row.thirstDelta) or row.thirstDelta<=0.0001
+        or math.abs(row.thirstDelta-(row.beforeThirst-row.afterThirst))>0.000001 then return false end
+    local threshold=SAO.Disposition and SAO.Disposition.drinkAt and SAO.Disposition.drinkAt(id)
+    local measured=needs.read and needs.read(body)
+    if not finite(threshold) or threshold<0 or threshold>1 or row.afterThirst>threshold
+        or not measured or not finite(measured.thirst)
+        or math.abs(measured.thirst-row.afterThirst)>0.000001 then return false end
+    for _,step in ipairs(purpose.steps) do
+        if step.status~="completed" then step.status,step.resolvedAt="not-required",row.atHours end
+    end
+    purpose.hydrationUseReceipt=dataCopy(row)
+    purpose.status,purpose.cursor,purpose.blockers="completed",#purpose.steps+1,{}
+    purpose.awaitingReassessment,purpose.awaitingStock=nil,nil
+    purpose.updatedAt,purpose.resolvedAt,purpose.resolution=row.atHours,row.atHours,"native-hydration-relief"
+    addEvent(purpose,"hydration-goal-satisfied","original native drinking measured relief of the retained need",row.atHours)
+    for _,utility in pairs(s.purposes) do
+        local requestPower=utility.generatorPower
+        if requestPower and requestPower.requestingActivity=="hydration" and requestPower.requestingPurposeId==purpose.id
+            and not utility.admission and utility.status~="completed" and utility.status~="abandoned" then
+            for _,step in ipairs(utility.steps or {}) do
+                if step.status~="completed" then step.status,step.resolvedAt="not-required",row.atHours end
+            end
+            utility.status,utility.blockers,utility.awaitingReassessment="abandoned",{},nil
+            utility.updatedAt,utility.resolvedAt,utility.resolution=row.atHours,row.atHours,"original-hydration-satisfied"
+            addEvent(utility,"utility-prerequisite-retired","native hydration satisfied the original purpose without further generator work",row.atHours)
+        end
+    end
+    return true
+end
+
 function P.residencePurpose(id)
     local s = state(id)
     local purpose = s and purposeByKey(s, "residence") or nil
@@ -1485,6 +1587,7 @@ end
 local GeneratorPlanning = {}
 GeneratorPlanning.tokens = { inspect = "utility:generator-inspected", repair = "utility:generator-repaired",
     fuel = "utility:generator-fuelled", connect = "utility:generator-connected",
+    plumb = "utility:generator-plumbed",
     activate = "utility:generator-activated", ["verify-power"] = "utility:consumer-powered",
     ["learn-generator"] = "utility:generator-known" }
 function GeneratorPlanning.anchor(value, prefix)
@@ -1554,7 +1657,7 @@ function P.planGenerator(id, context)
         requestingPurposeId = intent.requestingPurposeId, requestingActivity = intent.requestingActivity,
         foodItemId = intent.foodItemId, foodItemType = intent.foodItemType, applianceSourceId = intent.applianceSourceId }
     purpose.generatorPower.consumer = consumer
-    for _, field in ipairs({ "requestingPurposeId", "requestingActivity", "foodItemId", "foodItemType", "applianceSourceId" }) do
+    for _, field in ipairs({ "requestingPurposeId", "requestingActivity", "foodItemId", "foodItemType", "applianceSourceId", "fuelService", "requestingPurposeStepId", "requestingPurposeRevision", "requestingPurposeCursor", "requestingEmptyPlan" }) do
         purpose.generatorPower[field] = dataCopy(intent[field])
     end
     if purpose.awaitingReassessment then
@@ -1620,6 +1723,19 @@ function P.planGenerator(id, context)
     purpose.labor, purpose.appraisal, purpose.updatedAt = dataCopy(assessment.dimensions), selected and dataCopy(selected.appraisal), at
     return purpose, purpose.steps[purpose.cursor]
 end
+function P.prepareGeneratorInspection(id,purposeId,context)
+    local s=state(id);local p=s and s.purposes[purposeId];local current=p and p.steps[p.cursor]
+    if not p or not p.generatorPower or p.admission or p.status=="completed" or p.status=="abandoned"
+        or not current or current.status~="blocked" or not current.materialCategory or current.inputItemId
+        or not P.generatorRequestCurrent(id,{purposeId=p.id}) or type(context)~="table" or context.actorId~=id
+        or type(context.sourceId)~="string" or type(context.fingerprint)~="string"
+        or not finite(context.sourceX) or not finite(context.sourceY) or not finite(context.sourceZ) then return nil end
+    local step={id="generator-inspection:"..context.sourceId..":"..context.fingerprint,verb="inspect",owner="SAO.WorldSources",
+        token="resource:inspected",target=context.sourceId,sourceId=context.sourceId,fingerprint=context.fingerprint,
+        sourceX=context.sourceX,sourceY=context.sourceY,sourceZ=context.sourceZ,category=current.materialCategory,status="available"}
+    table.insert(p.steps,p.cursor,step);current.status="dependent";p.status="maintained";p.blockers={};p.revision=p.revision+1
+    return step
+end
 function P.deferGenerator(id, purposeId, stepId, reason)
     local s = state(id)
     local purpose = s and s.purposes[purposeId]
@@ -1648,9 +1764,27 @@ function GeneratorPlanning.attempt(id, work, reading)
         or work.inputItemType ~= step.inputItemType or work.materialCategory ~= step.materialCategory then return nil end
     return purpose, step
 end
+function P.generatorRequestCurrent(id, work)
+    if type(work) ~= "table" then return false end
+    local s=state(id)
+    local utility=s and s.purposes[work.requestedPurposeId or work.purposeId]
+    local request=utility and utility.generatorPower
+    if not request then return false end
+    if request.requestingActivity~="hydration" then return true end
+    local parent=s.purposes[request.requestingPurposeId]
+    local step=parent and parent.steps[parent.cursor]
+    if not parent or parent.resourceCategory~="water" or parent.status=="completed"
+        or parent.status=="abandoned" or parent.admission or type(parent.steps)~="table" or getmetatable(parent.steps)
+        or not finite(parent.cursor) or parent.cursor<1 or parent.cursor~=math.floor(parent.cursor) or not finite(parent.revision)
+        or parent.revision~=request.requestingPurposeRevision or parent.cursor~=request.requestingPurposeCursor then return false end
+    if request.requestingEmptyPlan==true then
+        return request.requestingPurposeStepId==nil and step==nil and type(parent.steps)=="table" and #parent.steps==0
+    end
+    return request.requestingEmptyPlan==false and step~=nil and step.id==request.requestingPurposeStepId
+end
 function P.admitGenerator(id, work)
     local purpose, step = GeneratorPlanning.attempt(id, work, false)
-    if not purpose or step.status ~= "available" or purpose.admission then return false end
+    if not purpose or step.status ~= "available" or purpose.admission or not P.generatorRequestCurrent(id,work) then return false end
     local accepted = P.noteAdmission(id, purpose.id, step.owner, work.id, step.id)
     if accepted then work.purposeId, work.purposeStepId = purpose.id, step.id end
     return accepted
@@ -1677,6 +1811,11 @@ function GeneratorPlanning.result(id, row, reading)
     if not finite(row.atHours) or not finite(row.startedAt) or row.startedAt > row.atHours
         or row.atHours < admission.at or row.atHours > nowHours() or row.endedAt ~= row.atHours
         or row.status ~= "completed" and row.status ~= "failed" and row.status ~= "interrupted" then return false end
+    if not reading and row.operation=="plumb"and row.nativeOwner=="LGEEPlumbGeneratorAction"then
+        purpose.admission=nil;purpose.awaitingReassessment=true;purpose.status="maintained"
+        addEvent(purpose,"historical-service-result-retired","previous external installation does not grant current owned service",row.atHours)
+        return true
+    end
     local completed = row.status == "completed"
     if completed then
         if reading then
@@ -1693,6 +1832,10 @@ function GeneratorPlanning.result(id, row, reading)
                 or row.afterFuel <= row.beforeFuel or not finite(row.maxFuel) or row.afterFuel > row.maxFuel
                 or not finite(row.beforeInputAmount) or not finite(row.afterInputAmount)
                 or row.afterInputAmount >= row.beforeInputAmount or row.inputRetained ~= true) then return false end
+            if row.operation == "plumb" and (row.nativeOwner ~= "SAO.Generator/ConnectSupply"
+                or row.beforePlumbed ~= false or row.afterPlumbed ~= true or row.afterConnected ~= true
+                or row.inputRetained ~= true or not finite(row.beforeInputCondition) or not finite(row.beforeInputUses)
+                or row.beforeInputCondition ~= row.afterInputCondition or row.beforeInputUses ~= row.afterInputUses) then return false end
             if row.operation == "connect" and (row.beforeConnected ~= false or row.afterConnected ~= true) then return false end
             if row.operation == "activate" and (row.beforeActive ~= false or row.afterActive ~= true or row.outside ~= true) then return false end
             if row.operation == "verify-power" and (row.sourceCovered ~= true or row.consumerPowered ~= true) then return false end
@@ -1745,6 +1888,14 @@ function GeneratorPlanning.result(id, row, reading)
                     foodItemId=request.foodItemId,foodItemType=request.foodItemType,applianceSourceId=request.applianceSourceId,
                     utilityWorkId=row.id,consumerId=request.consumer.sourceId,consumer=dataCopy(request.consumer)}
             end
+        end
+    end
+    if accepted and completed and step.operation == "verify-power" and purpose.generatorPower.requestingActivity == "hydration" then
+        local water = s.purposes[purpose.generatorPower.requestingPurposeId]
+        if water and water.resourceCategory == "water" and water.status ~= "completed" and water.status ~= "abandoned"
+            and not water.admission then
+            -- Power satisfies this prerequisite; the original owner still acquires and uses water.
+            water.awaitingReassessment = true
         end
     end
     return accepted
@@ -3826,7 +3977,7 @@ function P.noteAdmission(id, purposeId, owner, correlationId, stepId, authority)
     if purpose.hobby and authority ~= HOBBY_RESULT then return false end
     local step = purpose.steps[purpose.cursor]
     if purpose.generatorPower and (not step or step.status ~= "available" or step.owner ~= owner
-        or step.id ~= stepId or purpose.admission) then return false end
+        or step.id ~= stepId or purpose.admission or not P.generatorRequestCurrent(id,{purposeId=purpose.id})) then return false end
     if purpose.materialWork and (not step or step.status ~= "available" or step.owner ~= owner
         or stepId and stepId ~= step.id or step.verb == "acquire" and stepId ~= step.id
         or purpose.admission) then return false end
@@ -3864,9 +4015,10 @@ function P.recordResult(id, purposeId, result, authority)
     end
     if purpose and purpose.generatorPower then
         if not step or step.owner == "SAO.SourceUse" and authority ~= RESOURCE_RESULT
+            or step.owner == "SAO.WorldSources" and authority ~= RESOURCE_RESULT
             or step.owner == "SAO.Study" and authority ~= GENERATOR_READING_RESULT
             or step.owner == "SAO.Generator" and authority ~= GENERATOR_RESULT
-            or step.owner ~= "SAO.SourceUse" and step.owner ~= "SAO.Study" and step.owner ~= "SAO.Generator" then return false end
+            or step.owner ~= "SAO.SourceUse" and step.owner ~= "SAO.WorldSources" and step.owner ~= "SAO.Study" and step.owner ~= "SAO.Generator" then return false end
     end
     if purpose and purpose.leisureAcquisition and not purpose.leisure and authority ~= RESOURCE_RESULT then return false end
     if purpose and purpose.furnitureRelocation and authority ~= BED_RESULT then return false end
@@ -4267,7 +4419,7 @@ function P.admitInspection(id, receipt)
     local step = purpose and purpose.steps[purpose.cursor]
     local concept=purpose and purpose.inquiry and purpose.inquiry.mode=="inspect-holder"
         and purpose.inquiry.sourceId==receipt.sourceId
-    if not purpose or not (purpose.resourceCategory or purpose.recipeSupply or purpose.garmentMaintenance or concept) or purpose.status == "completed" or purpose.status == "abandoned"
+    if not purpose or not (purpose.resourceCategory or purpose.recipeSupply or purpose.garmentMaintenance or purpose.generatorPower or concept) or purpose.status == "completed" or purpose.status == "abandoned"
         or not step or step.status ~= "available" or step.owner ~= "SAO.WorldSources"
         or step.token ~= (concept and "inquiry:inspected" or "resource:inspected") or step.id ~= receipt.purposeStepId
         or type(step.sourceId) ~= "string" or step.target ~= step.sourceId
@@ -4332,6 +4484,10 @@ function P.consumeInspectionResult(id, receipt)
     local consumed = P.recordResult(id, purpose.id, { owner = "SAO.WorldSources", token = "resource:inspected",
         status = canonical.status, correlationId = canonical.id, reason = canonical.reason,
         atHours = canonical.atHours }, RESOURCE_RESULT)
+    if consumed and purpose.generatorPower and not P.generatorRequestCurrent(id,{purposeId=purpose.id}) then
+        purpose.status,purpose.awaitingReassessment,purpose.resolution="abandoned",nil,"original-generator-request-changed"
+        return true,"original-request-retired"
+    end
     if consumed and canonical.status == "completed" then
         purpose.status, purpose.awaitingStock, purpose.awaitingReassessment = "maintained", nil, true
     end

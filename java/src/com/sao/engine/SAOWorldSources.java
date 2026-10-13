@@ -898,6 +898,13 @@ public final class SAOWorldSources {
     }
 
     /** Personal generator identity; reached inspection alone supplies machine state. */
+    private static boolean householdIncluded(IsoObject object) {
+        if (object == null) return false;
+        Object owned = object.getModData().rawget("SAOHouseholdSource");
+        return owned != null ? Boolean.TRUE.equals(owned)
+            : Boolean.TRUE.equals(object.getModData().rawget("LGEPInclude"));
+    }
+
     public static synchronized String generatorCandidates(SAOIsoPlayerShell shell) {
         if (SAOConceptObservation.actor(shell) == null || transactionActive) return "";
         var eye = shell.getCurrentSquare();
@@ -1074,7 +1081,7 @@ public final class SAOWorldSources {
         var source = powerConsumerSource(new Snapshot(Math.floorDiv(x,CHUNK_SIZE),Math.floorDiv(y,CHUNK_SIZE)),object);
         if (!fingerprint.equals(source.fingerprint)) throw new ActionRefusal("FINGERPRINT_CHANGED");
         // Power may change during the owned generator sequence. Identity and the exact acquired revision remain binding.
-        if (!object.couldBePoweredByGenerator() || GameClient.client && !zombie.iso.areas.SafeHouse.isSafehouseAllowInteract(square,shell)) throw new ActionRefusal("ACCESS_REFUSED");
+        if (!(binding.pumpFacet?object.getFluidContainer()!=null && householdIncluded(object):object.couldBePoweredByGenerator()) || GameClient.client && !zombie.iso.areas.SafeHouse.isSafehouseAllowInteract(square,shell)) throw new ActionRefusal("ACCESS_REFUSED");
         return object;
     }
 
@@ -1140,8 +1147,16 @@ public final class SAOWorldSources {
         final java.lang.ref.WeakReference<IsoObject> object;
         final java.lang.ref.WeakReference<IsoGridSquare> square;
         final LinkedHashMap<String, Boolean> revisions = new LinkedHashMap<>();
+        final zombie.scripting.objects.Item generatorScript;
+        final zombie.scripting.entity.GameEntityScript entityScript;
+        boolean pumpFacet;
+        java.lang.ref.WeakReference<FluidContainer> pumpFluid;
+        String serviceRevision,serviceStructure,serviceConsumerId;
+        List<ServiceMember> serviceMembers;
         UtilityBinding(String actor, IsoObject object, String fingerprint) {
             this.actor = actor; this.fingerprint = fingerprint;
+            this.generatorScript=object instanceof IsoGenerator g?zombie.scripting.ScriptManager.instance.getItem(g.getGeneratorItemType()):null;
+            this.entityScript=object.getEntityScript();
             this.object = new java.lang.ref.WeakReference<>(object); this.square = new java.lang.ref.WeakReference<>(object.getSquare());
         }
     }
@@ -3273,4 +3288,98 @@ public final class SAOWorldSources {
     }
     private static se.krka.kahlua.vm.KahluaTable copyGarmentRequirement(se.krka.kahlua.vm.KahluaTable r){var out=recipeTable();var it=r.iterator();while(it.advance())out.rawset(it.getKey(),it.getValue());return out;}
 
+    /** Reached included native fluid collector as a power consumer facet. */
+    public static synchronized String generatorPumpConsumer(SAOIsoPlayerShell shell, IsoObject object) {
+        try {
+        if (SAOConceptObservation.actor(shell) == null || object == null || object.getSquare() == null
+                || object.getCell() != shell.getCell() || !object.getSquare().getObjects().contains(object)
+                || !utilityReached(shell, object.getSquare()) || object.getFluidContainer() == null
+                || !householdIncluded(object)) return "";
+        var square = object.getSquare();
+        Snapshot snapshot = new Snapshot(Math.floorDiv(square.getX(), CHUNK_SIZE), Math.floorDiv(square.getY(), CHUNK_SIZE));
+        snapshot.mode = "reached-power-consumer";
+        Source source = utilitySource(snapshot, object, "E:", "power-consumer");
+        source.inspected = true; source.powered = square.haveElectricity(); source.finish();
+        rememberUtility(shell, object, source);var binding=UTILITY_BINDINGS.get(shell).get(source.id);binding.pumpFacet=true;binding.pumpFluid=new java.lang.ref.WeakReference<>(object.getFluidContainer());
+        snapshot.add(source); snapshot.finish(); return encode(snapshot);
+        } catch(Throwable unavailable) { return ""; }
+    }
+
+    /** Existing private native bindings retain the acquired service scope. */
+    public static synchronized Object generatorServiceScope(SAOIsoPlayerShell shell, IsoGenerator generator,
+            se.krka.kahlua.vm.KahluaTable generatorFact, se.krka.kahlua.vm.KahluaTable consumerFact,
+            se.krka.kahlua.vm.KahluaTable nativeGroup, String structure, boolean acquire) {
+        try {
+            String gid = serviceText(generatorFact, "sourceId"), gfp = serviceText(generatorFact, "fingerprint");
+            String grev = serviceText(generatorFact, "revision"), cid = serviceText(consumerFact, "sourceId");
+            String cfp = serviceText(consumerFact, "fingerprint"), crev = serviceText(consumerFact, "revision");
+            var boundGenerator = generatorIdentityFixture(shell, gid, gfp, grev,
+                    serviceInt(generatorFact,"x"),serviceInt(generatorFact,"y"),serviceInt(generatorFact,"z"));
+            var gb = utilityBinding(shell, gid, gfp, "J:"); var cb = utilityBinding(shell, cid, cfp, "E:");
+            var consumer = cb.object.get(); var cs = cb.square.get();
+            if (generator != boundGenerator || !utilityReached(shell,generator.getSquare()) || consumer == null || cs == null || consumer.getCell()!=shell.getCell()
+                    || !cb.revisions.containsKey(crev) || consumer.getSquare() != cs || !cs.getObjects().contains(consumer)
+                    || shell.getCell().getGridSquare(cs.getX(),cs.getY(),cs.getZ()) != cs
+                    || gb.generatorScript == null || gb.generatorScript != zombie.scripting.ScriptManager.instance.getItem(generator.getGeneratorItemType())
+                    || !cid.substring(2).equals(consumer.getModData().rawget(SOURCE_TOKEN))
+                    || !cfp.equals(utilitySource(new Snapshot(Math.floorDiv(cs.getX(),CHUNK_SIZE),Math.floorDiv(cs.getY(),CHUNK_SIZE)),consumer,"E:","power-consumer").fingerprint)
+                    || cb.entityScript != consumer.getEntityScript()
+                    || (cb.pumpFacet?cb.pumpFluid==null||cb.pumpFluid.get()!=consumer.getFluidContainer()||!householdIncluded(consumer):!consumer.couldBePoweredByGenerator())
+                    || nativeGroup == null || structure == null || structure.isBlank()) return null;
+            var members = new ArrayList<ServiceMember>();
+            for(int i=1;;i++) {
+                Object raw = nativeGroup.rawget((double)i); if(raw == null) break;
+                if(!(raw instanceof se.krka.kahlua.vm.KahluaTable row) || !(row.rawget("object") instanceof IsoObject object)
+                        || object.getCell() != shell.getCell() || object.getSquare() == null
+                        || shell.getCell().getGridSquare(object.getSquare().getX(),object.getSquare().getY(),object.getSquare().getZ()) != object.getSquare()
+                        || !object.getSquare().getObjects().contains(object) || object.getFluidContainer() == null) return null;
+                var fc = object.getFluidContainer();
+                if(!Float.isFinite(fc.getAmount()) || !Float.isFinite(fc.getCapacity()) || fc.getAmount()<0 || fc.getCapacity()<fc.getAmount()
+                        || fc.getAmount()>0 && !fc.contains(Fluid.Petrol)) return null;
+                for(var prior:members)if(prior.object.get()==object)return null;
+                members.add(new ServiceMember(object));
+            }
+            int entries=0;var iterator=nativeGroup.iterator();while(iterator.advance()){Object key=iterator.getKey();if(!(key instanceof Double n)||n<1||n%1!=0||n>members.size())return null;entries++;}if(entries!=members.size())return null;
+            boolean same = cid.equals(gb.serviceConsumerId) && structure.equals(gb.serviceStructure) && serviceMembersSame(gb.serviceMembers,members);
+            if(acquire && !same) {
+                gb.serviceConsumerId=cid;gb.serviceStructure=structure;gb.serviceMembers=members;gb.serviceRevision=UUID.randomUUID().toString();
+            } else if(!acquire && !same) return null;
+            if(gb.serviceRevision == null) return null;
+            var result=recipeTable();result.rawset("actorId",SAOConceptObservation.actor(shell));result.rawset("generatorId",gid);
+            result.rawset("consumerId",cid);result.rawset("serviceRevision",gb.serviceRevision);
+            result.rawset("nativeScopeCurrent",true);result.rawset("nativeMembersFinite",true);
+            var sites=recipeTable();int index=1;for(var member:gb.serviceMembers){var square=member.square.get();if(square==null)return null;var site=recipeTable();site.rawset("x",(double)square.getX());site.rawset("y",(double)square.getY());site.rawset("z",(double)square.getZ());sites.rawset((double)index++,site);}result.rawset("memberSites",sites);
+            // Supplier amounts stay inside source validation, separate from acquired knowledge.
+            return result;
+        } catch(Throwable unavailable) { return null; }
+    }
+    private static String serviceText(se.krka.kahlua.vm.KahluaTable fact,String key) {
+        Object v=fact==null?null:fact.rawget(key);return v instanceof String s&&!s.isBlank()?s:null;
+    }
+    private static int serviceInt(se.krka.kahlua.vm.KahluaTable fact,String key) {
+        Object v=fact.rawget(key);if(!(v instanceof Number n)||!Double.isFinite(n.doubleValue())||n.doubleValue()!=n.intValue())throw new IllegalArgumentException();return n.intValue();
+    }
+    private static boolean serviceMembersSame(List<ServiceMember> expected,List<ServiceMember> current) {
+        if(expected==null||current==null)return false;
+        for(var now:current){boolean found=false;for(var old:expected)if(now.object.get()==old.object.get())found=true;if(!found)return false;}
+        for(var old:expected) {
+            var object=old.object.get();boolean found=false;
+            for(var now:current)if(now.object.get()==object&&object!=null&&old.square.get()==object.getSquare()
+                    &&old.fluid.get()==object.getFluidContainer()&&old.entityScript==object.getEntityScript())found=true;
+            if(!found) {
+                var square=old.square.get();var fluid=old.fluid.get();
+                if(object==null||square==null||fluid==null||object.getSquare()!=square||!square.getObjects().contains(object)
+                        ||object.getFluidContainer()!=fluid||old.entityScript!=object.getEntityScript()
+                        ||!householdIncluded(object)||!Float.isFinite(fluid.getAmount())||fluid.getAmount()!=0)return false;
+            }
+        }
+        return true;
+    }
+    private static final class ServiceMember {
+        final java.lang.ref.WeakReference<IsoObject> object;
+        final java.lang.ref.WeakReference<IsoGridSquare> square;
+        final java.lang.ref.WeakReference<FluidContainer> fluid;
+        final zombie.scripting.entity.GameEntityScript entityScript;
+        ServiceMember(IsoObject o){object=new java.lang.ref.WeakReference<>(o);square=new java.lang.ref.WeakReference<>(o.getSquare());fluid=new java.lang.ref.WeakReference<>(o.getFluidContainer());entityScript=o.getEntityScript();}
+    }
 }

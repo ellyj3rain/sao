@@ -1,3 +1,4 @@
+require "SAO_HouseholdService"
 -- SAO_WorldSources - exact native ground for loaded and dormant life (R10a).
 --
 -- Buildings remain geography. A room name can suggest a place worth
@@ -1898,6 +1899,7 @@ end
 
 -- A native observation writer, not an option query. Each packet contains one
 -- personally visible loose item; omitted chunk contents retain their evidence.
+local utilityObserver
 local function utilityFact(source, header)
     local fact = beliefFact(copyObservation(source, header))
     fact.sourceId=source.id
@@ -1920,9 +1922,16 @@ function WS.generatorCandidates(body)
 end
 function WS.generatorConsumer(body,object)
     if not SAOJavaBridge then return nil end
-    local ok,encoded=pcall(function()return SAOJavaBridge:worldGeneratorConsumer(body,object)end)
+    local pump=SAO.HouseholdService and SAO.HouseholdService.isIncluded and object and object.getFluidContainer and object:getFluidContainer() and SAO.HouseholdService.isIncluded(object)==true
+    if pump and not SAOJavaBridge.worldGeneratorPumpConsumer then return nil end
+    local ok,encoded=pcall(function()
+        if pump then return SAOJavaBridge:worldGeneratorPumpConsumer(body,object)end
+        return SAOJavaBridge:worldGeneratorConsumer(body,object)
+    end)
     local snapshot=ok and utilityPacket(encoded,"power-consumer") or nil
-    return snapshot and #snapshot.ordered==1 and utilityFact(snapshot.ordered[1],snapshot.header) or nil
+    local fact=snapshot and #snapshot.ordered==1 and utilityFact(snapshot.ordered[1],snapshot.header) or nil
+    if fact and pump then fact.generatorPump=true end
+    return fact
 end
 local function utilityCoordinates(fact,prefix)
     return type(fact)=="table" and type(fact.sourceId or fact.id)=="string"
@@ -1951,6 +1960,18 @@ function WS.generatorValid(body,object,fact,operation)
 end
 function WS.generatorConsumerPowered(body,generator,consumer)
     if not SAOJavaBridge or not utilityCoordinates(consumer,"E:") then return false end
+    if consumer.generatorPump==true then
+        local id=tostring(body:getModData().SAOPersonId or "")
+        if not utilityObserver(id,body)or not SAO.HouseholdService or not SAO.HouseholdService.isPumped then return false end
+        local value=store();local facts=value and value.utilityFacts and value.utilityFacts[id]
+        local token=generator and generator:getModData().SAOWorldSourceId
+        local known=token and facts and facts["J:"..token]
+        local object=WS.generatorConsumerObject(body,consumer)
+        if not known or not object or not WS.generatorValid(body,generator,known,"verify-power")then return false end
+        local square=generator:getSquare()
+        return square and IsoGenerator.isPoweringSquare(square:getX(),square:getY(),square:getZ(),consumer.x,consumer.y,consumer.z)
+            and object:getSquare():haveElectricity()and SAO.HouseholdService.isPumped(object)==true or false
+    end
     local ok,value=pcall(function()return SAOJavaBridge:worldGeneratorConsumerPowered(body,generator,consumer.sourceId or consumer.id,
         consumer.fingerprint,consumer.x,consumer.y,consumer.z)end)
     return ok and value==true
@@ -1967,7 +1988,7 @@ function WS.generatorConsumerObject(body,consumer)
         consumer.fingerprint,consumer.revision,consumer.x,consumer.y,consumer.z)end)
     return ok and value or nil
 end
-local function utilityObserver(actorId,body)
+utilityObserver=function(actorId,body)
     local record=inspectionActor(actorId,body) and SAO.Identity.get(actorId)
     if not record or record.bodyOwner~=nil or record.zaoTransferPending or record.crossedTransferPending
         or SAO.Body.active and SAO.Body.active[actorId]~=body
@@ -1988,6 +2009,15 @@ local function registerUtility(actorId,body,fact)
     fact.observedAt,fact.actorId=nowHours(),actorId
     -- A farther sighting does not overwrite already acquired machine information.
     local prior=facts[fact.sourceId]
+    if prior and prior.fingerprint==fact.fingerprint then
+        for _,key in ipairs({"serviceRevision","serviceConsumerId","serviceEvidenceId","serviceEvidenceKind","serviceKnowledgeRequired","fuelServiceEligible","generatorPump"})do
+            if prior[key]~=nil and fact[key]==nil then fact[key]=prior[key]end
+        end
+        if prior.serviceRevision and SAO.HouseholdService and SAO.HouseholdService.isGeneratorPlumbed then
+            local object=WS.generatorObject(body,fact,"inspect")
+            if object then fact.plumbed=SAO.HouseholdService.isGeneratorPlumbed(object)==true end
+        end
+    end
     if not (prior and prior.fingerprint==fact.fingerprint and prior.inspected==true and fact.inspected~=true) then
         facts[fact.sourceId]=fact
     end
@@ -3167,6 +3197,97 @@ if Events and Events.OnInitGlobalModData then
         WS.reconcileReservations()
     end
     Events.OnInitGlobalModData.Add(WS.onInitGlobalModData)
+end
+
+-- Appended inside existing WorldSources: uses its utility observer/store/anchor.
+local function serviceApis()
+ return SAO.HouseholdService and SAO.HouseholdService.available()
+  and SAOJavaBridge and SAOJavaBridge.worldGeneratorServiceScope
+end
+local function serviceFactKnown(actorId,fact,revision)
+ if not fact or not SAO.Perception or not SAO.Perception.knownPlaces then return false end
+ for _,place in pairs(SAO.Perception.knownPlaces(actorId,true)or{})do
+  local f=place.sourceFacts and place.sourceFacts[fact.sourceId]
+  if f and f.actorId==actorId and f.fingerprint==fact.fingerprint and(revision==false or f.revision==fact.revision)
+   and f.x==fact.x and f.y==fact.y and f.z==fact.z then return true end
+ end
+ return false
+end
+local function serviceStructure(fact)
+ local connection=SAO.HouseholdService.connection(fact.x,fact.y,fact.z)
+ return connection and connection.structure or nil
+end
+local function serviceGroupPermitted(actorId,group)
+ if type(group)~="table"then return false,"service-source-unavailable"end
+ if not SAO.Standing or not SAO.Standing.mayTakeCurrent then return false,"service-standing-unavailable"end
+ for _,member in ipairs(group)do
+  local object=member.object;local square=object and object:getSquare()
+  if not square or not SAO.HouseholdService.isIncluded(object)then return false,"service-source-unavailable"end
+  if SAO.Standing.mayTakeCurrent(actorId,square:getX(),square:getY(),"standing")~=true then return false,"service-standing-refused"end
+ end
+ return true
+end
+local function serviceSnapshotPermitted(actorId,native)
+ if not native or type(native.memberSites)~="table"then return false,"service-source-unavailable"end
+ for _,site in ipairs(native.memberSites)do
+  if SAO.Standing.mayTakeCurrent(actorId,site.x,site.y,"standing")~=true then return false,"service-standing-refused"end
+ end
+ return true
+end
+-- Acquisition follows an actual canonical inquiry or retained native connection.
+function WS.observeGeneratorService(actorId,body,generatorFact,consumerFact)
+ if not utilityObserver(actorId,body)or not serviceApis()or not serviceFactKnown(actorId,generatorFact)
+  or not serviceFactKnown(actorId,consumerFact)then return nil,"service-observation-unavailable"end
+ local object=WS.generatorObject(body,generatorFact,"inspect")
+ local evidence=SAO.Perception.generatorServiceEvidence and SAO.Perception.generatorServiceEvidence(actorId,generatorFact,consumerFact)
+ if not object then return nil,"native-generator-unavailable"end
+ local value=store();local facts=value and value.utilityFacts and value.utilityFacts[actorId];local prior=facts and facts[generatorFact.sourceId]
+ if not prior or prior.revision~=generatorFact.revision or prior.fingerprint~=generatorFact.fingerprint then return nil,"private-generator-changed"end
+ local function refused(reason,inquiry)
+  prior.plumbed=SAO.HouseholdService.isGeneratorPlumbed(object)==true;prior.fuelServiceEligible=false
+  if inquiry then prior.serviceKnowledgeRequired=true;prior.serviceRevision=nil;prior.serviceConsumerId=nil end
+  return nil,reason,registerUtility(actorId,body,prior)
+ end
+ if not evidence then return refused("service-inquiry-required",true)end
+ local structure=serviceStructure(generatorFact);local group=SAO.HouseholdService.fuelGroup(generatorFact.x,generatorFact.y,generatorFact.z)
+ if not structure then return refused("current-service-topology-unavailable",true)end
+ local permitted,reason=serviceGroupPermitted(actorId,group)
+ if not permitted then return refused(reason,reason=="service-source-unavailable")end
+ local acquire=evidence.id~=prior.serviceEvidenceId
+ local ok,native=pcall(function()return SAOJavaBridge:worldGeneratorServiceScope(body,object,generatorFact,consumerFact,group,structure,acquire)end)
+ if not ok or not native or native.actorId~=actorId or native.generatorId~=generatorFact.sourceId
+  or native.consumerId~=consumerFact.sourceId or native.nativeScopeCurrent~=true or native.nativeMembersFinite~=true then
+  return refused("native-service-unavailable",true)
+ end
+ permitted,reason=serviceSnapshotPermitted(actorId,native)
+ if not permitted then return refused(reason,reason=="service-source-unavailable")end
+ prior.plumbed=SAO.HouseholdService.isGeneratorPlumbed(object)==true
+ prior.fuelServiceEligible=SAO.HouseholdService.canPlumbGenerator(generatorFact.x,generatorFact.y,generatorFact.z)==true
+ prior.serviceRevision=native.serviceRevision;prior.serviceKnowledgeRequired=false;prior.serviceConsumerId=consumerFact.sourceId
+ prior.serviceEvidenceId=evidence.id;prior.serviceEvidenceKind=evidence.kind
+ return registerUtility(actorId,body,prior)
+end
+function WS.generatorPlumbingCurrent(actorId,body,object,generatorFact,consumerFact,tool,work,pre)
+ if type(pre)~="boolean"or not utilityObserver(actorId,body)or not serviceApis()
+  or not serviceFactKnown(actorId,generatorFact,pre)or not serviceFactKnown(actorId,consumerFact,pre)
+  or type(work)~="table"or work.actorId~=actorId or work.operation~="plumb"
+  or not tool or tostring(tool:getID())~=work.inputItemId or tool:getFullType()~=work.inputItemType
+  or tool:getIsCraftingConsumed()or tool:isBroken()or not tool:getContainer()
+  or tool:getContainer():getOutermostContainer()~=body:getInventory()or not tool:getContainer():contains(tool)
+  or not(object and WS.generatorValid(body,object,generatorFact,"inspect"))then return false end
+ local value=store();local facts=value and value.utilityFacts and value.utilityFacts[actorId];local current=facts and facts[generatorFact.sourceId]
+ if not current or not generatorFact.serviceRevision or current.serviceRevision~=generatorFact.serviceRevision
+  or current.serviceConsumerId~=consumerFact.sourceId then return false end
+ if pre and (object:getCondition()~=generatorFact.condition or object:getFuel()~=generatorFact.fuel
+  or object:isConnected()~=generatorFact.connected or object:isActivated()~=generatorFact.active)then return false end
+ if not object:isConnected()or SAO.HouseholdService.isForeignGenerator(object)or not SAO.HouseholdService.canPlumbGenerator(generatorFact.x,generatorFact.y,generatorFact.z)
+  or SAO.HouseholdService.isGeneratorPlumbed(object)==pre then return false end
+ if pre and work.stage=="operating"and not body:isEquipped(tool)then return false end
+ local structure=serviceStructure(generatorFact);local group=SAO.HouseholdService.fuelGroup(generatorFact.x,generatorFact.y,generatorFact.z)
+ if not structure or not serviceGroupPermitted(actorId,group)then return false end
+ local ok,native=pcall(function()return SAOJavaBridge:worldGeneratorServiceScope(body,object,generatorFact,consumerFact,group,structure,false)end)
+ return ok and native and native.actorId==actorId and native.serviceRevision==generatorFact.serviceRevision
+  and native.nativeScopeCurrent==true and native.nativeMembersFinite==true and serviceSnapshotPermitted(actorId,native)or false
 end
 
 return WS
