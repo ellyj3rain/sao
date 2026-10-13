@@ -684,6 +684,7 @@ function Labor.assessUtility(id, context)
             and inspectedPlace(id, source.place) and privateSource(id, source) then out.sources[#out.sources+1] = source end
     end
     local operations = { inspect=true,repair=true,fuel=true,connect=true,activate=true,["verify-power"]=true,plumb=true }
+    for operation in pairs(SAO.ElectricalService and SAO.ElectricalService.operations or{})do operations[operation]=true end
     local social = socialAppraisal(id, "utilities", context.atHours)
     for index, option in ipairs(type(context.options) == "table" and context.options or {}) do
         if index > 16 then break end

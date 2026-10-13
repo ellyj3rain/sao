@@ -2919,6 +2919,8 @@ function Ctl.advanceGeneratorPurpose(id, agent, body, tick, needs)
     local intent = context and SAO.Cooking and SAO.Cooking.powerDemand and SAO.Cooking.powerDemand(id,body,context)
     intent = intent or Ctl.waterGeneratorIntent(id,body) or agent.rec.cookingPowerDemand or retained and retained.generatorPower
     if not intent then return false end
+    -- Household pump power retains its distinct D4/D5 native producer; D6 manages appliances.
+    intent.managedElectrical=intent.consumer and intent.consumer.generatorPump~=true or false
     if retained and intent.consumer and retained.generatorPower.consumer.sourceId == intent.consumer.sourceId then
         intent.generator = retained.generatorPower.generator
         intent.rejectedGenerators = retained.generatorPower.rejectedGenerators

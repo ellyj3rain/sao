@@ -1194,8 +1194,14 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
             case "connect" -> !generator.isActivated() && !generator.isConnected();
             case "activate" -> !generator.isActivated() && generator.isConnected() && generator.getFuel() > 0
                 && generator.getCondition() > 0 && square.isOutside();
-            case "verify-power" -> generator.isActivated() && generator.isConnected() && generator.getFuel() > 0
+            case "verify-power", "verify-service" -> generator.isActivated() && generator.isConnected() && generator.getFuel() > 0
                 && generator.getCondition() > 0 && square.isOutside();
+            case "inspect-load" -> true;
+            case "shed-load", "breaker-open" -> generator.isActivated() && generator.isConnected()
+                && generator.getFuel() > 0 && generator.getCondition() > 0;
+            case "breaker-reset" -> !generator.isActivated() && generator.isConnected() && generator.getFuel() > 0
+                && generator.getCondition() > 0 && square.isOutside()
+                && Boolean.TRUE.equals(generator.getModData().rawget("SAOElectricalBreaker"));
             default -> false;
         };
         if (!ready) throw new ActionRefusal("GENERATOR_STAGE_UNAVAILABLE");
@@ -1219,7 +1225,9 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
 
     private static boolean generatorOperation(String operation) {
         return "inspect".equals(operation) || "repair".equals(operation) || "fuel".equals(operation)
-            || "connect".equals(operation) || "activate".equals(operation) || "verify-power".equals(operation);
+            || "connect".equals(operation) || "activate".equals(operation) || "verify-power".equals(operation)
+            || "inspect-load".equals(operation) || "shed-load".equals(operation) || "breaker-open".equals(operation)
+            || "breaker-reset".equals(operation) || "verify-service".equals(operation);
     }
 
     private static boolean utilityReached(SAOIsoPlayerShell shell, IsoGridSquare square) {
@@ -1391,6 +1399,45 @@ public static synchronized Object networkFluidObservation(IsoPlayer body,IsoObje
             source.connected = generator.isConnected(); source.active = generator.isActivated(); source.outside = generator.getSquare().isOutside();
         }
         source.finish(); return source;
+    }
+
+    /** An acquired appliance's native rates; this never replaces the engine bill. */
+    public static synchronized Object electricalLoad(IsoPlayer body, String id, String fingerprint,
+            IsoObject expected) {
+        try {
+            var object = expected; var square = object == null ? null : object.getSquare();
+            if (!networkActor(body) || square == null || !utilityObjectLive(object, square)) return null;
+            if (body instanceof SAOIsoPlayerShell shell) {
+                var binding = utilityBinding(shell, id, fingerprint, "E:");
+                if (binding.object.get() != object || binding.square.get() != square || !utilityReached(shell, square)) return null;
+            } else if (!body.isLocalPlayer() || body.getCurrentSquare().getZ()!=square.getZ()
+                    || Math.pow(body.getX()-square.getX()-.5,2)+Math.pow(body.getY()-square.getY()-.5,2)>=4) return null;
+            var parts = object.getSpriteGridObjectsIncludingSelf(new ArrayList<>());
+            var seen = Collections.newSetFromMap(new java.util.IdentityHashMap<IsoObject, Boolean>());
+            double rate = 0; int count = 0;
+            if (parts.isEmpty()) parts.add(object);
+            for (var part : parts) {
+                var location = part.getSquare();
+                if (!seen.add(part)) continue;
+                if (!utilityObjectLive(part, location) || part.getCell() != body.getCell()) return null;
+                float value = part.getGeneratorPowerConsumption();
+                if (!Float.isFinite(value) || value < 0) return null;
+                rate += value; count++;
+            }
+            var row = recipeTable();
+            row.rawset("nativeClass", object.getClass().getName());
+            row.rawset("partRate", (double)object.getGeneratorPowerConsumption());
+            row.rawset("groupRate", rate); row.rawset("partCount", (double)count);
+            row.rawset("powered", ItemContainer.isObjectPowered(object, true));
+            if (object instanceof zombie.iso.objects.IsoStove stove) row.rawset("consumerActive", stove.Activated());
+            else if (object instanceof zombie.iso.objects.IsoLightSwitch light) row.rawset("consumerActive", light.isActivated());
+            else row.rawset("consumerActive", object.getGeneratorPowerConsumption() > 0);
+            row.rawset("switchable", object instanceof zombie.iso.objects.IsoStove
+                || object instanceof zombie.iso.objects.IsoLightSwitch);
+            return row;
+        } catch (Throwable unavailable) {
+            SAOAgent.log("electrical load observation unavailable: " + unavailable); return null;
+        }
     }
 
     private static Source powerConsumerSource(Snapshot snapshot, IsoObject object) {

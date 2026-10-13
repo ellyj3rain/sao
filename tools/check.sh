@@ -2918,6 +2918,40 @@ if ! "$PY" tools/d3_utility_consumer_test.py --snapshot-source "$sao_d3_proof/ut
     note "BORDER FINDING - original utility full and bounded snapshot export differs"
     fail=1
 fi
+
+# D6 native billing/control, original consumer and saved-data recipes.
+if ! "$PY" tools/d3_utility_consumer_test.py --scenario managed-electrical --case accounting --out "$sao_d3_proof/electrical-accounting"; then
+    note "BORDER FINDING - managed electrical electrical-accounting contract differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --scenario managed-electrical --control native-toggle --out "$sao_d3_proof/electrical-toggle-control"; then
+    note "BORDER FINDING - managed electrical electrical-toggle-control contract differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --scenario managed-electrical --control native-fuel-revoke --out "$sao_d3_proof/electrical-fuel-control"; then
+    note "BORDER FINDING - managed electrical electrical-fuel-control contract differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --scenario managed-electrical --case normal --out "$sao_d3_proof/electrical-normal"; then
+    note "BORDER FINDING - managed electrical electrical-normal contract differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --scenario managed-electrical --case source-removed --out "$sao_d3_proof/electrical-source-removed"; then
+    note "BORDER FINDING - managed electrical electrical-source-removed contract differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --scenario managed-electrical --case review-corrections --out "$sao_d3_proof/electrical-corrections"; then
+    note "BORDER FINDING - managed electrical electrical-corrections contract differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --scenario managed-electrical --control electrical-receiver --out "$sao_d3_proof/electrical-receiver-control"; then
+    note "BORDER FINDING - managed electrical electrical-receiver-control contract differs"
+    fail=1
+fi
+if ! "$PY" tools/d3_utility_consumer_test.py --scenario managed-electrical --snapshot-source "$sao_d3_proof/electrical-normal/receipt.json" --out "$sao_d3_proof/electrical-saved"; then
+    note "BORDER FINDING - managed electrical electrical-saved contract differs"
+    fail=1
+fi
 if ! "$PY" tools/d3_material_categories_test.py --out "$sao_d3_proof/materials"; then
     note "BORDER FINDING - exact native construction-material admission differs"
     fail=1

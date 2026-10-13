@@ -1,12 +1,16 @@
 require "SAO_HouseholdService"
+require "SAO_ElectricalService"
 -- Native generator operations for a person's retained use of known machinery.
 SAO=SAO or {};SAO.Generator=SAO.Generator or {}
 local G=SAO.Generator
+local E=SAO.ElectricalService
 local runtime,seal={},{}
+local sampled
 local tokens={inspect="utility:generator-inspected",repair="utility:generator-repaired",fuel="utility:generator-fuelled",
     connect="utility:generator-connected",activate="utility:generator-activated",["verify-power"]="utility:consumer-powered",plumb="utility:generator-plumbed"}
 local nativeOwners={inspect="ISGeneratorInfoAction/SAO.Generator",repair="ISFixGenerator",fuel="ISAddFuel",
     connect="ISPlugGenerator",activate="ISActivateGenerator",["verify-power"]="SAO.Generator/NativePower",plumb="SAO.Generator/ConnectSupply"}
+for op,token in pairs(E.tokens)do tokens[op]=token;nativeOwners[op]="SAO.Generator/ElectricalService"end
 local function finite(v) return type(v)=="number" and v==v and v~=math.huge and v~=-math.huge end
 local function text(v) return type(v)=="string" and #v>0 and #v<=256 end
 local function clock() local v=SAO.History.countyHours();return finite(v) and v>=0 and v or nil end
@@ -170,6 +174,17 @@ function G.options(id,body,intent)
                     and (not known.connected and "connect" or "plumb")
                 or known.active and "verify-power" or known.condition<=50 and "repair"
                 or known.fuel<=0 and "fuel" or not known.connected and "connect" or "activate"
+            if intent.managedElectrical==true and known.inspected then
+                local sample=sampled(id,known,intent.consumer)
+                if not sample then operation="inspect-load"
+                elseif sample.loadOwner=="external-writer-unresolved"then operation=known.active and "verify-power"or operation
+                elseif sample.breakerOpen and known.connected and known.fuel>0 then operation="breaker-reset"
+                elseif known.active then operation=E.operations[intent.electricalOperation]and intent.electricalOperation or "verify-service"end
+            end
+            if operation=="activate"then
+                local native=SAO.WorldSources.generatorObject(body,known,"inspect")
+                if native and E.breakerOpen(native)then operation="breaker-reset"end
+            end
             local function offer(op)
                 local item
                 if op=="repair" or op=="fuel" or op=="plumb" then for i=0,math.min(items:size(),512)-1 do
@@ -201,6 +216,15 @@ function G.options(id,body,intent)
     end
     return out
 end
+sampled=function(id,generator,consumer)
+    local r=record(id)
+    for i=#(r and r.generatorOutcomes or{}),1,-1 do
+        local row=G.outcome(id,r.generatorOutcomes[i].id)
+        if row and row.electricalService and row.status=="completed"and row.purposeDelivered
+            and sameFact(row.generator,generator,false)and sameFact(row.consumer,consumer,false)
+            and clock()-row.atHours<=.25 then return row.electricalService.after end
+    end
+end
 local function snapshot(object)
     return {condition=object:getCondition(),fuel=object:getFuel(),maxFuel=object:getMaxFuel(),connected=object:isConnected(),
         active=object:isActivated(),outside=object:getSquare():isOutside(),plumbed=SAO.HouseholdService.isGeneratorPlumbed(object)==true}
@@ -217,14 +241,15 @@ local function bound(rt,pre)
         or not world or world:getWorld()~=rt.world or world:getCell()~=rt.cell or rt.body:getCell()~=rt.cell
         or rt.body:getInventory()~=rt.inventory or ISTimedActionQueue.getTimedActionQueue(rt.body)~=rt.queue
         or rt.body:getModData().SAOExternalToken~=rt.token or not permitted(rt.id,rt.generatorFact) or not permitted(rt.id,rt.consumerFact) then return false end
-    if p.generatorPower.requestingActivity=="hydration" and (not SAO.ProceduralPlanning
+    if (p.generatorPower.requestingActivity=="hydration"or p.generatorPower.managedElectrical==true
+        and p.generatorPower.requestingPurposeId~=nil)and(not SAO.ProceduralPlanning
         or not SAO.ProceduralPlanning.generatorRequestCurrent
         or SAO.ProceduralPlanning.generatorRequestCurrent(rt.id,rt.work)~=true) then return false end
     if rt.square and (rt.body:getCurrentSquare()~=rt.square or math.abs(rt.body:getX()-rt.x)>.01 or math.abs(rt.body:getY()-rt.y)>.01) then return false end
     if rt.object and not SAO.WorldSources.generatorValid(rt.body,rt.object,rt.generatorFact,
         rt.operation=="verify-power" and "verify-power" or rt.operation=="plumb" and "inspect" or pre and rt.operation or "inspect") then return false end
     if pre and (rt.operation=="repair" or rt.operation=="connect") and not knowledge(rt.body) then return false end
-    if rt.object and (rt.operation=="activate" or rt.operation=="verify-power") and not rt.object:getSquare():isOutside() then return false end
+    if rt.object and (rt.operation=="activate"or rt.operation=="verify-power"or rt.operation=="breaker-reset"or rt.operation=="verify-service") and not rt.object:getSquare():isOutside() then return false end
     if pre and rt.input and (carried(rt.body,rt.inputId,rt.inputType)~=rt.input or not owned(rt.body,rt.input) or not inputEligible(rt.input,rt.operation)
         or rt.operation=="fuel" and rt.input:getFluidContainer()~=rt.fluid) then return false end
     if rt.operation=="plumb" and rt.object and (not plumbingCurrent(rt,pre) or not rt.input or not inputEligible(rt.input,"plumb")
@@ -236,11 +261,21 @@ local function bound(rt,pre)
             or rt.operation=="plumb" and w.beforePlumbed~=b.plumbed then return false end
         if pre and rt.operation~="verify-power" then
             local current=snapshot(rt.object)
-            if current.condition~=b.condition or current.fuel~=b.fuel or current.connected~=b.connected or current.active~=b.active
+            if (not E.operations[rt.operation]and(current.condition~=b.condition or current.fuel~=b.fuel))
+                or current.connected~=b.connected or current.active~=b.active
                 or rt.operation=="fuel" and rt.fluid:getAmount()~=rt.beforeInputAmount
                 or rt.operation=="plumb" and (current.plumbed~=b.plumbed or rt.input:getCondition()~=rt.beforeInputCondition or rt.input:getCurrentUses()~=rt.beforeInputUses) then return false end
         end
     end
+    if E.operations[rt.operation]and rt.object then
+        if not rt.consumerObject or rt.consumerObject~=SAO.WorldSources.generatorConsumerObject(rt.body,rt.consumerFact)and pre then return false end
+        if not permitted(rt.id,rt.consumerFact)then return false end
+        if pre and rt.electricalBefore then
+            local observed=E.measure(rt.body,rt.object,rt.consumerObject,rt.consumerFact)
+            if not E.sameMeasurement(rt.electricalBefore,observed)then return false end
+        end
+    end
+    if pre and rt.operation=="activate"and E.breakerOpen(rt.object)then return false end
     return not pre or not rt.nativeAttempted
 end
 local function capsule(a) return a and type(a._SAOGeneratorBinding)=="function" and a._SAOGeneratorBinding(seal) or nil end
@@ -294,6 +329,7 @@ function G.outcome(id,position)
                 or type(row.beforeConnected)~="boolean" or type(row.afterConnected)~="boolean" or type(row.outside)~="boolean" then return nil end
             if (op=="repair" or op=="fuel" or op=="plumb") and (not text(row.inputItemId) or not text(row.inputItemType)
                 or not finite(row.beforeInputAmount) or not finite(row.afterInputAmount) or row.beforeInputAmount<0 or row.afterInputAmount<0) then return nil end
+            if E.operations[op]and not E.receipt(row)then return nil end
             if op=="inspect" and row.generatorAfter.inspected~=true
                 or op=="repair" and (not row.nativeAttempted or not row.inputConsumed or not finite(row.afterCondition) or row.afterCondition<=row.beforeCondition or row.afterCondition>100)
                 or op=="fuel" and (not row.nativeAttempted or not row.inputRetained or row.afterFuel<=row.beforeFuel
@@ -347,8 +383,12 @@ local function finish(rt,status,reason)
     row.afterInputAmount=rt.operation=="fuel" and rt.fluid:getAmount() or (rt.operation=="repair" or rt.operation=="plumb") and (row.inputRetained and 1 or 0) or nil
     if rt.operation=="plumb" then row.afterInputCondition=rt.input and rt.input:getCondition();row.afterInputUses=rt.input and rt.input:getCurrentUses() end
     row.sourceCovered,row.consumerPowered=rt.sourceCovered==true,rt.consumerPowered==true
+    if E.operations[rt.operation]then
+        row.electricalService={schema="sao-electrical-service/1",sourceId=row.sourceId,consumerId=row.consumerId,consumerCompleted=false,
+            before=copy(rt.electricalBefore),after=E.measure(rt.body,rt.object,rt.consumerObject,rt.consumerFact)}
+    end
     local op=rt.operation
-    local effect=rt.nativeCompleted and (op=="inspect" and row.generatorAfter and row.generatorAfter.inspected
+    local effect=rt.nativeCompleted and (E.operations[op]and E.receipt(row)or op=="inspect" and row.generatorAfter and row.generatorAfter.inspected
         or op=="repair" and row.inputConsumed and row.afterCondition>row.beforeCondition
         or op=="fuel" and row.inputRetained and row.afterFuel>row.beforeFuel and math.abs(row.afterFuel-row.beforeFuel-(row.beforeInputAmount-row.afterInputAmount))<=.0001
         or op=="plumb" and row.beforePlumbed==false and row.afterPlumbed==true and row.afterConnected and row.inputRetained
@@ -377,9 +417,10 @@ local function guard(rt,a,kind,item)
         return capsule(a)==c and a.character==rt.body and a.actorId==rt.id and a.workId==rt.workId and a.bodyToken==rt.token
             and (kind=="transfer" and a.item==item and a.srcContainer==c.source and a.destContainer==rt.inventory
                 or kind=="equip" and a.item==item and a.primary
-                or kind=="native" and (rt.operation=="inspect" and a.object==rt.object
-                    or a.generator==rt.object and (rt.operation~="fuel" or a.petrol==rt.input and a.fluidCont==rt.fluid)
-                    and (rt.operation~="plumb" or a.wrench==rt.input)))
+                or kind=="native"and(E.operations[rt.operation]and E.actionCurrent(a,rt.body,rt.object,rt.consumerObject,rt.operation)
+                    or not E.operations[rt.operation]and(rt.operation=="inspect"and a.object==rt.object
+                    or a.generator==rt.object and(rt.operation~="fuel"or a.petrol==rt.input and a.fluidCont==rt.fluid)
+                    and(rt.operation~="plumb"or a.wrench==rt.input))))
     end
     function a:create()
         if self~=a then return false end
@@ -431,6 +472,10 @@ local function guard(rt,a,kind,item)
             or rt.queue:indexOf(self)~=-1 or rt.queue.current or #rt.queue.queue>0 then return refuse(rt,"generator-complete-owner-changed") end
         if kind=="native" and rt.operation=="repair" and rt.inventory:getFirstTypeRecurse("ElectronicsScrap")~=rt.input then return refuse(rt,"generator-native-payment-changed") end
         c.done,c.ack=true,true
+        if kind=="native"and E.operations[rt.operation]then
+            rt.electricalBefore=E.measure(rt.body,rt.object,rt.consumerObject,rt.consumerFact)
+            if not rt.electricalBefore then return refuse(rt,"electrical-pre-mutation-unavailable")end
+        end
         if kind=="native" then rt.nativeAttempted=true end
         local ok,result=pcall(complete,self)
         if kind=="equip" then
@@ -438,6 +483,9 @@ local function guard(rt,a,kind,item)
             return enqueue(rt,c.position+1)
         end
         rt.nativeCompleted=ok and result==true
+        if rt.nativeCompleted and E.operations[rt.operation]then
+            rt.nativeCompleted=E.commit(rt.object,rt.operation)==true
+        end
         return finish(rt,rt.nativeCompleted and "completed" or "failed","native-generator-stage-ended")
     end
     function a:stop()
@@ -539,6 +587,12 @@ local function queue(rt)
             return finish(rt,"interrupted","generator-state-reassessed")
         end
     end
+    if E.operations[rt.operation]then
+        rt.consumerObject=SAO.WorldSources.generatorConsumerObject(rt.body,rt.consumerFact)
+        if not rt.consumerObject then return false end
+        rt.electricalBefore=E.measure(rt.body,object,rt.consumerObject,rt.consumerFact)
+        if not rt.electricalBefore or rt.operation~="inspect-load"and rt.electricalBefore.loadOwner~="native-IsoGenerator"then return false end
+    end
     if not bound(rt,true) then return false end
     if rt.operation=="verify-power" then
         rt.consumerObject=SAO.WorldSources.generatorConsumerObject(rt.body,rt.consumerFact)
@@ -551,12 +605,15 @@ local function queue(rt)
     end
     if rt.input and rt.input:getContainer()~=rt.inventory then guard(rt,ISInventoryTransferAction:new(rt.body,rt.input,rt.input:getContainer(),rt.inventory),"transfer",rt.input) end
     if (rt.operation=="fuel" or rt.operation=="plumb") and rt.body:getPrimaryHandItem()~=rt.input then guard(rt,ISEquipWeaponAction:new(rt.body,rt.input,50,true,false),"equip",rt.input) end
-    local a=rt.operation=="inspect" and ISGeneratorInfoAction:new(rt.body,object)
+    local a
+    if E.operations[rt.operation]then a=E.action(rt.body,object,rt.consumerObject,rt.operation)
+    else a=rt.operation=="inspect" and ISGeneratorInfoAction:new(rt.body,object)
         or rt.operation=="repair" and ISFixGenerator:new(rt.body,object)
         or rt.operation=="fuel" and ISAddFuel:new(rt.body,object,rt.input)
         or rt.operation=="plumb" and G.plumbingAction:new(rt.body,object,rt.input)
         or rt.operation=="connect" and ISPlugGenerator:new(rt.body,object,true)
-        or ISActivateGenerator:new(rt.body,object,true)
+        or ISActivateGenerator:new(rt.body,object,true)end
+    if not a then return false end
     if rt.operation=="repair" then a.continueFixing=function() end end
     guard(rt,a,"native",rt.input)
     return enqueue(rt,1)

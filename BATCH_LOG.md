@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.7.7.0-pre-alpha` |
+| Version | `2.7.8.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - authoritative catalogue of classified delivered scope. |
@@ -17,7 +17,7 @@ The 2026-10-03 map grouped the retained source history into 35 shared ownership 
 
 ## Development catalogue
 
-Next: D6 — Managed electrical service.
+Next: D7 — Vehicle service and purposeful travel.
 
 D3 closes as a zero-credit historical aggregation of D3.1-D3.22. Their original labels, scope, evidence and earned credit remain unchanged. The [transition](Batches/Transitions/D-20261013-emmetropic-numbered-outcomes.md) assigns remaining work to finite numbered outcomes and retains unpublished D3.23 as a contribution to D4. [ROADMAP.md](ROADMAP.md#numbered-d-outcomes) owns the forward sequence.
 
@@ -708,3 +708,11 @@ D-series Beacon planning contains the Emmetropic numbered batch order and option
 | [D5](Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md) | 2026-10-13 | Water-network construction and alteration | T-003, T-008, T-030; private means, physical network, original use and saved learning |
 
 D5 integrates its useful Granular subdivisions D5.1-D5.5 at the Emmetropic parent level. Their linked records and machine-readable child map are retained in D5; the parent owns one kohai and this classified integrated delivery. Children are not independently shipped or separately credited.
+
+## D6 managed electrical service closed — 2026-10-13 19:19 UTC / 12:19 PDT
+
+| Batch | Date | Name | Threads |
+|---|---|---|---|
+| [D6](Batches/D6-20261013-1707Z-1007PDT-managed-electrical-service.md) | 2026-10-13 | Managed electrical service | T-003, T-008, T-030; native supply/bill/control, original powered use and saved feedback |
+
+D6.1-D6.3 retain useful Granular behavior/evidence in the Emmetropic parent with one D6 credit and common publication.

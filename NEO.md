@@ -39,7 +39,7 @@ and remain inside the human behavioral envelope regardless of skill.
   protected publication has its own receipt. D2 Leisure is closed as the
   integrated recreation product. D3's published contribution collection is
   closed as a zero-credit aggregation. D4 household water and power restoration
-  is active; ROADMAP.md owns the forward numbered outcomes; the established separately owned Mousecat sequence retains
+  and D5 water-network construction and alteration are delivered; D6 managed electrical service is delivered; D7 vehicle service and purposeful travel is next; ROADMAP.md owns the forward numbered outcomes; the established separately owned Mousecat sequence retains
   its own product history.
   `BATCH_LOG.md` indexes delivered scope and names the active batch separately.
 - **Batch shape.** A batch is a coherent development unit, closed when the

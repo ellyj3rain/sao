@@ -1586,11 +1586,13 @@ materialSource = function(purpose, sources, category, at)
 end
 
 local GeneratorPlanning = {}
+require "SAO_ElectricalService"
 GeneratorPlanning.tokens = { inspect = "utility:generator-inspected", repair = "utility:generator-repaired",
     fuel = "utility:generator-fuelled", connect = "utility:generator-connected",
     plumb = "utility:generator-plumbed",
     activate = "utility:generator-activated", ["verify-power"] = "utility:consumer-powered",
     ["learn-generator"] = "utility:generator-known" }
+for operation,token in pairs(SAO.ElectricalService.tokens)do GeneratorPlanning.tokens[operation]=token end
 function GeneratorPlanning.anchor(value, prefix)
     if type(value) ~= "table" then return nil end
     local sourceId = value.sourceId or value.id
@@ -1658,8 +1660,14 @@ function P.planGenerator(id, context)
         requestingPurposeId = intent.requestingPurposeId, requestingActivity = intent.requestingActivity,
         foodItemId = intent.foodItemId, foodItemType = intent.foodItemType, applianceSourceId = intent.applianceSourceId }
     purpose.generatorPower.consumer = consumer
-    for _, field in ipairs({ "requestingPurposeId", "requestingActivity", "foodItemId", "foodItemType", "applianceSourceId", "fuelService", "requestingPurposeStepId", "requestingPurposeRevision", "requestingPurposeCursor", "requestingEmptyPlan" }) do
+    for _, field in ipairs({ "requestingPurposeId", "requestingActivity", "foodItemId", "foodItemType", "applianceSourceId", "fuelService", "requestingPurposeStepId", "requestingPurposeRevision", "requestingPurposeCursor", "requestingEmptyPlan", "managedElectrical", "electricalOperation" }) do
         purpose.generatorPower[field] = dataCopy(intent[field])
+    end
+    if intent.managedElectrical==true and intent.requestingActivity=="cooking"then
+        local parent=s.purposes[intent.requestingPurposeId];local pending=parent and parent.steps[parent.cursor]
+        purpose.generatorPower.requestingPurposeRevision=parent and parent.revision
+        purpose.generatorPower.requestingPurposeCursor=parent and parent.cursor
+        purpose.generatorPower.requestingPurposeStepId=pending and pending.id
     end
     if purpose.awaitingReassessment then
         for _, prior in ipairs(purpose.steps or {}) do
@@ -1771,6 +1779,13 @@ function P.generatorRequestCurrent(id, work)
     local utility=s and s.purposes[work.requestedPurposeId or work.purposeId]
     local request=utility and utility.generatorPower
     if not request then return false end
+    if request.managedElectrical==true and request.requestingActivity=="cooking"then
+        local parent=s.purposes[request.requestingPurposeId];local step=parent and parent.steps[parent.cursor]
+        return parent and parent.resourceCategory=="food"and parent.status~="completed"and parent.status~="abandoned"
+            and not parent.admission and step and step.owner=="Cooking"
+            and step.id==request.requestingPurposeStepId and parent.revision==request.requestingPurposeRevision
+            and parent.cursor==request.requestingPurposeCursor and tostring(step.acquiredItemId)==tostring(request.foodItemId)
+    end
     if request.requestingActivity~="hydration" then return true end
     local parent=s.purposes[request.requestingPurposeId]
     local step=parent and parent.steps[parent.cursor]
@@ -1826,6 +1841,7 @@ function GeneratorPlanning.result(id, row, reading)
             if (row.operation ~= "inspect" and row.operation ~= "verify-power" and row.nativeAttempted ~= true)
                 or row.nativeCompleted ~= true or row.nativeCredit ~= row.id
                 or type(row.nativeOwner) ~= "string" or row.nativeOwner == "" then return false end
+            if SAO.ElectricalService.operations[row.operation]and not SAO.ElectricalService.receipt(row)then return false end
             if row.operation == "inspect" and (not row.generatorAfter or row.generatorAfter.inspected ~= true) then return false end
             if row.operation == "repair" and (not finite(row.beforeCondition) or not finite(row.afterCondition)
                 or row.afterCondition <= row.beforeCondition or row.inputConsumed ~= true) then return false end
@@ -1861,12 +1877,12 @@ function GeneratorPlanning.result(id, row, reading)
         request.generator = nil
         purpose.status, purpose.awaitingReassessment = "maintained", true
     end
-    if accepted and completed and step.operation ~= "verify-power" then
+    if accepted and completed and step.operation ~= "verify-power"and step.operation~="verify-service" then
         purpose.status, purpose.awaitingReassessment = "maintained", true
         if row.generatorAfter then purpose.generatorPower.generator = GeneratorPlanning.anchor(row.generatorAfter, "J:") end
         if row.consumerAfter then purpose.generatorPower.consumer = GeneratorPlanning.anchor(row.consumerAfter, "E:") end
     end
-    if accepted and completed and step.operation == "verify-power" and purpose.generatorPower.requestingActivity == "cooking" then
+    if accepted and completed and(step.operation == "verify-power"or step.operation=="verify-service")and purpose.generatorPower.requestingActivity == "cooking" then
         local request = purpose.generatorPower
         local food = s.purposes[request.requestingPurposeId]
         local pendingFood = food and food.steps[food.cursor]
@@ -1891,7 +1907,7 @@ function GeneratorPlanning.result(id, row, reading)
             end
         end
     end
-    if accepted and completed and step.operation == "verify-power" and purpose.generatorPower.requestingActivity == "hydration" then
+    if accepted and completed and(step.operation == "verify-power"or step.operation=="verify-service")and purpose.generatorPower.requestingActivity == "hydration" then
         local water = s.purposes[purpose.generatorPower.requestingPurposeId]
         if water and water.resourceCategory == "water" and water.status ~= "completed" and water.status ~= "abandoned"
             and not water.admission then

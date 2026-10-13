@@ -4465,6 +4465,13 @@ public final class SAOBridge {
         } catch (Throwable throwable) { SAOAgent.log("worldGeneratorConsumerPowered threw: " + throwable); return false; }
     }
 
+    public Object worldElectricalLoad(Object body, String id, String fingerprint, Object target) {
+        try {
+            if (!(body instanceof zombie.characters.IsoPlayer player) || !(target instanceof zombie.iso.IsoObject consumer)) return null;
+            return com.sao.engine.SAOWorldSources.electricalLoad(player, id, fingerprint, consumer);
+        } catch (Throwable unavailable) { SAOAgent.log("worldElectricalLoad threw: " + unavailable); return null; }
+    }
+
     public String worldGeneratorConsumer(Object object, Object target) {
         try { return object instanceof com.sao.engine.SAOIsoPlayerShell shell && target instanceof zombie.iso.IsoObject consumer
             ? com.sao.engine.SAOWorldSources.generatorConsumer(shell,consumer) : "";
