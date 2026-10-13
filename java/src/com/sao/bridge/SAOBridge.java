@@ -5240,4 +5240,39 @@ public final class SAOBridge {
         } catch(Throwable unavailable) { return null; }
     }
 
+    private static zombie.characterTextures.BloodBodyPartType garmentPart(String name) {
+        if(name==null)return null;
+        try { var part=zombie.characterTextures.BloodBodyPartType.valueOf(name);
+            return part==zombie.characterTextures.BloodBodyPartType.MAX?null:part;
+        } catch(IllegalArgumentException unavailable) { return null; }
+    }
+    public Object garmentObservations(Object object) {
+        try { return object instanceof SAOIsoPlayerShell body
+            ? com.sao.engine.SAOWorldSources.garmentObservations(body):null;
+        } catch(Throwable unavailable) { return null; }
+    }
+    public boolean garmentCurrent(Object object,Object expected,String partName,Object observation) {
+        try { var part=garmentPart(partName);
+            return object instanceof SAOIsoPlayerShell body && expected instanceof zombie.inventory.types.Clothing clothing
+                && part!=null && observation instanceof se.krka.kahlua.vm.KahluaTable plain
+                && com.sao.engine.SAOWorldSources.garmentCurrent(body,clothing,part,plain);
+        } catch(Throwable unavailable) { return false; }
+    }
+    public Object exactGarment(Object object,Object expected,String itemId,String partName,String sourceRevision,String observationRevision) {
+        try { var part=garmentPart(partName);
+            return object instanceof SAOIsoPlayerShell body && expected instanceof zombie.inventory.types.Clothing clothing && part!=null
+                ? com.sao.engine.SAOWorldSources.exactGarment(body,clothing,itemId,part,sourceRevision,observationRevision):null;
+        } catch(Throwable unavailable) { return null; }
+    }
+    public Object garmentForResult(Object object,Object relationship) {
+        try { return object instanceof SAOIsoPlayerShell body && relationship instanceof se.krka.kahlua.vm.KahluaTable plain
+            ? com.sao.engine.SAOWorldSources.garmentForResult(body,plain):null;
+        } catch(Throwable unavailable) { return null; }
+    }
+    public Object garmentInputObservation(Object object,String sourceId,String fingerprint,String revision,Object requirement) {
+        try { return object instanceof SAOIsoPlayerShell body && requirement instanceof se.krka.kahlua.vm.KahluaTable plain
+            ? com.sao.engine.SAOWorldSources.garmentInputObservation(body,sourceId,fingerprint,revision,plain):null;
+        } catch(Throwable unavailable) { return null; }
+    }
+
 }

@@ -27,7 +27,9 @@ local GENERATOR_READING_RESULT = {}
 local RECIPE_RESULT = {}
 local WORKSPACE_RESULT = {}
 local EXTRACTION_RESULT = {}
+local GARMENT_RESULT = {}
 local noteExtractionInputAcquired
+local garmentSame
 
 local MAX_PURPOSES, MAX_FACTS, MAX_EVENTS = 12, 64, 32
 local MAX_RESIDENCE_ATTEMPTS = 16
@@ -3819,6 +3821,7 @@ function P.noteAdmission(id, purposeId, owner, correlationId, stepId, authority)
     local s = state(id)
     local purpose = s and s.purposes[tostring(purposeId or "")]
     if not purpose or purpose.conflict or type(owner) ~= "string" or type(correlationId) ~= "string" then return false end
+    if purpose.garmentMaintenance and owner == "SAO.ResourceProduction" and authority ~= GARMENT_RESULT then return false end
     if purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
     if purpose.hobby and authority ~= HOBBY_RESULT then return false end
     local step = purpose.steps[purpose.cursor]
@@ -3891,6 +3894,8 @@ function P.recordResult(id, purposeId, result, authority)
             or step.owner=="SAONeeds" and authority~=BED_RECOVERY_RESULT
             or step.owner~="SAO.ResourceProduction" and step.owner~="SAONeeds" and step.owner~="SAO.SourceUse" then return false end
     end
+    if purpose and purpose.garmentMaintenance and step and step.owner == "SAO.ResourceProduction"
+        and authority ~= GARMENT_RESULT then return false end
     if purpose and purpose.materialWork then
         if not step then return false end
         if step.owner == "SAO.SourceUse" and (step.verb ~= "acquire" or step.token ~= "resource:acquired"
@@ -3898,6 +3903,7 @@ function P.recordResult(id, purposeId, result, authority)
         if step.owner == "SAOBuild" and step.token == "construction:boarded"
             and authority ~= BARRICADE_RESULT then return false end
         if step.owner == "SAO.ResourceProduction" and (step.verb ~= "produce"
+            and not (step.verb == "use" and step.token == "resource:garment-use-measured")
             or step.token == "resource:crafted" and authority ~= CRAFT_RESULT
             or step.token == "resource:repaired" and authority ~= REPAIR_RESULT
             or step.token == "resource:place-built" and authority ~= WORKSPACE_RESULT
@@ -3907,8 +3913,10 @@ function P.recordResult(id, purposeId, result, authority)
             or step.token == "resource:shelter-used" and authority ~= SHELTER_USE_RESULT
             or step.token == "resource:window-installed" and authority ~= WINDOW_GLAZING_RESULT
             or (step.token == "resource:recipe-produced" or step.token == "resource:recipe-maintained") and authority ~= RECIPE_RESULT
+            or (step.token == "resource:garment-maintained" or step.token == "resource:garment-use-measured") and authority ~= GARMENT_RESULT
             or step.token ~= "resource:crafted" and step.token ~= "resource:repaired" and step.token ~= "resource:bed-built" and step.token ~= "resource:shelter-built" and step.token ~= "resource:shelter-used" and step.token ~= "resource:window-installed"
-                and step.token ~= "resource:recipe-produced" and step.token ~= "resource:recipe-maintained" and step.token ~= "resource:place-built" and step.token ~= "resource:extracted") then return false end
+                and step.token ~= "resource:recipe-produced" and step.token ~= "resource:recipe-maintained" and step.token ~= "resource:place-built" and step.token ~= "resource:extracted"
+                and step.token ~= "resource:garment-maintained" and step.token ~= "resource:garment-use-measured") then return false end
     end
     if purpose and purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
     if purpose and purpose.noteReading and authority ~= NOTE_RESULT then return false end
@@ -4195,6 +4203,11 @@ function P.consumeSourceResult(receipt)
         if completed and (authoritative.quantityUnit~="item" or authoritative.requestedQuantity~=1
             or authoritative.observedQuantity~=1) then return false end
     end
+    if step.garmentRequirement then
+        if not garmentSame or not garmentSame(step.garmentRequirement,authoritative.garmentRequirement) then return false end
+        if completed and (authoritative.quantityUnit~="item"or authoritative.requestedQuantity~=1
+            or authoritative.observedQuantity~=1)then return false end
+    end
     if purpose.plumbing and (authoritative.actorId ~= receipt.actorId
         or authoritative.reservationId ~= receipt.reservationId or step.owner ~= "SAO.SourceUse"
         or step.verb ~= "acquire" or step.token ~= "resource:acquired" or admission.owner ~= step.owner
@@ -4254,7 +4267,7 @@ function P.admitInspection(id, receipt)
     local step = purpose and purpose.steps[purpose.cursor]
     local concept=purpose and purpose.inquiry and purpose.inquiry.mode=="inspect-holder"
         and purpose.inquiry.sourceId==receipt.sourceId
-    if not purpose or not (purpose.resourceCategory or purpose.recipeSupply or concept) or purpose.status == "completed" or purpose.status == "abandoned"
+    if not purpose or not (purpose.resourceCategory or purpose.recipeSupply or purpose.garmentMaintenance or concept) or purpose.status == "completed" or purpose.status == "abandoned"
         or not step or step.status ~= "available" or step.owner ~= "SAO.WorldSources"
         or step.token ~= (concept and "inquiry:inspected" or "resource:inspected") or step.id ~= receipt.purposeStepId
         or type(step.sourceId) ~= "string" or step.target ~= step.sourceId
@@ -4705,6 +4718,7 @@ function P.snapshot(id)
                 appraisal = dataCopy(purpose.appraisal),
                 inquiry = dataCopy(purpose.inquiry),
                 generatorPower = dataCopy(purpose.generatorPower),
+                garmentMaintenance = dataCopy(purpose.garmentMaintenance),
                 shelterConstruction=dataCopy(purpose.shelterConstruction),
                 gateAccess=dataCopy(purpose.gateAccess),
                 decisionAt = purpose.decisionAt, assessedAt = purpose.assessedAt,
@@ -6032,6 +6046,302 @@ noteExtractionInputAcquired=function(id,parent,step,canonical)
  own.acquisitionId=canonical.reservationId;p.status="completed";p.resolvedAt=canonical.at
  p.resolution="extracted-stock-acquired-for-original-input";p.blockers={}
  return true
+end
+
+-- PRIVATE append proposal for existing SAO_ProceduralPlanning.lua.
+-- Requires the integrated acquired-fact and current native-option interfaces;
+-- it supplies no observer, physical executor or canonical result store.
+garmentSame=function(a,b)
+ if type(a)~=type(b) then return false end
+ if type(a)~="table" then return a==b end
+ if getmetatable(a) or getmetatable(b) then return false end
+ for k,v in pairs(a) do if not garmentSame(v,b[k]) then return false end end
+ for k in pairs(b) do if a[k]==nil then return false end end
+ return true
+end
+function P.garmentPurpose(id,purposeId)
+ local s=state(id)
+ for n=#(s and s.order or {}),1,-1 do
+  local p=s.purposes[s.order[n]]
+  if p and p.garmentMaintenance and (not purposeId or p.id==purposeId)
+   and p.status~="completed" and p.status~="abandoned" then return p,p.steps[p.cursor] end
+ end
+end
+function P.garmentRequestCurrent(id,body,work)
+ if type(work)~="table" or getmetatable(work) then return false end
+ local rec=record(id);local p,step=P.garmentPurpose(id,work and work.purposeId)
+ local g=p and p.garmentMaintenance
+ if not rec or rec.dead or rec.resourceProductionWork~=work or work.actorId~=id or not g or SAO.Body.get(id)~=body or not step
+  or step.id~=work.purposeStepId or step.owner~="SAO.ResourceProduction"
+  or step.productionKind~="maintain-garment" or type(step.garment)~="table" or step.status~="available" or p.admission
+  and (p.admission.owner~="SAO.ResourceProduction" or p.admission.correlationId~=work.id) then return false end
+ for _,key in ipairs({"bodyToken","itemId","itemType","part","sourceRevision","observationRevision","operation","requestedEffect"}) do
+  if work[key]~=g[key] or work[key]~=step.garment[key] then return false end
+ end
+ -- This guard reauthorizes the original request. R separately validates the
+ -- exact current native source/item/input state at the appropriate phase;
+ -- paid native patching must not revoke itself by changing observation state.
+ return work.bodyToken==rec.bodyOwnerToken
+end
+function P.planGarmentWork(id,body,context)
+ local rec=record(id)
+ if not rec or rec.dead or SAO.Body.get(id)~=body or type(context)~="table" or context.actorId~=id
+  or type(context.observation)~="table" or not SAO.Perception.garmentCurrent then return nil end
+ local known=SAO.Perception.garmentCurrent(id,body,context.observation)
+ if not known or not garmentSame(known,context.observation) then return nil end
+ local choices,offers={},{}
+ for _,option in ipairs(context.options or {}) do
+  if option.actorId==id and option.itemId==known.itemId and option.itemType==known.itemType
+   and option.part==known.part and option.sourceRevision==known.sourceRevision
+   and option.observationRevision==known.observationRevision and type(option.id)=="string"
+   and finite(option.benefit) and option.benefit>0 and type(option.ready)=="boolean"
+   and SAO.ResourceProduction.garmentOptionCurrent(id,body,known,option) then
+   offers[option.id]=option
+   choices[#choices+1]={id=option.id,utility=clamp(option.benefit,0,16),evidence=1,continuity=1,novelty=0,
+    informationGain=0,blockers=option.ready and 0 or 1}
+  end
+ end
+ if #choices==0 then return nil end
+ SAO.Ordering.sort(choices,function(a,b)return a.id<b.id end)
+ local view=interpretations(id,choices,{domain="body",pressure=context.pressure or 0,atHours=nowHours()})
+ local selected=view and offers[view.selected]
+ if not selected then return nil end
+ local p=P.maintain(id,{key="garment-upkeep:"..known.itemId..":"..known.part,domain="body",
+  objective="maintain personally observed worn protection",origin="worn-garment-observation",atHours=nowHours()})
+ if not p or p.admission then return p end
+ local frame=selected.id
+ local predecessor
+ for _,key in ipairs({"retiredUseWorkIds","unconfirmedWorkIds"})do
+  local history=p.garmentMaintenance and p.garmentMaintenance[key]
+  local previous=history and history[#history]
+  if previous~=nil then
+   local prior=type(previous)=="string"and SAO.ResourceProduction.outcome(id,previous)
+   local consumed=false
+   for _,receipt in ipairs(p.resultReceipts or{})do
+    if receipt=="SAO.ResourceProduction:"..tostring(previous)then consumed=true;break end
+   end
+   if not consumed or type(prior)~="table"or prior.id~=previous or prior.actorId~=id
+    or prior.purposeId~=p.id or prior.kind~="maintain-garment"or prior.status~="completed"
+    or prior.nativeCredit~=prior.id or prior.itemId~=known.itemId or prior.part~=known.part
+    or not finite(prior.sequence)or prior.sequence<1 or prior.sequence%1~=0 then return nil end
+   if not predecessor or prior.sequence>predecessor.sequence then predecessor=prior end
+  end
+ end
+ if predecessor then frame=frame..":after:"..tostring(predecessor.sequence)end
+ local g={bodyToken=known.bodyToken,itemId=known.itemId,itemType=known.itemType,part=known.part,
+  sourceRevision=known.sourceRevision,observationRevision=known.observationRevision,
+  operation=selected.operation,requestedEffect=selected.requestedEffect}
+ g.preparatoryWorkIds=dataCopy(p.garmentMaintenance and p.garmentMaintenance.preparatoryWorkIds)
+ g.retiredUseWorkIds=dataCopy(p.garmentMaintenance and p.garmentMaintenance.retiredUseWorkIds)
+ g.unconfirmedWorkIds=dataCopy(p.garmentMaintenance and p.garmentMaintenance.unconfirmedWorkIds)
+ p.garmentMaintenance=dataCopy(g);p.materialWork={operation="maintain-garment",entryKey=selected.id}
+ local step={id="garment-service:"..frame,verb="produce",owner="SAO.ResourceProduction",
+  token="resource:garment-maintained",target=known.itemId,productionKind="maintain-garment",
+  garment=dataCopy(g),materials=dataCopy(selected.materials),status=selected.ready and "available" or "blocked"}
+ local use={id="garment-use:"..frame,verb="use",owner="SAO.ResourceProduction",
+  token="resource:garment-use-measured",target=known.itemId,productionKind="use-maintained-garment",
+  garment=dataCopy(g),status="dependent"}
+ local steps={}
+ if not selected.ready then
+  for _,material in ipairs(selected.materials or{})do
+   if material.itemId==nil and (material.role=="needle"or material.role=="thread"or material.role=="fabric")then
+    local inputId="garment-input:"..frame..":"..material.role
+    local req={schema="sao.garment-input/1",actorId=id,purposeId=p.id,stepId=inputId,
+     targetItemId=g.itemId,targetItemType=g.itemType,part=g.part,bodyToken=g.bodyToken,
+     sourceRevision=g.sourceRevision,observationRevision=g.observationRevision,operation=g.operation,
+     requestedEffect=g.requestedEffect,role=material.role,itemType=material.itemType,
+     requiredUses=material.requiredUses,quantityUnit=material.quantityUnit}
+    steps[1]={id=inputId,verb="acquire",owner="SAO.SourceUse",token="resource:acquired",
+     target="garment-role:"..material.role,category="garment-input",garmentRequirement=req,
+     quantity=1,quantityUnit="item",status="available"}
+    step.status="dependent";break
+   end
+  end
+ end
+ steps[#steps+1]=step;steps[#steps+1]=use
+ setPlan(p,steps,not selected.ready and #steps==2 and {"garment-materials-required"}or{},dataCopy(view),nowHours())
+ p.awaitingReassessment=nil
+ return p,p.steps[p.cursor]
+end
+
+function P.garmentInputAdmission(id,requirement)
+ if type(requirement)~="table"or getmetatable(requirement)then return false end
+ local rec=record(id);local p,step=P.garmentPurpose(id,requirement and requirement.purposeId)
+ if type(requirement)~="table"or getmetatable(requirement)or not rec or rec.dead or not p or not step
+  or step.owner~="SAO.SourceUse"or step.verb~="acquire"or step.status~="available"
+  or step.category~="garment-input"or requirement.schema~="sao.garment-input/1"
+  or requirement.actorId~=id or requirement.stepId~=step.id or not garmentSame(requirement,step.garmentRequirement)
+  or p.admission and (p.admission.owner~="SAO.SourceUse"or p.admission.stepId~=step.id)
+  or not SAO.Body.get(id)then return false end
+ return SAO.Perception.garmentCurrent(id,SAO.Body.get(id),p.garmentMaintenance)~=nil
+end
+function P.selectGarmentInput(id,body,purposeId,offered)
+ local p,step=P.garmentPurpose(id,purposeId);local req=step and step.garmentRequirement
+ if not req or p.admission or not P.garmentInputAdmission(id,req)or type(offered)~="table"or offered.actorId~=id
+  or not garmentSame(offered.garmentRequirement,req)then return false end
+ local choices,byId={},{}
+ for _,option in ipairs(offered.options or{})do
+  local a=option.parameters
+  if option.owner=="SAO.SourceUse"and a and a.actorId==id and a.operation=="acquire"
+   and a.category=="garment-input"and type(a.itemType)=="string"then
+   byId[option.id]=option
+   choices[#choices+1]={id=option.id,evidence=1,continuity=1,novelty=0,informationGain=.1,blockers=0,
+    utility=1-(tonumber(option.distance)or 0)/100}
+  end
+ end
+ if #choices==0 then return false end
+ SAO.Ordering.sort(choices,function(a,b)return a.utility==b.utility and a.id<b.id or a.utility>b.utility end)
+ while #choices>16 do table.remove(choices)end
+ local view=interpretations(id,choices,{domain="body",atHours=nowHours()})
+ local selected=view and byId[view.selected];if not selected then return false end
+ local a=selected.parameters
+ step.target=a.sourceId..":"..tostring(a.itemId);step.sourceId=a.sourceId;step.sourceRevision=a.revision
+ step.itemId=a.itemId;step.itemType=a.itemType;step.place=dataCopy(selected.place or offered.place)
+ step.status="available";p.status="maintained";p.blockers={};p.garmentMaintenance.inputChoice=dataCopy(view)
+ return step.place~=nil
+end
+function P.prepareGarmentInspection(id,purposeId,context)
+ local p,current=P.garmentPurpose(id,purposeId)
+ if not p or p.admission or not current or current.owner~="SAO.SourceUse"or not current.garmentRequirement
+  or not P.garmentInputAdmission(id,current.garmentRequirement)or type(context)~="table"or context.actorId~=id
+  or type(context.sourceId)~="string"or type(context.fingerprint)~="string"then return nil end
+ local step={id="garment-inspection:"..context.sourceId..":"..context.fingerprint,verb="inspect",owner="SAO.WorldSources",
+  token="resource:inspected",target=context.sourceId,sourceId=context.sourceId,fingerprint=context.fingerprint,
+  sourceX=context.sourceX,sourceY=context.sourceY,sourceZ=context.sourceZ,status="available"}
+ table.insert(p.steps,p.cursor,step);current.status="dependent";p.status="maintained";return step
+end
+local function retireGarmentUse(p,g,physical)
+ g.retiredUseWorkIds=g.retiredUseWorkIds or{}
+ local seen=false;for _,workId in ipairs(g.retiredUseWorkIds)do if workId==physical.id then seen=true end end
+ if not seen then g.retiredUseWorkIds[#g.retiredUseWorkIds+1]=physical.id end
+ g.physicalResultId=nil;g.wornUseReceipt=nil;g.wornBenefitMeasured=nil
+ p.status="maintained";p.awaitingReassessment=true;p.blockers={"garment-native-use-binding-changed"}
+end
+function P.consumeGarmentUse(id,body,purposeId)
+ local s=state(id);local p=s and s.purposes[purposeId];local g=p and p.garmentMaintenance
+ local rec=record(id);local step=p and p.steps[p.cursor]
+ if not rec or rec.dead or not g or not g.physicalResultId or SAO.Body.get(id)~=body then return false end
+ local currentBodyToken=body:getModData().SAOExternalToken
+ if currentBodyToken~=rec.bodyOwnerToken then return false end
+ local physical=SAO.ResourceProduction.outcome(id,g.physicalResultId)
+ if not physical or physical.purposeId~=p.id or physical.actorId~=id or physical.status~="completed"
+  or physical.nativeCredit~=physical.id then return false end
+ local key="garment-worn-use:"..physical.id
+ for _,receipt in ipairs(p.resultReceipts or{})do
+  if receipt=="SAO.ResourceProduction:"..key then return g.wornUseReceipt~=nil end
+ end
+ if p.status~="maintained"or p.admission or not step or step.status~="available"or step.verb~="use"
+  or step.owner~="SAO.ResourceProduction"or step.token~="resource:garment-use-measured"then return false end
+ local native,observed,currentStatus=SAO.Perception.garmentForResult(id,body,physical.id)
+ if not native or not observed then
+  if observed and currentStatus=="current-native-result-refused"
+   and observed.itemId==physical.itemId and observed.part==physical.part
+   and SAO.Perception.garmentCurrent(id,body,observed)then retireGarmentUse(p,g,physical)end
+  return false
+ end
+ local measured=SAO.ResourceProduction.garmentUseObservation(id,body,physical.id,native,observed)
+ if type(measured)=="table"and measured.workId==physical.id and measured.actorId==id
+  and measured.itemId==physical.itemId and measured.itemType==physical.itemType
+  and measured.part==physical.part and measured.sourceRevision==physical.sourceRevision
+  and measured.effectMatchesCanonical==false and SAO.Perception.garmentCurrent(id,body,observed)then
+  retireGarmentUse(p,g,physical);return false
+ end
+ if type(measured)~="table"or measured.workId~=physical.id or measured.actorId~=id
+  or measured.itemId~=physical.itemId or measured.itemType~=physical.itemType or measured.part~=physical.part
+  or measured.sourceRevision~=physical.sourceRevision or measured.effectMatchesCanonical~=true
+  or measured.nativeUseMeasured~=true or measured.beneficial~=true
+  or measured.currentBodyToken~=currentBodyToken or type(measured.currentObservation)~="table"
+  or measured.currentObservation.bodyToken~=currentBodyToken
+  or not finite(measured.atHours)or measured.atHours<physical.atHours or measured.atHours>nowHours()
+  or not finite(measured.wornScratchDefense)or not finite(measured.wornBiteDefense)then return false end
+ if not P.noteAdmission(id,p.id,"SAO.ResourceProduction",key,step.id,GARMENT_RESULT)then return false end
+ if not P.recordResult(id,p.id,{owner="SAO.ResourceProduction",token=step.token,status="completed",
+  correlationId=key,atHours=measured.atHours},GARMENT_RESULT)then return false end
+ g.wornUseReceipt=dataCopy(measured);g.wornBenefitMeasured=true
+ if SAO.Cognition and SAO.Cognition.garmentUseOutcome then SAO.Cognition.garmentUseOutcome(id,p.id)end
+ return true
+end
+function P.garmentUseReceipt(id,purposeId)
+ local s=state(id);local p=s and s.purposes[purposeId];local g=p and p.garmentMaintenance
+ local measured=g and g.wornUseReceipt
+ local rec=record(id);local body=SAO.Body.get(id)
+ if not p or p.status~="completed"or not g or g.wornBenefitMeasured~=true or type(measured)~="table"
+  or not rec or rec.dead or not body or body:getModData().SAOExternalToken~=rec.bodyOwnerToken
+  or measured.currentBodyToken~=rec.bodyOwnerToken or type(measured.currentObservation)~="table"
+  or measured.currentObservation.bodyToken~=rec.bodyOwnerToken then return nil end
+ local physical=SAO.ResourceProduction.outcome(id,g.physicalResultId)
+ if not physical or physical.actorId~=id or physical.purposeId~=p.id or physical.status~="completed"
+  or physical.nativeCredit~=physical.id or measured.workId~=physical.id or measured.actorId~=id
+  or measured.itemId~=physical.itemId or measured.itemType~=physical.itemType or measured.part~=physical.part
+  or measured.sourceRevision~=physical.sourceRevision or measured.effectMatchesCanonical~=true
+  or measured.nativeUseMeasured~=true or measured.beneficial~=true
+  or not finite(measured.atHours)or measured.atHours<physical.atHours or measured.atHours>nowHours()then return nil end
+ local correlation="garment-worn-use:"..physical.id;local consumed=false
+ for _,key in ipairs(p.resultReceipts or{})do if key=="SAO.ResourceProduction:"..correlation then consumed=true end end
+ if not consumed then return nil end
+ return {schema="sao.garment-worn-use/1",actorId=id,purposeId=p.id,physicalWorkId=physical.id,
+  sequence=physical.sequence,correlationId=correlation,itemId=physical.itemId,itemType=physical.itemType,
+  part=physical.part,sourceRevision=physical.sourceRevision,atHours=measured.atHours,
+  nativeCredit=physical.id,nativeUseMeasured=true,beneficial=true,measurement=dataCopy(measured)}
+end
+function P.admitGarmentWork(id,work)
+ local rec=record(id);local body=SAO.Body.get(id)
+ if not rec or rec.resourceProductionWork~=work or not P.garmentRequestCurrent(id,body,work)
+  or work.actorId~=id or work.kind~="maintain-garment" or not finite(work.startedAt)
+  or work.startedAt>nowHours() or type(work.id)~="string" or not finite(work.sequence)then return false end
+ local p,step=P.garmentPurpose(id,work.purposeId)
+ if not p or p.admission then return false end
+ if not P.noteAdmission(id,p.id,"SAO.ResourceProduction",work.id,step.id,GARMENT_RESULT)then return false end
+ p.admission.garment=dataCopy(work)
+ return true
+end
+function P.consumeGarmentOutcome(id,sequenceOrReceipt)
+ local supplied=type(sequenceOrReceipt)=="table" and sequenceOrReceipt or nil
+ local sequence=supplied and supplied.sequence or sequenceOrReceipt
+ local row=SAO.ResourceProduction.outcome(id,sequence);local s=state(id)
+ if supplied and not garmentSame(supplied,row)then return false end
+ local p=type(row)=="table" and s and s.purposes[row.purposeId]
+ local a=p and (p.admission or p.lastAdmission);local work=a and a.garment
+ if not p or not p.garmentMaintenance or not work or row.actorId~=id or row.kind~="maintain-garment"
+  or row.id~=a.correlationId or row.sequence~=sequence or row.purposeStepId~=a.stepId
+  or not finite(row.atHours)or row.atHours<work.startedAt or row.atHours>nowHours()then return false end
+ for _,k in ipairs({"bodyToken","itemId","itemType","part","sourceRevision","observationRevision","operation","requestedEffect"})do
+  if row[k]~=work[k]then return false end
+ end
+ if row.status=="completed" and (row.nativeCompleted~=true or row.nativeCredit~=row.id
+  or row.paymentMeasured~=true or row.requestedEffectMeasured~=true)then return false end
+ local accepted=P.recordResult(id,p.id,{owner="SAO.ResourceProduction",token="resource:garment-maintained",
+  status=row.status,correlationId=row.id,atHours=row.atHours},GARMENT_RESULT)
+ if accepted and row.status=="completed"then
+  if row.operation=="remove-patch"then
+   local g=p.garmentMaintenance;g.preparatoryWorkIds=g.preparatoryWorkIds or{}
+   local seen=false;for _,id in ipairs(g.preparatoryWorkIds)do if id==row.id then seen=true end end
+   if not seen then g.preparatoryWorkIds[#g.preparatoryWorkIds+1]=row.id end
+   g.physicalResultId=nil;g.wornUseReceipt=nil;g.wornBenefitMeasured=nil
+   p.status="maintained";p.awaitingReassessment=true;p.blockers={"removed-padding-reassessment-required"}
+   return true
+  end
+  if row.serviceRelationStatus~="confirmed"or type(row.serviceRelation)~="table"then
+   local g=p.garmentMaintenance;g.unconfirmedWorkIds=g.unconfirmedWorkIds or{}
+   local seen=false;for _,workId in ipairs(g.unconfirmedWorkIds)do if workId==row.id then seen=true end end
+   if not seen then g.unconfirmedWorkIds[#g.unconfirmedWorkIds+1]=row.id end
+   g.physicalResultId=nil;g.wornUseReceipt=nil;g.wornBenefitMeasured=nil
+   p.status="maintained";p.awaitingReassessment=true;p.blockers={"garment-native-lineage-unconfirmed"}
+   return true
+  end
+  p.garmentMaintenance.physicalResultId=row.id
+  local use=p.steps[p.cursor]
+  local matches=use and type(use.garment)=="table"
+  for _,field in ipairs({"bodyToken","itemId","itemType","part","sourceRevision","observationRevision","operation","requestedEffect"})do
+   if not matches or use.garment[field]~=row[field]then matches=false;break end
+  end
+  if use and use.verb=="use"and use.owner=="SAO.ResourceProduction"and use.token=="resource:garment-use-measured"
+   and use.productionKind=="use-maintained-garment"and use.target==row.itemId
+   and matches then use.status="available"end
+  -- Payment/effect advance the physical step. The separate native wearer-use
+  -- receipt must still resolve the original personal protection purpose.
+ end
+ return accepted
 end
 
 return P

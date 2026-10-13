@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.4.0-pre-alpha` |
+| Version | `2.7.5.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -2518,3 +2518,7 @@ Native world locators identify position/index, not instance generation. The exis
 ## Native factory provenance and partial use (D3.21)
 
 Existing ResourceProduction captures the original native prop return or explicit callback replacement after native payment/create, preserving full fresh canonical ownership and part relationships. Fixed native InputScript use amounts bind selected identities, applied consumed/keep lists and actual before/after units. A source entity is provenance; a native part may carry no script or the exact source-associated script, and its class/full geometry/current object remain independently measured. Models preserves this distinction alongside legacy thumpable evidence and canonical callback authenticity. [D3.21](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) qualifies ordinary acquired Stool/current and cold surface/original work; unknown callbacks/stages/resource channels and thermal consumers retain owning parent requirements.
+
+## Worn garment service and independent protection (D3.22)
+
+Private Perception acquires actual worn Clothing/covered-part/source and mutable native state. Planner and Controller retain the personal concern, default choice and exact nonrecipe material roles through existing signed SourceUse. The existing ResourceProduction capsule owns original RepairClothing/RemovePatch, measured payment/effect and native per-part persisted canonical work relation. Preparatory removal refreshes the same purpose instead of entering a benefit step. Current and cold exact native target matching guards separate use; original Clothing.getDefForPart plus the native visual-hole condition supplies target protection, while aggregate wearer defense remains an observation. Canonical physical and independent use feedback keep their full private projections and source-aware validation. [D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) is useful progress within OPEN D3; washing/filter/other equipment and complete utility/authority consumers remain.

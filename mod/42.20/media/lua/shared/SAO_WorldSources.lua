@@ -1442,6 +1442,64 @@ end
 
 -- The ingredient role belongs to an exact retained demand. Intrinsic source
 -- categories remain the native observation's original categories.
+function WS.garmentRequirementCopy(r)
+ local fields={schema=true,actorId=true,purposeId=true,stepId=true,targetItemId=true,targetItemType=true,part=true,sourceRevision=true,observationRevision=true,operation=true,requestedEffect=true,role=true,itemType=true,requiredUses=true,quantityUnit=true,bodyToken=true}
+ if type(r)~="table"or getmetatable(r)or r.schema~="sao.garment-input/1"or r.requiredUses~=1 then return nil end
+ local o={};for k,v in pairs(r)do if not fields[k]or type(v)~="string"and type(v)~="number"then return nil end;o[k]=v end
+ for _,k in ipairs({"actorId","purposeId","stepId","targetItemId","targetItemType","part","sourceRevision","observationRevision","operation","requestedEffect","role","itemType","quantityUnit"})do if type(o[k])~="string"or o[k]==""or #o[k]>512 then return nil end end
+ if o.bodyToken~=nil and (type(o.bodyToken)~="string"or o.bodyToken==""or #o.bodyToken>160)then return nil end
+ if o.operation~="repair-clothing"and o.operation~="remove-patch"then return nil end
+ if o.operation=="remove-patch"and(o.role~="needle"or o.requestedEffect~="remove-native-padding")then return nil end
+ if o.operation=="repair-clothing"and o.requestedEffect~="restore-hole"and o.requestedEffect~="add-padding"then return nil end
+ if o.role=="fabric"then
+  if o.quantityUnit~="item"or not({["Base.RippedSheets"]=true,["Base.DenimStrips"]=true,["Base.LeatherStrips"]=true})[o.itemType]then return nil end
+ elseif o.role=="thread"then if o.quantityUnit~="use"then return nil end
+ elseif o.role=="needle"then if o.quantityUnit~="item"then return nil end
+ else return nil end
+ return o
+end
+function WS.garmentDemandCurrent(actorId,r)
+ local copy=WS.garmentRequirementCopy(r);local p=SAO.ProceduralPlanning
+ if not copy or copy.actorId~=tostring(actorId)or not p or not p.garmentInputAdmission then return false end
+ local ok,current=pcall(p.garmentInputAdmission,tostring(actorId),copy);return ok and current==true
+end
+function WS.garmentSlotOptions(place,actorId,body,requirement,admission)
+ local r=WS.garmentRequirementCopy(requirement);actorId=tostring(actorId or "")
+ local value=store();local rec=SAO.Identity and SAO.Identity.get(actorId)
+ if not r or not value or not place or not place.id or not body or not rec or rec.dead or SAO.Body.get(actorId)~=body then return nil,"garment-requirement-required"end
+ if rec.worldSourceReservation then return nil,"already-pending"end
+ if not WS.garmentDemandCurrent(actorId,r)then return nil,"garment-demand-not-current"end
+ admission=tostring(admission or "standing")
+ if not SAO.Standing.mayAttemptBelieved(actorId,place.cx,place.cy,admission)then return nil,"standing-refused"end
+ local room,why=reservationRoom(value);if not room then return nil,why end
+ local known=SAO.Perception.knownPlaces(actorId,true);local belief=known and(known[place.id]or known[tostring(place.id)])
+ if not belief then return nil,"not-privately-observed"end
+ local offered={schemaVersion=1,actorId=actorId,category="garment-input",quantity=1,admission=admission,atHours=nowHours(),options={},candidateCount=0,limit=MAX_ACTION_OPTIONS,garmentRequirement=r,nativeState="revalidate-exact-item-on-arrival"}
+ for id,source in pairs(belief.sourceFacts or {})do
+  local physical=value.sources[tostring(id)]
+  if sourceBelongsToPlace(source,place)and(source.state=="available"or source.state=="spent")
+   and(source.explored==true or source.kind=="ground"and source.knowledgeKind=="visible-ground")
+   and physical and physical.revision==source.revision and physical.fingerprint==source.fingerprint
+   and beliefHasRevision(belief,id,source.revision)and not pendingFor(value,id,nil)then
+   local ok,native=pcall(function()return SAOJavaBridge:garmentInputObservation(body,source.id,source.fingerprint,source.revision,r)end)
+   if ok and type(native)=="table"and native.actorId==actorId and native.sourceId==source.id and native.fingerprint==source.fingerprint and native.revision==source.revision then
+    local equal=type(native.garmentRequirement)=="table";if equal then for k,v in pairs(r)do if native.garmentRequirement[k]~=v then equal=false end end;for k in pairs(native.garmentRequirement)do if r[k]==nil then equal=false end end end
+    if equal then for _,row in ipairs(native.items or {})do local item=physical.items[tostring(row.itemId)]
+     if row.nativeEligible==true and item and item.type==row.itemType and (r.role~="fabric"or row.itemType==r.itemType) and WS.recipeInputAvailable(actorId,row.itemId)==true then
+      local p={action="attempt-source-use",actorId=actorId,placeId=tostring(place.id),category="garment-input",admission=admission,quantity=1,sourceId=source.id,sourceKind=source.kind,sourceX=source.x,sourceY=source.y,sourceZ=source.z,chunkX=source.chunkX,chunkY=source.chunkY,fingerprint=source.fingerprint,revision=source.revision,itemId=item.id,itemType=item.type,itemAmount=tonumber(item.amount)or 0,itemUses=tonumber(item.uses)or 0,itemHydrationAmount=item.hydrationAmount,itemSignature=itemSignature(item),operation="acquire"}
+      for key,v in pairs(r)do p["garment_"..key]=v end
+      local option={id=tostring(id)..":item:"..tostring(item.id),owner="SAO.SourceUse",parameters=p,eligibility={status="eligible"}}
+      offered.candidateCount=offered.candidateCount+1;local at=#offered.options+1;while at>1 and offered.options[at-1].id>option.id do at=at-1 end
+      if at<=MAX_ACTION_OPTIONS then table.insert(offered.options,at,option);if #offered.options>MAX_ACTION_OPTIONS then table.remove(offered.options)end end
+     end
+    end end
+   end
+  end
+ end
+ if #offered.options==0 then return nil,"native-garment-ingredient-observation-required"end
+ offered.truncated=offered.candidateCount>#offered.options;return offered
+end
+
 function WS.recipeSlotOptions(place,category,actorId,body,requirement,admission)
     if not SAO.Material or not SAO.Material.recipeObservedType or type(requirement)~="table" then return nil,"recipe-requirement-required" end
     if category=="recipe-input" then
@@ -2261,9 +2319,12 @@ end
 -- Re-enumerate the actor's current eligible attempts before reserving. A
 -- changed or forged selected descriptor is refused; a different source is
 -- never silently substituted. The omitted selection retains the legacy API.
-function WS.beginAction(place, category, actorId, body, quantity, admission, selected, operation, recipeRequirement)
+function WS.beginAction(place, category, actorId, body, quantity, admission, selected, operation, recipeRequirement, garmentRequirement)
     local offered,why
-    if category=="recipe-input" then
+    if category=="garment-input"then
+        if operation~="acquire"then return nil,"unsupported-operation"end
+        offered,why=WS.garmentSlotOptions(place,actorId,body,garmentRequirement,admission)
+    elseif category=="recipe-input" then
         if operation~="acquire" then return nil,"unsupported-operation" end
         offered,why=WS.recipeSlotOptions(place,category,actorId,body,recipeRequirement,admission)
     else offered, why = WS.actionOptions(place, category, actorId, body,
@@ -2321,6 +2382,11 @@ function WS.beginAction(place, category, actorId, body, quantity, admission, sel
         if not copy or not recipeDemandCurrent(actorId,copy) then value.reservations[reservationId]=nil;return nil,"recipe-demand-not-current" end
         reservation.recipeRequirement=copy
         reservation.purposeId,reservation.purposeStepId=copy.purposeId,copy.stepId
+    end
+    if category=="garment-input"then
+        local copy=WS.garmentRequirementCopy(garmentRequirement)
+        if not copy or not WS.garmentDemandCurrent(actorId,copy)then value.reservations[reservationId]=nil;return nil,"garment-demand-not-current"end
+        reservation.garmentRequirement=copy;reservation.purposeId,reservation.purposeStepId=copy.purposeId,copy.stepId
     end
     record.worldSourceReservation = reservationId
     return reservation
@@ -2597,6 +2663,7 @@ local function result(value, reservation, status, detail)
         itemCategories = reservation.itemCategories,
         itemSignature = reservation.itemSignature,
         recipeRequirement = reservation.recipeRequirement,
+        garmentRequirement = WS.garmentRequirementCopy(reservation.garmentRequirement),
         itemCondition = reservation.itemCondition,
         itemCurrentUses = reservation.itemCurrentUses,
         category = reservation.category,
@@ -2673,6 +2740,7 @@ local function receiptCopy(receipt)
         itemCondition = receipt.itemCondition,
         itemCurrentUses = receipt.itemCurrentUses,
         recipeRequirement = SAO.RecipePolicy and SAO.RecipePolicy.project({requirements=receipt.recipeRequirement}) or nil,
+        garmentRequirement = WS.garmentRequirementCopy(receipt.garmentRequirement),
         category = receipt.category,
         provisioningGroup = receipt.provisioningGroup,
         provisioningContext = receipt.provisioningContext,

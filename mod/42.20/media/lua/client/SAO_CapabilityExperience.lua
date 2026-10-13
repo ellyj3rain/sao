@@ -68,6 +68,9 @@ end
 end
 SAO.ResourceProduction.onOutcome = function(id, receipt)
     local canonical = receipt and SAO.ResourceProduction.outcome(id, receipt.id)
+    if canonical and canonical.kind=="maintain-garment"then
+        return SAO.Cognition and SAO.Cognition.garmentMaintenanceOutcome and SAO.Cognition.garmentMaintenanceOutcome(id,canonical)or false
+    end
     if canonical and canonical.kind=="build-place" then
         return SAO.Cognition and SAO.Cognition.workspaceConstructionOutcome and SAO.Cognition.workspaceConstructionOutcome(id,canonical) or false
     end

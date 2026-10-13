@@ -169,6 +169,62 @@ def digest_sink(source, name):
             and len(re.findall(r"\.append\(", code)) == 2)
 
 
+def inline_digest_sinks(source_body, code, variable):
+    """Recognize local UTF-8 input to native SHA-256 with a default hex sink."""
+    value = re.escape(variable)
+    hashes = re.finditer(
+        r"(?<![\w.$])(?:java\.security\.)?MessageDigest\s*\.\s*getInstance\s*\(([^()]*)\)"
+        r"\s*\.\s*digest\s*\(\s*" + value + r"\s*\.\s*toString\s*\(\s*\)"
+        r"\s*\.\s*getBytes\s*\(\s*(?:java\.nio\.charset\.)?StandardCharsets\s*\.\s*UTF_8\s*\)\s*\)", code)
+    hex_head = r"(?<![\w.$])(?:java\.util\.)?HexFormat\s*\.\s*of\s*\(\s*\)\s*\.\s*formatHex\s*\(\s*"
+    result = []
+    for hashed in hashes:
+        if source_body[hashed.start(1):hashed.end(1)].strip() != '"SHA-256"':
+            continue
+        if re.search(hex_head + r"$", code[:hashed.start()]) and re.match(r"\s*\)", code[hashed.end():]):
+            result.append((hashed.start(), hashed.end()))
+            continue
+        declaration = re.search(r"(?:byte\s*\[\s*\]|var)\s+(\w+)\s*=\s*$", code[:hashed.start()])
+        if not declaration or not re.match(r"\s*;", code[hashed.end():]):
+            continue
+        name = declaration.group(1)
+        uses = [match for match in re.finditer(r"\b" + re.escape(name) + r"\b", code)
+                if not re.search(r"\.\s*$", code[:match.start()])]
+        encoded = list(re.finditer(hex_head + re.escape(name) + r"\s*\)", code[hashed.end():]))
+        if len(uses) == 2 and len(encoded) == 1:
+            result.append((hashed.start(), hashed.end()))
+    return result
+
+
+def inline_append_statement(code, use):
+    """The append chain changes the local; its returned builder does not escape."""
+    prefix = code[:use.start()].rstrip()
+    if prefix and prefix[-1] not in ";{}":
+        if prefix[-1] != ")":
+            return False
+        depth, index = 1, len(prefix) - 2
+        while index >= 0 and depth:
+            depth += (prefix[index] == ")") - (prefix[index] == "(")
+            index -= 1
+        if depth or not re.search(r"\b(?:for|if|while)\s*$", prefix[:index + 1]):
+            return False
+    position = use.end()
+    while True:
+        call = re.match(r"\s*\.\s*append\s*\(", code[position:])
+        if not call:
+            return False
+        position += call.end()
+        depth = 1
+        while position < len(code) and depth:
+            depth += (code[position] == "(") - (code[position] == ")")
+            position += 1
+        if depth:
+            return False
+        if re.match(r"\s*\.\s*append\s*\(", code[position:]):
+            continue
+        return bool(re.match(r"\s*;", code[position:]))
+
+
 def internal_digest_spans(source):
     """Exclude only local builders whose complete use is append then hash.
 
@@ -183,7 +239,7 @@ def internal_digest_spans(source):
         elif stack:
             scopes.append((stack.pop(), match.end()))
     spans = []
-    for declaration in re.finditer(r"\bStringBuilder\s+(\w+)\s*=\s*new\s+StringBuilder\(", code):
+    for declaration in re.finditer(r"\b(?:StringBuilder|var)\s+(\w+)\s*=\s*new\s+StringBuilder\(", code):
         variable = declaration.group(1)
         owners = []
         for scope in scopes:
@@ -197,18 +253,25 @@ def internal_digest_spans(source):
             continue
         start, end = min(owners, key=lambda scope: scope[1] - scope[0])
         body = code[declaration.end():end]
-        sinks = list(re.finditer(r"\b(\w+)\(\s*" + re.escape(variable)
-                                + r"\.toString\(\)\s*\)", body))
-        if (len(sinks) != 1 or re.search(r"\.\s*$", body[:sinks[0].start()])
-                or not digest_sink(source, sinks[0].group(1))):
+        helpers = list(re.finditer(r"\b(\w+)\(\s*" + re.escape(variable)
+                                  + r"\.toString\(\)\s*\)", body))
+        sinks = [(match.start(), match.end()) for match in helpers
+                 if not re.search(r"\.\s*$", body[:match.start()])
+                 and digest_sink(source, match.group(1))]
+        inline = inline_digest_sinks(source[declaration.end():end], body, variable)
+        sinks.extend(inline)
+        if len(sinks) != 1:
             continue
         safe = True
         for use in re.finditer(r"\b" + re.escape(variable) + r"\b", body):
             if re.search(r"\.\s*$", body[:use.start()]):
                 continue  # A same-named member is not this lexical local.
-            if any(sink.start() <= use.start() < sink.end() for sink in sinks):
+            if any(first <= use.start() < last for first, last in sinks):
                 continue
             if re.match(r"\s*\.append\s*\(", body[use.end():]):
+                if inline and not inline_append_statement(body, use):
+                    safe = False
+                    break
                 continue
             safe = False
             break

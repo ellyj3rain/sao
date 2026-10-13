@@ -14,7 +14,7 @@ local FRAME_KEYS = { id=true, actorId=true, worldHours=true, hunger=true,
     thirst=true, fatigue=true, eatAt=true, drinkAt=true, foodAllowed=true,
     waterAllowed=true, inspectionAllowed=true, knownFood=true, knownWater=true,
     knownPlaces=true, capabilities=true, priorIntent=true }
-local EVENT_KEYS = { physicalWork=true, id=true, actorId=true, observerId=true, worldHours=true, consumerId=true,
+local EVENT_KEYS = { garmentUse=true, garmentWork=true, physicalWork=true, id=true, actorId=true, observerId=true, worldHours=true, consumerId=true,
     entityId=true, recipeId=true, originalFixtureSourceId=true,
     siteKey=true, siteX=true, siteY=true, siteZ=true, feedsFixture=true,
     kind=true, category=true, sourceId=true, itemType=true, perspective=true,
@@ -66,7 +66,7 @@ local SHELTER_ENTITIES={["Base.WoodenWallFrame"]=true,["Base.WoodenWallLvl1"]=tr
                 ["Base.MetalWallFrame"]=true,["Base.MetalWallLvl1"]=true,["Base.MetalWallLvl2"]=true,["Base.MetalDoorFrameLvl1"]=true,["Base.MetalDoorFrameLvl2"]=true,["Base.MetalDoorLvl1"]=true,["Base.MetalDoorLvl2"]=true,["Base.MetalFloorLvl1"]=true,["Base.MetalWindowFrameLvl1"]=true,["Base.MetalWindowFrameLvl2"]=true,["Base.MetalFenceLvl1"]=true,["Base.MetalFenceLvl2"]=true,["Base.MetalBigMetalFence"]=true,["Base.MetalBigWireFence"]=true,["Base.MetalSmallPoleFence"]=true,["Base.MetalSmallWireFence"]=true,["Base.MetalPoleFenceGate"]=true,["Base.MetalPoleFenceGateSmall"]=true,["Base.MetalWireFenceGate"]=true,["Base.MetalWireFenceGateSmall"]=true}
 local COLLECTOR_ENTITIES = { ["Base.RainCollector"]=true, ["Base.RainCollectorRound"]=true,
     ["Base.RainCollector_Tarp"]=true, ["Base.RainCollectorRound_Tarp"]=true }
-local EXTENDED = { ["workspace-construction"]=true,["material-extraction"]=true, ["furniture-use"]=true,["furniture-relocation"]=true, ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true,["collector-construction"]=true,
+local EXTENDED = { ["garment-use"]=true, ["garment-maintenance"]=true, ["workspace-construction"]=true,["material-extraction"]=true, ["furniture-use"]=true,["furniture-relocation"]=true, ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true,["collector-construction"]=true,
     ["animal-care"]=true, ["window-repair"]=true,["window-installation"]=true, ["material-crafting"]=true, ["tool-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["reading-assessment"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -114,7 +114,7 @@ local function capabilities(value)
 end
 local function model(id) return id=="ordinary" or id=="associative" end
 local function occurrencePosition(e)
-    local prefix=(e.kind=="workspace-construction" or e.kind=="material-extraction") and ("resource-production/"..e.actorId.."/")
+    local prefix=e.kind=="garment-use"and("garment-use/"..e.actorId.."/")or(e.kind=="garment-maintenance" or e.kind=="workspace-construction" or e.kind=="material-extraction") and ("resource-production/"..e.actorId.."/")
         or e.kind=="medication-use" and "medication/"
         or e.kind=="physical-change" and "physical/"
         or e.kind=="preparation" and ("cooking/"..e.actorId.."/")
@@ -309,6 +309,126 @@ local function physicalWorkEvent(e)
     return w.effectObserved and w.resourceGain and (tree and w.sourceRemoved and #w.newDrops>0
         or not tree and w.bagGain>0 and #w.bagEffects>0)
 end
+local function garmentMaintenanceEvent(e)
+ local w=e.garmentWork
+ if not plainKeys(e,{id=true,actorId=true,observerId=true,worldHours=true,occurredAtHours=true,kind=true,category=true,perspective=true,status=true,sourceId=true,itemType=true,garmentWork=true,capabilities=true})
+  or e.category~="body"or e.actorId~=e.observerId or e.perspective~="performed"or not occurrencePosition(e)
+  or not finite(e.occurredAtHours)or e.occurredAtHours<0 or e.occurredAtHours>e.worldHours
+  or not physicalData(w)or type(w)~="table"or not text(w.itemId,160)or e.sourceId~=w.itemId or e.itemType~=w.itemType
+  or not text(w.world,160)or w.bodyToken~=nil and not text(w.bodyToken,160)
+  or not text(w.purposeId,512)or not text(w.purposeStepId,512)or not text(w.part,160)
+  or not text(w.sourceRevision,512)or not text(w.observationRevision,512)
+  or w.stockAcquired~=false or w.consumerCompleted~=false or w.wornBenefitMeasured~=false then return false end
+ if not plainKeys(w,{purposeId=true,purposeStepId=true,world=true,bodyToken=true,itemId=true,itemType=true,part=true,sourceRevision=true,observationRevision=true,
+  operation=true,requestedEffect=true,nativeOwner=true,materials=true,observation=true,beforeObservation=true,afterObservation=true,materialEffects=true,returnedItems=true,
+  serviceRelation=true,serviceRelationStatus=true,detail=true,outcomeStatus=true,nativeAttempted=true,nativeCompleted=true,paymentMeasured=true,requestedEffectMeasured=true,
+  stockAcquired=true,consumerCompleted=true,wornBenefitMeasured=true})then return false end
+ local repair=w.operation=="repair-clothing";local remove=w.operation=="remove-patch"
+ if not repair and not remove or w.nativeOwner~=(repair and "ISRepairClothing"or "ISRemovePatch")
+  or repair and w.requestedEffect~="restore-hole"and w.requestedEffect~="add-padding"
+  or remove and w.requestedEffect~="remove-native-padding"then return false end
+ for _,k in ipairs({"nativeAttempted","nativeCompleted","paymentMeasured","requestedEffectMeasured"})do if type(w[k])~="boolean"then return false end end
+ local status=w.outcomeStatus=="completed"and "completed"or w.outcomeStatus=="interrupted"and "interrupted"or w.outcomeStatus=="failed"and "unavailable"or nil
+ if e.status~=status then return false end
+ if not denseRows(w.materials,8,function(m)return plainKeys(m,{role=true,itemId=true,itemType=true,uses=true,condition=true})and(m.role=="needle"or m.role=="thread"or m.role=="fabric")and text(m.itemId,160)and text(m.itemType,160)and finite(m.uses)and m.uses>=0 and finite(m.condition)and m.condition>=0 end)
+  or not denseRows(w.materialEffects,8,function(m)return plainKeys(m,{role=true,itemId=true,itemType=true,beforeUses=true,afterUses=true,heldBefore=true,heldAfter=true})and text(m.role,32)and text(m.itemId,160)and text(m.itemType,160)and finite(m.beforeUses)and finite(m.afterUses)and m.beforeUses>=0 and m.afterUses>=0 and type(m.heldBefore)=="boolean"and type(m.heldAfter)=="boolean"end)
+  or not denseRows(w.returnedItems,1,function(m)return plainKeys(m,{itemId=true,itemType=true})and text(m.itemId,160)and text(m.itemType,160)end)then return false end
+ if status~="completed"then return true end
+ local selected,effects,identities={},{},{}
+ for _,m in ipairs(w.materials)do
+  if selected[m.role]or identities[m.itemId]then return false end
+  selected[m.role]=m;identities[m.itemId]=true
+ end
+ for _,m in ipairs(w.materialEffects)do
+  local s=selected[m.role]
+  if not s or effects[m.role]or m.itemId~=s.itemId or m.itemType~=s.itemType or m.beforeUses~=s.uses then return false end
+  effects[m.role]=m
+ end
+ local needle=selected.needle
+ local keptNeedle=effects.needle
+ if not needle or not keptNeedle or not keptNeedle.heldBefore or not keptNeedle.heldAfter
+  or keptNeedle.afterUses~=keptNeedle.beforeUses then return false end
+ if repair then
+  local thread,fabric=selected.thread,selected.fabric
+  if not thread or not fabric or #w.materials~=3 or #w.returnedItems~=0 then return false end
+  local materialType=({["Base.RippedSheets"]="Cotton",["Base.DenimStrips"]="Denim",["Base.LeatherStrips"]="Leather"})[fabric.itemType]
+  local t,f=effects.thread,effects.fabric
+  if not materialType or not t or not f or thread.uses<1 or t.beforeUses-t.afterUses~=1 or not t.heldBefore
+   or t.afterUses>0 and not t.heldAfter or not f.heldBefore or f.heldAfter then return false end
+ else
+  if #w.materials~=1 or #w.returnedItems>1 then return false end
+  if #w.returnedItems==1 then
+   local expected=({[1]="Base.RippedSheets",[2]="Base.DenimStrips",[3]="Base.LeatherStrips"})[w.beforeObservation and w.beforeObservation.patchFabric]
+   if w.returnedItems[1].itemType~=expected or identities[w.returnedItems[1].itemId]then return false end
+  end
+ end
+ if not w.nativeAttempted or not w.nativeCompleted or not w.paymentMeasured or not w.requestedEffectMeasured
+  or type(w.beforeObservation)~="table"or type(w.afterObservation)~="table"then return false end
+ for _,o in ipairs({w.beforeObservation,w.afterObservation})do
+  if o.actorId~=e.actorId or o.itemId~=w.itemId or o.itemType~=w.itemType or o.part~=w.part or o.sourceRevision~=w.sourceRevision
+   or o.bodyToken~=w.bodyToken or not text(o.nativeClass,160)or o.nativeClass~=w.beforeObservation.nativeClass or not finite(o.hole)or type(o.patchPresent)~="boolean"
+   or not finite(o.wornScratchDefense)or not finite(o.wornBiteDefense)then return false end
+ end
+ if repair and w.requestedEffect=="restore-hole"and not(w.beforeObservation.hole>0 and w.afterObservation.hole==0 and w.afterObservation.patchPresent==false)
+  or repair and w.requestedEffect=="add-padding"and not(w.beforeObservation.patchPresent==false and w.afterObservation.patchPresent==true)
+  or remove and not(w.beforeObservation.patchPresent==true and w.afterObservation.patchPresent==false)then return false end
+ if w.serviceRelationStatus~="confirmed"and w.serviceRelationStatus~="unconfirmed"then return false end
+ if w.serviceRelationStatus=="confirmed"then
+  local r=w.serviceRelation
+  if not plainKeys(r,{schema=true,workId=true,actorId=true,world=true,bodyToken=true,kind=true,itemId=true,itemType=true,part=true,sourceRevision=true,operation=true,requestedEffect=true,nativeClass=true})
+   or r.schema~="sao.native-physical-service/1"or r.workId~=e.id or r.actorId~=e.actorId or r.world~=w.world or r.bodyToken~=w.bodyToken
+   or r.kind~="maintain-garment"or r.itemId~=w.itemId or r.itemType~=w.itemType or r.part~=w.part or r.sourceRevision~=w.sourceRevision
+   or r.operation~=w.operation or r.requestedEffect~=w.requestedEffect or r.nativeClass~=w.beforeObservation.nativeClass then return false end
+ end
+ return true
+end
+
+local function garmentUseEvent(e)
+ local function equal(a,b)
+  if type(a)~=type(b)then return false end;if type(a)~="table"then return a==b end
+  for k,v in pairs(a)do if not equal(v,b[k])then return false end end
+  for k in pairs(b)do if a[k]==nil then return false end end;return true
+ end
+ local u=e.garmentUse;local p=u and u.physical;local r=u and u.receipt;local m=r and r.measurement
+ if not plainKeys(e,{id=true,actorId=true,observerId=true,worldHours=true,occurredAtHours=true,kind=true,category=true,perspective=true,status=true,sourceId=true,itemType=true,garmentUse=true,capabilities=true})
+  or e.category~="body"or e.actorId~=e.observerId or e.perspective~="performed"or e.status~="completed"
+  or not occurrencePosition(e)or not finite(e.occurredAtHours)or e.occurredAtHours>e.worldHours or e.occurredAtHours<0
+  or not physicalData(u)or not plainKeys(u,{receipt=true,physical=true})or type(p)~="table"or type(r)~="table"or type(m)~="table"then return false end
+ if r.schema~="sao.garment-worn-use/1"or r.actorId~=e.actorId or r.itemId~=e.sourceId or r.itemType~=e.itemType
+  or r.correlationId~="garment-worn-use:"..r.physicalWorkId or e.id~="garment-use/"..e.actorId.."/"..tostring(r.sequence)
+  or r.nativeCredit~=r.physicalWorkId or r.nativeUseMeasured~=true or r.beneficial~=true or r.atHours~=e.occurredAtHours
+  or p.id~=r.physicalWorkId or p.workId~=p.id or p.nativeCredit~=p.id or p.actorId~=r.actorId or p.purposeId~=r.purposeId
+  or p.kind~="maintain-garment"or p.status~="completed"or p.operation~="repair-clothing"or not p.paymentMeasured or not p.requestedEffectMeasured
+  or p.serviceRelationStatus~="confirmed"or type(p.serviceRelation)~="table"then return false end
+ for _,key in ipairs({"itemId","itemType","part","sourceRevision"})do if p[key]~=r[key]or m[key]~=r[key]then return false end end
+ if m.actorId~=r.actorId or m.workId~=p.id or m.physicalWorkId~=p.id or not text(m.nativeClass,160)or p.serviceRelation.nativeClass~=m.nativeClass or p.serviceRelation.bodyToken~=p.bodyToken
+  or m.currentBodyToken~=nil and not text(m.currentBodyToken,160) or m.effectMatchesCanonical~=true or m.nativeUseMeasured~=true or m.beneficial~=true
+  or m.atHours~=r.atHours or not finite(p.atHours)or m.atHours<p.atHours or m.stockAcquired~=false or m.consumerCompleted~=false
+  or type(m.currentObservation)~="table"or type(m.beforeObservation)~="table"or type(m.afterPaidObservation)~="table"then return false end
+ local before,paid,current=m.beforeObservation,m.afterPaidObservation,m.currentObservation
+ if not equal(before,p.beforeObservation)or not equal(paid,p.afterObservation)then return false end
+ if before.bodyToken~=p.bodyToken or paid.bodyToken~=p.bodyToken or current.bodyToken~=m.currentBodyToken then return false end
+ for _,o in ipairs({before,paid,current})do
+  if o.actorId~=r.actorId or o.itemId~=r.itemId or o.itemType~=r.itemType or o.part~=r.part or o.sourceRevision~=r.sourceRevision
+   or o.nativeClass~=m.nativeClass or not finite(o.hole)or type(o.patchPresent)~="boolean"
+   or not finite(o.wornScratchDefense)or not finite(o.wornBiteDefense)
+   or not finite(o.targetScratchDefense)or o.targetScratchDefense<0
+   or not finite(o.targetBiteDefense)or o.targetBiteDefense<0 then return false end
+ end
+ if current.hole~=paid.hole or current.patchPresent~=paid.patchPresent
+  or current.patchPresent and(current.patchFabric~=paid.patchFabric or current.scratchDefense~=paid.scratchDefense or current.biteDefense~=paid.biteDefense)
+  or m.wornScratchDefense~=current.wornScratchDefense or m.wornBiteDefense~=current.wornBiteDefense
+  or m.targetScratchDefense~=current.targetScratchDefense or m.targetBiteDefense~=current.targetBiteDefense
+  or not(current.targetScratchDefense>before.targetScratchDefense or current.targetBiteDefense>before.targetBiteDefense)
+  or p.requestedEffect=="restore-hole"and not(before.hole>0 and current.hole==0)
+  or p.requestedEffect=="add-padding"and not current.patchPresent then return false end
+ local relation=m.serviceRelation
+ if type(relation)~="table"then return false end
+ for k,v in pairs(p.serviceRelation)do if relation[k]~=v then return false end end
+ for k in pairs(relation)do if p.serviceRelation[k]==nil then return false end end
+ return true
+end
+
 local function validEvent(e)
     if not plainKeys(e, EVENT_KEYS) or not text(e.id,128)
         or not text(e.actorId,128) or not text(e.observerId,128)
@@ -318,6 +438,10 @@ local function validEvent(e)
         or (e.status~="completed" and e.status~="no-effect"
             and e.status~="interrupted" and e.status~="unavailable")
         or (e.perspective~="performed" and e.perspective~="observed") then return false end
+    if e.kind=="garment-use"then return garmentUseEvent(e)end
+    if e.garmentUse~=nil then return false end
+    if e.kind=="garment-maintenance"then return garmentMaintenanceEvent(e)end
+    if e.garmentWork~=nil then return false end
     if e.kind=="workspace-construction" or e.kind=="material-extraction" then return physicalWorkEvent(e) end
     if e.physicalWork~=nil then return false end
     if e.kind=="furniture-use" then
@@ -1016,7 +1140,11 @@ local function rememberPlanEvidence(state, e, yes)
             "Personally acquired "..kind.." evidence for "..category, result, e)
         b.planKind, b.category, b.sourceId, b.itemType, b.condition = kind, category, e.sourceId, item, condition
     end
-    if e.kind=="workspace-construction" then
+    if e.kind=="garment-use"then retain("maintained-protection","body",true,e.garmentUse.receipt.part)
+    elseif e.kind=="garment-maintenance"then
+        local b=remember(state,planBeliefKey("maintain","body",e.sourceId,e.itemType,e.garmentWork.part),"Personally performed native garment work; worn benefit requires independent use evidence",yes,e)
+        b.planKind,b.category,b.sourceId,b.itemType,b.condition="maintain","body",e.sourceId,e.itemType,e.garmentWork.part
+    elseif e.kind=="workspace-construction" then
         local b=remember(state,planBeliefKey("construct","construction",e.sourceId,e.physicalWork.entityId),"Personally placed the original native construction; use remains unobserved",true,e)
         b.planKind,b.category,b.sourceId,b.itemType="construct","construction",e.sourceId,e.physicalWork.entityId
     elseif e.kind=="material-extraction" then retain("extract","construction",true,e.physicalWork.extractionKind)
@@ -1075,7 +1203,17 @@ local function rememberPlanEvidence(state, e, yes)
 end
 
 local function extendedEvidence(modelId,state,e)
-    if e.kind=="workspace-construction" then
+    if e.kind=="garment-use"then
+        remember(state,"direct:garment-worn-use:"..e.sourceId..":"..e.garmentUse.receipt.part,"Personally retained measured native worn protection; further effects and mastery remain unmeasured",true,e)
+    elseif e.kind=="garment-maintenance"then
+        if modelId=="ordinary"then
+            remember(state,"direct:garment-maintenance:"..e.sourceId..":"..e.garmentWork.part,
+                "Personally performed native garment "..e.garmentWork.requestedEffect.."; protection use remains independently observed",true,e)
+        else
+            relation(state,"transform","garment:"..e.sourceId..":"..e.garmentWork.part,
+                "garment-state:"..e.garmentWork.requestedEffect,true,e,"manufacturing")
+        end
+    elseif e.kind=="workspace-construction" then
         if modelId=="ordinary" then remember(state,"direct:workspace-construction:"..e.sourceId,"Original native construction was placed; use and benefit remain unobserved",true,e)
         else relation(state,"construct","recipe:"..e.physicalWork.recipeId,"placed:"..e.sourceId,true,e,"manufacturing") end
     elseif e.kind=="material-extraction" then

@@ -1,17 +1,17 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.4.0-pre-alpha` |
+| Version | `2.7.5.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
-**As of** `[D3.21]`, 186 delivered source outcomes: 29 A, 52 B, 82 C products and twenty-three D records. D3 remains the active OPEN parent. D3.21 is qualified CLOSED; supported package and protected publication retain separate receipts.
+**As of** `[D3.22]`, 187 delivered source outcomes: 29 A, 52 B, 82 C products and twenty-four D records. D3 remains the active OPEN parent. D3.22 is qualified CLOSED; supported package and protected publication retain separate actual receipts.
 
-Current qualified child: [D3.21 — Native furnishing factories and current functional use](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md), CLOSED inside OPEN D3; complete source/service/authority work continues before D4.
+Current qualified child: [D3.22 - Worn garment upkeep and retained protection](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md), CLOSED inside OPEN D3; complete source/service/authority work continues before D4.
 
-D3.21 qualifies ordinary native factory/partial-input construction, cold current surface and original crafting/upkeep use. One kohai records progress at `2.7.4.0-pre-alpha`; supported package and protected publication retain separate actual receipts.
+D3.22 qualifies ordinary private garment service, native cold item/current wearer and separate target protection use. One kohai records progress at `2.7.5.0-pre-alpha`; supported package and protected publication retain separate actual receipts.
 
 ## Delivered product
 
@@ -140,7 +140,7 @@ original purpose. Adoption and IDLE recovery reconcile lost native admissions
 without inventing effects or completion. Focused native and Controller proofs
 retain their exact inputs and boundaries. Final regression and review results
 live in the D3 record. The whole construction, crafting, repair and utilities
-parent remains OPEN. Its CLOSED D3.1 through D3.21 children retain native material work and usable consumers, source-bound architectural learning, pane supply/repair, furniture/recovery and purpose-bound stock/upkeep with saved continuity. Current replay derives `2.7.4.0-pre-alpha`; D3.21 receives one kohai inside the unfinished parent.
+parent remains OPEN. Its CLOSED D3.1 through D3.22 children retain native material work and usable consumers, source-bound architectural learning, pane supply/repair, furniture/recovery and purpose-bound stock/upkeep with saved continuity. Current replay derives `2.7.5.0-pre-alpha`; D3.22 receives one kohai inside the unfinished parent.
 
 [D3.1](Batches/D3.1-20261010-0344Z-2044PST-native-plank-crafting.md) is the
 CLOSED child for native plank crafting. Exact private log and saw
@@ -325,3 +325,19 @@ D3.20 is actually merged through PR163 at `aa46d424f63027b7418372155879114fd1e9e
 ## D3.21 qualified closure and continued full D3 — 2026-10-12 20:51 UTC / 13:51 PDT
 
 [D3.21](Batches/D3.21-20261012-2014Z-1314PDT-native-furnishing-factories-and-use.md) qualifies original native factory/partial-use payment and ordinary acquired Stool construction through native cold relationship/current surface and the original Whetstone/Scissors consumer. Public native54/negative36/omission, source-aware feedback and permanent driver qualification pass with exact applicability. Current coordinate `2.7.4.0-pre-alpha` credits one kohai. Supported package/protected publication retain separate receipts. Full D3, complete remaining source/maintenance/five-utility/authority work, wider knowledge/aging/doctrine/strategy/interrepo/ML contracts and D4-D6 FIFO remain active.
+
+## Current D3 garment service continuation — 2026-10-12 21:06 UTC / 14:06 PDT
+
+D3.21 actually merged PR164 at89548420ce9c7ab1f1b01aaeeb4646d90d40322f with current2.7.4 package, required179 and CodeQL, independent source/index/held/peer custody. [D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) is OPEN for actual privately acquired worn garment/material facts, individual choice, original paid service, retained native protection and saved authentic feedback. Full D3 source/service/authority, wider goals and D4-D6 FIFO remain. Mousecat History31 transport is pending independently; full native goals/history remain retained and product work continues.
+
+## D3.22 qualified closure and continuing full D3 - 2026-10-12 22:48 UTC / 15:48 PDT
+
+[D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) qualifies actual native person/private garment concern, default choice, signed material acquisition, original paid service/canonical lineage, cold wearer and independent target protection. Current upgrade36/layers48/three detecting controls and bounded review corrections retain exact scopes; prior normal30/cancel15/owner44/use20 remain their performed evidence. One kohai records `2.7.5.0-pre-alpha`; supported package/protected publication remain separate. Actual D3.21 was published by self-merged PR164 at89548420ce9c7ab1f1b01aaeeb4646d90d40322f. Full D3 continues to connected original utility consumers and all remaining accepted repertoire/authority before D4. All wider goals and three counterpart contracts remain; oversized Mousecat History31 is transport-pending with complete local Scion/source history and last verified History30 preserved, not falsely delivered.
+
+## D3.22 stale-use reclosure and continued full D3 - 2026-10-12 23:47 UTC / 16:47 PDT
+
+Current [D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) is CLOSED after actual stale-use54/five-actor/current canonical predecessor and unknown-worn deferral qualification. Existing package2.7.5.0/9df/29 current engine-class byte matches and once-only kohai remain unchanged. Protected PR165 amendment/current required checks and review-thread resolution are pending actual completion. Full D3 continues to the connected original utility service and all remaining accepted equipment/vehicle/construction/source/authority work before D4. Peer model/adoption/training and oversized History transport remain pending with complete local source history.
+
+## D3.22 final source-contract reclosure - 2026-10-13 00:31 UTC / 17:31 PDT
+
+Current [D3.22](Batches/D3.22-20261012-2106Z-1406PDT-worn-garment-upkeep-and-protection.md) is CLOSED after native56/five-actor/four detecting controls, current layers45, stale-use54, source-scoped old proof and bounded final review. Actual admitted native class, current wearer versus historical paid token, unconfirmed physical-only result and zero-value refusal keep their separate native/source limits. The package remains2.7.5.0/9df with29 current engine-class byte matches and one kohai. Protected PR165 current amendment/checks/review/merge/recenter are pending actual completion; full D3 and pending shared archive/source/model/adoption obligations continue before D4.
