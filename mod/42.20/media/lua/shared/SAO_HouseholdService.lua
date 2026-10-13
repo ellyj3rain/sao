@@ -211,23 +211,76 @@ function H.refreshTopology()
     end
     graph={nodes=nodes,edges=edges,parts=parts};positions=nodes;return true
 end
-function H.connection(x,y,z)
-    if not H.available()or not coordinate(x)or not coordinate(y)or not coordinate(z)or not H.refreshTopology()then return nil end
-    local start=key(x,y,z);if not positions[start]then return nil end
-    local queue,seen={start},{[start]=true};local cursor=1
-    while queue[cursor]do local n=queue[cursor];for next in pairs(graph.edges[n])do if not seen[next]then seen[next]=true;queue[#queue+1]=next end end;cursor=cursor+1 end
-    local tiles,rows,owned,pumps={},{},false,{}
-    for _,n in ipairs(queue)do local p=positions[n];local q=getCell():getGridSquare(p.x,p.y,p.z);if not q then return nil end
-        tiles[n]={x=p.x,y=p.y,z=p.z,square=q}
+-- A tick owns one immutable topology snapshot. Native stock is still read live.
+local tickConnections
+local function sortedPartIds(rows)
+    -- Bottom-up merge avoids a quadratic insertion pass and the native sorter.
+    local width=1
+    while width<#rows do
+        local merged={}
+        for first=1,#rows,2*width do
+            local middle,last=math.min(first+width-1,#rows),math.min(first+2*width-1,#rows)
+            local left,right=first,middle+1
+            while left<=middle or right<=last do
+                if right>last or left<=middle and rows[left]<rows[right]then
+                    merged[#merged+1]=rows[left];left=left+1
+                else merged[#merged+1]=rows[right];right=right+1 end
+            end
+        end
+        rows=merged;width=width*2
     end
-    for _,p in ipairs(graph.parts)do
-        local a,b=p.tiles[1],p.tiles[#p.tiles]
-        if seen[key(a[1],a[2],a[3])]and seen[key(b[1],b[2],b[3])]then
-            rows[#rows+1]=p.id;if p.owned then owned=true;if p.row.kind=="pump"and p.powered==true then pumps[#pumps+1]=p.object end end
+    return rows
+end
+local function topologyConnections()
+    local byNode,components,valid={},{},{}
+    for start in pairs(graph.nodes)do
+        if not byNode[start]then
+            local component={tiles={},rows={},owned=false,pumps={}}
+            valid[component]=true
+            components[#components+1]=component
+            local queue,cursor={start},1;byNode[start]=component
+            while queue[cursor]do
+                local n=queue[cursor];local p=positions[n]
+                local q=getCell():getGridSquare(p.x,p.y,p.z)
+                if q then component.tiles[n]={x=p.x,y=p.y,z=p.z,square=q}
+                else valid[component]=false end
+                for next in pairs(graph.edges[n])do
+                    if not byNode[next]then byNode[next]=component;queue[#queue+1]=next end
+                end
+                cursor=cursor+1
+            end
         end
     end
-    ordering(rows,function(a,b)return a<b end)
-    return{structure="sao-pipe:"..table.concat(rows,";"),tiles=tiles,owned=owned,pumps=pumps}
+    -- Each part belongs only when both endpoints are in the same component.
+    -- Closed valves and unpowered pumps do not create an edge or lift credit.
+    for _,p in ipairs(graph.parts)do
+        local a,b=p.tiles[1],p.tiles[#p.tiles]
+        local component=byNode[key(a[1],a[2],a[3])]
+        if component and component==byNode[key(b[1],b[2],b[3])]then
+            component.rows[#component.rows+1]=p.id
+            if p.owned then
+                component.owned=true
+                if p.row.kind=="pump"and p.powered==true then component.pumps[#component.pumps+1]=p.object end
+            end
+        end
+    end
+    for _,component in ipairs(components)do
+        component.structure="sao-pipe:"..table.concat(sortedPartIds(component.rows),";")
+        component.rows=nil
+    end
+    local connections={}
+    for n,component in pairs(byNode)do if valid[component]then connections[n]=component end end
+    return connections
+end
+function H.connection(x,y,z)
+    if not H.available()or not coordinate(x)or not coordinate(y)or not coordinate(z)then return nil end
+    local connections=tickConnections
+    if not connections then
+        if not H.refreshTopology()then return nil end
+        connections=topologyConnections()
+    end
+    local connection=connections[key(x,y,z)]
+    return connection
 end
 function H.edgeOccupied(site)
     for _,part in ipairs(H.partsAt(site.x,site.y,site.z))do
@@ -475,20 +528,30 @@ function H.purificationSampleCapacity()
     return finite(capacity)and capacity>0 and capacity or nil
 end
 function H.tick()
-    if not H.available()then return end
-    local visited={};local s=store()
-    for _,part in pairs(s and s.pieces or{})do
-        if H.currentPart(part)then
-            local connection=H.connection(part.x,part.y,part.z)
-            if connection and not visited[connection.structure]then
-                visited[connection.structure]=true;transferNetworkWater(connection)
+    if not H.available()or tickConnections then return end
+    if not H.refreshTopology()then return end
+    tickConnections=topologyConnections()
+    local ok,failure=pcall(function()
+        local visited={}
+        -- Parts are already validated by the one refresh. Select each physical
+        -- component once, including the start side of an inactive part.
+        for _,part in ipairs(graph.parts)do
+            if part.owned then
+                local tile=part.tiles[1]
+                local connection=tickConnections[key(tile[1],tile[2],tile[3])]
+                if connection and not visited[connection]then
+                    visited[connection]=true;transferNetworkWater(connection)
+                end
             end
         end
-    end
-    for object,square in pairs(loaded)do
-        if not live(object,square)then loaded[object]=nil
-        else transferFuel(object);liftWater(object)end
-    end
+        for object,square in pairs(loaded)do
+            if not live(object,square)then loaded[object]=nil
+            else transferFuel(object);liftWater(object)end
+        end
+    end)
+    -- A failed native transfer cannot leave a stale snapshot for later callers.
+    tickConnections=nil
+    if not ok then error(failure)end
 end
 function H.observeSquare(square)
     if not square or square:getCell()~=getCell()then return end
