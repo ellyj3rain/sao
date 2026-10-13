@@ -355,7 +355,7 @@ local KINDS = { inspection = true, acquire = true, store = true, consume = true 
 local HOBBY_KINDS={ ["leisure-meditation"]=true,["leisure-exercise"]=true,
     ["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true }
-local EXTENDED = { ["garment-use"]=true, ["garment-maintenance"]=true, ["workspace-construction"]=true,["material-extraction"]=true, ["furniture-use"]=true,["furniture-relocation"]=true, ["generator-operation"] = true, ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true, ["collector-construction"] = true,
+local EXTENDED = { ["network-operation"]=true, ["garment-use"]=true, ["garment-maintenance"]=true, ["workspace-construction"]=true,["material-extraction"]=true, ["furniture-use"]=true,["furniture-relocation"]=true, ["generator-operation"] = true, ["medication-use"] = true, ["physical-change"] = true, preparation = true, plumbing = true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true, ["collector-construction"] = true,
     ["animal-care"] = true, ["window-repair"] = true,["window-installation"] = true, ["material-crafting"] = true, ["tool-repair"] = true, ["entry-outcome"] = true, ["recovery-outcome"] = true, ["reading-assessment"] = true, ["study-outcome"] = true, ["commitment-outcome"] = true, ["instrument-use"] = true, ["leisure-reading"] = true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -432,7 +432,7 @@ local function sameData(a, b)
 end
 local BEHAVIOR_RESULT = {}
 function C.experience(id, supplied, authority)
-    if type(supplied)=="table" and (supplied.kind=="garment-use" or supplied.kind=="garment-maintenance" or supplied.kind=="workspace-construction" or supplied.kind=="material-extraction")
+    if type(supplied)=="table" and (supplied.kind=="network-operation" or supplied.kind=="garment-use" or supplied.kind=="garment-maintenance" or supplied.kind=="workspace-construction" or supplied.kind=="material-extraction")
         and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
     if type(supplied)=="table" and (supplied.kind=="furniture-use" or supplied.kind=="furniture-relocation" or supplied.kind=="generator-operation" or supplied.kind=="gate-operation" or supplied.kind=="shelter-movement" or supplied.kind=="shelter-construction" or supplied.kind=="shelter-use" or supplied.kind=="bed-construction" or supplied.kind=="collector-construction" or supplied.kind=="plumbing" or supplied.kind=="tool-repair" or supplied.kind=="material-crafting" or supplied.kind=="window-repair" or supplied.kind=="window-installation" or supplied.kind=="entry-outcome" or supplied.kind=="recovery-outcome" or supplied.kind=="study-outcome" or supplied.kind=="reading-assessment" or supplied.kind=="commitment-outcome" or supplied.kind=="preparation" or supplied.kind=="instrument-use" or supplied.kind=="leisure-reading" or supplied.kind=="weekone-instrument-performance" or supplied.kind=="weekone-performance-hearing" or HOBBY_KINDS[supplied.kind])
         and authority~=BEHAVIOR_RESULT then return false,"behavior-owner-required" end
@@ -1411,6 +1411,25 @@ function C.garmentUseOutcome(id,purposeId)
     local x=privateFact(id,"garment-use","body","garment-use/"..id.."/"..tostring(r.sequence),at,r.atHours)
     x.sourceId,x.itemType=r.itemId,r.itemType;x.garmentUse=detached({receipt=r,physical=physical})
     return nativeExperience(id,"garment-use",r.sequence,x)
+end
+function C.networkOutcome(id,receipt)
+ local at,rec=clock(),record(id)
+ if not at or not rec or type(receipt)~="table"or receipt.actorId~=id or receipt.kind~="network-operation"
+  or receipt.bodyToken~=rec.bodyOwnerToken or not finite(receipt.sequence,1,9007199254740991)
+  or receipt.sequence~=math.floor(receipt.sequence)or receipt.id~="resource-production/"..id.."/"..receipt.sequence
+  or not finite(receipt.atHours,0,at)or not finite(receipt.startedAt,0,receipt.atHours)then return false end
+ local canonical=SAO.ResourceProduction and SAO.ResourceProduction.outcome(id,receipt.id)
+ if not canonical or not sameData(canonical,receipt)then return false,"network-canonical-result-unavailable"end
+ if receipt.status=="completed"and(receipt.nativeCredit~=receipt.id or receipt.nativeAttempted~=true
+  or receipt.nativeCompleted~=true or receipt.paymentMeasured~=true or receipt.toolRetained~=true
+  or receipt.topologyConfirmed~=true or receipt.beforeToolCondition~=receipt.afterToolCondition
+  or receipt.beforeToolUses~=receipt.afterToolUses)then return false end
+ local x=privateFact(id,"network-operation","utilities",receipt.id,at,receipt.atHours)
+ x.status=receipt.status=="completed"and"completed"or receipt.status=="interrupted"and"interrupted"or"unavailable"
+ x.sourceId=receipt.source and receipt.source.sourceId or receipt.part and receipt.part.id or receipt.id
+ x.itemType=receipt.itemType;x.actionKind=receipt.operation
+ x.networkWork=detached(receipt);x.networkWork.purposeDelivered=nil;x.networkWork.experienceDelivered=nil
+ return nativeExperience(id,"network-operation",receipt.sequence,x)
 end
 function C.garmentMaintenanceOutcome(id,receipt)
     local at,rec=clock(),record(id)

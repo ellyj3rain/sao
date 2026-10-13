@@ -2825,6 +2825,21 @@ function Ctl.waterGeneratorIntent(id, body)
     for dx=-1,1 do for dy=-1,1 do
         local square=cell:getGridSquare(current:getX()+dx,current:getY()+dy,current:getZ())
         local objects=square and square:getObjects()
+        if square then
+            local worldItems=square:getWorldObjects()
+            for index=0,worldItems:size()-1 do
+                local object=worldItems:get(index)
+                if SAO.HouseholdService.pumpCurrent(object)then
+                    local fact=world.generatorConsumer(body,object)
+                    if fact and fact.generatorPump==true and fact.powered==false
+                        and SAO.Standing.mayAttemptBelieved(id,fact.x,fact.y,"standing")==true
+                        and perception.rememberGeneratorConsumer(id,body,object)then
+                        local d=(body:getX()-fact.x)^2+(body:getY()-fact.y)^2
+                        if not chosen or d<distance then chosen,distance=fact,d end
+                    end
+                end
+            end
+        end
         if objects then for index=0,objects:size()-1 do
             local object=objects:get(index)
             local fact=world.generatorConsumer(body,object)
@@ -9452,6 +9467,7 @@ local function decide(id, agent, body)
         local advanced = advanceCoordination(id, body, "SAO", "idle", agent)
         if advanced then return end
         if Ctl.resumePoweredMeal(id, agent, body, tick) then return end
+        if Ctl.advanceNetworkPurpose(id,agent,body,tick,needs)then return end
         if Ctl.advanceGeneratorPurpose(id, agent, body, tick, needs) then return end
         if Ctl.advanceResourcePurpose(id, agent, body, tick, needs) then return end
         if Ctl.advanceResidencePurpose(id, agent, body, tick) then return end
@@ -9965,6 +9981,7 @@ local function updateMovement(id, agent, body)
         -- interrupt: accepted crossing events can precede native state entry.
         if agent.residenceRoute and Ctl.preemptResidenceForRecovery(id, agent, body, tickCount) then return true end
         if agent.residenceRoute and Ctl.finishResidenceMovement(id, agent, body) then return true end
+        if agent.networkRoute and Ctl.finishNetworkInquiry(id,agent,body)then return true end
         if agent.shelterRoute and Ctl.finishShelterMovement(id,agent,body) then return true end
         if agent.recoveryRoute and Ctl.finishRecoveryPlaceMovement(id,agent,body) then return true end
         if agent.inquiryRoute and Ctl.finishConceptInquiryMovement(id,agent,body) then return true end
@@ -12399,6 +12416,115 @@ function Ctl.advanceGarmentWork(id,agent,body,tick,purpose,step)
  end
  return false
 end
+function Ctl.beginNetworkInquiry(id,agent,body,tick,p,step)
+ if not step or step.owner~="SAO.Controller"or step.token~="network:access-observed"
+  or not SAO.ProceduralPlanning.networkInquiryCurrent(id,body,p,step)
+  or not SAO.Needs.ownsRecoveryBody(id,body)or not SAO.Needs.workAvailable(body)
+  or SAO.Standing.mayAttemptBelieved(id,step.x,step.y,"standing")~=true then return false end
+ if SAOJavaBridge:setForceEntry(body,false)~=true or not SAO.Locomotion.order(id,body,step.x,step.y,step.z)then return false end
+ local job=SAO.Locomotion.jobs[id];local routeId="network-route/"..id.."/"..p.id.."/"..p.revision
+ if not SAO.ProceduralPlanning.admitNetworkInquiry(id,body,p.id,routeId,job)then SAO.Locomotion.cancel(id);return false end
+ job.networkPurposeId,job.networkStepId=p.id,step.id
+ agent.networkRoute={body=body,rec=agent.rec,job=job,purposeId=p.id,stepId=step.id,routeId=routeId,deadline=tick+1800}
+ if setState(agent,id,"TRAVEL","investigates personally seen upper access for water","need")then return true end
+ SAO.Locomotion.cancel(id);agent.networkRoute=nil;return false
+end
+function Ctl.finishNetworkInquiry(id,agent,body)
+ local binding=agent.networkRoute;local job=SAO.Locomotion.jobs[id]
+ if not binding then return false end
+ if binding.body~=body or binding.rec~=agent.rec or SAO.Identity.get(id)~=binding.rec
+  or not SAO.Needs.ownsRecoveryBody(id,body)or job~=binding.job or not job or job.body~=body then
+  agent.networkRoute=nil;return false
+ end
+ local p=SAO.ProceduralPlanning.networkPurpose(id)
+ local revoked=not p or p.id~=binding.purposeId or not SAO.ProceduralPlanning.networkParentCurrent(id,p)
+ if not job.done and(revoked or tickCount>=binding.deadline)then
+  if not SAO.Locomotion.expire(id,body,revoked and"network-request-replaced"or"network-access-expired")then return true end
+ end
+ if not job.done then return true end
+ if not SAO.ProceduralPlanning.finishNetworkInquiry(id,body,binding.purposeId,binding.routeId,job)then return false end
+ if SAO.Locomotion.jobs[id]==job then SAO.Locomotion.cancel(id)end
+ agent.networkRoute=nil;setState(agent,id,"IDLE","observes the reached level for water inquiry","need");agent.nextDecisionAt=0
+ return true
+end
+
+function Ctl.advanceNetworkPurpose(id,agent,body,tick,needs)
+ local p,world,perception=SAO.ProceduralPlanning,SAO.WorldSources,SAO.Perception
+ if agent.state~="IDLE"or agent.passive or SAO.Identity.get(id)~=agent.rec or SAO.Body.get(id)~=body
+  or agent.rec.resourceProductionWork or agent.rec.worldSourceReservation or not SAO.Needs.workAvailable(body)then return false end
+ p.reconcileNetworkInquiry(id,body)
+ p.reconcileNetworkUse(id,body)
+ local parent=p.resourceDemand(id,"water",true)
+ if not parent then return false end
+ perception.observeNetworkSites(id,body,SAO.History.ticks())
+ local retained,step=p.networkPurpose(id)
+ if retained and retained.admission then return false end
+ if retained and not retained.awaitingReassessment and step and step.verb=="acquire"and step.status=="available"then
+  return Ctl.beginConstructionAcquisition(id,agent,body,tick,retained,step)
+ end
+ local offer,route=p.networkOffer(id,body)
+ if not offer then
+  perception.observeShelterSurfaces(id,body)
+  local inquiry,inspect=p.planNetworkInquiry(id,body)
+  return inquiry and Ctl.beginNetworkInquiry(id,agent,body,tick,inquiry,inspect)or false
+ end
+ local context={option=offer,source=route.source,receiver=route.receiver,sources={}}
+ for _,category in ipairs({"pipe-wrench","metal-pipe"})do
+  for _,source in ipairs(Ctl.resourceContext(id,agent,body,needs or{},category,.5).sources or{})do
+   if #context.sources<128 then context.sources[#context.sources+1]=source end
+  end
+ end
+ local purpose,current=p.planNetworkWork(id,context)
+ if not purpose or not current then return false end
+ if current.verb=="acquire"and current.status=="available"then
+  return Ctl.beginConstructionAcquisition(id,agent,body,tick,purpose,current)
+ end
+ if current.status=="blocked"and current.operation=="place"and not current.itemId
+  and(current.site.itemType=="SAO.WaterPump"or current.site.itemType=="SAO.WaterValve")then
+  local demand={id="network-stock:"..purpose.id..":"..current.id,consumerId="network:"..purpose.id..":"..current.id,
+   kind="recipe-stock",sourceRevision=current.site.revision,desiredType=current.site.itemType,desiredAmount=1,
+   consumerOwner="SAO.NetworkWork",consumerOperation="place"}
+  p.reconcileRecipeConsumers(id,body)
+  local recipe=p.recipePurpose(id)
+  if recipe and recipe.recipeSupply.parentPurposeId==purpose.id then
+   if recipe.recipeSupply.lastWorkId and p.refreshRecipeSupply(id,body,recipe.id)then return false end
+   demand=recipe.materialWork.recipeDemand
+  end
+  local c=Ctl.recipeWorkContext(id,body,demand,purpose.id,current.id,{itemType=current.site.itemType})
+  local supply,supplyStep=p.planRecipeWork(id,c)
+  return supply and Ctl.advanceRecipeWork(id,agent,body,tick,supply,supplyStep)or false
+ end
+ if current.status~="available"then return false end
+ local site=current.site
+ if math.floor(body:getZ())~=site.z or math.abs(body:getX()-site.x-.5)>1.8 or math.abs(body:getY()-site.y-.5)>1.8 then
+  if SAO.Standing.mayAttemptBelieved(id,site.x,site.y,"standing")==true
+   and orderTravelState(agent,id,body,site.x,site.y,site.z,"TRAVEL","approaches an acquired water-network site")then
+   agent.taskDeadline=tick+5400;return true
+  end
+  return false
+ end
+ local item,tool;local items=SAOJavaBridge:privateCarriedItems(body)
+ for i=0,math.min(items:size(),512)-1 do local candidate=items:get(i)
+  if tostring(candidate:getID())==current.itemId and candidate:getFullType()==current.itemType then item=candidate end
+  if tostring(candidate:getID())==current.toolItemId and candidate:getFullType()==current.toolItemType then tool=candidate end
+ end
+ if not tool then return false end
+ local part,object
+ if offer.part then
+  for _,candidate in ipairs(SAO.HouseholdService.partsAt(site.x,site.y,site.z))do
+   if candidate.id==offer.part.id then part,object=candidate,SAO.HouseholdService.currentPart(candidate)end
+  end
+ elseif current.source then object=world.networkFluidCurrent(id,body,current.source)end
+ if tool:getContainer()~=body:getInventory()or body:getPrimaryHandItem()~=tool
+  or current.operation=="place"and item and item:getContainer()~=body:getInventory()then
+  return SAO.NetworkWork.prepareMeans and SAO.NetworkWork.prepareMeans(id,body,purpose,current,item,tool,part,object)==true or false
+ end
+ local admitted=SAO.ResourceProduction.begin(id,body,current,{purposeId=purpose.id,purposeStepId=current.id,
+  item=item,tool=tool,part=part,object=object})
+ if admitted then agent.taskDeadline=tick+5400;setState(agent,id,"RESOURCE","works on the retained household water network");return true end
+ return false
+end
+
 function Ctl.tryGarmentWork(id,agent,body,tick)
  local planning,production,perception=SAO.ProceduralPlanning,SAO.ResourceProduction,SAO.Perception
  if not planning or not planning.planGarmentWork or not production or not production.garmentOptions

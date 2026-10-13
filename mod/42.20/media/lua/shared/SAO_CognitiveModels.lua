@@ -14,7 +14,7 @@ local FRAME_KEYS = { id=true, actorId=true, worldHours=true, hunger=true,
     thirst=true, fatigue=true, eatAt=true, drinkAt=true, foodAllowed=true,
     waterAllowed=true, inspectionAllowed=true, knownFood=true, knownWater=true,
     knownPlaces=true, capabilities=true, priorIntent=true }
-local EVENT_KEYS = { generatorPlumbing=true, garmentUse=true, garmentWork=true, physicalWork=true, id=true, actorId=true, observerId=true, worldHours=true, consumerId=true,
+local EVENT_KEYS = { networkWork=true, generatorPlumbing=true, garmentUse=true, garmentWork=true, physicalWork=true, id=true, actorId=true, observerId=true, worldHours=true, consumerId=true,
     entityId=true, recipeId=true, originalFixtureSourceId=true,
     siteKey=true, siteX=true, siteY=true, siteZ=true, feedsFixture=true,
     kind=true, category=true, sourceId=true, itemType=true, perspective=true,
@@ -66,7 +66,7 @@ local SHELTER_ENTITIES={["Base.WoodenWallFrame"]=true,["Base.WoodenWallLvl1"]=tr
                 ["Base.MetalWallFrame"]=true,["Base.MetalWallLvl1"]=true,["Base.MetalWallLvl2"]=true,["Base.MetalDoorFrameLvl1"]=true,["Base.MetalDoorFrameLvl2"]=true,["Base.MetalDoorLvl1"]=true,["Base.MetalDoorLvl2"]=true,["Base.MetalFloorLvl1"]=true,["Base.MetalWindowFrameLvl1"]=true,["Base.MetalWindowFrameLvl2"]=true,["Base.MetalFenceLvl1"]=true,["Base.MetalFenceLvl2"]=true,["Base.MetalBigMetalFence"]=true,["Base.MetalBigWireFence"]=true,["Base.MetalSmallPoleFence"]=true,["Base.MetalSmallWireFence"]=true,["Base.MetalPoleFenceGate"]=true,["Base.MetalPoleFenceGateSmall"]=true,["Base.MetalWireFenceGate"]=true,["Base.MetalWireFenceGateSmall"]=true}
 local COLLECTOR_ENTITIES = { ["Base.RainCollector"]=true, ["Base.RainCollectorRound"]=true,
     ["Base.RainCollector_Tarp"]=true, ["Base.RainCollectorRound_Tarp"]=true }
-local EXTENDED = { ["garment-use"]=true, ["garment-maintenance"]=true, ["workspace-construction"]=true,["material-extraction"]=true, ["furniture-use"]=true,["furniture-relocation"]=true, ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true,["collector-construction"]=true,
+local EXTENDED = { ["network-operation"]=true, ["garment-use"]=true, ["garment-maintenance"]=true, ["workspace-construction"]=true,["material-extraction"]=true, ["furniture-use"]=true,["furniture-relocation"]=true, ["generator-operation"]=true, ["medication-use"]=true, ["physical-change"]=true, preparation=true, plumbing=true, ["gate-operation"]=true,["shelter-movement"]=true,["shelter-construction"]=true,["shelter-use"]=true,["bed-construction"]=true,["collector-construction"]=true,
     ["animal-care"]=true, ["window-repair"]=true,["window-installation"]=true, ["material-crafting"]=true, ["tool-repair"]=true, ["entry-outcome"]=true, ["recovery-outcome"]=true, ["reading-assessment"]=true, ["study-outcome"]=true, ["commitment-outcome"]=true, ["instrument-use"]=true, ["leisure-reading"]=true,
     ["leisure-meditation"]=true,["leisure-exercise"]=true,["leisure-art"]=true,["leisure-music"]=true,["leisure-games"]=true,["leisure-radio"]=true,["leisure-lifestyle"]=true,
     ["leisure-duet"]=true,["leisure-dance"]=true,["weekone-instrument-performance"]=true,
@@ -114,7 +114,7 @@ local function capabilities(value)
 end
 local function model(id) return id=="ordinary" or id=="associative" end
 local function occurrencePosition(e)
-    local prefix=e.kind=="garment-use"and("garment-use/"..e.actorId.."/")or(e.kind=="garment-maintenance" or e.kind=="workspace-construction" or e.kind=="material-extraction") and ("resource-production/"..e.actorId.."/")
+    local prefix=e.kind=="garment-use"and("garment-use/"..e.actorId.."/")or(e.kind=="network-operation" or e.kind=="garment-maintenance" or e.kind=="workspace-construction" or e.kind=="material-extraction") and ("resource-production/"..e.actorId.."/")
         or e.kind=="medication-use" and "medication/"
         or e.kind=="physical-change" and "physical/"
         or e.kind=="preparation" and ("cooking/"..e.actorId.."/")
@@ -438,6 +438,54 @@ local function validEvent(e)
         or (e.status~="completed" and e.status~="no-effect"
             and e.status~="interrupted" and e.status~="unavailable")
         or (e.perspective~="performed" and e.perspective~="observed") then return false end
+if e.kind=="network-operation" then
+        if not plainKeys(e,{id=true,actorId=true,observerId=true,worldHours=true,occurredAtHours=true,kind=true,category=true,
+            perspective=true,status=true,sourceId=true,itemType=true,actionKind=true,networkWork=true,capabilities=true})
+            or e.actorId~=e.observerId or e.perspective~="performed"or e.category~="utilities"or not occurrencePosition(e)
+            or not finite(e.occurredAtHours)or e.occurredAtHours<0 or e.occurredAtHours>e.worldHours
+            or not text(e.sourceId,160)or not text(e.itemType,160)or e.capabilities~=nil and not capabilities(e.capabilities)then return false end
+        local w=e.networkWork
+        if type(w)~="table"or getmetatable(w)or w.kind~="network-operation"or w.id~=e.id or w.workId~=e.id
+            or w.actorId~=e.actorId or w.operation~=e.actionKind or w.token~="resource:network-altered"
+            or w.itemType~=e.itemType or not text(w.world,256)or w.bodyToken~=nil and not text(w.bodyToken,160)
+            or not finite(w.startedAt)or not finite(w.atHours)or w.startedAt<0 or w.atHours<w.startedAt
+            or w.atHours~=e.occurredAtHours or w.endedAt~=w.atHours or not text(w.itemId,160)
+            or not text(w.toolItemId,160)or not text(w.toolItemType,160)or type(w.site)~="table"
+            or not finite(w.site.x)or not finite(w.site.y)or not finite(w.site.z)
+            or w.site.x%1~=0 or w.site.y%1~=0 or w.site.z%1~=0 or not text(w.site.revision,160)
+            or w.consumerCompleted~=false or w.stockCreated~=false then return false end
+        local operations={place=true,remove=true,open=true,close=true,activate=true,deactivate=true,attach=true,detach=true}
+        if not operations[w.operation]then return false end
+        if w.status~="completed"then return (e.status=="interrupted"and w.status=="interrupted"or e.status=="unavailable"and w.status=="failed")
+            and w.nativeCredit==nil and w.nativeCompleted==false and w.paymentMeasured==false and w.topologyConfirmed==false end
+        if e.status~="completed"or w.nativeCredit~=w.id or w.nativeAttempted~=true or w.nativeCompleted~=true
+            or w.paymentMeasured~=true or w.topologyConfirmed~=true or w.toolRetained~=true
+            or not finite(w.beforeToolCondition)or w.beforeToolCondition<=0 or w.beforeToolCondition~=w.afterToolCondition
+            or not finite(w.beforeToolUses)or w.beforeToolUses<0 or w.beforeToolUses~=w.afterToolUses then return false end
+        if w.operation=="attach"or w.operation=="detach"then
+            local before,after=w.source,w.sourceAfter
+            return type(before)=="table"and type(after)=="table"and before.sourceId==e.sourceId and before.sourceId==after.sourceId
+                and before.fingerprint==after.fingerprint and before.nativeClass==after.nativeClass and text(before.nativeClass,256)
+                and before.x==after.x and before.y==after.y and before.z==after.z and before.capacity==after.capacity
+                and finite(before.capacity)and before.capacity>0 and finite(w.beforeSourceAmount)and w.beforeSourceAmount>=0
+                and w.beforeSourceAmount==w.afterSourceAmount and before.amount==w.beforeSourceAmount and after.amount==w.afterSourceAmount
+                and before.included==(w.operation=="detach")and after.included==(w.operation=="attach")and w.inputRetained==true
+        end
+        local p=w.part
+        local types={floor="Base.MetalPipe",riser="Base.MetalPipe",valve="SAO.WaterValve",pump="SAO.WaterPump"}
+        if type(p)~="table"or p.schema~="sao-water-network-part/1"or p.itemId~=w.itemId or p.itemType~=w.itemType
+            or p.itemType~=types[p.kind]or p.world~=w.world or not text(p.nativeClass,256)
+            or p.x~=w.site.x or p.y~=w.site.y or p.z~=w.site.z or p.axis~=w.site.axis
+            or not finite(p.xRotation)or not finite(p.yRotation)or not finite(p.zRotation)then return false end
+        if w.operation=="place"then return p.id==w.id and p.workId==w.id and p.actorId==w.actorId
+            and p.kind==w.site.kind and w.physicalPlaced==true and w.inputRetained==false end
+        if w.operation=="remove"then return w.inputRetained==true and w.physicalPlaced==false end
+        if w.operation=="open"or w.operation=="close"then return p.kind=="valve"and w.beforeOpen==(w.operation=="close")
+            and w.afterOpen==(w.operation=="open")and p.open==w.afterOpen end
+        return p.kind=="pump"and w.beforeEnabled==(w.operation=="deactivate")and w.afterEnabled==(w.operation=="activate")
+            and p.enabled==w.afterEnabled
+    end
+    if e.networkWork~=nil then return false end
     if e.generatorPlumbing~=nil and e.kind~="generator-operation"then return false end
     if e.kind=="garment-use"then return garmentUseEvent(e)end
     if e.garmentUse~=nil then return false end
@@ -1218,7 +1266,11 @@ local function rememberPlanEvidence(state, e, yes)
 end
 
 local function extendedEvidence(modelId,state,e)
-    if e.kind=="garment-use"then
+    if e.kind=="network-operation"then
+        if modelId=="ordinary"then remember(state,"direct:network:"..e.sourceId,
+            "Personally performed water-network "..e.actionKind.."; fluid delivery and bodily use have separate evidence",true,e)
+        else relation(state,"convey","network:"..e.sourceId,"configuration:"..e.actionKind,true,e,"logistics-preservation")end
+    elseif e.kind=="garment-use"then
         remember(state,"direct:garment-worn-use:"..e.sourceId..":"..e.garmentUse.receipt.part,"Personally retained measured native worn protection; further effects and mastery remain unmeasured",true,e)
     elseif e.kind=="garment-maintenance"then
         if modelId=="ordinary"then

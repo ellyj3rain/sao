@@ -28,6 +28,7 @@ local RECIPE_RESULT = {}
 local WORKSPACE_RESULT = {}
 local EXTRACTION_RESULT = {}
 local GARMENT_RESULT = {}
+local NETWORK_RESULT = {}
 local noteExtractionInputAcquired
 local garmentSame
 
@@ -3976,6 +3977,7 @@ function P.noteAdmission(id, purposeId, owner, correlationId, stepId, authority)
     if purpose.instrument and authority ~= INSTRUMENT_RESULT then return false end
     if purpose.hobby and authority ~= HOBBY_RESULT then return false end
     local step = purpose.steps[purpose.cursor]
+    if purpose.waterNetwork and(not P.networkParentCurrent(id,purpose)or owner=="SAO.Controller"and authority~=NETWORK_RESULT)then return false end
     if purpose.generatorPower and (not step or step.status ~= "available" or step.owner ~= owner
         or step.id ~= stepId or purpose.admission or not P.generatorRequestCurrent(id,{purposeId=purpose.id})) then return false end
     if purpose.materialWork and (not step or step.status ~= "available" or step.owner ~= owner
@@ -4007,6 +4009,10 @@ function P.recordResult(id, purposeId, result, authority)
     local s = state(id)
     local purpose = s and s.purposes[tostring(purposeId or "")]
     local step = purpose and purpose.steps[purpose.cursor]
+    if purpose and purpose.waterNetwork and (not step or step.owner=="SAO.ResourceProduction"and authority~=NETWORK_RESULT
+        or step.owner=="SAO.SourceUse"and authority~=RESOURCE_RESULT
+        or step.owner=="SAO.Controller"and authority~=NETWORK_RESULT
+        or step.owner~="SAO.SourceUse"and step.owner~="SAO.ResourceProduction"and step.owner~="SAO.Controller")then return false end
     if purpose and purpose.gateAccess then
         if not step or step.owner=="SAO.SourceUse" and authority~=RESOURCE_RESULT
             or step.owner=="SAO.ResourceProduction" and authority~=GATE_RESULT
@@ -4066,7 +4072,7 @@ function P.recordResult(id, purposeId, result, authority)
             or step.token == "resource:window-installed" and authority ~= WINDOW_GLAZING_RESULT
             or (step.token == "resource:recipe-produced" or step.token == "resource:recipe-maintained") and authority ~= RECIPE_RESULT
             or (step.token == "resource:garment-maintained" or step.token == "resource:garment-use-measured") and authority ~= GARMENT_RESULT
-            or step.token ~= "resource:crafted" and step.token ~= "resource:repaired" and step.token ~= "resource:bed-built" and step.token ~= "resource:shelter-built" and step.token ~= "resource:shelter-used" and step.token ~= "resource:window-installed"
+            or step.token ~= "resource:network-altered" and step.token ~= "resource:crafted" and step.token ~= "resource:repaired" and step.token ~= "resource:bed-built" and step.token ~= "resource:shelter-built" and step.token ~= "resource:shelter-used" and step.token ~= "resource:window-installed"
                 and step.token ~= "resource:recipe-produced" and step.token ~= "resource:recipe-maintained" and step.token ~= "resource:place-built" and step.token ~= "resource:extracted"
                 and step.token ~= "resource:garment-maintained" and step.token ~= "resource:garment-use-measured") then return false end
     end
@@ -4393,6 +4399,7 @@ function P.consumeSourceResult(receipt)
         routeFailure = authoritative.status == "conflict",
         atHours = authoritative.at,
     }, RESOURCE_RESULT)
+    if accepted and completed and purpose.waterNetwork then purpose.status="maintained";purpose.awaitingReassessment=true end
     if accepted and completed and (purpose.shelterConstruction or purpose.gateAccess) and purpose.status=="completed" then
         purpose.status="maintained";purpose.blockers={"awaiting native construction, use and ordinary recovery"}
     end
@@ -6498,6 +6505,374 @@ function P.consumeGarmentOutcome(id,sequenceOrReceipt)
   -- receipt must still resolve the original personal protection purpose.
  end
  return accepted
+end
+
+function P.networkPurpose(id)
+ local s=state(id);for _,key in ipairs(s and s.order or{})do
+  local p=s.purposes[key]
+  if p and p.waterNetwork and p.status~="completed"and p.status~="abandoned"then return p,p.steps[p.cursor]end
+ end
+end
+function P.networkParentCurrent(id,p)
+ local s=state(id);local own=p and p.waterNetwork;local parent=own and s and s.purposes[own.parentPurposeId]
+ local step=parent and parent.steps[parent.cursor]
+ return own~=nil and p.status~="completed"and p.status~="abandoned"and parent~=nil
+  and parent.resourceCategory=="water"and not parent.resourceOutcome and parent.status~="completed"and parent.status~="abandoned"
+  and parent.revision==own.parentRevision and parent.cursor==own.parentCursor
+  and own.parentStepId==(step and step.id)and own.parentEmpty==(step==nil)or false
+end
+function P.networkAcquisitionCurrent(id,reservation)
+ local s=state(id);local p=s and reservation and s.purposes[reservation.purposeId]
+ if not p or not p.waterNetwork then return true end
+ local step=p.steps[p.cursor];local a=p.admission
+ return P.networkParentCurrent(id,p)and step~=nil and step.status=="available"and step.owner=="SAO.SourceUse"
+  and step.verb=="acquire"and step.id==reservation.purposeStepId and step.sourceId==reservation.sourceId
+  and step.sourceRevision==reservation.revision and tostring(step.itemId)==tostring(reservation.itemId)
+  and step.itemType==reservation.itemType and step.category==reservation.category
+  and a~=nil and a.owner=="SAO.SourceUse"and a.stepId==step.id and a.correlationId==reservation.id or false
+end
+function P.networkRequestCurrent(id,work)
+ local s=state(id);local r=record(id);local p=s and work and s.purposes[work.purposeId]
+ local own=p and p.waterNetwork;local step=p and p.steps[p.cursor]
+ local parent=own and s.purposes[own.parentPurposeId]
+ local current=parent and parent.steps[parent.cursor]
+ if not r or r.dead or not own or not step or p.status=="abandoned"or p.status=="completed"
+  or not parent or parent.resourceCategory~="water"or parent.resourceOutcome or parent.status=="completed"or parent.status=="abandoned"
+  or parent.revision~=own.parentRevision or parent.cursor~=own.parentCursor
+  or own.parentStepId~=(current and current.id)or own.parentEmpty~=(current==nil)
+  or work.purposeStepId~=step.id or step.productionKind~="network-operation"
+  or step.operation~=work.operation or not recipeSame(step.site,work.site)
+  or work.bodyToken~=r.bodyOwnerToken or work.itemId~=step.itemId or work.toolItemId~=step.toolItemId then return false end
+ local a=p.admission
+ return(not a or a.owner=="SAO.ResourceProduction"and a.stepId==step.id and a.correlationId==work.id)
+  and(SAO.WorldSources.networkSiteCurrent(id,SAO.Body.get(id),step.site)==true
+   or step.site.kind=="source"and SAO.WorldSources.networkFluidCurrent(id,SAO.Body.get(id),step.source)~=nil
+   or SAO.NetworkWork and(SAO.NetworkWork.removalPhaseCurrent(id,work)==true
+    or SAO.NetworkWork.placementPhaseCurrent(id,work)==true))
+end
+function P.networkInquiryCurrent(id,body,p,step)
+ if not p or not step or not P.networkParentCurrent(id,p)or SAO.Body.get(id)~=body
+  or step.owner~="SAO.Controller"or step.token~="network:access-observed"then return false end
+ if step.verb=="inspect"then
+  for _,access in ipairs(SAO.Perception.shelterAccess(id)or{})do
+   if access.key==step.target and access.actorId==id and access.basis=="visible-native-stair-top"
+    and access.landingObserved==false and access.landingX+.5==step.x and access.landingY+.5==step.y
+    and access.landingZ==step.z and recipeSame(access,step.access)
+    and finite(access.observedAtHours)and access.observedAtHours<=nowHours()
+    and nowHours()-access.observedAtHours<=24 then return true end
+  end
+ elseif step.verb=="return"then
+  local lower=p.waterNetwork.lowerFixture;local known=false
+  for _,place in pairs(SAO.Perception.knownPlaces(id,true)or{})do
+   local fact=lower and place.sourceFacts and place.sourceFacts[lower.sourceId]
+   if fact and fact.kind=="fluid"and fact.explored and fact.fingerprint==lower.fingerprint
+    and fact.x==lower.x and fact.y==lower.y and fact.z==lower.z then known=true end
+  end
+  return known and step.target==lower.sourceId and step.x==lower.x+.5 and step.y==lower.y+.5 and step.z==lower.z
+   and recipeSame(lower,step.lowerFixture)or false
+ end
+ return false
+end
+function P.planNetworkInquiry(id,body)
+ local rec=record(id);local parent,current=P.resourceDemand(id,"water",true);local at=nowHours()
+ if not rec or rec.dead or SAO.Body.get(id)~=body or not parent or parent.admission
+  or current and(current.status=="available"or current.acquiredItemId)then return nil end
+ local retained=P.networkPurpose(id)
+ if retained and retained.admission then return retained,retained.steps[retained.cursor]end
+ local own=retained and retained.waterNetwork;local knownLower=own and own.lowerFixture
+ if knownLower and math.floor(body:getZ())~=knownLower.z then
+  local known=false
+  for _,place in pairs(SAO.Perception.knownPlaces(id,true)or{})do
+   local fact=place.sourceFacts and place.sourceFacts[knownLower.sourceId]
+   if fact and fact.kind=="fluid"and fact.explored and fact.fingerprint==knownLower.fingerprint
+    and fact.x==knownLower.x and fact.y==knownLower.y and fact.z==knownLower.z then known=true end
+  end
+  if known then
+   local step={id="network-return:"..knownLower.sourceId,verb="return",owner="SAO.Controller",token="network:access-observed",
+    target=knownLower.sourceId,x=knownLower.x+.5,y=knownLower.y+.5,z=knownLower.z,status="available",lowerFixture=dataCopy(knownLower)}
+   setPlan(retained,{step},{},nil,at);retained.status="maintained";return retained,retained.steps[retained.cursor]
+  end
+ end
+ local lower
+ for _,row in ipairs(SAO.Perception.networkFluids(id))do
+  if row.externalReceiver==true and row.z==math.floor(body:getZ())then
+   for _,place in pairs(SAO.Perception.knownPlaces(id,true)or{})do
+    local fact=place.sourceFacts and place.sourceFacts[row.sourceId]
+    if fact and fact.kind=="fluid"and fact.explored and fact.plumbing=="connected"
+     and fact.fingerprint==row.fingerprint and fact.revision==row.revision then lower=row;break end
+   end
+  end
+  if lower then break end
+ end
+ if not lower then return nil end
+ local choices={{id="continue",evidence=1,continuity=.7,novelty=0,informationGain=0,utility=.1,blockers=0}}
+ local offered={}
+ for _,access in ipairs(SAO.Perception.shelterAccess(id)or{})do
+  local previous=retained and retained.waterNetwork.accessAttempts and retained.waterNetwork.accessAttempts[access.key]
+  if access.actorId==id and access.basis=="visible-native-stair-top"and access.landingObserved==false
+   and access.z==math.floor(body:getZ())and access.landingZ==access.z+1
+   and finite(access.observedAtHours)and access.observedAtHours<=at and at-access.observedAtHours<=24
+   and(not previous or previous.arrived~=true and at>=previous.retryAt)
+   and SAO.Standing.mayAttemptBelieved(id,access.landingX,access.landingY,"standing")==true then
+   local key="network-access:"..access.key
+   choices[#choices+1]={id=key,evidence=.7,continuity=.7,novelty=.2,informationGain=.8,utility=.6,blockers=0,
+    consequences={{kind="inspect",category="water",sourceId=lower.sourceId,value=.5}}}
+   offered[key]=access
+  end
+ end
+ if #choices==1 then return nil end
+ local views=interpretations(id,choices,{domain="construction",pressure=.5,atHours=at})
+ local access=views and offered[views.selected];if not access then return nil end
+ local p=retained or P.maintain(id,{key="network:water:"..parent.id,domain="construction",origin=parent.id,
+  objective="investigate acquired upper access for the retained water request",atHours=at})
+ if not p then return nil end
+ local previous=p.waterNetwork or{};local attempts=previous.accessAttempts
+ p.waterNetwork={parentPurposeId=parent.id,parentRevision=parent.revision,parentCursor=parent.cursor,
+  parentStepId=current and current.id,parentEmpty=current==nil,accessAttempts=attempts,
+  lowerFixture=dataCopy(lower),accessLead=dataCopy(access),source=previous.source,receiver=previous.receiver,lastWorkId=previous.lastWorkId}
+ p.materialWork={operation="network",entryKey=p.key}
+ local step={id="network-access:"..access.key,verb="inspect",owner="SAO.Controller",token="network:access-observed",
+  target=access.key,x=access.landingX+.5,y=access.landingY+.5,z=access.landingZ,status="available",access=dataCopy(access)}
+ setPlan(p,{step},{},dataCopy(views),at);p.status="maintained";p.awaitingReassessment=nil
+ return p,p.steps[p.cursor]
+end
+function P.admitNetworkInquiry(id,body,purposeId,routeId,job)
+ local p,step=P.networkPurpose(id)
+ if not p or p.id~=purposeId or p.admission or not step or step.status~="available"or step.owner~="SAO.Controller"
+  or not P.networkInquiryCurrent(id,body,p,step)
+  or not job or SAO.Locomotion.jobs[id]~=job or job.body~=body or not job.goal
+  or job.goal.x~=step.x or job.goal.y~=step.y or job.goal.z~=step.z then return false end
+ return P.noteAdmission(id,p.id,"SAO.Controller",routeId,step.id,NETWORK_RESULT)
+end
+function P.finishNetworkInquiry(id,body,purposeId,routeId,job)
+ local s=state(id);local p=s and s.purposes[purposeId];local ad=p and p.admission;local step=p and p.steps[p.cursor]
+ if not p or not p.waterNetwork or not ad or ad.owner~="SAO.Controller"or ad.correlationId~=routeId
+  or not step or step.id~=ad.stepId or step.token~="network:access-observed"or not job or not job.done
+  or SAO.Body.get(id)~=body or SAO.Locomotion.jobs[id]~=job or job.body~=body or not job.goal
+  or job.goal.x~=step.x or job.goal.y~=step.y or job.goal.z~=step.z then return false end
+ if not P.networkParentCurrent(id,p)then
+  p.lastAdmission=dataCopy(ad);p.admission=nil;p.status="abandoned";p.resolution="original-water-request-replaced"
+  return true
+ end
+ local arrived=P.networkInquiryCurrent(id,body,p,step)and job.result=="arrived"and math.floor(body:getZ())==step.z
+  and(body:getX()-step.x)^2+(body:getY()-step.y)^2<=.35^2
+ if not P.recordResult(id,p.id,{owner="SAO.Controller",token=step.token,correlationId=routeId,
+  status=arrived and"completed"or"interrupted",reason=job.result,atHours=nowHours()},NETWORK_RESULT)then return false end
+ p.status="maintained";p.awaitingReassessment=true
+ local own=p.waterNetwork;own.accessAttempts=own.accessAttempts or{}
+ own.accessAttempts[step.target]={at=nowHours(),arrived=arrived,retryAt=nowHours()+.25}
+ if arrived then SAO.Perception.observeNetworkSites(id,body,SAO.History.ticks())end
+ p.blockers={arrived and"upper-source-inquiry-required"or"native-upper-access-unavailable"}
+ return true
+end
+function P.reconcileNetworkInquiry(id,body)
+ local p,step=P.networkPurpose(id);local ad=p and p.admission
+ if not ad or ad.owner~="SAO.Controller"then return true end
+ local agent=SAO.Controller and SAO.Controller.agents[id];local job=SAO.Locomotion.jobs[id]
+ if agent and agent.networkRoute and agent.networkRoute.routeId==ad.correlationId then return true end
+ if job and job.networkPurposeId==p.id and not job.done then return false end
+ if SAO.Body.get(id)~=body or not step or step.owner~="SAO.Controller"then return false end
+ p.lastAdmission=dataCopy(ad);p.admission=nil;step.status="available";p.status="maintained"
+ p.blockers={"upper-inquiry-runtime-unavailable"};return true
+end
+
+function P.planNetworkWork(id,context)
+ context=context or{};local s=state(id,true);local parent,current=P.resourceDemand(id,"water",true)
+ local option=context.option
+ if not s or not parent or parent.admission or current and(current.status=="available"or current.acquiredItemId)
+  or not option or type(option.site)~="table"then return nil end
+ local p=P.networkPurpose(id)
+ if p and p.admission then return p,p.steps[p.cursor]end
+ p=p or P.maintain(id,{key="network:water:"..parent.id,objective="connect usable water to the retained household use",
+  domain="construction",origin=parent.id})
+ if not p then return nil end
+ local previous=p.waterNetwork or{}
+ p.waterNetwork={parentPurposeId=parent.id,parentRevision=parent.revision,parentCursor=parent.cursor,
+  parentStepId=current and current.id,parentEmpty=current==nil,source=dataCopy(context.source),receiver=dataCopy(context.receiver),
+  lowerFixture=previous.lowerFixture,accessLead=previous.accessLead,accessAttempts=previous.accessAttempts,lastWorkId=previous.lastWorkId}
+ p.materialWork={operation="network",entryKey=p.key}
+ if p.awaitingReassessment then
+  p.completedSteps=p.completedSteps or{}
+  for _,old in ipairs(p.steps or{})do if old.status=="completed"then p.completedSteps[#p.completedSteps+1]=dataCopy(old)end end
+  while #p.completedSteps>16 do table.remove(p.completedSteps,1)end
+  p.awaitingReassessment=nil
+ end
+ local step={id="network:"..option.operation..":"..option.site.kind..":"..option.site.axis..":"
+  ..option.site.x..":"..option.site.y..":"..option.site.z..":"..option.site.revision,
+  owner="SAO.ResourceProduction",verb="produce",productionKind="network-operation",operation=option.operation,
+  token="resource:network-altered",target=p.key,status="available",site=dataCopy(option.site),
+  itemId=option.itemId,itemType=option.itemType,toolItemId=option.toolItemId,toolItemType=option.toolItemType,source=dataCopy(option.source)}
+ local missing=not option.toolItemId and"pipe-wrench"or option.operation=="place"and not option.itemId and
+  option.site.itemType=="Base.MetalPipe"and"metal-pipe"or nil
+ if missing then
+  local source=materialSource(p,context.sources,missing,nowHours())
+  if source then
+   local acquire={id=materialAcquisitionId(source),verb="acquire",owner="SAO.SourceUse",token="resource:acquired",target=source.sourceId..":"..tostring(source.itemId),
+    status="available",category=missing,sourceId=source.sourceId,sourceRevision=source.revision,fingerprint=source.fingerprint,
+    itemId=source.itemId,itemType=source.itemType,place=dataCopy(source.place)}
+   step.status="dependent";p.steps={acquire,step}
+  else step.status="blocked";p.steps={step};p.blockers={"missing-private-native-"..missing}end
+ elseif option.operation=="place"and not option.itemId then
+  step.status="blocked";p.steps={step};p.blockers={"native-hardware-fabrication-required"}
+ else p.steps={step};p.blockers={}end
+ p.cursor=1;p.status=p.steps[1].status=="available"and"maintained"or"blocked"
+ return p,p.steps[1]
+end
+function P.admitNetworkWork(id,work)
+ local p,step=P.networkPurpose(id)
+ if not p or p.id~=work.purposeId or p.admission or step.status~="available"or not P.networkRequestCurrent(id,work)then return false end
+ return P.noteAdmission(id,p.id,"SAO.ResourceProduction",work.id,step.id)
+end
+function P.consumeNetworkResult(id,supplied)
+ local c=type(supplied)=="table"and SAO.ResourceProduction.outcome(id,supplied.id)
+ local s=state(id);local p=c and s and s.purposes[c.purposeId]
+ if not c or c.actorId~=id or c.kind~="network-operation"or not p or not p.waterNetwork then return false end
+ if p.status=="abandoned"or p.status=="completed"then return true end
+ for _,key in ipairs(p.resultReceipts or{})do if key=="SAO.ResourceProduction:"..c.id then return true end end
+ local step=p.steps[p.cursor];local a=p.admission
+ if not a or a.owner~="SAO.ResourceProduction"or a.correlationId~=c.id or not step or step.id~=c.purposeStepId
+  or a.stepId~=step.id or c.atHours<a.at or c.atHours>nowHours()or not recipeSame(step.site,c.site)
+  or step.operation~=c.operation then return false end
+ local accepted=P.recordResult(id,p.id,{owner="SAO.ResourceProduction",token=c.token,status=c.status,
+  correlationId=c.id,reason=c.detail,atHours=c.atHours},NETWORK_RESULT)
+ if accepted then
+  p.status="maintained";p.awaitingReassessment=true
+  p.blockers={"fresh-network-and-original-water-use-required"}
+  p.waterNetwork.lastWorkId=c.id
+ end
+ return accepted
+end
+
+-- Believed route construction consumes only this person's acquired sites and
+-- endpoints. Current physical eligibility remains NetworkWork's later guard.
+function P.networkOffer(id,body)
+ local parent,current=P.resourceDemand(id,"water",true)
+ if not parent or parent.admission or current and(current.status=="available"or current.acquiredItemId)then return nil end
+ local sites=SAO.Perception.networkSites(id);local fluids=SAO.Perception.networkFluids(id)
+ local function key(x,y,z)return x..":"..y..":"..z end
+ local nodes,edges={},{}
+ for _,row in ipairs(sites)do
+  local site=row.site
+  if site.kind=="floor"or site.kind=="riser"then
+   local a=key(site.x,site.y,site.z);local b=site.kind=="riser"and key(site.x,site.y,site.z+1)
+    or key(site.x+(site.axis=="x"and 1 or 0),site.y+(site.axis=="y"and 1 or 0),site.z)
+   nodes[a]=true
+   -- A riser's physical fitting condition does not disclose the upper floor.
+   local upperKnown=site.kind~="riser"
+   if not upperKnown then for _,known in ipairs(sites)do if known.site.x==site.x and known.site.y==site.y
+    and known.site.z==site.z+1 then upperKnown=true end end end
+   if upperKnown then
+    nodes[b]=true;edges[a]=edges[a]or{};edges[b]=edges[b]or{}
+    local existing=row.parts and row.parts[1]
+    local edge={site=dataCopy(site),part=existing and dataCopy(existing),a=a,b=b}
+    edges[a][#edges[a]+1]=edge;edges[b][#edges[b]+1]=edge
+   end
+  end
+ end
+ local best
+ for _,source in ipairs(fluids)do if source.water==true and source.amount>0 and not SAO.Perception.networkHeaderKnown(id,source.sourceId)then
+  for _,receiver in ipairs(fluids)do
+   if receiver.sourceId~=source.sourceId and SAO.Perception.networkHeaderKnown(id,receiver.sourceId)
+    and receiver.amount<receiver.capacity and(receiver.amount==0 or receiver.water==true)then
+    local a,b=key(source.x,source.y,source.z),key(receiver.x,receiver.y,receiver.z)
+    if nodes[a]and nodes[b]then
+     local queue,seen={{at=a,path={}}},{[a]=true};local cursor=1
+     while queue[cursor]do
+      local node=queue[cursor];if node.at==b then
+       if not best or #node.path<#best.route then best={source=source,receiver=receiver,route=node.path}end;break
+      end
+      for _,edge in ipairs(edges[node.at]or{})do local next=edge.a==node.at and edge.b or edge.a
+       if not seen[next]then local path=copyList(node.path,32);path[#path+1]=edge
+        if #path<=32 then seen[next]=true;queue[#queue+1]={at=next,path=path}end
+       end
+      end;cursor=cursor+1
+     end
+    end
+   end
+  end
+ end end
+ if not best then return nil end
+ local needsLift=best.receiver.z>=best.source.z;local hasPump=false
+ for _,edge in ipairs(best.route)do if edge.part and edge.part.kind=="pump"then hasPump=true end end
+ local item,tool;local carried=SAOJavaBridge:privateCarriedItems(body)
+ for i=0,math.min(carried:size(),512)-1 do local held=carried:get(i)
+  if not held:getIsCraftingConsumed()and not held:isBroken()and(held:getType()=="PipeWrench"or held:hasTag(ItemTag.PIPE_WRENCH))then tool=held;break end
+ end
+ local chosen
+ for _,edge in ipairs(best.route)do
+  if edge.part and edge.part.kind=="valve"and edge.part.open==false then chosen={operation="open",site=edge.site,part=edge.part};break end
+  if edge.part and edge.part.kind=="pump"and edge.part.enabled==false then chosen={operation="activate",site=edge.site,part=edge.part};break end
+  if not edge.part then
+   local selected=dataCopy(edge.site)
+   if needsLift and not hasPump and selected.kind=="floor"then
+    local acquiredPump
+    for _,known in ipairs(sites)do local site=known.site
+     if site.kind=="pump"and site.axis==selected.axis and site.x==selected.x and site.y==selected.y and site.z==selected.z then
+      acquiredPump=dataCopy(site);break
+     end
+    end
+    if not acquiredPump then return nil,"pump-site-not-acquired"end
+    selected=acquiredPump
+   end
+   chosen={operation="place",site=selected};break
+  end
+ end
+ if not chosen then
+  local source=best.source.included~=true and best.source or best.receiver.included~=true and best.receiver
+  if source then chosen={operation="attach",source=source,site={kind="source",axis="x",x=source.x,y=source.y,z=source.z,revision=source.revision}}
+  else return nil end
+ end
+ if chosen.operation=="place"then
+  for i=0,math.min(carried:size(),512)-1 do local candidate=carried:get(i)
+   if candidate:getFullType()==chosen.site.itemType and not candidate:getIsCraftingConsumed()and candidate:getCondition()>0
+    and candidate:getWorldItem()==nil then item=candidate;break end
+  end
+ elseif chosen.part then
+  chosen.itemId,chosen.itemType=chosen.part.itemId,chosen.part.itemType
+ else item=tool end
+ chosen.itemId=chosen.itemId or item and tostring(item:getID());chosen.itemType=chosen.itemType or item and item:getFullType()
+ chosen.toolItemId=tool and tostring(tool:getID());chosen.toolItemType=tool and tool:getFullType()
+ return chosen,best
+end
+function P.networkMaterialDemandCurrent(id,demand)
+ local p,step=P.networkPurpose(id)
+ if not p or p.admission or not step or step.productionKind~="network-operation"or step.operation~="place"
+  or step.status~="blocked"or step.itemId~=nil or demand.consumerOwner~="SAO.NetworkWork"or demand.consumerOperation~="place"
+  or demand.consumerId~="network:"..p.id..":"..step.id or demand.kind~="recipe-stock"or demand.desiredAmount~=1
+  or demand.desiredType~=step.site.itemType or demand.sourceRevision~=step.site.revision then return false end
+ return P.networkParentCurrent(id,p)==true
+end
+function P.reconcileNetworkUse(id,body)
+ local s=state(id);local rec=record(id)
+ if not s or not rec or SAO.Body.get(id)~=body then return false end
+ for _,key in ipairs(s.order)do local p=s.purposes[key];local own=p and p.waterNetwork
+  if own and p.status~="completed"and p.status~="abandoned"then
+   local parent=s.purposes[own.parentPurposeId];local row=parent and parent.hydrationUseReceipt
+   local work=own.lastWorkId and SAO.ResourceProduction.outcome(id,own.lastWorkId)
+   if not parent or parent.status=="abandoned"then p.status="abandoned";p.resolution="original-water-request-retired"
+   elseif parent.status=="completed"and row and work and work.status=="completed"and work.nativeCredit==work.id
+    and row.actorId==id and row.status=="completed"and row.nativeCredit==row.id and row.nativeOwner=="ISTakeWaterAction"
+    and row.world==work.world and finite(row.atHours)and row.atHours>=work.atHours and finite(row.thirstDelta)and row.thirstDelta>0 then
+    local q=body:getCell():getGridSquare(row.sourceX,row.sourceY,row.sourceZ)
+    local c=q and SAO.HouseholdService.connection(row.sourceX,row.sourceY,row.sourceZ)
+    local source=own.source;local receiver=own.receiver;local connected=false
+    if c and source and receiver and c.tiles[source.x..":"..source.y..":"..source.z]
+     and c.tiles[receiver.x..":"..receiver.y..":"..receiver.z]then
+     local objects=q:getObjects()
+     for i=0,objects:size()-1 do local object=objects:get(i)
+      local provider=object:FindExternalWaterSource();local square=provider and provider:getSquare()
+      if SAO.HouseholdService.ownsWaterReceiver(object)and square and square:getX()==receiver.x
+       and square:getY()==receiver.y and square:getZ()==receiver.z
+       and "F:"..tostring(provider:getModData().SAOWorldSourceId or"")==receiver.sourceId then connected=true end
+     end
+    end
+    if connected then p.status="completed";p.resolvedAt=row.atHours;p.resolution="native-original-network-water-use"
+     p.blockers={};own.useReceiptId=row.id;own.useReceipt=dataCopy(row)
+    else p.status="abandoned";p.resolution="original-water-request-satisfied-by-other-means"end
+   end
+  end
+ end
+ return true
 end
 
 return P

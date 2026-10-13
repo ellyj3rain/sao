@@ -28,3 +28,9 @@ SAO.Locomotion.status=function(id)local job=SAO.Locomotion.jobs[id];return job a
 function sendSyncPlayerFields()end -- Original SP complete already owns recipe/read-book effect; network notification endpoint only.
 
 function getPlayerHotbar()return nil end -- Offslot NPC has no player HUD hotbar; original native equip remains owner.
+
+-- Offslot headless HUD endpoint for original network equip; native effects remain original.
+if __utilityScenario=="water-network"then
+ local hud={refreshBackpacks=function()print("DECLARED_OFFSLOT_HUD_REFRESH")end}
+ function getPlayerInventory()return hud end
+end

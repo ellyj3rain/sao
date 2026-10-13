@@ -159,6 +159,10 @@ function SAOVerifiedWorldTransferAction:transferItem(item)
     if not self:isValid() then self.dontAdd = true; return end
     if self.saoSourceReservation then
         local reservation=SAO.WorldSources and SAO.WorldSources.reservation(self.saoSourceReservation)
+        if reservation and SAO.ProceduralPlanning and SAO.ProceduralPlanning.networkAcquisitionCurrent
+            and SAO.ProceduralPlanning.networkAcquisitionCurrent(self.saoSourceActor,reservation)~=true then
+            self.dontAdd=true;return false
+        end
         if reservation and reservation.garmentRequirement
             and (item==nil or SAO.SourceUse.garmentTransferCurrent(reservation,item,self.character)~=true)then
             self.dontAdd=true;return false
@@ -925,11 +929,24 @@ function N.clearAmmo(body)
     pcall(function() SAOJavaBridge:clearAmmoSource(body) end)
 end
 
+local function installedNetworkItem(worldItem)
+    local household=SAO.HouseholdService
+    local item=worldItem and worldItem:getItem()
+    if not item then return false end
+    return item:getModData().SAOWaterNetworkPart~=nil
+        or household and household.networkStockAvailable and household.networkStockAvailable(item)~=true or false
+end
+
 -- Notice a useful item on the ground within reach. Returns its name or nil.
 function N.findOffered(id, body)
     if not SAOJavaBridge then return nil end
     local ok, s = pcall(function() return SAOJavaBridge:findOfferedItem(body) end)
     if not ok or type(s) ~= "string" or s == "" then return nil end
+    local found,worldItem=pcall(function()return SAOJavaBridge:offeredWorldItem(body)end)
+    if found and installedNetworkItem(worldItem)then
+        pcall(function()SAOJavaBridge:clearOffered(body)end)
+        return nil
+    end
     return s
 end
 
@@ -937,7 +954,7 @@ end
 function N.queueGrabOffered(id, body)
     if not SAOJavaBridge or N.busy(body) then return false end
     local okI, worldItem = pcall(function() return SAOJavaBridge:offeredWorldItem(body) end)
-    if not okI or worldItem == nil then return false end
+    if not okI or worldItem == nil or installedNetworkItem(worldItem)then return false end
     local item, square, destination = worldItem:getItem(), worldItem:getSquare(), body:getInventory()
     if not item or not square or item:getWorldItem() ~= worldItem then return false end
     local action = ISGrabItemAction:new(body, worldItem, 50)
@@ -949,7 +966,7 @@ function N.queueGrabOffered(id, body)
             or body:getModData().SAOPersonId ~= id
             or worldItem:getSquare() ~= square or worldItem:getItem() ~= item
             or item:getWorldItem() ~= worldItem or self.destContainer ~= destination
-            or not self:isValid() then
+            or installedNetworkItem(worldItem)or not self:isValid() then
             self.saoPickupResult = "source-changed"
             return
         end

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `2.7.6.0-pre-alpha` |
+| Version | `2.7.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -181,3 +181,7 @@ Current [D3.17](Batches/D3.17-20261012-0305Z-2005PDT-owned-window-pane-repair.md
 ### Current D-series allocation — 2026-10-13
 
 [ROADMAP.md](ROADMAP.md#numbered-d-outcomes) is the canonical numbered map; [the D transition](Batches/Transitions/D-20261013-emmetropic-numbered-outcomes.md) preserves historical identities and scope transfer. D3 is a zero-credit aggregation of D3.1-D3.22. D4 household water and power restoration owns the unfinished D3.23 contribution. Planned outcomes and unallocated wider goals retain their full scope and cross-project contracts.
+
+## D5 integrated network and nested delivery — 2026-10-13 15:40 UTC / 08:40 PDT
+
+[D5](Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md) is CLOSED local native construction/transport/private means/recovery/use/saved learning, with Granular D5.1-D5.5 retained under actual Emmetropic integration. One parent-owned kohai, exact original proof and bounded review/correction survive into the supported package/protected publication; D6 and wider inter-repository/knowledge/aging/architecture goals retain owners. No child count, verifier or regrouping adds credit.

@@ -1,23 +1,33 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.6.0-pre-alpha` |
+| Version | `2.7.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current product and continuing work. |
 
 # Session state
 
+**As of** [D5], 190 classified closed catalogue records retain 189 credited source outcomes: 29 A, 52 B, 82 C products and twenty-six credited D contributions, plus D3's zero-credit aggregation. Current shipping coordinate is `2.7.7.0-pre-alpha`.
+
+[D5 — Water-network construction and alteration](Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md) is CLOSED at its qualified local native scope. Personally acquired sites/fluids/stairs/materials/tools and actual native fabrication feed paid pump/riser construction, endpoint enrollment, powered conserved water transfer and original fixture use. Donor4→0, header4→2.400000095 after drink1.6, thirst.8→0; both original purposes complete against one receipt. Both models and all original full/bounded/private saved fields persist.
+
+D contains the Beacon plan; D5's actual integration/development is Emmetropic with retained Granular children D5.1-D5.5. Their useful behavior/dependencies/evidence remain visible in the parent record and machine-readable map, with one D5 credit and common publication. Agents may select the parent or next nested scope, using or omitting sublevels according to work. [The roadmap](ROADMAP.md#numbered-d-outcomes) retains the wider numbered series and all accepted knowledge/aging/architecture/strategy/ML goals. D6 managed electrical service is next.
+
+First integrated review and bounded H01/H02 corrections pass; current43 source/tool hashes match. The supported77-source package is built. The exact selected package checks and protected merge identify public delivery; raw31FAIL/exit1, omitted-fixture serialization failure and narrower positive scopes remain retained. Whole-world/server/GPU/game appearance, peer source/model adoption and training remain separate. Root owns package/records/publication; held6/future9/peer41 and normal game/save flow retain custody. Current Scion/Mousecat updates carry nested work and the shared framework correction without conflating loaded enforcement with observed delivery throughput.
+
+## D4 delivered checkpoint — 2026-10-13
+
 **As of** [D4], 189 closed catalogue records retain 188 credited source outcomes: 29 A, 52 B, 82 C products and twenty-five credited D contributions, plus D3's zero-credit historical aggregation. Current shipping coordinate is `2.7.6.0-pre-alpha`.
 
 [D4 — Household water and power restoration](Batches/D4-20261013-0433Z-2133PDT-household-water-power-restoration.md) is CLOSED at its declared local native scope. Original owned service joins ordinary same-person inquiry, unknown donor inspection, exact manual/wrench acquisition and native knowledge, connection/plumbing, finite fuel and powered clean-water use, independent private feedback and authentic purpose closure. The supported package and current source/record checks pass; D4 records exact JAR and evidence pins. Protected PR merge and the continuity receipt identify the published snapshot.
 
-Next: D5 — water-network construction and alteration. The [current roadmap](ROADMAP.md#numbered-d-outcomes) holds finite D4-D15 outcomes and further accepted learning/strategy goals. D is the containing Beacon plan; the numbered sequence is an Emmetropic batch order with optional Granular sub-batch orders. Agents can work at any selected level with or without sublevels. D4's actual connected development has no allocated product child.
+Active: [D5 — water-network construction and alteration](Batches/D5-20261013-0702Z-0002PDT-water-network-construction-alteration.md). Source/terms and physical-factory discovery have established its finite original owned membership. The captured physical hardware/action layer is qualified at native81; current ordinary planning/Controller/crafting/private-export and human-caller qualification remain active. The complete D5 native consumer, package and protected delivery remain pending. The [current roadmap](ROADMAP.md#numbered-d-outcomes) holds finite D4-D15 outcomes and further accepted learning/strategy goals. D is the containing Beacon plan; the numbered sequence is an Emmetropic batch order with optional Granular sub-batch orders. Agents can work at any selected level with or without sublevels. D5 develops its connected outcome with no allocated product child.
 
-Current owned normal proof passes 29 conditions; parent/source/native-swapped cases pass 17 each and cancellation passes 18. Five causal omissions are detected; genuine full/bounded native snapshots and independent strict intake retain every exported field and both models. The complete integrated source/evidence review passes with no remaining Critical/High/Medium finding. Default owned and actual original opt-in service have positive native proof; the mixed external ghost/header handoff remains unsupported with safe refusal. Whole-world/server/rendered/model-training acceptance is not inferred.
+D4's qualified owned normal proof passes 29 conditions; parent/source/native-swapped cases pass 17 each and cancellation passes 18. Five causal omissions are detected; genuine full/bounded native snapshots and independent strict intake retain every exported field and both models. D4's complete integrated source/evidence review passes with no remaining Critical/High/Medium finding. Default owned and actual original opt-in service have positive native proof; the mixed external ghost/header handoff remains unsupported with safe refusal. Those results retain their exact D4 input scope. Whole-world/server/rendered/model-training acceptance is not inferred.
 
 D4 receives one kohai as progress toward household utilities that continue through D5/D6. Exact D3.1-D3.22 published identities and credit remain preserved. The map transition merged through PR166 at cdde8b49717c8c8f3041a8a4223f12f6f3e6de41; unpublished D3.23 is retained as source/evidence contribution only.
 
-The root owns current records, selected package and publication; the existing implementation team's sixteen production and eleven permanent-tool inputs are frozen after integrated acceptance. Six held leaves, future tools, peer sources/indexes and normal game/save flow retain their owners. Seven current Neo local-library packages now load the operator's composable-level instructions, with unchanged native framework support and actual linked/direct invocation evidence. Mousecat has the exact reported result; full Scion remains locally registered with its recorded central History transport item pending.
+The root owns current records, selected package and publication. D4's sixteen production and eleven permanent-tool inputs retain their accepted source freeze. D5's chief has a separate exact thirty-path coupled production grant; its hardware capture and permitted private helper qualification run alongside ordinary integration. New permanent instruments require their attributed membership before edits. Six held leaves, nine future helpers, peer sources/indexes and normal game/save flow retain their owners. Seven current Neo local-library packages load the operator's composable-level instructions, with unchanged native framework support and actual linked/direct invocation evidence. Mousecat has the exactly read-back working D5 result; the current Scion is locally registered while full central History remains pending at its recorded transport item.
 
 ## D3 map transition — 2026-10-13
 
@@ -29,7 +39,7 @@ D3.1-D3.22 retain their exact published identities and credit. The latest produc
 
 Neo's root owns the map and record reconciliation. The existing utility chief owns the connected D4 implementation and integration, with disjoint helper assignments and whole-outcome rejoin. The scope-reassessment hold is released for this authorized work. Existing held assets, peer sources/indexes and normal user-owned game/save flow retain their custody.
 
-Granular, Emmetropic and Beacon describe actual development and batch organization. D4 takes its source, inquiry, acquisition, knowledge, service, fuel/power, water use, persistence and delivery together as one substantive outcome. Focused checks and source variants remain internal work. The shared corrected skills and Mousecat record are installed; this project application now follows them.
+Granular, Emmetropic and Beacon describe actual development and batch organization. D4 delivered source, inquiry, acquisition, knowledge, service, fuel/power, water use, persistence and delivery together as one substantive outcome. D5 takes paid physical construction/alteration, personally acquired means, native stock/transfer, actual use and private saved feedback together at its selected scope. Focused checks and source variants remain internal work. The shared corrected skills and Mousecat record are installed; this project application follows them.
 
 The dated entries below preserve earlier development evidence and decisions. Their former full-D3-before-D4 and food-D4/animal-D5/learning-D6 assignments are superseded by the current map. They confer no current scope, numbering or delivery-posture override.
 

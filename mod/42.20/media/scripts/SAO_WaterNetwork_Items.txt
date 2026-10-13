@@ -1,0 +1,23 @@
+module SAO
+{
+    item WaterValve
+    {
+        DisplayName = Water valve,
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.5,
+        Icon = SAOWaterValve,
+        WorldStaticModel = SAO.WaterValve,
+        ConditionMax = 10,
+    }
+    item WaterPump
+    {
+        DisplayName = Water pump,
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 6.0,
+        Icon = SAOWaterPump,
+        WorldStaticModel = SAO.WaterPump,
+        ConditionMax = 10,
+    }
+}

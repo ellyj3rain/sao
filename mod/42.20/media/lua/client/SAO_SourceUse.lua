@@ -11,6 +11,12 @@
 SAO = SAO or {}
 SAO.SourceUse = SAO.SourceUse or {}
 local SU = SAO.SourceUse
+local function groundStockAvailable(worldItem)
+    local item=worldItem and worldItem:getItem()
+    if not item or item:getWorldItem()~=worldItem or item:getModData().SAOWaterNetworkPart~=nil then return false end
+    local household=SAO.HouseholdService
+    return not household or not household.networkStockAvailable or household.networkStockAvailable(item)==true
+end
 
 function SU.garmentInputCurrent(reservation,item,body)
  local r=reservation and SAO.WorldSources.garmentRequirementCopy(reservation.garmentRequirement)
@@ -449,8 +455,19 @@ local function queueTransfer(id, body, reservation)
         local okWorld, worldItem = pcall(function()
             return SAOJavaBridge:worldSourceActionWorldItem(body)
         end)
-        if okWorld and worldItem ~= nil then
+        if okWorld and worldItem ~= nil and groundStockAvailable(worldItem)then
             action = ISGrabItemAction:new(body, worldItem, 50)
+            local nativeValid,nativePerform,nativeTransfer=action.isValid,action.perform,action.transferItem
+            local function stockCurrent(self)
+                return self==action and self.character==body and self.item==worldItem
+                    and self.destContainer==body:getInventory()and groundStockAvailable(worldItem)
+            end
+            function action:isValid()return stockCurrent(self)and nativeValid(self)==true end
+            function action:perform()if not stockCurrent(self)then return false end;return nativePerform(self)end
+            function action:transferItem(offered)
+                if offered~=worldItem or not stockCurrent(self)then self.dontAdd=true;return false end
+                return nativeTransfer(self,offered)
+            end
         end
     else
         local okItem, item = pcall(function()
