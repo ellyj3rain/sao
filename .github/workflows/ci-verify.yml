@@ -45,7 +45,7 @@ jobs:
         run: bash tools/check.sh --affected "$CI_BASE" _scratch/ci-required
       - name: Preserve product selection and results
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: affected-product-${{ github.run_attempt }}
           path: _scratch/ci-required
@@ -73,7 +73,7 @@ jobs:
         run: bash tools/check.sh --maintenance-advisory "$CI_BASE" _scratch/ci-maintenance
       - name: Preserve maintenance selection and findings
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: affected-maintenance-${{ github.run_attempt }}
           path: _scratch/ci-maintenance
@@ -110,7 +110,7 @@ jobs:
           printf '### Full standing suite (advisory)\n\nActual step outcome: %s.\n' "$FULL_OUTCOME" >> "$GITHUB_STEP_SUMMARY"
       - name: Preserve full maintenance log
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: full-suite-maintenance-${{ github.run_attempt }}
           path: _scratch/ci-full-suite
